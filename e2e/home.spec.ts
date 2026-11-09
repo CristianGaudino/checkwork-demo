@@ -1,0 +1,307 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { choose, optionLabels } from "./combo";
+import { expect, test } from "@playwright/test";
+import { DEALER_ADDRESS, SITE_NAME } from "../src/lib/site";
+
+type Demo = { id: string; slug: string; make: string; model: string; modelSlug: string; soldAt?: string };
+const cars: Demo[] = JSON.parse(readFileSync(join(process.cwd(), "src/lib/stock/demo-cars.json"), "utf8"));
+const inStock = cars.filter((c) => !c.soldAt).sort((a, b) => Number(b.id) - Number(a.id));
+const newest = inStock[0];
+
+test("title, one h1 and a search that lands on used cars", async ({ page }) => {
+  await page.goto("/");
+  await expect(page).toHaveTitle(`${SITE_NAME} | Used cars in ${DEALER_ADDRESS.town}`);
+  await expect(page.getByRole("heading", { level: 1, name: "Find your next car" })).toHaveCount(1);
+  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+  await choose(page.getByLabel("Make", { exact: true }), newest.make);
+  await page.getByRole("button", { name: "Search cars" }).click();
+  await expect(page).toHaveURL(/\/used-cars\?/);
+  expect(new URL(page.url()).searchParams.get("make")).toBe(newest.make.toLowerCase().replaceAll(" ", "-"));
+});
+
+test("picking a make narrows the model list, and the Find me a car tab links to the form page", async ({ page }) => {
+  await page.goto("/");
+  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+  const model = page.getByLabel("Model", { exact: true });
+  const all = (await optionLabels(model)).length;
+  await choose(page.getByLabel("Make", { exact: true }), newest.make);
+  expect((await optionLabels(model)).length).toBeLessThan(all);
+  await page.getByRole("tab", { name: "Find me a car" }).click();
+  await expect(page.getByRole("link", { name: "Ask us to find it" })).toHaveAttribute("href", "/find-a-car");
+  await expect(page.getByLabel("Make", { exact: true })).toBeHidden();
+});
+
+test("the Find me a car tab fits inside the Search Stock box and the page does not move between them", async ({ page }) => {
+  await page.goto("/");
+  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+  const box = page.getByRole("tablist").locator("xpath=..");
+  const before = (await box.boundingBox())!;
+  await page.getByRole("tab", { name: "Find me a car" }).click();
+  const panel = page.getByRole("tabpanel", { name: "Find Me a Car" });
+  await expect(panel).toBeVisible();
+  const after = (await box.boundingBox())!;
+  expect(after.height).toBe(before.height);
+  const p = (await panel.boundingBox())!;
+  for (const part of [panel.getByRole("link", { name: "Ask us to find it" }), panel.getByText("Can't see the car you want?")]) {
+    const b = (await part.boundingBox())!;
+    expect(b.y).toBeGreaterThanOrEqual(p.y);
+    expect(b.y + b.height).toBeLessThanOrEqual(p.y + p.height);
+  }
+});
+
+test("a drifting row moves smoothly, not a page at a time, and stops under the pointer", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("/");
+  const row = page.getByRole("group", { name: "Featured stock" }).locator(":scope > ul");
+  await row.scrollIntoViewIfNeeded();
+  const at = () => row.evaluate((el) => el.scrollLeft);
+  const first = await at();
+  await page.waitForTimeout(700);
+  const second = await at();
+  await page.waitForTimeout(700);
+  const third = await at();
+  expect(second).toBeGreaterThan(first);
+  expect(third).toBeGreaterThan(second);
+  expect(third - first).toBeLessThan(120); // a drift, nowhere near a page (about 400px)
+  await row.hover();
+  const held = await at();
+  await page.waitForTimeout(600);
+  expect(Math.abs((await at()) - held)).toBeLessThan(2);
+});
+
+test("on a phone the featured row has no count, arrows or dots", async ({ page }) => {
+  await page.goto("/");
+  const row = page.getByRole("group", { name: "Featured stock" });
+  const cards = await row.locator("article").count();
+  expect(cards).toBeGreaterThan(4); // more dots than a phone has room for (the controls would shrink): a count instead
+  await expect(row.getByText(`1 / ${cards}`)).toBeHidden(); // no count, arrows or dots on a phone: the row is swiped
+  await expect(row.getByRole("button", { name: /^(Previous|Next) cars$/ })).toBeHidden();
+});
+
+// Typing into a drop-down is for a mouse and keyboard: a phone only picks (no keyboard rises over the list).
+const desktop = async (browser: import("@playwright/test").Browser, baseURL: string | undefined) =>
+  (await browser.newContext({ baseURL, viewport: { width: 1280, height: 800 }, isMobile: false, hasTouch: false })).newPage();
+
+test("on a phone the drop-downs only pick: the field cannot be typed into", async ({ page }) => {
+  await page.goto("/");
+  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+  await expect(page.getByLabel("Make", { exact: true })).toHaveAttribute("readonly", "");
+});
+
+test("the drop-downs are the site's own: typing narrows the list, Enter picks, Escape puts it back", async ({ browser, baseURL }) => {
+  const page = await desktop(browser, baseURL);
+  await page.goto("/");
+  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+  expect(await page.locator("select").count()).toBe(0); // no browser drop-downs left
+  const make = page.getByLabel("Make", { exact: true });
+  await make.click();
+  const options = page.getByRole("listbox").getByRole("option");
+  const total = await options.count();
+  await make.fill(newest.make.slice(0, 3).toLowerCase());
+  expect(await options.count()).toBeLessThan(total);
+  await expect(options.first()).toContainText(newest.make.slice(0, 3), { ignoreCase: true });
+  await make.press("Enter");
+  await expect(make).toHaveValue(newest.make);
+  await expect(page.getByRole("listbox")).toHaveCount(0);
+  await make.click();
+  await make.fill("zzzz");
+  await expect(page.getByText("No match")).toBeVisible();
+  await make.press("Escape");
+  await expect(make).toHaveValue(newest.make); // what was typed is dropped, the pick stays
+});
+
+test("the drop-downs work from the keyboard: arrows move, Home and End jump, Enter picks, leaving closes", async ({ page }) => {
+  await page.goto("/");
+  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+  const make = page.getByLabel("Make", { exact: true });
+  await make.focus();
+  await make.press("ArrowDown"); // opens on the chosen option, "Any make"
+  const options = page.getByRole("listbox").getByRole("option");
+  await expect(make).toHaveAttribute("aria-expanded", "true");
+  await make.press("ArrowDown");
+  await make.press("ArrowDown");
+  const third = (await options.nth(2).textContent())!.trim();
+  await expect(make).toHaveAttribute("aria-activedescendant", /-opt-2$/);
+  await make.press("End");
+  await expect(make).toHaveAttribute("aria-activedescendant", new RegExp(`-opt-${(await options.count()) - 1}$`));
+  await make.press("Home");
+  await expect(make).toHaveAttribute("aria-activedescendant", /-opt-0$/);
+  await make.press("ArrowDown");
+  await make.press("ArrowDown");
+  await make.press("Enter");
+  await expect(make).toHaveValue(third);
+  await expect(page.getByRole("listbox")).toHaveCount(0);
+  await make.press("ArrowDown");
+  await expect(page.getByRole("listbox")).toHaveCount(1);
+  await page.getByLabel("Model", { exact: true }).focus(); // focus leaves: the list closes
+  await expect(page.getByRole("listbox")).toHaveCount(0);
+  await expect(make).toHaveValue(third);
+});
+
+test("typing into a drop-down reached by keyboard opens its list right under the field", async ({ browser, baseURL }) => {
+  const page = await desktop(browser, baseURL);
+  await page.goto("/");
+  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+  const make = page.getByLabel("Make", { exact: true });
+  await make.focus(); // as Tab would: no click, no arrow key
+  await page.keyboard.type(newest.make.slice(0, 2));
+  const list = page.getByRole("listbox");
+  await expect(list).toBeVisible();
+  const [field, box] = [(await make.boundingBox())!, (await list.boundingBox())!];
+  expect(Math.abs(box.x - field.x)).toBeLessThan(2);
+  expect(box.y > field.y + field.height - 2 || box.y + box.height < field.y + 2).toBe(true); // just below it, or just above
+  expect(Math.min(Math.abs(box.y - (field.y + field.height)), Math.abs(field.y - (box.y + box.height)))).toBeLessThan(12);
+});
+
+test("every model the search offers has a car in stock", async ({ page }) => {
+  await page.goto("/");
+  const offered = (await optionLabels(page.getByLabel("Model", { exact: true }))).filter((l) => l !== "Any model");
+  const liveModels = new Set(inStock.map((c) => c.model));
+  expect(offered.length).toBeGreaterThan(0);
+  for (const model of offered) expect(liveModels.has(model), model).toBe(true);
+});
+
+test("the search offers only makes that have a car in stock", async ({ page }) => {
+  await page.goto("/");
+  const offered = (await optionLabels(page.getByLabel("Make", { exact: true }))).filter((l) => l !== "Any make");
+  const inStockMakes = new Set(inStock.map((c) => c.make));
+  expect(offered.length).toBeGreaterThan(0);
+  for (const make of offered) expect(inStockMakes.has(make), make).toBe(true);
+});
+
+test("featured stock: the newest in-stock cars and View all stock", async ({ page }) => {
+  await page.goto("/");
+  const section = page.locator("section").filter({ has: page.getByRole("heading", { name: "Featured stock" }) });
+  const cards = section.locator("article");
+  await expect(cards).toHaveCount(Math.min(6, inStock.length));
+  await expect(cards.first().locator("a").first()).toHaveAttribute("href", `/used-cars/${newest.slug}`);
+  await expect(section.getByRole("link", { name: "View all stock" })).toHaveAttribute("href", "/used-cars");
+});
+
+test.describe("desktop pointer", () => {
+  test.use({ viewport: { width: 1280, height: 800 }, isMobile: false, hasTouch: false });
+
+  test("the featured row pages with its arrows, and the trust icons are all the same size", async ({ page }) => {
+    await page.goto("/");
+    const row = page.getByRole("group", { name: "Featured stock" });
+    const next = row.getByRole("button", { name: "Next cars" });
+    await expect(next).toBeVisible();
+    await expect(row.getByRole("button", { name: "Previous cars" })).toHaveCSS("opacity", "0.3");
+    // The arrows sit under the row, beside the dots, not over the cards; a dot is a button that goes to its page.
+    const rowBox = (await row.locator(":scope > ul").boundingBox())!;
+    expect((await next.boundingBox())!.y).toBeGreaterThan(rowBox.y + rowBox.height - 4);
+    await next.click();
+    await expect(row.getByRole("button", { name: "Previous cars" })).toHaveCSS("opacity", "1");
+    await expect(row.getByRole("button", { name: /^Go to page 2 of/ })).toHaveAttribute("aria-current", "true");
+    await row.getByRole("button", { name: /^Go to page 1 of/ }).click();
+    await expect(row.getByRole("button", { name: /^Go to page 1 of/ })).toHaveAttribute("aria-current", "true");
+    for (const icon of await page.getByRole("region", { name: "Why buy from us" }).locator("svg").all()) {
+      const box = (await icon.boundingBox())!;
+      expect([box.width, box.height]).toEqual([24, 24]);
+    }
+  });
+});
+
+// Tailwind's active:scale-* sets the scale property; a transition that only lists transform makes the press snap (#45).
+test("press feedback eases scale, and header links are 44px tall", async ({ page }) => {
+  await page.goto("/");
+  for (const el of [page.getByRole("button", { name: "Search cars" }), page.getByRole("main").getByRole("link", { name: "Browse our stock" })]) {
+    await expect(el).toHaveCSS("transition-property", /\bscale\b/);
+  }
+  // A card never scales on press: on iOS that cancelled the photo swipe inside it (#44). Its body lightens instead.
+  await expect(page.locator("article[data-card]").first()).toHaveCSS("scale", "none");
+  expect(await page.locator("article[data-card][class*='active:scale']").count()).toBe(0);
+  for (const link of await page.getByRole("navigation", { name: "Main" }).getByRole("link").filter({ visible: true }).all()) {
+    expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  }
+});
+
+test("reviews, the trust strip and finance banner, and AutoDealer JSON-LD", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "What customers say" })).toBeVisible();
+  const main = page.getByRole("main");
+  for (const [name, href] of [
+    [/^3 Month Warranty/, "/warranty"],
+    [/^Extended Warranty/, "/warranty"],
+    [/^Flexible Finance/, "/finance"],
+    [/^Trade-In Welcome/, "/trade-in"],
+    [/^Test Drives/, "/used-cars"],
+    ["Check finance options", "/finance"],
+    ["Estimate your finance", "/finance"],
+  ] as const) {
+    await expect(main.getByRole("link", { name })).toHaveAttribute("href", href);
+  }
+  const scripts = page.locator('script[type="application/ld+json"]');
+  await expect(scripts).toHaveCount(1);
+  const data = JSON.parse((await scripts.textContent())!);
+  expect(data["@type"]).toBe("AutoDealer");
+  expect(data).not.toHaveProperty("aggregateRating");
+});
+
+test("the hero uses the dealer's photo, and the header logo is the vector one", async ({ page, request }) => {
+  await page.goto("/");
+  await expect(page.locator("section.hero-photo")).toHaveCSS("background-image", /\/brand\/hero(-sm)?\.webp/);
+  await expect(page.getByRole("banner").getByRole("img", { name: SITE_NAME })).toHaveAttribute("src", "/brand/logo.svg");
+  for (const path of ["/brand/hero.webp", "/brand/hero-sm.webp", "/brand/about.webp", "/brand/logo.svg"]) expect((await request.get(path)).status(), path).toBe(200);
+});
+
+test("every item in the trust strip is a link with the same padding, so the row lines up", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/");
+  const links = page.getByRole("region", { name: "Why buy from us" }).getByRole("link");
+  await expect(links).toHaveCount(5);
+  const boxes = await Promise.all((await links.all()).map((l) => l.boundingBox()));
+  expect(new Set(boxes.map((b) => Math.round(b!.y))).size).toBe(1);
+  expect(new Set(boxes.map((b) => Math.round(b!.height))).size).toBe(1);
+});
+
+test("at 320px nothing scrolls sideways and the search selects sit two to a row", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 640 });
+  await page.goto("/");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+  const make = await page.getByLabel("Make", { exact: true }).boundingBox();
+  const model = await page.getByLabel("Model", { exact: true }).boundingBox();
+  expect(make!.y).toBe(model!.y);
+});
+
+test.describe("without JavaScript", () => {
+  test.use({ javaScriptEnabled: false });
+
+  test("the search still lands on used cars", async ({ page }) => {
+    await page.goto("/");
+    await page.getByRole("button", { name: "Search cars" }).click();
+    await expect(page).toHaveURL(/\/used-cars/); // the drop-downs need scripts to pick from; the search still goes to the stock
+  });
+});
+
+test("a drifting row starts again when the pointer leaves", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("/");
+  const row = page.getByRole("group", { name: "Featured stock" }).locator(":scope > ul");
+  await row.scrollIntoViewIfNeeded();
+  const at = () => row.evaluate((el) => el.scrollLeft);
+  await row.hover();
+  const held = await at();
+  await page.mouse.move(5, 5);
+  await expect.poll(at).toBeGreaterThan(held + 5);
+});
+
+test("on a phone a touch stops the row for good, and there is no pause button", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("/");
+  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+  const group = page.getByRole("group", { name: "Featured stock" });
+  const row = group.locator(":scope > ul");
+  await row.scrollIntoViewIfNeeded();
+  const at = () => row.evaluate((el) => el.scrollLeft);
+  await expect.poll(at).toBeGreaterThan(5); // it drifts on its own first
+  await expect(group.getByRole("button", { name: /moving the cars along/ })).toHaveCount(0);
+  await group.dispatchEvent("pointerdown", { pointerType: "touch" });
+  await page.waitForTimeout(100);
+  const held = await at();
+  await page.waitForTimeout(5000); // longer than the old 4 second resume
+  expect(Math.abs((await at()) - held)).toBeLessThan(2);
+});
