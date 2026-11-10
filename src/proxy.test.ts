@@ -8,9 +8,9 @@ afterEach(() => vi.unstubAllEnvs());
 const get = (path: string, headers: Record<string, string> = {}) => proxy(new NextRequest(`https://demo.example${path}`, { headers }));
 
 describe("the admin gate in the proxy", () => {
-  it("answers 404 with noindex for /admin and /platform on a deployed site with no Access token", async () => {
+  it("answers 404 with noindex for /admin on a deployed site with no Access token", async () => {
     vi.stubEnv("APP_ENV", "demo");
-    for (const path of ["/admin", "/admin/stock", "/platform", "/platform/usage"]) {
+    for (const path of ["/admin", "/admin/stock", "/admin/margins"]) {
       const res = await get(path);
       expect(res.status).toBe(404);
       expect(res.headers.get("x-robots-tag")).toBe("noindex");

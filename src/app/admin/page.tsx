@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { LeadStatusBadge } from "@/components/admin/badges";
 import { DataTable, EmptyState, PageHeader, Panel, StatCard, StatGrid, adminButtonQuiet } from "@/components/admin/kit";
-import { drivesStore, getSettings, leadsStore, reviewsStore } from "@/lib/admin/collections";
+import { costsStore, drivesStore, getSettings, leadsStore, reviewsStore } from "@/lib/admin/collections";
+import { marginOf } from "@/lib/admin/margins";
+import { can } from "@/lib/permissions";
 import { fmtAgo, fmtDateTime, fmtEur, fmtNum, fmtPct } from "@/lib/admin/format";
 import { overview } from "@/lib/admin/overview";
 import { SITE_NAME } from "@/lib/site";
@@ -15,6 +17,10 @@ export default async function Page() {
   const cars = stock?.cars ?? [];
   const value = cars.reduce((s, c) => s + c.priceEur, 0);
   const thin = cars.filter((c) => c.photos.length < 4).length;
+  // Only for staff with the margins permission: the costs are not read without it.
+  const costs = (await can("margins")) ? new Map((await costsStore.list()).map((c) => [c.id, c.costEur])) : null;
+  const costed = costs ? cars.filter((c) => costs.has(c.id)) : [];
+  const margin = costed.reduce((s, c) => s + marginOf(c.priceEur, costs!.get(c.id)!).eur, 0);
 
   return (
     <>
@@ -24,6 +30,7 @@ export default async function Page() {
         <StatCard label="Leads this week" value={fmtNum(o.leadsThisWeek)} hint={`${o.leadsChange >= 0 ? "Up" : "Down"} ${Math.abs(o.leadsChange)} on last week`} tone={o.leadsChange >= 0 ? "good" : "bad"} />
         <StatCard label="Waiting for a reply" value={fmtNum(o.newLeads)} hint="Leads marked New" />
         <StatCard label="Win rate" value={fmtPct(o.winRate)} hint="Of leads won or lost" />
+        {costs && <StatCard label="Stock margin" value={fmtEur(margin)} hint={`Price less cost on ${costed.length} cars`} />}
         <StatCard label="Review rating" value={o.reviewCount ? o.averageRating.toFixed(1) : "None"} hint={`${o.reviewCount} reviews`} />
       </StatGrid>
 

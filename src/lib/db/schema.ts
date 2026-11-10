@@ -44,7 +44,7 @@ export const cars = sqliteTable("cars", {
   data: text({ mode: "json" }).$type<Car>().notNull(),
 });
 
-// The admin and platform areas keep their records here: one row per record, the record as JSON, grouped by collection ("test-drives",
+// The dealer admin keeps its records here: one row per record, the record as JSON, grouped by collection ("test-drives",
 // "posts" and so on). A new kind of record needs no migration. Seeded on first read (src/lib/admin/docs.ts).
 export const adminDocs = sqliteTable(
   "admin_docs",

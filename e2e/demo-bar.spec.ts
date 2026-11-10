@@ -1,22 +1,21 @@
 import { expect, test } from "@playwright/test";
 
-test("viewing as Dealer changes the public page and links on to the area; Superuser and Customer switch back", async ({ page }) => {
+test("viewing as Dealer adds a Dashboard link to the public header and stays on the page; there is no Superuser", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 }); // the header links are from 1024px; the phone menu has its own check below
   await page.goto("/");
   const bar = page.locator("[data-demo-bar]");
   await expect(bar.getByRole("link", { name: "Customer" })).toHaveAttribute("aria-current", "true");
-  await expect(page.locator("[data-role-strip]")).toHaveCount(0);
+  await expect(bar.getByRole("link", { name: "Superuser" })).toHaveCount(0);
+  await expect(page.getByRole("banner").getByRole("link", { name: "Dashboard" })).toHaveCount(0);
   await bar.getByRole("link", { name: "Dealer" }).click();
   await expect(page).toHaveURL(/\/$/); // stays on the public page
   await expect(bar.getByRole("link", { name: "Dealer" })).toHaveAttribute("aria-current", "true");
-  await expect(page.locator("[data-role-strip]")).toContainText("Dealer view");
-  await page.locator("[data-role-strip]").getByRole("link", { name: "Open the dealer area" }).click();
+  await expect(page.locator("[data-role-strip]")).toHaveCount(0); // a link, not a banner
+  await page.getByRole("banner").getByRole("link", { name: "Dashboard" }).click();
   await expect(page).toHaveURL(/\/admin$/);
-  await bar.getByRole("link", { name: "Superuser" }).click();
-  await expect(page).toHaveURL(/\/platform$/);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Dealerships");
   await bar.getByRole("link", { name: "Customer" }).click();
   await expect(page).toHaveURL(/\/$/);
-  await expect(page.locator("[data-role-strip]")).toHaveCount(0);
+  await expect(page.getByRole("banner").getByRole("link", { name: "Dashboard" })).toHaveCount(0);
 });
 
 test("a dealer sees stock and social controls on a car page, a customer sees none", async ({ page }) => {
@@ -32,6 +31,13 @@ test("a dealer sees stock and social controls on a car page, a customer sees non
   expect(post).toMatch(/^\/admin\/marketing\?tab=social&car=.+-\d+$/);
   await page.goto(post!);
   await expect(page.getByLabel("Car").first()).not.toHaveValue(""); // the car is already chosen
+});
+
+test("on a phone the Dashboard link is in the menu when viewing as the dealer", async ({ page }) => {
+  await page.goto("/");
+  await page.locator("[data-demo-bar]").getByRole("link", { name: "Dealer" }).click();
+  await page.getByRole("banner").getByRole("button", { name: "Menu" }).click();
+  await expect(page.getByRole("dialog", { name: "Menu" }).getByRole("link", { name: "Dashboard" })).toHaveAttribute("href", "/admin");
 });
 
 test("light is the default, dark is a choice that sticks and does not flash", async ({ page }) => {

@@ -1,5 +1,5 @@
-// The two areas' navigation, as data. Each area is one shell with its own list.
-export type NavItem = { href: string; label: string };
+// The dealer area's navigation, as data. `permission` hides an entry (and the page refuses) unless the dealer has it (src/lib/permissions.ts).
+export type NavItem = { href: string; label: string; permission?: "margins" };
 
 export const DEALER_NAV: NavItem[] = [
   { href: "/admin", label: "Overview" },
@@ -9,14 +9,7 @@ export const DEALER_NAV: NavItem[] = [
   { href: "/admin/customers", label: "Customers and alerts" },
   { href: "/admin/marketing", label: "Marketing" },
   { href: "/admin/analytics", label: "Analytics" },
+  { href: "/admin/margins", label: "Margins", permission: "margins" },
   { href: "/admin/reviews", label: "Reviews" },
   { href: "/admin/settings", label: "Settings" },
-];
-
-export const PLATFORM_NAV: NavItem[] = [
-  { href: "/platform", label: "Dealerships" },
-  { href: "/platform/usage", label: "Usage and billing" },
-  { href: "/platform/plans", label: "Plans and add-ons" },
-  { href: "/platform/settings", label: "Platform settings" },
-  { href: "/platform/audit", label: "Audit log" },
 ];

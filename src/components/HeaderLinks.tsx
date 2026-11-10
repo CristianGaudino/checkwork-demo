@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useVehicleHint } from "@/components/vehicleHint";
+import { useDemoRole } from "@/lib/demo-role";
 import { VEHICLE_TYPES } from "@/lib/nav";
 
 // The desktop links (from 1024px). Used, New and Commercial are the first three, like any other section. A red bar under the current one.
@@ -23,7 +24,8 @@ export function HeaderLinks() {
   const path = usePathname();
   const hint = useVehicleHint(); // a car page's address does not say whether it is used, new or a van; the page says so
   const vehicles = VEHICLE_TYPES.filter((t) => t.enabled).map((t) => ({ href: t.href, label: t.nav, current: hint ? hint === t.condition : within(path, t.href) }));
-  const others = LINKS.map((l) => ({ ...l, current: within(path, l.href) }));
+  const dealer = useDemoRole() === "dealer"; // viewing the demo as the dealer's staff: a way into their dashboard
+  const others = (dealer ? [...LINKS, { href: "/admin", label: "Dashboard" }] : LINKS).map((l) => ({ ...l, current: within(path, l.href) }));
   return (
     <div className="hidden items-center gap-5 lg:flex xl:gap-6">
       {[...vehicles, ...others].map((l) => (

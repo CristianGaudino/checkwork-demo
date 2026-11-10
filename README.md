@@ -5,7 +5,7 @@ A made-up used car dealer site, "Checkwork Motors", that [Checkwork](https://www
 **Stack:** Next.js 16 (App Router) · Tailwind CSS v4 · Cloudflare D1 + Drizzle (leads and stock) · R2 (trade-in and find-a-car photos) · Cloudflare Workers via OpenNext · GitHub Actions
 
 ## Status
-The full, all-inclusive version: the customer site, the dealer's admin area and the superuser view, all on made-up data. Open work is in this repo's [issues](https://github.com/CristianGaudino/checkwork-demo/issues) and the [project board](https://github.com/users/CristianGaudino/projects/8).
+The full, all-inclusive version: the customer site, the dealer's admin area (with permissions for sensitive figures), all on made-up data. Open work is in this repo's [issues](https://github.com/CristianGaudino/checkwork-demo/issues) and the [project board](https://github.com/users/CristianGaudino/projects/8).
 
 Project rules and the PR checklist are in [.claude/CLAUDE.md](.claude/CLAUDE.md).
 

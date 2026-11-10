@@ -4,7 +4,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSyncExternalStore } from "react";
 import { DEMO_ROLES, THEME_KEY, isAppPath, roleForPath, type Theme } from "@/lib/demo";
-import { setDemoRole, useDemoRole } from "@/lib/demo-role";
+import { setDemoPermission, setDemoRole, useDemoPermissions, useDemoRole } from "@/lib/demo-role";
+import { parsePerms } from "@/lib/permission-rules";
 import { press } from "@/components/ui";
 
 // The theme lives on <html data-theme>; this watches that attribute, so the button is right on first paint and after any change.
@@ -30,9 +31,10 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
   const router = useRouter();
   const inApp = isAppPath(path);
   const saved = useDemoRole();
-  // In the dealer or platform area the route is the role. On a public page it is the remembered one.
+  // In the dealer area the route is the role. On a public page it is the remembered one.
   const role = inApp ? roleForPath(path) : saved;
   const theme = useSyncExternalStore(subscribe, read, () => "light" as Theme);
+  const margins = parsePerms(useDemoPermissions()).includes("margins");
   return (
     <div data-demo-bar className="theme-dark relative z-40 border-b border-hairline bg-band text-meta text-text">
       <div className="mx-auto flex h-11 max-w-[1280px] items-center justify-between gap-1 px-2 sm:gap-3 sm:px-6 lg:px-8">
@@ -44,7 +46,7 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
               href={r.href}
               onClick={(e) => {
                 setDemoRole(r.id);
-                // From a public page, Dealer and Superuser change that page (a strip, and stock and social controls on a car). The strip links on to the area.
+                // From a public page, Dealer changes that page (a Dashboard link in the header, and stock and social links on a car) instead of leaving it.
                 if (!inApp && r.id !== "customer") {
                   e.preventDefault();
                   router.refresh();
@@ -56,6 +58,20 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
               {r.label}
             </Link>
           ))}
+          {role === "dealer" && showAreas && (
+            // What the dealer may see: off is an ordinary dealer, on is one with the margins permission (src/lib/permissions.ts).
+            <button
+              type="button"
+              aria-pressed={margins}
+              onClick={() => {
+                setDemoPermission("margins", !margins);
+                router.refresh();
+              }}
+              className={`ml-1 flex h-8 items-center rounded-full border px-3 text-meta ${margins ? "border-accent bg-accent text-on-accent" : "border-hairline text-text-2"} ${press}`}
+            >
+              Margins {margins ? "on" : "off"}
+            </button>
+          )}
         </nav>
         <button
           type="button"

@@ -1,7 +1,7 @@
 import demoCars from "@/lib/stock/demo-cars.json";
 import type { Car } from "@/lib/stock/types";
 
-// Made-up records for the admin and platform areas. Everything here is invented: names, emails (example.com is reserved for this),
+// Made-up records for the dealer admin. Everything here is invented: names, emails (example.com is reserved for this),
 // numbers and figures. Times are relative to "now" when a collection is first read, so the demo always looks current.
 const cars = demoCars as Car[];
 const live = cars.filter((c) => !c.soldAt);

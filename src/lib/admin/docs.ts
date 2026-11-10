@@ -4,7 +4,7 @@ import { getDb } from "@/lib/db";
 import { adminDocs } from "@/lib/db/schema";
 import { getBindings } from "@/lib/leads/bindings";
 
-// One small record store for everything the admin and platform areas keep (test drives, posts, campaigns, settings...). On the Worker it
+// One small record store for everything the dealer admin keeps (test drives, posts, campaigns, settings...). On the Worker it
 // is the `admin_docs` D1 table; with no D1 binding (next dev, the E2E run) it is a map in memory, so the areas work with nothing set up.
 // A collection starts from its seed function the first time it is read, so a fresh database shows a lived-in demo.
 // shortcut: memory is per server instance, so with no D1 binding edits last only as long as the process does. Fine for dev and tests.
