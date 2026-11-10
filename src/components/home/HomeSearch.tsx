@@ -115,7 +115,7 @@ function Select({
       <label htmlFor={id} className="text-meta font-semibold">
         {label}
       </label>
-      <Combobox id={id} name={name} tone="surface" className="pl-3" options={[{ value: "", label: any }, ...options.map(([v, l]) => ({ value: v, label: l }))]} {...(onChange ? { value, onChange } : {})} />
+      <Combobox id={id} name={name} tone="surface" className="pl-3" options={[{ value: "", label: any }, ...options.map(([v, l]) => ({ value: v, label: l, ...(name === "make" ? { logo: v } : {}) }))]} {...(onChange ? { value, onChange } : {})} />
     </div>
   );
 }

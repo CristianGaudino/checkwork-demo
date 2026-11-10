@@ -20,12 +20,12 @@ export function TestDrivePicker({ cars }: { cars: CarSummary[] }) {
           <li key={c.id} className={`flex items-center gap-3 p-3 ${card}`}>
             {c.photo && (
               // eslint-disable-next-line @next/next/no-img-element -- a local /stock file at a fixed small size
-              <img src={c.photo} alt="" width={96} height={72} loading="lazy" className="h-[72px] w-24 shrink-0 rounded-control bg-photo-bg object-cover" />
+              <img src={c.photo} alt="" width={96} height={72} loading="lazy" className="hidden h-[72px] w-24 shrink-0 min-[380px]:block rounded-control bg-photo-bg object-cover" />
             )}
             <div className="min-w-0 flex-1">
               <p className="truncate font-semibold">{c.name}</p>
               <p className="truncate text-meta text-text-2">{c.title}</p>
-              <p className="text-meta font-semibold">{c.price}</p>
+              <p className="text-meta font-semibold whitespace-nowrap">{c.price}</p>
             </div>
             <button
               type="button"

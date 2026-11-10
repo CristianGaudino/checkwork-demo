@@ -37,7 +37,7 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
   const margins = parsePerms(useDemoPermissions()).includes("margins");
   return (
     <div data-demo-bar className="theme-dark relative z-40 border-b border-hairline bg-band text-meta text-text">
-      <div className="mx-auto flex h-11 max-w-[1280px] items-center justify-between gap-1 px-2 sm:gap-3 sm:px-6 lg:px-8">
+      <div className="mx-auto flex min-h-11 max-w-[1280px] flex-wrap items-center justify-between gap-x-1 px-2 sm:gap-x-3 sm:px-6 lg:px-8">
         <nav aria-label="View the demo as" className="flex items-center">
           <span className="hidden text-text-2 sm:inline">View as</span>
           {DEMO_ROLES.filter((r) => showAreas || r.id === "customer").map((r) => (

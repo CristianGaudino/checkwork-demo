@@ -10,7 +10,7 @@ import { SITE_NAME } from "@/lib/site";
 // On a phone: the menu on the left, the logo in the middle, saved cars on the right. From 1024px: the logo, then the links and the heart.
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-30 border-b border-hairline bg-surface text-text lg:static">
+    <header className="sticky top-0 z-30 border-b border-hairline/60 bg-surface/75 text-text backdrop-blur-xl reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none lg:static">
       <div className="mx-auto grid h-14 max-w-[1280px] grid-cols-[1fr_auto_1fr] items-center gap-4 px-4 sm:px-6 lg:flex lg:h-16 lg:px-8">
         <div className="flex justify-start lg:hidden">
           <MobileMenu links={MENU} />

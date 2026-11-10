@@ -44,10 +44,10 @@ test("light is the default, dark is a choice that sticks and does not flash", as
   await page.goto("/");
   const html = page.locator("html");
   await expect(html).not.toHaveAttribute("data-theme", "dark");
-  await expect(html).toHaveCSS("background-color", "rgb(250, 248, 245)");
+  await expect(html).toHaveCSS("background-color", "rgb(235, 232, 225)");
   await page.getByRole("button", { name: "Light" }).click();
   await expect(html).toHaveAttribute("data-theme", "dark");
-  await expect(html).toHaveCSS("background-color", "rgb(11, 16, 32)");
+  await expect(html).toHaveCSS("background-color", "rgb(10, 26, 31)");
   await page.reload();
   await expect(html).toHaveAttribute("data-theme", "dark");
   await page.getByRole("button", { name: "Dark" }).click();

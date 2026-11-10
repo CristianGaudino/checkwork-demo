@@ -45,8 +45,8 @@ export function Specifications({ car }: { car: Car }) {
       <dl className={`mt-4 grid grid-cols-1 gap-x-6 ${card} p-4 sm:grid-cols-2`}>
         {specRows(car).map((r) => (
           <div key={r.label} className="flex justify-between gap-4 border-b border-hairline py-3">
-            <dt className="text-text-2">{r.label}</dt>
-            <dd className="text-right font-semibold">{r.value}</dd>
+            <dt className="shrink-0 text-text-2">{r.label}</dt>
+            <dd className="min-w-0 text-right font-semibold [overflow-wrap:anywhere]">{r.value}</dd>
           </div>
         ))}
       </dl>

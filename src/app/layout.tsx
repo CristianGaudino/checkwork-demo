@@ -10,9 +10,9 @@ import { DEMO_BAR_ENABLED, THEME_SCRIPT, adminReachable } from "@/lib/demo";
 import { DEALER_LOCATION, DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL, indexable } from "@/lib/site";
 import "./globals.css";
 
-// Manrope, from a file kept in the repo (src/app/fonts): no request to Google when a visitor loads the site, and none when the site is
+// Sora, from a file kept in the repo (src/app/fonts): no request to Google when a visitor loads the site, and none when the site is
 // built. One variable file covers every weight; the latin range covers English and Irish.
-const manrope = localFont({ src: "./fonts/manrope-latin.woff2", weight: "200 800", display: "swap", variable: "--font-manrope" });
+const sora = localFont({ src: "./fonts/sora-latin.woff2", weight: "100 800", display: "swap", variable: "--font-sora" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -30,7 +30,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // break-ui: both imports sit inside the dev branch, so a production build leaves them out entirely.
   const dev = process.env.NODE_ENV === "development" ? { Toggle: (await import("@/components/DevDataToggle")).DevDataToggle, mode: await (await import("@/lib/dev-data")).devMode() } : null;
   return (
-    <html lang="en-IE" className={manrope.variable} suppressHydrationWarning>
+    <html lang="en-IE" className={sora.variable} suppressHydrationWarning>
       <head>
         {/* Sets a stored dark choice before first paint. */}
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
