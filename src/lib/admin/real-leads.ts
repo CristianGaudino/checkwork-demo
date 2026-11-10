@@ -1,6 +1,7 @@
 import "server-only";
 import { DETAIL_LABELS } from "@/lib/leads/schema";
 import type { LeadRow } from "@/lib/leads/process";
+import { clashes } from "./drives";
 import { ALERT_KINDS, alertsStore, customersStore, drivesStore, leadsStore, type AlertKind, type Customer, type Lead, type LeadType, type StockAlert, type TestDrive } from "./collections";
 
 // What visitors send reaches the dealer's admin as records. The lead pipeline (consent, bot check, retention) stays the one way in:
@@ -37,7 +38,8 @@ export function mirrorOf(row: LeadRow): Mirror {
   const at = row.consentAt.getTime();
   if (row.type === "alert") {
     const kind = ALERT_KINDS.includes(row.details.alertKind as AlertKind) ? (row.details.alertKind as AlertKind) : "new-arrival";
-    return { alert: { id, email: row.email ?? "", kind, criteria: row.carTitle ?? "Any new arrival", active: true, createdAt: at } };
+    return { alert: { id, email: row.email ?? "", kind, criteria: row.carTitle ?? "Any new arrival", active: false, // off until the sender confirms the address (double opt-in), so no one is mailed on a stranger's word
+       createdAt: at } };
   }
   const drive = row.type === "test_drive" && row.carSlug && row.carTitle ? { id, name: row.name, email: row.email ?? "", phone: row.phone ?? "", carSlug: row.carSlug, carTitle: row.carTitle, startsAt: dublinMs(String(row.details.driveDate), String(row.details.driveTime)), status: "requested" as const, notes: row.message ?? "", createdAt: at } : undefined;
   const lead: Lead = {
@@ -62,7 +64,11 @@ export async function mirrorLead(row: LeadRow): Promise<void> {
   const m = mirrorOf(row);
   if (m.alert) await alertsStore.put(m.alert);
   if (m.lead) await leadsStore.put(m.lead);
-  if (m.drive) await drivesStore.put(m.drive);
+  if (m.drive) {
+    // One car cannot be out twice: say so on the booking, so the dealer sees it before confirming.
+    const clash = clashes(await drivesStore.list(), m.drive.carSlug, m.drive.startsAt);
+    await drivesStore.put(clash.length ? { ...m.drive, notes: ["Clashes with another booking for this car.", m.drive.notes].filter(Boolean).join(" ") } : m.drive);
+  }
   if (m.lead) {
     const id = await customerId(row);
     const known = await customersStore.get(id);

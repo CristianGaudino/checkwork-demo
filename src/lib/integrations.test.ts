@@ -35,4 +35,14 @@ describe("simulation", () => {
     vi.stubEnv("SIMULATE_INTEGRATIONS", "off");
     expect(modeOf("social")).toBe("off");
   });
+  it("does not simulate on a production site unless asked", async () => {
+    const { simulating } = await import("./integrations");
+    vi.stubEnv("APP_ENV", "production");
+    expect(simulating()).toBe(false);
+    vi.stubEnv("SIMULATE_INTEGRATIONS", "on");
+    expect(simulating()).toBe(true);
+    vi.stubEnv("APP_ENV", "demo");
+    vi.stubEnv("SIMULATE_INTEGRATIONS", "");
+    expect(simulating()).toBe(true);
+  });
 });

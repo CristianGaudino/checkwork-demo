@@ -5,14 +5,19 @@ import { publishPost } from "./publishers";
 
 // Sends the scheduled posts whose time has come. Anything can call it: today the marketing page does when it opens, and a cron trigger on the
 // Worker can call it on a timer (wrangler.jsonc "triggers") when a real publisher is connected. A post that fails to send stays scheduled.
-// shortcut: runs only when something calls it, so a simulated post goes out the next time the marketing page opens, not at its exact minute.
+// A post is marked claimed before it is sent, and one claimed in the last CLAIM_MS is skipped: that stops a second page load from sending it
+// again, and gives a failing post a pause before the next try.
+// shortcut: the claim is read then written, not atomic, so two calls in the same instant can still both send. Use a D1 conditional update
+// when a live publisher is connected.
+const CLAIM_MS = 5 * 60_000;
 export async function sendDuePosts(now = Date.now()): Promise<number> {
   let sent = 0;
   for (const p of await postsStore.list()) {
-    if (p.status !== "scheduled" || p.scheduledFor === undefined || p.scheduledFor > now) continue;
+    if (p.status !== "scheduled" || p.scheduledFor === undefined || p.scheduledFor > now || (p.claimedAt && now - p.claimedAt < CLAIM_MS)) continue;
+    await postsStore.put({ ...p, claimedAt: now });
     const r = await publishPost(p);
     if (!r.ok) continue;
-    await postsStore.put({ ...p, status: "posted", postedAt: p.scheduledFor, ...(r.simulated && simulatedPost(p.id)) });
+    await postsStore.put({ ...p, status: "posted", postedAt: p.scheduledFor, claimedAt: undefined, ...(r.simulated && { simulated: true, ...simulatedPost(p.id) }) });
     sent++;
   }
   return sent;

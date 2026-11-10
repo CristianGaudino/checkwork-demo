@@ -1,5 +1,5 @@
 // The text on a demo car's page, written from the car's own facts so it reads like a dealer's listing. Plain words, no claims beyond the
-// facts on the page, and nothing that says it is a demo. make-demo.mjs uses it for new cars; run this file to rewrite the existing ones.
+// facts on the page, and nothing that says it is a demo. make-demo.mjs uses it for new cars; rewrite-descriptions.mjs applies it to the existing ones.
 const GEARBOX = { manual: "manual", automatic: "automatic" };
 const FUEL = { diesel: "diesel", petrol: "petrol", hybrid: "hybrid", electric: "electric", "plug-in-hybrid": "plug-in hybrid" };
 const ordinal = (n) => (n === 1 ? "one previous owner" : `${n} previous owners`);
@@ -11,12 +11,3 @@ export function describeCar(c) {
   return `${name}${spec ? `, ${spec}` : ""}. ${facts ? facts + "." : ""}\n\nCall in to see it, or book a test drive. Part exchange welcome and finance available.`.replace(". .", ".");
 }
 
-// node scripts/demo/describe.mjs: rewrite the description of every car in demo-cars.json.
-if (import.meta.url === `file://${process.argv[1].replaceAll("\\", "/")}` || process.argv[1]?.endsWith("describe.mjs")) {
-  const { readFileSync, writeFileSync } = await import("node:fs");
-  const file = "src/lib/stock/demo-cars.json";
-  const cars = JSON.parse(readFileSync(file, "utf8"));
-  for (const c of cars) c.description = describeCar(c);
-  writeFileSync(file, JSON.stringify(cars, null, 2) + "\n");
-  console.log(`rewrote ${cars.length} descriptions`);
-}

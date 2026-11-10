@@ -31,8 +31,11 @@ export const INTEGRATIONS: readonly Integration[] = [
 ];
 
 // The demo shows every feature working. With no keys, a simulated service does its work in the admin's own records and sends nothing
-// outside. A real client site sets SIMULATE_INTEGRATIONS=off, and then a service without keys says it is not connected.
-export const simulating = () => process.env.SIMULATE_INTEGRATIONS !== "off";
+// outside. A production site (APP_ENV=production) does not simulate unless SIMULATE_INTEGRATIONS=on, and SIMULATE_INTEGRATIONS=off turns it off anywhere. Then a service without keys says it is not connected.
+export const simulating = () => {
+  const v = process.env.SIMULATE_INTEGRATIONS;
+  return v ? v !== "off" : process.env.APP_ENV !== "production"; // unset: simulate everywhere except a production site
+};
 
 const present = (name: string) => Boolean(process.env[name]);
 

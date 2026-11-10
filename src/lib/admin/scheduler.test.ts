@@ -26,5 +26,8 @@ describe("sendDuePosts", () => {
     expect(await sendDuePosts(5000)).toBe(0);
     expect((await postsStore.get("due"))?.status).toBe("scheduled");
     vi.unstubAllEnvs();
+    expect(await sendDuePosts(5000 + 60_000)).toBe(0); // claimed a minute ago: left alone
+    expect(await sendDuePosts(5000 + 6 * 60_000)).toBe(1); // after the pause it is tried again, and marked simulated
+    expect((await postsStore.get("due"))?.simulated).toBe(true);
   });
 });

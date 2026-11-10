@@ -192,7 +192,7 @@ export const settingsStore = defineCollection<DealerSettings>("settings", seedSe
 // ---- Marketing: social posts, ads, newsletters ----
 export const NETWORKS = ["Facebook", "Instagram", "TikTok"] as const;
 export type Network = (typeof NETWORKS)[number];
-export type SocialPost = { id: string; network: Network; carSlug?: string; carTitle?: string; text: string; status: "draft" | "scheduled" | "posted"; scheduledFor?: number; postedAt?: number; reach?: number; clicks?: number; createdAt: number };
+export type SocialPost = { id: string; network: Network; carSlug?: string; carTitle?: string; text: string; status: "draft" | "scheduled" | "posted"; scheduledFor?: number; postedAt?: number; simulated?: boolean; claimedAt?: number; reach?: number; clicks?: number; createdAt: number };
 export type Ad = { id: string; platform: "Meta" | "Google"; name: string; carTitle: string; budgetEur: number; status: "draft" | "running" | "paused" | "ended"; impressions: number; clicks: number; leads: number; createdAt: number };
 export type Newsletter = { id: string; subject: string; body: string; status: "draft" | "sent"; sentAt?: number; recipients?: number; opens?: number; clicks?: number; createdAt: number };
 

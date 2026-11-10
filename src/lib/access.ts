@@ -11,12 +11,17 @@ export const accessConfig = (env: Record<string, string | undefined> = process.e
 };
 
 let cache: { team: string; at: number; keys: Jwk[] } | null = null;
+let failedAt = 0; // a failed fetch is remembered briefly, so an outage does not make every admin request call out
 const KEY_TTL_MS = 60 * 60 * 1000;
 
 async function fetchKeys(team: string): Promise<Jwk[]> {
   if (cache && cache.team === team && Date.now() - cache.at < KEY_TTL_MS) return cache.keys;
-  const res = await fetch(`https://${team}/cdn-cgi/access/certs`);
-  if (!res.ok) throw new Error("access keys unavailable");
+  if (Date.now() - failedAt < 30_000) throw new Error("access keys unavailable");
+  const res = await fetch(`https://${team}/cdn-cgi/access/certs`).catch(() => null);
+  if (!res?.ok) {
+    failedAt = Date.now();
+    throw new Error("access keys unavailable");
+  }
   const keys = ((await res.json()) as { keys: Jwk[] }).keys;
   cache = { team, at: Date.now(), keys };
   return keys;

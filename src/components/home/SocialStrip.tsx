@@ -2,6 +2,7 @@ import Link from "next/link";
 import { FacebookIcon, InstagramIcon, TikTokIcon } from "@/components/stock/icons";
 import { press, sectionTitle } from "@/components/ui";
 import { postsStore } from "@/lib/admin/collections";
+import { simulating } from "@/lib/integrations";
 import { SOCIAL_LINKS } from "@/lib/site";
 import { carName } from "@/lib/stock/format";
 import type { Car } from "@/lib/stock/types";
@@ -12,9 +13,10 @@ const SHOWN = 4;
 // The posts the dealer has published, as tiles: the car's photo, the network and the first line. They come from the same record the admin
 // writes (Marketing), so what is posted there shows here. A post for a car no longer in stock is left out. No posts, no section.
 export async function SocialStrip({ cars }: { cars: Car[] }) {
-  const posts = await postsStore.list().catch(() => []);
+  const posts = await postsStore.list({ seed: false }).catch(() => []); // a visitor never seeds the records
+  const showSimulated = simulating(); // a simulated post was never sent anywhere, so only the demo shows it
   const tiles = posts
-    .filter((p) => p.status === "posted")
+    .filter((p) => p.status === "posted" && (!p.simulated || showSimulated))
     .sort((a, b) => (b.postedAt ?? 0) - (a.postedAt ?? 0))
     .map((p) => ({ post: p, car: cars.find((c) => c.slug === p.carSlug && c.photos[0]) }))
     .filter((t): t is { post: typeof t.post; car: Car } => Boolean(t.car))

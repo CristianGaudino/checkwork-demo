@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
-const { dublinMs, mirrorOf } = await import("./real-leads");
+const { dublinMs, mirrorLead, mirrorOf } = await import("./real-leads");
+const { drivesStore } = await import("./collections");
 import type { LeadRow } from "@/lib/leads/process";
 
 const row = (over: Partial<LeadRow>): LeadRow => ({ id: "abc", clientRef: "r", type: "enquiry", carId: "1", carSlug: "x-1", carTitle: "2020 Audi A3", carPriceEur: 10000, sourcePath: "/", name: "Pat", phone: null, email: "pat@example.com", message: "Hello", details: {}, photoKeys: [], consentAt: new Date("2026-11-10T10:00:00Z"), consentVersion: "v", ...over });
@@ -27,10 +28,20 @@ describe("mirrorOf", () => {
   it("makes an alert, not a lead, from an alert sign-up", () => {
     const m = mirrorOf(row({ type: "alert", name: "Stock alert", details: { alertKind: "price-drop" } }));
     expect(m.lead).toBeUndefined();
-    expect(m.alert).toMatchObject({ id: "real-abc", kind: "price-drop", email: "pat@example.com", criteria: "2020 Audi A3", active: true });
+    expect(m.alert).toMatchObject({ id: "real-abc", kind: "price-drop", email: "pat@example.com", criteria: "2020 Audi A3", active: false });
   });
   it("describes a form with no free text from its answers", () => {
     const m = mirrorOf(row({ type: "finance", message: null, details: { deposit: 2000, term: 48 } }));
     expect(m.lead!.message).toBe("Deposit: 2000. Term (months): 48");
+  });
+});
+
+describe("mirrorLead", () => {
+  it("notes a clash when the same car is already booked at that time", async () => {
+    const booking = (id: string) => row({ id, type: "test_drive", message: null, carSlug: "clash-car-1", details: { driveDate: "2030-01-15", driveTime: "10:00" } });
+    await mirrorLead(booking("first"));
+    await mirrorLead(booking("second"));
+    expect((await drivesStore.get("real-first"))?.notes).toBe("");
+    expect((await drivesStore.get("real-second"))?.notes).toMatch(/Clashes with another booking/);
   });
 });

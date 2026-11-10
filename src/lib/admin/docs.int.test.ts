@@ -32,4 +32,14 @@ describe("defineCollection (D1 path, on SQLite)", () => {
     await x.reset();
     expect(await x.list()).toEqual([{ id: "s", n: 1 }]);
   });
+
+  it("reset keeps what visitors sent (real- ids) and a peek never seeds", async () => {
+    const x = defineCollection<Item>("i-real", () => [{ id: "s", n: 1 }]);
+    expect(await x.list({ seed: false })).toEqual([]); // not seeded, and the peek wrote nothing
+    await x.put({ id: "real-1", n: 7 });
+    await x.put({ id: "extra", n: 5 });
+    await x.reset();
+    expect((await x.list()).map((d) => d.id).sort()).toEqual(["real-1", "s"]);
+    expect((await x.list({ seed: false })).length).toBe(2);
+  });
 });
