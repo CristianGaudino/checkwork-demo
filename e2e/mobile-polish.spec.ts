@@ -135,7 +135,7 @@ test.describe("desktop", () => {
     expect(bars.slice(0, 4).every((w) => w > 0)).toBe(true);
   });
 
-  test("Get Directions on the About page is as wide as the photo above it", async ({ page }) => {
+  test("Get directions on the About page is as wide as the photo above it", async ({ page }) => {
     await page.goto("/about");
     const button = (await page.getByRole("link", { name: /Get directions/i }).boundingBox())!;
     const photo = (await page.locator("main img").first().boundingBox())!;

@@ -99,11 +99,11 @@ export function SimilarCars({ car, cars }: { car: Car; cars: Car[] }) {
         <div className="flex flex-wrap gap-x-6">
           {car.bodySlug && car.bodyType && (
             <Link href={`/used-cars/${car.bodySlug}`} className="inline-flex min-h-11 items-center font-semibold underline">
-              See All {car.bodyType}s
+              See all {car.bodyType}s
             </Link>
           )}
           <Link href={`/used-cars/${car.makeSlug}`} className="inline-flex min-h-11 items-center font-semibold underline">
-            See All {car.make}
+            See all {car.make}
           </Link>
         </div>
       </div>
