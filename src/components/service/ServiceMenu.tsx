@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { LeadPageForm } from "@/components/leads/LeadPageForm";
+import { MESSAGE_SENT } from "@/lib/leads/constants";
 import { CheckIcon } from "@/components/stock/icons";
 import { PhoneLink } from "@/components/PhoneLink";
 import { card, subTitle } from "@/components/ui";
@@ -27,7 +28,7 @@ function Panel({ service }: { service: Service }) {
         <ul className="flex flex-col">
           {service.types.map((t) => (
             <li key={t} className="flex items-center gap-4 border-b border-hairline py-3 text-body last:border-b-0">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent-text">
                 <CheckIcon className="size-5" />
               </span>
               {t}
@@ -38,9 +39,9 @@ function Panel({ service }: { service: Service }) {
           Prefer to talk? Call <PhoneLink className="font-semibold underline" />.
         </p>
       </div>
-      <div data-wells className="flex flex-col gap-4 rounded-card border border-hairline p-4 sm:p-5">
+      <div data-wells className={`flex flex-col gap-4 ${card} p-4 sm:p-5`}>
         <h4 className="text-body font-semibold">Tell us what your car needs</h4>
-        <LeadPageForm type="general" prefill={prefill} submitLabel="Send Message" success={{ heading: "Thanks, we have your message.", body: "We'll get back to you." }} />
+        <LeadPageForm type="general" prefill={prefill} submitLabel="Send Message" success={MESSAGE_SENT} />
       </div>
     </div>
   );
@@ -94,7 +95,7 @@ export function ServiceMenu({ services }: { services: readonly Service[] }) {
               >
                 <span className="flex w-full items-center justify-between gap-2">
                   <span className={subTitle}>{s.name}</span>
-                  <span aria-hidden="true" className={`flex size-8 items-center justify-center rounded-full text-heading transition-[transform,background-color] duration-300 motion-reduce:transition-none ${on ? "rotate-45 bg-accent text-on-accent" : "bg-accent/15 text-accent"}`}>
+                  <span aria-hidden="true" className={`flex size-8 items-center justify-center rounded-full text-heading transition-[transform,background-color] duration-300 motion-reduce:transition-none ${on ? "rotate-45 bg-accent text-on-accent" : "bg-accent/15 text-accent-text"}`}>
                     +
                   </span>
                 </span>

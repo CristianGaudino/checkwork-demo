@@ -16,7 +16,7 @@ export function ListingCard({ car, priority, oneLine = false }: { car: Car; prio
   return (
     // The photo is the card: it carries the rounded corners and the lift, and the words sit under it on the page itself.
     <article data-card className="@container group relative scroll-mt-20 transition-opacity duration-100 has-[h2_a:active]:opacity-80">
-      <div data-card-photo className="relative z-10 aspect-[4/3] overflow-hidden rounded-[28px] bg-photo-bg shadow-panel [transition:box-shadow_200ms_ease-out,translate_200ms_ease-out] [@media(hover:hover)]:group-hover:-translate-y-0.5 [@media(hover:hover)]:group-hover:shadow-lift">
+      <div data-card-photo className="relative z-10 aspect-photo overflow-hidden rounded-tile bg-photo-bg shadow-panel [transition:box-shadow_200ms_ease-out,translate_200ms_ease-out] [@media(hover:hover)]:group-hover:-translate-y-0.5 [@media(hover:hover)]:group-hover:shadow-lift">
         <PhotoCarousel photos={car.photos} href={href} label={carName(car)} priority={priority} />
         {/* The word in the price slot is what screen readers hear; this badge is the same word for the eye. */}
         {isSold(car) && <SoldBadge hidden className="absolute left-4 top-4 z-20" />}
@@ -48,7 +48,7 @@ export function ListingCard({ car, priority, oneLine = false }: { car: Car; prio
               </li>
             ))}
           </ul>
-          <span aria-hidden="true" className="inline-flex items-center gap-2 text-meta font-semibold text-accent">
+          <span aria-hidden="true" className="inline-flex items-center gap-2 text-meta font-semibold text-accent-text">
             View Car
             <ArrowRightIcon className="size-4" />
           </span>

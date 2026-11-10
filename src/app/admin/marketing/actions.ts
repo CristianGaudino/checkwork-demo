@@ -9,6 +9,7 @@ import { publishPost, sendNewsletter, startAd } from "@/lib/admin/publishers";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { carName } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
+import { newId } from "@/lib/admin/ids";
 
 // A result goes back to the page as a short code, never as text from the request, so the page can only ever say what it knows.
 const go = (tab: string, notice: string): never => redirect(`/admin/marketing?tab=${tab}&notice=${notice}`);
@@ -20,7 +21,7 @@ export async function createPostAction(data: FormData) {
   const car = r.success ? (await adminCars()).find((c) => c.slug === r.data.carSlug) : undefined;
   if (!r.success || !car) return go("social", "invalid");
   const { marketing } = await getSettings();
-  await postsStore.put({ id: `post-${Date.now()}`, network: r.data.network as Network, carSlug: car.slug, carTitle: carName(car), text: writePost(car, r.data.network, marketing), status: "draft", createdAt: Date.now() });
+  await postsStore.put({ id: newId("post"), network: r.data.network as Network, carSlug: car.slug, carTitle: carName(car), text: writePost(car, r.data.network, marketing), status: "draft", createdAt: Date.now() });
   go("social", "post-created");
 }
 
@@ -59,7 +60,7 @@ export async function createAdAction(data: FormData) {
   const r = ad.safeParse(Object.fromEntries(data));
   const car = r.success ? (await adminCars()).find((c) => c.slug === r.data.carSlug) : undefined;
   if (!r.success || !car) return go("ads", "invalid");
-  await adsStore.put({ id: `ad-${Date.now()}`, name: r.data.name, platform: r.data.platform, carTitle: carName(car), budgetEur: r.data.budgetEur, status: "draft", impressions: 0, clicks: 0, leads: 0, createdAt: Date.now() });
+  await adsStore.put({ id: newId("ad"), name: r.data.name, platform: r.data.platform, carTitle: carName(car), budgetEur: r.data.budgetEur, status: "draft", impressions: 0, clicks: 0, leads: 0, createdAt: Date.now() });
   go("ads", "ad-created");
 }
 
@@ -89,7 +90,7 @@ export async function createNewsletterAction(data: FormData) {
     if (!r.success || !r.data.subject || !r.data.body) return go("newsletters", "invalid");
     ({ subject, body } = r.data);
   }
-  await newslettersStore.put({ id: `nl-${Date.now()}`, subject, body, status: "draft", createdAt: Date.now() });
+  await newslettersStore.put({ id: newId("nl"), subject, body, status: "draft", createdAt: Date.now() });
   go("newsletters", "letter-created");
 }
 

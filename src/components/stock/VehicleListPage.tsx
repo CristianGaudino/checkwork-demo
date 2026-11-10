@@ -7,6 +7,7 @@ import { VEHICLE_TYPES } from "@/lib/nav";
 import { PARTNERS } from "@/lib/partners";
 import { queryAllOrNull } from "@/lib/stock";
 import type { Condition } from "@/lib/stock/types";
+import { CONNECTION_ERROR } from "@/lib/copy";
 
 // The page for new cars and for commercial vehicles: a heading, the makes as links, and the cars as a grid. Used cars keep their own
 // page with its filters. The make filter lives in the URL (?make=), and an unknown make shows everything.
@@ -25,7 +26,7 @@ export async function VehicleListPage({ condition, make }: { condition: Exclude<
     <main className={pageMain}>
       <p className={eyebrow}>{type.label}</p>
       <h1 className={`mt-1 ${pageTitle}`}>{type.title}</h1>
-      <p className="mt-2 max-w-[65ch] text-body text-text-2">{type.intro}</p>
+      <p className="mt-2 max-w-measure text-body text-text-2">{type.intro}</p>
 
       {makes.length > 0 && (
         <nav aria-label="Makes" className="scrollbar-none -mx-4 mt-6 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
@@ -38,14 +39,14 @@ export async function VehicleListPage({ condition, make }: { condition: Exclude<
             >
               <MakeLogo slug={m.slug} className={`size-4 ${(m.slug || undefined) === chosen ? "brightness-0 invert" : ""}`} />
               {m.label}
-              <span className="tabular-nums opacity-80">{m.count}</span>
+              <span className="tabular-nums font-normal">{m.count}</span>
             </Link>
           ))}
         </nav>
       )}
 
       {!result ? (
-        <EmptyNote title="We couldn't load the cars" text="Check your connection and try again." />
+        <EmptyNote title="We couldn't load the cars" text={CONNECTION_ERROR} />
       ) : cars.length === 0 ? (
         <EmptyNote title={`No ${type.label.toLowerCase()} vehicles right now`} text="Tell us what you are looking for and we will find it." href="/find-a-car" action="Find a car for me" />
       ) : (

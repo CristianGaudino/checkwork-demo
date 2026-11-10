@@ -4,6 +4,8 @@ import { useCloseAtDesktop } from "@/components/useCloseAtDesktop";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useId, useRef } from "react";
+import { useDemoRole } from "@/lib/demo-role";
+import { DASHBOARD_LINK } from "@/lib/nav";
 import { PhoneLink } from "@/components/PhoneLink";
 import { CloseIcon, MenuIcon, PhoneIcon } from "@/components/stock/icons";
 import { accentButton, closeButton, press } from "@/components/ui";
@@ -14,6 +16,7 @@ export function MobileMenu({ links }: { links: { href: string; label: string }[]
   const dialog = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const path = usePathname();
+  const items = useDemoRole() === "dealer" ? [...links, DASHBOARD_LINK] : links; // viewing as the dealer's staff
 
   useCloseAtDesktop(() => dialog.current?.close());
   const here = (href: string) => path === href || (href !== "/" && path.startsWith(`${href}/`)); // a car page marks Used Cars
@@ -41,7 +44,7 @@ export function MobileMenu({ links }: { links: { href: string; label: string }[]
         <div className="flex flex-col gap-4 overflow-y-auto px-4 pb-6">
           <nav aria-label="Menu">
             <ul>
-              {links.filter((l) => l.href !== "/" || path !== "/").map((l) => (
+              {items.filter((l) => l.href !== "/" || path !== "/").map((l) => (
                 <li key={l.href} className="relative border-b border-hairline last:border-b-0">
                   {/* The current page: a thin accent bar in the gutter and accent text. Nothing moves. */}
                   {here(l.href) && <span aria-hidden="true" className="absolute inset-y-3 -left-3 w-[3px] rounded-full bg-accent" />}
@@ -53,7 +56,7 @@ export function MobileMenu({ links }: { links: { href: string; label: string }[]
                       dialog.current?.setAttribute("data-instant", "");
                       dialog.current?.close();
                     }}
-                    className={`flex min-h-12 items-center text-heading font-semibold ${here(l.href) ? "text-accent" : ""}`}
+                    className={`flex min-h-12 items-center text-heading font-semibold ${here(l.href) ? "text-accent-text" : ""}`}
                   >
                     {l.label}
                   </Link>

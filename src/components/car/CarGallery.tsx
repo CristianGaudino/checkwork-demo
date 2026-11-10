@@ -4,8 +4,8 @@ import { swipeRow } from "@/components/ui";
 import Image from "next/image";
 import { Brandmark } from "@/components/Brandmark";
 import { useEffect, useRef, useState } from "react";
-import { ChevronLeftIcon, ChevronRightIcon } from "@/components/stock/icons";
-import { arrow, arrowEnd, counterPill, settle } from "@/components/stock/photo-load";
+import { PhotoArrow } from "@/components/stock/PhotoArrow";
+import { counterPill, settle } from "@/components/stock/photo-load";
 import type { Photo } from "@/lib/stock/types";
 import { PhotoLightbox } from "./PhotoLightbox";
 import { useSlideIndex } from "./useSlideIndex";
@@ -26,7 +26,7 @@ export function CarGallery({ photos, name }: { photos: Photo[]; name: string }) 
 
   if (n === 0) {
     return (
-      <div className="flex aspect-[4/3] items-center justify-center rounded-[20px] bg-photo-bg">
+      <div className="flex aspect-photo items-center justify-center rounded-tile bg-photo-bg">
         <p className="text-meta text-text-2">No photo yet</p>
       </div>
     );
@@ -45,7 +45,7 @@ export function CarGallery({ photos, name }: { photos: Photo[]; name: string }) 
 
   return (
     <div data-testid="gallery">
-      <div ref={root} className="group group/pc relative aspect-[4/3] overflow-hidden rounded-[20px] bg-photo-bg lg:hidden">
+      <div ref={root} className="group group/pc relative aspect-photo overflow-hidden rounded-tile bg-photo-bg lg:hidden">
         <div
           ref={scroller}
           onScroll={onScroll}
@@ -81,19 +81,15 @@ export function CarGallery({ photos, name }: { photos: Photo[]; name: string }) 
             <span aria-hidden="true" className={`${counterPill} bottom-4 right-4`}>
               {index + 1} / {n}
             </span>
-            <button type="button" aria-label="Previous photo" aria-disabled={atStart} onClick={() => !atStart && show(index - 1)} className={`${arrow} left-2 ${atStart ? arrowEnd : ""}`}>
-              <ChevronLeftIcon />
-            </button>
-            <button type="button" aria-label="Next photo" aria-disabled={atEnd} onClick={() => !atEnd && show(index + 1)} className={`${arrow} right-2 ${atEnd ? arrowEnd : ""}`}>
-              <ChevronRightIcon />
-            </button>
+            <PhotoArrow dir="previous" disabled={atStart} onClick={() => show(index - 1)} className="left-2" />
+            <PhotoArrow dir="next" disabled={atEnd} onClick={() => show(index + 1)} className="right-2" />
           </>
         )}
       </div>
       {/* From 1024px the photos are a grid: four tiles that open the viewer, "Show all" on the last when there are more. */}
       <div data-testid="photo-grid" className={`hidden gap-3 lg:grid ${n === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
         {photos.slice(0, 4).map((photo, i) => (
-          <div key={photo.src} className={`relative aspect-[4/3] overflow-hidden rounded-[20px] bg-photo-bg ${n === 3 && i === 0 ? "col-span-2" : ""}`}>
+          <div key={photo.src} className={`relative aspect-photo overflow-hidden rounded-tile bg-photo-bg ${n === 3 && i === 0 ? "col-span-2" : ""}`}>
             <button type="button" aria-label={`View photo ${i + 1} of ${n} larger`} onClick={(e) => openLightbox(i, e.currentTarget)} className="group/tile block size-full focus-visible:-outline-offset-2">
               <Image
                 src={photo.src}

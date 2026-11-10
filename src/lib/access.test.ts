@@ -40,12 +40,6 @@ describe("verifyAccessJwt", () => {
 });
 
 describe("accessConfig", () => {
-  it("gives the platform its own audience when one is set, and the dealer's otherwise", () => {
-    const env = { CF_ACCESS_TEAM_DOMAIN: "t.cloudflareaccess.com", CF_ACCESS_AUD: "dealer-aud" };
-    expect(accessConfig(env, "platform")?.aud).toBe("dealer-aud");
-    expect(accessConfig({ ...env, CF_ACCESS_AUD_PLATFORM: "platform-aud" }, "platform")?.aud).toBe("platform-aud");
-    expect(accessConfig({ ...env, CF_ACCESS_AUD_PLATFORM: "platform-aud" })?.aud).toBe("dealer-aud");
-  });
   it("needs both values and tidies the team domain", () => {
     expect(accessConfig({})).toBeNull();
     expect(accessConfig({ CF_ACCESS_TEAM_DOMAIN: "t.cloudflareaccess.com" })).toBeNull();

@@ -1,11 +1,15 @@
 import Link from "next/link";
 import { Badge, DataTable, EmptyState, FilterTabs, PageHeader, adminButton, adminButtonQuiet, adminInput, type Column } from "@/components/admin/kit";
+import { costsStore } from "@/lib/admin/collections";
+import { marginOf } from "@/lib/admin/margins";
 import { adminCars } from "@/lib/admin/stock-admin";
+import { can } from "@/lib/permissions";
 import { fmtEur, fmtNum } from "@/lib/admin/format";
 import { priceInfo } from "@/lib/stock/price";
 import { carName } from "@/lib/stock/format";
 import { isSold, type Car } from "@/lib/stock/types";
 import { deleteCarAction, toggleSoldAction } from "./actions";
+import { SEARCH_MAKE_MODEL } from "@/lib/copy";
 
 export const metadata = { title: "Stock" };
 
@@ -16,6 +20,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
   const status = FILTERS.some(([k]) => k === sp.status) ? sp.status! : "for-sale";
   const q = (sp.q ?? "").trim().toLowerCase().slice(0, 60);
   const all = await adminCars();
+  // The margin column is for staff with the margins permission; without it the costs are not even read.
+  const costs = (await can("margins")) ? new Map((await costsStore.list()).map((c) => [c.id, c.costEur])) : null;
   const counts = { "for-sale": all.filter((c) => !isSold(c)).length, sold: all.filter(isSold).length, all: all.length };
   const rows = all
     .filter((c) => status === "all" || (status === "sold") === isSold(c))
@@ -44,6 +50,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
       className: "max-w-[22rem]",
     },
     { key: "price", header: "Price", align: "right", cell: (c) => (priceInfo(c).was ? <span>{fmtEur(c.priceEur)} <Badge tone="good">Reduced</Badge></span> : fmtEur(c.priceEur)) },
+    ...(costs ? [{ key: "margin", header: "Margin", align: "right" as const, hide: "md" as const, cell: (c: Car) => (costs.has(c.id) ? fmtEur(marginOf(c.priceEur, costs.get(c.id)!).eur) : "Not set") }] : []),
     { key: "km", header: "Mileage", align: "right", hide: "md", cell: (c) => (c.mileageKm !== undefined ? `${fmtNum(c.mileageKm)} km` : "") },
     { key: "status", header: "Status", hide: "md", cell: (c) => (isSold(c) ? <Badge tone="neutral">Sold</Badge> : <Badge tone="good">For sale</Badge>) },
     {
@@ -76,7 +83,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
         <FilterTabs items={FILTERS.map(([k, label]) => ({ label, count: counts[k], href: `/admin/stock?status=${k}${q ? `&q=${encodeURIComponent(q)}` : ""}`, active: status === k }))} />
         <form action="/admin/stock" method="get" className="flex w-full gap-2 sm:w-auto">
           <input type="hidden" name="status" value={status} />
-          <input name="q" defaultValue={q} placeholder="Search make or model" aria-label="Search stock" className={`${adminInput} min-w-0 flex-1 sm:w-56 sm:flex-none`} />
+          <input name="q" defaultValue={q} placeholder={SEARCH_MAKE_MODEL} aria-label="Search stock" className={`${adminInput} min-w-0 flex-1 sm:w-56 sm:flex-none`} />
           <button type="submit" className={adminButtonQuiet}>Search</button>
         </form>
       </div>
@@ -88,7 +95,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
       />
       <details className="text-meta text-text-2">
         <summary className="min-h-11 cursor-pointer py-3">Delete a car for good</summary>
-        <p className="mb-2 max-w-[65ch]">Marking a car sold is usually what you want: it stays on the site as Sold for a while. Deleting removes it at once, and its link stops working.</p>
+        <p className="mb-2 max-w-measure">Marking a car sold is usually what you want: it stays on the site as Sold for a while. Deleting removes it at once, and its link stops working.</p>
         <ul className="flex flex-col gap-1">
           {rows.slice(0, 20).map((c) => (
             <li key={c.id}>

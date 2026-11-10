@@ -9,7 +9,7 @@ export function PageHeader({ title, text, actions }: { title: string; text?: str
     <header className="flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
       <div className="min-w-0">
         <h1 className="text-display font-bold">{title}</h1>
-        {text && <p className="mt-1 max-w-[65ch] text-body text-text-2">{text}</p>}
+        {text && <p className="mt-1 max-w-measure text-body text-text-2">{text}</p>}
       </div>
       {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
     </header>
@@ -36,17 +36,27 @@ export function StatCard({ label, value, hint, tone }: { label: string; value: s
   return (
     <div className={`${card} flex min-w-0 flex-col gap-1 p-4`}>
       <p className="text-meta text-text-2">{label}</p>
-      <p className="truncate text-display font-bold tabular-nums">{value}</p>
+      <p className="text-stat font-bold tabular-nums [overflow-wrap:anywhere] sm:text-display">{value}</p>
       {hint && <p className={`text-meta ${tone === "good" ? "text-better" : tone === "bad" ? "text-destructive" : "text-text-2"}`}>{hint}</p>}
     </div>
   );
 }
 
-export function StatGrid({ children }: { children: React.ReactNode }) {
-  return <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">{children}</div>;
+// A thin bar filled to a share of its width: ratings, visitors by source. Decorative: the number is always written beside it.
+export function Meter({ value, max, tone = "accent", className = "" }: { value: number; max: number; tone?: "accent" | "warning"; className?: string }) {
+  const share = max > 0 ? Math.min(100, (value / max) * 100) : 0;
+  return (
+    <span aria-hidden="true" className={`h-2 overflow-hidden rounded-full bg-hairline ${className}`}>
+      <span className={`block h-full rounded-full ${tone === "warning" ? "bg-warning" : "bg-accent"}`} style={{ width: `${share}%` }} />
+    </span>
+  );
 }
 
-const TONES = { neutral: "bg-hairline text-text", good: "bg-better/15 text-better", warn: "bg-warning/15 text-warning", bad: "bg-destructive/15 text-destructive", info: "bg-accent/15 text-accent" } as const;
+export function StatGrid({ children }: { children: React.ReactNode }) {
+  return <div className="grid grid-cols-2 gap-3 sm:grid-cols-[repeat(auto-fit,minmax(11rem,1fr))]">{children}</div>;
+}
+
+const TONES = { neutral: "bg-hairline text-text", good: "bg-better/15 text-better", warn: "bg-warning/15 text-warning", bad: "bg-destructive/15 text-destructive", info: "bg-accent/15 text-accent-text" } as const;
 export type Tone = keyof typeof TONES;
 // A short status in words, never a colour alone.
 export function Badge({ tone = "neutral", children }: { tone?: Tone; children: React.ReactNode }) {
@@ -74,13 +84,15 @@ export function DataTable<T>({ columns, rows, rowKey, empty, bare = false }: { c
   const frame = bare ? "" : card;
   if (rows.length === 0) return <div className={frame}>{empty ?? <EmptyState title="Nothing here yet" />}</div>;
   return (
-    <div className={`${frame} overflow-x-auto`}>
+    // Focusable, so a keyboard user can scroll it sideways on a phone.
+    <div tabIndex={0} className={`${frame} overflow-x-auto`}>
       <table className="w-full min-w-[22rem] border-collapse text-left text-body">
         <thead>
           <tr className="border-b border-hairline text-meta text-text-2">
             {columns.map((c) => (
-              <th key={c.key} scope="col" className={`px-4 py-3 font-semibold ${c.align === "right" ? "text-right" : ""} ${colClass(c as Column<unknown>)}`}>
-                {c.header}
+              <th key={c.key} scope="col" className={`relative px-4 py-3 font-semibold ${c.align === "right" ? "text-right" : ""} ${colClass(c as Column<unknown>)}`}>
+                {/* The screen reader text is positioned inside this cell (relative above), so the scroll box clips it and it cannot widen the page. */}
+                {c.header || <span className="sr-only">Actions</span>}
               </th>
             ))}
           </tr>
@@ -113,7 +125,7 @@ export function FilterTabs({ items }: { items: { label: string; href: string; ac
           className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-meta font-semibold ${i.active ? "border-accent bg-accent text-on-accent" : "border-control"} ${press}`}
         >
           {i.label}
-          {i.count !== undefined && <span className="tabular-nums opacity-80">{i.count}</span>}
+          {i.count !== undefined && <span className="tabular-nums font-normal">{i.count}</span>}
         </Link>
       ))}
     </nav>

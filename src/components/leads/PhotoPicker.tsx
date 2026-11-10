@@ -15,7 +15,7 @@ import {
 } from "@/lib/leads/constants";
 import { downscale } from "./downscale";
 import type { PhotoBinding } from "./LeadForm";
-import { glass } from "@/components/ui";
+import { glass, press } from "@/components/ui";
 
 const size = (photos: Blob[]) => photos.reduce((n, p) => n + p.size, 0);
 
@@ -79,13 +79,13 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
       </p>
       <ul className="grid grid-cols-2 gap-2 min-[480px]:grid-cols-3 sm:grid-cols-4">
         {photos.map((photo, i) => (
-          <li key={i} className="relative aspect-[4/3] overflow-hidden rounded-control bg-photo-bg">
+          <li key={i} className="relative aspect-photo overflow-hidden rounded-control bg-photo-bg">
             <Preview blob={photo} alt={`Photo ${i + 1}`} />
             <button
               type="button"
               onClick={() => remove(i)}
               aria-label={`Remove photo ${i + 1}`}
-              className="absolute right-0 top-0 flex size-11 items-center justify-center active:scale-[0.97] motion-reduce:active:scale-100"
+              className={`absolute right-0 top-0 flex size-11 items-center justify-center ${press}`}
             >
               <span className={`flex size-7 items-center justify-center ${glass}`}>
                 <CloseIcon className="size-5" />
@@ -103,7 +103,7 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
                 disabled={busy}
                 onClick={() => picker.current?.click()}
                 aria-label={`Add photo: ${name}, ${photos.length + k < min ? "required" : "recommended"}`}
-                className="flex aspect-[4/3] w-full cursor-pointer flex-col items-center justify-center gap-0.5 rounded-control border border-dashed border-control px-2 py-1 text-center text-meta text-text-2 transition-colors hover:border-text hover:text-text disabled:cursor-default disabled:opacity-60"
+                className="flex aspect-photo w-full cursor-pointer flex-col items-center justify-center gap-0.5 rounded-control border border-dashed border-control px-2 py-1 text-center text-meta text-text-2 transition-colors hover:border-text hover:text-text disabled:cursor-default disabled:opacity-60"
               >
                 <CameraIcon className="size-6" />
                 <span className="font-semibold">{name}</span>
@@ -130,7 +130,7 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
             <label
               htmlFor={id}
               aria-busy={busy}
-              className="flex aspect-[4/3] cursor-pointer flex-col items-center justify-center gap-1 rounded-control border border-dashed border-control text-meta font-semibold peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-text peer-disabled:cursor-default peer-disabled:opacity-60 contrast-more:border-text"
+              className="flex aspect-photo cursor-pointer flex-col items-center justify-center gap-1 rounded-control border border-dashed border-control text-meta font-semibold peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-text peer-disabled:cursor-default peer-disabled:opacity-60 contrast-more:border-text"
             >
               <PlusIcon />
               Add Photos

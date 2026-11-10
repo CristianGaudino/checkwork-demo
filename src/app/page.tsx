@@ -13,7 +13,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { ReviewsStrip } from "@/components/reviews/ReviewsStrip";
 import { ListingCard } from "@/components/stock/ListingCard";
 import { ArrowRightIcon } from "@/components/stock/icons";
-import { accentButton, press, sectionTitle, secondaryButton, textLink } from "@/components/ui";
+import { accentButton, pageMain, pageWidth, press, sectionTitle, secondaryButton, textLink } from "@/components/ui";
 import { dealerJsonLd } from "@/lib/dealer";
 import { HOME } from "@/lib/home.config";
 import { getReviews } from "@/lib/reviews";
@@ -40,12 +40,12 @@ export default async function Home() {
       {/* The showroom window: the dealership photo full width with light falling from the top, the line on the left and the search floating on glass. */}
       <section className="relative isolate overflow-hidden">
         <HeroMosaic />
-        <div className="mx-auto grid max-w-[1280px] grid-cols-1 gap-8 px-4 pb-8 pt-16 sm:px-6 lg:min-h-[38rem] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-end lg:gap-12 lg:px-8 lg:pb-14 lg:pt-24">
+        <div className={`${pageWidth} grid grid-cols-1 gap-8 pb-8 pt-16 lg:min-h-[38rem] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-end lg:gap-12 lg:pb-14 lg:pt-24`}>
           <div className="theme-dark flex min-w-0 flex-col items-start text-text">
             <p className="text-meta font-semibold text-text/80">Quality Used Cars</p>
             <h1 className="mt-3 max-w-[10ch] text-hero font-semibold lg:text-hero-lg">Find Your Next Car</h1>
             <p className="mt-4 max-w-[40ch] text-body text-text/90">A carefully selected range of quality used cars, backed by trusted service and straightforward finance.</p>
-            <p className="mt-2 max-w-[65ch] text-meta text-text/75">Find us at {DEALER_ADDRESS_LINES.join(", ").replace(/ (\S+)$/, " $1")}.</p>
+            <p className="mt-2 max-w-measure text-meta text-text/75">Find us at {DEALER_ADDRESS_LINES.join(", ").replace(/ (\S+)$/, " $1")}.</p>
             <div className="mt-6 flex w-full flex-wrap gap-3">
               <Link href="/used-cars" className={`inline-flex w-full items-center justify-center gap-2 sm:w-auto ${accentButton}`}>
                 Browse Stock
@@ -62,7 +62,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-12 px-4 pb-16 pt-12 sm:px-6 lg:gap-16 lg:px-8">
+      <div className={`${pageMain} flex flex-col gap-12 lg:gap-16`}>
         <ShopByType bodies={search.bodies.slice(0, HOME.shopByTypeMax)} />
 
         <section aria-labelledby="featured" className="flex flex-col gap-4">

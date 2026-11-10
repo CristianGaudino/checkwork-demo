@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { FeatureCard } from "@/components/Feature";
 import { CallButton } from "@/components/InfoPage";
 import { LayersIcon, ShieldCheckIcon } from "@/components/stock/icons";
-import { pageMain, pageTitle, subTitle } from "@/components/ui";
+import { pageMain, subTitle } from "@/components/ui";
 import { DEALER_LOCATION, DEALER_PHONE, SITE_NAME, WARRANTY } from "@/lib/site";
+import { PageHeading } from "@/components/PageHeading";
 
 export const metadata: Metadata = { title: "Warranty", description: `The warranty that comes with a used car from ${SITE_NAME} in ${DEALER_LOCATION}, and the longer cover you can add.` };
 
@@ -12,15 +13,7 @@ export default function WarrantyPage() {
   return (
     <main className={pageMain}>
       {/* Laid out like the Service page: from 1024px the call button sits on the right, level with the title. */}
-      <div className="lg:flex lg:items-end lg:justify-between lg:gap-8">
-        <div>
-          <h1 className={pageTitle}>Warranty</h1>
-          <p className="mt-2 max-w-[65ch] text-pretty text-body">Every car comes with cover, and you can add more.</p>
-        </div>
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row lg:mt-0 lg:shrink-0">
-          <CallButton>Call {DEALER_PHONE}</CallButton>
-        </div>
-      </div>
+      <PageHeading title="Warranty" intro="Every car comes with cover, and you can add more." actions={<CallButton>Call {DEALER_PHONE}</CallButton>} />
 
       <section className="mt-12 flex flex-col gap-4">
         <h2 className={subTitle}>What You Get</h2>

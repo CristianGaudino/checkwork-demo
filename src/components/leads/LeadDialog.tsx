@@ -67,11 +67,11 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
           Enquire
         </button>
         <button type="button" onClick={(e) => show(e.currentTarget, "drive")} className={`col-span-2 sm:col-span-1 ${secondary}`}>
-          <CalendarIcon className="size-5 text-accent" />
+          <CalendarIcon className="size-5 text-accent-text" />
           Test Drive
         </button>
         <a href={`tel:${DEALER_TEL}`} className={secondary}>
-          <PhoneIcon className="size-5 text-accent" />
+          <PhoneIcon className="size-5 text-accent-text" />
           Call Us
         </a>
         <WhatsAppButton href={whatsapp} sizing="px-3" />
@@ -87,11 +87,18 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
         </LeadForm>
       </LeadDialog>
       <LeadDialog title="Test Drive" open={open === "drive"} onClose={close}>
-        <LeadForm type="test_drive" car={car} variant="dialog" submitLabel="Book" success={{ heading: "Thanks, we have your request.", body: `We'll confirm your test drive in the ${car.name} by phone or email.` }}>
-          {({ bind }) => <DriveFields bind={bind} />}
-        </LeadForm>
+        <TestDriveForm car={car} />
       </LeadDialog>
     </>
+  );
+}
+
+// The test drive form inside a dialog: a day and a time, then the thanks. Used on a car page and on the Test Drive page.
+export function TestDriveForm({ car }: { car: CarSummary }) {
+  return (
+    <LeadForm type="test_drive" car={car} variant="dialog" submitLabel="Book" success={{ heading: "Thanks, we have your request.", body: `We'll confirm your test drive in the ${car.name} by phone or email.` }}>
+      {({ bind }) => <DriveFields bind={bind} />}
+    </LeadForm>
   );
 }
 
@@ -103,7 +110,7 @@ export function StockAlertButton({ car, kind }: { car: CarSummary; kind: "back-i
   return (
     <>
       <button ref={opener} type="button" onClick={() => setOpen(true)} className={`flex h-12 w-full items-center justify-center gap-2 px-3 text-text ${secondaryButton}`}>
-        <BellIcon className="size-5 text-accent" />
+        <BellIcon className="size-5 text-accent-text" />
         {back ? "Notify Me" : "Price Alert"}
       </button>
       <LeadDialog

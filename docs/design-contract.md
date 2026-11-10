@@ -5,7 +5,7 @@ Status: approved by the owner, 2026-11-10 (direction, font, header switch and da
 ## 1. Goal
 Change the look, feel and layout completely, so the demo reads as its own product and nobody sees a re-skin of another dealer site. **Every behaviour stays**: stock browsing, filters, car pages, saved and compare, finance estimate, trade-in, find a car, contact, service, the lead pipeline, accessibility and the mobile-first rules. What changes is colour, type, shape, motion, composition and navigation.
 
-The demo is also the all-inclusive product, shown from three perspectives (customer, dealer, superuser), and it must have room for new cars, manufacturer partnerships and commercial vehicles with VAT pricing. The look has to carry all of that.
+The demo is also the all-inclusive product, shown from three perspectives (customer, dealer), and it must have room for new cars, manufacturer partnerships and commercial vehicles with VAT pricing. The look has to carry all of that.
 
 ## 2. What the research says
 Mostly vendor blogs, so this is direction, not proof.
@@ -37,10 +37,9 @@ One sentence: a bright, editorial showroom, where the cars are the colour.
 - **Admin:** see 5.
 
 ## 5. Three perspectives and the role switch
-A **role switch** (customer · dealer · superuser) lives in a slim demo bar fixed at the top of every page, outside the site's own header, so the site itself stays clean. Choosing a role changes the route and the layout:
+A **role switch** (customer · dealer) lives in a slim demo bar fixed at the top of every page, outside the site's own header, so the site itself stays clean. Choosing a role changes the route and the layout:
 - **Customer:** the public site at `/`.
 - **Dealer:** the dealership admin at `/admin`: sidebar (Overview, Leads, Stock, Customers and alerts, Marketing, Analytics, Settings), a top bar with the dealership's name and the role switch.
-- **Superuser:** the platform view at `/platform`: dealerships list, usage and billing, platform settings.
 The admin uses the same tokens and components as the site but a denser, calmer layout (tables, filters, forms), always light by default. The demo's role is a cookie, never real auth; the real admin is protected by Cloudflare Access (admin issue). The demo bar is removed for a real client site.
 
 ## 6. Components to design and build (in this order)
@@ -67,15 +66,17 @@ The admin uses the same tokens and components as the site but a denser, calmer l
 6. Car page and the photo viewer.
 7. Forms.
 8. Content pages and error pages.
-9. Admin and platform shells (with the admin issues).
+9. The admin shell (with the admin issues).
 Each PR keeps every E2E test green (tests that pin the old look are updated with the change), runs the ponytail audit, and has screenshots at 360, 768 and 1280px in light and dark.
 
 ## 9. Decisions (owner, 2026-11-10)
-- Direction: "Showroom", light first and editorial.
-- Font: Manrope.
+- Direction: "Showroom" (a lit showroom, light first).
+- Font: Sora (see Showroom below).
 - The header is built now with the vehicle-type switch (Used, New, Commercial). It shows only the sections that exist.
 - Dark stays as a user choice, next to the light default.
-- Role switch (customer, dealer, superuser) as a demo bar: agreed.
+- Role switch (customer, dealer) as a demo bar: agreed.
+
+Update (2026-11): the superuser and the platform are not part of the dealer site. Dealers see everything except sensitive figures unless they have a permission (margins). See `docs/dealer-admin.md`.
 
 ## Showroom (owner decision, 2026-11)
 The look was redone so the demo reads as its own site. Direction: a lit showroom.
@@ -85,4 +86,3 @@ The look was redone so the demo reads as its own site. Direction: a lit showroom
 - **Panels:** `card` carries the floor shadow (`--shadow-panel`); radius 1.5rem for panels, 28px for photo tiles.
 - **Home:** a full-width hero (the dealership photo) with the headline on the left and the search on frosted glass.
 - **Make logos:** shown beside the make in the filter, the search drop-down, the chips, the cards and the make page heading (`MakeLogo`).
-- Font in use: Sora (this replaces the Manrope line above).

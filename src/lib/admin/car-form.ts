@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { slugify, carSlug } from "./stock-admin-pure";
 import { CONDITIONS, FUELS, GEARBOXES, TEXT_LIMITS, VAT_STATUSES, type Car } from "@/lib/stock/types";
+import { fieldErrors } from "./validation";
 
 // The car form, as data the server checks. The browser's own limits (min, max, maxLength) are a convenience; this is the check.
 // Empty boxes mean "not given", never zero.
@@ -43,11 +44,7 @@ export type FormResult = { ok: true; car: Car } | { ok: false; errors: Record<st
 // Turns what the form sent into a Car. The photos, and anything the form does not edit, come from the car being edited.
 export function carFromForm(data: FormData, id: string, existing?: Car, today = new Date().toISOString().slice(0, 10)): FormResult {
   const parsed = carFormSchema.safeParse(Object.fromEntries(data));
-  if (!parsed.success) {
-    const errors: Record<string, string> = {};
-    for (const issue of parsed.error.issues) errors[String(issue.path[0])] ??= issue.message;
-    return { ok: false, errors };
-  }
+  if (!parsed.success) return { ok: false, errors: fieldErrors(parsed.error) };
   const f = parsed.data;
   const base = { id, make: f.make, model: f.model, year: f.year };
   const car: Car = {

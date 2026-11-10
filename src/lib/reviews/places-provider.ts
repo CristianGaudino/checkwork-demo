@@ -1,6 +1,6 @@
 import type { Review, Reviews, ReviewsProvider } from "./index";
+import { DAY } from "@/lib/time";
 
-const DAY_MS = 86_400_000;
 type Fetch = (url: string, init: RequestInit & { next?: { revalidate?: number } }) => Promise<Response>;
 type Options = { placeId: string; apiKey: string; fetch?: Fetch; now?: () => number };
 
@@ -86,7 +86,7 @@ export function createPlacesProvider({
 
   return {
     get() {
-      if (last && now() - last.at < DAY_MS) return Promise.resolve(last.data);
+      if (last && now() - last.at < DAY) return Promise.resolve(last.data);
       pending ??= load().finally(() => (pending = undefined));
       return pending;
     },

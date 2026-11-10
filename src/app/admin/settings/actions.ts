@@ -4,6 +4,9 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { sendToDealer } from "@/lib/leads/mail";
 import { DEALER_COLLECTIONS, getSettings, leadsStore, settingsStore, type DealerSettings } from "@/lib/admin/collections";
+import { EMAIL_INVALID, NAME_REQUIRED } from "@/lib/copy";
+import { newId } from "@/lib/admin/ids";
+import { fieldErrors } from "@/lib/admin/validation";
 
 export type SettingsState = { errors?: Record<string, string>; saved?: boolean } | undefined;
 
@@ -13,11 +16,7 @@ async function change(fn: (s: DealerSettings) => DealerSettings) {
   revalidatePath("/admin/settings");
 }
 
-const fail = (e: z.ZodError): SettingsState => {
-  const errors: Record<string, string> = {};
-  for (const i of e.issues) errors[String(i.path[0])] ??= i.message;
-  return { errors };
-};
+const fail = (e: z.ZodError): SettingsState => ({ errors: fieldErrors(e) });
 
 const targets = z.object({
   leadSlaHours: z.coerce.number().int("Whole hours").min(1, "At least 1 hour").max(168, "At most 168 hours (a week)"),
@@ -65,13 +64,13 @@ export async function sendTestEmailAction(): Promise<SettingsState> {
   }
 }
 
-const member = z.object({ name: z.string().trim().min(1, "Enter a name").max(60), email: z.string().trim().email("Enter a valid email").max(120), role: z.enum(["Owner", "Sales", "Finance"]) });
+const member = z.object({ name: z.string().trim().min(1, NAME_REQUIRED).max(60), email: z.string().trim().email(EMAIL_INVALID).max(120), role: z.enum(["Owner", "Sales", "Finance"]) });
 export async function addTeamAction(_p: SettingsState, data: FormData): Promise<SettingsState> {
   const r = member.safeParse(Object.fromEntries(data));
   if (!r.success) return fail(r.error);
   const { team } = await getSettings();
   if (team.some((t) => t.name.toLowerCase() === r.data.name.toLowerCase())) return { errors: { name: "Someone with that name is already on the team" } };
-  await change((s) => ({ ...s, team: [...s.team, { id: `u${Date.now()}`, ...r.data }] }));
+  await change((s) => ({ ...s, team: [...s.team, { id: newId("u"), ...r.data }] }));
   return { saved: true };
 }
 

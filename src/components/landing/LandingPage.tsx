@@ -2,7 +2,7 @@ import { MakeLogo } from "@/components/MakeLogo";
 import Link from "next/link";
 import { JsonLd } from "@/components/JsonLd";
 import { ListingCard } from "@/components/stock/ListingCard";
-import { card, pageMain, pageTitle, secondaryButton, subTitle } from "@/components/ui";
+import { card, pageMain, pageTitle, secondaryButton, subTitle, press } from "@/components/ui";
 import { ChevronRightIcon } from "@/components/stock/icons";
 import { countLabel } from "@/lib/stock/format";
 import { itemListJsonLd, landingFilter, landingIntro, landingName } from "@/lib/stock/landing";
@@ -52,7 +52,7 @@ function LinkChips({ heading, options, href, logos = false }: { heading: string;
           <li key={o.value} className="min-w-0 max-w-full">
             <Link
               href={href(o)}
-              className="inline-flex min-h-11 max-w-full items-center gap-2 rounded-full border border-control bg-card px-4 active:scale-[0.97] motion-reduce:active:scale-100"
+              className={`inline-flex min-h-11 max-w-full items-center gap-2 rounded-full border border-control bg-card px-4 ${press}`}
             >
               {logos && <MakeLogo slug={o.value} className="size-5" />}
               <span className="truncate font-semibold">{o.label}</span>
@@ -82,7 +82,7 @@ export function LandingPage({ data }: { data: LandingData }) {
       {facts && (
         <>
           <JsonLd data={itemListJsonLd(shown)} />
-          <p className="mt-4 max-w-[65ch] text-body">{landingIntro(landing, facts)}</p>
+          <p className="mt-4 max-w-measure text-body">{landingIntro(landing, facts)}</p>
           {landing.kind === "make" && <LinkChips heading="Models" options={facets.model} href={toModel} />}
           {landing.kind === "body" && <LinkChips heading="Makes" options={facets.make} href={toPage} logos />}
           {landing.kind === "model" && (
@@ -118,7 +118,7 @@ export function LandingPage({ data }: { data: LandingData }) {
       {!facts && (
         <>
           <h2 className="mt-4 text-heading font-semibold">No {name} in Stock Right Now</h2>
-          <p className="mt-2 max-w-[65ch] text-pretty text-body">Have a look at these instead.</p>
+          <p className="mt-2 max-w-measure text-pretty text-body">Have a look at these instead.</p>
           {landing.kind === "body" ? (
             <LinkChips heading="Body Types in Stock" options={facets.body} href={toPage} />
           ) : (

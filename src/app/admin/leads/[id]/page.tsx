@@ -1,3 +1,4 @@
+import { NEW_TAB } from "@/components/ui";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LeadStatusBadge } from "@/components/admin/badges";
@@ -28,7 +29,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <div className="flex min-w-0 flex-col gap-6">
           <Panel title="Message">
-            <p className="max-w-[65ch] text-body">{lead.message}</p>
+            <p className="max-w-measure text-body">{lead.message}</p>
             {lead.carTitle && lead.carSlug && (
               <p className="text-meta text-text-2">
                 About{" "}
@@ -102,7 +103,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                 </a>
               </li>
               <li>
-                <a href={`https://wa.me/${wa}`} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center underline">
+                <a href={`https://wa.me/${wa}`} {...NEW_TAB} className="inline-flex min-h-11 items-center underline">
                   WhatsApp<span className="sr-only"> (opens in a new tab)</span>
                 </a>
               </li>

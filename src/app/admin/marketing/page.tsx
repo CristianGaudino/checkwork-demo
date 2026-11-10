@@ -102,7 +102,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                   {p.status === "posted" && <span className="text-meta text-text-2">{fmtNum(p.reach ?? 0)} reached · {fmtNum(p.clicks ?? 0)} clicks</span>}
                 </div>
                 {p.status === "posted" ? (
-                  <p className="max-w-[65ch] whitespace-pre-line text-body">{p.text}</p>
+                  <p className="max-w-measure whitespace-pre-line text-body">{p.text}</p>
                 ) : (
                   <>
                     <form action={savePostAction.bind(null, p.id)} className="flex flex-col gap-2">
@@ -204,7 +204,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                 </div>
                 {n.status === "sent" && n.recipients !== undefined && <span className="text-meta text-text-2">{fmtNum(n.recipients)} sent · {fmtPct(((n.opens ?? 0) / n.recipients) * 100)} opened · {fmtPct(((n.clicks ?? 0) / n.recipients) * 100)} clicked</span>}
               </div>
-              <p className="max-w-[65ch] whitespace-pre-line text-body">{n.body}</p>
+              <p className="max-w-measure whitespace-pre-line text-body">{n.body}</p>
               {n.status === "draft" && (
                 <div className="flex flex-wrap gap-3">
                   <form action={sendNewsletterAction.bind(null, n.id)}><button type="submit" className={adminButton}>Send to {fmtNum(live)} subscribers</button></form>

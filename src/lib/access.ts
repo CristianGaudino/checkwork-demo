@@ -1,13 +1,12 @@
-// Cloudflare Access puts a signed token (a JWT) on every request it lets through. The admin and platform check it themselves, so they
-// stay closed if the Access policy is ever missing or the route is not covered. Set CF_ACCESS_TEAM_DOMAIN (team.cloudflareaccess.com)
+// Cloudflare Access puts a signed token (a JWT) on every request it lets through. The dealer admin checks it itself, so it
+// stays closed if the Access policy is ever missing or the route is not covered. Set CF_ACCESS_TEAM_DOMAIN (team.cloudflareaccess.com)
 // and CF_ACCESS_AUD (the application's audience tag) as Worker variables. Nothing here is secret.
 type Jwk = JsonWebKey & { kid: string };
 export type AccessConfig = { team: string; aud: string };
 
-// The platform can have its own application (CF_ACCESS_AUD_PLATFORM), so the dealer's staff are not let into it. Without one it shares the dealer's.
-export const accessConfig = (env: Record<string, string | undefined> = process.env, area: "dealer" | "platform" = "dealer"): AccessConfig | null => {
+export const accessConfig = (env: Record<string, string | undefined> = process.env): AccessConfig | null => {
   const team = env.CF_ACCESS_TEAM_DOMAIN?.trim().replace(/^https?:\/\//, "").replace(/\/$/, "");
-  const aud = (area === "platform" && env.CF_ACCESS_AUD_PLATFORM?.trim()) || env.CF_ACCESS_AUD?.trim();
+  const aud = env.CF_ACCESS_AUD?.trim();
   return team && aud ? { team, aud } : null;
 };
 

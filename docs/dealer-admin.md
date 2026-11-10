@@ -1,6 +1,12 @@
-# Dealer admin and platform
+# Dealer admin
 
-The demo has three perspectives. The public site is `/`. The dealer admin is `/admin`. The platform (superuser) is `/platform`. The demo bar at the top of every page switches between them. There is no login of our own: the area you are in is the role, and on a deployed site Cloudflare Access is the login (see Cloudflare Access below).
+The demo has two views. The public site is `/`. The dealer admin is `/admin`. The demo bar at the top of every page switches between them: choosing Dealer on a public page keeps that page and adds a Dashboard link to the header (and stock and social links on a car page). There is no login of our own: on a deployed site Cloudflare Access is the login (see below). There is no superuser role and no platform in this site: running many dealers is a separate program, not part of what a dealer is sold. The platform that was here is in git history (PR #30).
+
+## Permissions
+
+A dealer sees everything in the admin except sensitive figures, unless they have the permission for them. Today there is one: **margins** (cost prices and profit). With it a dealer gets a Margins screen, a margin column on the stock list, a Stock margin stat on the overview and a cost price box on the car form. Without it none of those are in the page, and the Margins page and the cost field answer as if they were not there (checked on the server, `src/lib/permissions.ts`). Costs are kept in the admin store (`car-costs`), never in the public car data.
+- **On the demo** (the demo bar is on) the bar's **Margins on / off** switch, shown while viewing as the dealer, is the permission: a cookie the server reads.
+- **On a real site** (the demo bar is off, `NEXT_PUBLIC_DEMO_BAR=off`) the permission comes from the signed-in Access email, which the proxy verifies and passes on. Set the Worker variable `ADMIN_MARGINS_EMAILS` to the comma separated addresses that have it. Nobody has it by default.
 
 ## Rules
 
@@ -9,14 +15,13 @@ The demo has three perspectives. The public site is `/`. The dealer admin is `/a
 - **What visitors send reaches the admin.** A test drive booking and a stock alert are lead types in the one lead pipeline (consent, bot check, rate limit, retention). After a lead is stored, `src/lib/admin/real-leads.ts` copies it into the admin's collections (ids start `real-`) so the dealer can work it. The daily purge deletes the copies with the lead.
 - **Lead emails are a setting.** Settings, Lead emails: up to five addresses, a test button, and the `LEAD_TO_EMAIL` variable as the fallback.
 - **No demo, draft or placeholder labels on the public site.** The demo bar and the dev-only data toggle are the only chrome that says "demo".
-- All names, emails, numbers and figures in the admin and platform are made up. Emails use `example.com`.
+- All names, emails, numbers and figures in the admin are made up. Emails use `example.com`.
 
 ## Cloudflare Access (owner set-up, once)
 
-1. Zero Trust, Access, Applications, Add, Self-hosted. Add two paths on the demo domain: `/admin*` and `/platform*`. Allow only the dealer's email addresses.
+1. Zero Trust, Access, Applications, Add, Self-hosted. Add the path `/admin*` on the demo domain. Allow only the dealer's email addresses.
 2. Copy the application's Audience tag. Your team domain is `<team>.cloudflareaccess.com`.
 3. On the Worker, add two variables (not secrets): `CF_ACCESS_TEAM_DOMAIN` and `CF_ACCESS_AUD`.
-4. Optional, to keep the dealer's staff out of the platform: make a second Access application for `/platform*` alone (allow only the superuser's email), and set its audience tag as `CF_ACCESS_AUD_PLATFORM`. Without it the platform uses the dealer's application, so anyone allowed into the admin can open it.
 
 Until both are set the admin answers 404 for everyone. The Worker checks Access's signed token itself (`src/lib/access.ts`), so a missing policy fails closed instead of open.
 
@@ -26,8 +31,8 @@ Until both are set the admin answers 404 for everyone. The Worker checks Access'
 |---|---|
 | Record store (one D1 table, `admin_docs`; memory with no D1) | `src/lib/admin/docs.ts` |
 | The dealer's collections, types and seeds | `src/lib/admin/collections.ts`, `seed-data.ts` |
-| Platform collections (dealerships, invoices, audit) | `src/lib/admin/platform.ts` |
-| Plans and add-ons (prices, limits) | `src/lib/plans.ts` |
+| Permissions (who may see margins) | `src/lib/permissions.ts`, `permission-rules.ts` |
+| Cost prices and margin maths | `costsStore` in `collections.ts`, `src/lib/admin/margins.ts` |
 | Outside services and the settings each needs | `src/lib/integrations.ts` |
 | Admin kit (tables, stat cards, forms, charts) | `src/components/admin/` |
 | Stock the admin edits (the table the site reads) | `src/lib/admin/stock-admin.ts` |

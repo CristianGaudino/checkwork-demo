@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { AdminReview, Lead, TestDrive } from "./collections";
 import { overview } from "./overview";
-import { DAY, HOUR } from "./seed-data";
+import { DAY, HOUR } from "@/lib/time";
 
 const now = new Date("2026-11-10T12:00:00Z").getTime();
 const lead = (id: string, ago: number, status: Lead["status"] = "new"): Lead => ({ id, type: "enquiry", status, name: id, email: "", phone: "", message: "", source: "Website", notes: [], createdAt: now - ago });

@@ -1,4 +1,5 @@
-import { rng, DAY } from "./seed-data";
+import { DAY } from "@/lib/time";
+import { rng } from "./seed-data";
 
 // The numbers on the Analytics page. Until real site analytics is connected (integrations.ts, "analytics"), they are generated here from a
 // fixed seed: the same range always gives the same figures, and the figures agree with each other (the days add up to the totals, the

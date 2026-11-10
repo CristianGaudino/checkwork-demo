@@ -9,7 +9,7 @@ import type { Car } from "@/lib/stock/types";
 const VISIBLE_FEATURES = 12;
 const LONG_DESCRIPTION = 700; // characters; the demo's longest is 978
 // wrap-anywhere: a bare web address in the dealer's text has no space to break at.
-const text = "mt-4 max-w-[65ch] whitespace-pre-line wrap-anywhere";
+const text = "mt-4 max-w-measure whitespace-pre-line wrap-anywhere";
 const h2 = "text-heading font-semibold";
 
 // Server components. Dealer text is rendered as React text only, never as HTML (T-02-14). Each returns nothing when it has nothing to show.

@@ -1,10 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { DriveFields } from "./DriveFields";
-import { LeadDialog } from "./LeadDialog";
+import { LeadDialog, TestDriveForm } from "./LeadDialog";
 import type { CarSummary } from "./LeadDialog";
-import { LeadForm } from "./LeadForm";
 import { CalendarIcon } from "@/components/stock/icons";
 import { card, press, secondaryButton } from "@/components/ui";
 
@@ -15,7 +13,7 @@ export function TestDrivePicker({ cars }: { cars: CarSummary[] }) {
   const opener = useRef<HTMLButtonElement | null>(null);
   return (
     <>
-      <ul className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
         {cars.map((c) => (
           <li key={c.id} className={`flex items-center gap-3 p-3 ${card}`}>
             {c.photo && (
@@ -23,7 +21,7 @@ export function TestDrivePicker({ cars }: { cars: CarSummary[] }) {
               <img src={c.photo} alt="" width={96} height={72} loading="lazy" className="hidden h-[72px] w-24 shrink-0 min-[380px]:block rounded-control bg-photo-bg object-cover" />
             )}
             <div className="min-w-0 flex-1">
-              <p className="truncate font-semibold">{c.name}</p>
+              <p className="line-clamp-2 font-semibold">{c.name}</p>
               <p className="truncate text-meta text-text-2">{c.title}</p>
               <p className="text-meta font-semibold whitespace-nowrap">{c.price}</p>
             </div>
@@ -36,7 +34,7 @@ export function TestDrivePicker({ cars }: { cars: CarSummary[] }) {
               }}
               className={`flex h-11 shrink-0 items-center gap-2 px-3 ${secondaryButton} ${press}`}
             >
-              <CalendarIcon className="size-5 text-accent" />
+              <CalendarIcon className="size-5 text-accent-text" />
               Book
             </button>
           </li>
@@ -50,11 +48,8 @@ export function TestDrivePicker({ cars }: { cars: CarSummary[] }) {
           opener.current?.focus();
         }}
       >
-        {car && (
-          <LeadForm key={car.id} type="test_drive" car={car} variant="dialog" submitLabel="Book" success={{ heading: "Thanks, we have your request.", body: `We'll confirm your test drive in the ${car.name} soon.` }}>
-            {({ bind }) => <DriveFields bind={bind} />}
-          </LeadForm>
-        )}
+        {/* Keyed by the car, so choosing another one never books the wrong car. */}
+        {car && <TestDriveForm key={car.id} car={car} />}
       </LeadDialog>
     </>
   );

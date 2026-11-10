@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import { ShareIcon } from "@/components/stock/icons";
-import { card, secondaryButton } from "@/components/ui";
+import { card, secondaryButton, NEW_TAB } from "@/components/ui";
 
 type Mode = "link" | "native" | "menu";
 type Copy = "idle" | "copied" | "failed";
@@ -58,7 +58,7 @@ export function ShareButton({ title, text, url, iconOnly = false }: { title: str
 
   if (mode === "link") {
     return (
-      <a href={whatsapp} target="_blank" rel="noopener noreferrer" className={shape}>
+      <a href={whatsapp} {...NEW_TAB} className={shape}>
         <ShareIcon />
         {word}
       </a>
@@ -105,7 +105,7 @@ export function ShareButton({ title, text, url, iconOnly = false }: { title: str
           id={panelId}
           className={`absolute right-0 top-full z-10 mt-2 flex w-max min-w-52 flex-col ${card} p-2 shadow-lift transition duration-150 ease-out starting:translate-y-1 starting:opacity-0 motion-reduce:starting:translate-y-0`}
         >
-          <a href={whatsapp} target="_blank" rel="noopener noreferrer" onClick={() => close()} className={item}>
+          <a href={whatsapp} {...NEW_TAB} onClick={() => close()} className={item}>
             Share on WhatsApp
           </a>
           <button type="button" onClick={copyLink} className={item}>

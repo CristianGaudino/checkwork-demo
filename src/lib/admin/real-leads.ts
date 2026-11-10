@@ -3,6 +3,7 @@ import { DETAIL_LABELS } from "@/lib/leads/schema";
 import type { LeadRow } from "@/lib/leads/process";
 import { clashes } from "./drives";
 import { ALERT_KINDS, alertsStore, customersStore, drivesStore, leadsStore, type AlertKind, type Customer, type Lead, type LeadType, type StockAlert, type TestDrive } from "./collections";
+import { HOUR } from "@/lib/time";
 
 // What visitors send reaches the dealer's admin as records. The lead pipeline (consent, bot check, retention) stays the one way in:
 // after a lead is stored, this copies it into the admin's own collections so it can be worked (status, notes, who has it). The copies
@@ -14,7 +15,7 @@ export function dublinMs(date: string, time: string): number {
   const guess = Date.parse(`${date}T${time}:00Z`);
   const offset = (ms: number) => {
     const name = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Dublin", timeZoneName: "shortOffset" }).formatToParts(new Date(ms)).find((p) => p.type === "timeZoneName")?.value ?? "GMT";
-    return Number(/GMT([+-]\d+)?/.exec(name)?.[1] ?? 0) * 3_600_000;
+    return Number(/GMT([+-]\d+)?/.exec(name)?.[1] ?? 0) * HOUR;
   };
   return guess - offset(guess - offset(guess));
 }

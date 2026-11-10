@@ -13,7 +13,7 @@
 	// Deletes leads and their photos after LEAD_RETENTION_MONTHS (worker.mjs, src/lib/leads/purge.ts). Daily, 03:17 UTC.
 	"triggers": { "crons": ["17 3 * * *"] },
 	"observability": { "enabled": true },
-	// Cloudflare Access for /admin and /platform (src/lib/access.ts): the team domain and this application's audience tag. Neither is a secret.
+	// Cloudflare Access for /admin (src/lib/access.ts): the team domain and this application's audience tag. Neither is a secret.
 	"vars": {
 		"CF_ACCESS_TEAM_DOMAIN": "plain-tree-3979.cloudflareaccess.com",
 		"CF_ACCESS_AUD": "50e251d97672aeedc941626800dd6b8384ac4776061c8604d6c3393b1d65ac67"

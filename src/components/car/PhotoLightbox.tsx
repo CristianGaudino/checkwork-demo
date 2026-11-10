@@ -5,8 +5,9 @@ import Image from "next/image";
 import { Brandmark } from "@/components/Brandmark";
 import { useState } from "react";
 import type { RefObject } from "react";
-import { ChevronLeftIcon, ChevronRightIcon, CloseIcon } from "@/components/stock/icons";
-import { arrow, arrowEnd, counterPill } from "@/components/stock/photo-load";
+import { CloseIcon } from "@/components/stock/icons";
+import { PhotoArrow } from "@/components/stock/PhotoArrow";
+import { counterPill } from "@/components/stock/photo-load";
 import type { Photo } from "@/lib/stock/types";
 import { useSlideIndex } from "./useSlideIndex";
 
@@ -91,12 +92,8 @@ export function PhotoLightbox({
           <span aria-hidden="true" className={`${counterPill} left-4 top-4`}>
             {index + 1} / {n}
           </span>
-          <button type="button" aria-label="Previous photo" aria-disabled={atStart} onClick={() => !atStart && go(index - 1)} className={`${arrow} left-4 ${atStart ? arrowEnd : ""}`}>
-            <ChevronLeftIcon />
-          </button>
-          <button type="button" aria-label="Next photo" aria-disabled={atEnd} onClick={() => !atEnd && go(index + 1)} className={`${arrow} right-4 ${atEnd ? arrowEnd : ""}`}>
-            <ChevronRightIcon />
-          </button>
+          <PhotoArrow dir="previous" disabled={atStart} onClick={() => go(index - 1)} className="left-4" />
+          <PhotoArrow dir="next" disabled={atEnd} onClick={() => go(index + 1)} className="right-4" />
         </>
       )}
     </dialog>

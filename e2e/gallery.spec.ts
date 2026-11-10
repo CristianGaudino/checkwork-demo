@@ -15,7 +15,6 @@ test.skip(!car, "No in-stock demo car has 3 or more photos");
 const whole = (page: Page) => page.getByTestId("gallery");
 const gallery = (page: Page) => whole(page).getByRole("group", { name: /^Photos of/ });
 const counter = (page: Page) => gallery(page).locator("..").getByText(/^\d+ \/ \d+$/);
-const thumbs = (page: Page) => whole(page).getByRole("button", { name: /^Show photo/ });
 // A click before React attaches does nothing on a touch device.
 async function open(page: Page, slug: string) {
   await page.goto(`/used-cars/${slug}`);

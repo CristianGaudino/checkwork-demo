@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { FacebookIcon, InstagramIcon, TikTokIcon } from "@/components/stock/icons";
-import { press, sectionTitle } from "@/components/ui";
+import { press, sectionTitle, NEW_TAB } from "@/components/ui";
 import { postsStore } from "@/lib/admin/collections";
 import { simulating } from "@/lib/integrations";
 import { SOCIAL_LINKS } from "@/lib/site";
@@ -31,7 +31,7 @@ export async function SocialStrip({ cars }: { cars: Car[] }) {
             const Icon = ICONS[name];
             return (
               <li key={name}>
-                <a href={href} target="_blank" rel="noopener noreferrer" aria-label={`${name} (opens in a new tab)`} className="inline-flex size-11 items-center justify-center rounded-full transition-colors hover:text-text-2">
+                <a href={href} {...NEW_TAB} aria-label={`${name} (opens in a new tab)`} className="inline-flex size-11 items-center justify-center rounded-full transition-colors hover:text-text-2">
                   <Icon className="size-6" />
                 </a>
               </li>
@@ -45,8 +45,9 @@ export async function SocialStrip({ cars }: { cars: Car[] }) {
           return (
             <li key={post.id} className="min-w-0">
               <Link href={`/used-cars/${car.slug}`} className={`group flex flex-col gap-2 ${press}`}>
-                <span className="relative block aspect-square overflow-hidden rounded-[20px] bg-photo-bg">
-                  <img src={car.photos[0].src} alt="" width={car.photos[0].width} height={car.photos[0].height} loading="lazy" className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none" />
+                <span className="relative block aspect-square overflow-hidden rounded-tile bg-photo-bg">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- a local /stock file, sized by its box */}
+                <img src={car.photos[0].src} alt="" width={car.photos[0].width} height={car.photos[0].height} loading="lazy" className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none" />
                   <span className="absolute left-2 top-2 flex size-8 items-center justify-center rounded-full bg-card/90 text-text">
                     <Icon className="size-5" />
                     <span className="sr-only">{post.network}</span>

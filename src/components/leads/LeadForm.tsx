@@ -234,7 +234,7 @@ export function LeadForm({
           <h2 ref={heading} tabIndex={-1} className="text-heading font-semibold outline-none">
             {success.heading}
           </h2>
-          <p className="max-w-[65ch] text-body">{success.body}</p>
+          <p className="max-w-measure text-body">{success.body}</p>
         </div>
       ) : (
         // A form page with steps puts its progress in a column on the left from 1024px: the stepper's list takes the first column, everything else the second.

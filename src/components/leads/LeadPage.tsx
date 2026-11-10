@@ -1,6 +1,7 @@
 import { IconBadge, TitleText } from "@/components/Feature";
 import { ChevronDownIcon } from "@/components/stock/icons";
-import { card, pageMain, pageTitle } from "@/components/ui";
+import { card, pageMain } from "@/components/ui";
+import { PageHeading } from "@/components/PageHeading";
 
 // `more` is what opens under a step when it is tapped: the detail that belongs with that step, so nothing sits in a column of its own.
 export type HowStep = { title: string; text: string; more?: string[] };
@@ -10,8 +11,7 @@ export type HowStep = { title: string; text: string; more?: string[] };
 export function LeadPage({ title, intro, how, children }: { title: string; intro: string; how?: HowStep[]; children: React.ReactNode }) {
   return (
     <main className={pageMain}>
-      <h1 className={pageTitle}>{title}</h1>
-      <p className="mt-2 max-w-[65ch] text-pretty text-body">{intro}</p>
+      <PageHeading title={title} intro={intro} />
       {how && (
         <ol className="mt-6 grid grid-cols-1 items-start gap-3 sm:grid-cols-3">
           {how.map((s, i) => (

@@ -1,14 +1,14 @@
 import { PhoneIcon } from "@/components/stock/icons";
 import { DEALER_TEL } from "@/lib/site";
-import { accentButton, pageMain, pageTitle, subTitle } from "@/components/ui";
+import { accentButton, pageMain, subTitle } from "@/components/ui";
+import { PageHeading } from "@/components/PageHeading";
 
 // Shared text-page frame (service, about, terms, privacy, warranty).
 export function InfoPage({ title, intro, children }: { title: string; intro?: string; children: React.ReactNode }) {
   return (
     <main className={pageMain}>
-      <h1 className={pageTitle}>{title}</h1>
-      {intro && <p className="mt-2 max-w-[65ch] text-pretty text-body">{intro}</p>}
-      <div className="mt-6 flex max-w-[65ch] flex-col gap-8 text-body">{children}</div>
+      <PageHeading title={title} intro={intro} />
+      <div className="mt-6 flex max-w-measure flex-col gap-8 text-body">{children}</div>
     </main>
   );
 }

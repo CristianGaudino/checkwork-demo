@@ -2,6 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { carFromForm } from "@/lib/admin/car-form";
+import { costsStore } from "@/lib/admin/collections";
+import { can } from "@/lib/permissions";
 import { adminCar, adminCars, removeCar, saveCar } from "@/lib/admin/stock-admin";
 import { nextCarId } from "@/lib/admin/stock-admin-pure";
 
@@ -14,6 +16,13 @@ export async function saveCarAction(id: string | null, _prev: CarFormState, data
   const result = carFromForm(data, id ?? nextCarId(await adminCars()), existing);
   if (!result.ok) return { errors: result.errors };
   await saveCar(result.car);
+  // The cost belongs to staff with the margins permission: without it the box never came, and a forged one is ignored.
+  if (await can("margins")) {
+    const raw = String(data.get("costEur") ?? "").trim();
+    const eur = Number(raw);
+    if (raw === "") await costsStore.remove(result.car.id);
+    else if (Number.isFinite(eur) && eur >= 0 && eur <= 2_000_000) await costsStore.put({ id: result.car.id, costEur: Math.round(eur) });
+  }
   redirect(`/admin/stock?saved=${result.car.id}`);
 }
 
@@ -27,5 +36,6 @@ export async function toggleSoldAction(id: string) {
 
 export async function deleteCarAction(id: string) {
   await removeCar(id);
+  await costsStore.remove(id); // the cost goes with the car
   redirect("/admin/stock?deleted=1");
 }

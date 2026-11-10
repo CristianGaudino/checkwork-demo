@@ -14,7 +14,7 @@ export default async function GonePage({ params }: PageProps<"/gone/[make]">) {
   return (
     <main className={pageMain}>
       <h1 className="text-display font-semibold">This Car Is No Longer Available</h1>
-      <p className="mt-4 max-w-[65ch] text-body text-text-2">It has been sold or taken off our site. Here is what else we have.</p>
+      <p className="mt-4 max-w-measure text-body text-text-2">It has been sold or taken off our site. Here is what else we have.</p>
       <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2">
         <Link
           href={`/used-cars/${make.slug}`}

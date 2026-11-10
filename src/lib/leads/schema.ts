@@ -2,6 +2,7 @@ import { z } from "zod";
 import { FINANCE } from "@/lib/finance/finance.config";
 import { PRICE_STOPS } from "@/lib/stock/types";
 import { BAD_DRIVE_DAY, BAD_DRIVE_TIME, BAD_KM, driveDays, driveTimes, phoneError, BAD_REG, CONTACT_ERROR, EMPLOYMENT, KM_PATTERN, LIMITS, REG_PATTERN, SOURCING_BODIES, SOURCING_CAR_ERROR } from "./constants";
+import { DAY } from "../time";
 
 // The lead validation, run on the server. Client components import ./constants, never this file (it brings zod).
 
@@ -99,7 +100,7 @@ const finance = {
 // Checked from a day earlier, so a form opened before midnight Irish time still sends its "tomorrow" after midnight.
 const testDrive = {
   carId,
-  driveDate: given(z.string({ error: BAD_DRIVE_DAY }).refine((v) => driveDays(new Date(Date.now() - 86_400_000)).includes(v), BAD_DRIVE_DAY)),
+  driveDate: given(z.string({ error: BAD_DRIVE_DAY }).refine((v) => driveDays(new Date(Date.now() - DAY)).includes(v), BAD_DRIVE_DAY)),
   driveTime: given(z.string({ error: BAD_DRIVE_TIME })),
 };
 

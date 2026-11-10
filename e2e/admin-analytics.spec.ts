@@ -4,7 +4,7 @@ test("analytics shows the totals, a chart with a text alternative, and a range t
   await page.goto("/admin/analytics");
   await expect(page.getByRole("img", { name: /Visitors each day over the last 30 days/ })).toBeVisible();
   await expect(page.getByRole("table", { name: /Visitors each day/ })).toHaveCount(1);
-  const visitors = async () => (await page.locator("p.text-display").first().textContent())!;
+  const visitors = async () => (await page.locator("p.text-stat").first().textContent())!;
   const at30 = await visitors();
   await page.getByRole("link", { name: "Last 7 days" }).click();
   await expect(page).toHaveURL(/range=7/);

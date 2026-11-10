@@ -33,7 +33,8 @@ describe("links and copy in src", () => {
   });
 
   it("every header and footer route has a page", () => {
-    const paths = ["components/SiteHeader.tsx", "components/SiteFooter.tsx"].flatMap((f) => [...read(f).matchAll(/href[:=]\s*"(\/[^"]*)"/g)].map((m) => m[1]));
+    // The links are defined once, in lib/nav.ts (link("/path", ...)), and picked by the header, menu and footer.
+    const paths = ["components/SiteHeader.tsx", "components/SiteFooter.tsx", "lib/nav.ts"].flatMap((f) => [...read(f).matchAll(/(?:href[:=]\s*|link\()"(\/[^"]*)"/g)].map((m) => m[1]));
     expect(paths).toContain("/terms");
     // A route is a page.tsx path under app with route groups, like (browse), taken out.
     const routes = new Set(files.filter((f) => /^app\/(.*\/)?page\.tsx$/.test(f)).map((f) => `/${f.slice(4, -"page.tsx".length)}`.replace(/\([^/]+\)\//g, "").replace(/(.)\/$/, "$1")));

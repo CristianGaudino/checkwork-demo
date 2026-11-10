@@ -11,6 +11,7 @@ import { PriceRange } from "@/components/PriceRange";
 import { CheckIcon, ChevronDownIcon, SearchIcon } from "./icons";
 import { useStock } from "./StockShell";
 import { chip, press } from "@/components/ui";
+import { SEARCH_MAKE_MODEL } from "@/lib/copy";
 
 const COLLAPSED = 8;
 // One accordion row, as in the mockup: the title and a chevron, the options under it. It starts open when something in it is chosen,
@@ -161,8 +162,8 @@ export function SearchBox() {
     <SearchIcon aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-text-2" />
     <input
       type="search"
-      aria-label="Search make or model"
-      placeholder="Search make or model"
+      aria-label={SEARCH_MAKE_MODEL}
+      placeholder={SEARCH_MAKE_MODEL}
       maxLength={80}
       enterKeyHint="search"
       onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()} // closes the phone keyboard; the debounced search still runs

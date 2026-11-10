@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { StateBlock } from "@/components/StateBlock";
 import { accentButton } from "@/components/ui";
+import { CONNECTION_ERROR } from "@/lib/copy";
 
 // Its own module so /saved can show it without loading the filter UI that lives in StockShell.
 export const stateButton = `mt-6 inline-flex items-center ${accentButton}`;
@@ -25,7 +26,7 @@ export function StockError({ retry }: { retry?: () => void }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   return (
-    <StateBlock title="We Couldn't Load the Cars" text="Check your connection and try again.">
+    <StateBlock title="We Couldn't Load the Cars" text={CONNECTION_ERROR}>
       <button type="button" disabled={pending} onClick={() => (retry ? retry() : startTransition(() => router.refresh()))} className={stateButton}>
         Try Again
       </button>

@@ -9,7 +9,8 @@ import type { Car } from "@/lib/stock/types";
 
 // Add or edit a car. Every box comes from CAR_FIELDS; the server checks it again (car-form.ts), and a bad box comes back with its message.
 // `car` is the car being edited, or none for a new one.
-export function CarForm({ car }: { car?: Car }) {
+// `cost` is only given to staff with the margins permission, and the box is not in the page without it.
+export function CarForm({ car, cost }: { car?: Car; cost?: { eur?: number } }) {
   const [state, action, pending] = useActionState<CarFormState, FormData>(saveCarAction.bind(null, car?.id ?? null), undefined);
   const errors = state?.errors ?? {};
   const value = (name: string): string => {
@@ -43,6 +44,14 @@ export function CarForm({ car }: { car?: Car }) {
           </div>
         </Panel>
       ))}
+
+      {cost && (
+        <Panel title="Cost">
+          <Field label="Cost price (€)" hint="What the car cost you. Only people with the margins permission see this." error={errors.costEur} className="sm:max-w-xs">
+            <input name="costEur" type="number" min={0} step={50} inputMode="decimal" defaultValue={cost.eur ?? ""} className={adminInput} />
+          </Field>
+        </Panel>
+      )}
 
       <Panel title="Status">
         <Field label="Availability" hint="A sold car stays on the site for a while, marked Sold.">

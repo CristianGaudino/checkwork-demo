@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { DEALER_LOCATION, SITE_NAME } from "@/lib/site";
 import { FinanceCalculator } from "@/components/finance/FinanceCalculator";
-import { pageMain, pageTitle } from "@/components/ui";
+import { pageMain } from "@/components/ui";
+import { PageHeading } from "@/components/PageHeading";
 
 export const metadata: Metadata = {
   title: "Car Finance Estimator",
@@ -11,8 +12,7 @@ export const metadata: Metadata = {
 export default function FinancePage() {
   return (
     <main className={pageMain}>
-      <h1 className={pageTitle}>Finance Estimator</h1>
-      <p className="mt-2 max-w-[65ch] text-pretty text-body">Type a price and choose a deposit and a term to see roughly what a monthly payment could be.</p>
+      <PageHeading title="Finance Estimator" intro="Type a price and choose a deposit and a term to see roughly what a monthly payment could be." />
       <div className="mt-6 flex flex-col gap-4">
         <FinanceCalculator />
       </div>

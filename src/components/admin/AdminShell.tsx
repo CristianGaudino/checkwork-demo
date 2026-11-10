@@ -2,7 +2,7 @@ import Link from "next/link";
 import { AdminNav } from "@/components/admin/AdminNav";
 import type { NavItem } from "@/lib/admin/nav";
 
-// The frame of the dealer and platform areas: a calm sidebar on a desktop, a swipe row on a phone, a top line with who you are.
+// The frame of the dealer area: a calm sidebar on a desktop, a swipe row on a phone, a top line with who you are.
 // The pages inside are server components; nothing here knows what they show.
 export function AdminShell({ title, subtitle, nav, navLabel, children }: { title: string; subtitle: string; nav: NavItem[]; navLabel: string; children: React.ReactNode }) {
   return (
