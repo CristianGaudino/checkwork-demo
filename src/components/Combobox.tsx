@@ -1,9 +1,10 @@
 "use client";
 
+import { MakeLogo } from "@/components/MakeLogo";
 import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { CheckIcon, ChevronDownIcon } from "@/components/stock/icons";
 
-export type ComboOption = { value: string; label: string };
+export type ComboOption = { value: string; label: string; logo?: string }; // `logo`: a make slug, shown beside the label
 
 // Search ignores case and accents, as the stock search does.
 const fold = (s: string) => s.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
@@ -214,7 +215,10 @@ export function Combobox({
               onMouseMove={() => setActive(i)}
               className={`flex min-h-11 cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-2 text-body active:bg-hairline ${i === active ? "bg-hairline" : ""} ${o.value === current ? "font-semibold" : ""}`}
             >
-              <span className="min-w-0 truncate">{o.label}</span>
+              <span className="flex min-w-0 items-center gap-2">
+                {o.logo && <MakeLogo slug={o.logo} className="size-5" />}
+                <span className="truncate">{o.label}</span>
+              </span>
               {o.value === current && <CheckIcon className="size-4 shrink-0" />}
             </li>
           ))}

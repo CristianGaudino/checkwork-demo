@@ -9,7 +9,7 @@ declare global {
   }
 }
 
-const imgs = (card: Locator) => card.locator("img");
+const imgs = (card: Locator) => card.locator("[data-card-photo] img"); // the make logo under the photo is an image too
 
 type Demo = { id: string; soldAt?: string; photos: { src: string }[] };
 const demo: Demo[] = JSON.parse(readFileSync(join(process.cwd(), "src/lib/stock/demo-cars.json"), "utf8"));
@@ -59,7 +59,7 @@ test("on arrival a card holds only its first photo; the others come later, or at
 
 test("every result image is a local /stock/ file", async ({ page }) => {
   await page.goto("/used-cars");
-  const srcs = await page.locator("article img").evaluateAll((l) => l.map((i) => i.getAttribute("src")));
+  const srcs = await page.locator("article [data-card-photo] img").evaluateAll((l) => l.map((i) => i.getAttribute("src")));
   expect(srcs.length).toBeGreaterThanOrEqual(12);
   for (const src of srcs) expect(src).toMatch(/^\/stock\//);
 });
@@ -90,10 +90,10 @@ test("touch: no arrows, dots follow the swipe, photos fade in", async ({ page })
   await page.goto("/used-cars");
   const card = page.locator("article").first();
   await expect(page.locator('button[aria-label="Next photo"]').first()).toBeHidden();
-  await expect(card.locator("img").first()).toHaveAttribute("data-loaded", "");
+  await expect(imgs(card).first()).toHaveAttribute("data-loaded", "");
   const dots = card.locator("[data-dot]");
   await expect(dots).toHaveCount(CARD_PHOTOS); // the photos after the first arrive a second later, with their dots
-  await expect(card.locator("img")).toHaveCount(CARD_PHOTOS);
+  await expect(imgs(card)).toHaveCount(CARD_PHOTOS);
   await expect(dots.first()).toHaveAttribute("data-active", "");
   await scroller(card).evaluate((el) => el.scrollTo({ left: el.clientWidth, behavior: "instant" }));
   await expect(dots.nth(1)).toHaveAttribute("data-active", "");
@@ -106,7 +106,7 @@ test("a blocked photo leaves the grey photo box (4:3) and no broken image", asyn
   await expect(card).toBeVisible(); // the first-load skeleton can still be up just after load
   const box = (await card.locator("> div").first().boundingBox())!;
   expect(box.width / box.height).toBeCloseTo(4 / 3, 1);
-  await expect(card.locator("img").first()).toHaveCSS("visibility", "hidden");
+  await expect(imgs(card).first()).toHaveCSS("visibility", "hidden");
 });
 
 test.describe("desktop pointer", () => {
@@ -191,9 +191,9 @@ test.describe("desktop pointer", () => {
     const card = page.locator("article").first();
     await expect(imgs(card)).toHaveCount(CARD_PHOTOS);
     const n = await total(card);
-    const shown = await card.locator("img").count();
+    const shown = await imgs(card).count();
     await expect(scroller(card)).toHaveAttribute("aria-roledescription", "carousel");
-    const name = (await card.locator("img").first().getAttribute("alt"))!;
+    const name = (await imgs(card).first().getAttribute("alt"))!;
     expect(name).toMatch(/^\d{4} \S/); // year make model
     for (let i = 1; i <= shown; i++) {
       const slide = card.getByRole("group", { name: `Photo ${i} of ${n}`, exact: true });
@@ -207,6 +207,6 @@ test.describe("desktop pointer", () => {
 
 test("a tap on the photo opens the car page", async ({ page }) => {
   await page.goto("/used-cars");
-  await page.locator("article").first().locator("img").first().tap();
+  await page.locator("article [data-card-photo] img").first().tap();
   await expect(page).toHaveURL(/\/used-cars\/[a-z0-9-]+$/);
 });

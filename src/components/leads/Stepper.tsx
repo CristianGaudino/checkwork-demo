@@ -7,7 +7,7 @@ export function Stepper({ titles, step, headingRef, rail = false }: { titles: st
   const last = titles.length - 1;
   return (
     <>
-      <ol data-rail aria-label="Progress" className={`flex items-center gap-2 ${rail ? "lg:flex-col lg:items-stretch lg:gap-0" : ""}`}>
+      <ol data-rail aria-label="Progress" className={`flex flex-wrap items-center gap-x-2 gap-y-2 ${rail ? "lg:flex-col lg:items-stretch lg:gap-0" : ""}`}>
         {titles.map((title, i) => (
           <li key={title} aria-current={i === step ? "step" : undefined} className={`flex flex-1 items-center gap-2 last:flex-none ${rail ? "lg:flex-none lg:flex-col lg:items-stretch lg:gap-0" : ""}`}>
             <span className="flex items-center gap-3">

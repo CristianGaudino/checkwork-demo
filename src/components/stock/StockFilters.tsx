@@ -1,5 +1,6 @@
 "use client";
 
+import { MakeLogo } from "@/components/MakeLogo";
 import { useEffect, useId, useRef, useState } from "react";
 import { formatKm } from "@/lib/stock/format";
 import { facetRows, toggle, withRange } from "@/lib/stock/query";
@@ -54,6 +55,7 @@ function CheckGroup({ title, group, options, defaultOpen }: { title: string; gro
               onChange={() => !row.disabled && navigate(toggle(query, group, row.value, facets))}
               className="h-5 w-5 shrink-0 accent-accent"
             />
+            {group === "make" && <MakeLogo slug={row.value} className="size-5" />}
             <span className="min-w-0 flex-1 truncate">{row.label}</span>
             {row.count !== undefined && (
               <span data-testid="facet-count" className="shrink-0 text-meta text-text-2">

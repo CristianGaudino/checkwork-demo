@@ -2,7 +2,7 @@
 
 /* UI-SPEC tokens. Resetting the default sizes and weights makes "no font size outside the table" a build-time fact. */
 @theme {
-  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sans: var(--font-sora), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
   --text-*: initial;
   --text-meta: 0.875rem;
@@ -13,12 +13,12 @@
   --text-heading: 1.25rem;
   --text-heading--line-height: 1.2;
   --text-heading--letter-spacing: -0.01em;
-  --text-hero: 2.5rem;
+  --text-hero: 2.25rem;
   --text-hero--line-height: 1.05;
-  --text-hero--letter-spacing: -0.03em;
-  --text-hero-lg: 4rem;
+  --text-hero--letter-spacing: -0.04em;
+  --text-hero-lg: 3.5rem;
   --text-hero-lg--line-height: 1.02;
-  --text-hero-lg--letter-spacing: -0.035em;
+  --text-hero-lg--letter-spacing: -0.04em;
   --text-display: 2rem;
   --text-display--line-height: 1.1;
   --text-display--letter-spacing: -0.02em;
@@ -28,18 +28,19 @@
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
 
-  /* Light is the default ("Showroom": warm paper, near-black ink). The dark set is the same names under [data-theme="dark"] below. */
-  --color-surface: #faf8f5;
-  --color-card: #ffffff;
+  /* Light is the default. "Showroom": pale stone lit from above, a raised warm white for panels, near-black ink. The dark set is the same
+     names under [data-theme="dark"] below: a deep teal-black with warm light. */
+  --color-surface: #ebe8e1;
+  --color-card: #f8f6f2;
   --color-ink: #ffffff; /* the inverse of text: for words on a bg-text pill */
-  --color-band: #0b1020; /* a band that stays dark in both themes (header, footer, photo overlays) */
+  --color-band: #0a1a1f; /* a band that stays dark in both themes (footer, demo bar, photo overlays) */
   --color-accent: #4f46e5;
   --color-on-accent: #ffffff;
-  --color-text: #14121f;
-  --color-text-2: #55526a;
-  --color-hairline: #e6e2da;
-  --color-control: #8a8699;
-  --color-photo-bg: #ece8e1;
+  --color-text: #15181c;
+  --color-text-2: #555b63;
+  --color-hairline: #d6d1c6;
+  --color-control: #8b8f96;
+  --color-photo-bg: #e4e0d7;
   --color-destructive: #c4261d;
   --color-better: #15803d;
   --color-warning: #a15c07;
@@ -47,10 +48,16 @@
   --color-thumb: #ffffff;
   --color-whatsapp: #25d366; /* WhatsApp's own green, for its icon only */
 
-  --radius-card: 1rem;
+  --radius-card: 1.5rem;
   --radius-control: 0.75rem;
 
-  --shadow-lift: 0 8px 24px rgb(20 18 31 / 0.14);
+  --shadow-lift: 0 10px 28px rgb(46 40 28 / 0.2);
+  /* A panel resting on the showroom floor: a lit top edge, a soft long shadow underneath. */
+  --shadow-panel: 0 1px 0 rgb(255 255 255 / 0.75) inset, 0 18px 40px -20px rgb(46 40 28 / 0.38), 0 2px 6px rgb(46 40 28 / 0.08);
+  /* The room: light falling from above onto stone, then the floor getting darker towards the bottom of the page. */
+  --atmosphere: radial-gradient(120% 55% at 50% -8%, rgb(255 255 255 / 0.85), transparent 62%), linear-gradient(180deg, #efece5 0%, #e4e0d7 55%, #dad5ca 100%);
+  /* The lit plinth a car photo sits on. The photo's white studio background is multiplied away, so the car stands on this. */
+  --plinth: radial-gradient(90% 80% at 50% 38%, #ffffff 0%, #efebe3 55%, #d9d4c9 100%);
   --shadow-thumb: 0 0 0 1px rgb(0 0 0 / 0.2), 0 2px 6px rgb(0 0 0 / 0.35);
 
   --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
@@ -61,19 +68,23 @@
 :root[data-theme="dark"],
 .theme-dark {
   color-scheme: dark;
-  --color-surface: #0b1020;
-  --color-card: #141a30;
-  --color-ink: #0b1020;
-  --color-text: #f5f6fb;
-  --color-text-2: #a5adc9;
-  --color-hairline: #242c4a;
-  --color-control: #8a93b5;
-  --color-photo-bg: #1b2240;
+  --color-surface: #0a1a1f;
+  --color-accent: #6d66f0; /* a step lighter than the light theme's, so small accent text and white button text both reach 4.5:1 on the teal-black */
+  --color-card: #112a31;
+  --color-ink: #0a1a1f;
+  --color-text: #f3f1ec;
+  --color-text-2: #a9b8bc;
+  --color-hairline: #21404a;
+  --color-control: #7f9399;
+  --color-photo-bg: #17333a;
   --color-destructive: #f97066;
   --color-better: #4ade80;
   --color-warning: #fbbf24;
   --color-scrim: rgb(0 0 0 / 0.6);
-  --shadow-lift: 0 8px 24px rgb(0 0 0 / 0.5);
+  --shadow-lift: 0 10px 28px rgb(0 0 0 / 0.55);
+  --shadow-panel: 0 1px 0 rgb(255 255 255 / 0.06) inset, 0 20px 44px -18px rgb(0 0 0 / 0.65), 0 2px 6px rgb(0 0 0 / 0.3);
+  --atmosphere: radial-gradient(90% 45% at 50% -10%, rgb(242 196 141 / 0.14), transparent 60%), linear-gradient(180deg, #0a1a1f 0%, #0c2026 60%, #0f262b 100%);
+  --plinth: radial-gradient(90% 80% at 50% 38%, #f4f1ea 0%, #dcd7cc 60%, #bfb9ac 100%);
   --shadow-thumb: 0 0 0 1px rgb(0 0 0 / 0.2), 0 2px 6px rgb(0 0 0 / 0.55);
 }
 
@@ -124,6 +135,18 @@
     html {
       scroll-padding-top: 0;
     }
+  }
+  body {
+    background-image: var(--atmosphere);
+    background-color: var(--color-surface);
+  }
+  /* Car photos are studio shots on white. On the plinth the white is multiplied away, so the car stands on a lit floor, in both themes.
+     Only a box that holds an image gets it; the "No photo yet" boxes keep the plain colour. */
+  .bg-photo-bg:has(img) {
+    background-image: var(--plinth);
+  }
+  .bg-photo-bg img {
+    mix-blend-mode: multiply;
   }
 
   :focus-visible {
