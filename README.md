@@ -5,7 +5,7 @@ A made-up used car dealer site, "Checkwork Motors", that [Checkwork](https://www
 **Stack:** Next.js 16 (App Router) · Tailwind CSS v4 · Cloudflare D1 + Drizzle (leads and stock) · R2 (trade-in and find-a-car photos) · Cloudflare Workers via OpenNext · GitHub Actions
 
 ## Status
-Cloned from the Carright build (a private dealer pitch) and rebranded. Open work is in this repo's [issues](https://github.com/CristianGaudino/checkwork-demo/issues) and the [project board](https://github.com/users/CristianGaudino/projects/8).
+The full, all-inclusive version: the customer site, the dealer's admin area and the superuser view, all on made-up data. Open work is in this repo's [issues](https://github.com/CristianGaudino/checkwork-demo/issues) and the [project board](https://github.com/users/CristianGaudino/projects/8).
 
 Project rules and the PR checklist are in [.claude/CLAUDE.md](.claude/CLAUDE.md).
 
@@ -22,7 +22,7 @@ E2E needs the same `APP_ENV` at build and at run time, for example `APP_ENV=prod
 
 ## Set-up still to do
 - Create the Cloudflare resources and put the D1 id in `wrangler.jsonc` (`REPLACE_WITH_D1_ID`): `npx wrangler d1 create checkwork-demo --jurisdiction eu`, then the R2 bucket `checkwork-demo-lead-photos`.
-- Point `demo.checkwork.ie` at the Worker and add the repo secrets listed in `.env.example`.
+- Point `demo.cgaudino.com` at the Worker and add the repo secrets listed in `.env.example`.
 
 ## Design skills
 Skills live in `.agents/skills` (pinned in `skills-lock.json`), primarily `apple-design`.

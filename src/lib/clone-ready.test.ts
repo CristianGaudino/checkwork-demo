@@ -6,7 +6,7 @@ import { expect, it } from "vitest";
 // everything else reads them from there. This fails when a page or component writes the brand, town or phone in by hand again.
 // Allowed: src/lib/site.ts itself, tests, and the demo stock data and fixtures (replaced per clone, see docs/new-site-checklist.md).
 const ALLOWED = [/^src\/lib\/site\.ts$/, /\.test\.tsx?$/, /demo-cars\.json$/, /worst-cars\.ts$/, /^src\/lib\/reviews\//];
-const WORDS = /checkwork motors|demotown|co. demo|D00 ?0000|906 ?0045|cartwright|carright/i;
+const WORDS = /checkwork motors|demotown|co. demo|D00 ?0000|906 ?0045/i;
 
 function files(dir: string): string[] {
   return readdirSync(dir).flatMap((name) => {

@@ -4,7 +4,8 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 
 const cars = JSON.parse(readFileSync("src/lib/stock/demo-cars.json", "utf8"));
 const q = (v) => `'${String(v).replaceAll("'", "''")}'`;
-const rows = cars.map((c) => `(${q(c.id)}, ${q(c.slug)}, ${q(JSON.stringify(c))})`);
+// One INSERT per car: D1 refuses a statement over 100 KB (SQLITE_TOOBIG), which all the cars in one would be.
+const rows = cars.map((c) => `INSERT INTO cars (id, slug, data) VALUES (${q(c.id)}, ${q(c.slug)}, ${q(JSON.stringify(c))});`);
 mkdirSync("seed", { recursive: true });
-writeFileSync("seed/stock.sql", `DELETE FROM cars;\nINSERT INTO cars (id, slug, data) VALUES\n${rows.join(",\n")};\n`);
+writeFileSync("seed/stock.sql", ["DELETE FROM cars;", ...rows, ""].join("\n"));
 console.log(`${cars.length} cars written to seed/stock.sql`);

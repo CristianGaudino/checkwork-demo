@@ -37,7 +37,7 @@ export const leads = sqliteTable(
   (t) => [index("leads_created_idx").on(t.createdAt)],
 );
 
-// The stock (#16 in the Carright repo, the demo's own D1 stock): one row per car, the whole Car as JSON, so a new Car field needs no migration.
+// The stock: one row per car, the whole Car as JSON, so a new Car field needs no migration.
 export const cars = sqliteTable("cars", {
   id: text().primaryKey(),
   slug: text().notNull().unique(),

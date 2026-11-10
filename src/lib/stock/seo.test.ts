@@ -67,7 +67,7 @@ describe("carJsonLd", () => {
       model: "A4",
       vehicleModelDate: "2019",
       itemCondition: "https://schema.org/UsedCondition",
-      image: ["https://demo.checkwork.ie/stock/101/0.webp"],
+      image: ["https://demo.cgaudino.com/stock/101/0.webp"],
       mileageFromOdometer: { value: 84000, unitCode: "KMT" },
       fuelType: "Diesel",
       vehicleTransmission: "Manual",
@@ -76,7 +76,7 @@ describe("carJsonLd", () => {
         price: 18950,
         priceCurrency: "EUR",
         availability: "https://schema.org/InStock",
-        url: "https://demo.checkwork.ie/used-cars/audi-a4-2019-101",
+        url: "https://demo.cgaudino.com/used-cars/audi-a4-2019-101",
         seller: { "@type": "AutoDealer", name: "Checkwork Motors", telephone: "+35319060045", address: { addressLocality: "Demotown", addressRegion: "Demo", addressCountry: "IE" } },
       },
     });

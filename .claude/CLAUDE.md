@@ -3,7 +3,7 @@
 Read automatically by Claude Code at the start of a session. Edit it like any other file, in a PR.
 
 ## What this is
-A generic demo of the used car dealer site Checkwork sells, with a made-up dealer ("Checkwork Motors"), shown to other businesses. It was cloned from the Carright build (a private pitch to one dealer), so nothing from that dealer may appear here. Public pages only, no private pages for customers. Work is tracked in GitHub issues and the [Checkwork demo project](https://github.com/users/CristianGaudino/projects/8). Read the issues before planning anything.
+A generic, all-inclusive demo of the dealer website Checkwork builds, with a made-up dealer ("Checkwork Motors"), shown to other businesses. It shows three perspectives: the customer (the public site), the dealer (the admin area) and the superuser (platform admin). Public pages for customers; the admin area is protected by Cloudflare Access. Work is tracked in GitHub issues and the [Checkwork demo project](https://github.com/users/CristianGaudino/projects/8). Read the issues before planning anything.
 
 ## Decisions already made
 - Stack: Next.js 16 (App Router; Cache Components are off until OpenNext on Workers supports them, opennextjs-cloudflare#1450), Tailwind CSS v4, Cloudflare Workers via OpenNext (same as the vintage repo), GitHub Actions.
@@ -11,8 +11,9 @@ A generic demo of the used car dealer site Checkwork sells, with a made-up deale
 - Cloudflare D1 (SQLite) + Drizzle for leads, stock and later alert/newsletter subscriptions. Cloudflare Access (not Clerk) protects the future admin area (#20). The public site has no auth.
 - Saved cars live in localStorage.
 - Design: modernised, not a copy of the current site. The logo is the only locked asset. Design with the skills in `.agents/skills`, primarily `apple-design`, and write the contract before building UI.
-- Scope: the public dealer site is built (it came with the clone). The demo's open work is in the issues: the plan toggle (Essential, Business, Pro), the visual differences from Carright, the Cloudflare set-up, and the paid add-ons (admin, analytics, alerts, newsletter, social posts).
-- Planning lives in GitHub issues. The `.planning/` folder stays: code comments cite the decision ids it defines (D-08, T-03-27 and so on). Keep it, and put new planning in issues, not there.
+- Scope: the public dealer site is built. The demo is the full, all-inclusive version (no plan toggle), so every feature shows. The open work is in the issues: the new look, the Cloudflare set-up, the admin and superuser perspectives, new cars and franchise partners, commercial vehicles and VAT pricing, and the paid add-ons.
+- Look: the site must not look like a copy of any other dealer site we have built. Function stays, the look, feel and layout change.
+- Planning lives in GitHub issues. Some code comments cite decision ids (D-08, T-03-27 and so on) from planning notes that were removed from this repo: treat them as history, and put new planning in issues.
 
 ## Standards
 The `vintage` repo (`~/Developer/vintage`, GitHub `CristianGaudino/vintage`) is the reference for code, design and process. When unsure of a standard, follow it. If still unsure, ask the owner and ask for context rather than guessing.

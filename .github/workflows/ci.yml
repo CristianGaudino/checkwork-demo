@@ -63,7 +63,7 @@ jobs:
           npx wrangler dev --test-scheduled --port 8787 --ip 127.0.0.1 > wrangler.log 2>&1 &
           curl -s -o /dev/null --retry 60 --retry-connrefused --retry-delay 2 http://127.0.0.1:8787/robots.txt || true
           fail=0
-          site=https://demo.checkwork.ie # SITE_URL in src/lib/site.ts: the sitemap must name the live site
+          site=https://demo.cgaudino.com # SITE_URL in src/lib/site.ts: the sitemap must name the live site
           # The first car may be sold now, so the live car is the first without a sale date; the expired one has the oldest sale date.
           slug=$(node -p "require('./src/lib/stock/demo-cars.json').find(c => !c.soldAt).slug")
           photo=$(node -p "require('./src/lib/stock/demo-cars.json').find(c => !c.soldAt).photos[0].src")

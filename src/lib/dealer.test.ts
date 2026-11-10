@@ -15,11 +15,11 @@ describe("dealerJsonLd", () => {
     expect(ld(null, false)).toEqual({
       "@context": "https://schema.org",
       "@type": "AutoDealer",
-      "@id": "https://demo.checkwork.ie/#dealer",
+      "@id": "https://demo.cgaudino.com/#dealer",
       name: "Checkwork Motors",
-      url: "https://demo.checkwork.ie",
-      logo: "https://demo.checkwork.ie/brand/logo.png",
-      image: "https://demo.checkwork.ie/brand/logo.png",
+      url: "https://demo.cgaudino.com",
+      logo: "https://demo.cgaudino.com/brand/logo.png",
+      image: "https://demo.cgaudino.com/brand/logo.png",
       telephone: "+35319060045",
       address: { "@type": "PostalAddress", addressLocality: "Demotown", addressRegion: "Co. Demo", addressCountry: "IE" },
     });

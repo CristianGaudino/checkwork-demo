@@ -13,7 +13,7 @@ test("production lets everyone in except /gone and names the sitemap", () => {
   vi.stubEnv("APP_ENV", "production");
   expect(robots()).toEqual({
     rules: { userAgent: "*", allow: "/", disallow: "/gone" },
-    sitemap: "https://demo.checkwork.ie/sitemap.xml",
+    sitemap: "https://demo.cgaudino.com/sitemap.xml",
   });
 });
 

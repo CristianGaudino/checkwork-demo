@@ -7,7 +7,7 @@
 	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
 	"assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
 	"services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "checkwork-demo" }],
-	"routes": [{ "pattern": "demo.checkwork.ie", "custom_domain": true }],
+	"routes": [{ "pattern": "demo.cgaudino.com", "custom_domain": true }],
 	"workers_dev": false,
 	// Deletes leads and their photos after LEAD_RETENTION_MONTHS (worker.mjs, src/lib/leads/purge.ts). Daily, 03:17 UTC.
 	"triggers": { "crons": ["17 3 * * *"] },
@@ -20,5 +20,5 @@
 	"r2_buckets": [{ "binding": "LEAD_PHOTOS", "bucket_name": "checkwork-demo-lead-photos", "jurisdiction": "eu" }],
 	// Leads (D-03): Cloudflare D1. Create it once with `npx wrangler d1 create checkwork-demo --jurisdiction eu` and paste the id below
 	// (an id is not a secret). migrations_dir is where drizzle-kit writes the SQL; npm run db:migrate applies it.
-	"d1_databases": [{ "binding": "DB", "database_name": "checkwork-demo", "database_id": "REPLACE_WITH_D1_ID", "migrations_dir": "drizzle" }]
+	"d1_databases": [{ "binding": "DB", "database_name": "checkwork-demo", "database_id": "34be3b71-c449-4676-802f-04999ab61a73", "migrations_dir": "drizzle" }]
 }
