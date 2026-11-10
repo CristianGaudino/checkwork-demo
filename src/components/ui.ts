@@ -5,15 +5,13 @@ export const press = "active:scale-[0.97] motion-reduce:active:scale-100";
 export const secondaryButton = `rounded-control border border-control bg-card font-semibold ${press}`;
 export const accentButton = `h-12 rounded-control bg-accent px-6 font-semibold text-on-accent ${press}`;
 export const textLink = "inline-flex min-h-11 items-center underline";
-// The mockup's small red slash before a heading or eyebrow.
-export const slash = "before:mr-3 before:inline-block before:h-[0.9em] before:w-[0.3em] before:-skew-x-[14deg] before:bg-accent before:align-[-0.05em]";
 // One look for every page title and every section heading, so no page reads as a different site.
-export const pageTitle = `text-display font-bold lg:text-hero ${slash}`;
-export const sectionTitle = `text-heading font-bold sm:text-display ${slash}`;
+export const pageTitle = `text-display font-bold lg:text-hero`;
+export const sectionTitle = `text-heading font-bold sm:text-display`;
 // The page frame every page shares (w-full, because the body is a flex column that keeps the footer at the bottom): centred, 1280px wide, the same side padding at each width. `pageMain` adds the vertical space.
 export const pageWidth = "mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8";
 export const pageMain = `${pageWidth} pb-16 pt-12`;
-// A plain heading for a section inside a page (the slashed one is `sectionTitle`).
+// A smaller heading for a section inside a page (the bold one is `sectionTitle`).
 export const subTitle = "text-heading font-semibold";
 // The bordered panel every card on the site is: rounded, a hairline border, the card colour. Callers add padding and layout.
 export const card = "rounded-card border border-hairline bg-card";
@@ -34,3 +32,6 @@ export const doneBadge = "flex size-11 items-center justify-center rounded-full 
 export const carSlide = "w-[85%] shrink-0 sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)]";
 // A whole-page message (not found, something broke): centred in the space between header and footer.
 export const messagePage = `${pageMain} flex flex-1 flex-col items-center justify-center text-center`;
+
+// The small coloured line above a page title.
+export const eyebrow = "text-meta font-semibold uppercase tracking-wider text-accent";
