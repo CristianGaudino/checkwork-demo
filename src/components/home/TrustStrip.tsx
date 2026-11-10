@@ -8,10 +8,10 @@ import { card } from "@/components/ui";
 // (DEALER_FACTS_CONFIRMED, which still fails a production deploy).
 const ITEMS = [
   { Icon: ShieldCheckIcon, ...WARRANTY, href: "/warranty" },
-  { Icon: LayersIcon, title: "Extended Warranty", text: "Longer cover is available.", href: "/warranty" },
-  { Icon: CalculatorIcon, title: "Flexible Finance", text: "Finance options to suit you.", href: "/finance" },
-  { Icon: SwapIcon, title: "Trade-In Welcome", text: "Get a fair, no-hassle valuation.", href: "/trade-in" },
-  { Icon: CarIcon, title: "Test Drives", text: "Available on all vehicles. Call or visit us today.", href: "/test-drive" },
+  { Icon: LayersIcon, title: "Extended warranty", text: "Longer cover is available.", href: "/warranty" },
+  { Icon: CalculatorIcon, title: "Flexible finance", text: "Finance options to suit you.", href: "/finance" },
+  { Icon: SwapIcon, title: "Trade-in Welcome", text: "Get a fair, no-hassle valuation.", href: "/trade-in" },
+  { Icon: CarIcon, title: "Test drives", text: "Available on all vehicles. Call or visit us today.", href: "/test-drive" },
 ];
 
 // A banner: one panel, a badge per reason. The cells carry their own padding (no negative margins), so a highlighted cell can never

@@ -5,7 +5,7 @@ import { card, subTitle } from "@/components/ui";
 export function OpeningHours() {
   return (
     <section className="flex flex-col gap-2">
-      <h2 className={subTitle}>Opening Hours</h2>
+      <h2 className={subTitle}>Opening hours</h2>
       <dl className={`flex flex-col divide-y divide-hairline ${card} px-4`}>
         {groupHours().map((h) => (
           <div key={h.label} className="flex items-baseline justify-between gap-4 py-3">

@@ -60,13 +60,13 @@ export default async function CarPage({ params }: PageProps<"/used-cars/[slug]">
       <JsonLd data={carJsonLd(car)} />
       <VehicleHint condition={car.condition ?? "used"} />
       <Breadcrumb car={car} />
+      <CarControls id={car.id} slug={car.slug} sold={isSold(car)} />
       <div className="mt-6 grid grid-cols-1 gap-y-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-x-10">
         <div className="relative lg:col-start-1">
           <CarGallery photos={car.photos} name={carName(car)} />
           {isSold(car) && <SoldBadge hidden className="pointer-events-none absolute left-4 top-4 z-20" />}
         </div>
         <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:sticky lg:top-6 lg:self-start">
-          <CarControls id={car.id} slug={car.slug} sold={isSold(car)} />
           <BuyBox car={car} />
         </div>
         <div className="mt-6 flex flex-col gap-12 lg:col-start-1">

@@ -2,6 +2,7 @@ import "server-only";
 import demoCars from "@/lib/stock/demo-cars.json";
 import extraCars from "@/lib/stock/demo-cars-extra.json";
 import { defineCollection } from "./docs";
+import { NETWORKS, type Network } from "./networks";
 import { demoCost } from "./margins";
 import { DAY, HOUR } from "@/lib/time";
 import { carTitleOf, livePicks, person, rng } from "./seed-data";
@@ -194,9 +195,8 @@ const seedSettings = (): DealerSettings[] => [{ ...SETTINGS_DEFAULT, updatedAt: 
 export const settingsStore = defineCollection<DealerSettings>("settings", seedSettings);
 
 // ---- Marketing: social posts, ads, newsletters ----
-export const NETWORKS = ["Facebook", "Instagram", "TikTok"] as const;
-export type Network = (typeof NETWORKS)[number];
-export type SocialPost = { id: string; network: Network; carSlug?: string; carTitle?: string; text: string; status: "draft" | "scheduled" | "posted"; scheduledFor?: number; postedAt?: number; simulated?: boolean; claimedAt?: number; reach?: number; clicks?: number; createdAt: number };
+export { NETWORKS, type Network };
+export type SocialPost = { id: string; network: Network; carSlug?: string; carTitle?: string; text: string; photos?: string[]; status: "draft" | "scheduled" | "posted"; scheduledFor?: number; postedAt?: number; simulated?: boolean; claimedAt?: number; reach?: number; clicks?: number; createdAt: number };
 export type Ad = { id: string; platform: "Meta" | "Google"; name: string; carTitle: string; budgetEur: number; status: "draft" | "running" | "paused" | "ended"; impressions: number; clicks: number; leads: number; createdAt: number };
 export type Newsletter = { id: string; subject: string; body: string; status: "draft" | "sent"; sentAt?: number; recipients?: number; opens?: number; clicks?: number; createdAt: number };
 

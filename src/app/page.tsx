@@ -40,23 +40,22 @@ export default async function Home() {
       {/* The showroom window: the dealership photo full width with light falling from the top, the line on the left and the search floating on glass. */}
       <section className="relative isolate overflow-hidden">
         <HeroMosaic />
-        <div className={`${pageWidth} grid grid-cols-1 gap-8 pb-8 pt-16 lg:min-h-[38rem] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-end lg:gap-12 lg:pb-14 lg:pt-24`}>
+        <div className={`${pageWidth} grid grid-cols-1 gap-8 pb-24 pt-16 lg:min-h-[38rem] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-end lg:gap-12 lg:pb-28 lg:pt-24`}>
           <div className="theme-dark flex min-w-0 flex-col items-start text-text">
-            <p className="text-meta font-semibold text-text/80">Quality Used Cars</p>
-            <h1 className="mt-3 max-w-[10ch] text-hero font-semibold lg:text-hero-lg">Find Your Next Car</h1>
+            <h1 className="max-w-[14ch] text-balance text-hero font-semibold lg:text-hero-lg">Find your next car</h1>
             <p className="mt-4 max-w-[40ch] text-body text-text/90">A carefully selected range of quality used cars, backed by trusted service and straightforward finance.</p>
             <p className="mt-2 max-w-measure text-meta text-text/75">Find us at {DEALER_ADDRESS_LINES.join(", ").replace(/ (\S+)$/, " $1")}.</p>
             <div className="mt-6 flex w-full flex-wrap gap-3">
               <Link href="/used-cars" className={`inline-flex w-full items-center justify-center gap-2 sm:w-auto ${accentButton}`}>
-                Browse Stock
+                Browse stock
                 <ArrowRightIcon className="size-5" />
               </Link>
-              <Link href="/finance" className={`inline-flex h-12 w-full items-center justify-center gap-2 rounded-control border border-white/40 bg-white/10 px-6 font-semibold text-text backdrop-blur-md sm:w-auto ${press}`}>
-                Estimate Finance
+              <Link href="/finance" className={`inline-flex h-12 w-full items-center justify-center gap-2 rounded-control border border-hairline bg-card px-6 font-medium text-text sm:w-auto ${press}`}>
+                Estimate finance
               </Link>
             </div>
           </div>
-          <div className="w-full rounded-card border border-white/50 bg-surface/80 p-1 shadow-panel backdrop-blur-xl reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none">
+          <div className="w-full rounded-card border border-hairline bg-surface p-1 shadow-panel">
             <HomeSearch makes={search.makes} bodies={search.bodies} models={search.models} />
           </div>
         </div>
@@ -70,12 +69,12 @@ export default async function Home() {
             <>
               <p className="text-body">We couldn&apos;t load the cars.</p>
               <Link href="/used-cars" className={textLink}>
-                See Used Cars
+                See used cars
               </Link>
             </>
           ) : featured.length === 0 ? (
             <>
-              <h2 id="featured" className="text-heading font-semibold">No Cars Listed Right Now</h2>
+              <h2 id="featured" className="text-heading font-semibold">No cars listed right now</h2>
               <Link href="/find-a-car" className={textLink}>
                 Can&apos;t find it? Ask us to find it for you.
               </Link>
@@ -83,9 +82,9 @@ export default async function Home() {
           ) : (
             <>
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
-                <h2 id="featured" className={sectionTitle}>Featured Stock</h2>
+                <h2 id="featured" className={sectionTitle}>Featured stock</h2>
                 <Link href="/used-cars" className={`${textLink} shrink-0 gap-2 whitespace-nowrap`}>
-                  View All Stock
+                  View all stock
                   <ArrowRightIcon className="size-5" />
                 </Link>
               </div>
@@ -104,15 +103,15 @@ export default async function Home() {
 
         <section className="hero-bg grid grid-cols-1 gap-8 rounded-card p-6 lg:grid-cols-[1fr_1.2fr] lg:items-center lg:gap-12 lg:p-12">
           <div className="flex flex-col items-start gap-4">
-            <h2 className={sectionTitle}>Finance Made Simple</h2>
+            <h2 className={sectionTitle}>Finance made simple</h2>
             <p className="max-w-[40ch] text-body text-text-2">Estimate your monthly payment online, then send us your details to start the process.</p>
             <div className="mt-2 flex flex-wrap gap-3">
               <Link href="/finance" className={`inline-flex items-center gap-2 ${accentButton} lg:h-14 lg:px-8 lg:text-heading`}>
-                Check Finance Options
+                Check finance options
                 <ArrowRightIcon className="size-5" />
               </Link>
               <Link href="/trade-in" className={`inline-flex h-12 items-center gap-2 px-6 lg:h-14 lg:px-8 ${secondaryButton}`}>
-                Value Your Trade-In
+                Value Your Trade-in
               </Link>
             </div>
           </div>

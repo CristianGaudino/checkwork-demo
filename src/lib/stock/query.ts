@@ -1,6 +1,6 @@
 import { formatKm, formatPrice } from "./format";
 import { FUEL_LABELS, FUELS, GEARBOX_LABELS, GEARBOXES, SORT_KEYS } from "./types";
-import type { FacetOption, Facets, Fuel, Gearbox, SortKey, StockQuery } from "./types";
+import type { Condition, FacetOption, Facets, Fuel, Gearbox, SortKey, StockQuery } from "./types";
 
 // The only URL <-> StockQuery translation, shared by server and client (BRW-03).
 export const PAGE_SIZE = 12;
@@ -8,6 +8,10 @@ export const PAGE_SIZE = 12;
 const emptyQuery = (sort: SortKey = "newest"): StockQuery => ({ make: [], model: [], body: [], fuel: [], sort, page: 1, pageSize: PAGE_SIZE });
 
 export const DEFAULT_QUERY: StockQuery = emptyQuery();
+
+// Each kind of vehicle has its own list page, with the same filters. A query with no condition is a used car one.
+export const LIST_PATHS: Record<Condition, string> = { used: "/used-cars", new: "/new-cars", commercial: "/commercial" };
+export const conditionOfPath = (pathname: string): Condition => (Object.entries(LIST_PATHS).find(([, p]) => pathname === p)?.[0] as Condition | undefined) ?? "used";
 
 type Params = Record<string, string | string[] | undefined>;
 
@@ -34,8 +38,9 @@ function int(v: string | string[] | undefined, min: number, max: number): number
   return n >= min && n <= max ? n : undefined;
 }
 
-export function parseStockQuery(params: Params): StockQuery {
+export function parseStockQuery(params: Params, condition: Condition = "used"): StockQuery {
   const q = emptyQuery();
+  if (condition !== "used") q.condition = condition;
   const text = first(params.q)?.trim().slice(0, MAX_TEXT);
   if (text) q.q = text;
   q.make = list(params.make);
@@ -49,7 +54,7 @@ export function parseStockQuery(params: Params): StockQuery {
   q.priceMin = int(params.priceMin, 0, 10_000_000);
   q.priceMax = int(params.priceMax, 0, 10_000_000);
   q.kmMax = int(params.kmMax, 0, 2_000_000);
-  if (first(params.sold) === "1") q.sold = "include"; // "only" is for landing pages, never from a URL
+  if (first(params.sold) === "1" && condition === "used") q.sold = "include"; // "only" is for landing pages, never from a URL; new cars and vans have no sold list
   const sort = first(params.sort);
   if ((SORT_KEYS as readonly string[]).includes(sort ?? "")) q.sort = sort as SortKey;
   q.page = int(params.page, 1, 10_000) ?? 1;
@@ -78,10 +83,11 @@ export function toSearchParams(q: StockQuery): URLSearchParams {
 
 export function stockHref(q: StockQuery): string {
   const s = toSearchParams(q).toString().replaceAll("%2C", ",");
-  return s ? `/used-cars?${s}` : "/used-cars";
+  const base = LIST_PATHS[q.condition ?? "used"];
+  return s ? `${base}?${s}` : base;
 }
 
-export const clearFilters = (q: StockQuery): StockQuery => emptyQuery(q.sort);
+export const clearFilters = (q: StockQuery): StockQuery => ({ ...emptyQuery(q.sort), ...(q.condition ? { condition: q.condition } : {}) });
 
 // Applies a From/To or Min/Max change and resets to page 1. If the changed bound crosses the other one, the other one follows it,
 // so the buyer never lands on an empty range by picking in the "wrong" order.
@@ -125,7 +131,7 @@ export function appliedFilters(q: StockQuery, facets: Facets | null): { id: stri
   for (const v of q.fuel) out.push({ id: `fuel:${v}`, label: FUEL_LABELS[v], next: toggle(q, "fuel", v, facets) });
   if (q.gearbox) out.push({ id: "gearbox", label: GEARBOX_LABELS[q.gearbox], next: drop({ gearbox: undefined }) });
   if (q.kmMax !== undefined) out.push({ id: "kmMax", label: `Up to ${formatKm(q.kmMax)}`, next: drop({ kmMax: undefined }) });
-  if (q.sold === "include") out.push({ id: "sold", label: "Sold Cars Included", next: drop({ sold: undefined }) });
+  if (q.sold === "include") out.push({ id: "sold", label: "Sold cars included", next: drop({ sold: undefined }) });
   return out;
 }
 

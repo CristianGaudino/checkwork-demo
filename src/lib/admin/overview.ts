@@ -16,9 +16,9 @@ export function overview(input: { leads: Lead[]; drives: TestDrive[]; reviews: A
   const rated = reviews.filter((r) => r.rating > 0);
 
   const attention: Attention[] = [
-    { key: "slow", label: "New leads past your reply target", count: leads.filter((l) => l.status === "new" && now - l.createdAt > sla).length, href: "/admin/leads?status=new" },
-    { key: "drives", label: "Test drives to confirm", count: drives.filter((d) => d.status === "requested" && d.startsAt >= now).length, href: "/admin/test-drives?status=requested" },
-    { key: "reviews", label: "Reviews without a reply", count: reviews.filter((r) => !r.reply).length, href: "/admin/reviews?filter=unreplied" },
+    { key: "slow", label: "New leads past your reply target", count: leads.filter((l) => l.status === "new" && now - l.createdAt > sla).length, href: "/dashboard/leads?status=new" },
+    { key: "drives", label: "Test drives to confirm", count: drives.filter((d) => d.status === "requested" && d.startsAt >= now).length, href: "/dashboard/test-drives?status=requested" },
+    { key: "reviews", label: "Reviews without a reply", count: reviews.filter((r) => !r.reply).length, href: "/dashboard/reviews?filter=unreplied" },
   ].filter((a) => a.count > 0);
 
   return {

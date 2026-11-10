@@ -31,7 +31,7 @@ test("an enquiry from a car page ends on the thanks, and the next one starts emp
   await expect(d).toBeVisible();
   await expect(d.getByRole("button", { name: "Close" })).toBeFocused();
 
-  await d.getByLabel("Name").fill("Test Buyer");
+  await d.getByLabel("Name").fill("Test buyer");
   await d.getByLabel("Email").fill("buyer@example.com");
   await d.getByRole("checkbox").check();
   await d.getByRole("button", { name: "Send enquiry" }).click();
@@ -52,11 +52,11 @@ test("an enquiry from a car page ends on the thanks, and the next one starts emp
 test("closing the dialog keeps what was typed", async ({ page }) => {
   await open(page, live.slug);
   await enquire(page).click();
-  await dialog(page).getByLabel("Name").fill("Half Typed");
+  await dialog(page).getByLabel("Name").fill("Half typed");
   await page.keyboard.press("Escape");
   await expect(dialog(page)).toBeHidden();
   await enquire(page).click();
-  await expect(dialog(page).getByLabel("Name")).toHaveValue("Half Typed");
+  await expect(dialog(page).getByLabel("Name")).toHaveValue("Half typed");
 });
 
 test("the dialog does not scroll itself: only the form body does", async ({ page }) => {
@@ -72,8 +72,8 @@ test("a sold car has no lead buttons", async ({ page }) => {
   test.skip(!sold, "No demo car is inside the sold window: run npm run stock:redate to refresh the demo dates");
   await page.goto(`/used-cars/${sold!.slug}`);
   await expect(page.getByTestId("buy-box")).toBeVisible();
-  for (const name of ["Enquire", "Test Drive"]) await expect(page.getByRole("button", { name, exact: true })).toHaveCount(0);
-  await expect(page.getByRole("link", { name: /^Call Us/ })).toHaveCount(0);
+  for (const name of ["Enquire", "Test drive"]) await expect(page.getByRole("button", { name, exact: true })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: /^Call us/ })).toHaveCount(0);
 });
 
 test("the bot check loads only once the dialog opens, and a failed check keeps what was typed", async ({ page }) => {
@@ -87,12 +87,12 @@ test("the bot check loads only once the dialog opens, and a failed check keeps w
   await enquire(page).click();
   const d = dialog(page);
   await expect.poll(() => calls.length).toBe(1);
-  await d.getByLabel("Name").fill("Kept Name");
+  await d.getByLabel("Name").fill("Kept name");
   await d.getByLabel("Email").fill("buyer@example.com");
   await d.getByRole("checkbox").check();
   await d.getByRole("button", { name: "Send enquiry" }).click();
   await expect(d.getByRole("alert")).toContainText("We couldn't check this request.");
-  await expect(d.getByLabel("Name")).toHaveValue("Kept Name");
+  await expect(d.getByLabel("Name")).toHaveValue("Kept name");
   await expect(d.getByRole("button", { name: "Send enquiry" })).toBeEnabled();
 });
 
@@ -115,14 +115,14 @@ test("a field error keeps what was typed, and consent is needed to send", async 
   await open(page, live.slug);
   await enquire(page).click();
   const d = dialog(page);
-  await d.getByLabel("Name").fill("Kept Name");
+  await d.getByLabel("Name").fill("Kept name");
   await d.getByLabel("Email").fill("buyer@example.com");
   await d.getByRole("button", { name: "Send enquiry" }).click();
 
   await expect(d.locator("p", { hasText: "Tick the box to send your request." })).toBeVisible();
   await expect(d.locator("p", { hasText: "Enter your name." })).toHaveCount(0);
   await expect(d.getByLabel("Email")).toHaveValue("buyer@example.com");
-  await expect(d.getByLabel("Name")).toHaveValue("Kept Name");
+  await expect(d.getByLabel("Name")).toHaveValue("Kept name");
   await expect(d.getByRole("button", { name: "Send enquiry" })).toBeEnabled();
 
   const privacy = d.getByRole("link", { name: /Privacy policy/ });
@@ -132,30 +132,30 @@ test("a field error keeps what was typed, and consent is needed to send", async 
 
 test("the Test Drive page lists the cars, books the one chosen, and the dealer sees it", async ({ page }) => {
   await page.goto("/test-drive");
-  await expect(page.getByRole("heading", { level: 1, name: "Test Drive" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Book a test drive" })).toBeVisible();
   await expect(page.getByRole("listitem").filter({ hasText: "Niro" })).toHaveCount(1); // new cars are bookable too
   await expect(page.getByRole("listitem").filter({ hasText: "Vito" }).first()).toBeVisible(); // and vans
   const row = page.getByRole("listitem").filter({ hasText: "€" }).first();
   await row.getByRole("button", { name: "Book" }).click();
-  const d = page.getByRole("dialog", { name: "Test Drive" });
-  await d.getByLabel("Name").fill("Page Booker");
+  const d = page.getByRole("dialog", { name: "Test drive" });
+  await d.getByLabel("Name").fill("Page booker");
   await d.getByLabel("Phone").fill("087 123 4567");
   await d.getByRole("checkbox").check();
   await choose(d.getByLabel("Day"), 0);
   await choose(d.getByLabel("Time"), 0);
   await d.getByRole("button", { name: "Book" }).click();
   await expect(d.getByRole("heading", { name: "Thanks, we have your request." })).toBeFocused();
-  await page.goto("/admin/test-drives?status=requested");
-  await expect(page.getByText("Page Booker").first()).toBeVisible();
+  await page.goto("/dashboard/test-drives?status=requested");
+  await expect(page.getByText("Page booker").first()).toBeVisible();
 });
 
-test("Test Drive asks for a day and a time, reaches the dealer's admin as a booking, and there is no Reserve", async ({ page }) => {
+test("Test drive asks for a day and a time, reaches the dealer's dashboard as a booking, and there is no Reserve", async ({ page }) => {
   await open(page, live.slug);
   await expect(page.getByRole("button", { name: /Reserve/ })).toHaveCount(0);
-  await page.getByRole("button", { name: "Test Drive", exact: true }).click();
+  await page.getByRole("button", { name: "Test drive", exact: true }).click();
   const d = page.getByRole("dialog");
-  await expect(d).toHaveAccessibleName("Test Drive");
-  await d.getByLabel("Name").fill("Drive Booker");
+  await expect(d).toHaveAccessibleName("Test drive");
+  await d.getByLabel("Name").fill("Drive booker");
   await d.getByLabel("Phone").fill("087 123 4567");
   await d.getByRole("checkbox").check();
   await d.getByRole("button", { name: "Book" }).click();
@@ -166,26 +166,26 @@ test("Test Drive asks for a day and a time, reaches the dealer's admin as a book
   await d.getByRole("button", { name: "Book" }).click();
   await expect(d.getByRole("heading", { name: "Thanks, we have your request." })).toBeFocused();
   // The booking is now on the dealer's list (the admin is open in this run).
-  await page.goto("/admin/test-drives?status=requested");
-  await expect(page.getByText("Drive Booker").first()).toBeVisible();
+  await page.goto("/dashboard/test-drives?status=requested");
+  await expect(page.getByText("Drive booker").first()).toBeVisible();
 });
 
 test("a price drop alert takes an email and says what happens next", async ({ page }) => {
   await open(page, live.slug);
-  await page.getByRole("button", { name: "Price Alert" }).click();
+  await page.getByRole("button", { name: "Price alert" }).click();
   const d = page.getByRole("dialog");
   await d.getByLabel("Email").fill("alert.person@example.com");
   await d.getByRole("checkbox").check();
-  await d.getByRole("button", { name: "Set Alert" }).click();
+  await d.getByRole("button", { name: "Set alert" }).click();
   await expect(d.getByRole("heading", { name: "You're on the list." })).toBeFocused();
-  await page.goto("/admin/customers?tab=alerts");
+  await page.goto("/dashboard/customers?tab=alerts");
   await expect(page.getByText("alert.person@example.com").first()).toBeVisible();
 });
 
 test("a sold car offers an alert for when one comes back", async ({ page }) => {
   test.skip(!sold, "No demo car is inside the sold window: run npm run stock:redate");
   await open(page, sold!.slug);
-  await expect(page.getByRole("button", { name: "Notify Me" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Notify me" })).toBeVisible();
 });
 
 test("Enquire keeps a message typed in it when the dialog is closed and opened again", async ({ page }) => {
@@ -245,6 +245,6 @@ test.describe("without JavaScript", () => {
 
   test("a car page still offers Call Us", async ({ page }) => {
     await page.goto(`/used-cars/${live.slug}`);
-    await expect(page.getByRole("link", { name: /^Call Us/ })).toHaveAttribute("href", /^tel:/);
+    await expect(page.getByRole("link", { name: /^Call us/ })).toHaveAttribute("href", /^tel:/);
   });
 });

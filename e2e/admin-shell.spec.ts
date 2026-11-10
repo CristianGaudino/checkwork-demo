@@ -9,7 +9,7 @@ test("dealer admin: every nav link opens a page with one h1, and the public head
   await page.goto(nav[0].href);
   await expect(page.getByRole("banner")).toHaveCount(0);
   await expect(page.getByRole("contentinfo")).toHaveCount(0);
-  const side = page.getByRole("navigation", { name: "Dealer admin" });
+  const side = page.getByRole("navigation", { name: "Dealer dashboard" });
   for (const item of nav) {
     await side.getByRole("link", { name: item.label, exact: true }).click();
     await expect(page).toHaveURL(new RegExp(`${item.href}$`));
@@ -33,4 +33,10 @@ test("dealer admin: is not indexed", async ({ page }) => {
 
 test("there is no platform area in a dealer's site", async ({ request }) => {
   expect((await request.get("/platform")).status()).toBe(404);
+});
+
+test("the old /admin address sends people to /dashboard", async ({ request }) => {
+  const res = await request.get("/admin/leads?status=new", { maxRedirects: 0 });
+  expect(res.status()).toBe(307);
+  expect(res.headers().location).toMatch(/\/dashboard\/leads\?status=new$/);
 });

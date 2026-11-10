@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { stock } from "@/lib/stock";
 import { accentButton, pageMain } from "@/components/ui";
 
-export const metadata: Metadata = { title: "Car No Longer Available", robots: { index: false } };
+export const metadata: Metadata = { title: "Car no longer available", robots: { index: false } };
 
 export default async function GonePage({ params }: PageProps<"/gone/[make]">) {
   const { make: slug } = await params;
@@ -13,7 +13,7 @@ export default async function GonePage({ params }: PageProps<"/gone/[make]">) {
 
   return (
     <main className={pageMain}>
-      <h1 className="text-display font-semibold">This Car Is No Longer Available</h1>
+      <h1 className="text-display font-semibold">This car is no longer available</h1>
       <p className="mt-4 max-w-measure text-body text-text-2">It has been sold or taken off our site. Here is what else we have.</p>
       <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2">
         <Link
@@ -23,7 +23,7 @@ export default async function GonePage({ params }: PageProps<"/gone/[make]">) {
           See more {make.label}
         </Link>
         <Link href="/used-cars" className="inline-flex min-h-11 items-center text-body font-semibold underline">
-          See All Used Cars
+          See all used cars
         </Link>
       </div>
     </main>

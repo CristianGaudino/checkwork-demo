@@ -17,7 +17,7 @@ export function AboutCar({ car }: { car: Car }) {
   if (!car.description) return null;
   return (
     <section>
-      <h2 className={h2}>About This Car</h2>
+      <h2 className={h2}>About this car</h2>
       {car.description.length > LONG_DESCRIPTION ? (
         <>
           {/* One copy of the text: the checkbox, before it, lifts the clamp (peer), so it works without JavaScript and the page holds the text once. */}
@@ -27,7 +27,7 @@ export function AboutCar({ car }: { car: Car }) {
             htmlFor={`more-${car.id}`}
             className="flex min-h-11 cursor-pointer items-center font-semibold peer-focus-visible:underline [&>span:last-child]:hidden peer-checked:[&>span:first-child]:hidden peer-checked:[&>span:last-child]:inline"
           >
-            <span>Read More</span>
+            <span>Read more</span>
             <span>Show less</span>
           </label>
         </>
@@ -94,16 +94,16 @@ export function SimilarCars({ car, cars }: { car: Car; cars: Car[] }) {
   return (
     <section>
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-1">
-        <h2 className={h2}>Similar Cars</h2>
+        <h2 className={h2}>Similar cars</h2>
         {/* More of the same kind of car, and more of the same make. */}
         <div className="flex flex-wrap gap-x-6">
           {car.bodySlug && car.bodyType && (
             <Link href={`/used-cars/${car.bodySlug}`} className="inline-flex min-h-11 items-center font-semibold underline">
-              See All {car.bodyType}s
+              See all {car.bodyType}s
             </Link>
           )}
           <Link href={`/used-cars/${car.makeSlug}`} className="inline-flex min-h-11 items-center font-semibold underline">
-            See All {car.make}
+            See all {car.make}
           </Link>
         </div>
       </div>

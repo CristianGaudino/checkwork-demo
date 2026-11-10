@@ -28,7 +28,7 @@ describe("driveDays", () => {
 });
 
 describe("leadSchema for a test drive and an alert", () => {
-  const base = { clientRef: crypto.randomUUID(), sourcePath: "/used-cars/x", name: "Test Buyer", email: "a@example.com", consent: "yes" };
+  const base = { clientRef: crypto.randomUUID(), sourcePath: "/used-cars/x", name: "Test buyer", email: "a@example.com", consent: "yes" };
   it("accepts a real day and time, and refuses a time that is not a slot or a day that is closed", () => {
     const day = driveDays()[0];
     const time = driveTimes(day)[0];

@@ -68,12 +68,12 @@ function CheckGroup({ title, group, options, defaultOpen }: { title: string; gro
       </div>
       {open && rows.length > COLLAPSED ? (
         <button type="button" aria-controls={listId} aria-expanded onClick={() => setOpen(false)} className={link}>
-          Show Fewer
+          Show fewer
         </button>
       ) : (
         shown.length < rows.length && (
           <button type="button" aria-controls={listId} aria-expanded={false} onClick={() => setOpen(true)} className={link}>
-            Show All {rows.length}
+            Show all {rows.length}
           </button>
         )
       )}
@@ -243,12 +243,14 @@ export function StockFilters({ showSearch = true }: { showSearch?: boolean }) {
       <Row title="Budget" active={query.priceMin !== undefined || query.priceMax !== undefined}>
         <PriceRange min={query.priceMin} max={query.priceMax} onCommit={(priceMin, priceMax) => set({ priceMin, priceMax })} />
       </Row>
-      <ChipGroup title="Body Type" group="body" options={facets?.body ?? []} />
+      <ChipGroup title="Body type" group="body" options={facets?.body ?? []} />
       <ChipGroup title="Fuel" group="fuel" options={facets?.fuel ?? []} />
       <Transmission />
       <Row title="Mileage" active={query.kmMax !== undefined}>
         <SelectField label="Up to" value={query.kmMax} options={withSelected(KMS, query.kmMax).map((v) => ({ value: v, label: formatKm(v) }))} onChange={(kmMax) => set({ kmMax })} />
       </Row>
+      {/* Only used cars have a sold list; new cars and vans are removed when they go. */}
+      {!query.condition && (
       <label className="flex min-h-11 items-center gap-3">
         <input
           type="checkbox"
@@ -258,6 +260,7 @@ export function StockFilters({ showSearch = true }: { showSearch?: boolean }) {
         />
         <span className="min-w-0 flex-1">Include sold cars</span>
       </label>
+      )}
     </div>
   );
 }

@@ -40,7 +40,7 @@ test("a find-a-car request needs a message, then ends on the thanks", async ({ p
   // Photos of cars you like are optional.
   await expect(page.getByRole("heading", { name: /^Step 3 of 4/ })).toBeVisible();
   await next.click();
-  await page.getByLabel("Name").fill("Test Buyer");
+  await page.getByLabel("Name").fill("Test buyer");
   await page.getByLabel("Phone").fill("087 123 4567");
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Find it for me" }).click();
@@ -54,7 +54,7 @@ test("from 1024px the header links both form pages", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/used-cars");
   const header = page.getByRole("banner");
-  await header.getByRole("link", { name: "Trade-In", exact: true }).click();
+  await header.getByRole("link", { name: "Trade-in", exact: true }).click();
   await expect(page).toHaveURL(/\/trade-in$/);
   await page.getByRole("contentinfo").getByRole("link", { name: "Find a car" }).click();
   await expect(page).toHaveURL(/\/find-a-car$/);
@@ -64,7 +64,7 @@ test("on a phone the form pages are in the footer, not the header, and the heade
   await page.setViewportSize({ width: 390, height: 800 });
   await page.goto("/used-cars");
   for (const [name, href] of [
-    ["Trade-In Valuation", "/trade-in"],
+    ["Trade-in Valuation", "/trade-in"],
     ["Find a car", "/find-a-car"],
   ]) {
     await expect(page.getByRole("banner").getByRole("link", { name, exact: true })).toBeHidden();
@@ -77,8 +77,8 @@ test("on a phone the form pages are in the footer, not the header, and the heade
 test("the find-a-car page explains how it works and fits a 320px screen", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 640 });
   await open(page, "/find-a-car");
-  await expect(page.getByRole("heading", { name: "Find a Car", level: 1 })).toBeVisible();
-  await expect(page.getByText("We Look for It")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Find a car", level: 1 })).toBeVisible();
+  await expect(page.getByText("We look for it")).toBeVisible();
   await expect(page.getByText("Prefer to talk?")).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
 });
@@ -97,7 +97,7 @@ for (const [path, heading] of [
       await expect(page.getByLabel("How can we help?")).toHaveValue("I'd like to ask about servicing.");
       await page.getByLabel("How can we help?").fill("");
     }
-    await page.getByLabel("Name").fill("Test Buyer");
+    await page.getByLabel("Name").fill("Test buyer");
     await page.getByLabel("Phone").fill("087 123 4567");
     await page.getByRole("checkbox").check();
     await page.getByRole("button", { name: "Send message" }).click();
@@ -112,7 +112,7 @@ test("after a general message the button goes home, not to the stock list", asyn
   await open(page, "/contact");
   await page.getByLabel("How can we help?").fill("Hello");
   await page.getByLabel("Phone").fill("087 123 4567");
-  await page.getByLabel("Name").fill("Test Buyer");
+  await page.getByLabel("Name").fill("Test buyer");
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Send message" }).click();
   await expect(page.getByRole("link", { name: "Back to home" })).toHaveAttribute("href", "/");

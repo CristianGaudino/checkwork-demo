@@ -1,6 +1,6 @@
-# Dealer admin
+# Dealer dashboard
 
-The demo has two views. The public site is `/`. The dealer admin is `/admin`. The demo bar at the top of every page switches between them: choosing Dealer on a public page keeps that page and adds a Dashboard link to the header (and stock and social links on a car page). There is no login of our own: on a deployed site Cloudflare Access is the login (see below). There is no superuser role and no platform in this site: running many dealers is a separate program, not part of what a dealer is sold. The platform that was here is in git history (PR #30).
+The demo has two views. The public site is `/`. The dealer dashboard is `/dashboard`. The demo bar at the top of every page switches between them: choosing Dealer on a public page keeps that page and adds a Dashboard link to the header (and stock and social links on a car page). There is no login of our own: on a deployed site Cloudflare Access is the login (see below). There is no superuser role and no platform in this site: running many dealers is a separate program, not part of what a dealer is sold. The platform that was here is in git history (PR #30).
 
 ## Permissions
 
@@ -19,7 +19,7 @@ A dealer sees everything in the admin except sensitive figures, unless they have
 
 ## Cloudflare Access (owner set-up, once)
 
-1. Zero Trust, Access, Applications, Add, Self-hosted. Add the path `/admin*` on the demo domain. Allow only the dealer's email addresses.
+1. Zero Trust, Access, Applications, Add, Self-hosted. Add the path `/dashboard*` on the demo domain. Allow only the dealer's email addresses.
 2. Copy the application's Audience tag. Your team domain is `<team>.cloudflareaccess.com`.
 3. On the Worker, add two variables (not secrets): `CF_ACCESS_TEAM_DOMAIN` and `CF_ACCESS_AUD`.
 

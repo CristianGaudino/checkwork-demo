@@ -13,7 +13,7 @@ const STEPS = { general: undefined, sourcing: SOURCING_STEPS, trade_in: TRADE_IN
 export function LeadPageForm({ type, ...props }: { type: keyof typeof FIELDS; submitLabel: string; success: { heading: string; body: string }; prefill?: Record<string, string> }) {
   const Fields = FIELDS[type];
   return (
-    <LeadForm type={type} variant="page" back={type === "general" ? { href: "/", label: "Back to Home" } : undefined} steps={STEPS[type]} {...props}>
+    <LeadForm type={type} variant="page" back={type === "general" ? { href: "/", label: "Back to home" } : undefined} steps={STEPS[type]} {...props}>
       {(form) => <Fields {...form} />}
     </LeadForm>
   );

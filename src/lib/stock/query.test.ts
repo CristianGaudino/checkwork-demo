@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { appliedFilters, clearFilters, DEFAULT_QUERY, facetRows, PAGE_SIZE, parseStockQuery, stockHref, toggle, toSearchParams, withRange } from "./query";
+import { appliedFilters, clearFilters, conditionOfPath, DEFAULT_QUERY, facetRows, PAGE_SIZE, parseStockQuery, stockHref, toggle, toSearchParams, withRange } from "./query";
 import type { Facets, StockQuery } from "./types";
 
 describe("parseStockQuery", () => {
@@ -148,7 +148,7 @@ describe("sold param", () => {
   it("is a chip after Mileage whose next drops it and goes to page 1; Clear all drops it too", () => {
     const q: StockQuery = { ...DEFAULT_QUERY, kmMax: 50000, sold: "include", page: 3 };
     const chips = appliedFilters(q, null);
-    expect(chips.map((c) => c.label)).toEqual(["Up to 50,000 km", "Sold Cars Included"]);
+    expect(chips.map((c) => c.label)).toEqual(["Up to 50,000 km", "Sold cars included"]);
     const sold = chips[1];
     expect(sold.next.sold).toBeUndefined();
     expect(sold.next.page).toBe(1);
@@ -277,5 +277,24 @@ describe("facetRows", () => {
 
   it("with no facets at all, shows the selected values alone", () => {
     expect(facetRows([], ["audi"], false)).toEqual([{ value: "audi", label: "audi", disabled: false }]);
+  });
+});
+
+describe("the kind of vehicle in the query", () => {
+  it("puts new cars and vans on their own list path, and used cars on the default one", () => {
+    expect(stockHref(parseStockQuery({}, "new"))).toBe("/new-cars");
+    expect(stockHref(parseStockQuery({ make: "kia", sort: "price-asc" }, "commercial"))).toBe("/commercial?make=kia&sort=price-asc");
+    expect(stockHref(parseStockQuery({}))).toBe("/used-cars");
+  });
+  it("keeps the kind when the filters are cleared, and finds it from a path", () => {
+    const q = parseStockQuery({ make: "kia" }, "new");
+    expect(clearFilters(q).condition).toBe("new");
+    expect(conditionOfPath("/commercial")).toBe("commercial");
+    expect(conditionOfPath("/used-cars")).toBe("used");
+    expect(conditionOfPath("/somewhere")).toBe("used");
+  });
+  it("ignores the sold switch on new cars and vans, which have no sold list", () => {
+    expect(parseStockQuery({ sold: "1" }).sold).toBe("include");
+    expect(parseStockQuery({ sold: "1" }, "new").sold).toBeUndefined();
   });
 });

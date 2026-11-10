@@ -33,8 +33,5 @@ export const carSlide = "w-[85%] shrink-0 sm:w-[calc((100%-1rem)/2)] lg:w-[calc(
 // A whole-page message (not found, something broke): centred in the space between header and footer.
 export const messagePage = `${pageMain} flex flex-1 flex-col items-center justify-center text-center`;
 
-// The small coloured line above a page title.
-export const eyebrow = "text-meta font-semibold text-accent-text";
-
 // For a link that opens another site in a new tab: it cannot reach back into this page.
 export const NEW_TAB = { target: "_blank", rel: "noopener noreferrer" } as const;

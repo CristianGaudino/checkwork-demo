@@ -3,13 +3,12 @@
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
 import { SITE_SLUG } from "@/lib/site";
-import { parseStockQuery, stockHref } from "@/lib/stock/query";
-import type { StockQuery } from "@/lib/stock/types";
+import { LIST_PATHS, conditionOfPath, parseStockQuery, stockHref } from "@/lib/stock/query";
+import type { Condition, StockQuery } from "@/lib/stock/types";
 
 const KEY = `${SITE_SLUG}:last-list`;
 const SCROLL = `${SITE_SLUG}:last-list-scroll`; // { href, y }: where the list was when a card was opened
 const RESTORE = `${SITE_SLUG}:restore-scroll`; // set by the Stock link, so only that way back restores the position
-const LIST = "/used-cars";
 const never = () => () => {};
 
 // Called by the list page. Tab-scoped and read only by BackToCars: the filters never leave the buyer's browser.
@@ -52,22 +51,26 @@ export function takeScroll(query: StockQuery): number | null {
 }
 
 // Whatever was stored goes back through the query parser, so the href is always the constant path plus serialised, validated params (T-01-14).
-function read() {
+// A list of another kind (a van opened after browsing used cars) is not this car's list: its own plain list is.
+function read(condition: Condition) {
   try {
     const raw = sessionStorage.getItem(KEY);
-    return raw ? stockHref(parseStockQuery(Object.fromEntries(new URL(raw, "http://x").searchParams))) : LIST;
+    if (!raw) return LIST_PATHS[condition];
+    const url = new URL(raw, "http://x");
+    if (conditionOfPath(url.pathname) !== condition) return LIST_PATHS[condition];
+    return stockHref(parseStockQuery(Object.fromEntries(url.searchParams), condition));
   } catch {
-    return LIST;
+    return LIST_PATHS[condition];
   }
 }
 
 // Server and first paint link to the plain list (works without JavaScript); once hydrated it returns to the list the buyer came from.
-export function BackToCars() {
-  const href = useSyncExternalStore(never, read, () => LIST);
+export function BackToCars({ condition = "used", label = "Stock" }: { condition?: Condition; label?: string }) {
+  const href = useSyncExternalStore(never, () => read(condition), () => LIST_PATHS[condition]);
   return (
     // 44px target; the negative margin keeps the page from moving.
     <Link href={href} onClick={(e) => !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) && armRestore()} className="-my-2.5 inline-flex min-h-11 items-center text-meta hover:underline">
-      Stock
+      {label}
     </Link>
   );
 }

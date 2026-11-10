@@ -22,7 +22,7 @@ const HANDLE = SITE_NAME.toLowerCase().replace(/[^a-z0-9]/g, "");
 
 export const INTEGRATIONS: readonly Integration[] = [
   { id: "reviews", name: "Google reviews", purpose: "Shows the dealer's real reviews on the site.", env: ["GOOGLE_PLACE_ID", "GOOGLE_PLACES_API_KEY"], where: "Google Cloud console, Places API" },
-  { id: "social", demoAccount: `@${HANDLE}`, name: "Facebook and Instagram posting", purpose: "Publishes the posts written in Marketing.", env: ["META_PAGE_ID", "META_PAGE_ACCESS_TOKEN", "META_INSTAGRAM_ID"], where: "Meta for Developers, a page access token" },
+  { id: "social", demoAccount: `@${HANDLE}`, name: "Facebook and Instagram posting", purpose: "Publishes the posts written in Marketing.", env: ["META_PAGE_ID", "META_PAGE_ACCESS_TOKEN", "META_INSTAGRAM_ID"], where: "Meta for developers, a page access token" },
   { id: "ads", demoAccount: `${SITE_NAME} ad account`, name: "Ads (Meta and Google)", purpose: "Creates and reports on the ads built in Marketing.", env: ["META_AD_ACCOUNT_ID", "GOOGLE_ADS_CUSTOMER_ID", "GOOGLE_ADS_DEVELOPER_TOKEN"], where: "Meta Ads Manager and Google Ads API centre" },
   { id: "newsletter", demoAccount: `news@${HANDLE}.example`, name: "Newsletter sending", purpose: "Sends the newsletters written in Marketing and the stock alerts.", env: ["NEWSLETTER_API_KEY", "NEWSLETTER_FROM_EMAIL"], where: "The email sending provider, and a verified sending domain" },
   { id: "email", name: "Lead email", purpose: "Emails each new lead to the dealer.", env: ["LEAD_TO_EMAIL"], where: "Cloudflare Email Service (the EMAIL binding) and this address" },

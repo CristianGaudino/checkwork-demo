@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test("reviews show a rating summary, and a reply can be posted, then the review leaves Needs a reply", async ({ page }) => {
-  await page.goto("/admin/reviews");
+  await page.goto("/dashboard/reviews");
   await expect(page.getByRole("img", { name: /out of 5 stars/ }).first()).toBeVisible();
   await page.getByRole("link", { name: "Needs a reply" }).click();
   const first = page.locator("section").filter({ has: page.getByRole("button", { name: "Post reply" }) }).first();
@@ -14,7 +14,7 @@ test("reviews show a rating summary, and a reply can be posted, then the review 
 });
 
 test("a review can be flagged", async ({ page }) => {
-  await page.goto("/admin/reviews?filter=low");
+  await page.goto("/dashboard/reviews?filter=low");
   await page.getByRole("button", { name: "Flag for review" }).first().click();
   await page.getByRole("link", { name: "Flagged" }).click();
   await expect(page.getByText("Flagged", { exact: true }).first()).toBeVisible();

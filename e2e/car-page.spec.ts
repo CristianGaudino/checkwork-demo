@@ -37,11 +37,11 @@ test.describe("a car for sale", () => {
     const price = box.getByText(/^€[\d,]+$/).filter({ visible: true });
     await expect(price).toBeVisible();
 
-    const call = box.getByRole("link", { name: /^Call Us/ });
+    const call = box.getByRole("link", { name: /^Call us/ });
     await expect(call).toHaveAttribute("href", "tel:+35319060045");
     await expect(box.getByRole("link", { name: /^WhatsApp/ })).toHaveAttribute("href", /^https:\/\/wa\.me\/35319060045\?text=/);
     await expect(box.getByRole("button", { name: "Enquire", exact: true })).toBeVisible();
-    await expect(box.getByRole("button", { name: "Test Drive", exact: true })).toBeVisible();
+    await expect(box.getByRole("button", { name: "Test drive", exact: true })).toBeVisible();
     await expect(box.getByRole("button", { name: /Reserve/ })).toHaveCount(0);
 
     const tiles = box.locator("dl > div");
@@ -118,7 +118,7 @@ test.describe("on a desktop", () => {
     await expect(buyBox(page)).toHaveCSS("background-color", "rgba(0, 0, 0, 0)"); // no card behind it
     // Enquire and Test Drive share the first row; Call Us and WhatsApp the second.
     const at = async (role: "button" | "link", name: string) => (await buyBox(page).getByRole(role, { name: new RegExp(`^${name}`) }).boundingBox())!;
-    const [enquire, drive, call, whatsapp] = [await at("button", "Enquire"), await at("button", "Test Drive"), await at("link", "Call Us"), await at("link", "WhatsApp")];
+    const [enquire, drive, call, whatsapp] = [await at("button", "Enquire"), await at("button", "Test drive"), await at("link", "Call us"), await at("link", "WhatsApp")];
     expect(Math.round(enquire.y)).toBe(Math.round(drive.y));
     expect(Math.round(call.y)).toBe(Math.round(whatsapp.y));
     expect(call.y).toBeGreaterThan(enquire.y);
@@ -150,7 +150,7 @@ test.describe("a sold car", () => {
 
 type Rich = Demo & { features: string[]; maxSpeedMph?: number; description: string };
 const rich = (cars as Rich[]).find((c) => !c.soldAt && c.features?.length > 12 && c.maxSpeedMph && c.description?.includes("\n"));
-const ORDER = ["Year", "Mileage", "Fuel", "Transmission", "Body Type", "Engine", "Colour", "Doors", "Seats", "Owners", "NCT Expires", "Max Speed", "0 to 62 mph"];
+const ORDER = ["Year", "Mileage", "Fuel", "Transmission", "Body type", "Engine", "Colour", "Doors", "Seats", "Owners", "NCT Expires", "Max speed", "0 to 62 mph"];
 const section = (page: Page, name: string) => page.locator("section").filter({ has: page.getByRole("heading", { level: 2, name, exact: true }) });
 
 test.describe("the sections below the buy box", () => {
@@ -166,7 +166,7 @@ test.describe("the sections below the buy box", () => {
     for (const l of labels) expect(ORDER).toContain(l);
     for (const v of values) expect(v.trim()).not.toMatch(/^$|undefined/);
     expect(labels.some((l) => /tax/i.test(l))).toBe(false);
-    expect(values[labels.indexOf("Max Speed")]).toMatch(/ mph$/);
+    expect(values[labels.indexOf("Max speed")]).toMatch(/ mph$/);
   });
 
   test("Equipment shows 12 items, then all of them behind Show all", async ({ page }) => {
@@ -181,12 +181,12 @@ test.describe("the sections below the buy box", () => {
 
   test("About this car keeps the dealer's line breaks", async ({ page }) => {
     await page.goto(`/used-cars/${rich!.slug}`);
-    expect(await section(page, "About This Car").locator("p").innerText()).toContain("\n");
+    expect(await section(page, "About this car").locator("p").innerText()).toContain("\n");
   });
 
   test("Similar cars shows other cars in a carousel, and the page has one h1 and h2 sections", async ({ page }) => {
     await page.goto(`/used-cars/${rich!.slug}`);
-    const cards = section(page, "Similar Cars").locator("article");
+    const cards = section(page, "Similar cars").locator("article");
     const n = await cards.count();
     expect(n).toBeGreaterThanOrEqual(1);
     expect(n).toBeLessThanOrEqual(8);

@@ -1,8 +1,9 @@
 "use client";
 
+import { Select } from "@/components/Select";
 import { useActionState } from "react";
 import { Field, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
-import { addTeamAction, saveLeadEmailsAction, saveMarketingAction, sendTestEmailAction, saveNotificationsAction, saveTargetsAction, type SettingsState } from "@/app/admin/settings/actions";
+import { addTeamAction, saveLeadEmailsAction, saveMarketingAction, sendTestEmailAction, saveNotificationsAction, saveTargetsAction, type SettingsState } from "@/app/dashboard/settings/actions";
 import type { DealerSettings } from "@/lib/admin/collections";
 
 // Each settings panel is its own small form that saves on its own and says so. The server checks every value again.
@@ -120,11 +121,7 @@ export function AddTeamForm() {
         <input name="email" type="email" className={adminInput} autoComplete="off" />
       </Field>
       <Field label="Role">
-        <select name="role" defaultValue="Sales" className={adminInput}>
-          <option>Owner</option>
-          <option>Sales</option>
-          <option>Finance</option>
-        </select>
+        <Select name="role" defaultValue="Sales" options={[["Owner", "Owner"], ["Sales", "Sales"], ["Finance", "Finance"]]} />
       </Field>
       <div className="sm:pt-6">
         <Save pending={f.pending} saved={f.state?.saved} />

@@ -63,14 +63,14 @@ describe("specRows", () => {
       { label: "Mileage", value: "84,000 km" },
       { label: "Fuel", value: "Diesel" },
       { label: "Transmission", value: "Manual" },
-      { label: "Body Type", value: "Saloon" },
+      { label: "Body type", value: "Saloon" },
       { label: "Engine", value: "2.0 L" },
       { label: "Colour", value: "Grey" },
       { label: "Doors", value: "4" },
       { label: "Seats", value: "5" },
       { label: "Owners", value: "2" },
       { label: "NCT Expires", value: "Jul 2027" },
-      { label: "Max Speed", value: "126 mph" },
+      { label: "Max speed", value: "126 mph" },
       { label: "0 to 62 mph", value: "9.9 s" },
     ]);
     expect(specRows({ ...full, engineLitres: 1.5 }).find((r) => r.label === "Engine")?.value).toBe("1.5 L");
@@ -94,7 +94,7 @@ describe("keyFacts", () => {
   });
 
   it("fills a missing slot from Body Type, Engine and Colour, at most 4", () => {
-    expect(keyFacts({ ...full, mileageKm: undefined, fuel: undefined }).map((f) => f.label)).toEqual(["Year", "Transmission", "Body Type", "Engine"]);
+    expect(keyFacts({ ...full, mileageKm: undefined, fuel: undefined }).map((f) => f.label)).toEqual(["Year", "Transmission", "Body type", "Engine"]);
     expect(keyFacts({ ...full, mileageKm: undefined, fuel: undefined, gearbox: undefined, bodyType: undefined, engineLitres: undefined }).map((f) => f.label)).toEqual(["Year", "Colour"]);
   });
 });

@@ -68,16 +68,16 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
         </button>
         <button type="button" onClick={(e) => show(e.currentTarget, "drive")} className={`col-span-2 sm:col-span-1 ${secondary}`}>
           <CalendarIcon className="size-5 text-accent-text" />
-          Test Drive
+          Test drive
         </button>
         <a href={`tel:${DEALER_TEL}`} className={secondary}>
           <PhoneIcon className="size-5 text-accent-text" />
-          Call Us
+          Call us
         </a>
         <WhatsAppButton href={whatsapp} sizing="px-3" />
       </div>
       <LeadDialog title="Enquire" open={open === "enquiry"} onClose={close}>
-        <LeadForm type="enquiry" car={car} variant="dialog" submitLabel="Send Enquiry" success={{ heading: "Thanks, we have your enquiry.", body: `We'll get back to you about the ${car.name}.` }}>
+        <LeadForm type="enquiry" car={car} variant="dialog" submitLabel="Send enquiry" success={{ heading: "Thanks, we have your enquiry.", body: `We'll get back to you about the ${car.name}.` }}>
           {({ bind }) => (
             <>
               <ContactFields bind={bind} />
@@ -86,7 +86,7 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
           )}
         </LeadForm>
       </LeadDialog>
-      <LeadDialog title="Test Drive" open={open === "drive"} onClose={close}>
+      <LeadDialog title="Test drive" open={open === "drive"} onClose={close}>
         <TestDriveForm car={car} />
       </LeadDialog>
     </>
@@ -111,7 +111,7 @@ export function StockAlertButton({ car, kind }: { car: CarSummary; kind: "back-i
     <>
       <button ref={opener} type="button" onClick={() => setOpen(true)} className={`flex h-12 w-full items-center justify-center gap-2 px-3 text-text ${secondaryButton}`}>
         <BellIcon className="size-5 text-accent-text" />
-        {back ? "Notify Me" : "Price Alert"}
+        {back ? "Notify me" : "Price alert"}
       </button>
       <LeadDialog
         title={back ? "Tell me if one comes back" : "Tell me if the price drops"}
@@ -126,7 +126,7 @@ export function StockAlertButton({ car, kind }: { car: CarSummary; kind: "back-i
           car={car}
           variant="dialog"
           prefill={{ alertKind: kind }}
-          submitLabel="Set Alert"
+          submitLabel="Set alert"
           success={{ heading: "You're on the list.", body: back ? `We'll email you if another ${car.name} comes in.` : `We'll email you if the price of the ${car.name} changes.` }}
         >
           {({ bind }) => (

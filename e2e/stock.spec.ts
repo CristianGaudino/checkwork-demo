@@ -16,7 +16,7 @@ const prices = (page: Page) => page.locator("article [data-price]").allTextConte
 
 test("lists the cars, price first, 12 per page", async ({ page }) => {
   await page.goto("/used-cars");
-  await expect(page.getByRole("heading", { level: 1, name: "Quality used cars" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Used cars" })).toBeVisible();
   const n = await total(page);
   await expect(page.locator("article")).toHaveCount(Math.min(PER_PAGE, n));
   for (const p of await page.locator("article [data-price]").allTextContents()) expect(p).toMatch(/^€[\d,]+$/);
@@ -238,7 +238,7 @@ test.describe("list and grid, on a desktop", () => {
   test("the filter panel has a heading and Clear all, which empties the filters", async ({ page }) => {
     await page.goto("/used-cars?fuel=diesel");
     const panel = page.locator("aside");
-    await expect(panel.getByRole("heading", { name: "Filter & refine" })).toBeVisible();
+    await expect(panel.getByRole("heading", { name: "Filters" })).toBeVisible();
     await panel.getByRole("button", { name: "Clear all" }).click();
     await expect(page).toHaveURL(/\/used-cars$/);
   });
@@ -281,7 +281,7 @@ test("opening the list from the footer starts at the top, even after a car was o
   await page.locator("article h2 a").nth(8).scrollIntoViewIfNeeded();
   await page.locator("article h2 a").nth(8).click();
   await expect(page).toHaveURL(/\/used-cars\/[a-z0-9-]+$/);
-  await page.getByRole("contentinfo").getByRole("link", { name: "Used Cars" }).click(); // a client-side link, so the saved position is in play
+  await page.getByRole("contentinfo").getByRole("link", { name: "Used cars" }).click(); // a client-side link, so the saved position is in play
   await expect(page).toHaveURL(/\/used-cars$/);
   await expect.poll(() => page.evaluate(() => Math.round(scrollY))).toBeLessThan(50);
 });

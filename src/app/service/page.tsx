@@ -12,9 +12,9 @@ export const metadata: Metadata = { title: "Service", description: `Servicing, r
 
 // PLACEHOLDER copy: the dealer confirms what is offered (DEALER_FACTS_CONFIRMED). What is offered lives in SERVICES in site.ts.
 const WHY = [
-  { Icon: CheckIcon, title: "Straight Answers", text: "We tell you what your car needs now and what can wait." },
-  { Icon: ShieldCheckIcon, title: "Agreed Before We Start", text: "You know what the work involves and what it will cost before we begin." },
-  { Icon: SwapIcon, title: "Booked In Properly", text: "Call or message us and we find a time that suits you." },
+  { Icon: CheckIcon, title: "Straight answers", text: "We tell you what your car needs now and what can wait." },
+  { Icon: ShieldCheckIcon, title: "Agreed before we start", text: "You know what the work involves and what it will cost before we begin." },
+  { Icon: SwapIcon, title: "Booked in properly", text: "Call or message us and we find a time that suits you." },
 ];
 
 export default function ServicePage() {
@@ -33,12 +33,12 @@ export default function ServicePage() {
       />
 
       <section className="mt-12 flex flex-col gap-4">
-        <h2 className={subTitle}>What We Do</h2>
+        <h2 className={subTitle}>What we do</h2>
         <ServiceMenu services={SERVICES} />
       </section>
 
       <div className="mt-12">
-        <FeatureSection title="Why Choose Us">
+        <FeatureSection title="Why choose us">
           {WHY.map(({ Icon, ...f }) => (
             <FeatureCard key={f.title} badge={<Icon className="size-6" />} {...f} />
           ))}

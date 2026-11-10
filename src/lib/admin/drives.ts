@@ -4,7 +4,7 @@ import { HOUR } from "@/lib/time";
 // Agenda helpers for the test drive bookings. Pure, so the grouping and the checks are tested.
 export type DriveGroup = { day: string; drives: TestDrive[] };
 
-const dayKey = (t: number) => new Date(t).toLocaleDateString("en-CA"); // 2026-11-10, in the viewer's day
+const dayKey = (t: number) => new Date(t).toLocaleDateString("en-CA", { timeZone: "Europe/Dublin" }); // 2026-11-10, in the Irish day
 
 // Bookings grouped by day, days in order, and within a day by time.
 export function groupByDay(drives: TestDrive[]): DriveGroup[] {

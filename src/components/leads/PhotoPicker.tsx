@@ -133,7 +133,7 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
               className="flex aspect-photo cursor-pointer flex-col items-center justify-center gap-1 rounded-control border border-dashed border-control text-meta font-semibold peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-text peer-disabled:cursor-default peer-disabled:opacity-60 contrast-more:border-text"
             >
               <PlusIcon />
-              Add Photos
+              Add photos
             </label>
           )}
         </li>

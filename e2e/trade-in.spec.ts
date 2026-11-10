@@ -36,7 +36,7 @@ async function addPhotos(page: Page, count = PHOTO_MIN_COUNT) {
   await expect(tiles(page)).toHaveCount(count);
 }
 async function contact(page: Page) {
-  await page.getByLabel("Name", { exact: true }).fill("Test Seller");
+  await page.getByLabel("Name", { exact: true }).fill("Test seller");
   await page.getByLabel("Phone", { exact: true }).fill("087 123 4567");
   await page.getByRole("checkbox").check();
 }
@@ -74,22 +74,22 @@ async function encodeTo(page: Page, bytes: number, ms = 0) {
 
 test("it is a trade-in valuation page that explains itself, in four steps, with the lookup joined to the registration", async ({ page }) => {
   await open(page);
-  await expect(page.getByRole("heading", { level: 1, name: "Trade-In Valuation" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Trade-in Valuation" })).toBeVisible();
   // The three steps open on a tap, and the notes sit under the step they belong to (no column of tips beside the form).
   const how = page.getByRole("list").filter({ has: page.locator("details") });
   await expect(page.getByText("The valuation is an estimate. It can change when we inspect the car.")).toBeHidden();
-  await how.getByText("Send Some Photos").click();
-  await expect(how.getByText(new RegExp(`At least ${PHOTO_MIN_COUNT} photos.*Front.*Dashboard and Mileage\.$`))).toBeVisible(); // the angles in one bullet, not one each
+  await how.getByText("Send some photos").click();
+  await expect(how.getByText(new RegExp(`At least ${PHOTO_MIN_COUNT} photos.*Front.*Dashboard and mileage\.$`))).toBeVisible(); // the angles in one bullet, not one each
   await expect(how.getByText("Include photos of all damage, even small marks.")).toBeVisible();
-  await how.getByText("We Come Back to You").click();
+  await how.getByText("We come back to you").click();
   await expect(how.getByText("The valuation is an estimate. It can change when we inspect the car.")).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Required Photos" })).toHaveCount(0);
-  await expect(page.getByRole("heading", { name: "Good to Know" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Required photos" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Good to know" })).toHaveCount(0);
   await expect(page.getByText("Four short steps")).toHaveCount(0);
   await expect(page.getByText("Prefer to talk?")).toHaveCount(0);
   await expect(page.getByRole("list", { name: "Progress" }).getByRole("listitem")).toHaveCount(4);
   await expect(page.getByRole("heading", { name: /^Step 1 of 4/ })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Look Up" })).toHaveCount(0); // no lookup is offered until there is a real one
+  await expect(page.getByRole("button", { name: "Look up" })).toHaveCount(0); // no lookup is offered until there is a real one
 });
 
 test("Back keeps what was typed", async ({ page }) => {
@@ -169,12 +169,12 @@ test("empty slots say what to photograph, fill in order, and the first six are r
   await open(page);
   await toStep(page, 3);
   await expect(page.getByRole("button", { name: /^Add photo: Front, required/ })).toBeVisible();
-  await expect(page.getByRole("button", { name: /^Add photo: Any Damage, recommended/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Add photo: Any damage, recommended/ })).toBeVisible();
   await picker(page).setInputFiles(files(await jpeg(page), 2));
   await expect(tiles(page)).toHaveCount(2);
   await expect(page.getByRole("button", { name: /^Add photo: Front/ })).toHaveCount(0); // taken by the first photo
-  await expect(page.getByRole("button", { name: /^Add photo: Driver's Side, required/ })).toBeVisible();
-  await expect(page.getByRole("button", { name: /^Add photo: Dashboard and Mileage, recommended/ })).toBeVisible(); // beyond the six
+  await expect(page.getByRole("button", { name: /^Add photo: Driver's side, required/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Add photo: Dashboard and mileage, recommended/ })).toBeVisible(); // beyond the six
   await next(page).click();
   await expect(page.locator("p", { hasText: PHOTO_MIN_ERROR })).toBeVisible();
   await expect(page.getByRole("heading", { name: /^Step 3 of 4/ })).toBeVisible();

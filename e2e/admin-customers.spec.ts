@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test("customers, stock alerts and newsletter each have a table, and an alert can be paused", async ({ page }) => {
-  await page.goto("/admin/customers");
+  await page.goto("/dashboard/customers");
   expect((await page.getByRole("row").count()) - 1).toBeGreaterThan(5);
   await page.getByRole("link", { name: "Stock alerts" }).click();
   const active = page.getByRole("row").filter({ hasText: "Active" }).first();

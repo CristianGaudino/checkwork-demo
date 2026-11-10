@@ -16,7 +16,8 @@ import { GridIcon, ListIcon } from "./icons";
 import { SearchBox, StockFilters } from "./StockFilters";
 import { stateButton } from "./StockError";
 import { setView, useView } from "./view";
-import { eyebrow, pageMain, subTitle } from "@/components/ui";
+import { pageMain, subTitle } from "@/components/ui";
+import { VEHICLE_TYPES } from "@/lib/nav";
 
 type Summary = { total: number; facets: Facets } | null;
 type Stock = {
@@ -120,6 +121,7 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
       router.replace(stockHref(next), { scroll });
     });
 
+  const kind = VEHICLE_TYPES.find((t) => t.condition === (optimisticQuery.condition ?? "used"))!;
   return (
     <StockContext value={{ query: optimisticQuery, summary, facets: summary ? summary.facets : held, pending, navigate }}>
       <main className={pageMain}>
@@ -127,9 +129,8 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
             start higher. Below that the count sits under the intro (sort is in the sticky bar). */}
         <div className="lg:flex lg:items-end lg:justify-between lg:gap-8">
           <div>
-            <p className={eyebrow}>Our Stock</p>
-            <h1 className="mt-1 text-display font-bold lg:text-hero">Quality Used Cars</h1>
-            <p className="mt-2 max-w-measure text-pretty text-body text-text-2">Browse our current stock of used cars, all carefully selected.</p>
+            <h1 className="text-display font-bold lg:text-hero">{kind.title}</h1>
+            <p className="mt-2 max-w-measure text-pretty text-body text-text-2">{kind.intro}</p>
             {/* Under the intro and above the count on a phone; from 1024px the search is in the filter panel. */}
             <div className="mt-4 lg:hidden">
               <SearchBox />
@@ -144,9 +145,9 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
         <div className="mt-6 lg:grid lg:grid-cols-[280px_1fr] lg:gap-8">
           <aside className="hidden lg:block lg:sticky lg:top-6 lg:max-h-[calc(100dvh-3rem)] lg:self-start lg:overflow-y-auto lg:rounded-card lg:bg-card lg:p-4">
             <div className="mb-4 flex items-center justify-between gap-2 border-b border-hairline pb-4">
-              <h2 className={subTitle}>Filter &amp; Refine</h2>
+              <h2 className={subTitle}>Filters</h2>
               <button type="button" onClick={() => navigate(clearFilters(optimisticQuery))} className="min-h-11 text-meta font-semibold underline">
-                Clear All
+                Clear all
               </button>
             </div>
             <StockFilters />
@@ -155,7 +156,7 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
           <div ref={results} onClickCapture={(e) => e.target instanceof Element && e.target.closest("a[href^='/used-cars/']") && rememberScroll(query)} className="min-w-0 scroll-mt-16 lg:min-h-[100dvh] lg:scroll-mt-6">
             <div
               data-testid="sticky-bar"
-              className="sticky top-14 z-20 lg:top-0 -mx-4 flex h-14 items-center justify-between bg-surface/80 px-4 backdrop-blur-[20px] backdrop-saturate-[1.8] sm:-mx-6 sm:px-6 lg:mx-0 lg:justify-end lg:gap-3 lg:px-0 reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none reduce-transparency:backdrop-saturate-100"
+              className="sticky top-14 z-20 lg:static -mx-4 flex h-14 items-center justify-between bg-surface/80 px-4 backdrop-blur-[20px] backdrop-saturate-[1.8] sm:-mx-6 sm:px-6 lg:mx-0 lg:justify-end lg:gap-3 lg:bg-transparent lg:px-0 lg:backdrop-blur-none lg:backdrop-saturate-100 reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none reduce-transparency:backdrop-saturate-100"
             >
               <div className="lg:hidden">
                 <FilterSheet />
@@ -181,7 +182,7 @@ export function EmptyState() {
   // With nothing applied there is no filter to remove: the stock itself is empty.
   if (appliedFilters(query, null).length === 0) {
     return (
-      <StateBlock title="No Cars Listed Right Now" text="New cars arrive often.">
+      <StateBlock title="No cars listed right now" text="New cars arrive often.">
         <Link href="/find-a-car" className="mx-auto flex min-h-11 w-fit items-center text-body underline">
           Can&apos;t find it? Ask us to find it for you.
         </Link>
@@ -194,7 +195,7 @@ export function EmptyState() {
         Can&apos;t find it? Ask us to find it for you.
       </Link>
       <button type="button" onClick={() => navigate(clearFilters(query))} className={stateButton}>
-        Clear All Filters
+        Clear all filters
       </button>
     </StateBlock>
   );

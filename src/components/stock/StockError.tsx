@@ -15,7 +15,7 @@ export function EmptyCars({ title, text }: { title: string; text: string }) {
   return (
     <StateBlock title={title} text={text}>
       <Link href="/used-cars" className={stateButton}>
-        See Used Cars
+        See used cars
       </Link>
     </StateBlock>
   );
@@ -26,9 +26,9 @@ export function StockError({ retry }: { retry?: () => void }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   return (
-    <StateBlock title="We Couldn't Load the Cars" text={CONNECTION_ERROR}>
+    <StateBlock title="We couldn't load the cars" text={CONNECTION_ERROR}>
       <button type="button" disabled={pending} onClick={() => (retry ? retry() : startTransition(() => router.refresh()))} className={stateButton}>
-        Try Again
+        Try again
       </button>
     </StateBlock>
   );

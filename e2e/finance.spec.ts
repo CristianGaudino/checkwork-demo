@@ -103,14 +103,14 @@ test.describe("finance application", () => {
     await expect(d.getByText("We don't ask for income, date of birth or bank details.")).toBeVisible();
     await expect(d.getByLabel(/income|date of birth|bank/i)).toHaveCount(0);
 
-    await d.getByLabel("Name").fill("Test Buyer");
+    await d.getByLabel("Name").fill("Test buyer");
     await d.getByLabel("Phone").fill("087 123 4567");
     await d.getByRole("checkbox").check();
-    await d.getByRole("button", { name: "Send Details" }).click();
+    await d.getByRole("button", { name: "Send details" }).click();
     await expect(d.locator("p", { hasText: "Choose an employment status." })).toBeVisible();
 
     await choose(d.getByLabel("Employment status"), "Self-employed");
-    await d.getByRole("button", { name: "Send Details" }).click();
+    await d.getByRole("button", { name: "Send details" }).click();
     await expect(d.getByRole("heading", { name: "Thanks, we have your details." })).toBeFocused();
   });
 

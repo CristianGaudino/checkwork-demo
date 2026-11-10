@@ -83,7 +83,7 @@ export function ReviewsStrip({ data }: { data: Reviews | null }) {
     <section aria-labelledby="reviews-heading" className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
         <h2 id="reviews-heading" className={sectionTitle}>
-          What Customers Say
+          What customers say
         </h2>
         <p className="text-meta text-text-2">Showing the most relevant reviews from Google Maps.</p>
       </div>
@@ -101,7 +101,7 @@ export function ReviewsStrip({ data }: { data: Reviews | null }) {
           <div className="flex flex-wrap items-center gap-x-4">
             <p className="text-meta text-text-2">Based on {reviewCount}</p>
             <a href={data.placeUri} {...NEW_TAB} className={`${textLink} text-meta`}>
-              See All on Google Maps
+              See all on Google Maps
               <NewTab />
             </a>
           </div>

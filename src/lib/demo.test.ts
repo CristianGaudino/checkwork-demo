@@ -6,9 +6,9 @@ describe("roleForPath", () => {
     expect(roleForPath("/")).toBe("customer");
     expect(roleForPath("/used-cars/some-car")).toBe("customer");
   });
-  it("is the dealer under /admin, and /platform is not a role (the platform is not part of a dealer site)", () => {
-    expect(roleForPath("/admin")).toBe("dealer");
-    expect(roleForPath("/admin/stock")).toBe("dealer");
+  it("is the dealer under /dashboard, and /platform is not a role (the platform is not part of a dealer site)", () => {
+    expect(roleForPath("/dashboard")).toBe("dealer");
+    expect(roleForPath("/dashboard/stock")).toBe("dealer");
     expect(roleForPath("/platform/billing")).toBe("customer");
   });
   it("does not match a path that only starts with the same letters", () => {
@@ -18,8 +18,8 @@ describe("roleForPath", () => {
 
 import { adminReachable, isAppPath } from "@/lib/demo";
 describe("isAppPath", () => {
-  it("is true under /admin only", () => {
-    expect(isAppPath("/admin/leads")).toBe(true);
+  it("is true under /dashboard only", () => {
+    expect(isAppPath("/dashboard/leads")).toBe(true);
     expect(isAppPath("/platform")).toBe(false);
     expect(isAppPath("/used-cars")).toBe(false);
   });
