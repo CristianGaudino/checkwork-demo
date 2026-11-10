@@ -8,7 +8,7 @@ import { useSavedIds } from "@/lib/saved/store";
 export function SavedLink() {
   const n = useSavedIds().length;
   return (
-    <Link href="/saved" aria-label={n ? `Saved cars, ${n}` : "Saved cars"} className="relative -mr-2 flex h-11 w-11 items-center justify-center gap-1 focus-visible:outline-white lg:mr-0 lg:w-auto">
+    <Link href="/saved" aria-label={n ? `Saved cars, ${n}` : "Saved cars"} className="relative flex h-11 w-11 items-center justify-center gap-1 lg:mr-0 lg:w-auto">
       <HeartIcon />
       {/* A badge on the heart on a phone, so the heart sits centred in its box like the menu button; a plain number beside it from 1024px. */}
       <span aria-hidden="true" className="absolute right-0 top-1 whitespace-nowrap text-meta font-semibold tabular-nums lg:static lg:w-5">

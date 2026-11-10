@@ -80,7 +80,7 @@ test("the footer has social icons and a Powered by Checkwork link that opens che
   await expect(credit.getByRole("img", { name: "Checkwork" })).toBeVisible();
 });
 
-test("on a phone the header is the menu button, the logo centred and the heart, level with each other; Used Cars is in the menu", async ({ page }) => {
+test("on a phone the header is the logo on the left, then the heart and the menu on the right, level with each other; Used Cars is in the menu", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 640 });
   await page.goto("/");
   const banner = page.getByRole("banner");
@@ -89,9 +89,8 @@ test("on a phone the header is the menu button, the logo centred and the heart, 
   const mid = (b: { y: number; height: number } | null) => b!.y + b!.height / 2;
   expect(mid(menu)).toBeCloseTo(mid(heart), 0);
   expect(mid(logo)).toBeCloseTo(mid(menu), 0);
-  expect(menu!.x).toBeLessThan(logo!.x);
-  expect(heart!.x).toBeGreaterThan(logo!.x + logo!.width);
-  expect(logo!.x + logo!.width / 2).toBeCloseTo(180, 0); // dead centre of 360
+  expect(logo!.x).toBeLessThan(heart!.x);
+  expect(heart!.x).toBeLessThan(menu!.x);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
 });
 

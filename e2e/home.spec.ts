@@ -240,11 +240,11 @@ test("reviews, the trust strip and finance banner, and AutoDealer JSON-LD", asyn
   expect(data).not.toHaveProperty("aggregateRating");
 });
 
-test("the hero uses the dealer's photo, and the header logo is the vector one", async ({ page, request }) => {
+test("the hero uses the dealer's photo, and the header logo is the vector one, in the colour that reads on the theme", async ({ page, request }) => {
   await page.goto("/");
   await expect(page.locator("section.hero-photo")).toHaveCSS("background-image", /\/brand\/hero(-sm)?\.webp/);
-  await expect(page.getByRole("banner").getByRole("img", { name: SITE_NAME })).toHaveAttribute("src", "/brand/logo.svg");
-  for (const path of ["/brand/hero.webp", "/brand/hero-sm.webp", "/brand/about.webp", "/brand/logo.svg"]) expect((await request.get(path)).status(), path).toBe(200);
+  await expect(page.getByRole("banner").getByRole("img", { name: SITE_NAME })).toHaveAttribute("src", "/brand/logo-on-light.svg");
+  for (const path of ["/brand/hero.webp", "/brand/hero-sm.webp", "/brand/about.webp", "/brand/logo.svg", "/brand/logo-on-light.svg"]) expect((await request.get(path)).status(), path).toBe(200);
 });
 
 test("every item in the trust strip is a link with the same padding, so the row lines up", async ({ page }) => {

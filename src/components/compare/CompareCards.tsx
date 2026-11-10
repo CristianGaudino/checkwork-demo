@@ -13,7 +13,7 @@ import { MAX_COMPARE, clearCompare, removeCompare, restoreCompare, useCompareIds
 import { rank } from "@/lib/compare/rank";
 import type { Mark } from "@/lib/compare/rank";
 import { payableEur, priceInfo } from "@/lib/stock/price";
-import { carTitle, formatKm, formatPrice, specRows } from "@/lib/stock/format";
+import { carTitle, formatKm, specRows } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 

@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { FacebookIcon, InstagramIcon, TikTokIcon } from "@/components/stock/icons";
 import { CHECKWORK_URL, DEALER_ADDRESS_LINES, SITE_NAME, SOCIAL_LINKS } from "@/lib/site";
+import { Logo } from "@/components/Logo";
 import { PhoneLink } from "@/components/PhoneLink";
 
 // Below 1024px the footer is the way to every page (UI-SPEC Mobile navigation).
@@ -44,12 +45,12 @@ const tight = "inline-flex min-h-9 items-center transition-colors hover:text-tex
 // never goes stale.
 export function SiteFooter() {
   return (
-    <footer className="theme-dark mt-auto border-t border-hairline bg-band">
+    <footer className="mt-auto border-t border-hairline bg-card">
       <div className="mx-auto flex max-w-[1280px] flex-col gap-6 px-4 py-6 sm:px-6 lg:gap-8 lg:px-8 lg:py-8">
         <div className="grid grid-cols-2 gap-x-6 gap-y-4 lg:grid-cols-[2fr_1fr_1fr_1fr] lg:gap-y-8">
           <div className="col-span-2 flex flex-col items-start gap-2 lg:col-span-1">
             <Link href="/" className={link}>
-              <Image src="/brand/logo.svg" width={345} height={60} alt={SITE_NAME} className="h-8 w-auto" />
+              <Logo className="h-8 w-auto" />
             </Link>
             <address className="text-body not-italic">
               {DEALER_ADDRESS_LINES.map((line) => (
@@ -109,7 +110,8 @@ export function SiteFooter() {
           <p>© {SITE_NAME}</p>
           <a href={CHECKWORK_URL} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-2 transition-colors hover:text-text">
             Powered by
-            <Image src="/brand/checkwork-logo-on-dark.svg" width={345} height={60} alt="Checkwork" unoptimized className="h-4 w-auto" />
+            <Image src="/brand/checkwork-logo-on-light.svg" width={345} height={60} alt="Checkwork" unoptimized className="h-4 w-auto dark:hidden" />
+            <Image src="/brand/checkwork-logo-on-dark.svg" width={345} height={60} alt="Checkwork" unoptimized className="hidden h-4 w-auto dark:block" />
             <span className="sr-only">(opens in a new tab)</span>
           </a>
         </div>

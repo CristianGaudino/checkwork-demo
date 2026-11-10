@@ -7,7 +7,7 @@ import { ChevronDownIcon } from "@/components/stock/icons";
 import { card } from "@/components/ui";
 
 // The desktop links (from 1024px) and the one phone link. A red bar under the current section, as in the mockup.
-const item = "relative inline-flex min-h-11 items-center gap-1 text-meta font-semibold transition-colors hover:text-text-2 focus-visible:outline-white";
+const item = "relative inline-flex min-h-11 items-center gap-1 text-meta font-semibold transition-colors hover:text-text-2";
 const bar = "after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-accent";
 
 const STOCK = [
