@@ -1,6 +1,6 @@
 // OG share images (plan 02-08, D-16). Manual: never run in CI, at build time or at runtime.
 //
-//   npm run stock:og     reads src/lib/stock/demo-cars.json, writes public/og/{id}.jpg (1200 x 630, progressive JPEG)
+//   npm run stock:og     reads src/lib/stock/demo-cars.json and demo-cars-extra.json, writes public/og/{id}.jpg (1200 x 630, progressive JPEG)
 //
 // Layout is fixed in 02-UI-SPEC.md "OG image". The text band is drawn by satori + resvg, which ship inside `next`;
 // we import them from the internal path below (Assumption A1: re-check it on every Next upgrade, or switch to
@@ -15,7 +15,7 @@ import { createElement as h } from "react";
 import sharp from "sharp";
 import { ImageResponse } from "next/dist/compiled/@vercel/og/index.node.js";
 
-const CARS = "src/lib/stock/demo-cars.json";
+const CARS = ["src/lib/stock/demo-cars.json", "src/lib/stock/demo-cars-extra.json"];
 const OUT = "public/og";
 const W = 1200;
 const H = 630;
@@ -77,7 +77,7 @@ async function render(car) {
     .toBuffer();
 }
 
-const cars = JSON.parse(readFileSync(CARS, "utf8"));
+const cars = CARS.flatMap((f) => JSON.parse(readFileSync(f, "utf8")));
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });
 for (const car of cars) writeFileSync(`${OUT}/${car.id}.jpg`, await render(car));

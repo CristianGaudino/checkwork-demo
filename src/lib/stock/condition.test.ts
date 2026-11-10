@@ -40,7 +40,7 @@ describe("the demo's new cars and vans", () => {
     expect(cars.filter((c) => c.condition === "new")).toHaveLength(6);
     const vans = cars.filter((c) => c.condition === "commercial");
     expect(vans).toHaveLength(6);
-    expect(vans.every((v) => v.vat === "ex" && v.bodySlug === "van")).toBe(true);
+    expect(vans.every((v) => v.vat === "ex" && ["van", "pickup"].includes(v.bodySlug!))).toBe(true);
     expect(cars.filter((c) => c.wasPriceEur !== undefined).every((c) => c.wasPriceEur! > c.priceEur)).toBe(true);
   });
 });
