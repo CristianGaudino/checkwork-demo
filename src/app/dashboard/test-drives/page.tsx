@@ -11,7 +11,7 @@ import { setDriveStatusAction } from "./actions";
 
 export const metadata = { title: "Test drives" };
 
-const time = new Intl.DateTimeFormat("en-IE", { hour: "2-digit", minute: "2-digit" });
+const time = new Intl.DateTimeFormat("en-IE", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Dublin" });
 // What the dealer can do next from each status. Anything else is not offered.
 const NEXT: Record<string, [string, string][]> = {
   requested: [["confirmed", "Confirm"], ["cancelled", "Cancel"]],

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fmtAgo, fmtEur, fmtPct } from "./format";
+import { fmtAgo, fmtDateTime, fmtEur, fmtPct } from "./format";
 
 describe("admin format", () => {
   const now = new Date("2026-11-10T12:00:00Z").getTime();
@@ -12,5 +12,12 @@ describe("admin format", () => {
     expect(fmtEur(12500)).toBe("€12,500");
     expect(fmtPct(12.345)).toBe("12.3%");
     expect(fmtPct(8)).toBe("8%");
+  });
+});
+
+describe("Irish time", () => {
+  it("shows a summer moment an hour ahead of UTC, and a winter one the same", () => {
+    expect(fmtDateTime(Date.UTC(2026, 6, 1, 10, 0))).toContain("11:00");
+    expect(fmtDateTime(Date.UTC(2026, 0, 15, 10, 0))).toContain("10:00");
   });
 });

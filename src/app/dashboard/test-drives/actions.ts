@@ -9,6 +9,7 @@ import { carName } from "@/lib/stock/format";
 import { HOUR, MINUTE } from "@/lib/time";
 import { EMAIL_INVALID, NAME_REQUIRED } from "@/lib/copy";
 import { newId } from "@/lib/admin/ids";
+import { dublinMs } from "@/lib/admin/real-leads";
 import { fieldErrors } from "@/lib/admin/validation";
 
 export type DriveFormState = { errors?: Record<string, string>; done?: string } | undefined;
@@ -38,7 +39,7 @@ export async function addDriveAction(_prev: DriveFormState, data: FormData): Pro
   const b = parsed.data;
   const car = (await adminCars()).find((c) => c.slug === b.carSlug);
   if (!car) return { errors: { carSlug: "That car is not in stock" } };
-  const startsAt = new Date(`${b.date}T${b.time}:00`).getTime();
+  const startsAt = dublinMs(b.date, b.time); // typed in Irish time, like the visitors' bookings
   if (Number.isNaN(startsAt)) return { errors: { date: "Choose a day" } };
   // An hour of grace, so "now" on the form is not refused. A typo for last year is.
   if (startsAt < Date.now() - HOUR) return { errors: { date: "Choose a day that has not passed" } };
