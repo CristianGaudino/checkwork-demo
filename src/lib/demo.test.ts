@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { roleForPath } from "@/lib/demo";
 
 describe("roleForPath", () => {
@@ -26,6 +26,12 @@ describe("isAppPath", () => {
 });
 
 describe("adminReachable", () => {
+  // The deploy job sets APP_ENV for the whole run, and passing undefined would fall back to it, so the environment is cleared first.
+  beforeEach(() => {
+    vi.stubEnv("APP_ENV", "");
+    vi.stubEnv("NEXT_PUBLIC_ADMIN_OPEN", "");
+  });
+  afterEach(() => vi.unstubAllEnvs());
   it("is open with no APP_ENV (development), and closed on any deployed site unless the open switch is 1", () => {
     expect(adminReachable(undefined, undefined)).toBe(true);
     expect(adminReachable("", undefined)).toBe(true);
