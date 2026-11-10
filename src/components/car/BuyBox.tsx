@@ -63,11 +63,11 @@ export function BuyBox({ car }: { car: Car }) {
         {keyFacts(car).map((f) => {
           const Icon = FACT_ICONS[f.label] ?? CarIcon;
           return (
-            <div key={f.label} className="flex min-w-0 flex-col items-center gap-1 bg-surface p-4 text-center">
+            <div key={f.label} className="flex min-w-0 flex-col items-center gap-1 bg-card/60 px-2 py-4 text-center">
               <Icon className="size-6" />
               {/* Label first in the source, as a list needs; the value shows above it. */}
               <dt className="order-3 text-meta text-text-2">{f.label}</dt>
-              <dd className="order-2 break-words text-meta font-semibold">{f.value}</dd>
+              <dd className="order-2 break-words text-meta font-semibold [overflow-wrap:anywhere] sm:whitespace-nowrap">{f.value}</dd>
             </div>
           );
         })}

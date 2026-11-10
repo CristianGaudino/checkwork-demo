@@ -285,3 +285,11 @@ test("opening the list from the footer starts at the top, even after a car was o
   await expect(page).toHaveURL(/\/used-cars$/);
   await expect.poll(() => page.evaluate(() => Math.round(scrollY))).toBeLessThan(50);
 });
+
+test("the make filter shows each maker's logo", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto("/used-cars");
+  const logo = page.getByTestId("facet-list").first().locator('img[src^="/brands/"]').first();
+  await expect(logo).toBeVisible();
+  await expect.poll(() => logo.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0)).toBe(true);
+});

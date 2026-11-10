@@ -13,7 +13,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { ReviewsStrip } from "@/components/reviews/ReviewsStrip";
 import { ListingCard } from "@/components/stock/ListingCard";
 import { ArrowRightIcon } from "@/components/stock/icons";
-import { accentButton, eyebrow, sectionTitle, secondaryButton, textLink } from "@/components/ui";
+import { accentButton, press, sectionTitle, secondaryButton, textLink } from "@/components/ui";
 import { dealerJsonLd } from "@/lib/dealer";
 import { HOME } from "@/lib/home.config";
 import { getReviews } from "@/lib/reviews";
@@ -37,27 +37,28 @@ export default async function Home() {
   return (
     <main className="flex flex-col">
       <JsonLd data={dealerJsonLd(reviews)} />
-      <section className="border-b border-hairline">
-        <div className="mx-auto grid max-w-[1280px] grid-cols-1 gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:items-center lg:gap-12 lg:px-8 lg:py-14">
-          <div className="flex min-w-0 flex-col items-start">
-            <p className={eyebrow}>Quality Used Cars</p>
-            <h1 className="mt-3 max-w-[10ch] text-hero font-bold lg:text-hero-lg">Find Your Next Car</h1>
-            <p className="mt-4 max-w-[40ch] text-body">A carefully selected range of quality used cars, backed by trusted service and straightforward finance.</p>
-            <p className="mt-2 max-w-[65ch] text-meta text-text-2">Find us at {DEALER_ADDRESS_LINES.join(", ").replace(/ (\S+)$/, " $1")}.</p>
+      {/* The showroom window: the dealership photo full width with light falling from the top, the line on the left and the search floating on glass. */}
+      <section className="relative isolate overflow-hidden">
+        <HeroMosaic />
+        <div className="mx-auto grid max-w-[1280px] grid-cols-1 gap-8 px-4 pb-8 pt-16 sm:px-6 lg:min-h-[38rem] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-end lg:gap-12 lg:px-8 lg:pb-14 lg:pt-24">
+          <div className="theme-dark flex min-w-0 flex-col items-start text-text">
+            <p className="text-meta font-semibold text-text/80">Quality Used Cars</p>
+            <h1 className="mt-3 max-w-[10ch] text-hero font-semibold lg:text-hero-lg">Find Your Next Car</h1>
+            <p className="mt-4 max-w-[40ch] text-body text-text/90">A carefully selected range of quality used cars, backed by trusted service and straightforward finance.</p>
+            <p className="mt-2 max-w-[65ch] text-meta text-text/75">Find us at {DEALER_ADDRESS_LINES.join(", ").replace(/ (\S+)$/, " $1")}.</p>
             <div className="mt-6 flex w-full flex-wrap gap-3">
               <Link href="/used-cars" className={`inline-flex w-full items-center justify-center gap-2 sm:w-auto ${accentButton}`}>
                 Browse Stock
                 <ArrowRightIcon className="size-5" />
               </Link>
-              <Link href="/finance" className={`inline-flex h-12 w-full items-center justify-center gap-2 px-6 sm:w-auto ${secondaryButton}`}>
+              <Link href="/finance" className={`inline-flex h-12 w-full items-center justify-center gap-2 rounded-control border border-white/40 bg-white/10 px-6 font-semibold text-text backdrop-blur-md sm:w-auto ${press}`}>
                 Estimate Finance
               </Link>
             </div>
-            <div className="mt-8 w-full">
-              <HomeSearch makes={search.makes} bodies={search.bodies} models={search.models} />
-            </div>
           </div>
-          <HeroMosaic />
+          <div className="w-full rounded-card border border-white/50 bg-surface/80 p-1 shadow-panel backdrop-blur-xl reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none">
+            <HomeSearch makes={search.makes} bodies={search.bodies} models={search.models} />
+          </div>
         </div>
       </section>
 

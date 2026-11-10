@@ -41,7 +41,7 @@ function Breadcrumb({ landing }: { landing: Landing }) {
 }
 
 // Navigation, never accent. Only options with a car in stock; no heading when there are none.
-function LinkChips({ heading, options, href }: { heading: string; options: FacetOption[]; href: (o: FacetOption) => string }) {
+function LinkChips({ heading, options, href, logos = false }: { heading: string; options: FacetOption[]; href: (o: FacetOption) => string; logos?: boolean }) {
   const shown = options.filter((o) => o.count > 0);
   if (!shown.length) return null;
   return (
@@ -54,6 +54,7 @@ function LinkChips({ heading, options, href }: { heading: string; options: Facet
               href={href(o)}
               className="inline-flex min-h-11 max-w-full items-center gap-2 rounded-full border border-control bg-card px-4 active:scale-[0.97] motion-reduce:active:scale-100"
             >
+              {logos && <MakeLogo slug={o.value} className="size-5" />}
               <span className="truncate font-semibold">{o.label}</span>
               <span className="shrink-0 text-meta text-text-2">{o.count}</span>
             </Link>
@@ -83,7 +84,7 @@ export function LandingPage({ data }: { data: LandingData }) {
           <JsonLd data={itemListJsonLd(shown)} />
           <p className="mt-4 max-w-[65ch] text-body">{landingIntro(landing, facts)}</p>
           {landing.kind === "make" && <LinkChips heading="Models" options={facets.model} href={toModel} />}
-          {landing.kind === "body" && <LinkChips heading="Makes" options={facets.make} href={toPage} />}
+          {landing.kind === "body" && <LinkChips heading="Makes" options={facets.make} href={toPage} logos />}
           {landing.kind === "model" && (
             <>
               <LinkChips heading={`More ${landing.make}`} options={facets.model.filter((o) => o.value !== landing.modelSlug)} href={toModel} />
@@ -121,7 +122,7 @@ export function LandingPage({ data }: { data: LandingData }) {
           {landing.kind === "body" ? (
             <LinkChips heading="Body Types in Stock" options={facets.body} href={toPage} />
           ) : (
-            <LinkChips heading="Makes in Stock" options={facets.make} href={toPage} />
+            <LinkChips heading="Makes in Stock" options={facets.make} href={toPage} logos />
           )}
           {sold.length > 0 && (
             <section className="mt-8">

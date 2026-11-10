@@ -66,7 +66,7 @@ export function PhotoCarousel({ photos: allPhotos, href, label, priority }: { ph
 
   return (
     // z-10 lifts the carousel above the card's stretched title link, which would otherwise swallow swipes.
-    <div ref={root} className="group/pc relative z-10 h-full">
+    <div ref={root} className="group/pc relative z-10 h-full bg-[image:var(--plinth)]">
       <div
         ref={scroller}
         onScroll={onScroll}

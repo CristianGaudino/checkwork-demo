@@ -1,3 +1,4 @@
+import { MakeLogo } from "@/components/MakeLogo";
 import { SaveButton } from "@/components/saved/SaveButton";
 import { PhotoCarousel } from "@/components/stock/PhotoCarousel";
 import { SoldBadge } from "@/components/stock/SoldBadge";
@@ -15,7 +16,7 @@ export function ListingCard({ car, priority, oneLine = false }: { car: Car; prio
   return (
     // The photo is the card: it carries the rounded corners and the lift, and the words sit under it on the page itself.
     <article data-card className="@container group relative scroll-mt-20 transition-opacity duration-100 has-[h2_a:active]:opacity-80">
-      <div data-card-photo className="relative z-10 aspect-[4/3] overflow-hidden rounded-[20px] bg-photo-bg [transition:box-shadow_200ms_ease-out,translate_200ms_ease-out] [@media(hover:hover)]:group-hover:-translate-y-0.5 [@media(hover:hover)]:group-hover:shadow-lift">
+      <div data-card-photo className="relative z-10 aspect-[4/3] overflow-hidden rounded-[28px] bg-photo-bg shadow-panel [transition:box-shadow_200ms_ease-out,translate_200ms_ease-out] [@media(hover:hover)]:group-hover:-translate-y-0.5 [@media(hover:hover)]:group-hover:shadow-lift">
         <PhotoCarousel photos={car.photos} href={href} label={carName(car)} priority={priority} />
         {/* The word in the price slot is what screen readers hear; this badge is the same word for the eye. */}
         {isSold(car) && <SoldBadge hidden className="absolute left-4 top-4 z-20" />}
@@ -28,7 +29,10 @@ export function ListingCard({ car, priority, oneLine = false }: { car: Car; prio
           {/* The make above the model, as in the mockup; both are inside the one link, so its name is still "Make Model Variant". */}
           <h2 className="min-w-0 text-body font-semibold">
             <Link href={href} title={oneLine ? carName(car) : undefined} className="after:absolute after:inset-0">
-              <span className="block text-meta font-normal text-text-2">{car.make}</span>
+              <span className="flex items-center gap-1.5 text-meta font-normal text-text-2">
+                <MakeLogo slug={car.makeSlug} className="size-4" />
+                {car.make}
+              </span>
               <span data-title className={`${oneLine ? "truncate" : "line-clamp-2"} block`}>{[car.model, car.variant].filter(Boolean).join(" ")}</span>
             </Link>
           </h2>

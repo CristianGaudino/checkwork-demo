@@ -76,3 +76,13 @@ Each PR keeps every E2E test green (tests that pin the old look are updated with
 - The header is built now with the vehicle-type switch (Used, New, Commercial). It shows only the sections that exist.
 - Dark stays as a user choice, next to the light default.
 - Role switch (customer, dealer, superuser) as a demo bar: agreed.
+
+## Showroom (owner decision, 2026-11)
+The look was redone so the demo reads as its own site. Direction: a lit showroom.
+- **Colour:** light is pale stone lit from above (`--atmosphere` on `body`) with a raised warm white for panels; dark is a deep teal-black with a warm glow at the top. Indigo stays the brand accent. Tokens are in `src/app/globals.css`.
+- **Photos:** car photos are white studio shots. They sit on a lit plinth (`--plinth`) and are multiplied into it, so the car stands on the floor in both themes. The plinth must be on the element that is the stacking root of the photo (a `z-` or transform parent isolates the blend).
+- **Type:** Sora (one family), heavy tight headlines, no all-caps labels.
+- **Panels:** `card` carries the floor shadow (`--shadow-panel`); radius 1.5rem for panels, 28px for photo tiles.
+- **Home:** a full-width hero (the dealership photo) with the headline on the left and the search on frosted glass.
+- **Make logos:** shown beside the make in the filter, the search drop-down, the chips, the cards and the make page heading (`MakeLogo`).
+- Font in use: Sora (this replaces the Manrope line above).

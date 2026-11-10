@@ -13,8 +13,8 @@ export const pageWidth = "mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8";
 export const pageMain = `${pageWidth} pb-16 pt-12`;
 // A smaller heading for a section inside a page (the bold one is `sectionTitle`).
 export const subTitle = "text-heading font-semibold";
-// The bordered panel every card on the site is: rounded, a hairline border, the card colour. Callers add padding and layout.
-export const card = "rounded-card border border-hairline bg-card";
+// The panel every card on the site is: rounded, a fine border, the raised card colour and the floor shadow. Callers add padding and layout.
+export const card = "rounded-card border border-hairline/70 bg-card shadow-panel";
 // A round, frosted control over a photo (heart, remove, counter): solid ink when the buyer asks for less transparency, with a border
 // when they ask for more contrast.
 export const glass =
@@ -34,4 +34,4 @@ export const carSlide = "w-[85%] shrink-0 sm:w-[calc((100%-1rem)/2)] lg:w-[calc(
 export const messagePage = `${pageMain} flex flex-1 flex-col items-center justify-center text-center`;
 
 // The small coloured line above a page title.
-export const eyebrow = "text-meta font-semibold uppercase tracking-wider text-accent";
+export const eyebrow = "text-meta font-semibold text-accent";

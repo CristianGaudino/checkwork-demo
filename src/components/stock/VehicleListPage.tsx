@@ -1,3 +1,4 @@
+import { MakeLogo } from "@/components/MakeLogo";
 import Link from "next/link";
 import { ListingCard } from "@/components/stock/ListingCard";
 import { EmptyNote } from "@/components/stock/EmptyNote";
@@ -35,6 +36,7 @@ export async function VehicleListPage({ condition, make }: { condition: Exclude<
               aria-current={(m.slug || undefined) === chosen ? "true" : undefined}
               className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-meta font-semibold ${(m.slug || undefined) === chosen ? "border-accent bg-accent text-on-accent" : "border-control bg-card"} ${press}`}
             >
+              <MakeLogo slug={m.slug} className={`size-4 ${(m.slug || undefined) === chosen ? "brightness-0 invert" : ""}`} />
               {m.label}
               <span className="tabular-nums opacity-80">{m.count}</span>
             </Link>
