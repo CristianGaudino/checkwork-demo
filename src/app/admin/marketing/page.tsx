@@ -1,8 +1,9 @@
 import { Badge, DataTable, EmptyState, FilterTabs, Field, PageHeader, Panel, StatCard, StatGrid, adminButton, adminButtonQuiet, adminInput, type Tone } from "@/components/admin/kit";
+import { sendDuePosts } from "@/lib/admin/scheduler";
 import { NETWORKS, adsStore, newslettersStore, postsStore, subscribersStore } from "@/lib/admin/collections";
 import { fmtDate, fmtDateTime, fmtEur, fmtNum, fmtPct } from "@/lib/admin/format";
 import { adminCars } from "@/lib/admin/stock-admin";
-import { isConnected } from "@/lib/integrations";
+import { isUsable } from "@/lib/integrations";
 import { carName } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
 import { createAdAction, createNewsletterAction, createPostAction, deleteAdAction, deleteNewsletterAction, deletePostAction, publishPostAction, savePostAction, schedulePostAction, sendNewsletterAction, startAdAction } from "./actions";
@@ -15,7 +16,7 @@ const TABS = [["social", "Social posts"], ["ads", "Ads"], ["newsletters", "Newsl
 const NOTICES: Record<string, { tone: "good" | "warn"; text: string }> = {
   "post-created": { tone: "good", text: "Draft written. Edit it, then schedule it or publish it." },
   "post-saved": { tone: "good", text: "Post saved." },
-  "post-scheduled": { tone: "good", text: "Post scheduled. Scheduled posts are sent once Facebook and Instagram are connected." },
+  "post-scheduled": { tone: "good", text: "Post scheduled. It goes out at the time you chose." },
   "post-published": { tone: "good", text: "Post published." },
   "ad-created": { tone: "good", text: "Ad saved as a draft." },
   "ad-started": { tone: "good", text: "Ad started." },
@@ -40,6 +41,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
   const sp = await searchParams;
   const tab = TABS.some(([k]) => k === sp.tab) ? sp.tab! : "social";
   const notice = sp.notice ? NOTICES[sp.notice] : undefined;
+  await sendDuePosts(); // posts whose time has come go out before the list is read
   const [posts, ads, letters, subs, cars] = await Promise.all([postsStore.list(), adsStore.list(), newslettersStore.list(), subscribersStore.list(), adminCars()]);
   const forSale = cars.filter((c) => !isSold(c)).sort((a, b) => Number(b.id) - Number(a.id));
   const carOptions = forSale.map((c) => (
@@ -82,7 +84,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
               </Field>
               <button type="submit" className={adminButton}>Write draft</button>
             </form>
-            <p className="text-meta text-text-2">{isConnected("social") ? "Facebook and Instagram are connected." : "Facebook and Instagram are not connected yet, so drafts can be written and scheduled but not posted."}</p>
+            <p className="text-meta text-text-2">{isUsable("social") ? "Facebook and Instagram are connected. Scheduled posts go out at their time." : "Facebook and Instagram are not connected yet, so drafts can be written and scheduled but not posted."}</p>
           </Panel>
           {posts.length === 0 ? (
             <Panel><EmptyState title="No posts yet" text="Write a draft for a car above." /></Panel>
@@ -144,7 +146,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
               <Field label="Budget (€)"><input name="budgetEur" type="number" min={20} max={5000} defaultValue={100} className={adminInput} /></Field>
               <button type="submit" className={adminButton}>Save draft</button>
             </form>
-            <p className="text-meta text-text-2">{isConnected("ads") ? "Ad accounts are connected." : "Ad accounts are not connected yet, so ads can be planned but not started."}</p>
+            <p className="text-meta text-text-2">{isUsable("ads") ? "Ad accounts are connected." : "Ad accounts are not connected yet, so ads can be planned but not started."}</p>
           </Panel>
           <DataTable
             rows={[...ads].sort((a, b) => b.createdAt - a.createdAt)}
@@ -190,7 +192,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                 <button type="submit" name="intent" value="write" formNoValidate className={adminButtonQuiet}>Write from the newest cars</button>
               </div>
             </form>
-            <p className="text-meta text-text-2">{isConnected("newsletter") ? "Sending is connected." : "Newsletter sending is not connected yet, so letters can be written and saved but not sent."}</p>
+            <p className="text-meta text-text-2">{isUsable("newsletter") ? "Sending is connected." : "Newsletter sending is not connected yet, so letters can be written and saved but not sent."}</p>
           </Panel>
           {[...letters].sort((a, b) => b.createdAt - a.createdAt).map((n) => (
             <Panel key={n.id}>

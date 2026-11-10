@@ -5,6 +5,7 @@ import { IconBadge, TitleText } from "@/components/Feature";
 import { BrowseByMake } from "@/components/home/BrowseByMake";
 import { HeroMosaic } from "@/components/home/HeroMosaic";
 import { HomeSearch } from "@/components/home/HomeSearch";
+import { SocialStrip } from "@/components/home/SocialStrip";
 import { ShopByType } from "@/components/home/ShopByType";
 import { TrustStrip } from "@/components/home/TrustStrip";
 import { VisitUs } from "@/components/home/VisitUs";
@@ -134,6 +135,8 @@ export default async function Home() {
         <BrowseByMake makes={search.makes.slice(0, HOME.makeChipsMax)} />
 
         <ReviewsStrip data={reviews} />
+
+        <SocialStrip cars={all?.cars ?? []} />
 
         <VisitUs />
       </div>

@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
 
-// Writing and planning work on the admin's own records. Anything that would leave the admin (post, start, send) says the service is
-// not connected and changes nothing: no pretend success.
-test("write a post draft, edit it, schedule it, and publishing says Facebook is not connected", async ({ page }) => {
+// Writing and planning work on the admin's own records. The three outward services are simulated on the demo (SIMULATE_INTEGRATIONS),
+// so publishing, starting and sending succeed without leaving the admin. With simulation off they say not connected: src/lib/admin/publishers.test.ts.
+test("write a post draft, edit it, schedule it, and publishing posts it", async ({ page }) => {
   await page.goto("/admin/marketing");
   await page.locator('select[name="carSlug"]').selectOption({ index: 1 });
   await page.getByRole("button", { name: "Write draft" }).click();
@@ -17,7 +17,7 @@ test("write a post draft, edit it, schedule it, and publishing says Facebook is 
   await after.getByRole("button", { name: "Schedule" }).click();
   await expect(page.getByRole("status")).toContainText("Post scheduled");
   await page.locator("section").filter({ has: page.getByRole("button", { name: "Publish now" }) }).first().getByRole("button", { name: "Publish now" }).click();
-  await expect(page.getByRole("status")).toContainText("are not connected, so nothing was posted");
+  await expect(page.getByRole("status")).toContainText("Post published");
 });
 
 test("a time in the past is refused", async ({ page }) => {
@@ -28,7 +28,7 @@ test("a time in the past is refused", async ({ page }) => {
   await expect(page.getByRole("status")).toContainText("Choose a time that has not passed");
 });
 
-test("plan an ad, and starting it says ads are not connected", async ({ page }) => {
+test("plan an ad, and starting it runs it", async ({ page }) => {
   await page.goto("/admin/marketing?tab=ads");
   await page.locator('input[name="name"]').fill("E2E test ad");
   await page.locator('select[name="carSlug"]').selectOption({ index: 1 });
@@ -36,19 +36,19 @@ test("plan an ad, and starting it says ads are not connected", async ({ page }) 
   await expect(page.getByRole("status")).toContainText("Ad saved as a draft");
   const row = page.getByRole("row", { name: /E2E test ad/ });
   await row.getByRole("button", { name: "Start" }).click();
-  await expect(page.getByRole("status")).toContainText("Ads are not connected");
-  await expect(page.getByRole("row", { name: /E2E test ad/ })).toContainText("Draft");
+  await expect(page.getByRole("status")).toContainText("Ad started");
+  await expect(page.getByRole("row", { name: /E2E test ad/ })).toContainText("Running");
   await page.getByRole("row", { name: /E2E test ad/ }).getByRole("button", { name: "Delete" }).click();
   await expect(page.getByRole("row", { name: /E2E test ad/ })).toHaveCount(0);
 });
 
-test("write a newsletter from the newest cars, and sending says it is not connected", async ({ page }) => {
+test("write a newsletter from the newest cars, and sending sends it", async ({ page }) => {
   await page.goto("/admin/marketing?tab=newsletters");
   await page.getByRole("button", { name: "Write from the newest cars" }).click();
   await expect(page.getByRole("status")).toContainText("Newsletter draft saved");
   await expect(page.getByText("New in this week:").first()).toBeVisible();
   await page.getByRole("button", { name: /^Send to/ }).first().click();
-  await expect(page.getByRole("status")).toContainText("Newsletter sending is not connected");
+  await expect(page.getByRole("status")).toContainText("Newsletter sent");
 });
 
 test("an unknown notice code shows nothing", async ({ page }) => {

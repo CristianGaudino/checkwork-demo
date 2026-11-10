@@ -26,3 +26,13 @@ describe("integrations", () => {
     expect(INTEGRATIONS.every((i) => i.env.length > 0)).toBe(true);
   });
 });
+
+describe("simulation", () => {
+  it("covers only the three outward services, and only until SIMULATE_INTEGRATIONS=off", async () => {
+    const { modeOf } = await import("./integrations");
+    expect(modeOf("social")).toBe("simulated");
+    expect(modeOf("email")).toBe("off"); // lead email shows its true state
+    vi.stubEnv("SIMULATE_INTEGRATIONS", "off");
+    expect(modeOf("social")).toBe("off");
+  });
+});

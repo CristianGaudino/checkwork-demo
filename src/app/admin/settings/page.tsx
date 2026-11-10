@@ -1,7 +1,7 @@
 import { AddTeamForm, LeadEmailsForm, MarketingForm, NotificationsForm, TargetsForm } from "@/components/admin/SettingsForms";
 import { Badge, DataTable, PageHeader, Panel, adminButtonQuiet } from "@/components/admin/kit";
 import { getSettings } from "@/lib/admin/collections";
-import { INTEGRATIONS, isConnected, missingEnv } from "@/lib/integrations";
+import { INTEGRATIONS, isUsable, missingEnv, modeOf } from "@/lib/integrations";
 import { DEALER_ADDRESS_LINES, DEALER_EMAIL, DEALER_PHONE, OPENING_HOURS, SITE_NAME } from "@/lib/site";
 import { removeTeamAction, resetDemoAction } from "./actions";
 
@@ -71,7 +71,7 @@ export default async function Page() {
       </Panel>
 
       <Panel title="Notifications">
-        <NotificationsForm settings={s} emailConnected={isConnected("newsletter")} />
+        <NotificationsForm settings={s} emailConnected={isUsable("newsletter")} />
       </Panel>
 
       <Panel title="Marketing voice">
@@ -86,8 +86,8 @@ export default async function Page() {
           columns={[
             { key: "name", header: "Service", cell: (i) => <span className="font-semibold">{i.name}</span> },
             { key: "purpose", header: "What it does", cell: (i) => i.purpose, className: "max-w-[20rem]" },
-            { key: "status", header: "Status", cell: (i) => (isConnected(i.id) ? <Badge tone="good">Connected</Badge> : <Badge tone="warn">Not connected</Badge>) },
-            { key: "missing", header: "Still needed", cell: (i) => (missingEnv(i).length ? <span className="break-words text-meta text-text-2">{missingEnv(i).join(", ")}</span> : <span className="text-meta text-text-2">Nothing</span>) },
+            { key: "status", header: "Status", cell: (i) => (isUsable(i.id) ? <Badge tone="good">Connected</Badge> : <Badge tone="warn">Not connected</Badge>) },
+            { key: "missing", header: "Account or still needed", cell: (i) => <span className="break-words text-meta text-text-2">{modeOf(i.id) === "off" ? missingEnv(i).join(", ") : modeOf(i.id) === "simulated" ? i.demoAccount : "Nothing"}</span> },
           ]}
         />
         <p className="text-meta text-text-2">Add a missing setting in the Cloudflare dashboard (Workers, Settings, Variables and secrets) and the service connects on the next request.</p>
