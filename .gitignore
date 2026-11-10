@@ -51,3 +51,4 @@ next-env.d.ts
 # Cloudflare Workers build output (OpenNext) and Wrangler state
 /.open-next/
 /.wrangler/
+/public/.stock-next
