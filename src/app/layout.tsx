@@ -4,12 +4,14 @@ import { CompareBar } from "@/components/compare/CompareBar";
 import { Toaster } from "@/components/Toaster";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { DemoBar } from "@/components/demo/DemoBar";
+import { DEMO_BAR_ENABLED, THEME_SCRIPT } from "@/lib/demo";
 import { DEALER_LOCATION, DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL, indexable } from "@/lib/site";
 import "./globals.css";
 
-// Montserrat, from a file kept in the repo (src/app/fonts): no request to Google when a visitor loads the site, and none when the site is
+// Manrope, from a file kept in the repo (src/app/fonts): no request to Google when a visitor loads the site, and none when the site is
 // built. One variable file covers every weight; the latin range covers English and Irish.
-const montserrat = localFont({ src: "./fonts/montserrat-latin.woff2", weight: "100 900", display: "swap", variable: "--font-montserrat" });
+const manrope = localFont({ src: "./fonts/manrope-latin.woff2", weight: "200 800", display: "swap", variable: "--font-manrope" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -27,8 +29,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // break-ui: both imports sit inside the dev branch, so a production build leaves them out entirely.
   const dev = process.env.NODE_ENV === "development" ? { Toggle: (await import("@/components/DevDataToggle")).DevDataToggle, mode: await (await import("@/lib/dev-data")).devMode() } : null;
   return (
-    <html lang="en-IE" className={montserrat.variable}>
+    <html lang="en-IE" className={manrope.variable} suppressHydrationWarning>
+      <head>
+        {/* Sets a stored dark choice before first paint. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body className="flex min-h-dvh flex-col">
+        {DEMO_BAR_ENABLED && <DemoBar />}
         <SiteHeader />
         {children}
         <SiteFooter />

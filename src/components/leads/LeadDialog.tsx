@@ -67,7 +67,7 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
   return (
     <>
       <div className="grid grid-cols-2 gap-2 whitespace-nowrap">
-        <button type="button" onClick={(e) => show(e.currentTarget)} className={`col-span-2 flex h-12 w-full items-center justify-center gap-2 rounded-control bg-accent px-3 font-semibold text-white sm:col-span-1 ${press}`}>
+        <button type="button" onClick={(e) => show(e.currentTarget)} className={`col-span-2 flex h-12 w-full items-center justify-center gap-2 rounded-control bg-accent px-3 font-semibold text-on-accent sm:col-span-1 ${press}`}>
           Enquire About This Car
         </button>
         <button type="button" onClick={(e) => show(e.currentTarget, TEST_DRIVE_NOTE)} className={`col-span-2 sm:col-span-1 ${secondary}`}>

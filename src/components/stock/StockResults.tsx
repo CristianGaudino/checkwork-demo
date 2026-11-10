@@ -56,7 +56,7 @@ export function StockResults({ result, query }: { result: StockResult; query: St
               ) : (
                 <li key={p} className="hidden sm:block">
                   {p === page ? (
-                    <span aria-current="page" aria-label={`Page ${p}, current page`} className={`${seg} bg-accent text-white`}>
+                    <span aria-current="page" aria-label={`Page ${p}, current page`} className={`${seg} bg-accent text-on-accent`}>
                       {p}
                     </span>
                   ) : (
