@@ -16,6 +16,9 @@ export function roleForPath(pathname: string): DemoRole {
   return DEMO_ROLES.find((r) => r.prefix && (pathname === r.prefix || pathname.startsWith(r.prefix + "/")))?.id ?? "customer";
 }
 
+// The dealer and platform areas have their own frame: the public header and footer are left out there.
+export const isAppPath = (pathname: string) => roleForPath(pathname) !== "customer";
+
 export const THEME_KEY = `${SITE_SLUG}:theme`;
 export const THEMES = ["light", "dark"] as const;
 export type Theme = (typeof THEMES)[number];

@@ -1,8 +1,12 @@
-import type { Metadata } from "next";
-import { ComingSoon } from "@/components/demo/ComingSoon";
+import { EmptyState, PageHeader } from "@/components/admin/kit";
 
-export const metadata: Metadata = { title: "Platform", robots: { index: false } };
+export const metadata = { title: "Dealerships" };
 
 export default function Page() {
-  return <ComingSoon title="Platform" text="Dealerships, usage and billing for the whole platform. Coming next." />;
+  return (
+    <>
+      <PageHeader title="Dealerships" />
+      <EmptyState title="Coming next" />
+    </>
+  );
 }

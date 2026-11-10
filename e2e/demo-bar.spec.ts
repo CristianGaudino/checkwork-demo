@@ -9,7 +9,7 @@ test("the demo bar switches role by route and marks the current one", async ({ p
   await expect(bar.getByRole("link", { name: "Dealer" })).toHaveAttribute("aria-current", "true");
   await bar.getByRole("link", { name: "Superuser" }).click();
   await expect(page).toHaveURL(/\/platform$/);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Platform");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Dealerships");
 });
 
 test("light is the default, dark is a choice that sticks and does not flash", async ({ page }) => {

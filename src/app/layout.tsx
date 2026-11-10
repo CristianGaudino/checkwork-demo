@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { CompareBar } from "@/components/compare/CompareBar";
+import { SiteChrome } from "@/components/SiteChrome";
 import { Toaster } from "@/components/Toaster";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -36,14 +37,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className="flex min-h-dvh flex-col">
         {DEMO_BAR_ENABLED && <DemoBar />}
-        <SiteHeader />
+        <SiteChrome>
+          <SiteHeader />
+        </SiteChrome>
         {children}
-        <SiteFooter />
+        <SiteChrome>
+          <SiteFooter />
+        </SiteChrome>
         {dev && <dev.Toggle mode={dev.mode} />}
         {/* One stack at the bottom of the screen: the toast above the compare pill. Both take their own pointer events. */}
         <div className="pointer-events-none fixed inset-x-0 bottom-4 z-30 flex flex-col items-center gap-2 px-4">
           <Toaster />
-          <CompareBar />
+          <SiteChrome>
+            <CompareBar />
+          </SiteChrome>
         </div>
       </body>
     </html>

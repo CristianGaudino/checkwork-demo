@@ -42,6 +42,7 @@
   --color-photo-bg: #ece8e1;
   --color-destructive: #c4261d;
   --color-better: #15803d;
+  --color-warning: #a15c07;
   --color-scrim: rgb(20 18 31 / 0.5);
   --color-thumb: #ffffff;
   --color-whatsapp: #25d366; /* WhatsApp's own green, for its icon only */
@@ -70,6 +71,7 @@
   --color-photo-bg: #1b2240;
   --color-destructive: #f97066;
   --color-better: #4ade80;
+  --color-warning: #fbbf24;
   --color-scrim: rgb(0 0 0 / 0.6);
   --shadow-lift: 0 8px 24px rgb(0 0 0 / 0.5);
   --shadow-thumb: 0 0 0 1px rgb(0 0 0 / 0.2), 0 2px 6px rgb(0 0 0 / 0.55);
