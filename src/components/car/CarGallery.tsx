@@ -15,7 +15,6 @@ import { useSlideIndex } from "./useSlideIndex";
 export function CarGallery({ photos, name }: { photos: Photo[]; name: string }) {
   const [index, setIndex] = useState(0);
   const root = useRef<HTMLDivElement>(null);
-  const strip = useRef<HTMLDivElement>(null);
   const { ref: scroller, onScroll } = useSlideIndex(setIndex);
   const [lightIndex, setLightIndex] = useState(0);
   const dialog = useRef<HTMLDialogElement>(null);
@@ -25,15 +24,9 @@ export function CarGallery({ photos, name }: { photos: Photo[]; name: string }) 
   // Photos stay visible without JavaScript: the hide-until-loaded style only applies once this attribute is set.
   useEffect(() => root.current?.setAttribute("data-js", ""), []);
 
-  // Keep the active thumb in view by scrolling the strip itself: the element's own into-view method would also scroll the page (RESEARCH Pitfall 9).
-  useEffect(() => {
-    const thumb = strip.current?.children[index] as HTMLElement | undefined;
-    if (strip.current && thumb) strip.current.scrollTo({ left: thumb.offsetLeft - (strip.current.clientWidth - thumb.offsetWidth) / 2 });
-  }, [index]);
-
   if (n === 0) {
     return (
-      <div className="flex aspect-[4/3] items-center justify-center rounded-card bg-photo-bg">
+      <div className="flex aspect-[4/3] items-center justify-center rounded-[20px] bg-photo-bg">
         <p className="text-meta text-text-2">No photo yet</p>
       </div>
     );
@@ -52,7 +45,7 @@ export function CarGallery({ photos, name }: { photos: Photo[]; name: string }) 
 
   return (
     <div data-testid="gallery">
-      <div ref={root} className="group group/pc relative aspect-[4/3] overflow-hidden rounded-card bg-photo-bg">
+      <div ref={root} className="group group/pc relative aspect-[4/3] overflow-hidden rounded-[20px] bg-photo-bg lg:hidden">
         <div
           ref={scroller}
           onScroll={onScroll}
@@ -97,22 +90,32 @@ export function CarGallery({ photos, name }: { photos: Photo[]; name: string }) 
           </>
         )}
       </div>
-      {n > 1 && (
-        <div ref={strip} className="relative -mx-1 mt-1 hidden snap-x gap-2 overflow-x-auto p-1 scrollbar-none motion-safe:scroll-smooth lg:flex [&::-webkit-scrollbar]:hidden">
-          {photos.map((photo, i) => (
-            <button
-              key={photo.src}
-              type="button"
-              aria-label={`Show photo ${i + 1}`}
-              aria-current={i === index ? "true" : undefined}
-              onClick={() => show(i)}
-              className={`h-15 w-20 flex-none snap-start overflow-hidden rounded-control bg-photo-bg ${i === index ? "ring-2 ring-accent ring-offset-2 ring-offset-surface" : ""}`}
-            >
-              <Image src={photo.src} width={80} height={60} alt="" loading="lazy" decoding="async" draggable={false} className="size-full object-cover" />
+      {/* From 1024px the photos are a grid: four tiles that open the viewer, "Show all" on the last when there are more. */}
+      <div data-testid="photo-grid" className={`hidden gap-3 lg:grid ${n === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
+        {photos.slice(0, 4).map((photo, i) => (
+          <div key={photo.src} className={`relative aspect-[4/3] overflow-hidden rounded-[20px] bg-photo-bg ${n === 3 && i === 0 ? "col-span-2" : ""}`}>
+            <button type="button" aria-label={`View photo ${i + 1} of ${n} larger`} onClick={(e) => openLightbox(i, e.currentTarget)} className="group/tile block size-full focus-visible:-outline-offset-2">
+              <Image
+                src={photo.src}
+                width={900}
+                height={675}
+                alt=""
+                loading={i === 0 ? "eager" : "lazy"}
+                fetchPriority={i === 0 ? "high" : undefined}
+                decoding={i === 0 ? undefined : "async"}
+                draggable={false}
+                className="size-full object-cover transition-transform duration-300 group-hover/tile:scale-[1.02] motion-reduce:transition-none"
+              />
             </button>
-          ))}
-        </div>
-      )}
+            <Brandmark />
+            {i === 3 && n > 4 && (
+              <span aria-hidden="true" className="pointer-events-none absolute bottom-3 right-3 rounded-full bg-card/90 px-4 py-2 text-meta font-semibold text-text">
+                Show all {n} photos
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
       <PhotoLightbox photos={photos} name={name} dialogRef={dialog} index={lightIndex} onIndex={setLightIndex} onClose={() => opener.current?.focus()} />
     </div>
   );

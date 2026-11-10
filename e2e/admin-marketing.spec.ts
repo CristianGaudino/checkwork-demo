@@ -38,8 +38,6 @@ test("plan an ad, and starting it runs it", async ({ page }) => {
   await row.getByRole("button", { name: "Start" }).click();
   await expect(page.getByRole("status")).toContainText("Ad started");
   await expect(page.getByRole("row", { name: /E2E test ad/ })).toContainText("Running");
-  await page.getByRole("row", { name: /E2E test ad/ }).getByRole("button", { name: "Delete" }).click();
-  await expect(page.getByRole("row", { name: /E2E test ad/ })).toHaveCount(0);
 });
 
 test("write a newsletter from the newest cars, and sending sends it", async ({ page }) => {

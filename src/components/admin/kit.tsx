@@ -63,7 +63,10 @@ export function EmptyState({ title, text, action }: { title: string; text?: stri
   );
 }
 
-export type Column<T> = { key: string; header: string; cell: (row: T) => React.ReactNode; align?: "right"; className?: string };
+// `hide` keeps a less important column off narrow screens: it shows from that width up. `nowrap` keeps short values (a name, a date) on one line.
+const HIDE = { sm: "hidden sm:table-cell", md: "hidden md:table-cell", lg: "hidden lg:table-cell" } as const;
+export type Column<T> = { key: string; header: string; cell: (row: T) => React.ReactNode; align?: "right"; className?: string; hide?: keyof typeof HIDE; nowrap?: boolean };
+const colClass = (c: Column<unknown>) => `${c.hide ? HIDE[c.hide] : ""} ${c.nowrap ? "whitespace-nowrap" : ""}`;
 
 // A table that scrolls sideways inside its card on a phone and never makes the page scroll.
 // `bare` drops the table's own card, for use inside a Panel.
@@ -76,7 +79,7 @@ export function DataTable<T>({ columns, rows, rowKey, empty, bare = false }: { c
         <thead>
           <tr className="border-b border-hairline text-meta text-text-2">
             {columns.map((c) => (
-              <th key={c.key} scope="col" className={`px-4 py-3 font-semibold ${c.align === "right" ? "text-right" : ""}`}>
+              <th key={c.key} scope="col" className={`px-4 py-3 font-semibold ${c.align === "right" ? "text-right" : ""} ${colClass(c as Column<unknown>)}`}>
                 {c.header}
               </th>
             ))}
@@ -86,7 +89,7 @@ export function DataTable<T>({ columns, rows, rowKey, empty, bare = false }: { c
           {rows.map((r) => (
             <tr key={rowKey(r)} className="align-top">
               {columns.map((c) => (
-                <td key={c.key} className={`px-4 py-3 ${c.align === "right" ? "text-right tabular-nums" : ""} ${c.className ?? ""}`}>
+                <td key={c.key} className={`px-4 py-3 ${c.align === "right" ? "text-right tabular-nums" : ""} ${c.className ?? ""} ${colClass(c as Column<unknown>)}`}>
                   {c.cell(r)}
                 </td>
               ))}

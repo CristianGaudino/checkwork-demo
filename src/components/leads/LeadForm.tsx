@@ -204,6 +204,7 @@ export function LeadForm({
 
   const flaggedCount = Object.values(shown).filter((e) => e[0]).length; // read live, so the note counts down as fields are put right
   const dialog = variant === "dialog";
+  const rail = variant === "page" && wizard;
   const pad = dialog ? "px-4" : "";
   // The buttons sit on the right (a row of them fills the width on a phone). One width for Back, Next and Send, so they never jump about.
   const footer = `flex shrink-0 justify-end gap-3 pt-3 ${dialog ? "border-t border-hairline px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))]" : ""}`;
@@ -237,8 +238,9 @@ export function LeadForm({
           <p className="max-w-[65ch] text-body">{success.body}</p>
         </div>
       ) : (
-        <div className={`relative flex flex-col gap-6 py-2 ${body} ${pad}`}>
-          {wizard && steps && <Stepper titles={steps.map((s) => s.title)} step={step} headingRef={stepHeading} />}
+        // A form page with steps puts its progress in a column on the left from 1024px: the stepper's list takes the first column, everything else the second.
+        <div className={`relative flex flex-col gap-6 py-2 ${body} ${pad} ${rail ? "lg:grid lg:grid-cols-[12rem_minmax(0,1fr)] lg:gap-x-10 lg:[&>*]:col-start-2 lg:[&>[data-rail]]:sticky lg:[&>[data-rail]]:top-6 lg:[&>[data-rail]]:col-start-1 lg:[&>[data-rail]]:row-span-6 lg:[&>[data-rail]]:row-start-1 lg:[&>[data-rail]]:self-start" : ""}`}>
+          {wizard && steps && <Stepper titles={steps.map((s) => s.title)} step={step} headingRef={stepHeading} rail={rail} />}
           {car && (
             <div className="flex items-center gap-3 rounded-card border border-hairline bg-surface p-3">
               <div className="h-[60px] w-20 shrink-0 overflow-hidden rounded-control bg-photo-bg">

@@ -28,9 +28,11 @@ export type Reviews = {
 export type ReviewsProvider = { get(): Promise<Reviews | null> };
 
 const DEMO_PLACE = "https://www.google.com/maps/search/?api=1&query=D00%200000%2C%20Ireland";
+// Made-up names, first name and initial as a review site shows them. Real ones come from the Places provider.
+const DEMO_AUTHORS = ["Aoife M.", "Conor D.", "Niamh K.", "Sean B.", "Orla R."];
 const demo = (n: number, rating: number, text: string, relativeTime: string): Review => ({
   id: `demo-${n}`,
-  author: `Sample customer ${"ABCDE"[n - 1]}.`,
+  author: DEMO_AUTHORS[n - 1],
   rating,
   text,
   relativeTime,
@@ -38,7 +40,7 @@ const demo = (n: number, rating: number, text: string, relativeTime: string): Re
   reviewUri: DEMO_PLACE,
 });
 
-// Clearly fictional ("Sample customer A.") and shown without a label until the Places provider is configured, outside production only.
+// Fictional names, shown without a label until the Places provider is configured, outside production only.
 export const DEMO_REVIEWS: Reviews = {
   source: "demo",
   rating: 4.8,

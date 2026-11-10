@@ -34,10 +34,11 @@ export default async function Page() {
             rows={o.recentLeads}
             rowKey={(l) => l.id}
             columns={[
-              { key: "who", header: "Who", cell: (l) => <span className="font-semibold">{l.name}</span> },
+              { key: "who", header: "Who", cell: (l) => <span className="whitespace-nowrap font-semibold">{l.name}</span> },
               { key: "about", header: "About", cell: (l) => l.carTitle ?? <span className="line-clamp-1">{l.message}</span> },
               { key: "status", header: "Status", cell: (l) => <LeadStatusBadge status={l.status} /> },
-              { key: "when", header: "When", cell: (l) => fmtAgo(l.createdAt), align: "right" },
+              { key: "when", header: "When", cell: (l) => <span className="whitespace-nowrap">{fmtAgo(l.createdAt)}</span>, align: "right" },
+
             ]}
           />
         </Panel>

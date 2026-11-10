@@ -424,6 +424,7 @@ input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
 
   [data-view="list"] [data-card] {
     display: flex;
+    gap: 1.5rem;
   }
 
   [data-view="list"] [data-card-photo] {
@@ -439,7 +440,7 @@ input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
     min-width: 0;
     justify-content: space-between;
     gap: 1rem;
-    padding: 1.5rem;
+    padding: 0.5rem 0;
   }
 
   [data-view="list"] [data-title] {
