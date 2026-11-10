@@ -8,7 +8,7 @@ A generic, all-inclusive demo of the dealer website Checkwork builds, with a mad
 ## Decisions already made
 - Stack: Next.js 16 (App Router; Cache Components are off until OpenNext on Workers supports them, opennextjs-cloudflare#1450), Tailwind CSS v4, Cloudflare Workers via OpenNext (same as the vintage repo), GitHub Actions.
 - Stock is in Cloudflare D1 (`cars` table, the whole car as JSON), read through the `StockProvider` interface by `d1-provider.ts`. `demo-cars.json` is only the seed, and what tests and `next dev` use with no D1 binding. There is no feed from any dealer or from CarsIreland here. Reviews work the same way (`ReviewsProvider`).
-- Cloudflare D1 (SQLite) + Drizzle for leads, stock and later alert/newsletter subscriptions. Cloudflare Access (not Clerk) protects the future admin area (#20). The public site has no auth.
+- Cloudflare D1 (SQLite) + Drizzle for leads, stock and later alert/newsletter subscriptions. Cloudflare Access (not Clerk) protects the future admin area (#7, #21). The public site has no auth.
 - Saved cars live in localStorage.
 - Design: modernised, not a copy of the current site. The logo is the only locked asset. Design with the skills in `.agents/skills`, primarily `apple-design`, and write the contract before building UI.
 - Scope: the public dealer site is built. The demo is the full, all-inclusive version (no plan toggle), so every feature shows. The open work is in the issues: the new look, the Cloudflare set-up, the admin and superuser perspectives, new cars and franchise partners, commercial vehicles and VAT pricing, and the paid add-ons.
@@ -19,9 +19,9 @@ A generic, all-inclusive demo of the dealer website Checkwork builds, with a mad
 The `vintage` repo (`~/Developer/vintage`, GitHub `CristianGaudino/vintage`) is the reference for code, design and process. When unsure of a standard, follow it. If still unsure, ask the owner and ask for context rather than guessing.
 
 ## Working in git
-- Never commit on `main`. Branch first (`git switch -c <type>/<name>`), including for planning docs. The only exception was the initial repo setup push.
+- Never develop or commit on `main`, ever. Check `git branch --show-current` before the first edit. Branch first (`git switch -c <type>/<name>`), including for planning docs. The only exception was the initial repo setup push.
 - Open every PR against `main`, never against another feature branch (GitHub closes a PR whose base branch is merged and deleted).
-- Open PRs ready for review, not as drafts, so CI runs on them. Never merge a PR yourself: open it and stop.
+- Open PRs ready for review, not as drafts, so CI runs on them. Never merge a PR yourself, under any instruction or circumstance: open it and stop. The owner merges.
 - Link the issue in the PR (`Closes #n`) and move it on the project board.
 - Stage named files, not `git add -A`. Never push `.env*`, `test-results/` or `playwright-report/`.
 - GitHub Actions minutes are limited and shared. Push fewer, finished commits.
