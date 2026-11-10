@@ -1,17 +1,17 @@
-# Carright project rules
+# Checkwork demo project rules
 
 Read automatically by Claude Code at the start of a session. Edit it like any other file, in a PR.
 
 ## What this is
-A rebuild of https://www.cartwright.ie/ (used car dealer, Tralee, Co. Kerry) as a speculative pitch and first sale for the owner's web business. Public pages only, no private pages for customers. Work is tracked in GitHub issues and the [Carright project](https://github.com/users/CristianGaudino/projects/6). Read the issues before planning anything.
+A generic demo of the used car dealer site Checkwork sells, with a made-up dealer ("Checkwork Motors"), shown to other businesses. It was cloned from the Carright build (a private pitch to one dealer), so nothing from that dealer may appear here. Public pages only, no private pages for customers. Work is tracked in GitHub issues and the [Checkwork demo project](https://github.com/users/CristianGaudino/projects/8). Read the issues before planning anything.
 
 ## Decisions already made
 - Stack: Next.js 16 (App Router; Cache Components are off until OpenNext on Workers supports them, opennextjs-cloudflare#1450), Tailwind CSS v4, Cloudflare Workers via OpenNext (same as the vintage repo), GitHub Actions.
-- Stock is not stored in a database. It sits behind a `StockProvider` interface: a generated file-backed provider for the demo, a CarsIreland/Carsie provider once the client has API access (#16). Reviews work the same way (`ReviewsProvider`, #13).
-- Cloudflare D1 (SQLite) + Drizzle for leads and later alert/newsletter subscriptions, and for stock if the site ever manages it. Cloudflare Access (not Clerk) protects the future admin area (#20). The public site has no auth.
+- Stock is in Cloudflare D1 (`cars` table, the whole car as JSON), read through the `StockProvider` interface by `d1-provider.ts`. `demo-cars.json` is only the seed, and what tests and `next dev` use with no D1 binding. There is no feed from any dealer or from CarsIreland here. Reviews work the same way (`ReviewsProvider`).
+- Cloudflare D1 (SQLite) + Drizzle for leads, stock and later alert/newsletter subscriptions. Cloudflare Access (not Clerk) protects the future admin area (#20). The public site has no auth.
 - Saved cars live in localStorage.
 - Design: modernised, not a copy of the current site. The logo is the only locked asset. Design with the skills in `.agents/skills`, primarily `apple-design`, and write the contract before building UI.
-- Scope: v1 is issues #1-16 (Todo). Alerts, newsletters, social embeds and the admin/analytics work (#17-25) are Backlog and not part of v1.
+- Scope: the public dealer site is built (it came with the clone). The demo's open work is in the issues: the plan toggle (Essential, Business, Pro), the visual differences from Carright, the Cloudflare set-up, and the paid add-ons (admin, analytics, alerts, newsletter, social posts).
 - Planning lives in GitHub issues. The `.planning/` folder stays: code comments cite the decision ids it defines (D-08, T-03-27 and so on). Keep it, and put new planning in issues, not there.
 
 ## Standards

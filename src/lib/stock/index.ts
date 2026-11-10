@@ -1,12 +1,29 @@
 import { withDevData } from "../dev-data";
+import { getBindings } from "../leads/bindings";
 import demoCars from "./demo-cars.json";
-import { createFileProvider } from "./file-provider";
+import { createStockEngine } from "./engine";
 import { DEFAULT_QUERY } from "./query";
 import type { Car, StockProvider, StockQuery } from "./types";
 
-const files = createFileProvider(demoCars as Car[]);
+// Where the cars come from (D-06, the one place that names a provider): Cloudflare D1 on the Worker. With no D1 binding, which is the
+// E2E run and `next dev`, the made-up demo cars in demo-cars.json stand in, the way the lead fakes do. Any other missing binding fails
+// loudly: stock never quietly falls back to the file on a deployed site.
+const memory = createStockEngine(demoCars as Car[]);
+const files: StockProvider = {
+  query: async (q) => (await source()).query(q),
+  getBySlug: async (s) => (await source()).getBySlug(s),
+  getById: async (id) => (await source()).getById(id),
+  getByIds: async (ids) => (await source()).getByIds(ids),
+  lookup: async (s) => (await source()).lookup(s),
+  taxonomy: async () => (await source()).taxonomy(),
+};
+// The D1 provider is server-only and loaded only where there is a binding, so tests and the memory stand-in never import it.
+async function source(): Promise<StockProvider> {
+  if (getBindings().DB) return (await import("./d1-provider")).d1Provider;
+  if (process.env.E2E_FAKE_BACKENDS === "1" || process.env.NODE_ENV !== "production") return memory;
+  throw new Error("Missing binding DB");
+}
 
-// The one place that names a concrete provider (D-06).
 const prod: StockProvider = {
   ...files,
   // E2E only: set by playwright.config.ts for its local server, never in wrangler.jsonc, a workflow or a deploy.

@@ -45,16 +45,16 @@ describe("carMetadata", () => {
 
 describe("carDescription", () => {
   it("lists year, specs, price and the dealer", () => {
-    expect(carDescription(car)).toBe("2019 Audi A4 2.0 TDI S line. 84,000 km, Diesel, Manual. €18,950. Carright, Tralee, Co. Kerry.");
+    expect(carDescription(car)).toBe("2019 Audi A4 2.0 TDI S line. 84,000 km, Diesel, Manual. €18,950. Checkwork Motors, Demotown, Co. Demo.");
   });
 
   it("drops missing parts with their separators", () => {
-    expect(carDescription({ ...car, variant: undefined, mileageKm: undefined, gearbox: undefined })).toBe("2019 Audi A4. Diesel. €18,950. Carright, Tralee, Co. Kerry.");
-    expect(carDescription({ ...car, mileageKm: undefined, fuel: undefined, gearbox: undefined })).toBe("2019 Audi A4 2.0 TDI S line. €18,950. Carright, Tralee, Co. Kerry.");
+    expect(carDescription({ ...car, variant: undefined, mileageKm: undefined, gearbox: undefined })).toBe("2019 Audi A4. Diesel. €18,950. Checkwork Motors, Demotown, Co. Demo.");
+    expect(carDescription({ ...car, mileageKm: undefined, fuel: undefined, gearbox: undefined })).toBe("2019 Audi A4 2.0 TDI S line. €18,950. Checkwork Motors, Demotown, Co. Demo.");
   });
 
   it("says Sold. in place of the price, with no date", () => {
-    expect(carDescription(sold)).toBe("2019 Audi A4 2.0 TDI S line. 84,000 km, Diesel, Manual. Sold. Carright, Tralee, Co. Kerry.");
+    expect(carDescription(sold)).toBe("2019 Audi A4 2.0 TDI S line. 84,000 km, Diesel, Manual. Sold. Checkwork Motors, Demotown, Co. Demo.");
   });
 });
 
@@ -67,7 +67,7 @@ describe("carJsonLd", () => {
       model: "A4",
       vehicleModelDate: "2019",
       itemCondition: "https://schema.org/UsedCondition",
-      image: ["https://carright.cgaudino.com/stock/101/0.webp"],
+      image: ["https://demo.checkwork.ie/stock/101/0.webp"],
       mileageFromOdometer: { value: 84000, unitCode: "KMT" },
       fuelType: "Diesel",
       vehicleTransmission: "Manual",
@@ -76,8 +76,8 @@ describe("carJsonLd", () => {
         price: 18950,
         priceCurrency: "EUR",
         availability: "https://schema.org/InStock",
-        url: "https://carright.cgaudino.com/used-cars/audi-a4-2019-101",
-        seller: { "@type": "AutoDealer", name: "Carright", telephone: "+353831333154", address: { addressLocality: "Tralee", addressRegion: "Kerry", addressCountry: "IE" } },
+        url: "https://demo.checkwork.ie/used-cars/audi-a4-2019-101",
+        seller: { "@type": "AutoDealer", name: "Checkwork Motors", telephone: "+35319060045", address: { addressLocality: "Demotown", addressRegion: "Demo", addressCountry: "IE" } },
       },
     });
   });

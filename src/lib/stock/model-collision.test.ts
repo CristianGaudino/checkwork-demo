@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createFileProvider } from "./file-provider";
+import { createStockEngine } from "./engine";
 import type { Car, StockQuery } from "./types";
 
 // Two makes with a model of the same name (#68). The demo stock has none, a live feed will.
@@ -15,7 +15,7 @@ const car = (id: string, make: string): Car => ({
   photos: [],
 });
 const q = (partial: Partial<StockQuery>): StockQuery => ({ make: [], model: [], body: [], fuel: [], sort: "newest", page: 1, pageSize: 12, ...partial });
-const provider = () => createFileProvider([car("1", "fiat"), car("2", "abarth")]);
+const provider = () => createStockEngine([car("1", "fiat"), car("2", "abarth")]);
 
 describe("a model name shared by two makes", () => {
   it("the make the buyer picked decides: Fiat 500 does not bring in the Abarth 500", async () => {

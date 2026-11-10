@@ -38,8 +38,8 @@ test.describe("a car for sale", () => {
     await expect(price).toBeVisible();
 
     const call = box.getByRole("link", { name: /^Call Us/ });
-    await expect(call).toHaveAttribute("href", "tel:+353831333154");
-    await expect(box.getByRole("link", { name: /^WhatsApp/ })).toHaveAttribute("href", /^https:\/\/wa\.me\/353831333154\?text=/);
+    await expect(call).toHaveAttribute("href", "tel:+35319060045");
+    await expect(box.getByRole("link", { name: /^WhatsApp/ })).toHaveAttribute("href", /^https:\/\/wa\.me\/35319060045\?text=/);
     await expect(box.getByRole("button", { name: "Enquire About This Car", exact: true })).toBeVisible();
     await expect(box.getByRole("button", { name: "Book a Test Drive", exact: true })).toBeVisible();
     await expect(box.getByRole("button", { name: /Reserve/ })).toHaveCount(0);
@@ -208,7 +208,7 @@ test("an in-stock car page has a canonical URL, a description and Product plus C
   const href = await firstCarHref(page);
   await page.goto(href);
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", `${ORIGIN}${href}`);
-  expect(await description(page)).toMatch(/Tralee, Co\. Kerry\.$/);
+  expect(await description(page)).toMatch(/Demotown, Co. Demo\.$/);
   const ld = await jsonLd(page);
   expect(ld["@type"]).toEqual(expect.arrayContaining(["Car", "Product"]));
   const shown = await buyBox(page).getByText(/^€[\d,]+$/).filter({ visible: true }).textContent();

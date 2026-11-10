@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { DEV_COOKIE, DEV_MODES, type DevMode } from "./dev-modes";
-import { createFileProvider } from "./stock/file-provider";
+import { createStockEngine } from "./stock/engine";
 import type { StockProvider } from "./stock/types";
 
 // break-ui: the dev-only Demo / Worst case switch. Everything here is a no-op unless NODE_ENV is "development", so none of it runs in a
@@ -24,7 +24,7 @@ export function withDevData(prod: StockProvider): StockProvider {
     if (mode === "demo") return prod;
     if (!byMode.has(mode)) {
       const { fixtureCars } = await import("./stock/worst-cars");
-      byMode.set(mode, createFileProvider(fixtureCars(mode)));
+      byMode.set(mode, createStockEngine(fixtureCars(mode)));
     }
     return byMode.get(mode)!;
   };

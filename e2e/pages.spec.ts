@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import { DEALER_ADDRESS, SITE_NAME } from "../src/lib/site";
 
-const TEL = "tel:+353831333154";
+const TEL = "tel:+35319060045";
 const main = (page: Page) => page.getByRole("main");
 const fits320 = async (page: Page, path: string) => {
   await page.setViewportSize({ width: 320, height: 640 });
@@ -14,9 +14,9 @@ test("/service has a call button with the number, WhatsApp, services that open, 
   await page.goto("/service");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Service");
   await expect(page.getByText("Placeholder details")).toHaveCount(0);
-  await expect(main(page).getByRole("link", { name: "Call +353 83 133 3154" })).toHaveAttribute("href", TEL);
-  await expect(main(page).getByRole("link", { name: /^WhatsApp/ })).toHaveAttribute("href", "https://wa.me/353831333154");
-  await expect(main(page).locator("p", { hasText: /^\+353 83 133 3154$/ })).toHaveCount(0); // the number is on the button, not under it
+  await expect(main(page).getByRole("link", { name: "Call +353 1 906 0045" })).toHaveAttribute("href", TEL);
+  await expect(main(page).getByRole("link", { name: /^WhatsApp/ })).toHaveAttribute("href", "https://wa.me/35319060045");
+  await expect(main(page).locator("p", { hasText: /^\+353 1 906 0045$/ })).toHaveCount(0); // the number is on the button, not under it
   for (const s of ["Servicing", "Repairs", "Tyres"]) await expect(main(page).getByRole("button", { name: new RegExp(`^${s}`) })).toHaveAttribute("aria-expanded", "false");
   await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
   await main(page).getByRole("button", { name: /^Tyres/ }).click();
@@ -72,8 +72,8 @@ test("/contact gives the phone, WhatsApp, the hours under the map, and no addres
   await page.goto("/contact");
   await page.waitForLoadState("networkidle");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Contact");
-  await expect(main(page).getByRole("link", { name: "Call +353 83 133 3154" })).toHaveAttribute("href", TEL);
-  await expect(main(page).getByRole("link", { name: /WhatsApp/ })).toHaveAttribute("href", "https://wa.me/353831333154");
+  await expect(main(page).getByRole("link", { name: "Call +353 1 906 0045" })).toHaveAttribute("href", TEL);
+  await expect(main(page).getByRole("link", { name: /WhatsApp/ })).toHaveAttribute("href", "https://wa.me/35319060045");
   await expect(main(page).locator("address")).toHaveCount(0); // the address is in the footer
   await expect(main(page).getByRole("heading", { name: "Address" })).toHaveCount(0);
   const rows = main(page).locator("dl > div");
@@ -108,7 +108,7 @@ test("/contact carries AutoDealer JSON-LD with no placeholder or demo facts", as
   await expect(scripts).toHaveCount(1);
   const data = JSON.parse((await scripts.textContent())!);
   expect(data["@type"]).toBe("AutoDealer");
-  expect(data.telephone).toBe("+353831333154");
+  expect(data.telephone).toBe("+35319060045");
   expect(data).not.toHaveProperty("aggregateRating");
   expect(data).not.toHaveProperty("openingHoursSpecification");
   expect(data.address).not.toHaveProperty("streetAddress");

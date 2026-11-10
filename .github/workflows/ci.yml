@@ -63,7 +63,7 @@ jobs:
           npx wrangler dev --test-scheduled --port 8787 --ip 127.0.0.1 > wrangler.log 2>&1 &
           curl -s -o /dev/null --retry 60 --retry-connrefused --retry-delay 2 http://127.0.0.1:8787/robots.txt || true
           fail=0
-          site=https://carright.cgaudino.com # SITE_URL in src/lib/site.ts: the sitemap must name the live site
+          site=https://demo.checkwork.ie # SITE_URL in src/lib/site.ts: the sitemap must name the live site
           # The first car may be sold now, so the live car is the first without a sale date; the expired one has the oldest sale date.
           slug=$(node -p "require('./src/lib/stock/demo-cars.json').find(c => !c.soldAt).slug")
           photo=$(node -p "require('./src/lib/stock/demo-cars.json').find(c => !c.soldAt).photos[0].src")
@@ -72,7 +72,7 @@ jobs:
           make=$(node -p "require('./src/lib/stock/demo-cars.json').find(c => !c.soldAt).makeSlug")
           model=$(node -p "const c = require('./src/lib/stock/demo-cars.json').find(c => !c.soldAt); c.makeSlug + '/' + c.modelSlug")
           body=$(node -p "require('./src/lib/stock/demo-cars.json').find(c => !c.soldAt && c.bodySlug).bodySlug")
-          for case in "/ 200" "/robots.txt 200" "/used-cars 200" "/used-cars/$slug 200" "/used-cars/$make 200" "/used-cars/$body 200" "/used-cars/$model 200" "$photo 200" "/used-cars/not-a-car 404" "/used-cars/$expired 410" "/used-cars/audi-a4-2019-999999999 404" "/privacy 200" "/trade-in 200" "/sell-your-car 308" "/find-a-car 200" "/finance 200" "/service 200" "/contact 200" "/about 200" "/terms 200" "/lead-photos/trade-in/x 403"; do
+          for case in "/ 200" "/robots.txt 200" "/used-cars 200" "/used-cars/$slug 200" "/used-cars/$make 200" "/used-cars/$body 200" "/used-cars/$model 200" "$photo 200" "/used-cars/not-a-car 404" "/used-cars/$expired 410" "/used-cars/audi-a4-2019-999999999 404" "/privacy 200" "/trade-in 200" "/find-a-car 200" "/finance 200" "/service 200" "/contact 200" "/about 200" "/terms 200" "/lead-photos/trade-in/x 403"; do
             set -- $case
             got=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 "http://127.0.0.1:8787$1") || true # bash -e: a Worker that never started must not skip the wrangler.log dump below
             echo "$1: $got (want $2)"

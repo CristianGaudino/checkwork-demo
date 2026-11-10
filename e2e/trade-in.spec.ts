@@ -98,14 +98,12 @@ test("it is a trade-in valuation page that explains itself, in four steps, with 
   expect(Math.abs(field.height - button.height)).toBeLessThan(1.5);
 });
 
-test("Back keeps what was typed, and the old /sell-your-car address lands here", async ({ page }) => {
+test("Back keeps what was typed", async ({ page }) => {
   await open(page);
   await toStep(page, 2, "191-KY-1234", "120,500");
   await page.getByRole("button", { name: "Back", exact: true }).click();
   await expect(page.getByLabel("Registration", { exact: true })).toHaveValue("191-KY-1234");
   await expect(page.getByLabel("Mileage", { exact: true })).toHaveValue("120,500");
-  await page.goto("/sell-your-car");
-  await expect(page).toHaveURL(/\/trade-in$/);
 });
 
 test("Next refuses until the photos are in, and the note goes by itself once they are", async ({ page }) => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createFileProvider } from "./file-provider";
+import { createStockEngine } from "./engine";
 import type { Car, StockProvider, StockQuery } from "./types";
 
 function car(id: string, make: string, model: string, year: number, priceEur: number, extra: Partial<Car> = {}): Car {
@@ -252,7 +252,7 @@ export function runContract(name: string, makeProvider: (cars: Car[], opts: Cloc
 
 // Behaves like a remote provider: its own copy of the data, async I/O, answers through the file logic.
 function createStubProvider(cars: Car[], opts: Clock): StockProvider {
-  const inner = createFileProvider(structuredClone(cars), opts);
+  const inner = createStockEngine(structuredClone(cars), opts);
   const io = () => new Promise((r) => setTimeout(r, 0));
   return {
     async query(query) {
@@ -282,5 +282,5 @@ function createStubProvider(cars: Car[], opts: Clock): StockProvider {
   };
 }
 
-runContract("file", createFileProvider);
+runContract("file", createStockEngine);
 runContract("stub", createStubProvider);

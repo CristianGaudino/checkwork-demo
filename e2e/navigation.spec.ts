@@ -62,7 +62,7 @@ test("at 320px the header holds the menu button, and the footer reaches every pa
   const footer = page.getByRole("contentinfo");
   // The hours link is for wider screens; Contact is in the footer on a phone.
   for (const [name, href] of FOOTER.filter(([n]) => n !== "Opening Hours and Directions")) await expect(footer.getByRole("link", { name, exact: true })).toHaveAttribute("href", href);
-  await expect(footer.getByRole("link", { name: "+353 83 133 3154" })).toHaveAttribute("href", "tel:+353831333154");
+  await expect(footer.getByRole("link", { name: "+353 1 906 0045" })).toHaveAttribute("href", "tel:+35319060045");
   await expect(footer.getByText(`© ${SITE_NAME}`)).toBeVisible();
 });
 
@@ -74,7 +74,7 @@ test("the footer has social icons and a Powered by Checkwork link that opens che
     await expect(l).toHaveAttribute("href", new RegExp(`^https://www\\.${name.toLowerCase()}\\.com/`));
     await expect(l).toHaveAttribute("target", "_blank");
   }
-  const credit = footer.getByRole("link", { name: /Checkwork/ });
+  const credit = footer.getByRole("link", { name: /^Powered by/ });
   await expect(credit).toHaveAttribute("href", "https://www.checkwork.ie");
   await expect(credit).toContainText("Powered by");
   await expect(credit.getByRole("img", { name: "Checkwork" })).toBeVisible();
@@ -110,7 +110,7 @@ test.describe("the mobile menu", () => {
       await expect(link).toHaveAttribute("href", href);
       expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     }
-    await expect(menu.getByRole("link", { name: "Call Us" })).toHaveAttribute("href", "tel:+353831333154");
+    await expect(menu.getByRole("link", { name: "Call Us" })).toHaveAttribute("href", "tel:+35319060045");
   });
 
   test("Home is in the menu on every page except Home", async ({ page }) => {

@@ -98,7 +98,7 @@ test.describe("sold cars", () => {
       const badge = card.locator("> div").first().getByText("Sold", { exact: true });
       await expect(badge).toBeVisible();
       await expect(badge).toHaveAttribute("aria-hidden", "true");
-      await expect(badge).toHaveCSS("background-color", "rgb(245, 245, 247)");
+      await expect(badge).toHaveCSS("background-color", "rgb(245, 246, 251)");
 
       expect((await price(/^Sold$/).boundingBox())!.height).toBe((await price(/^€/).boundingBox())!.height);
 

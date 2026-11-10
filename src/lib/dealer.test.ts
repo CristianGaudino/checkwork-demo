@@ -15,13 +15,13 @@ describe("dealerJsonLd", () => {
     expect(ld(null, false)).toEqual({
       "@context": "https://schema.org",
       "@type": "AutoDealer",
-      "@id": "https://carright.cgaudino.com/#dealer",
-      name: "Carright",
-      url: "https://carright.cgaudino.com",
-      logo: "https://carright.cgaudino.com/brand/logo.png",
-      image: "https://carright.cgaudino.com/brand/logo.png",
-      telephone: "+353831333154",
-      address: { "@type": "PostalAddress", addressLocality: "Tralee", addressRegion: "Co. Kerry", addressCountry: "IE" },
+      "@id": "https://demo.checkwork.ie/#dealer",
+      name: "Checkwork Motors",
+      url: "https://demo.checkwork.ie",
+      logo: "https://demo.checkwork.ie/brand/logo.png",
+      image: "https://demo.checkwork.ie/brand/logo.png",
+      telephone: "+35319060045",
+      address: { "@type": "PostalAddress", addressLocality: "Demotown", addressRegion: "Co. Demo", addressCountry: "IE" },
     });
   });
 
@@ -64,9 +64,9 @@ describe("hours and map links", () => {
   });
 
   it("points the map and directions at the eircode", () => {
-    expect(mapQuery()).toBe("V92 NT93, Ireland");
-    expect(directionsUrl()).toBe("https://www.google.com/maps/search/?api=1&query=V92%20NT93%2C%20Ireland");
-    expect(mapEmbedUrl()).toBe("https://maps.google.com/maps?q=V92%20NT93%2C%20Ireland&output=embed");
+    expect(mapQuery()).toBe("D00 0000, Ireland");
+    expect(directionsUrl()).toBe("https://www.google.com/maps/search/?api=1&query=D00%200000%2C%20Ireland");
+    expect(mapEmbedUrl()).toBe("https://maps.google.com/maps?q=D00%200000%2C%20Ireland&output=embed");
   });
 
   it("groups days that share hours", () => {

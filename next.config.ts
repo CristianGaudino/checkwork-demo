@@ -27,17 +27,6 @@ const nextConfig: NextConfig = {
   // Trade-in photos travel in the lead action: 16 MB of photos plus multipart overhead (03-01 spike, research section 3).
   // It applies to every server action; each one validates its input.
   experimental: { serverActions: { bodySizeLimit: "18mb" } },
-  // The old site's pages (cartwright.ie), so links from Google and old messages keep working. The old car links are /car-details/.
-  async redirects() {
-    return [
-      { source: "/sell-your-car", destination: "/trade-in", permanent: true },
-      { source: "/apply-for-finance", destination: "/finance", permanent: true },
-      { source: "/car-sourcing", destination: "/find-a-car", permanent: true },
-      { source: "/terms-and-conditions", destination: "/terms", permanent: true },
-      { source: "/privacy-policy", destination: "/privacy", permanent: true },
-      { source: "/saved-cars", destination: "/saved", permanent: true },
-    ];
-  },
   // Clickjacking and sniffing guards, and a content policy on every page. Scripts, frames, images and connections may come only from this
   // site and the few origins named in CSP below. No nonce: a nonce makes every page render per request (no static pages, no caching on
   // Workers). Inline scripts stay allowed because Next writes them; the policy still blocks eval and any script, frame or request to

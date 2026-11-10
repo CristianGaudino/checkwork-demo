@@ -1,14 +1,14 @@
-export const SITE_URL = "https://carright.cgaudino.com"; // demo domain (wrangler.jsonc routes); swap for the client's domain at handover
-export const SITE_NAME = "Carright";
+export const SITE_URL = "https://demo.checkwork.ie"; // the demo domain (wrangler.jsonc routes)
+export const SITE_NAME = "Checkwork Motors"; // a made-up dealer
 // Prefix for this site's keys in the visitor's browser storage (saved cars, compare, view). A clone sets its own, so two sites on one browser never share them.
-export const SITE_SLUG = "carright";
+export const SITE_SLUG = "checkwork-demo";
 // The share image for any page without its own (a car has its own photo): the logo on the site's dark red glow.
 export const DEFAULT_OG_IMAGE = { url: "/brand/og-default.png", width: 1200, height: 630, alt: SITE_NAME };
-export const DEALER_PHONE = "+353 83 133 3154"; // as published on cartwright.ie (083-1333154), written with the country code; confirm with the dealer
-// PLACEHOLDER until carright.ie forwards to the dealer (issue #54).
-export const DEALER_EMAIL = "hello@carright.ie";
-export const DEALER_TEL = "+353831333154";
-// The same number is the dealer's WhatsApp: the old cartwright.ie footer links it. Confirm with the dealer.
+// Made-up contact details for the demo dealer: not a real number or address.
+export const DEALER_PHONE = "+353 1 906 0045";
+export const DEALER_EMAIL = "demo@checkwork.ie";
+export const DEALER_TEL = "+35319060045";
+// The same number is the demo dealer's WhatsApp.
 // The agency that built the site, credited in the footer.
 export const CHECKWORK_URL = "https://www.checkwork.ie";
 export const DEALER_WHATSAPP = `https://wa.me/${DEALER_TEL.slice(1)}`;
@@ -29,7 +29,7 @@ export const SERVICES = [
   { name: "Tyres", blurb: "The right tyres, fitted and checked.", types: ["New tyres fitted", "Puncture repair", "Wheel balancing", "Wheel alignment"] },
 ] as const;
 // Confirmed by the dealer, 2026-11-07.
-export const DEALER_ADDRESS = { street: "Ballymac, Maglass", town: "Tralee", county: "Co. Kerry", eircode: "V92 NT93" };
+export const DEALER_ADDRESS = { street: "1 Example Road", town: "Demotown", county: "Co. Demo", eircode: "D00 0000" };
 // PLACEHOLDER until the dealer confirms the warranty (owner decision, 2026-11-07): shown on the home page and every car for sale.
 export const WARRANTY = { title: "3 Month Warranty", text: "Engine & gearbox cover on all cars." };
 export const DEALER_ADDRESS_LINES = [DEALER_ADDRESS.street, DEALER_ADDRESS.town, DEALER_ADDRESS.county, DEALER_ADDRESS.eircode];

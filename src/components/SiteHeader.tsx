@@ -25,7 +25,7 @@ export function SiteHeader() {
       <div className="relative mx-auto flex h-14 max-w-[1280px] items-center justify-between px-4 sm:px-6 lg:h-16 lg:px-8">
         {/* Phones: the logo sits dead centre, the menu button on the left and the heart on the right (the nav spans the bar). */}
         <Link href="/" className="absolute left-1/2 z-10 flex h-11 -translate-x-1/2 items-center focus-visible:outline-white lg:static lg:translate-x-0">
-          <Image src="/brand/logo.svg" width={480} height={109} alt={SITE_NAME} loading="eager" className="h-7 w-auto sm:h-8 lg:h-9" />
+          <Image src="/brand/logo.svg" width={345} height={60} alt={SITE_NAME} loading="eager" className="h-7 w-auto sm:h-8 lg:h-9" />
         </Link>
         <nav aria-label="Main" className="flex w-full items-center justify-between lg:w-auto lg:gap-6">
           <HeaderLinks />
