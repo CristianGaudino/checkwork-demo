@@ -74,9 +74,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
       {sp.deleted && <p role="status" className="rounded-control bg-hairline px-4 py-3 text-body">Car deleted.</p>}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <FilterTabs items={FILTERS.map(([k, label]) => ({ label, count: counts[k], href: `/admin/stock?status=${k}${q ? `&q=${encodeURIComponent(q)}` : ""}`, active: status === k }))} />
-        <form action="/admin/stock" method="get" className="flex gap-2">
+        <form action="/admin/stock" method="get" className="flex w-full gap-2 sm:w-auto">
           <input type="hidden" name="status" value={status} />
-          <input name="q" defaultValue={q} placeholder="Search make or model" aria-label="Search stock" className={`${adminInput} w-56`} />
+          <input name="q" defaultValue={q} placeholder="Search make or model" aria-label="Search stock" className={`${adminInput} min-w-0 flex-1 sm:w-56 sm:flex-none`} />
           <button type="submit" className={adminButtonQuiet}>Search</button>
         </form>
       </div>

@@ -117,7 +117,7 @@ export function FilterTabs({ items }: { items: { label: string; href: string; ac
   );
 }
 
-export const adminInput = "h-11 w-full rounded-control border border-control bg-card px-3 text-body";
+export const adminInput = "h-11 rounded-control border border-control bg-card px-3 text-body";
 export const adminButton = `inline-flex h-11 items-center justify-center gap-2 rounded-control bg-accent px-5 text-meta font-semibold text-on-accent ${press}`;
 export const adminButtonQuiet = `inline-flex h-11 items-center justify-center gap-2 rounded-control border border-control bg-card px-5 text-meta font-semibold ${press}`;
 

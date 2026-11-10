@@ -61,7 +61,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
           { key: "source", header: "Source", cell: (l) => l.source },
           { key: "status", header: "Status", cell: (l) => <LeadStatusBadge status={l.status} /> },
           { key: "owner", header: "With", cell: (l) => l.assignedTo ?? <span className="text-text-2">Nobody yet</span> },
-          { key: "when", header: "When", cell: (l) => fmtAgo(l.createdAt), align: "right" },
+          { key: "when", header: "When", cell: (l) => fmtAgo(l.createdAt), align: "right", className: "whitespace-nowrap" },
         ]}
         empty={<EmptyState title="No leads match" text="Try another filter or search." />}
       />
