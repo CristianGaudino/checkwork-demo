@@ -1,5 +1,6 @@
 "use client";
 
+import { Select } from "@/components/Select";
 import { useActionState } from "react";
 import { Field, adminButton, adminInput } from "@/components/admin/kit";
 import { addDriveAction, type DriveFormState } from "@/app/admin/test-drives/actions";
@@ -20,14 +21,7 @@ export function AddDriveForm({ cars }: { cars: { slug: string; label: string }[]
         <input name="email" type="email" className={adminInput} autoComplete="off" />
       </Field>
       <Field label="Car" error={e.carSlug} className="sm:col-span-2 lg:col-span-1">
-        <select name="carSlug" defaultValue="" className={adminInput}>
-          <option value="">Choose a car</option>
-          {cars.map((c) => (
-            <option key={c.slug} value={c.slug}>
-              {c.label}
-            </option>
-          ))}
-        </select>
+        <Select name="carSlug" options={[["", "Choose a car"], ...cars.map((c) => [c.slug, c.label] as const)]} />
       </Field>
       <Field label="Day" error={e.date}>
         <input name="date" type="date" className={adminInput} />

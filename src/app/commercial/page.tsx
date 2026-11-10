@@ -1,11 +1,7 @@
-import type { Metadata } from "next";
-import { connection } from "next/server";
-import { VehicleListPage } from "@/components/stock/VehicleListPage";
-import { DEALER_ADDRESS } from "@/lib/site";
+import { StockListPage, stockListMetadata } from "@/components/stock/StockListPage";
 
-export const metadata: Metadata = { title: "Commercial vehicles", description: `Vans and light commercial vehicles, priced without VAT, at our dealership in ${DEALER_ADDRESS.town}.` };
+export const generateMetadata = ({ searchParams }: PageProps<"/commercial">) => stockListMetadata("commercial", searchParams);
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ make?: string }> }) {
-  await connection();
-  return <VehicleListPage condition="commercial" make={(await searchParams).make} />;
+export default function Page({ searchParams }: PageProps<"/commercial">) {
+  return <StockListPage condition="commercial" searchParams={searchParams} />;
 }

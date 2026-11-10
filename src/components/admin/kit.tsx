@@ -56,7 +56,7 @@ export function StatGrid({ children }: { children: React.ReactNode }) {
   return <div className="grid grid-cols-2 gap-3 sm:grid-cols-[repeat(auto-fit,minmax(11rem,1fr))]">{children}</div>;
 }
 
-const TONES = { neutral: "bg-hairline text-text", good: "bg-better/15 text-better", warn: "bg-warning/15 text-warning", bad: "bg-destructive/15 text-destructive", info: "bg-accent/15 text-accent-text" } as const;
+const TONES = { neutral: "bg-hairline text-text", good: "bg-ok-soft text-ok", warn: "bg-warn-soft text-warn", bad: "bg-bad-soft text-bad", info: "bg-info-soft text-info" } as const;
 export type Tone = keyof typeof TONES;
 // A short status in words, never a colour alone.
 export function Badge({ tone = "neutral", children }: { tone?: Tone; children: React.ReactNode }) {

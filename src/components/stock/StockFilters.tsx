@@ -249,6 +249,8 @@ export function StockFilters({ showSearch = true }: { showSearch?: boolean }) {
       <Row title="Mileage" active={query.kmMax !== undefined}>
         <SelectField label="Up to" value={query.kmMax} options={withSelected(KMS, query.kmMax).map((v) => ({ value: v, label: formatKm(v) }))} onChange={(kmMax) => set({ kmMax })} />
       </Row>
+      {/* Only used cars have a sold list; new cars and vans are removed when they go. */}
+      {!query.condition && (
       <label className="flex min-h-11 items-center gap-3">
         <input
           type="checkbox"
@@ -258,6 +260,7 @@ export function StockFilters({ showSearch = true }: { showSearch?: boolean }) {
         />
         <span className="min-w-0 flex-1">Include sold cars</span>
       </label>
+      )}
     </div>
   );
 }

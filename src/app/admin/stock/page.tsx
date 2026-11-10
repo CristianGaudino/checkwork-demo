@@ -77,7 +77,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
   return (
     <>
       <PageHeader title="Stock" text="Every car on the site. Changes show on the site within seconds." actions={<Link href="/admin/stock/new" className={adminButton}>Add a car</Link>} />
-      {saved && <p role="status" className="rounded-control bg-better/15 px-4 py-3 text-body text-better">Saved {carName(saved)}.</p>}
+      {saved && <p role="status" className="rounded-control bg-ok-soft px-4 py-3 text-body text-ok">Saved {carName(saved)}.</p>}
       {sp.deleted && <p role="status" className="rounded-control bg-hairline px-4 py-3 text-body">Car deleted.</p>}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <FilterTabs items={FILTERS.map(([k, label]) => ({ label, count: counts[k], href: `/admin/stock?status=${k}${q ? `&q=${encodeURIComponent(q)}` : ""}`, active: status === k }))} />

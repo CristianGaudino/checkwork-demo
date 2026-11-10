@@ -5,6 +5,8 @@
   --font-sans: var(--font-sora), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
   --text-*: initial;
+  --text-micro: 0.625rem; /* initials in a logo box */
+  --text-micro--line-height: 1;
   --text-meta: 0.875rem;
   --text-meta--line-height: 1.4;
   --text-meta--letter-spacing: 0.01em;
@@ -32,9 +34,11 @@
   --aspect-photo: 4 / 3; /* car photos, aspect-photo */
 
   --font-weight-*: initial;
+  /* 400, 500 and 600 only: what used to be semibold is now medium, and bold is semibold. Hierarchy comes from size and colour. */
   --font-weight-normal: 400;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 500;
+  --font-weight-bold: 600;
 
   /* Light is the default. "Showroom": pale stone lit from above, a raised warm white for panels, near-black ink. The dark set is the same
      names under [data-theme="dark"] below: a deep teal-black with warm light. */
@@ -53,17 +57,26 @@
   --color-destructive: #c4261d;
   --color-better: #166534;
   --color-warning: #8f4f06;
+  /* Status tones, solid: a fill and the text that sits on it (4.5:1). Badges, chips and notices use these and nothing tinted. */
+  --color-ok: #166534;
+  --color-ok-soft: #d8ecdd;
+  --color-warn: #7a4305;
+  --color-warn-soft: #f3e4c8;
+  --color-bad: #a3211a;
+  --color-bad-soft: #f6d9d5;
+  --color-info: #3f37c9;
+  --color-info-soft: #e0def8;
   --color-scrim: rgb(20 18 31 / 0.5);
   --color-thumb: #ffffff;
   --color-whatsapp: #25d366; /* WhatsApp's own green, for its icon only */
 
-  --radius-card: 1.5rem;
-  --radius-tile: 1.75rem; /* every photo tile: cards, the car page, the social strip */
+  --radius-card: 1.25rem;
+  --radius-tile: 1.5rem; /* every photo tile: cards, the car page, the social strip */
   --radius-control: 0.75rem;
 
   --shadow-lift: 0 10px 28px rgb(46 40 28 / 0.2);
   /* A panel resting on the showroom floor: a lit top edge, a soft long shadow underneath. */
-  --shadow-panel: 0 1px 0 rgb(255 255 255 / 0.75) inset, 0 18px 40px -20px rgb(46 40 28 / 0.38), 0 2px 6px rgb(46 40 28 / 0.08);
+  --shadow-panel: 0 1px 2px rgb(46 40 28 / 0.06), 0 10px 28px -14px rgb(46 40 28 / 0.22);
   /* The room: light falling from above onto stone, then the floor getting darker towards the bottom of the page. */
   --atmosphere: radial-gradient(120% 55% at 50% -8%, rgb(255 255 255 / 0.85), transparent 62%), linear-gradient(180deg, #efece5 0%, #e4e0d7 55%, #dad5ca 100%);
   /* The lit plinth a car photo sits on. The photo's white studio background is multiplied away, so the car stands on this. */
@@ -91,10 +104,18 @@
   --color-destructive: #ff8f86;
   --color-better: #4ade80;
   --color-warning: #fbbf24;
+  --color-ok: #7be0a2;
+  --color-ok-soft: #123a2a;
+  --color-warn: #f2c46d;
+  --color-warn-soft: #3b2d12;
+  --color-bad: #ff9d95;
+  --color-bad-soft: #43201f;
+  --color-info: #b9b5ff;
+  --color-info-soft: #26255c;
   --color-scrim: rgb(0 0 0 / 0.6);
   --shadow-lift: 0 10px 28px rgb(0 0 0 / 0.55);
-  --shadow-panel: 0 1px 0 rgb(255 255 255 / 0.06) inset, 0 20px 44px -18px rgb(0 0 0 / 0.65), 0 2px 6px rgb(0 0 0 / 0.3);
-  --atmosphere: radial-gradient(90% 45% at 50% -10%, rgb(242 196 141 / 0.14), transparent 60%), linear-gradient(180deg, #0a1a1f 0%, #0c2026 60%, #0f262b 100%);
+  --shadow-panel: none; /* in dark, depth is the surface step and the hairline, not a shadow and not a highlight */
+  --atmosphere: linear-gradient(180deg, #0a1a1f 0%, #0b1d23 100%);
   --plinth: radial-gradient(90% 80% at 50% 38%, #f4f1ea 0%, #dcd7cc 60%, #bfb9ac 100%);
   --shadow-thumb: 0 0 0 1px rgb(0 0 0 / 0.2), 0 2px 6px rgb(0 0 0 / 0.55);
 }

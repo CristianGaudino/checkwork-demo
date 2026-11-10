@@ -16,7 +16,8 @@ import { GridIcon, ListIcon } from "./icons";
 import { SearchBox, StockFilters } from "./StockFilters";
 import { stateButton } from "./StockError";
 import { setView, useView } from "./view";
-import { eyebrow, pageMain, subTitle } from "@/components/ui";
+import { pageMain, subTitle } from "@/components/ui";
+import { VEHICLE_TYPES } from "@/lib/nav";
 
 type Summary = { total: number; facets: Facets } | null;
 type Stock = {
@@ -120,6 +121,7 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
       router.replace(stockHref(next), { scroll });
     });
 
+  const kind = VEHICLE_TYPES.find((t) => t.condition === (optimisticQuery.condition ?? "used"))!;
   return (
     <StockContext value={{ query: optimisticQuery, summary, facets: summary ? summary.facets : held, pending, navigate }}>
       <main className={pageMain}>
@@ -127,9 +129,8 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
             start higher. Below that the count sits under the intro (sort is in the sticky bar). */}
         <div className="lg:flex lg:items-end lg:justify-between lg:gap-8">
           <div>
-            <p className={eyebrow}>Our Stock</p>
-            <h1 className="mt-1 text-display font-bold lg:text-hero">Quality Used Cars</h1>
-            <p className="mt-2 max-w-measure text-pretty text-body text-text-2">Browse our current stock of used cars, all carefully selected.</p>
+            <h1 className="text-display font-bold lg:text-hero">{kind.title}</h1>
+            <p className="mt-2 max-w-measure text-pretty text-body text-text-2">{kind.intro}</p>
             {/* Under the intro and above the count on a phone; from 1024px the search is in the filter panel. */}
             <div className="mt-4 lg:hidden">
               <SearchBox />

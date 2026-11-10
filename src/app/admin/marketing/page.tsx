@@ -55,7 +55,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
     <>
       <PageHeader title="Marketing" text="Write posts, plan ads and send newsletters for the cars in stock." />
       {notice && (
-        <p role="status" className={`rounded-control px-4 py-3 text-body ${notice.tone === "good" ? "bg-better/15 text-better" : "bg-warning/15 text-warning"}`}>
+        <p role="status" className={`rounded-control px-4 py-3 text-body ${notice.tone === "good" ? "bg-ok-soft text-ok" : "bg-warn-soft text-warn"}`}>
           {notice.text}
         </p>
       )}
@@ -118,7 +118,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                         <button type="submit" className={adminButtonQuiet}>Schedule</button>
                       </form>
                       <form action={publishPostAction.bind(null, p.id)}><button type="submit" className={adminButton}>Publish now</button></form>
-                      <form action={deletePostAction.bind(null, p.id)}><button type="submit" className={`${quiet} text-destructive`}>Delete</button></form>
+                      <form action={deletePostAction.bind(null, p.id)}><button type="submit" className={`${quiet} text-bad`}>Delete</button></form>
                     </div>
                   </>
                 )}
@@ -166,7 +166,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                   a.status === "draft" ? (
                     <div className="flex gap-1">
                       <form action={startAdAction.bind(null, a.id)}><button type="submit" className={quiet}>Start</button></form>
-                      <form action={deleteAdAction.bind(null, a.id)}><button type="submit" className={`${quiet} text-destructive`}>Delete</button></form>
+                      <form action={deleteAdAction.bind(null, a.id)}><button type="submit" className={`${quiet} text-bad`}>Delete</button></form>
                     </div>
                   ) : null,
               },
@@ -208,7 +208,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
               {n.status === "draft" && (
                 <div className="flex flex-wrap gap-3">
                   <form action={sendNewsletterAction.bind(null, n.id)}><button type="submit" className={adminButton}>Send to {fmtNum(live)} subscribers</button></form>
-                  <form action={deleteNewsletterAction.bind(null, n.id)}><button type="submit" className={`${quiet} text-destructive`}>Delete</button></form>
+                  <form action={deleteNewsletterAction.bind(null, n.id)}><button type="submit" className={`${quiet} text-bad`}>Delete</button></form>
                 </div>
               )}
             </Panel>

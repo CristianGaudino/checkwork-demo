@@ -40,7 +40,7 @@ export default async function Home() {
       {/* The showroom window: the dealership photo full width with light falling from the top, the line on the left and the search floating on glass. */}
       <section className="relative isolate overflow-hidden">
         <HeroMosaic />
-        <div className={`${pageWidth} grid grid-cols-1 gap-8 pb-8 pt-16 lg:min-h-[38rem] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-end lg:gap-12 lg:pb-14 lg:pt-24`}>
+        <div className={`${pageWidth} grid grid-cols-1 gap-8 pb-24 pt-16 lg:min-h-[38rem] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-end lg:gap-12 lg:pb-28 lg:pt-24`}>
           <div className="theme-dark flex min-w-0 flex-col items-start text-text">
             <p className="text-meta font-semibold text-text/80">Quality Used Cars</p>
             <h1 className="mt-3 max-w-[10ch] text-hero font-semibold lg:text-hero-lg">Find Your Next Car</h1>

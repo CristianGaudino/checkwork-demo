@@ -13,9 +13,7 @@ export function Breadcrumb({ car }: { car: Pick<Car, "make" | "makeSlug" | "mode
   if (own) {
     return (
       <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1 text-meta">
-        <Link href={own.href} className={crumb}>
-          {own.label}
-        </Link>
+        <BackToCars condition={own.condition} label={own.label} />
         <ChevronRightIcon className="size-4 text-text-2" />
         <Link href={`${own.href}?make=${car.makeSlug}`} className={crumb}>
           {car.make}

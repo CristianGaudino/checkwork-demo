@@ -76,7 +76,7 @@ export function LandingPage({ data }: { data: LandingData }) {
     <main className={pageMain}>
       <Breadcrumb landing={landing} />
       <h1 className={`mt-6 flex items-center gap-3 ${pageTitle}`}>
-        {landing.kind !== "body" && <MakeLogo slug={landing.makeSlug} className="size-9 sm:size-11" />}
+        {landing.kind !== "body" && <MakeLogo slug={landing.makeSlug} className="size-9 sm:size-11" standalone />}
         Used {name}
       </h1>
       {facts && (

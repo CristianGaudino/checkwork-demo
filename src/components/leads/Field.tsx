@@ -135,22 +135,19 @@ function PhoneField({ id, name, value, onChange, error, invalid, describedBy }: 
         Phone
       </label>
       <div className="flex gap-2">
-        <select
-          aria-label="Country code"
-          value={country.code}
-          onChange={(e) => {
-            const c = COUNTRIES.find((x) => x.code === e.target.value)!;
-            setCountry(c);
-            set(c, number);
-          }}
-          className={`${control.replace("w-full ", "")} h-12 w-[6.5rem] shrink-0 px-3`}
-        >
-          {COUNTRIES.map((c) => (
-            <option key={c.code} value={c.code}>
-              {c.code} {c.dial}
-            </option>
-          ))}
-        </select>
+        <div className="w-32 shrink-0">
+          <Combobox
+            id={`${id}-country`}
+            label="Country code"
+            value={country.code}
+            options={COUNTRIES.map((c) => ({ value: c.code, label: `${c.code} ${c.dial}` }))}
+            onChange={(code) => {
+              const c = COUNTRIES.find((x) => x.code === code)!;
+              setCountry(c);
+              set(c, number);
+            }}
+          />
+        </div>
         <input
           id={id}
           name={name}

@@ -8,9 +8,8 @@ export type ComboOption = { value: string; label: string; logo?: string }; // `l
 
 // Search ignores case and accents, as the stock search does.
 const fold = (s: string) => s.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
-// A short list is a plain picker (no keyboard on a phone); a longer one can be typed into and narrows as the buyer types.
-const TYPEABLE_FROM = 6;
-// Typing is for a mouse and keyboard. A touch screen only picks, so no keyboard rises over the list. False until read, so the server and first paint match.
+// Typing is for a mouse and keyboard, on a list of any length: it narrows as you type. A touch screen only picks, so no keyboard rises over the list.
+// False until read, so the server and first paint match.
 const FINE = "(hover: hover) and (pointer: fine)";
 const watchFine = (cb: () => void) => {
   const q = window.matchMedia(FINE);
@@ -38,10 +37,12 @@ export function Combobox({
   onChange,
   options,
   tone = "card",
+  size = "lg",
   className = "",
   invalid,
   required,
   describedBy,
+  label,
 }: {
   id?: string;
   name?: string;
@@ -50,10 +51,12 @@ export function Combobox({
   onChange?(value: string): void;
   options: ComboOption[];
   tone?: "card" | "surface";
+  size?: "md" | "lg"; // md is 44px tall, for dense forms; lg is 48px
   className?: string;
   invalid?: boolean;
   required?: boolean;
   describedBy?: string;
+  label?: string; // an accessible name when no <label> points at it
 }) {
   const auto = useId();
   const uid = id ?? auto;
@@ -67,7 +70,7 @@ export function Combobox({
   const [place, setPlace] = useState<Place>();
   const root = useRef<HTMLDivElement>(null);
   const fine = useSyncExternalStore(watchFine, () => window.matchMedia(FINE).matches, () => false);
-  const typeable = fine && options.length >= TYPEABLE_FROM;
+  const typeable = fine;
   const shown = useMemo(() => (typed ? options.filter((o) => fold(o.label).includes(fold(typed))) : options), [options, typed]);
 
   const measure = useCallback(() => {
@@ -171,6 +174,7 @@ export function Combobox({
         aria-invalid={invalid ? true : undefined}
         aria-required={required ? true : undefined}
         aria-describedby={describedBy}
+        aria-label={label}
         autoComplete="off"
         readOnly={!typeable}
         value={open && typed !== null ? typed : (selected?.label ?? "")}
@@ -185,9 +189,9 @@ export function Combobox({
           else if (!typeable) close();
         }}
         onKeyDown={onKeyDown}
-        className={`h-12 w-full min-w-0 cursor-pointer truncate rounded-control border border-control py-0 pr-10 text-body ${tone === "card" ? "bg-card" : "bg-surface"} aria-[invalid=true]:border-destructive ${className}`}
+        className={`${size === "md" ? "h-11" : "h-12"} w-full min-w-0 cursor-pointer truncate rounded-control border border-control py-0 pr-12 text-body ${tone === "card" ? "bg-card" : "bg-surface"} aria-[invalid=true]:border-destructive ${className}`}
       />
-      <ChevronDownIcon className={`pointer-events-none absolute right-3 top-3 h-6 w-6 transition-transform ${open ? "rotate-180" : ""}`} />
+      <ChevronDownIcon className={`pointer-events-none absolute right-4 top-1/2 size-5 -translate-y-1/2 text-text-2 transition-transform ${open ? "rotate-180" : ""}`} />
       {open && (
         <ul
           ref={toTopLayer}

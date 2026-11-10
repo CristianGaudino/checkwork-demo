@@ -28,14 +28,14 @@ function Panel({ service }: { service: Service }) {
         <ul className="flex flex-col">
           {service.types.map((t) => (
             <li key={t} className="flex items-center gap-4 border-b border-hairline py-3 text-body last:border-b-0">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent-text">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-info-soft text-info">
                 <CheckIcon className="size-5" />
               </span>
               {t}
             </li>
           ))}
         </ul>
-        <p className="mt-auto rounded-control bg-accent/10 p-4 text-body">
+        <p className="mt-auto rounded-control bg-info-soft p-4 text-body text-text">
           Prefer to talk? Call <PhoneLink className="font-semibold underline" />.
         </p>
       </div>
@@ -95,7 +95,7 @@ export function ServiceMenu({ services }: { services: readonly Service[] }) {
               >
                 <span className="flex w-full items-center justify-between gap-2">
                   <span className={subTitle}>{s.name}</span>
-                  <span aria-hidden="true" className={`flex size-8 items-center justify-center rounded-full text-heading transition-[transform,background-color] duration-300 motion-reduce:transition-none ${on ? "rotate-45 bg-accent text-on-accent" : "bg-accent/15 text-accent-text"}`}>
+                  <span aria-hidden="true" className={`flex size-8 items-center justify-center rounded-full text-heading transition-[transform,background-color] duration-300 motion-reduce:transition-none ${on ? "rotate-45 bg-accent text-on-accent" : "bg-info-soft text-accent-text"}`}>
                     +
                   </span>
                 </span>

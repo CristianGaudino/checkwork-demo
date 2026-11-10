@@ -16,7 +16,7 @@ const prices = (page: Page) => page.locator("article [data-price]").allTextConte
 
 test("lists the cars, price first, 12 per page", async ({ page }) => {
   await page.goto("/used-cars");
-  await expect(page.getByRole("heading", { level: 1, name: "Quality used cars" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Used cars" })).toBeVisible();
   const n = await total(page);
   await expect(page.locator("article")).toHaveCount(Math.min(PER_PAGE, n));
   for (const p of await page.locator("article [data-price]").allTextContents()) expect(p).toMatch(/^€[\d,]+$/);

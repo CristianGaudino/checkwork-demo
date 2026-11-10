@@ -38,7 +38,7 @@ const ROWS: Row[] = [
 function Marker({ mark, better, of }: { mark: Mark; better?: "low" | "high"; of: number }) {
   if (!mark) return null;
   const word = mark === "mid" ? "Middle" : `${mark === "low" ? "Low" : "High"}${of > 2 ? "est" : "er"}`;
-  const tone = !better || mark === "mid" ? "bg-hairline text-text-2" : mark === better ? "bg-better/15 text-better" : "bg-destructive/15 text-destructive";
+  const tone = !better || mark === "mid" ? "bg-hairline text-text-2" : mark === better ? "bg-ok-soft text-ok" : "bg-destructive/15 text-destructive";
   return (
     <span className={`inline-flex size-6 items-center justify-center rounded-full text-meta font-semibold ${tone}`}>
       <span aria-hidden="true">{mark === "low" ? "▼" : mark === "high" ? "▲" : "-"}</span>
