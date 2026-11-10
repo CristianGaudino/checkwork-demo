@@ -1,4 +1,4 @@
-import { Badge, EmptyState, FilterTabs, PageHeader, Panel, StatCard, StatGrid, adminButton, adminInput } from "@/components/admin/kit";
+import { Badge, EmptyState, FilterTabs, PageHeader, Panel, StatCard, StatGrid, adminButton, adminInput, Meter } from "@/components/admin/kit";
 import { Stars } from "@/components/admin/Stars";
 import { reviewsStore } from "@/lib/admin/collections";
 import { fmtDate } from "@/lib/admin/format";
@@ -26,9 +26,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ f
             {s.distribution.map((d) => (
               <li key={d.stars} className="flex items-center gap-3 text-meta">
                 <span className="w-14 shrink-0">{d.stars} stars</span>
-                <span className="h-2 flex-1 overflow-hidden rounded-full bg-hairline">
-                  <span className="block h-full rounded-full bg-warning" style={{ width: `${s.count ? (d.count / s.count) * 100 : 0}%` }} />
-                </span>
+                <Meter value={d.count} max={s.count} tone="warning" className="flex-1" />
                 <span className="w-6 text-right tabular-nums">{d.count}</span>
               </li>
             ))}

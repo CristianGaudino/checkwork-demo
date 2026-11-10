@@ -10,7 +10,8 @@ import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { dealerJsonLd, mapEmbedUrl } from "@/lib/dealer";
 import { getReviews } from "@/lib/reviews";
 import { DEALER_ADDRESS, DEALER_EMAIL, DEALER_FACTS_CONFIRMED, DEALER_LOCATION, DEALER_PHONE, SITE_NAME } from "@/lib/site";
-import { card, pageMain, pageTitle, subTitle } from "@/components/ui";
+import { card, pageMain, subTitle } from "@/components/ui";
+import { PageHeading } from "@/components/PageHeading";
 
 export const metadata: Metadata = { title: "Contact", description: `Opening hours, map and phone for ${SITE_NAME} in ${DEALER_LOCATION}.` };
 
@@ -22,10 +23,11 @@ export default async function ContactPage() {
   return (
     <main className={pageMain}>
       <JsonLd data={dealerJsonLd(await getReviews())} />
-      <h1 className={pageTitle}>Contact</h1>
-      <p className="mt-2 max-w-measure text-pretty text-body">Call or message us, or come and see us.</p>
+      <PageHeading title="Contact" intro="Call or message us, or come and see us." />
       <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-start">
-        {/* On a phone the two columns melt into one list, in the order a buyer wants it: call, map, message, then hours. */}
+        {/* On a phone the two columns melt into one list, in the order a buyer wants it: call, map, message, then hours. The source order is the
+            desktop one (the left column, then the right), so on a phone the keyboard reaches the message before the map; the map is the only thing
+            out of order and it has nothing to type in. */}
         <div className="flex flex-col gap-6 max-lg:contents">
           <div className="order-1 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <CallButton sizing="w-full">Call {DEALER_PHONE}</CallButton>

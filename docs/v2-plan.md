@@ -49,7 +49,7 @@ Status: for owner approval, 2026-11-10. Covers design-contract build steps 1 to 
 19. `feat/admin-marketing`: social post generator and scheduler per car, ads builder, newsletter composer and send log, stock alert campaigns, usage meter. All simulated.
 20. `feat/admin-analytics`: visitors, location, sources, most viewed cars, funnel and drop-off, lead conversion and attribution. Seeded data, SVG charts.
 
-## Phase F: Superuser at `/platform` (#19)
+## Phase F: Superuser at `/platform` (#19). REMOVED (2026-11, #62): the platform is a separate program, not part of a dealer site; it is in git history (PR #30)
 21. `feat/platform`: dealerships list and detail, usage and billing, plans and add-ons, platform settings, audit log.
 
 ## Phase G: Ship

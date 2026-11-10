@@ -2,43 +2,13 @@ import { pageWidth, NEW_TAB } from "@/components/ui";
 import Image from "next/image";
 import Link from "next/link";
 import { FacebookIcon, InstagramIcon, TikTokIcon } from "@/components/stock/icons";
+import { FOOTER_GROUPS } from "@/lib/nav";
 import { CHECKWORK_URL, DEALER_ADDRESS_LINES, SITE_NAME, SOCIAL_LINKS } from "@/lib/site";
 import { Logo } from "@/components/Logo";
 import { PhoneLink } from "@/components/PhoneLink";
 import { BackToTop } from "@/components/BackToTop";
 
-// Below 1024px the footer is the way to every page (UI-SPEC Mobile navigation).
-const GROUPS = [
-  {
-    title: "Shop",
-    links: [
-      { href: "/used-cars", label: "Used Cars" },
-      { href: "/new-cars", label: "New Cars" },
-      { href: "/commercial", label: "Commercial" },
-      { href: "/test-drive", label: "Test Drive" },
-      { href: "/finance", label: "Finance" },
-      { href: "/trade-in", label: "Trade-In Valuation" },
-      { href: "/find-a-car", label: "Find a Car" },
-      { href: "/saved", label: "Saved Cars" },
-    ],
-  },
-  {
-    title: "Company",
-    links: [
-      { href: "/service", label: "Service" },
-      { href: "/warranty", label: "Warranty" },
-      { href: "/about", label: "About Us" },
-      { href: "/contact", label: "Contact" },
-    ],
-  },
-  {
-    title: "Legal",
-    links: [
-      { href: "/privacy", label: "Privacy Policy" },
-      { href: "/terms", label: "Terms of Use" },
-    ],
-  },
-];
+// Below 1024px the footer is the way to every page (UI-SPEC Mobile navigation). The groups are in src/lib/nav.ts.
 
 const SOCIAL_ICONS = { Facebook: FacebookIcon, Instagram: InstagramIcon, TikTok: TikTokIcon };
 
@@ -88,15 +58,15 @@ export function SiteFooter() {
             </div>
           </div>
           {/* Groups are divs, not sections, so section lookups on car pages stay unique. */}
-          <nav aria-label="Footer" className="col-span-2 grid grid-cols-2 gap-x-6 gap-y-8 lg:col-span-3 lg:grid-cols-3">
-            {GROUPS.map((g) => (
+          <nav aria-label="Footer" className="col-span-2 grid grid-cols-2 gap-x-6 gap-y-8 lg:col-span-3 lg:grid-cols-4">
+            {FOOTER_GROUPS.map((g) => (
               <div key={g.title} className={g.title === "Legal" ? "max-lg:hidden" : undefined}>
                 <h2 className="text-meta font-semibold text-text-2">{g.title}</h2>
                 <ul className="mt-1 flex flex-col lg:mt-2 lg:gap-1">
                   {g.links.map((l) => (
                     <li key={l.href}>
                       <Link href={l.href} className={`${tight} text-body`}>
-                        {l.label}
+                        {l.long ?? l.label}
                       </Link>
                     </li>
                   ))}
@@ -108,7 +78,7 @@ export function SiteFooter() {
         <div className="flex flex-wrap items-center justify-between gap-x-6 border-t border-hairline pt-4 text-meta text-text-2 lg:pt-6">
           {/* The legal pair moves here on a phone, in a line, so the footer is not a third column tall. */}
           <ul aria-label="Legal" className="flex w-full gap-x-6 lg:hidden">
-            {GROUPS.find((g) => g.title === "Legal")!.links.map((l) => (
+            {FOOTER_GROUPS.find((g) => g.title === "Legal")!.links.map((l) => (
               <li key={l.href}>
                 <Link href={l.href} className={`${tight} text-body text-text`}>
                   {l.label}

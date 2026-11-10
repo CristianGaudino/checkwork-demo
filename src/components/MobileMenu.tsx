@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useId, useRef } from "react";
 import { useDemoRole } from "@/lib/demo-role";
+import { DASHBOARD_LINK } from "@/lib/nav";
 import { PhoneLink } from "@/components/PhoneLink";
 import { CloseIcon, MenuIcon, PhoneIcon } from "@/components/stock/icons";
 import { accentButton, closeButton, press } from "@/components/ui";
@@ -15,7 +16,7 @@ export function MobileMenu({ links }: { links: { href: string; label: string }[]
   const dialog = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const path = usePathname();
-  const items = useDemoRole() === "dealer" ? [...links, { href: "/admin", label: "Dashboard" }] : links; // viewing as the dealer's staff
+  const items = useDemoRole() === "dealer" ? [...links, DASHBOARD_LINK] : links; // viewing as the dealer's staff
 
   useCloseAtDesktop(() => dialog.current?.close());
   const here = (href: string) => path === href || (href !== "/" && path.startsWith(`${href}/`)); // a car page marks Used Cars
@@ -55,7 +56,7 @@ export function MobileMenu({ links }: { links: { href: string; label: string }[]
                       dialog.current?.setAttribute("data-instant", "");
                       dialog.current?.close();
                     }}
-                    className={`flex min-h-12 items-center text-heading font-semibold ${here(l.href) ? "text-accent" : ""}`}
+                    className={`flex min-h-12 items-center text-heading font-semibold ${here(l.href) ? "text-accent-text" : ""}`}
                   >
                     {l.label}
                   </Link>

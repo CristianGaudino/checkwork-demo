@@ -16,12 +16,12 @@ export function ShopByType({ bodies }: { bodies: Option[] }) {
   return (
     <section aria-labelledby="shop-by-type" className="flex flex-col gap-4">
       <h2 id="shop-by-type" className={sectionTitle}>Shop by Type</h2>
-      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {items.map((b) => (
           <li key={b.key}>
             <Link href={b.href} className={`${card} flex min-h-24 flex-col justify-between p-4 transition-shadow hover:shadow-lift ${press}`}>
               <span className="text-body font-semibold">{b.label}</span>
-              <ArrowRightIcon aria-hidden="true" className="size-5 text-accent" />
+              <ArrowRightIcon aria-hidden="true" className="size-5 text-accent-text" />
             </Link>
           </li>
         ))}

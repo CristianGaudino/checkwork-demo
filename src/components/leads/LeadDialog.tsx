@@ -67,11 +67,11 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
           Enquire
         </button>
         <button type="button" onClick={(e) => show(e.currentTarget, "drive")} className={`col-span-2 sm:col-span-1 ${secondary}`}>
-          <CalendarIcon className="size-5 text-accent" />
+          <CalendarIcon className="size-5 text-accent-text" />
           Test Drive
         </button>
         <a href={`tel:${DEALER_TEL}`} className={secondary}>
-          <PhoneIcon className="size-5 text-accent" />
+          <PhoneIcon className="size-5 text-accent-text" />
           Call Us
         </a>
         <WhatsAppButton href={whatsapp} sizing="px-3" />
@@ -110,7 +110,7 @@ export function StockAlertButton({ car, kind }: { car: CarSummary; kind: "back-i
   return (
     <>
       <button ref={opener} type="button" onClick={() => setOpen(true)} className={`flex h-12 w-full items-center justify-center gap-2 px-3 text-text ${secondaryButton}`}>
-        <BellIcon className="size-5 text-accent" />
+        <BellIcon className="size-5 text-accent-text" />
         {back ? "Notify Me" : "Price Alert"}
       </button>
       <LeadDialog

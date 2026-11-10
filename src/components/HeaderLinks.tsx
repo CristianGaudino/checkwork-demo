@@ -4,19 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useVehicleHint } from "@/components/vehicleHint";
 import { useDemoRole } from "@/lib/demo-role";
-import { VEHICLE_TYPES } from "@/lib/nav";
+import { DASHBOARD_LINK, HEADER_LINKS, VEHICLE_TYPES } from "@/lib/nav";
 
 // The desktop links (from 1024px). Used, New and Commercial are the first three, like any other section. A red bar under the current one.
 const item = "relative inline-flex min-h-11 items-center whitespace-nowrap text-meta font-semibold transition-colors hover:text-text-2";
 const bar = "after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-accent";
 
-const LINKS = [
-  { href: "/finance", label: "Finance" },
-  { href: "/trade-in", label: "Trade-In" },
-  { href: "/service", label: "Service" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
-];
 
 const within = (path: string, href: string) => path === href || path.startsWith(`${href}/`);
 
@@ -25,7 +18,7 @@ export function HeaderLinks() {
   const hint = useVehicleHint(); // a car page's address does not say whether it is used, new or a van; the page says so
   const vehicles = VEHICLE_TYPES.filter((t) => t.enabled).map((t) => ({ href: t.href, label: t.nav, current: hint ? hint === t.condition : within(path, t.href) }));
   const dealer = useDemoRole() === "dealer"; // viewing the demo as the dealer's staff: a way into their dashboard
-  const others = (dealer ? [...LINKS, { href: "/admin", label: "Dashboard" }] : LINKS).map((l) => ({ ...l, current: within(path, l.href) }));
+  const others = (dealer ? [...HEADER_LINKS, DASHBOARD_LINK] : HEADER_LINKS).map((l) => ({ ...l, current: within(path, l.href) }));
   return (
     <div className="hidden items-center gap-5 lg:flex xl:gap-6">
       {[...vehicles, ...others].map((l) => (

@@ -1,3 +1,4 @@
+import { Meter } from "@/components/admin/kit";
 import { fmtNum } from "@/lib/admin/format";
 
 // Charts drawn by hand in SVG and HTML: no library, nothing to load. Colours come from the tokens, so both themes work. Each chart
@@ -17,7 +18,7 @@ export function AreaChart({ data, summary }: { data: Point[]; summary: string })
   const peak = data.reduce((m, d) => (d.value > m.value ? d : m), data[0] ?? { label: "", value: 0 });
   return (
     <figure className="flex flex-col gap-2">
-      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label={summary} className="h-44 w-full text-accent">
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label={summary} className="h-44 w-full text-accent-text">
         {[0.25, 0.5, 0.75].map((f) => (
           <line key={f} x1="0" x2={W} y1={H - 8 - f * (H - 24)} y2={H - 8 - f * (H - 24)} stroke="var(--color-hairline)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
         ))}
@@ -63,9 +64,7 @@ export function BarList({ items, of, format = fmtNum }: { items: { label: string
               {i.note && <span className="ml-2 text-meta font-normal text-text-2">{i.note}</span>}
             </span>
           </div>
-          <span className="h-2 overflow-hidden rounded-full bg-hairline" aria-hidden="true">
-            <span className="block h-full rounded-full bg-accent" style={{ width: `${Math.min(100, (i.value / full) * 100)}%` }} />
-          </span>
+          <Meter value={i.value} max={full} />
         </li>
       ))}
     </ul>

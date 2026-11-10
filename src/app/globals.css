@@ -19,6 +19,9 @@
   --text-hero-lg: 3.5rem;
   --text-hero-lg--line-height: 1.02;
   --text-hero-lg--letter-spacing: -0.04em;
+  --text-stat: 1.625rem; /* the big number on a stat card: fits a euro amount in a half-width card on a phone */
+  --text-stat--line-height: 1.1;
+  --text-stat--letter-spacing: -0.02em;
   --text-display: 2rem;
   --text-display--line-height: 1.1;
   --text-display--letter-spacing: -0.02em;
@@ -39,7 +42,8 @@
   --color-card: #f8f6f2;
   --color-ink: #ffffff; /* the inverse of text: for words on a bg-text pill */
   --color-band: #0a1a1f; /* a band that stays dark in both themes (footer, demo bar, photo overlays) */
-  --color-accent: #4f46e5;
+  --color-accent: #4f46e5; /* the fill of buttons and chips, with white text on it */
+  --color-accent-text: #4f46e5; /* the same hue as text or a thin icon on the page, which needs its own value on dark */
   --color-on-accent: #ffffff;
   --color-text: #15181c;
   --color-text-2: #555b63;
@@ -47,8 +51,8 @@
   --color-control: #8b8f96;
   --color-photo-bg: #e4e0d7;
   --color-destructive: #c4261d;
-  --color-better: #15803d;
-  --color-warning: #a15c07;
+  --color-better: #166534;
+  --color-warning: #8f4f06;
   --color-scrim: rgb(20 18 31 / 0.5);
   --color-thumb: #ffffff;
   --color-whatsapp: #25d366; /* WhatsApp's own green, for its icon only */
@@ -75,7 +79,8 @@
 .theme-dark {
   color-scheme: dark;
   --color-surface: #0a1a1f;
-  --color-accent: #6d66f0; /* a step lighter than the light theme's, so small accent text and white button text both reach 4.5:1 on the teal-black */
+  --color-accent: #6159ec; /* white button text on it reaches 4.5:1 */
+  --color-accent-text: #9c97ff; /* accent text on the teal-black reaches 4.5:1 */
   --color-card: #112a31;
   --color-ink: #0a1a1f;
   --color-text: #f3f1ec;
@@ -83,7 +88,7 @@
   --color-hairline: #21404a;
   --color-control: #7f9399;
   --color-photo-bg: #17333a;
-  --color-destructive: #f97066;
+  --color-destructive: #ff8f86;
   --color-better: #4ade80;
   --color-warning: #fbbf24;
   --color-scrim: rgb(0 0 0 / 0.6);

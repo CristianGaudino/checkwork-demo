@@ -39,7 +39,7 @@ export async function VehicleListPage({ condition, make }: { condition: Exclude<
             >
               <MakeLogo slug={m.slug} className={`size-4 ${(m.slug || undefined) === chosen ? "brightness-0 invert" : ""}`} />
               {m.label}
-              <span className="tabular-nums opacity-80">{m.count}</span>
+              <span className="tabular-nums font-normal">{m.count}</span>
             </Link>
           ))}
         </nav>

@@ -4,9 +4,10 @@ import { FeatureCard, TitleText } from "@/components/Feature";
 import { CheckIcon, ShieldCheckIcon, SwapIcon } from "@/components/stock/icons";
 import { DirectionsButton } from "@/components/DirectionsButton";
 import { OpeningHours } from "@/components/OpeningHours";
-import { pageMain, pageTitle, subTitle } from "@/components/ui";
+import { pageMain, subTitle } from "@/components/ui";
 import { dealerDirectionsUrl } from "@/lib/dealer";
 import { DEALER_ADDRESS, DEALER_LOCATION, SITE_NAME } from "@/lib/site";
+import { PageHeading } from "@/components/PageHeading";
 
 export const metadata: Metadata = { title: "About Us", description: `${SITE_NAME} is a used car dealer in ${DEALER_LOCATION}: a carefully selected range of used cars, finance help and trade-ins.` };
 
@@ -25,8 +26,7 @@ const EXPECT = [
 export default function AboutPage() {
   return (
     <main className={pageMain}>
-      <h1 className={pageTitle}>About Us</h1>
-      <p className="mt-2 max-w-measure text-pretty text-body">{SITE_NAME} is a used car dealer in {DEALER_LOCATION}. Call in, look around and ask us anything.</p>
+      <PageHeading title="About Us" intro={`${SITE_NAME} is a used car dealer in ${DEALER_LOCATION}. Call in, look around and ask us anything.`} />
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_minmax(0,26rem)] lg:gap-12">
         {/* On a phone the photo comes first; from 1024px it sits on the right with the hours under it. */}
         <div className="flex flex-col gap-6 lg:order-2">

@@ -12,7 +12,7 @@ const NewTab = ({ label = "" }: { label?: string }) => <span className="sr-only"
 // #5E5E5E, Roboto first. No web font is loaded, so Roboto is used where the device has it. The one place this lives.
 function GoogleAttribution() {
   return (
-    <span className="text-meta font-normal text-on-accent" style={{ fontFamily: "Roboto, var(--font-sans)" }}>
+    <span className="text-meta font-normal text-text-2" style={{ fontFamily: "Roboto, var(--font-sans)" }}>
       Google Maps
     </span>
   );
