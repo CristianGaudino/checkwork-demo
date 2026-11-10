@@ -45,7 +45,7 @@ export function LeadDialog({ title, open, onClose, children }: { title: string; 
   );
 }
 
-// The car page action area: Enquire About This Car in the accent with Book a Test Drive beside it, then Call Us and WhatsApp. Each of the
+// The car page action area: Enquire in the accent with Test Drive beside it, then Call Us and WhatsApp. Each of the
 // two forms has its own dialog and stays mounted, so closing one never loses what was typed in it.
 export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: string }) {
   const [open, setOpen] = useState<"enquiry" | "drive" | null>(null);
@@ -64,11 +64,11 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
     <>
       <div className="grid grid-cols-2 gap-2 whitespace-nowrap">
         <button type="button" onClick={(e) => show(e.currentTarget, "enquiry")} className={`col-span-2 flex h-12 w-full items-center justify-center gap-2 rounded-control bg-accent px-3 font-semibold text-on-accent sm:col-span-1 ${press}`}>
-          Enquire About This Car
+          Enquire
         </button>
         <button type="button" onClick={(e) => show(e.currentTarget, "drive")} className={`col-span-2 sm:col-span-1 ${secondary}`}>
           <CalendarIcon className="size-5 text-accent" />
-          Book a Test Drive
+          Test Drive
         </button>
         <a href={`tel:${DEALER_TEL}`} className={secondary}>
           <PhoneIcon className="size-5 text-accent" />
@@ -76,7 +76,7 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
         </a>
         <WhatsAppButton href={whatsapp} sizing="px-3" />
       </div>
-      <LeadDialog title="Enquire About This Car" open={open === "enquiry"} onClose={close}>
+      <LeadDialog title="Enquire" open={open === "enquiry"} onClose={close}>
         <LeadForm type="enquiry" car={car} variant="dialog" submitLabel="Send Enquiry" success={{ heading: "Thanks, we have your enquiry.", body: `We'll get back to you about the ${car.name}.` }}>
           {({ bind }) => (
             <>
@@ -86,8 +86,8 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
           )}
         </LeadForm>
       </LeadDialog>
-      <LeadDialog title="Book a Test Drive" open={open === "drive"} onClose={close}>
-        <LeadForm type="test_drive" car={car} variant="dialog" submitLabel="Book Test Drive" success={{ heading: "Thanks, we have your request.", body: `We'll confirm your test drive in the ${car.name} by phone or email.` }}>
+      <LeadDialog title="Test Drive" open={open === "drive"} onClose={close}>
+        <LeadForm type="test_drive" car={car} variant="dialog" submitLabel="Book" success={{ heading: "Thanks, we have your request.", body: `We'll confirm your test drive in the ${car.name} by phone or email.` }}>
           {({ bind }) => <DriveFields bind={bind} />}
         </LeadForm>
       </LeadDialog>
@@ -104,7 +104,7 @@ export function StockAlertButton({ car, kind }: { car: CarSummary; kind: "back-i
     <>
       <button ref={opener} type="button" onClick={() => setOpen(true)} className={`flex h-12 w-full items-center justify-center gap-2 px-3 text-text ${secondaryButton}`}>
         <BellIcon className="size-5 text-accent" />
-        {back ? "Tell Me If One Comes Back" : "Tell Me If the Price Drops"}
+        {back ? "Notify Me" : "Price Alert"}
       </button>
       <LeadDialog
         title={back ? "Tell me if one comes back" : "Tell me if the price drops"}

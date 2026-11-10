@@ -49,25 +49,25 @@ describe("names, paths and filters", () => {
 describe("landingIntro", () => {
   it("make: live facts and the models in stock", () => {
     const withSix = [...three, car("4", { model: "Q5", priceEur: 30000 })];
-    expect(landingIntro(audi, landingFacts(three.slice(1)))).toBe("We have 2 used Audi in stock in Demotown, from €25,000 to €32,500. Models in stock: A4, A6.");
+    expect(landingIntro(audi, landingFacts(three.slice(1)))).toBe("We have 2 used Audi in stock in Dublin 12, from €25,000 to €32,500. Models in stock: A4, A6.");
     expect(landingIntro(audi, landingFacts(withSix))).toContain("Models in stock: A4, A6, Q5.");
   });
   it("one car, or equal prices, reads at the price", () => {
-    expect(landingIntro(audi, landingFacts([car("1")]))).toBe("We have 1 used Audi in stock in Demotown, at €18,950.");
+    expect(landingIntro(audi, landingFacts([car("1")]))).toBe("We have 1 used Audi in stock in Dublin 12, at €18,950.");
     expect(landingIntro(audi, landingFacts([car("1"), car("2", { model: "A6" })]))).toBe(
-      "We have 2 used Audi in stock in Demotown, at €18,950. Models in stock: A4, A6.",
+      "We have 2 used Audi in stock in Dublin 12, at €18,950. Models in stock: A4, A6.",
     );
   });
   it("body: says car or cars and lists makes", () => {
     const two = [car("1", { bodyType: "SUV" }), car("2", { make: "BMW", priceEur: 30000 })];
-    expect(landingIntro(suv, landingFacts(two))).toBe("We have 2 used SUV cars in stock in Demotown, from €18,950 to €30,000. Makes in stock: Audi, BMW.");
-    expect(landingIntro(suv, landingFacts([car("1")]))).toBe("We have 1 used SUV car in stock in Demotown, at €18,950.");
+    expect(landingIntro(suv, landingFacts(two))).toBe("We have 2 used SUV cars in stock in Dublin 12, from €18,950 to €30,000. Makes in stock: Audi, BMW.");
+    expect(landingIntro(suv, landingFacts([car("1")]))).toBe("We have 1 used SUV car in stock in Dublin 12, at €18,950.");
   });
   it("model: years, or one year", () => {
     expect(landingIntro(a4, landingFacts([car("1"), car("3", { year: 2021, priceEur: 20000 })]))).toBe(
-      "We have 2 used Audi A4 in stock in Demotown, from €18,950 to €20,000. Years: 2019 to 2021.",
+      "We have 2 used Audi A4 in stock in Dublin 12, from €18,950 to €20,000. Years: 2019 to 2021.",
     );
-    expect(landingIntro(a4, landingFacts([car("1")]))).toBe("We have 1 used Audi A4 in stock in Demotown, at €18,950. Year: 2019.");
+    expect(landingIntro(a4, landingFacts([car("1")]))).toBe("We have 1 used Audi A4 in stock in Dublin 12, at €18,950. Year: 2019.");
   });
 });
 
@@ -75,22 +75,22 @@ describe("landingMetadata", () => {
   it("titles carry no site suffix", () => {
     const f = landingFacts(three);
     expect([audi, suv, a4].map((l) => landingMetadata(l, f, "/x").title)).toEqual([
-      "Used Audi for sale in Demotown",
-      "Used SUV cars for sale in Demotown",
-      "Used Audi A4 for sale in Demotown",
+      "Used Audi for sale in Dublin 12",
+      "Used SUV cars for sale in Dublin 12",
+      "Used Audi A4 for sale in Dublin 12",
     ]);
   });
   it("with stock: description from the facts, canonical, indexable", () => {
     const m = landingMetadata(audi, landingFacts(three), "/used-cars/audi");
-    expect(m.description).toBe("3 used Audi in stock at Checkwork Motors, Demotown, from €18,950 to €32,500. Models: A4, A6.");
+    expect(m.description).toBe("3 used Audi in stock at Checkwork Motors, Dublin 12, from €18,950 to €32,500. Models: A4, A6.");
     expect(m.alternates?.canonical).toBe("/used-cars/audi");
     expect(m.robots).toBeUndefined();
   });
   it("empty: the no-stock description and noindex", () => {
     const m = landingMetadata(audi, null, "/used-cars/audi");
-    expect(m.description).toBe("No Audi in stock at Checkwork Motors right now. See what we have in Demotown, Co. Demo.");
+    expect(m.description).toBe("No Audi in stock at Checkwork Motors right now. See what we have in Dublin 12, Co. Dublin.");
     expect(m.robots).toEqual({ index: false });
-    expect(landingMetadata(suv, null, "/used-cars/suv").description).toBe("No SUV cars in stock at Checkwork Motors right now. See what we have in Demotown, Co. Demo.");
+    expect(landingMetadata(suv, null, "/used-cars/suv").description).toBe("No SUV cars in stock at Checkwork Motors right now. See what we have in Dublin 12, Co. Dublin.");
   });
   it("uses no em dash", () => {
     expect(JSON.stringify([landingMetadata(audi, landingFacts(three), "/x"), landingMetadata(a4, null, "/x")])).not.toContain("—");

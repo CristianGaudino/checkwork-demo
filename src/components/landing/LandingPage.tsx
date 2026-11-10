@@ -1,3 +1,4 @@
+import { MakeLogo } from "@/components/MakeLogo";
 import Link from "next/link";
 import { JsonLd } from "@/components/JsonLd";
 import { ListingCard } from "@/components/stock/ListingCard";
@@ -73,7 +74,10 @@ export function LandingPage({ data }: { data: LandingData }) {
   return (
     <main className={pageMain}>
       <Breadcrumb landing={landing} />
-      <h1 className={`mt-6 ${pageTitle}`}>Used {name}</h1>
+      <h1 className={`mt-6 flex items-center gap-3 ${pageTitle}`}>
+        {landing.kind !== "body" && <MakeLogo slug={landing.makeSlug} className="size-9 sm:size-11" />}
+        Used {name}
+      </h1>
       {facts && (
         <>
           <JsonLd data={itemListJsonLd(shown)} />

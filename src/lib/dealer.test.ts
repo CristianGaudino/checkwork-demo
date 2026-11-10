@@ -21,7 +21,7 @@ describe("dealerJsonLd", () => {
       logo: "https://www.demo.checkwork.ie/brand/logo.png",
       image: "https://www.demo.checkwork.ie/brand/logo.png",
       telephone: "+35319060045",
-      address: { "@type": "PostalAddress", addressLocality: "Demotown", addressRegion: "Co. Demo", addressCountry: "IE" },
+      address: { "@type": "PostalAddress", addressLocality: "Dublin 12", addressRegion: "Co. Dublin", addressCountry: "IE" },
     });
   });
 
@@ -63,10 +63,10 @@ describe("hours and map links", () => {
     expect(formatHours({})).toBe("Closed");
   });
 
-  it("points the map and directions at the eircode", () => {
-    expect(mapQuery()).toBe("D00 0000, Ireland");
-    expect(directionsUrl()).toBe("https://www.google.com/maps/search/?api=1&query=D00%200000%2C%20Ireland");
-    expect(mapEmbedUrl()).toBe("https://maps.google.com/maps?q=D00%200000%2C%20Ireland&output=embed");
+  it("points the map and directions at the street", () => {
+    expect(mapQuery()).toBe("Long Mile Road, Dublin 12, Ireland");
+    expect(directionsUrl()).toBe("https://www.google.com/maps/search/?api=1&query=Long%20Mile%20Road%2C%20Dublin%2012%2C%20Ireland");
+    expect(mapEmbedUrl()).toBe("https://maps.google.com/maps?q=Long%20Mile%20Road%2C%20Dublin%2012%2C%20Ireland&output=embed");
   });
 
   it("groups days that share hours", () => {

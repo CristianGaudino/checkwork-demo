@@ -12,9 +12,9 @@ describe("ErrorScreen", () => {
   });
 
   it("takes its own title and button, in one h1", () => {
-    const html = renderToStaticMarkup(createElement(ErrorScreen, { title: "We Couldn't Load This Car", button: "Try Loading the Car Again", retry: () => {} }));
+    const html = renderToStaticMarkup(createElement(ErrorScreen, { title: "We Couldn't Load This Car", button: "Try Again", retry: () => {} }));
     expect(html).toContain("We Couldn&#x27;t Load This Car");
-    expect(html).toContain("Try Loading the Car Again");
+    expect(html).toContain("Try Again");
     expect(html.match(/<h1/g)).toHaveLength(1);
   });
 

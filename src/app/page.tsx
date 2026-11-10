@@ -9,7 +9,6 @@ import { SocialStrip } from "@/components/home/SocialStrip";
 import { ShopByType } from "@/components/home/ShopByType";
 import { TrustStrip } from "@/components/home/TrustStrip";
 import { VisitUs } from "@/components/home/VisitUs";
-import { VehicleSwitch } from "@/components/VehicleSwitch";
 import { JsonLd } from "@/components/JsonLd";
 import { ReviewsStrip } from "@/components/reviews/ReviewsStrip";
 import { ListingCard } from "@/components/stock/ListingCard";
@@ -31,7 +30,7 @@ export default async function Home() {
   // Env decides the reviews provider at request time. Not force-dynamic: that would turn off the fetch cache.
   await connection();
   // The home page must never error: a stock failure shows a line in place of the grid, and the search still renders (UI-SPEC state table).
-  // The newest cars feed the featured grid and the hero tiles, and all of them feed the search drop-downs, so every choice has a car behind it.
+  // The newest cars feed the featured grid, and all of them feed the search drop-downs, so every choice has a car behind it.
   const [all, reviews] = await Promise.all([queryAllOrNull(), getReviews()]);
   const featured = all?.cars.slice(0, HOME.featuredCount) ?? null;
   const search = searchOptions(all?.cars ?? []);
@@ -47,20 +46,18 @@ export default async function Home() {
             <p className="mt-2 max-w-[65ch] text-meta text-text-2">Find us at {DEALER_ADDRESS_LINES.join(", ").replace(/ (\S+)$/, " $1")}.</p>
             <div className="mt-6 flex w-full flex-wrap gap-3">
               <Link href="/used-cars" className={`inline-flex w-full items-center justify-center gap-2 sm:w-auto ${accentButton}`}>
-                Browse Our Stock
+                Browse Stock
                 <ArrowRightIcon className="size-5" />
               </Link>
               <Link href="/finance" className={`inline-flex h-12 w-full items-center justify-center gap-2 px-6 sm:w-auto ${secondaryButton}`}>
-                Estimate Your Finance
+                Estimate Finance
               </Link>
             </div>
             <div className="mt-8 w-full">
               <HomeSearch makes={search.makes} bodies={search.bodies} models={search.models} />
             </div>
-            {/* On a phone the header has no room for the switch: it sits under the search. */}
-            <VehicleSwitch className="mt-4 inline-flex lg:hidden" />
           </div>
-          <HeroMosaic cars={all?.cars ?? []} />
+          <HeroMosaic />
         </div>
       </section>
 

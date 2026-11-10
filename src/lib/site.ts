@@ -4,7 +4,7 @@ export const SITE_NAME = "Checkwork Motors"; // a made-up dealer
 export const SITE_SLUG = "checkwork-demo";
 // The share image for any page without its own (a car has its own photo): the logo on the site's dark red glow.
 export const DEFAULT_OG_IMAGE = { url: "/brand/og-default.png", width: 1200, height: 630, alt: SITE_NAME };
-// Made-up contact details for the demo dealer: not a real number or address.
+// The phone number is made up. The address is a real street in Dublin; the eircode is illustrative.
 export const DEALER_PHONE = "+353 1 906 0045";
 export const DEALER_EMAIL = "demo@checkwork.ie";
 export const DEALER_TEL = "+35319060045";
@@ -29,13 +29,13 @@ export const SERVICES = [
   { name: "Tyres", blurb: "The right tyres, fitted and checked.", types: ["New tyres fitted", "Puncture repair", "Wheel balancing", "Wheel alignment"] },
 ] as const;
 // Confirmed by the dealer, 2026-11-07.
-export const DEALER_ADDRESS = { street: "1 Example Road", town: "Demotown", county: "Co. Demo", eircode: "D00 0000" };
+export const DEALER_ADDRESS = { street: "Long Mile Road", town: "Dublin 12", county: "Co. Dublin", eircode: "D12 AF77" };
 // PLACEHOLDER until the dealer confirms the warranty (owner decision, 2026-11-07): shown on the home page and every car for sale.
 export const WARRANTY = { title: "3 Month Warranty", text: "Engine & gearbox cover on all cars." };
 // A new car is covered by its maker, not by the dealer's used-car warranty.
 export const NEW_CAR_WARRANTY = { title: "Manufacturer's Warranty", text: "Covered by the manufacturer's warranty from the day you collect it." };
 export const DEALER_ADDRESS_LINES = [DEALER_ADDRESS.street, DEALER_ADDRESS.town, DEALER_ADDRESS.county, DEALER_ADDRESS.eircode];
-// "Tralee, Co. Kerry": where the dealer is, as the page descriptions say it.
+// "Dublin 12, Co. Dublin": where the dealer is, as the page descriptions say it.
 export const DEALER_LOCATION = `${DEALER_ADDRESS.town}, ${DEALER_ADDRESS.county}`;
 // Confirmed by the dealer, 2026-11-07. 24 hour HH:MM; no opens means closed.
 export const OPENING_HOURS: { day: string; opens?: string; closes?: string }[] = [

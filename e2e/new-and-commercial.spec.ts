@@ -34,30 +34,6 @@ test("a new car is not in the used list, and a van's page says its VAT and links
   await expect(page.getByRole("navigation", { name: "Breadcrumb" }).getByRole("link", { name: "Commercial" })).toHaveAttribute("href", "/commercial");
 });
 
-test("the switch shows Used, New and Commercial in the header on a desktop, and under the search on a phone", async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 800 });
-  await page.goto("/new-cars");
-  const sw = page.getByRole("banner").getByRole("navigation", { name: "Vehicle type" });
-  await expect(sw.getByRole("link")).toHaveText(["Used", "New", "Commercial"]);
-  await expect(sw.getByRole("link", { name: "New" })).toHaveAttribute("aria-current", "page");
-  await page.setViewportSize({ width: 360, height: 800 });
-  await page.goto("/");
-  await expect(page.getByRole("banner").getByRole("navigation", { name: "Vehicle type" })).toBeHidden();
-  await expect(page.getByRole("main").getByRole("navigation", { name: "Vehicle type" })).toBeVisible();
-});
-
-test("a new car's page and a van's page highlight New and Commercial in the switch, not Used", async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 800 });
-  const sw = page.getByRole("banner").getByRole("navigation", { name: "Vehicle type" });
-  for (const [list, name, label] of [["/new-cars", "Niro", "New"], ["/commercial", "Vito", "Commercial"]] as const) {
-    await page.goto(list);
-    await page.locator("article").filter({ hasText: name }).getByRole("link").first().click();
-    await expect(page.getByTestId("buy-box")).toBeVisible();
-    await expect(sw.getByRole("link", { name: label })).toHaveAttribute("aria-current", "page");
-    await expect(sw.getByRole("link", { name: "Used" })).not.toHaveAttribute("aria-current", "page");
-  }
-});
-
 test("new and commercial pages fit a phone", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 640 });
   for (const path of ["/new-cars", "/commercial"]) {

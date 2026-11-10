@@ -14,7 +14,8 @@ export async function proxy(req: NextRequest) {
   if (isAppPath(req.nextUrl.pathname)) {
     const cfg = accessConfig();
     const ok = adminReachable() || (cfg !== null && (await verifyAccessJwt(req.headers.get("cf-access-jwt-assertion"), cfg)) !== null);
-    return ok ? NextResponse.next() : new NextResponse("Not found", { status: 404, headers: { "X-Robots-Tag": "noindex" } });
+    // The site's own not found page, not a bare line. A path no route matches renders app/not-found.tsx.
+    return ok ? NextResponse.next() : NextResponse.rewrite(new URL("/not-found-closed-area", req.url), { status: 404, headers: { "X-Robots-Tag": "noindex" } });
   }
   const slug = req.nextUrl.pathname.split("/")[2] ?? "";
   if (slug.length > 120 || !CAR_SLUG.test(slug)) return NextResponse.next();

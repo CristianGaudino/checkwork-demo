@@ -43,7 +43,7 @@ test("a find-a-car request needs a message, then ends on the thanks", async ({ p
   await page.getByLabel("Name").fill("Test Buyer");
   await page.getByLabel("Phone").fill("087 123 4567");
   await page.getByRole("checkbox").check();
-  await page.getByRole("button", { name: "Ask us to find it" }).click();
+  await page.getByRole("button", { name: "Find it for me" }).click();
 
   const thanks = page.getByRole("heading", { name: "Thanks, we'll look for it." });
   await expect(thanks).toBeFocused();
@@ -56,8 +56,7 @@ test("from 1024px the header links both form pages", async ({ page }) => {
   const header = page.getByRole("banner");
   await header.getByRole("link", { name: "Trade-In", exact: true }).click();
   await expect(page).toHaveURL(/\/trade-in$/);
-  await header.getByRole("button", { name: "Stock" }).click();
-  await header.getByRole("link", { name: "Find a car" }).click();
+  await page.getByRole("contentinfo").getByRole("link", { name: "Find a car" }).click();
   await expect(page).toHaveURL(/\/find-a-car$/);
 });
 

@@ -12,6 +12,9 @@ const GROUPS = [
     title: "Shop",
     links: [
       { href: "/used-cars", label: "Used Cars" },
+      { href: "/new-cars", label: "New Cars" },
+      { href: "/commercial", label: "Commercial" },
+      { href: "/test-drive", label: "Test Drive" },
       { href: "/finance", label: "Finance" },
       { href: "/trade-in", label: "Trade-In Valuation" },
       { href: "/find-a-car", label: "Find a Car" },

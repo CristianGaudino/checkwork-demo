@@ -25,7 +25,7 @@ test("the home search tabs share the width equally on a phone", async ({ page })
 
 test("the footer is compact on a phone", async ({ page }) => {
   await page.goto("/");
-  expect((await page.getByRole("contentinfo").boundingBox())!.height).toBeLessThan(620);
+  expect((await page.getByRole("contentinfo").boundingBox())!.height).toBeLessThan(660);
 });
 
 test("Back to top is a footer link on every page on a phone, level with the logo on the right, and there is no button", async ({ page }) => {

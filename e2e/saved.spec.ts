@@ -171,7 +171,7 @@ test("if the cars cannot be loaded, nothing is pruned and Try again loads them",
   expect(await stored(page)).toEqual([UNKNOWN, live.id]);
 
   await page.unroute("**/api/saved-cars**");
-  await page.getByRole("button", { name: "Try loading cars again" }).click();
+  await page.getByRole("button", { name: "Try again" }).click();
   await expect(page.locator("article")).toHaveCount(1);
 });
 
