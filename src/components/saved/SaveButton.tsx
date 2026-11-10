@@ -9,7 +9,7 @@ import { glass } from "@/components/ui";
 const looks = {
   // Over a photo: a frosted scrim circle, solid ink when the buyer asks for less transparency.
   card: `absolute right-2 top-2 z-20 ${glass}`,
-  page: "rounded-full hover:bg-card",
+  page: "rounded-full text-text hover:bg-card",
 };
 
 // The label never changes; aria-pressed carries the state.
@@ -32,7 +32,7 @@ export function SaveButton({ id, label, variant }: { id: string; label: string; 
           if (result === "removed") showToast("Removed from saved", () => restoreSaved([id]));
           setSaid(result === "saved" ? "Saved" : result === "removed" ? "" : "Your saved list is full. Remove a car to save another.");
         }}
-        className={`inline-flex size-11 items-center justify-center text-text transition-transform duration-100 ease-out active:scale-[0.97] motion-reduce:active:scale-100 ${looks[variant]}`}
+        className={`inline-flex size-11 items-center justify-center transition-transform duration-100 ease-out active:scale-[0.97] motion-reduce:active:scale-100 ${looks[variant]}`}
       >
         <HeartIcon filled={saved} />
       </button>

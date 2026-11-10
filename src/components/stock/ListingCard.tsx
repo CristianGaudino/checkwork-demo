@@ -3,7 +3,8 @@ import { PhotoCarousel } from "@/components/stock/PhotoCarousel";
 import { SoldBadge } from "@/components/stock/SoldBadge";
 import Link from "next/link";
 import { ArrowRightIcon } from "@/components/stock/icons";
-import { carMeta, carName, formatPrice, keyFacts } from "@/lib/stock/format";
+import { PriceBlock } from "@/components/stock/PriceBlock";
+import { carMeta, carName, keyFacts } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 import { card } from "@/components/ui";
@@ -31,7 +32,7 @@ export function ListingCard({ car, priority, oneLine = false }: { car: Car; prio
               <span data-title className={`${oneLine ? "truncate" : "line-clamp-2"} block`}>{[car.model, car.variant].filter(Boolean).join(" ")}</span>
             </Link>
           </h2>
-          <p data-price className={`shrink-0 text-heading font-semibold tabular-nums ${isSold(car) ? "text-text-2" : ""}`}>{isSold(car) ? "Sold" : formatPrice(car.priceEur)}</p>
+          <PriceBlock car={car} />
         </div>
         <p data-meta className="line-clamp-2 text-meta text-text-2">{carMeta(car)}</p>
         {/* Only in the list view (see globals.css): the key facts as chips, and the way on. */}
