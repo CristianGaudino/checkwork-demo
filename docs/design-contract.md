@@ -1,6 +1,6 @@
 # Design contract: the demo's own look
 
-Status: draft for the owner to approve, 2026-11-10. Issue: the redesign issue (#20). No UI is built until this is approved.
+Status: approved by the owner, 2026-11-10 (direction, font, header switch and dark option below). Issue: the redesign issue (#20).
 
 ## 1. Goal
 Change the look, feel and layout completely, so the demo reads as its own product and nobody sees a re-skin of another dealer site. **Every behaviour stays**: stock browsing, filters, car pages, saved and compare, finance estimate, trade-in, find a car, contact, service, the lead pipeline, accessibility and the mobile-first rules. What changes is colour, type, shape, motion, composition and navigation.
@@ -70,8 +70,9 @@ The admin uses the same tokens and components as the site but a denser, calmer l
 9. Admin and platform shells (with the admin issues).
 Each PR keeps every E2E test green (tests that pin the old look are updated with the change), runs the ponytail audit, and has screenshots at 360, 768 and 1280px in light and dark.
 
-## 9. Open questions for the owner
-- Do you like "Showroom" (light first, editorial) as the direction, or do you want something bolder (for example a deep indigo hero band on every page)?
-- Font: Manrope is a suggestion. Any family you prefer?
-- The vehicle-type switch (Used, New, Commercial) shows only the sections that exist. Is it right to build the header for it now, before new and commercial stock exist?
-- Should dark stay as a user choice, or be dropped for the demo?
+## 9. Decisions (owner, 2026-11-10)
+- Direction: "Showroom", light first and editorial.
+- Font: Manrope.
+- The header is built now with the vehicle-type switch (Used, New, Commercial). It shows only the sections that exist.
+- Dark stays as a user choice, next to the light default.
+- Role switch (customer, dealer, superuser) as a demo bar: agreed.
