@@ -60,6 +60,9 @@ jobs:
         run: |
           # --test-scheduled opens /__scheduled, which fires the daily lead purge (worker.mjs); the local database needs the migrations first.
           npx wrangler d1 migrations apply DB --local > /dev/null
+          # The stock is read from D1, so the local database gets the made-up cars too.
+          npm run stock:seed > /dev/null
+          npx wrangler d1 execute DB --local --file=seed/stock.sql > /dev/null
           npx wrangler dev --test-scheduled --port 8787 --ip 127.0.0.1 > wrangler.log 2>&1 &
           curl -s -o /dev/null --retry 60 --retry-connrefused --retry-delay 2 http://127.0.0.1:8787/robots.txt || true
           fail=0
