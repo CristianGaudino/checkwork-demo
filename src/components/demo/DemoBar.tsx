@@ -24,7 +24,7 @@ function setTheme(t: Theme) {
   }
 }
 
-export function DemoBar() {
+export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
   const role = roleForPath(usePathname());
   const theme = useSyncExternalStore(subscribe, read, () => "light" as Theme);
   return (
@@ -32,7 +32,7 @@ export function DemoBar() {
       <div className="mx-auto flex h-11 max-w-[1280px] items-center justify-between gap-1 px-2 sm:gap-3 sm:px-6 lg:px-8">
         <nav aria-label="View the demo as" className="flex items-center">
           <span className="hidden text-text-2 sm:inline">View as</span>
-          {DEMO_ROLES.map((r) => (
+          {DEMO_ROLES.filter((r) => showAreas || r.id === "customer").map((r) => (
             <Link
               key={r.id}
               href={r.href}

@@ -30,6 +30,8 @@ jobs:
       # The demo deploy is not production: every page is noindex, the sitemap is empty and robots.txt only lets the
       # share-preview bots in. Set production only when this deploys the client's live domain (owner decision 1).
       APP_ENV: demo
+      # The dealer admin (/admin) and platform (/platform) have no login yet and the stock editor changes the live site, so they are closed
+      # (404) on a deployed site. To show them, add NEXT_PUBLIC_ADMIN_OPEN: 1 here, ideally behind Cloudflare Access (issues #7, #21).
       # Turnstile site key: public, inlined into the browser bundle at build. Its secret is a Worker secret.
       NEXT_PUBLIC_TURNSTILE_SITE_KEY: 0x4AAAAAAF6rFQ-bqDaE2f7y
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

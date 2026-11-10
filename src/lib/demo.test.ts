@@ -16,11 +16,22 @@ describe("roleForPath", () => {
   });
 });
 
-import { isAppPath } from "@/lib/demo";
+import { adminReachable, isAppPath } from "@/lib/demo";
 describe("isAppPath", () => {
   it("is true under /admin and /platform only", () => {
     expect(isAppPath("/admin/leads")).toBe(true);
     expect(isAppPath("/platform")).toBe(true);
     expect(isAppPath("/used-cars")).toBe(false);
+  });
+});
+
+describe("adminReachable", () => {
+  it("is open with no APP_ENV (development), and closed on any deployed site unless the open switch is 1", () => {
+    expect(adminReachable(undefined, undefined)).toBe(true);
+    expect(adminReachable("", undefined)).toBe(true);
+    expect(adminReachable("demo", undefined)).toBe(false);
+    expect(adminReachable("production", undefined)).toBe(false);
+    expect(adminReachable("demo", "true")).toBe(false);
+    expect(adminReachable("demo", "1")).toBe(true);
   });
 });
