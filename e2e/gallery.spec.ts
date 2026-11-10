@@ -51,29 +51,17 @@ test("at 320px the page does not scroll sideways and the price and first fact ar
 test.describe("on a desktop", () => {
   test.use({ viewport: { width: 1280, height: 900 }, isMobile: false, hasTouch: false });
 
-  test("a thumbnail per photo; clicking one moves the gallery, rings it and does not scroll the page", async ({ page }) => {
+  test("the photos are a grid of up to four tiles; a tile opens the viewer at that photo, and the last says Show all when there are more", async ({ page }) => {
     await open(page, car!.slug);
-    await expect(thumbs(page)).toHaveCount(n);
-    await page.evaluate(() => window.scrollTo(0, 120));
-    const before = await page.evaluate(() => window.scrollY);
-    await thumbs(page).nth(2).click();
-    await expect(counter(page)).toHaveText(`3 / ${n}`);
-    await expect(thumbs(page).nth(2)).toHaveAttribute("aria-current", "true");
-    await expect(thumbs(page).nth(0)).not.toHaveAttribute("aria-current", "true");
-    expect(await page.evaluate(() => window.scrollY)).toBe(before);
-  });
-
-  test("Next and Previous move one photo and are inert at the ends", async ({ page }) => {
-    await open(page, car!.slug);
-    const next = whole(page).getByRole("button", { name: "Next photo" });
-    const prev = whole(page).getByRole("button", { name: "Previous photo" });
-    await expect(prev).toHaveAttribute("aria-disabled", "true");
-    await gallery(page).hover();
-    await next.click();
-    await expect(counter(page)).toHaveText(`2 / ${n}`);
-    await gallery(page).hover();
-    await prev.click();
-    await expect(counter(page)).toHaveText(`1 / ${n}`);
+    const grid = page.getByTestId("photo-grid");
+    const tiles = grid.getByRole("button", { name: /larger$/ });
+    await expect(tiles).toHaveCount(Math.min(n, 4));
+    await expect(gallery(page)).toBeHidden(); // the swipe row is the phone's
+    if (n > 4) await expect(grid.getByText(`Show all ${n} photos`)).toBeVisible();
+    await tiles.nth(2).click();
+    const box = page.getByRole("dialog", { name: /^Photos of/ });
+    await expect(box).toBeVisible();
+    await expect(dialogCounter(page)).toHaveText(`3 / ${n}`);
   });
 });
 

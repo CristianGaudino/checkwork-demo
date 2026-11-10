@@ -139,14 +139,10 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
             <p aria-live="polite" data-testid="count" className="text-heading font-semibold">
               {summary && countLabel(summary.total)}
             </p>
-            <div className="hidden items-center gap-3 lg:flex">
-              <SortControl className="flex" />
-              <ViewToggle />
-            </div>
           </div>
         </div>
         <div className="mt-6 lg:grid lg:grid-cols-[280px_1fr] lg:gap-8">
-          <aside className="hidden lg:block lg:sticky lg:top-6 lg:max-h-[calc(100dvh-3rem)] lg:self-start lg:overflow-y-auto lg:rounded-card lg:border lg:border-hairline lg:bg-card lg:p-4">
+          <aside className="hidden lg:block lg:sticky lg:top-6 lg:max-h-[calc(100dvh-3rem)] lg:self-start lg:overflow-y-auto lg:rounded-card lg:bg-card lg:p-4">
             <div className="mb-4 flex items-center justify-between gap-2 border-b border-hairline pb-4">
               <h2 className={subTitle}>Filter &amp; Refine</h2>
               <button type="button" onClick={() => navigate(clearFilters(optimisticQuery))} className="min-h-11 text-meta font-semibold underline">
@@ -159,10 +155,15 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
           <div ref={results} onClickCapture={(e) => e.target instanceof Element && e.target.closest("a[href^='/used-cars/']") && rememberScroll(query)} className="min-w-0 scroll-mt-16 lg:min-h-[100dvh] lg:scroll-mt-6">
             <div
               data-testid="sticky-bar"
-              className="sticky top-0 z-20 -mx-4 flex h-14 items-center justify-between bg-surface/80 px-4 backdrop-blur-[20px] backdrop-saturate-[1.8] sm:-mx-6 sm:px-6 lg:hidden reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none reduce-transparency:backdrop-saturate-100"
+              className="sticky top-0 z-20 -mx-4 flex h-14 items-center justify-between bg-surface/80 px-4 backdrop-blur-[20px] backdrop-saturate-[1.8] sm:-mx-6 sm:px-6 lg:mx-0 lg:justify-end lg:gap-3 lg:px-0 reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none reduce-transparency:backdrop-saturate-100"
             >
-              <FilterSheet />
+              <div className="lg:hidden">
+                <FilterSheet />
+              </div>
               <SortControl className="flex" />
+              <div className="hidden lg:block">
+                <ViewToggle />
+              </div>
             </div>
             <AppliedFilters />
             <div data-view={view} aria-busy={pending} className={`transition-opacity duration-150 ease-out ${pending ? "opacity-60" : ""}`}>

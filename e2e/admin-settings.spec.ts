@@ -32,7 +32,9 @@ test("a team member is added, shows in the lead owner choices, and cannot be add
 test("connected services list what is still needed, and the business details are shown", async ({ page }) => {
   await page.goto("/admin/settings");
   const social = page.getByRole("row", { name: /Facebook and Instagram posting/ });
-  await expect(social).toContainText("Not connected");
-  await expect(social).toContainText("META_PAGE_ACCESS_TOKEN");
+  // The three outward services are simulated on the demo, so they read as connected; lead email shows its true state.
+  await expect(social).toContainText("Connected");
+  await expect(social).toContainText("@checkworkmotors");
+  await expect(page.getByRole("row", { name: /Lead email/ })).toContainText("LEAD_TO_EMAIL");
   await expect(page.getByText("Checkwork Motors").first()).toBeVisible();
 });
