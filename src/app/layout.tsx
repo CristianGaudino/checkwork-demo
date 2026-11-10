@@ -6,7 +6,7 @@ import { Toaster } from "@/components/Toaster";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { DemoBar } from "@/components/demo/DemoBar";
-import { DEMO_BAR_ENABLED, THEME_SCRIPT } from "@/lib/demo";
+import { DEMO_BAR_ENABLED, THEME_SCRIPT, adminReachable } from "@/lib/demo";
 import { DEALER_LOCATION, DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL, indexable } from "@/lib/site";
 import "./globals.css";
 
@@ -36,7 +36,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
       <body className="flex min-h-dvh flex-col">
-        {DEMO_BAR_ENABLED && <DemoBar />}
+        {DEMO_BAR_ENABLED && <DemoBar showAreas={adminReachable()} />}
         <SiteChrome>
           <SiteHeader />
         </SiteChrome>
