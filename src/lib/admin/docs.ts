@@ -31,8 +31,10 @@ export function defineCollection<T extends Doc>(name: string, seed: () => T[]) {
       return true;
     }
     if (!seedIfNew) return false;
-    // One row at a time: plain inserts behave the same on D1 and in tests. Conflicts are ignored, so two first visits cannot clash.
-    for (const d of seed()) await db.insert(adminDocs).values({ collection: name, id: d.id, data: d }).onConflictDoNothing();
+    // Twenty rows a statement (D1 allows 100 bound values, three a row), so a first visit is a few round trips, not one per record.
+    // Conflicts are ignored, so two first visits cannot clash.
+    const rows = seed().map((d) => ({ collection: name, id: d.id, data: d }));
+    for (let i = 0; i < rows.length; i += 20) await db.insert(adminDocs).values(rows.slice(i, i + 20)).onConflictDoNothing();
     await db.insert(adminDocs).values({ collection: SEEDED, id: name, data: {} }).onConflictDoNothing();
     seededHere.add(name);
     return true;

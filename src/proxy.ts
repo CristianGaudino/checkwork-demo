@@ -12,7 +12,7 @@ export async function proxy(req: NextRequest) {
   // A closed area looks like a page that is not there. Server actions post to the page itself, so this covers them too.
   // Open in development and when the build says so; otherwise only with a valid Cloudflare Access token (src/lib/access.ts).
   if (isAppPath(req.nextUrl.pathname)) {
-    const cfg = accessConfig();
+    const cfg = accessConfig(process.env, req.nextUrl.pathname.startsWith("/platform") ? "platform" : "dealer");
     const ok = adminReachable() || (cfg !== null && (await verifyAccessJwt(req.headers.get("cf-access-jwt-assertion"), cfg)) !== null);
     // The site's own not found page, not a bare line. A path no route matches renders app/not-found.tsx.
     return ok ? NextResponse.next() : NextResponse.rewrite(new URL("/not-found-closed-area", req.url), { status: 404, headers: { "X-Robots-Tag": "noindex" } });

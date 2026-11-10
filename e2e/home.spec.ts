@@ -252,3 +252,11 @@ test("visit us has the address, the hours and the way there", async ({ page }) =
   await expect(visit.getByRole("heading", { name: "Opening hours" })).toBeVisible();
   await expect(visit.getByRole("link", { name: /Get directions/i })).toBeVisible();
 });
+
+test("the make chips show the maker's logo, and it loads", async ({ page }) => {
+  await page.goto("/");
+  const logo = page.locator('section[aria-labelledby="browse-by-make"] a img').first();
+  await logo.scrollIntoViewIfNeeded(); // lazy images load when they near the screen
+  await expect(logo).toBeVisible();
+  await expect.poll(() => logo.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0)).toBe(true);
+});

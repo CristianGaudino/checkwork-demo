@@ -10,6 +10,7 @@ import { FinanceCalculator } from "@/components/finance/FinanceCalculator";
 import { resolveLanding } from "@/components/landing/data";
 import { LandingPage } from "@/components/landing/LandingPage";
 import { VehicleHint } from "@/components/vehicleHint";
+import { CarControls } from "@/components/demo/RoleControls";
 import { SoldBadge } from "@/components/stock/SoldBadge";
 import { pageMain } from "@/components/ui";
 import { financeable } from "@/lib/finance/payment";
@@ -65,6 +66,7 @@ export default async function CarPage({ params }: PageProps<"/used-cars/[slug]">
           {isSold(car) && <SoldBadge hidden className="pointer-events-none absolute left-4 top-4 z-20" />}
         </div>
         <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:sticky lg:top-6 lg:self-start">
+          <CarControls id={car.id} slug={car.slug} />
           <BuyBox car={car} />
         </div>
         <div className="mt-6 flex flex-col gap-12 lg:col-start-1">

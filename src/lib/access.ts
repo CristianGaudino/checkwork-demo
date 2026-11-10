@@ -4,9 +4,10 @@
 type Jwk = JsonWebKey & { kid: string };
 export type AccessConfig = { team: string; aud: string };
 
-export const accessConfig = (env: Record<string, string | undefined> = process.env): AccessConfig | null => {
+// The platform can have its own application (CF_ACCESS_AUD_PLATFORM), so the dealer's staff are not let into it. Without one it shares the dealer's.
+export const accessConfig = (env: Record<string, string | undefined> = process.env, area: "dealer" | "platform" = "dealer"): AccessConfig | null => {
   const team = env.CF_ACCESS_TEAM_DOMAIN?.trim().replace(/^https?:\/\//, "").replace(/\/$/, "");
-  const aud = env.CF_ACCESS_AUD?.trim();
+  const aud = (area === "platform" && env.CF_ACCESS_AUD_PLATFORM?.trim()) || env.CF_ACCESS_AUD?.trim();
   return team && aud ? { team, aud } : null;
 };
 

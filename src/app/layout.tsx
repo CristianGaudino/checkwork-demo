@@ -6,6 +6,7 @@ import { Toaster } from "@/components/Toaster";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { DemoBar } from "@/components/demo/DemoBar";
+import { RoleStrip } from "@/components/demo/RoleControls";
 import { DEMO_BAR_ENABLED, THEME_SCRIPT, adminReachable } from "@/lib/demo";
 import { DEALER_LOCATION, DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL, indexable } from "@/lib/site";
 import "./globals.css";
@@ -39,6 +40,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {DEMO_BAR_ENABLED && <DemoBar showAreas={adminReachable() || process.env.NEXT_PUBLIC_ACCESS_ENABLED === "1"} />}
         <SiteChrome>
           <SiteHeader />
+          <RoleStrip />
         </SiteChrome>
         {children}
         <SiteChrome>

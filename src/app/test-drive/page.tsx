@@ -14,7 +14,9 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function TestDrivePage() {
-  const all = await queryAllOrNull();
+  // Used, new and commercial: a test drive is as likely on a new car or a van.
+  const lists = await Promise.all([queryAllOrNull(), queryAllOrNull({ condition: "new" }), queryAllOrNull({ condition: "commercial" })]);
+  const cars = lists.flatMap((l) => l?.cars ?? []);
   return (
     <LeadPage
       title="Test Drive"
@@ -25,7 +27,7 @@ export default async function TestDrivePage() {
         { title: "We Confirm", text: "We call or email to confirm." },
       ]}
     >
-      <TestDrivePicker cars={(all?.cars ?? []).map(carSummary)} />
+      <TestDrivePicker cars={cars.map(carSummary)} />
     </LeadPage>
   );
 }

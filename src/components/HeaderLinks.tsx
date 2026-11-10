@@ -22,7 +22,7 @@ const within = (path: string, href: string) => path === href || path.startsWith(
 export function HeaderLinks() {
   const path = usePathname();
   const hint = useVehicleHint(); // a car page's address does not say whether it is used, new or a van; the page says so
-  const vehicles = VEHICLE_TYPES.filter((t) => t.enabled).map((t) => ({ href: t.href, label: `${t.label} Cars`.replace("Commercial Cars", "Commercial"), current: hint ? hint === t.condition : within(path, t.href) }));
+  const vehicles = VEHICLE_TYPES.filter((t) => t.enabled).map((t) => ({ href: t.href, label: t.nav, current: hint ? hint === t.condition : within(path, t.href) }));
   const others = LINKS.map((l) => ({ ...l, current: within(path, l.href) }));
   return (
     <div className="hidden items-center gap-5 lg:flex xl:gap-6">

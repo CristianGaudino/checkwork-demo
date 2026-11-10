@@ -4,4 +4,5 @@ export const HOME = {
   shopByTypeMax: 6, // body-type tiles
   makeChipsMax: 12, // brand chips
   heroPhoto: "/brand/hero.webp", // the big hero tile (1920x819)
+  heroPhotoSmall: "/brand/hero-sm.webp", // the same photo at 960 wide, for phones
 } as const;

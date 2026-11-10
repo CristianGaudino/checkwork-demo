@@ -133,6 +133,8 @@ test("a field error keeps what was typed, and consent is needed to send", async 
 test("the Test Drive page lists the cars, books the one chosen, and the dealer sees it", async ({ page }) => {
   await page.goto("/test-drive");
   await expect(page.getByRole("heading", { level: 1, name: "Test Drive" })).toBeVisible();
+  await expect(page.getByRole("listitem").filter({ hasText: "Niro" })).toHaveCount(1); // new cars are bookable too
+  await expect(page.getByRole("listitem").filter({ hasText: "Vito" }).first()).toBeVisible(); // and vans
   const row = page.getByRole("listitem").filter({ hasText: "€" }).first();
   await row.getByRole("button", { name: "Book" }).click();
   const d = page.getByRole("dialog", { name: "Test Drive" });

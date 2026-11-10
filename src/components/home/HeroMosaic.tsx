@@ -5,7 +5,7 @@ export function HeroMosaic() {
   return (
     <div className="aspect-[21/9] overflow-hidden rounded-[20px] bg-photo-bg">
       {/* eslint-disable-next-line @next/next/no-img-element -- a fixed local file, sized by its box */}
-      <img src={HOME.heroPhoto} alt="" width={1920} height={819} fetchPriority="high" className="size-full object-cover" />
+      <img src={HOME.heroPhoto} srcSet={`${HOME.heroPhotoSmall} 960w, ${HOME.heroPhoto} 1920w`} sizes="(min-width: 1024px) 570px, 100vw" alt="" width={1920} height={819} fetchPriority="high" className="size-full object-cover" />
     </div>
   );
 }
