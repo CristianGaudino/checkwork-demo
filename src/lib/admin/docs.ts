@@ -1,5 +1,5 @@
 import "server-only";
-import { and, eq } from "drizzle-orm";
+import { and, eq, notLike } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { adminDocs } from "@/lib/db/schema";
 import { getBindings } from "@/lib/leads/bindings";
@@ -17,25 +17,31 @@ const seededHere = new Set<string>(); // collections this instance already knows
 const hasDb = () => Boolean(getBindings().DB);
 
 export function defineCollection<T extends Doc>(name: string, seed: () => T[]) {
-  async function ready() {
+  // `seedIfNew` false is for a public page: it never writes, so a visitor's page view cannot seed a collection. Returns whether it is ready.
+  async function ready(seedIfNew = true): Promise<boolean> {
     if (!hasDb()) {
       if (!memory.has(name)) memory.set(name, new Map(seed().map((d) => [d.id, d])));
-      return;
+      return true;
     }
-    if (seededHere.has(name)) return;
+    if (seededHere.has(name)) return true;
     const db = getDb();
     const done = await db.select({ id: adminDocs.id }).from(adminDocs).where(and(eq(adminDocs.collection, SEEDED), eq(adminDocs.id, name))).limit(1);
-    if (done.length) return void seededHere.add(name);
+    if (done.length) {
+      seededHere.add(name);
+      return true;
+    }
+    if (!seedIfNew) return false;
     // One row at a time: plain inserts behave the same on D1 and in tests. Conflicts are ignored, so two first visits cannot clash.
     for (const d of seed()) await db.insert(adminDocs).values({ collection: name, id: d.id, data: d }).onConflictDoNothing();
     await db.insert(adminDocs).values({ collection: SEEDED, id: name, data: {} }).onConflictDoNothing();
     seededHere.add(name);
+    return true;
   }
 
   return {
     name,
-    async list(): Promise<T[]> {
-      await ready();
+    async list(opts?: { seed?: boolean }): Promise<T[]> {
+      if (!(await ready(opts?.seed ?? true))) return [];
       if (!hasDb()) return [...memory.get(name)!.values()] as T[];
       const rows = await getDb().select({ data: adminDocs.data }).from(adminDocs).where(eq(adminDocs.collection, name));
       return rows.map((r) => r.data as T);
@@ -59,12 +65,15 @@ export function defineCollection<T extends Doc>(name: string, seed: () => T[]) {
       if (!hasDb()) return void memory.get(name)!.delete(id);
       await getDb().delete(adminDocs).where(and(eq(adminDocs.collection, name), eq(adminDocs.id, id)));
     },
-    // Back to the seed: used by "Reset demo data".
+    // Back to the seed: used by "Reset demo data". Records that came from visitors (ids starting "real-") are never touched.
     async reset(): Promise<void> {
-      if (!hasDb()) return void memory.delete(name);
+      if (!hasDb()) {
+        const real = [...(memory.get(name) ?? [])].filter(([id]) => id.startsWith("real-"));
+        return void memory.set(name, new Map([...seed().map((d): [string, Doc] => [d.id, d]), ...real]));
+      }
       const db = getDb();
       seededHere.delete(name);
-      await db.delete(adminDocs).where(eq(adminDocs.collection, name));
+      await db.delete(adminDocs).where(and(eq(adminDocs.collection, name), notLike(adminDocs.id, "real-%")));
       await db.delete(adminDocs).where(and(eq(adminDocs.collection, SEEDED), eq(adminDocs.id, name)));
     },
   };

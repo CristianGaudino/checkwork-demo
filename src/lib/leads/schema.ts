@@ -96,9 +96,10 @@ const finance = {
 };
 
 // A booking: the car, a day and a time that are really open (from the opening hours), then contact details.
+// Checked from a day earlier, so a form opened before midnight Irish time still sends its "tomorrow" after midnight.
 const testDrive = {
   carId,
-  driveDate: given(z.string({ error: BAD_DRIVE_DAY }).refine((v) => driveDays().includes(v), BAD_DRIVE_DAY)),
+  driveDate: given(z.string({ error: BAD_DRIVE_DAY }).refine((v) => driveDays(new Date(Date.now() - 86_400_000)).includes(v), BAD_DRIVE_DAY)),
   driveTime: given(z.string({ error: BAD_DRIVE_TIME })),
 };
 

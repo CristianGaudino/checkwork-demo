@@ -55,6 +55,7 @@ export interface Deps {
   demo: boolean;
   bucket: Pick<PhotoBucket, "put" | "delete">; // LEAD_PHOTOS, private EU R2 (D-13); only the signed route reads it
   photoLinkSecret(): string; // read only when a lead has photos, so other leads never need it
+  afterNotified?(row: LeadRow): Promise<void>; // best effort, after the dealer was emailed: the admin's copy of the lead
 }
 
 const OK: LeadResult = { status: "ok" };
@@ -195,7 +196,9 @@ export async function processLead(fd: FormData, ctx: { ip: string }, deps: Deps)
       logLead({ leadId, type: input.type, outcome: "notify_failed" });
       return SERVER;
     }
-    // The email went. If only this bookkeeping fails the buyer still gets ok, and the row reads as not notified.
+    // The email went, so the lead is real: copy it to the admin. Never before, so a lead whose email failed is not mirrored twice on a retry.
+    await deps.afterNotified?.(row).catch(() => {});
+    // If only this bookkeeping fails the buyer still gets ok, and the row reads as not notified.
     await deps.store.markNotified(row.id).catch(() => logLead({ leadId, type: input.type, outcome: "notify_failed" }));
     logLead({ leadId, type: input.type, outcome: "stored" });
     return OK;

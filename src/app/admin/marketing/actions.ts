@@ -44,7 +44,7 @@ export async function publishPostAction(id: string) {
   const post = await postsStore.get(id);
   if (!post) return go("social", "invalid");
   const r = await publishPost(post);
-  if (r.ok) await postsStore.put({ ...post, status: "posted", postedAt: Date.now(), ...(r.simulated && simulatedPost(post.id)) });
+  if (r.ok) await postsStore.put({ ...post, status: "posted", postedAt: Date.now(), ...(r.simulated && { simulated: true, ...simulatedPost(post.id) }) });
   outcome("social", r, "post-published");
 }
 

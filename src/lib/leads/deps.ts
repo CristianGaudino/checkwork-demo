@@ -21,7 +21,6 @@ function fakeDeps(): Deps {
       insert: async (row) => {
         if (refs.has(row.clientRef)) return false;
         refs.add(row.clientRef);
-        await mirrorLead(row).catch(() => {}); // so the E2E run can see a booking arrive in the admin
         return true;
       },
       markNotified: async () => {},
@@ -33,6 +32,7 @@ function fakeDeps(): Deps {
     demo: true,
     bucket: { put: async () => {}, delete: async () => {} }, // photos are dropped, like the mail
     photoLinkSecret: () => "e2e-photo-link-secret",
+    afterNotified: mirrorLead, // so the E2E run can see a booking arrive in the admin
   };
 }
 
@@ -44,9 +44,7 @@ const store: LeadStore = {
   // told to call instead of waiting for a reply that never comes. Set LEAD_TO_EMAIL before the bot-check secret.
   insert: async (row) => {
     if ((await leadRecipients()).length === 0) throw new Error("Missing LEAD_TO_EMAIL");
-    const stored = await db().insert(row);
-    if (stored) await mirrorLead(row).catch(() => {}); // the admin's copy; its failure never fails the lead
-    return stored;
+    return db().insert(row);
   },
   markNotified: (id) => db().markNotified(id),
 };
@@ -67,6 +65,7 @@ export function getDeps(): Deps {
     demo: !isProduction(),
     bucket,
     photoLinkSecret: () => requireEnv("PHOTO_LINK_SECRET"),
+    afterNotified: mirrorLead,
   };
 }
 

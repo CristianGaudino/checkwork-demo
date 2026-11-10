@@ -129,6 +129,21 @@ describe("processLead rules", () => {
     expect(mail).toHaveLength(1);
   });
 
+  it("copies the lead to the admin only after the dealer was emailed, and never fails the lead if the copy fails", async () => {
+    const { deps } = fakeDeps();
+    const copied: string[] = [];
+    deps.afterNotified = async (row) => void copied.push(row.id);
+    expect(await processLead(enquiryForm(), ctx, deps)).toEqual({ status: "ok" });
+    expect(copied).toHaveLength(1);
+    deps.afterNotified = async () => Promise.reject(new Error("admin store down"));
+    expect(await processLead(enquiryForm(), ctx, deps)).toEqual({ status: "ok" });
+    const failing = fakeDeps();
+    failing.deps.afterNotified = async (row) => void copied.push(row.id);
+    failing.deps.mailer.send = async () => Promise.reject(new Error("mail down"));
+    await processLead(enquiryForm(), ctx, failing.deps);
+    expect(copied).toHaveLength(1); // the failed-email lead was not copied
+  });
+
   it("tells the buyer it failed when the email fails, skips markNotified and logs one notify_failed line with three keys", async () => {
     const { deps, rows, notified } = fakeDeps();
     deps.mailer.send = async () => {
