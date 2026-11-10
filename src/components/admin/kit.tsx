@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useId } from "react";
 import { card, press } from "@/components/ui";
 
 // The admin kit: the few pieces every admin page is made of. Same tokens as the site, denser and calmer.
@@ -15,12 +16,14 @@ export function PageHeader({ title, text, actions }: { title: string; text?: str
   );
 }
 
+// A titled panel is a region named by its heading, so a screen reader can jump to it.
 export function Panel({ title, action, children, className = "" }: { title?: string; action?: React.ReactNode; children: React.ReactNode; className?: string }) {
+  const id = useId();
   return (
-    <section className={`${card} flex min-w-0 flex-col gap-4 p-5 ${className}`}>
+    <section aria-labelledby={title ? id : undefined} className={`${card} flex min-w-0 flex-col gap-4 p-5 ${className}`}>
       {(title || action) && (
         <div className="flex items-center justify-between gap-3">
-          {title && <h2 className="text-heading font-semibold">{title}</h2>}
+          {title && <h2 id={id} className="text-heading font-semibold">{title}</h2>}
           {action}
         </div>
       )}
@@ -69,7 +72,7 @@ export function DataTable<T>({ columns, rows, rowKey, empty, bare = false }: { c
   if (rows.length === 0) return <div className={frame}>{empty ?? <EmptyState title="Nothing here yet" />}</div>;
   return (
     <div className={`${frame} overflow-x-auto`}>
-      <table className="w-full min-w-[32rem] border-collapse text-left text-body">
+      <table className="w-full min-w-[22rem] border-collapse text-left text-body">
         <thead>
           <tr className="border-b border-hairline text-meta text-text-2">
             {columns.map((c) => (
