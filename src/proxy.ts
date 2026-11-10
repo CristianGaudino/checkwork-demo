@@ -13,9 +13,14 @@ export async function proxy(req: NextRequest) {
   // Open in development and when the build says so; otherwise only with a valid Cloudflare Access token (src/lib/access.ts).
   if (isAppPath(req.nextUrl.pathname)) {
     const cfg = accessConfig(process.env, req.nextUrl.pathname.startsWith("/platform") ? "platform" : "dealer");
-    const ok = adminReachable() || (cfg !== null && (await verifyAccessJwt(req.headers.get("cf-access-jwt-assertion"), cfg)) !== null);
+    const token = req.headers.get("cf-access-jwt-assertion");
+    const verdict = adminReachable() ? "open" : cfg === null ? "not-configured" : !token ? "no-token" : (await verifyAccessJwt(token, cfg)) ? "open" : "rejected";
+    if (verdict === "open") return NextResponse.next();
+    // Why it was closed, in the Worker's logs (never the token): "no-token" means Access did not cover this path, "rejected" means a token came
+    // that did not verify (wrong audience, team domain or expired), "not-configured" means CF_ACCESS_TEAM_DOMAIN or CF_ACCESS_AUD is missing.
+    console.warn(`admin gate closed: ${verdict}`);
     // The site's own not found page, not a bare line. A path no route matches renders app/not-found.tsx.
-    return ok ? NextResponse.next() : NextResponse.rewrite(new URL("/not-found-closed-area", req.url), { status: 404, headers: { "X-Robots-Tag": "noindex" } });
+    return NextResponse.rewrite(new URL("/not-found-closed-area", req.url), { status: 404, headers: { "X-Robots-Tag": "noindex" } });
   }
   const slug = req.nextUrl.pathname.split("/")[2] ?? "";
   if (slug.length > 120 || !CAR_SLUG.test(slug)) return NextResponse.next();
