@@ -20,9 +20,9 @@ export function HeaderLinks() {
   const dealer = useDemoRole() === "dealer"; // viewing the demo as the dealer's staff: a way into their dashboard
   const others = (dealer ? [...HEADER_LINKS, DASHBOARD_LINK] : HEADER_LINKS).map((l) => ({ ...l, current: within(path, l.href) }));
   return (
-    <div className="hidden items-center gap-5 lg:flex xl:gap-6">
+    <div className="hidden items-center gap-4 lg:flex xl:gap-6">
       {[...vehicles, ...others].map((l) => (
-        <Link key={l.href} href={l.href} aria-current={l.current ? "page" : undefined} className={`${item} ${l.current ? bar : ""}`}>
+        <Link key={l.href} href={l.href} aria-current={l.current ? "page" : undefined} className={`${item} ${l.current ? bar : ""} ${"wide" in l && l.wide ? "max-xl:hidden" : ""}`}>
           {l.label}
         </Link>
       ))}

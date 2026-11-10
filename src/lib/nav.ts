@@ -8,8 +8,8 @@ export const VEHICLE_TYPES = [
   { id: "commercial", label: "Commercial", nav: "Commercial", href: "/commercial", enabled: true, condition: "commercial", title: "Commercial Vehicles", intro: "Vans and light commercials. Prices are shown without VAT, which a VAT-registered buyer can usually reclaim, with the price including VAT underneath." },
 ] as const;
 
-export type NavLink = { href: string; label: string; long?: string }; // `long` is the fuller wording the footer uses
-const link = (href: string, label: string, long?: string): NavLink => ({ href, label, long });
+export type NavLink = { href: string; label: string; long?: string; wide?: boolean }; // `long`: the fuller wording the footer uses. `wide`: in the header only from 1280px, where there is room
+const link = (href: string, label: string, long?: string, wide?: boolean): NavLink => ({ href, label, long, wide });
 const section = (id: (typeof VEHICLE_TYPES)[number]["id"]) => {
   const t = VEHICLE_TYPES.find((v) => v.id === id)!;
   return link(t.href, t.nav);
@@ -28,7 +28,7 @@ export const PAGE = {
   saved: link("/saved", "Saved Cars"),
   service: link("/service", "Service"),
   warranty: link("/warranty", "Warranty"),
-  about: link("/about", "About", "About Us"),
+  about: link("/about", "About", "About Us", true),
   contact: link("/contact", "Contact"),
   privacy: link("/privacy", "Privacy Policy"),
   terms: link("/terms", "Terms of Use"),

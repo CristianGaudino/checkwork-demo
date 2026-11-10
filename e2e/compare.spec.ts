@@ -73,7 +73,7 @@ test("two cars: each row says which is higher and which is lower", async ({ page
   expect(rows.filter((m) => m!.includes("Lower")).length).toBe(1);
   expect(rows.filter((m) => m!.includes("Higher")).length).toBe(1);
   // Lower is good news for a price, so its marker is green; Higher is red. The word and the arrow are there too, so colour is never the only sign.
-  await expect(page.getByText("Lower", { exact: true }).first()).toHaveCSS("color", "rgb(21, 128, 61)");
+  await expect(page.getByText("Lower", { exact: true }).first()).toHaveCSS("color", "rgb(22, 101, 52)");
   await expect(page.getByText("Higher", { exact: true }).first()).toHaveCSS("color", "rgb(196, 38, 29)");
 });
 

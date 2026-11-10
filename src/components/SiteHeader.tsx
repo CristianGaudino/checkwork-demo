@@ -17,9 +17,9 @@ export function SiteHeader() {
           <MobileMenu links={MENU} />
         </div>
         <Link href="/" aria-label={SITE_NAME} className="flex h-11 shrink-0 items-center lg:order-first">
-          <Logo className="h-7 w-auto sm:h-8 lg:h-9" eager />
+          <Logo className="h-7 w-auto sm:h-8 xl:h-9" eager />
         </Link>
-        <nav aria-label="Main" className="flex items-center justify-end lg:ml-auto lg:gap-6">
+        <nav aria-label="Main" className="flex items-center justify-end lg:ml-auto lg:gap-4 xl:gap-6">
           <HeaderLinks />
           <SavedLink />
         </nav>

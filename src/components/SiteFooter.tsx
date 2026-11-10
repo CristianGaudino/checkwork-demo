@@ -58,7 +58,7 @@ export function SiteFooter() {
             </div>
           </div>
           {/* Groups are divs, not sections, so section lookups on car pages stay unique. */}
-          <nav aria-label="Footer" className="col-span-2 grid grid-cols-2 gap-x-6 gap-y-8 lg:col-span-3 lg:grid-cols-4">
+          <nav aria-label="Footer" className="col-span-2 grid grid-cols-2 gap-x-6 gap-y-5 lg:col-span-3 lg:grid-cols-4 lg:gap-y-8">
             {FOOTER_GROUPS.map((g) => (
               <div key={g.title} className={g.title === "Legal" ? "max-lg:hidden" : undefined}>
                 <h2 className="text-meta font-semibold text-text-2">{g.title}</h2>

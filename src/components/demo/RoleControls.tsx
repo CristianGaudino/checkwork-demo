@@ -13,11 +13,11 @@ export function CarControls({ id, slug, sold = false }: { id: string; slug: stri
   return (
     <div data-car-controls className="mb-4 flex flex-wrap items-center gap-2">
       <Link href={`/admin/stock/${id}`} className={pill}>
-        Edit in stock
+        Edit in Stock
       </Link>
       {!sold && (
         <Link href={`/admin/marketing?tab=social&car=${encodeURIComponent(slug)}`} className={pill}>
-          Post this car
+          Post This Car
         </Link>
       )}
     </div>

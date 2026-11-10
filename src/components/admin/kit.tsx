@@ -90,7 +90,8 @@ export function DataTable<T>({ columns, rows, rowKey, empty, bare = false }: { c
         <thead>
           <tr className="border-b border-hairline text-meta text-text-2">
             {columns.map((c) => (
-              <th key={c.key} scope="col" className={`px-4 py-3 font-semibold ${c.align === "right" ? "text-right" : ""} ${colClass(c as Column<unknown>)}`}>
+              <th key={c.key} scope="col" className={`relative px-4 py-3 font-semibold ${c.align === "right" ? "text-right" : ""} ${colClass(c as Column<unknown>)}`}>
+                {/* The screen reader text is positioned inside this cell (relative above), so the scroll box clips it and it cannot widen the page. */}
                 {c.header || <span className="sr-only">Actions</span>}
               </th>
             ))}
