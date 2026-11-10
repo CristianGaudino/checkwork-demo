@@ -1,4 +1,4 @@
-import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import type { LeadType } from "@/lib/leads/schema";
 import type { Car } from "../stock/types";
 
@@ -43,3 +43,18 @@ export const cars = sqliteTable("cars", {
   slug: text().notNull().unique(),
   data: text({ mode: "json" }).$type<Car>().notNull(),
 });
+
+// The admin and platform areas keep their records here: one row per record, the record as JSON, grouped by collection ("test-drives",
+// "posts" and so on). A new kind of record needs no migration. Seeded on first read (src/lib/admin/docs.ts).
+export const adminDocs = sqliteTable(
+  "admin_docs",
+  {
+    collection: text().notNull(),
+    id: text().notNull(),
+    data: text({ mode: "json" }).$type<Record<string, unknown>>().notNull(),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (t) => [primaryKey({ columns: [t.collection, t.id] })],
+);

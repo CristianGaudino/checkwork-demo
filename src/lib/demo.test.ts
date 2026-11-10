@@ -15,3 +15,12 @@ describe("roleForPath", () => {
     expect(roleForPath("/administrator")).toBe("customer");
   });
 });
+
+import { isAppPath } from "@/lib/demo";
+describe("isAppPath", () => {
+  it("is true under /admin and /platform only", () => {
+    expect(isAppPath("/admin/leads")).toBe(true);
+    expect(isAppPath("/platform")).toBe(true);
+    expect(isAppPath("/used-cars")).toBe(false);
+  });
+});
