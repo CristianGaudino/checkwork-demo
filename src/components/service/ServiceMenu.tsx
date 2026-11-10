@@ -35,7 +35,7 @@ export function ServiceMenu({ services }: { services: readonly Service[] }) {
               >
                 <span className="flex w-full items-center justify-between gap-2">
                   <span className={subTitle}>{s.name}</span>
-                  <span aria-hidden="true" className={`flex size-8 items-center justify-center rounded-full text-heading transition-[transform,background-color] duration-300 motion-reduce:transition-none ${on ? "rotate-45 bg-accent text-white" : "bg-accent/15 text-accent"}`}>
+                  <span aria-hidden="true" className={`flex size-8 items-center justify-center rounded-full text-heading transition-[transform,background-color] duration-300 motion-reduce:transition-none ${on ? "rotate-45 bg-accent text-on-accent" : "bg-accent/15 text-accent"}`}>
                     +
                   </span>
                 </span>

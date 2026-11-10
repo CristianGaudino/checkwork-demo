@@ -74,7 +74,7 @@ function ViewToggle() {
       aria-label={label}
       aria-pressed={view === v}
       onClick={() => setView(v)}
-      className={`flex size-12 items-center justify-center transition-colors ${view === v ? "bg-accent text-white" : "hover:bg-hairline"}`}
+      className={`flex size-12 items-center justify-center transition-colors ${view === v ? "bg-accent text-on-accent" : "hover:bg-hairline"}`}
     >
       <Icon className="size-6" />
     </button>

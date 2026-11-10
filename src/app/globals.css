@@ -2,7 +2,7 @@
 
 /* UI-SPEC tokens. Resetting the default sizes and weights makes "no font size outside the table" a build-time fact. */
 @theme {
-  --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
   --text-*: initial;
   --text-meta: 0.875rem;
@@ -28,10 +28,41 @@
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
 
+  /* Light is the default ("Showroom": warm paper, near-black ink). The dark set is the same names under [data-theme="dark"] below. */
+  --color-surface: #faf8f5;
+  --color-card: #ffffff;
+  --color-ink: #ffffff; /* the inverse of text: for words on a bg-text pill */
+  --color-band: #0b1020; /* a band that stays dark in both themes (header, footer, photo overlays) */
+  --color-accent: #4f46e5;
+  --color-on-accent: #ffffff;
+  --color-text: #14121f;
+  --color-text-2: #55526a;
+  --color-hairline: #e6e2da;
+  --color-control: #8a8699;
+  --color-photo-bg: #ece8e1;
+  --color-destructive: #c4261d;
+  --color-better: #15803d;
+  --color-scrim: rgb(20 18 31 / 0.5);
+  --color-thumb: #ffffff;
+  --color-whatsapp: #25d366; /* WhatsApp's own green, for its icon only */
+
+  --radius-card: 1rem;
+  --radius-control: 0.75rem;
+
+  --shadow-lift: 0 8px 24px rgb(20 18 31 / 0.14);
+  --shadow-thumb: 0 0 0 1px rgb(0 0 0 / 0.2), 0 2px 6px rgb(0 0 0 / 0.35);
+
+  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Dark, by choice (demo bar toggle, stored in localStorage and set on <html> before first paint). .theme-dark does the same for one
+   element, so a band that is always dark (header, footer) keeps its light-on-dark children in both themes. */
+:root[data-theme="dark"],
+.theme-dark {
+  color-scheme: dark;
   --color-surface: #0b1020;
   --color-card: #141a30;
   --color-ink: #0b1020;
-  --color-accent: #4f46e5;
   --color-text: #f5f6fb;
   --color-text-2: #a5adc9;
   --color-hairline: #242c4a;
@@ -39,14 +70,9 @@
   --color-photo-bg: #1b2240;
   --color-destructive: #f97066;
   --color-better: #4ade80;
-  --color-whatsapp: #25d366; /* WhatsApp's own green, for its icon only */
-
-  --radius-card: 1rem;
-  --radius-control: 0.75rem;
-
+  --color-scrim: rgb(0 0 0 / 0.6);
   --shadow-lift: 0 8px 24px rgb(0 0 0 / 0.5);
-
-  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+  --shadow-thumb: 0 0 0 1px rgb(0 0 0 / 0.2), 0 2px 6px rgb(0 0 0 / 0.55);
 }
 
 /* No scrollbar at all, for the swipe rows and strips (photos, featured cars): Firefox's way, beside the ::-webkit-scrollbar rule the
@@ -83,7 +109,7 @@
     }
   }
   html {
-    color-scheme: dark;
+    color-scheme: light;
     background-color: var(--color-surface);
     color: var(--color-text);
     font-optical-sizing: auto;
@@ -162,7 +188,7 @@ dialog.sheet::backdrop {
 }
 
 dialog.sheet[open]::backdrop {
-  background-color: rgb(0 0 0 / 0.6);
+  background-color: var(--color-scrim);
 }
 
 @starting-style {
@@ -381,7 +407,7 @@ input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
   background:
     radial-gradient(70% 90% at 92% 0%, color-mix(in srgb, var(--color-accent) 22%, transparent), transparent 65%),
     radial-gradient(50% 60% at 0% 100%, color-mix(in srgb, var(--color-accent) 8%, transparent), transparent 70%),
-    linear-gradient(180deg, #0d141b 0%, var(--color-surface) 100%);
+    linear-gradient(180deg, color-mix(in srgb, var(--color-text) 6%, var(--color-surface)) 0%, var(--color-surface) 100%);
 }
 
 /* The home hero: the dealer's photo with a dark wash over the side the words sit on (left on a desktop, all over on a phone). A smaller
@@ -396,7 +422,7 @@ input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
   position: absolute;
   inset: 0;
   /* The photo is 900x700 and shown full width, so it is 78vw tall; the words start under the car (padding in the page) and the photo fades into the surface behind them. */
-  background: linear-gradient(180deg, rgb(10 15 19 / 0.1) 0, transparent 40vw, var(--color-surface) 76vw);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--color-surface) 10%, transparent) 0, transparent 40vw, var(--color-surface) 76vw);
 }
 @media (min-width: 768px) {
   .hero-photo {
@@ -405,7 +431,7 @@ input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
       var(--color-surface);
   }
   .hero-photo::before {
-    background: linear-gradient(90deg, rgb(10 15 19 / 0.8) 0%, rgb(10 15 19 / 0.45) 38%, transparent 62%);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--color-surface) 80%, transparent) 0%, color-mix(in srgb, var(--color-surface) 45%, transparent) 38%, transparent 62%);
   }
 }
 
@@ -511,8 +537,8 @@ input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
   height: 1.75rem;
   border-radius: 9999px;
   border: 0;
-  background: #fff;
-  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.2), 0 2px 6px rgb(0 0 0 / 0.55);
+  background: var(--color-thumb);
+  box-shadow: var(--shadow-thumb);
   cursor: grab;
 }
 .price-range::-moz-range-thumb {
@@ -521,17 +547,17 @@ input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
   height: 1.75rem;
   border-radius: 9999px;
   border: 0;
-  background: #fff;
-  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.2), 0 2px 6px rgb(0 0 0 / 0.55);
+  background: var(--color-thumb);
+  box-shadow: var(--shadow-thumb);
   cursor: grab;
 }
 .price-range:active::-webkit-slider-thumb {
   cursor: grabbing;
-  box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-accent) 35%, transparent), 0 2px 6px rgb(0 0 0 / 0.55);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-accent) 35%, transparent), var(--shadow-thumb);
 }
 .price-range:active::-moz-range-thumb {
   cursor: grabbing;
-  box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-accent) 35%, transparent), 0 2px 6px rgb(0 0 0 / 0.55);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-accent) 35%, transparent), var(--shadow-thumb);
 }
 /* One thumb: the whole bar takes a press, so a tap on the line moves it. */
 .price-range[data-single] {

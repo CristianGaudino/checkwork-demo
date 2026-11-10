@@ -44,7 +44,7 @@ const tight = "inline-flex min-h-9 items-center transition-colors hover:text-tex
 // never goes stale.
 export function SiteFooter() {
   return (
-    <footer className="mt-auto border-t border-hairline bg-ink">
+    <footer className="theme-dark mt-auto border-t border-hairline bg-band">
       <div className="mx-auto flex max-w-[1280px] flex-col gap-6 px-4 py-6 sm:px-6 lg:gap-8 lg:px-8 lg:py-8">
         <div className="grid grid-cols-2 gap-x-6 gap-y-4 lg:grid-cols-[2fr_1fr_1fr_1fr] lg:gap-y-8">
           <div className="col-span-2 flex flex-col items-start gap-2 lg:col-span-1">
