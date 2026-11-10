@@ -26,8 +26,8 @@ test("a dealer sees stock and social controls on a car page, a customer sees non
   await expect(page.locator("[data-car-controls]")).toHaveCount(0);
   await page.locator("[data-demo-bar]").getByRole("link", { name: "Dealer" }).click();
   const controls = page.locator("[data-car-controls]");
-  await expect(controls.getByRole("link", { name: "Edit in Stock" })).toHaveAttribute("href", `/admin/stock/${id}`);
-  const post = await controls.getByRole("link", { name: "Post This Car" }).getAttribute("href");
+  await expect(controls.getByRole("link", { name: "Edit car" })).toHaveAttribute("href", `/admin/stock/${id}`);
+  const post = await controls.getByRole("link", { name: "Post to social" }).getAttribute("href");
   expect(post).toMatch(/^\/admin\/marketing\?tab=social&car=.+-\d+$/);
   await page.goto(post!);
   await expect(page.getByLabel("Car").first()).not.toHaveValue(""); // the car is already chosen

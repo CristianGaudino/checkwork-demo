@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { choose } from "./combo";
 
 test("bookings are grouped by day, and a request can be confirmed", async ({ page }) => {
   await page.goto("/admin/test-drives?status=requested");
@@ -18,7 +19,7 @@ test("a new booking is added, and the same car at the same time is refused", asy
   const book = async () => {
     await page.getByLabel("Name", { exact: true }).fill("Test Booker");
     await page.getByLabel("Phone").fill("+353 83 000 1234");
-    await page.locator('select[name="carSlug"]').selectOption({ index: 2 });
+    await choose(page.getByLabel("Car"), 2);
     await page.locator('input[name="date"]').fill(day);
     await page.locator('input[name="time"]').fill("11:00");
     await page.getByRole("button", { name: "Add booking" }).click();
@@ -33,7 +34,7 @@ test("a day that has passed is refused", async ({ page }) => {
   await page.goto("/admin/test-drives");
   await page.getByLabel("Name", { exact: true }).fill("Test Booker");
   await page.getByLabel("Phone").fill("+353 83 000 1234");
-  await page.locator('select[name="carSlug"]').selectOption({ index: 1 });
+  await choose(page.getByLabel("Car"), 1);
   await page.locator('input[name="date"]').fill("2020-01-01");
   await page.locator('input[name="time"]').fill("11:00");
   await page.getByRole("button", { name: "Add booking" }).click();

@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { choose } from "./combo";
 import type { Page } from "@playwright/test";
 import { DEALER_ADDRESS, SITE_NAME } from "../src/lib/site";
 
@@ -157,10 +158,10 @@ test("the phone field defaults to Ireland +353, drops a leading 0 and keeps the 
   await page.waitForFunction(() => Object.keys(document.querySelector("form")!).some((k) => k.startsWith("__reactFiber")));
   const code = page.getByLabel("Country code");
   const phone = page.getByLabel("Phone", { exact: true });
-  await expect(code).toHaveValue("IE");
+  await expect(code).toHaveValue(/^IE/);
   await phone.fill("087 123 4567");
   await expect(phone).toHaveValue("87 123 4567");
-  await code.selectOption("GB");
+  await choose(code, /GB/);
   await expect(phone).toHaveValue("87 123 4567"); // the number stays, only the code changes
   await expect(page.getByText("United Kingdom. For example")).toHaveCount(0); // no helper line under the phone field
 });

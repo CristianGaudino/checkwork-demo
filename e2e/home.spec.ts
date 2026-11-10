@@ -138,7 +138,8 @@ test("the search offers only makes that have a car in stock", async ({ page }) =
   const offered = (await optionLabels(page.getByLabel("Make", { exact: true }))).filter((l) => l !== "Any make");
   const inStockMakes = new Set(inStock.map((c) => c.make));
   expect(offered.length).toBeGreaterThan(0);
-  for (const make of offered) expect(inStockMakes.has(make), make).toBe(true);
+  // A make with no logo shows its initials before the name ("LRLand Rover").
+  for (const make of offered) expect([...inStockMakes].some((m) => make.endsWith(m)), make).toBe(true);
 });
 
 test("featured stock: the newest in-stock cars and View all stock", async ({ page }) => {
@@ -182,7 +183,7 @@ test("reviews, the trust strip and finance banner, and AutoDealer JSON-LD", asyn
   await expect(page.getByRole("heading", { name: "What customers say" })).toBeVisible();
   const main = page.getByRole("main");
   for (const [name, href] of [
-    [/^3 Month Warranty/, "/warranty"],
+    [/^12 Month Warranty/, "/warranty"],
     [/^Extended Warranty/, "/warranty"],
     [/^Flexible Finance/, "/finance"],
     [/^Trade-In Welcome/, "/trade-in"],

@@ -66,5 +66,5 @@ test("a new car shows the manufacturer's warranty, and a used car and a van keep
   await page.locator("article").first().getByRole("link").first().click();
   await expect(page.getByTestId("buy-box").getByText("Manufacturer's Warranty Included")).toBeVisible();
   await page.goto("/used-cars/ford-transit-connect-2026-5100004");
-  await expect(page.getByTestId("buy-box").getByText("3 Month Warranty Included")).toBeVisible();
+  await expect(page.getByTestId("buy-box").getByText("12 Month Warranty Included")).toBeVisible();
 });

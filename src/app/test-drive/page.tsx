@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
+import { CallButton } from "@/components/InfoPage";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { LeadPage } from "@/components/leads/LeadPage";
 import { TestDrivePicker } from "@/components/leads/TestDrivePicker";
-import { DEALER_LOCATION, SITE_NAME } from "@/lib/site";
+import { DEALER_LOCATION, DEALER_PHONE, SITE_NAME } from "@/lib/site";
 import { queryAllOrNull } from "@/lib/stock";
 import { carSummary } from "@/lib/stock/format";
 
 export const metadata: Metadata = {
-  title: "Test Drive",
-  description: `Pick a car, a day and a time, and drive it before you decide. ${SITE_NAME}, ${DEALER_LOCATION}.`,
+  title: "Book a Test Drive",
+  description: `Book a test drive at ${SITE_NAME} in ${DEALER_LOCATION}. Pick a used, new or commercial car, choose a day and time, and drive it before you decide. Bring your licence.`,
 };
 
 // The stock is read per request, like the other stock pages.
@@ -19,12 +21,18 @@ export default async function TestDrivePage() {
   const cars = lists.flatMap((l) => l?.cars ?? []);
   return (
     <LeadPage
-      title="Test Drive"
-      intro="Pick a car, then a day and a time from our opening hours. We confirm it with you."
+      title="Book a Test Drive"
+      intro="Drive it before you decide. Select a car below, choose a day and time, or call or message us."
+      actions={
+        <>
+          <CallButton>Call {DEALER_PHONE}</CallButton>
+          <WhatsAppButton />
+        </>
+      }
       how={[
-        { title: "Pick a Car", text: "Any car in stock." },
-        { title: "Choose a Time", text: "A day and a time we are open." },
-        { title: "We Confirm", text: "We call or email to confirm." },
+        { title: "Select a car", text: "Any used, new or commercial car in stock.", more: ["Not sure which? Call or message us and we will suggest a few."] },
+        { title: "Choose a time", text: "A day and a time we are open.", more: ["About 30 minutes, longer if you want it."] },
+        { title: "Bring your licence", text: "We confirm by phone or email.", more: ["A full, valid driving licence is needed.", "Bring your insurance details if you have them.", "Trading in? Bring the car and we can value it on the day."] },
       ]}
     >
       <TestDrivePicker cars={cars.map(carSummary)} />
