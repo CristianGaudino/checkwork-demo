@@ -17,5 +17,6 @@ export function describeCar(c) {
     : [km, c.owners && owners(c.owners), nct, c.features?.includes("Full Service History") && "Full service history"];
   const kit = HEADLINE.filter((f) => c.features?.includes(f)).slice(0, 4);
   const lines = [`${name}${spec ? `, ${spec}` : ""}.`, `${facts.filter(Boolean).join(". ")}.`, kit.length > 1 && `Equipment includes ${list(kit.map((f) => f.toLowerCase()))}.`];
-  return `${lines.filter(Boolean).join(" ")}\n\nCall in to see it, or book a test drive. Part exchange welcome and finance available.`;
+  // `story`: the dealer's own paragraph about this car, when the catalogue has one (build.mjs passes it in).
+  return `${lines.filter(Boolean).join(" ")}${c.story ? `\n\n${c.story}` : ""}\n\nCall in to see it, or book a test drive. Part exchange welcome and finance available.`;
 }

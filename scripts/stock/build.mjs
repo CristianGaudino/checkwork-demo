@@ -63,7 +63,7 @@ function nextNct(nct, today) {
 }
 
 async function car(dir, c, today) {
-  const { photos: stems, tier, extra, history, sold, nct, ...rest } = c;
+  const { photos: stems, tier, extra, history, sold, nct, story, ...rest } = c;
   const out = { ...rest };
   out.makeSlug = slug(c.make);
   out.modelSlug = slug(c.model);
@@ -71,7 +71,7 @@ async function car(dir, c, today) {
   out.bodySlug = slug(c.bodyType);
   if (nct) out.nctExpiry = nextNct(nct, today);
   out.features = carFeatures({ tier, year: c.year, extra, condition: c.condition, history });
-  out.description = describeCar(out);
+  out.description = describeCar({ ...out, story });
   out.photos = await photos(dir, c.id, stems);
   if (sold !== undefined) out.soldAt = soldDate(sold, today);
   return JSON.parse(JSON.stringify(out)); // drops undefined
