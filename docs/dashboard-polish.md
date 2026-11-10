@@ -29,7 +29,7 @@ audit at the end of each.
 | 67 | `VehicleListPage` for New and Commercial becomes the same `StockShell` as Used: filter rail, sheet, search, sort, grid and list, scoped to the kind. The make chips stay as a shortcut above it. |
 | 68 | `MakeLogo` renders initials in the same box when there is no SVG (`LR`, `GN`, `GMC`, `DG`, `BK`). A `standalone` prop (the make page heading) renders nothing instead. |
 | 69 | `/test-drive` gets a full page: title, intro, Call and WhatsApp, how it works, what to bring, then Select a car. Title and description written for search. |
-| 70 | Every label that says Admin or Dealer admin says Dashboard or Dealer dashboard, and the URL moves to `/dashboard` (owner decision), with `/admin` redirecting to it. The Cloudflare Access application path must change to `/dashboard*` when it deploys; until then the Worker answers 404 (it fails closed). |
+| 70 | Every label that says Admin or Dealer admin says Dashboard or Dealer dashboard, and the URL moves to `/dashboard` (owner decision), and `/admin` is gone (no redirect). The Cloudflare Access application path must change to `/dashboard*` when it deploys; until then the Worker answers 404 (it fails closed). |
 | 71 | The warranty is 12 months in `WARRANTY`, the trust strip, the buy box, the warranty page and the tests. The Warranty page gets: what is covered, what is not, how to claim, extended cover, contact. |
 | 72, 73 | Overview: a short heading, five figures that are links to their pages, a needs-attention list, recent leads as whole-row links, three quick actions. No chart. |
 | 74 | One `Select` (the Combobox) in all 12 places; typable on desktop at any length; the chevron has padding on the right. |
@@ -61,7 +61,7 @@ Each PR keeps lint, `tsc`, unit and E2E green, shows screenshots at 390px and 12
 - Helper sentences on most dashboard pages that repeat the page title.
 
 ## What was built (one branch, `feat/dashboard-polish`)
-- The dashboard lives at `/dashboard`; `/admin` redirects to it (`next.config.ts`). The Cloudflare Access application path is `/dashboard*`.
+- The dashboard lives at `/dashboard`; `/admin` no longer exists. The Cloudflare Access application path is `/dashboard*`.
 - Overview: five figures that link to their pages, latest leads and the needs-attention list as whole-row links, three quick actions. No chart.
 - Leads: type as filter chips, whole-row links in the list, status as icon buttons and the owner as profile chips on a lead.
 - Marketing: one composer (`PostComposer`) for a post and its ad, with suggested text per network, photo choice, a live preview, publish now or later,
