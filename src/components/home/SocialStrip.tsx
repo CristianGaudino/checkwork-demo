@@ -25,7 +25,7 @@ export async function SocialStrip({ cars }: { cars: Car[] }) {
   return (
     <section aria-labelledby="socials" className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <h2 id="socials" className={sectionTitle}>Follow Us</h2>
+        <h2 id="socials" className={sectionTitle}>Follow us</h2>
         <ul aria-label="Our social media" className="-mr-3 flex">
           {SOCIAL_LINKS.map(({ name, href }) => {
             const Icon = ICONS[name];

@@ -68,7 +68,7 @@ test("a make page links to its models, which open make and model pages", async (
   const models = await chipHrefs(page, "Models");
   expect(models.length).toBeGreaterThan(0);
   for (const href of models) expect((await request.get(href)).status(), href).toBe(200);
-  expect((await chipHrefs(page, "Body Types")).length).toBeGreaterThan(0);
+  expect((await chipHrefs(page, "Body types")).length).toBeGreaterThan(0);
 
   await page.goto(models[0]);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(new RegExp(`^Used ${topMake} \\S`));
@@ -110,7 +110,7 @@ test("a make with nothing in stock and nothing recently sold shows the empty sta
   expect(res?.status()).toBe(200);
   await expect(page.getByRole("heading", { name: `No ${expiredOnly.make} in Stock Right Now` })).toBeVisible();
   await expect(page.getByText("Have a look at these instead.")).toBeVisible();
-  expect((await chipHrefs(page, "Makes in Stock")).length).toBeGreaterThan(0);
+  expect((await chipHrefs(page, "Makes in stock")).length).toBeGreaterThan(0);
   await expect(page.getByRole("link", { name: "Can't find it? Ask us to find it for you." })).toHaveAttribute("href", "/find-a-car");
   await expect(page.getByRole("link", { name: "See all used cars" })).toHaveCount(0); // D-15 replaced it
   await expect(page.getByText(/^Recently sold/)).toHaveCount(0);

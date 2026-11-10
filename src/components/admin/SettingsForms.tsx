@@ -3,7 +3,7 @@
 import { Select } from "@/components/Select";
 import { useActionState } from "react";
 import { Field, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
-import { addTeamAction, saveLeadEmailsAction, saveMarketingAction, sendTestEmailAction, saveNotificationsAction, saveTargetsAction, type SettingsState } from "@/app/admin/settings/actions";
+import { addTeamAction, saveLeadEmailsAction, saveMarketingAction, sendTestEmailAction, saveNotificationsAction, saveTargetsAction, type SettingsState } from "@/app/dashboard/settings/actions";
 import type { DealerSettings } from "@/lib/admin/collections";
 
 // Each settings panel is its own small form that saves on its own and says so. The server checks every value again.

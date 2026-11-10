@@ -26,7 +26,7 @@ export async function proxy(req: NextRequest) {
     }
     // Why it was closed, in the Worker's logs (never the token): "no-token" means Access did not cover this path, "rejected" means a token came
     // that did not verify (wrong audience, team domain or expired), "not-configured" means CF_ACCESS_TEAM_DOMAIN or CF_ACCESS_AUD is missing.
-    console.warn(`admin gate closed: ${verdict}`);
+    console.warn(`dashboard gate closed: ${verdict}`);
     // The site's own not found page, not a bare line. A path no route matches renders app/not-found.tsx.
     return NextResponse.rewrite(new URL("/not-found-closed-area", req.url), { status: 404, headers: { "X-Robots-Tag": "noindex" } });
   }
@@ -37,4 +37,4 @@ export async function proxy(req: NextRequest) {
   return hit?.state === "gone" ? NextResponse.rewrite(new URL("/gone/" + hit.makeSlug, req.url), { status: 410 }) : NextResponse.next();
 }
 
-export const config = { matcher: ["/used-cars/:slug", "/admin/:path*"] };
+export const config = { matcher: ["/used-cars/:slug", "/dashboard/:path*"] };

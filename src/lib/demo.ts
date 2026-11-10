@@ -7,7 +7,7 @@ export const DEMO_BAR_ENABLED = process.env.NEXT_PUBLIC_DEMO_BAR !== "off";
 // dealer may see inside it is a permission (src/lib/permissions.ts).
 export const DEMO_ROLES = [
   { id: "customer", label: "Customer", href: "/", prefix: "" },
-  { id: "dealer", label: "Dealer", href: "/admin", prefix: "/admin" },
+  { id: "dealer", label: "Dealer", href: "/dashboard", prefix: "/dashboard" },
 ] as const;
 
 export type DemoRole = (typeof DEMO_ROLES)[number]["id"];

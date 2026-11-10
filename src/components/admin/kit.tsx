@@ -32,13 +32,22 @@ export function Panel({ title, action, children, className = "" }: { title?: str
   );
 }
 
-export function StatCard({ label, value, hint, tone }: { label: string; value: string; hint?: string; tone?: "good" | "bad" }) {
-  return (
-    <div className={`${card} flex min-w-0 flex-col gap-1 p-4`}>
+// With `href` the whole tile is a link to the page behind the number.
+export function StatCard({ label, value, hint, tone, href }: { label: string; value: string; hint?: string; tone?: "good" | "bad"; href?: string }) {
+  const body = (
+    <>
       <p className="text-meta text-text-2">{label}</p>
-      <p className="text-stat font-bold tabular-nums [overflow-wrap:anywhere] sm:text-display">{value}</p>
-      {hint && <p className={`text-meta ${tone === "good" ? "text-better" : tone === "bad" ? "text-destructive" : "text-text-2"}`}>{hint}</p>}
-    </div>
+      <p className="text-stat font-semibold tabular-nums [overflow-wrap:anywhere] sm:text-display">{value}</p>
+      {hint && <p className={`text-meta ${tone === "good" ? "text-ok" : tone === "bad" ? "text-bad" : "text-text-2"}`}>{hint}</p>}
+    </>
+  );
+  const frame = `${card} flex min-w-0 flex-col gap-1 p-4`;
+  return href ? (
+    <Link href={href} className={`${frame} transition-colors hover:border-control ${press}`}>
+      {body}
+    </Link>
+  ) : (
+    <div className={frame}>{body}</div>
   );
 }
 
@@ -74,13 +83,13 @@ export function EmptyState({ title, text, action }: { title: string; text?: stri
 }
 
 // `hide` keeps a less important column off narrow screens: it shows from that width up. `nowrap` keeps short values (a name, a date) on one line.
-const HIDE = { sm: "hidden sm:table-cell", md: "hidden md:table-cell", lg: "hidden lg:table-cell" } as const;
+const HIDE = { sm: "hidden sm:table-cell", md: "hidden md:table-cell", lg: "hidden lg:table-cell", xl: "hidden xl:table-cell" } as const;
 export type Column<T> = { key: string; header: string; cell: (row: T) => React.ReactNode; align?: "right"; className?: string; hide?: keyof typeof HIDE; nowrap?: boolean };
 const colClass = (c: Column<unknown>) => `${c.hide ? HIDE[c.hide] : ""} ${c.nowrap ? "whitespace-nowrap" : ""}`;
 
 // A table that scrolls sideways inside its card on a phone and never makes the page scroll.
-// `bare` drops the table's own card, for use inside a Panel.
-export function DataTable<T>({ columns, rows, rowKey, empty, bare = false }: { columns: Column<T>[]; rows: T[]; rowKey: (row: T) => string; empty?: React.ReactNode; bare?: boolean }) {
+// `bare` drops the table's own card, for use inside a Panel. `linkRows`: each row is one link, the one with `after:absolute after:inset-0` in its first cell, so the whole row is clickable.
+export function DataTable<T>({ columns, rows, rowKey, empty, bare = false, linkRows = false }: { columns: Column<T>[]; rows: T[]; rowKey: (row: T) => string; empty?: React.ReactNode; bare?: boolean; linkRows?: boolean }) {
   const frame = bare ? "" : card;
   if (rows.length === 0) return <div className={frame}>{empty ?? <EmptyState title="Nothing here yet" />}</div>;
   return (
@@ -99,7 +108,7 @@ export function DataTable<T>({ columns, rows, rowKey, empty, bare = false }: { c
         </thead>
         <tbody className="divide-y divide-hairline">
           {rows.map((r) => (
-            <tr key={rowKey(r)} className="align-top">
+            <tr key={rowKey(r)} className={`align-top ${linkRows ? "relative transition-colors hover:bg-surface" : ""}`}>
               {columns.map((c) => (
                 <td key={c.key} className={`px-4 py-3 ${c.align === "right" ? "text-right tabular-nums" : ""} ${c.className ?? ""} ${colClass(c as Column<unknown>)}`}>
                   {c.cell(r)}
@@ -114,9 +123,9 @@ export function DataTable<T>({ columns, rows, rowKey, empty, bare = false }: { c
 }
 
 // Filter links: the filter lives in the URL, so a filtered list can be shared and the back button works.
-export function FilterTabs({ items }: { items: { label: string; href: string; active: boolean; count?: number }[] }) {
+export function FilterTabs({ items, label = "Filter" }: { items: { label: string; href: string; active: boolean; count?: number }[]; label?: string }) {
   return (
-    <nav aria-label="Filter" className="scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
+    <nav aria-label={label} className="scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
       {items.map((i) => (
         <Link
           key={i.label}
@@ -149,5 +158,31 @@ export function Field({ label, hint, error, children, className = "" }: { label:
         </span>
       )}
     </label>
+  );
+}
+
+// Initials in a circle: a person at a glance.
+export function Avatar({ name, className = "" }: { name: string; className?: string }) {
+  const initials = name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("");
+  return (
+    <span aria-hidden="true" className={`inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-hairline text-meta font-medium text-text ${className}`}>
+      {initials}
+    </span>
+  );
+}
+
+// One choice among several, as a button that posts on its own: a server action gets the `name` and `value`. The chosen one is filled.
+export function ChoiceButton({ action, name, value, active, children }: { action: (data: FormData) => void | Promise<void>; name: string; value: string; active: boolean; children: React.ReactNode }) {
+  return (
+    <form action={action}>
+      <input type="hidden" name={name} value={value} />
+      <button
+        type="submit"
+        aria-pressed={active}
+        className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-meta font-medium ${active ? "border-accent bg-accent text-on-accent" : "border-control bg-card text-text"} ${press}`}
+      >
+        {children}
+      </button>
+    </form>
   );
 }

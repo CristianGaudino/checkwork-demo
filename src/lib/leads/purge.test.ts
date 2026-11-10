@@ -12,7 +12,7 @@ const monthsAgo = (n: number, extraDays = 0) => {
   return d;
 };
 const lead = (id: string, createdAt: Date, photoKeys: string[] = []) => ({
-  id, clientRef: id, type: "trade_in" as const, sourcePath: "/trade-in", name: "Test Buyer", email: "buyer@example.com", details: {}, photoKeys,
+  id, clientRef: id, type: "trade_in" as const, sourcePath: "/trade-in", name: "Test buyer", email: "buyer@example.com", details: {}, photoKeys,
   consentAt: createdAt, consentVersion: CONSENT.version, createdAt,
 });
 const ids = async () => (await getDb().select({ id: leads.id }).from(leads)).map((r) => r.id).sort();

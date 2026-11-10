@@ -130,7 +130,7 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
             car={car}
             variant="dialog"
             prefill={prefill}
-            submitLabel="Send Details"
+            submitLabel="Send details"
             success={{ heading: "Thanks, we have your details.", body: "This isn't an approval. We'll contact you with the real amounts and the next steps." }}
           >
             {({ bind }) => <FinanceFields bind={bind} />}

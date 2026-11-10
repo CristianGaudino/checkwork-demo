@@ -9,7 +9,7 @@ export function BrowseByMake({ makes }: { makes: Option[] }) {
   if (makes.length === 0) return null;
   return (
     <section aria-labelledby="browse-by-make" className="flex flex-col gap-4">
-      <h2 id="browse-by-make" className={sectionTitle}>Browse by Make</h2>
+      <h2 id="browse-by-make" className={sectionTitle}>Browse by make</h2>
       <ul className="flex flex-wrap gap-2">
         {makes.map((m) => (
           <li key={m.slug}>

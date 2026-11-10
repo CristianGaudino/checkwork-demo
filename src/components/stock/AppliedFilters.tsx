@@ -31,7 +31,7 @@ export function AppliedFilters() {
           onClick={() => navigate(clearFilters(query))}
           className={`inline-flex min-h-11 items-center px-2 text-meta font-semibold underline ${press}`}
         >
-          Clear All Filters
+          Clear all filters
         </button>
       )}
     </div>

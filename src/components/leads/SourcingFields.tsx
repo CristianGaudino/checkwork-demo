@@ -10,10 +10,10 @@ import { PhotoPicker } from "./PhotoPicker";
 // Find a car is four short steps, like the trade-in. What is typed is checked with the server's own rules (LeadForm runs validate.ts for the
 // step's fields); the photos are optional, so no step check.
 export const SOURCING_STEPS: FormStep[] = [
-  { title: "The Car", fields: ["make", "model", "bodyType", "budgetMax"] },
-  { title: "What You Want", fields: ["message"] },
+  { title: "The car", fields: ["make", "model", "bodyType", "budgetMax"] },
+  { title: "What you want", fields: ["message"] },
   { title: "Photos", fields: ["photos"] },
-  { title: "Your Details", fields: ["name", "phone", "email", "consent"] },
+  { title: "Your details", fields: ["name", "phone", "email", "consent"] },
 ];
 
 const BODY_OPTIONS = [{ value: "", label: "Any type" }, ...SOURCING_BODIES.map((b) => ({ value: b, label: b }))];

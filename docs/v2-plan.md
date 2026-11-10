@@ -35,7 +35,7 @@ Status: for owner approval, 2026-11-10. Covers design-contract build steps 1 to 
 9. `feat/commercial-vat`: commercial vehicles, ex/inc VAT pricing, filters.
 10. `feat/alerts-social-links`: back-in-stock and price-drop alert sign-up, social links and embeds placeholders.
 
-## Phase D: Dealer admin at `/admin` (#7, #21, #22, #19)
+## Phase D: Dealer admin at `/dashboard` (#7, #21, #22, #19)
 11. `feat/admin-shell`: sidebar (Overview, Leads, Stock, Customers and alerts, Marketing, Analytics, Reviews, Test drives, Settings), top bar, tables, filter bar, stat card, empty states.
 12. `feat/admin-overview`: dashboard with KPIs, recent leads, stock health, tasks.
 13. `feat/admin-stock`: stock list, add and edit a car (all fields, photos, price and VAT, status, sold), bulk actions, writes to D1 (#21).

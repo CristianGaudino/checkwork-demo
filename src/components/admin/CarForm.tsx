@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { Select } from "@/components/Select";
 import { Field, Panel, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
-import { saveCarAction, type CarFormState } from "@/app/admin/stock/actions";
+import { saveCarAction, type CarFormState } from "@/app/dashboard/stock/actions";
 import { CAR_FIELDS, FIELD_GROUPS } from "@/lib/admin/car-fields";
 import type { Car } from "@/lib/stock/types";
 
@@ -58,7 +58,7 @@ export function CarForm({ car, cost }: { car?: Car; cost?: { eur?: number } }) {
         <button type="submit" disabled={pending} className={adminButton}>
           {pending ? "Saving" : car ? "Save changes" : "Add car"}
         </button>
-        <Link href="/admin/stock" className={adminButtonQuiet}>
+        <Link href="/dashboard/stock" className={adminButtonQuiet}>
           Cancel
         </Link>
       </div>

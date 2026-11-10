@@ -31,6 +31,10 @@ const nextConfig: NextConfig = {
   // site and the few origins named in CSP below. No nonce: a nonce makes every page render per request (no static pages, no caching on
   // Workers). Inline scripts stay allowed because Next writes them; the policy still blocks eval and any script, frame or request to
   // another origin. e2e/csp.spec.ts fails on any violation. A new third-party origin must be added here.
+  // The dealer area was /admin and is now /dashboard; old bookmarks and links keep working.
+  async redirects() {
+    return [{ source: "/admin/:path*", destination: "/dashboard/:path*", permanent: false }];
+  },
   async headers() {
     return [
       {

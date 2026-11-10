@@ -30,7 +30,7 @@ const ROWS: Row[] = [
   { label: "Fuel", text: spec("Fuel") },
   { label: "Transmission", text: spec("Transmission") },
   { label: "Engine", number: (c) => c.engineLitres, text: spec("Engine") },
-  { label: "Body Type", text: spec("Body Type") },
+  { label: "Body type", text: spec("Body type") },
 ];
 
 // A symbol and a colour, nothing to read: up for the higher, down for the lower, a dash for the one between (three cars). The word is
@@ -38,7 +38,7 @@ const ROWS: Row[] = [
 function Marker({ mark, better, of }: { mark: Mark; better?: "low" | "high"; of: number }) {
   if (!mark) return null;
   const word = mark === "mid" ? "Middle" : `${mark === "low" ? "Low" : "High"}${of > 2 ? "est" : "er"}`;
-  const tone = !better || mark === "mid" ? "bg-hairline text-text-2" : mark === better ? "bg-ok-soft text-ok" : "bg-destructive/15 text-destructive";
+  const tone = !better || mark === "mid" ? "bg-hairline text-text-2" : mark === better ? "bg-ok-soft text-ok" : "bg-bad-soft text-bad";
   return (
     <span className={`inline-flex size-6 items-center justify-center rounded-full text-meta font-semibold ${tone}`}>
       <span aria-hidden="true">{mark === "low" ? "▼" : mark === "high" ? "▲" : "-"}</span>
@@ -47,7 +47,7 @@ function Marker({ mark, better, of }: { mark: Mark; better?: "low" | "high"; of:
   );
 }
 
-const Empty = () => <EmptyCars title="Nothing to Compare Yet" text="Open a car and tap Compare. You can compare up to three." />;
+const Empty = () => <EmptyCars title="Nothing to compare yet" text="Open a car and tap Compare. You can compare up to three." />;
 
 // The empty place next to the cars picked so far: the whole card is the way to add the next one.
 function Placeholder() {
@@ -60,7 +60,7 @@ function Placeholder() {
       <span className="flex size-12 items-center justify-center rounded-full bg-card">
         <PlusIcon className="size-6" />
       </span>
-      <span className="text-body font-semibold">Add a Car</span>
+      <span className="text-body font-semibold">Add a car</span>
     </Link>
   );
 }
@@ -103,7 +103,7 @@ export function CompareCards() {
           }}
           className={`h-11 px-4 text-meta ${secondaryButton}`}
         >
-          Clear All
+          Clear all
         </button>
       </div>
       {loaded.gone > 0 && <p className="mb-4 text-meta text-text-2">A car you picked is no longer for sale, so it was removed.</p>}

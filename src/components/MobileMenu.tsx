@@ -66,7 +66,7 @@ export function MobileMenu({ links }: { links: { href: string; label: string }[]
           </nav>
           <PhoneLink className={`flex w-full items-center justify-center gap-2 ${accentButton}`}>
             <PhoneIcon className="size-5" />
-            Call Us
+            Call us
           </PhoneLink>
         </div>
       </dialog>

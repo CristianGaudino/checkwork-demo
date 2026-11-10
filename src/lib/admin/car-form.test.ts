@@ -5,7 +5,7 @@ import type { Car } from "@/lib/stock/types";
 
 const form = (o: Record<string, string>) => {
   const f = new FormData();
-  for (const [k, v] of Object.entries({ make: "Škoda", model: "Octavia Estate", year: "2019", priceEur: "14950", status: "for-sale", ...o })) f.set(k, v);
+  for (const [k, v] of Object.entries({ make: "Škoda", model: "Octavia estate", year: "2019", priceEur: "14950", status: "for-sale", ...o })) f.set(k, v);
   return f;
 };
 
@@ -15,7 +15,7 @@ describe("slugs and ids", () => {
     expect(slugify("  C-Class (W205) ")).toBe("c-class-w205");
   });
   it("builds the slug from make, model, year and id, and takes the next id up", () => {
-    expect(carSlug({ make: "Škoda", model: "Octavia Estate", year: 2019, id: "7" })).toBe("skoda-octavia-estate-2019-7");
+    expect(carSlug({ make: "Škoda", model: "Octavia estate", year: 2019, id: "7" })).toBe("skoda-octavia-estate-2019-7");
     expect(nextCarId([{ id: "4359693" }, { id: "12" }] as Car[])).toBe("4359694");
     expect(nextCarId([])).toBe("1");
   });

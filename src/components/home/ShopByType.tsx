@@ -15,7 +15,7 @@ export function ShopByType({ bodies }: { bodies: Option[] }) {
   if (items.length === 0) return null;
   return (
     <section aria-labelledby="shop-by-type" className="flex flex-col gap-4">
-      <h2 id="shop-by-type" className={sectionTitle}>Shop by Type</h2>
+      <h2 id="shop-by-type" className={sectionTitle}>Shop by type</h2>
       <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {items.map((b) => (
           <li key={b.key}>

@@ -11,7 +11,7 @@ export function VisitUs() {
     <section aria-labelledby="visit-us" className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-start">
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
-          <h2 id="visit-us" className={sectionTitle}>Visit Us</h2>
+          <h2 id="visit-us" className={sectionTitle}>Visit us</h2>
           <address className="text-body not-italic">{DEALER_ADDRESS_LINES.join(", ")}</address>
         </div>
         <OpeningHours />

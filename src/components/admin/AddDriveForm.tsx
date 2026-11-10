@@ -3,7 +3,7 @@
 import { Select } from "@/components/Select";
 import { useActionState } from "react";
 import { Field, adminButton, adminInput } from "@/components/admin/kit";
-import { addDriveAction, type DriveFormState } from "@/app/admin/test-drives/actions";
+import { addDriveAction, type DriveFormState } from "@/app/dashboard/test-drives/actions";
 
 // A booking taken by phone or at the desk. The server checks every box and refuses a clash; this only draws the boxes and the messages.
 export function AddDriveForm({ cars }: { cars: { slug: string; label: string }[] }) {

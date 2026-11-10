@@ -28,42 +28,42 @@ test("/service has a call button with the number, WhatsApp, services that open, 
 test("/about has the photo on the right on desktop with the hours and directions under it, and no Visit us", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/about");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("About Us");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("About us");
   await expect(main(page).getByRole("heading", { name: "Visit us" })).toHaveCount(0);
   await expect(main(page).getByRole("heading", { name: "Who we are" })).toHaveCount(0);
-  await expect(main(page).getByRole("heading", { name: "Why Choose Us" })).toBeVisible();
+  await expect(main(page).getByRole("heading", { name: "Why choose us" })).toBeVisible();
   const photo = (await main(page).locator("img").first().boundingBox())!;
-  const why = (await main(page).getByRole("heading", { name: "Why Choose Us" }).boundingBox())!;
+  const why = (await main(page).getByRole("heading", { name: "Why choose us" }).boundingBox())!;
   expect(photo.x).toBeGreaterThan(why.x + 300); // the photo is in the right-hand column
-  const hours = (await main(page).getByRole("heading", { name: "Opening Hours" }).boundingBox())!;
+  const hours = (await main(page).getByRole("heading", { name: "Opening hours" }).boundingBox())!;
   expect(hours.y).toBeGreaterThan(photo.y + photo.height); // hours under the photo
   await expect(main(page).getByRole("link", { name: /Get directions/i })).toHaveAttribute("href", /^https:\/\/www\.google\.com\/maps\//);
 });
 
 test("/terms is the dealer's full terms: no draft banner, the sections, and an email to ask about them", async ({ page }) => {
   await page.goto("/terms");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Terms of Use");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Terms of use");
   await expect(page.getByText(/draft|placeholder/i)).toHaveCount(0);
   await expect(main(page).getByRole("heading", { level: 2 })).toHaveText([
-    "Who We Are",
-    "Using the Site",
-    "Cars and Prices",
-    "Finance Figures",
-    "Trade-In Valuations and Requests",
-    "Reviews and Other Websites",
-    "Our Content",
-    "Our Responsibility",
+    "Who we are",
+    "Using the site",
+    "Cars and prices",
+    "Finance figures",
+    "Trade-in Valuations and Requests",
+    "Reviews and other websites",
+    "Our content",
+    "Our responsibility",
     "Changes",
     "Law",
     "Contact",
   ]);
   await expect(main(page).getByRole("link", { name: /@/ })).toHaveAttribute("href", /^mailto:/);
-  await expect(main(page).getByRole("link", { name: "Privacy Policy" })).toHaveAttribute("href", "/privacy");
+  await expect(main(page).getByRole("link", { name: "Privacy policy" })).toHaveAttribute("href", "/privacy");
 });
 
 test("/privacy keeps its copy on the shared frame, with no pill", async ({ page }) => {
   await page.goto("/privacy");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Privacy Policy");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Privacy policy");
   await expect(page.getByText("We keep each request for 12 months")).toBeVisible();
   await expect(page.getByText("Placeholder details")).toHaveCount(0);
 });
@@ -84,7 +84,7 @@ test("/contact gives the phone, WhatsApp, the hours under the map, and no addres
   await expect(rows.nth(1)).toContainText("Saturday");
   await expect(rows.last()).toContainText("Closed");
   await expect(main(page).getByRole("link", { name: "Ask us to find a car" })).toHaveCount(0); // the footer has those
-  await expect(main(page).getByRole("link", { name: "Trade-In Valuation" })).toHaveCount(0);
+  await expect(main(page).getByRole("link", { name: "Trade-in Valuation" })).toHaveCount(0);
   await expect(main(page).getByRole("link", { name: /^WhatsApp/ }).locator("svg")).toHaveCSS("color", "rgb(37, 211, 102)"); // WhatsApp's green
 });
 
@@ -98,7 +98,7 @@ test("/contact shows the map at once, level with the form, with the hours under 
   const call = (await main(page).getByRole("link", { name: /^Call / }).boundingBox())!;
   const frame = (await map.boundingBox())!;
   expect(Math.abs(call.y - frame.y)).toBeLessThan(40); // the two columns start together
-  const hours = (await main(page).getByRole("heading", { name: "Opening Hours" }).boundingBox())!;
+  const hours = (await main(page).getByRole("heading", { name: "Opening hours" }).boundingBox())!;
   expect(hours.y).toBeGreaterThan(frame.y + frame.height); // under the map
   expect(hours.x).toBeGreaterThan(640); // in the map's column
 });
@@ -171,7 +171,7 @@ test("the 404 page centres its message and the footer reaches the bottom of the 
   await page.setViewportSize({ width: 1440, height: 1000 });
   const res = await page.goto("/no-such-page");
   expect(res!.status()).toBe(404);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("We Couldn't Find That Page");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("We couldn't find that page");
   const bottom = await page.locator("footer").evaluate((el) => el.getBoundingClientRect().bottom);
   expect(Math.round(bottom)).toBe(1000);
   expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBe(1000);

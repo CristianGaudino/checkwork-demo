@@ -36,7 +36,7 @@ function fakeDeps(over: Partial<Deps["store"]> = {}) {
 // The FormData exactly as LeadForm sends an enquiry.
 function enquiryForm(fields: Record<string, string> = {}) {
   const fd = new FormData();
-  const all = { type: "enquiry", carId: live.id, clientRef: crypto.randomUUID(), sourcePath: `/used-cars/${live.slug}`, name: "Test Buyer", email: "buyer@example.com", consent: "yes", "cf-turnstile-response": "ok-token", ...fields };
+  const all = { type: "enquiry", carId: live.id, clientRef: crypto.randomUUID(), sourcePath: `/used-cars/${live.slug}`, name: "Test buyer", email: "buyer@example.com", consent: "yes", "cf-turnstile-response": "ok-token", ...fields };
   for (const [k, v] of Object.entries(all)) fd.set(k, v);
   return fd;
 }

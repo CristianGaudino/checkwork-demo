@@ -14,7 +14,7 @@ import type { LandingData } from "./data";
 const SHOWN = 12;
 
 function Breadcrumb({ landing }: { landing: Landing }) {
-  const trail: { label: string; href?: string }[] = [{ label: "Used Cars", href: "/used-cars" }];
+  const trail: { label: string; href?: string }[] = [{ label: "Used cars", href: "/used-cars" }];
   if (landing.kind === "body") trail.push({ label: landing.body });
   else if (landing.kind === "make") trail.push({ label: landing.make });
   else trail.push({ label: landing.make, href: `/used-cars/${landing.makeSlug}` }, { label: landing.model });
@@ -100,7 +100,7 @@ export function LandingPage({ data }: { data: LandingData }) {
             ))}
             {/* A short list would leave the grid mostly empty; this fills the space with the next step. */}
             <div className={`${card} flex flex-col items-start justify-center gap-3 p-6`}>
-              <h2 className={subTitle}>Not Quite Right?</h2>
+              <h2 className={subTitle}>Not quite right?</h2>
               <p className="text-body text-text-2">Tell us what you&apos;re looking for and we&apos;ll look for it.</p>
               <Link href="/find-a-car" className={`inline-flex h-12 items-center px-6 ${secondaryButton}`}>
                 Find Me a Car
@@ -112,7 +112,7 @@ export function LandingPage({ data }: { data: LandingData }) {
               See all {facts.n} {name}
             </Link>
           )}
-          {landing.kind === "make" && <LinkChips heading="Body Types" options={facets.body} href={toPage} />}
+          {landing.kind === "make" && <LinkChips heading="Body types" options={facets.body} href={toPage} />}
         </>
       )}
       {!facts && (
@@ -120,9 +120,9 @@ export function LandingPage({ data }: { data: LandingData }) {
           <h2 className="mt-4 text-heading font-semibold">No {name} in Stock Right Now</h2>
           <p className="mt-2 max-w-measure text-pretty text-body">Have a look at these instead.</p>
           {landing.kind === "body" ? (
-            <LinkChips heading="Body Types in Stock" options={facets.body} href={toPage} />
+            <LinkChips heading="Body types in stock" options={facets.body} href={toPage} />
           ) : (
-            <LinkChips heading="Makes in Stock" options={facets.make} href={toPage} logos />
+            <LinkChips heading="Makes in stock" options={facets.make} href={toPage} logos />
           )}
           {sold.length > 0 && (
             <section className="mt-8">

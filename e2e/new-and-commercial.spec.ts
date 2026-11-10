@@ -39,7 +39,7 @@ test("vans say their price is without VAT, give the price with VAT, and show a d
 
 test("a new car is not in the used list, and a van's page says its VAT and links back to Commercial", async ({ page }) => {
   await page.goto("/used-cars");
-  await expect(page.locator("article").filter({ hasText: "Transit Connect" })).toHaveCount(0);
+  await expect(page.locator("article").filter({ hasText: "Transit connect" })).toHaveCount(0);
   await expect(page.locator("article").filter({ hasText: "Niro" })).toHaveCount(0);
   await page.goto("/commercial");
   await page.locator("article").filter({ hasText: "Vito" }).getByRole("link").first().click();
@@ -64,7 +64,7 @@ test("the sitemap lists the new and commercial pages", async ({ request }) => {
 test("a new car shows the manufacturer's warranty, and a used car and a van keep the dealer's", async ({ page }) => {
   await page.goto("/new-cars");
   await page.locator("article").first().getByRole("link").first().click();
-  await expect(page.getByTestId("buy-box").getByText("Manufacturer's Warranty Included")).toBeVisible();
+  await expect(page.getByTestId("buy-box").getByText("Manufacturer's warranty included")).toBeVisible();
   await page.goto("/used-cars/ford-transit-connect-2026-5100004");
-  await expect(page.getByTestId("buy-box").getByText("12 Month Warranty Included")).toBeVisible();
+  await expect(page.getByTestId("buy-box").getByText("12 month warranty included")).toBeVisible();
 });

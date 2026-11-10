@@ -42,7 +42,7 @@ export function LeadForm({
   variant,
   submitLabel,
   success,
-  back = { href: "/used-cars", label: "Back to Used Cars" },
+  back = { href: "/used-cars", label: "Back to used cars" },
   prefill,
   steps,
   children,

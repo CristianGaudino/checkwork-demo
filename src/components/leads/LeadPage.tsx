@@ -8,7 +8,7 @@ export type HowStep = { title: string; text: string; more?: string[] };
 
 // The frame for the form pages: what the page is for, how it works in three steps (a step with more to say opens on a tap), then the
 // form in a card. Every form page says something before it asks something.
-export function LeadPage({ title, intro, how, actions, children }: { title: string; intro: string; how?: HowStep[]; actions?: React.ReactNode; children: React.ReactNode }) {
+export function LeadPage({ title, intro, how, actions, bare = false, children }: { title: string; intro: string; how?: HowStep[]; actions?: React.ReactNode; bare?: boolean; children: React.ReactNode }) {
   return (
     <main className={pageMain}>
       <PageHeading title={title} intro={intro} actions={actions} />
@@ -42,9 +42,7 @@ export function LeadPage({ title, intro, how, actions, children }: { title: stri
           ))}
         </ol>
       )}
-      <div data-wells className={`mt-8 w-full ${card} p-5 sm:p-6`}>
-        {children}
-      </div>
+      {bare ? <div className="mt-8 w-full">{children}</div> : <div data-wells className={`mt-8 w-full ${card} p-5 sm:p-6`}>{children}</div>}
     </main>
   );
 }

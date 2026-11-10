@@ -10,25 +10,25 @@ const live = cars.find((c) => !c.soldAt)!;
 // The header links from 1024px, then the phone menu (which adds Used cars and Find a car), then the footer.
 const HEADER = [
   ["Finance", "/finance"],
-  ["Trade-In", "/trade-in"],
+  ["Trade-in", "/trade-in"],
   ["Service", "/service"],
   ["About", "/about"],
   ["Contact", "/contact"],
 ] as const;
-const SECTIONS = [["Used Cars", "/used-cars"], ["New Cars", "/new-cars"], ["Commercial", "/commercial"]] as const;
-const MENU = [...SECTIONS, ["Test Drive", "/test-drive"], HEADER[0], HEADER[1], ["Find a Car", "/find-a-car"], ["Compare Cars", "/compare"], ...HEADER.slice(2)] as const;
+const SECTIONS = [["Used cars", "/used-cars"], ["New cars", "/new-cars"], ["Commercial", "/commercial"]] as const;
+const MENU = [...SECTIONS, ["Test drive", "/test-drive"], HEADER[0], HEADER[1], ["Find a car", "/find-a-car"], ["Compare cars", "/compare"], ...HEADER.slice(2)] as const;
 const FOOTER = [
-  ["Used Cars", "/used-cars"],
+  ["Used cars", "/used-cars"],
   ["Finance", "/finance"],
-  ["Trade-In Valuation", "/trade-in"],
-  ["Find a Car", "/find-a-car"],
+  ["Trade-in Valuation", "/trade-in"],
+  ["Find a car", "/find-a-car"],
   ["Service", "/service"],
   ["Warranty", "/warranty"],
-  ["About Us", "/about"],
+  ["About us", "/about"],
   ["Contact", "/contact"],
-  ["Privacy Policy", "/privacy"],
-  ["Terms of Use", "/terms"],
-  ["Opening Hours and Directions", "/contact"],
+  ["Privacy policy", "/privacy"],
+  ["Terms of use", "/terms"],
+  ["Opening hours and directions", "/contact"],
 ] as const;
 const PAGES = ["/", "/used-cars", `/used-cars/${live.slug}`, "/finance", "/trade-in", "/find-a-car", "/service", "/warranty", "/contact", "/about", "/terms", "/privacy"];
 
@@ -45,13 +45,13 @@ test("from 1024px the header has Used, New, Commercial and five links, and no En
 test("a new car and a van mark New Cars and Commercial in the header, not Used Cars", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   const banner = page.getByRole("banner");
-  for (const [list, name, label] of [["/new-cars", "Niro", "New Cars"], ["/commercial", "Vito", "Commercial"]] as const) {
+  for (const [list, name, label] of [["/new-cars", "Niro", "New cars"], ["/commercial", "Vito", "Commercial"]] as const) {
     await page.goto(list);
     await expect(banner.getByRole("link", { name: label, exact: true })).toHaveAttribute("aria-current", "page");
     await page.locator("article").filter({ hasText: name }).getByRole("link").first().click();
     await expect(page.getByTestId("buy-box")).toBeVisible();
     await expect(banner.getByRole("link", { name: label, exact: true })).toHaveAttribute("aria-current", "page");
-    await expect(banner.getByRole("link", { name: "Used Cars", exact: true })).not.toHaveAttribute("aria-current", "page");
+    await expect(banner.getByRole("link", { name: "Used cars", exact: true })).not.toHaveAttribute("aria-current", "page");
   }
 });
 
@@ -70,7 +70,7 @@ test("at 320px the header holds the menu button, and the footer reaches every pa
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
   const footer = page.getByRole("contentinfo");
   // The hours link is for wider screens; Contact is in the footer on a phone.
-  for (const [name, href] of FOOTER.filter(([n]) => n !== "Opening Hours and Directions")) await expect(footer.getByRole("link", { name, exact: true })).toHaveAttribute("href", href);
+  for (const [name, href] of FOOTER.filter(([n]) => n !== "Opening hours and directions")) await expect(footer.getByRole("link", { name, exact: true })).toHaveAttribute("href", href);
   await expect(footer.getByRole("link", { name: "+353 1 906 0045" })).toHaveAttribute("href", "tel:+35319060045");
   await expect(footer.getByText(`© ${SITE_NAME}`)).toBeVisible();
 });
@@ -93,7 +93,7 @@ test("on a phone the header is the menu on the left, the logo in the middle and 
   await page.setViewportSize({ width: 360, height: 640 });
   await page.goto("/");
   const banner = page.getByRole("banner");
-  await expect(banner.getByRole("link", { name: "Used Cars" })).toBeHidden();
+  await expect(banner.getByRole("link", { name: "Used cars" })).toBeHidden();
   const [menu, logo, heart] = await Promise.all([banner.getByRole("button", { name: "Menu" }), banner.getByRole("link", { name: SITE_NAME }), banner.getByRole("link", { name: /^Saved cars/ })].map((l) => l.boundingBox()));
   const mid = (b: { y: number; height: number } | null) => b!.y + b!.height / 2;
   expect(mid(menu)).toBeCloseTo(mid(heart), 0);
@@ -119,7 +119,7 @@ test.describe("the mobile menu", () => {
       await expect(link).toHaveAttribute("href", href);
       expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     }
-    await expect(menu.getByRole("link", { name: "Call Us" })).toHaveAttribute("href", "tel:+35319060045");
+    await expect(menu.getByRole("link", { name: "Call us" })).toHaveAttribute("href", "tel:+35319060045");
   });
 
   test("Home is in the menu on every page except Home", async ({ page }) => {

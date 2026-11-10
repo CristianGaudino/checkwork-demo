@@ -38,7 +38,7 @@ test("the Find me a car tab fits inside the Search Stock box and the page does n
   const box = page.getByRole("tablist").locator("xpath=..");
   const before = (await box.boundingBox())!;
   await page.getByRole("tab", { name: "Find me a car" }).click();
-  const panel = page.getByRole("tabpanel", { name: "Find Me a Car" });
+  const panel = page.getByRole("tabpanel", { name: "Find me a car" });
   await expect(panel).toBeVisible();
   const after = (await box.boundingBox())!;
   expect(after.height).toBe(before.height);
@@ -183,11 +183,11 @@ test("reviews, the trust strip and finance banner, and AutoDealer JSON-LD", asyn
   await expect(page.getByRole("heading", { name: "What customers say" })).toBeVisible();
   const main = page.getByRole("main");
   for (const [name, href] of [
-    [/^12 Month Warranty/, "/warranty"],
-    [/^Extended Warranty/, "/warranty"],
-    [/^Flexible Finance/, "/finance"],
-    [/^Trade-In Welcome/, "/trade-in"],
-    [/^Test Drives/, "/test-drive"],
+    [/^12 month warranty/, "/warranty"],
+    [/^Extended warranty/, "/warranty"],
+    [/^Flexible finance/, "/finance"],
+    [/^Trade-in Welcome/, "/trade-in"],
+    [/^Test drives/, "/test-drive"],
     ["Check finance options", "/finance"],
     ["Estimate finance", "/finance"],
   ] as const) {

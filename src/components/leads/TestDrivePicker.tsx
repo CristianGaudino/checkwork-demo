@@ -13,7 +13,7 @@ export function TestDrivePicker({ cars }: { cars: CarSummary[] }) {
   const opener = useRef<HTMLButtonElement | null>(null);
   return (
     <>
-      <ul className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <ul className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
         {cars.map((c) => (
           <li key={c.id} className={`flex items-center gap-3 p-3 ${card}`}>
             {c.photo && (
@@ -41,7 +41,7 @@ export function TestDrivePicker({ cars }: { cars: CarSummary[] }) {
         ))}
       </ul>
       <LeadDialog
-        title="Test Drive"
+        title="Test drive"
         open={open}
         onClose={() => {
           setOpen(false);

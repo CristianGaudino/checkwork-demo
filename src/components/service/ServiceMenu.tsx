@@ -41,7 +41,7 @@ function Panel({ service }: { service: Service }) {
       </div>
       <div data-wells className={`flex flex-col gap-4 ${card} p-4 sm:p-5`}>
         <h4 className="text-body font-semibold">Tell us what your car needs</h4>
-        <LeadPageForm type="general" prefill={prefill} submitLabel="Send Message" success={MESSAGE_SENT} />
+        <LeadPageForm type="general" prefill={prefill} submitLabel="Send message" success={MESSAGE_SENT} />
       </div>
     </div>
   );

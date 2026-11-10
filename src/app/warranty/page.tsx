@@ -16,10 +16,10 @@ export default function WarrantyPage() {
       <PageHeading title="Warranty" intro="Every car comes with cover, and you can add more." actions={<CallButton>Call {DEALER_PHONE}</CallButton>} />
 
       <section className="mt-12 flex flex-col gap-4">
-        <h2 className={subTitle}>What You Get</h2>
+        <h2 className={subTitle}>What you get</h2>
         <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <FeatureCard badge={<ShieldCheckIcon className="size-6" />} title={WARRANTY.title} text={`${WARRANTY.text} It's included in the price of the car.`} />
-          <FeatureCard badge={<LayersIcon className="size-6" />} title="Extended Warranty" text="Longer cover is available. Ask us what it covers and what it costs for the car you're looking at." />
+          <FeatureCard badge={<LayersIcon className="size-6" />} title="Extended warranty" text="Longer cover is available. Ask us what it covers and what it costs for the car you're looking at." />
         </ul>
       </section>
 

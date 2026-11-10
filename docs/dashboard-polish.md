@@ -59,3 +59,12 @@ Each PR keeps lint, `tsc`, unit and E2E green, shows screenshots at 390px and 12
 - Eyebrow labels above page titles (Our Stock, New, Commercial), and Title Case on most headings and buttons.
 - Strays in the radius scale (`rounded-lg`, `rounded-md`, `rounded`).
 - Helper sentences on most dashboard pages that repeat the page title.
+
+## What was built (one branch, `feat/dashboard-polish`)
+- The dashboard lives at `/dashboard`; `/admin` redirects to it (`next.config.ts`). The Cloudflare Access application path is `/dashboard*`.
+- Overview: five figures that link to their pages, latest leads and the needs-attention list as whole-row links, three quick actions. No chart.
+- Leads: type as filter chips, whole-row links in the list, status as icon buttons and the owner as profile chips on a lead.
+- Marketing: one composer (`PostComposer`) for a post and its ad, with suggested text per network, photo choice, a live preview, publish now or later,
+  or save a draft. Newsletters are a list. The ad switch adds a platform and a budget; with simulation on, publishing starts the ad too.
+- The post stores the photos chosen (`SocialPost.photos`); the publisher adapters will use them when a real service is connected.
+- Sentence case across the public site and the dashboard. Proper nouns keep their capitals.

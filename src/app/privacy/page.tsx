@@ -3,14 +3,14 @@ import { InfoPage, InfoSection } from "@/components/InfoPage";
 import { LEAD_RETENTION_MONTHS } from "@/lib/leads/constants";
 import { DEALER_EMAIL, SITE_NAME } from "@/lib/site";
 
-export const metadata: Metadata = { title: "Privacy Policy", description: `How ${SITE_NAME} uses the details you send us, how long we keep them, and how to ask for them to be deleted.` };
+export const metadata: Metadata = { title: "Privacy policy", description: `How ${SITE_NAME} uses the details you send us, how long we keep them, and how to ask for them to be deleted.` };
 
 // Phase 3 copy on the shared frame (Phase 4); only the dealer's final wording is outstanding.
 // The email is a placeholder until the dealer's domain forwards to the dealer (issue #54).
 export default function PrivacyPage() {
   return (
-    <InfoPage title="Privacy Policy">
-      <InfoSection title="What We Collect">
+    <InfoPage title="Privacy policy">
+      <InfoSection title="What we collect">
         <p>
           When you send us a request, we keep what you type into the form: your name, phone number, email, your message and the other fields of that
           form, such as the registration of a car you want valued. We also note the car you asked about, the page you sent it from and when you agreed to this
@@ -21,17 +21,17 @@ export default function PrivacyPage() {
           them for the same {LEAD_RETENTION_MONTHS} months as the rest of your request.
         </p>
       </InfoSection>
-      <InfoSection title="Why We Use It">
+      <InfoSection title="Why we use it">
         <p>Only to reply to your request. We don&apos;t use it for marketing, and we don&apos;t sell it.</p>
         <p>
           Cloudflare hosts this site, runs the bot check on our forms and delivers your request to us by email. Cloudflare also keeps the
           requests in a database, and trade-in photos, in the EU.
         </p>
       </InfoSection>
-      <InfoSection title="How Long We Keep It">
+      <InfoSection title="How long we keep it">
         <p>We keep each request for {LEAD_RETENTION_MONTHS} months, then delete it.</p>
       </InfoSection>
-      <InfoSection title="How to Ask Us to Delete It">
+      <InfoSection title="How to ask us to delete it">
         <p>
           Email us at{" "}
           <a href={`mailto:${DEALER_EMAIL}`} className="font-semibold underline">

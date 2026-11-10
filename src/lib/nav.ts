@@ -3,8 +3,8 @@
 
 // The vehicle sections (Used, New, Commercial): the header links and the section pages read this. `enabled: false` hides a section until it exists (#23 new cars, #24 commercial).
 export const VEHICLE_TYPES = [
-  { id: "used", label: "Used", nav: "Used Cars", href: "/used-cars", enabled: true, condition: "used", title: "Used cars", intro: "Browse our current stock of used cars, all carefully selected." },
-  { id: "new", label: "New", nav: "New Cars", href: "/new-cars", enabled: true, condition: "new", title: "New cars", intro: "Brand new cars from the makes we sell, with the manufacturer's warranty and finance offers." },
+  { id: "used", label: "Used", nav: "Used cars", href: "/used-cars", enabled: true, condition: "used", title: "Used cars", intro: "Browse our current stock of used cars, all carefully selected." },
+  { id: "new", label: "New", nav: "New cars", href: "/new-cars", enabled: true, condition: "new", title: "New cars", intro: "Brand new cars from the makes we sell, with the manufacturer's warranty and finance offers." },
   { id: "commercial", label: "Commercial", nav: "Commercial", href: "/commercial", enabled: true, condition: "commercial", title: "Commercial vehicles", intro: "Vans and light commercials. Prices are shown without VAT, which a VAT-registered buyer can usually reclaim, with the price including VAT underneath." },
 ] as const;
 
@@ -20,18 +20,18 @@ export const PAGE = {
   used: section("used"),
   new: section("new"),
   commercial: section("commercial"),
-  testDrive: link("/test-drive", "Test Drive"),
+  testDrive: link("/test-drive", "Test drive"),
   finance: link("/finance", "Finance"),
-  tradeIn: link("/trade-in", "Trade-In", "Trade-In Valuation"),
-  findACar: link("/find-a-car", "Find a Car"),
-  compare: link("/compare", "Compare Cars"),
-  saved: link("/saved", "Saved Cars"),
+  tradeIn: link("/trade-in", "Trade-in", "Trade-in Valuation"),
+  findACar: link("/find-a-car", "Find a car"),
+  compare: link("/compare", "Compare cars"),
+  saved: link("/saved", "Saved cars"),
   service: link("/service", "Service"),
   warranty: link("/warranty", "Warranty"),
-  about: link("/about", "About", "About Us", true),
+  about: link("/about", "About", "About us", true),
   contact: link("/contact", "Contact"),
-  privacy: link("/privacy", "Privacy Policy"),
-  terms: link("/terms", "Terms of Use"),
+  privacy: link("/privacy", "Privacy policy"),
+  terms: link("/terms", "Terms of use"),
 } as const;
 
 // From 1024px, after the three vehicle sections.
@@ -48,4 +48,4 @@ export const FOOTER_GROUPS = [
 ] as const;
 
 // Where the dealer's staff go from the public site, when the demo is viewed as the dealer.
-export const DASHBOARD_LINK = link("/admin", "Dashboard");
+export const DASHBOARD_LINK = link("/dashboard", "Dashboard");

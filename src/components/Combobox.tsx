@@ -189,7 +189,7 @@ export function Combobox({
           else if (!typeable) close();
         }}
         onKeyDown={onKeyDown}
-        className={`${size === "md" ? "h-11" : "h-12"} w-full min-w-0 cursor-pointer truncate rounded-control border border-control py-0 pr-12 text-body ${tone === "card" ? "bg-card" : "bg-surface"} aria-[invalid=true]:border-destructive ${className}`}
+        className={`${size === "md" ? "h-11" : "h-12"} w-full min-w-0 cursor-pointer truncate rounded-control border border-control py-0 pl-4 pr-12 text-body ${tone === "card" ? "bg-card" : "bg-surface"} aria-[invalid=true]:border-destructive ${className}`}
       />
       <ChevronDownIcon className={`pointer-events-none absolute right-4 top-1/2 size-5 -translate-y-1/2 text-text-2 transition-transform ${open ? "rotate-180" : ""}`} />
       {open && (

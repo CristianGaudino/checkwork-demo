@@ -39,7 +39,7 @@ export function BuyBox({ car }: { car: Car }) {
         {/* Share beside the heart, where a buyer looks for them. */}
         <div className="flex shrink-0 items-center">
           <ShareButton iconOnly title={carName(car)} text={sold ? carName(car) : `${carName(car)}, ${[price.headline, price.vatLine].filter(Boolean).join(" ")}`} url={url} />
-          <SaveButton id={car.id} label="Save This Car" variant="page" />
+          <SaveButton id={car.id} label="Save this car" variant="page" />
         </div>
       </div>
       <p className="-mt-3 text-body text-text-2">{carMeta(car)}</p>
@@ -83,7 +83,7 @@ export function BuyBox({ car }: { car: Car }) {
         <div className={`flex items-start gap-3 ${card} p-4`}>
           <ShieldCheckIcon className="mt-0.5 size-8 shrink-0 text-accent-text" />
           <div className="flex min-w-0 flex-col gap-1">
-            <p className="text-body font-semibold">{warranty.title} Included</p>
+            <p className="text-body font-semibold">{warranty.title} included</p>
             <p className="text-meta text-text-2">{warranty.text}</p>
           </div>
         </div>

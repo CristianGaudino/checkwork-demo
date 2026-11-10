@@ -20,7 +20,7 @@ test("no page, the map or the bot check is blocked by the policy", async ({ page
   await page.route("https://maps.google.com/**", (route) => route.fulfill({ status: 200, contentType: "text/html", body: "<p>map</p>" }));
   const blocked: string[] = [];
   page.on("console", (m) => /Content Security Policy|Refused to/i.test(m.text()) && blocked.push(m.text()));
-  page.on("pageerror", (e) => /Content Security Policy/i.test(e.message) && blocked.push(e.message));
+  page.on("pageerror", (e) => /Content security policy/i.test(e.message) && blocked.push(e.message));
   for (const path of PAGES) {
     await page.goto(path, { waitUntil: "networkidle" });
     await page.waitForTimeout(300);

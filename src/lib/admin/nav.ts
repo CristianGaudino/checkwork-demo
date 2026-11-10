@@ -2,14 +2,14 @@
 export type NavItem = { href: string; label: string; permission?: "margins" };
 
 export const DEALER_NAV: NavItem[] = [
-  { href: "/admin", label: "Overview" },
-  { href: "/admin/leads", label: "Leads" },
-  { href: "/admin/stock", label: "Stock" },
-  { href: "/admin/test-drives", label: "Test drives" },
-  { href: "/admin/customers", label: "Customers and alerts" },
-  { href: "/admin/marketing", label: "Marketing" },
-  { href: "/admin/analytics", label: "Analytics" },
-  { href: "/admin/margins", label: "Margins", permission: "margins" },
-  { href: "/admin/reviews", label: "Reviews" },
-  { href: "/admin/settings", label: "Settings" },
+  { href: "/dashboard", label: "Overview" },
+  { href: "/dashboard/leads", label: "Leads" },
+  { href: "/dashboard/stock", label: "Stock" },
+  { href: "/dashboard/test-drives", label: "Test drives" },
+  { href: "/dashboard/customers", label: "Customers and alerts" },
+  { href: "/dashboard/marketing", label: "Marketing" },
+  { href: "/dashboard/analytics", label: "Analytics" },
+  { href: "/dashboard/margins", label: "Margins", permission: "margins" },
+  { href: "/dashboard/reviews", label: "Reviews" },
+  { href: "/dashboard/settings", label: "Settings" },
 ];

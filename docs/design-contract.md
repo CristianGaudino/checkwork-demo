@@ -39,7 +39,7 @@ One sentence: a bright, editorial showroom, where the cars are the colour.
 ## 5. Three perspectives and the role switch
 A **role switch** (customer · dealer) lives in a slim demo bar fixed at the top of every page, outside the site's own header, so the site itself stays clean. Choosing a role changes the route and the layout:
 - **Customer:** the public site at `/`.
-- **Dealer:** the dealership admin at `/admin`: sidebar (Overview, Leads, Stock, Customers and alerts, Marketing, Analytics, Settings), a top bar with the dealership's name and the role switch.
+- **Dealer:** the dealership admin at `/dashboard`: sidebar (Overview, Leads, Stock, Customers and alerts, Marketing, Analytics, Settings), a top bar with the dealership's name and the role switch.
 The admin uses the same tokens and components as the site but a denser, calmer layout (tables, filters, forms), always light by default. The demo's role is a cookie, never real auth; the real admin is protected by Cloudflare Access (admin issue). The demo bar is removed for a real client site.
 
 ## 6. Components to design and build (in this order)

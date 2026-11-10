@@ -148,7 +148,7 @@ describe("sold param", () => {
   it("is a chip after Mileage whose next drops it and goes to page 1; Clear all drops it too", () => {
     const q: StockQuery = { ...DEFAULT_QUERY, kmMax: 50000, sold: "include", page: 3 };
     const chips = appliedFilters(q, null);
-    expect(chips.map((c) => c.label)).toEqual(["Up to 50,000 km", "Sold Cars Included"]);
+    expect(chips.map((c) => c.label)).toEqual(["Up to 50,000 km", "Sold cars included"]);
     const sold = chips[1];
     expect(sold.next.sold).toBeUndefined();
     expect(sold.next.page).toBe(1);

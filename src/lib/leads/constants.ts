@@ -76,7 +76,7 @@ export const PHOTO_MIN_ERROR = `Add at least ${PHOTO_MIN_COUNT} photos so we can
 // Which lead types take photos, and how many: a trade-in needs the car shown (at least 6, up to 12); a find-a-car request may show up to 6
 // cars the buyer likes, and none is fine. Read by the form and by the server, so they never differ.
 export const PHOTO_LIMITS = { trade_in: { min: PHOTO_MIN_COUNT, max: PHOTO_MAX_COUNT }, sourcing: { min: 0, max: 6 } } as const;
-export const PHOTO_SLOTS = ["Front", "Back", "Driver's Side", "Passenger's Side", "Interior Front", "Interior Back", "Dashboard and Mileage", "Any Damage"];
+export const PHOTO_SLOTS = ["Front", "Back", "Driver's side", "Passenger's side", "Interior front", "Interior back", "Dashboard and mileage", "Any damage"];
 
 // Test drives (a booking is a lead with a day and a time). The days and hours come from OPENING_HOURS, so they never disagree with the
 // opening times on the site. Slots start when we open and stop an hour before we close. Times are Irish time wherever the buyer is.

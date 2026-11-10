@@ -13,7 +13,7 @@ type Props = { makes: Option[]; bodies: Option[]; models: { makeSlug: string; sl
 
 const tab = "relative inline-flex min-h-11 flex-1 items-center justify-center px-4 sm:flex-none sm:justify-start text-body font-semibold transition-colors";
 const bar = "after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-accent";
-const FIND_STEPS = ["Tell Us What You Want", "We Look for It", "We Get in Touch"];
+const FIND_STEPS = ["Tell us what you want", "We look for it", "We get in touch"];
 
 // A plain GET form: /used-cars reads make, model, body, priceMin and priceMax from the URL (BRW-03). The drop-downs need scripts to pick from;
 // without them it still goes to the stock, with nothing chosen.
@@ -42,7 +42,7 @@ export function HomeSearch({ makes, bodies, models }: Props) {
             onClick={() => setTab(t)}
             className={`${tab} ${tabName === t ? `text-text ${bar}` : "text-text-2 hover:text-text"}`}
           >
-            {t === "search" ? "Search Stock" : "Find Me a Car"}
+            {t === "search" ? "Search stock" : "Find me a car"}
           </button>
         ))}
       </div>
@@ -51,7 +51,7 @@ export function HomeSearch({ makes, bodies, models }: Props) {
           <form action="/used-cars" method="get" className="grid grid-cols-2 gap-x-3 gap-y-3 p-4 sm:grid-cols-3 sm:gap-4">
             <Select name="make" label="Make" any="Any make" value={make} onChange={setMake} options={makes.map((m) => [m.slug, m.label])} />
             <Select key={make} name="model" label="Model" any="Any model" options={shownModels.map((m) => [m.slug, m.label])} />
-            <Select name="body" label="Body Type" any="Any type" className="hidden sm:flex" options={bodies.map((b) => [b.slug, b.label])} />
+            <Select name="body" label="Body type" any="Any type" className="hidden sm:flex" options={bodies.map((b) => [b.slug, b.label])} />
             <div className="col-span-2 min-w-0 sm:col-span-3">
               <PriceRange label="Price" min={price.min} max={price.max} onCommit={(min, max) => setPrice({ min, max })} />
               {price.min !== undefined && <input type="hidden" name="priceMin" value={price.min} />}
@@ -59,7 +59,7 @@ export function HomeSearch({ makes, bodies, models }: Props) {
             </div>
             <button type="submit" className={`col-span-2 flex items-center justify-center gap-2 sm:col-span-3 ${accentButton}`}>
               <SearchIcon className="size-5" />
-              Search Cars
+              Search cars
             </button>
           </form>
         </div>

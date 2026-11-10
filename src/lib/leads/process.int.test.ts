@@ -62,7 +62,7 @@ function tradeInForm(photos: File[] = [], fields: Record<string, string> = {}) {
 
 function enquiryForm(fields: Record<string, string> = {}) {
   const fd = new FormData();
-  const all = { type: "enquiry", carId: live.id, clientRef: crypto.randomUUID(), sourcePath: `/used-cars/${live.slug}`, name: "Test Buyer", email: "buyer@example.com", consent: "yes", ...fields };
+  const all = { type: "enquiry", carId: live.id, clientRef: crypto.randomUUID(), sourcePath: `/used-cars/${live.slug}`, name: "Test buyer", email: "buyer@example.com", consent: "yes", ...fields };
   for (const [k, v] of Object.entries(all)) fd.set(k, v);
   return fd;
 }

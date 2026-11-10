@@ -10,8 +10,8 @@ test("contact on a phone: call, map, message form, then opening hours", async ({
   const y = async (l: import("@playwright/test").Locator) => (await l.first().boundingBox())!.y;
   const call = await y(page.getByRole("link", { name: /^Call / }));
   const map = await y(page.locator("main iframe, main [data-map], main img").first());
-  const form = await y(page.getByRole("heading", { name: "Send Us a Message" }));
-  const hours = await y(page.getByRole("heading", { name: "Opening Hours" }));
+  const form = await y(page.getByRole("heading", { name: "Send us a message" }));
+  const hours = await y(page.getByRole("heading", { name: "Opening hours" }));
   expect(call).toBeLessThan(map);
   expect(map).toBeLessThan(form);
   expect(form).toBeLessThan(hours);
@@ -19,7 +19,7 @@ test("contact on a phone: call, map, message form, then opening hours", async ({
 
 test("the home search tabs share the width equally on a phone", async ({ page }) => {
   await page.goto("/");
-  const [a, b] = await Promise.all([page.getByRole("tab", { name: "Search Stock" }).boundingBox(), page.getByRole("tab", { name: "Find Me a Car" }).boundingBox()]);
+  const [a, b] = await Promise.all([page.getByRole("tab", { name: "Search stock" }).boundingBox(), page.getByRole("tab", { name: "Find me a car" }).boundingBox()]);
   expect(Math.abs(a!.width - b!.width)).toBeLessThan(2);
 });
 
@@ -30,7 +30,7 @@ test("the footer is compact on a phone", async ({ page }) => {
 
 test("Back to top is a footer link on every page on a phone, level with the logo on the right, and there is no button", async ({ page }) => {
   await page.goto("/used-cars");
-  await expect(page.getByRole("button", { name: "Back to Top", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Back to top", exact: true })).toHaveCount(1); // the footer link only
   const footer = page.getByRole("contentinfo");
   const link = footer.getByRole("button", { name: "Back to top" });
   const [logo, to] = await Promise.all([footer.getByRole("link", { name: SITE_NAME }).boundingBox(), link.boundingBox()]);
@@ -57,7 +57,7 @@ test("the phone menu marks the current page and nothing moves", async ({ page })
   const menu = page.getByRole("dialog", { name: "Menu" });
   await expect(menu.getByRole("link", { name: "Finance", exact: true })).toHaveAttribute("aria-current", "page");
   await expect(menu.locator("[aria-current]")).toHaveCount(1);
-  const [a, b] = await Promise.all([menu.getByRole("link", { name: "Trade-In" }).boundingBox(), menu.getByRole("link", { name: "Finance", exact: true }).boundingBox()]);
+  const [a, b] = await Promise.all([menu.getByRole("link", { name: "Trade-in" }).boundingBox(), menu.getByRole("link", { name: "Finance", exact: true }).boundingBox()]);
   expect(a!.x).toBe(b!.x); // same left edge: the mark is in the gutter
 });
 

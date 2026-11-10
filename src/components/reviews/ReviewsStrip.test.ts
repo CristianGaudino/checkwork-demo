@@ -23,7 +23,7 @@ describe("ReviewsStrip", () => {
     expect(html).toContain("width:96%");
     expect(html).toContain("Based on 5 Google reviews");
     expect(html).toContain(`<a href="${PLACE}" ${NEW_TAB}`);
-    expect(html).toContain("See All on Google Maps");
+    expect(html).toContain("See all on Google Maps");
   });
 
   it("writes the count as a person would: one review, and a thousand with its separator", () => {
@@ -37,7 +37,7 @@ describe("ReviewsStrip", () => {
     for (const d of [data({ rating: undefined }), data({ count: undefined })]) {
       const html = render(d);
       expect(html).not.toContain("Based on");
-      expect(html).not.toContain("See All on Google Maps");
+      expect(html).not.toContain("See all on Google Maps");
       expect(html).toContain("<article");
     }
   });
