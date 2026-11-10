@@ -63,11 +63,13 @@ export function EmptyState({ title, text, action }: { title: string; text?: stri
 export type Column<T> = { key: string; header: string; cell: (row: T) => React.ReactNode; align?: "right"; className?: string };
 
 // A table that scrolls sideways inside its card on a phone and never makes the page scroll.
-export function DataTable<T>({ columns, rows, rowKey, empty }: { columns: Column<T>[]; rows: T[]; rowKey: (row: T) => string; empty?: React.ReactNode }) {
-  if (rows.length === 0) return <div className={card}>{empty ?? <EmptyState title="Nothing here yet" />}</div>;
+// `bare` drops the table's own card, for use inside a Panel.
+export function DataTable<T>({ columns, rows, rowKey, empty, bare = false }: { columns: Column<T>[]; rows: T[]; rowKey: (row: T) => string; empty?: React.ReactNode; bare?: boolean }) {
+  const frame = bare ? "" : card;
+  if (rows.length === 0) return <div className={frame}>{empty ?? <EmptyState title="Nothing here yet" />}</div>;
   return (
-    <div className={`${card} overflow-x-auto`}>
-      <table className="w-full min-w-[40rem] border-collapse text-left text-body">
+    <div className={`${frame} overflow-x-auto`}>
+      <table className="w-full min-w-[32rem] border-collapse text-left text-body">
         <thead>
           <tr className="border-b border-hairline text-meta text-text-2">
             {columns.map((c) => (
@@ -117,12 +119,17 @@ export const adminButton = `inline-flex h-11 items-center justify-center gap-2 r
 export const adminButtonQuiet = `inline-flex h-11 items-center justify-center gap-2 rounded-control border border-control bg-card px-5 text-meta font-semibold ${press}`;
 
 // A labelled form control. `children` is the control itself, so selects, textareas and inputs share one frame.
-export function Field({ label, hint, children, className = "" }: { label: string; hint?: string; children: React.ReactNode; className?: string }) {
+export function Field({ label, hint, error, children, className = "" }: { label: string; hint?: string; error?: string; children: React.ReactNode; className?: string }) {
   return (
     <label className={`flex min-w-0 flex-col gap-1 ${className}`}>
       <span className="text-meta font-semibold">{label}</span>
       {children}
-      {hint && <span className="text-meta text-text-2">{hint}</span>}
+      {hint && !error && <span className="text-meta text-text-2">{hint}</span>}
+      {error && (
+        <span role="alert" className="text-meta text-destructive">
+          {error}
+        </span>
+      )}
     </label>
   );
 }
