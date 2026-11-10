@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { carFromForm } from "@/lib/admin/car-form";
 import { costsStore } from "@/lib/admin/collections";
+import { BAD_COST, parseCost } from "@/lib/admin/margins";
 import { can } from "@/lib/permissions";
 import { adminCar, adminCars, removeCar, saveCar } from "@/lib/admin/stock-admin";
 import { nextCarId } from "@/lib/admin/stock-admin-pure";
@@ -15,14 +16,13 @@ export async function saveCarAction(id: string | null, _prev: CarFormState, data
   if (id && !existing) return { errors: { make: "This car no longer exists" } };
   const result = carFromForm(data, id ?? nextCarId(await adminCars()), existing);
   if (!result.ok) return { errors: result.errors };
+  // The cost belongs to staff with the margins permission: without it the box never came, and a forged one is ignored. A bad figure stops the
+  // save, so the car is never saved with a cost the dealer did not mean.
+  const cost = (await can("margins")) ? parseCost(String(data.get("costEur") ?? "")) : undefined;
+  if (cost === "invalid") return { errors: { costEur: BAD_COST } };
   await saveCar(result.car);
-  // The cost belongs to staff with the margins permission: without it the box never came, and a forged one is ignored.
-  if (await can("margins")) {
-    const raw = String(data.get("costEur") ?? "").trim();
-    const eur = Number(raw);
-    if (raw === "") await costsStore.remove(result.car.id);
-    else if (Number.isFinite(eur) && eur >= 0 && eur <= 2_000_000) await costsStore.put({ id: result.car.id, costEur: Math.round(eur) });
-  }
+  if (cost === null) await costsStore.remove(result.car.id);
+  else if (cost !== undefined) await costsStore.put({ id: result.car.id, costEur: cost });
   redirect(`/admin/stock?saved=${result.car.id}`);
 }
 

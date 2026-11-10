@@ -42,3 +42,17 @@ test("the demo bar's Margins switch turns the permission on and off", async ({ p
   await bar.getByRole("button", { name: "Margins on" }).click();
   await expect(page.getByRole("navigation", { name: "Dealer admin" }).getByRole("link", { name: "Margins", exact: true })).toHaveCount(0);
 });
+
+test("a bad cost stops the save and says why", async ({ page, context }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await grant(context);
+  await page.goto("/admin/stock/new");
+  await page.getByLabel("Make", { exact: true }).fill("Skoda");
+  await page.getByLabel("Model", { exact: true }).fill("Octavia");
+  await page.getByLabel("Year", { exact: true }).fill("2021");
+  await page.getByLabel("Price (€)", { exact: true }).fill("19950");
+  await page.getByLabel("Cost price (€)").fill("-5");
+  await page.getByRole("button", { name: "Add car" }).click();
+  await expect(page.getByText("Enter the cost in whole euros")).toBeVisible();
+  await expect(page).toHaveURL(/\/admin\/stock\/new$/); // not saved, so nothing was added to the stock
+});

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { demoCost, marginOf } from "./margins";
+import { demoCost, marginOf, parseCost } from "./margins";
 
 describe("marginOf", () => {
   it("is the price less the cost, and the share of the price", () => {
@@ -20,5 +20,18 @@ describe("demoCost", () => {
       expect(c % 50).toBe(0);
       expect(demoCost(id, 20_000)).toBe(c);
     }
+  });
+});
+
+describe("parseCost", () => {
+  it("reads a good figure, rounds it, and treats blank as no cost", () => {
+    expect(parseCost("12500")).toBe(12500);
+    expect(parseCost(" 12500.6 ")).toBe(12501);
+    expect(parseCost("0")).toBe(0);
+    expect(parseCost("")).toBeNull();
+    expect(parseCost("   ")).toBeNull();
+  });
+  it("refuses anything that is not a sensible amount", () => {
+    for (const bad of ["abc", "-1", "1e999", "NaN", "Infinity", "1000001", "12,500", "€500"]) expect(parseCost(bad), bad).toBe("invalid");
   });
 });

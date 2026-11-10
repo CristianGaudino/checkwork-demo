@@ -62,3 +62,21 @@ test("add a car, see it on the site with its VAT line, change its price to a dro
   await expect(page.getByRole("status")).toHaveText("Car deleted.");
   await expect(page.getByRole("row", { name: new RegExp(MAKE) })).toHaveCount(0);
 });
+
+test("with the margins permission the cost is saved with the car and shows on the Margins screen", async ({ page, context }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await context.addCookies([{ name: "checkwork-demo-perms", value: "margins", url: "http://localhost:3000" }]);
+  await page.goto("/admin/stock/new");
+  await page.getByLabel("Make", { exact: true }).fill(MAKE);
+  await page.getByLabel("Model", { exact: true }).fill("Margin");
+  await page.getByLabel("Year", { exact: true }).fill("2021");
+  await page.getByLabel("Price (€)", { exact: true }).fill("20000");
+  await page.getByLabel("Cost price (€)").fill("16500");
+  await page.getByRole("button", { name: "Add car" }).click();
+  await expect(page).toHaveURL(/\/admin\/stock\?saved=/);
+  await page.goto("/admin/margins");
+  const row = page.getByRole("row", { name: new RegExp(MAKE) });
+  await expect(row).toContainText("€16,500");
+  await expect(row).toContainText("€3,500"); // 20,000 less 16,500
+});
+

@@ -19,7 +19,7 @@ export const isProduction = () => process.env.APP_ENV === "production";
 export const indexable = () => isProduction();
 
 // PLACEHOLDER: stays false until the dealer confirms the services, About story and terms (address and hours are confirmed). While
-// false, pages show the Placeholder details pill and JSON-LD leaves out the street, postcode and hours. site.test.ts
+// false, JSON-LD leaves out the street, postcode and hours and the contact page leaves out the email line. site.test.ts
 // fails a production deploy while it is false; dealer.test.ts fails if it is set while a bracketed value remains.
 export const DEALER_FACTS_CONFIRMED = false;
 // PLACEHOLDER: the dealer confirms the list.
