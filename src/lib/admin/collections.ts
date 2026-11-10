@@ -173,6 +173,7 @@ export type DealerSettings = {
   notifications: { newLead: boolean; testDrive: boolean; review: boolean; weeklyReport: boolean };
   marketing: { voice: string; hashtags: string; signOff: string }; // used by the post and newsletter writers
   team: TeamMember[];
+  leadEmails: string[]; // who gets the email when a visitor sends a form; empty means the LEAD_TO_EMAIL variable
   updatedAt: number;
 };
 export const SETTINGS_DEFAULT: DealerSettings = {
@@ -182,6 +183,7 @@ export const SETTINGS_DEFAULT: DealerSettings = {
   notifications: { newLead: true, testDrive: true, review: true, weeklyReport: false },
   marketing: { voice: "Friendly and plain. Short sentences. No hype.", hashtags: "#usedcars #carsforsale", signOff: "Call in or message us to arrange a viewing." },
   team: TEAM_SEED.map((t) => ({ ...t })),
+  leadEmails: [],
   updatedAt: 0,
 };
 const seedSettings = (): DealerSettings[] => [{ ...SETTINGS_DEFAULT, updatedAt: Date.now() }];
@@ -242,7 +244,7 @@ export const newslettersStore = defineCollection<Newsletter>("newsletters", seed
 
 // The settings record, or the defaults if it is somehow missing, so no page has to handle "no settings".
 export async function getSettings(): Promise<DealerSettings> {
-  return (await settingsStore.get("dealer")) ?? SETTINGS_DEFAULT;
+  return { ...SETTINGS_DEFAULT, ...(await settingsStore.get("dealer")) }; // a saved record from before a setting existed still reads whole
 }
 
 // Every dealer collection, so "Reset demo data" puts the whole demo back to its seed.

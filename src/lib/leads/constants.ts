@@ -1,4 +1,4 @@
-import { SITE_NAME } from "../site";
+import { OPENING_HOURS, SITE_NAME } from "../site";
 
 // What the lead forms and the server share. No zod here: client components import this file, and pulling in
 // schema.ts would ship zod to every car page.
@@ -75,3 +75,28 @@ export const PHOTO_MIN_ERROR = `Add at least ${PHOTO_MIN_COUNT} photos so we can
 // cars the buyer likes, and none is fine. Read by the form and by the server, so they never differ.
 export const PHOTO_LIMITS = { trade_in: { min: PHOTO_MIN_COUNT, max: PHOTO_MAX_COUNT }, sourcing: { min: 0, max: 6 } } as const;
 export const PHOTO_SLOTS = ["Front", "Back", "Driver's Side", "Passenger's Side", "Interior Front", "Interior Back", "Dashboard and Mileage", "Any Damage"];
+
+// Test drives (a booking is a lead with a day and a time). The days and hours come from OPENING_HOURS, so they never disagree with the
+// opening times on the site. Slots start when we open and stop an hour before we close. Times are Irish time wherever the buyer is.
+export const TEST_DRIVE = { daysAhead: 21, slotMinutes: 30, timeZone: "Europe/Dublin" } as const;
+export const BAD_DRIVE_DAY = "Choose a day from the list.";
+export const BAD_DRIVE_TIME = "Choose a time from the list.";
+const mins = (hhmm: string) => Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3, 5));
+const hhmm = (m: number) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+const dublinDate = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: TEST_DRIVE.timeZone }); // 2026-11-10
+const addDays = (iso: string, n: number) => new Date(Date.parse(`${iso}T12:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10);
+const hoursFor = (iso: string) => OPENING_HOURS[(new Date(`${iso}T12:00:00Z`).getUTCDay() + 6) % 7]; // OPENING_HOURS starts on Monday
+
+/** The times a car can be driven on a day: every slot from opening until an hour before closing. Empty on a closed day. */
+export function driveTimes(iso: string): string[] {
+  const h = hoursFor(iso);
+  if (!h?.opens || !h.closes) return [];
+  const out: string[] = [];
+  for (let m = mins(h.opens); m <= mins(h.closes) - 60; m += TEST_DRIVE.slotMinutes) out.push(hhmm(m));
+  return out;
+}
+/** The open days from tomorrow for daysAhead days (never today: the team needs notice). */
+export function driveDays(now = new Date()): string[] {
+  const today = dublinDate(now);
+  return Array.from({ length: TEST_DRIVE.daysAhead }, (_, i) => addDays(today, i + 1)).filter((d) => driveTimes(d).length > 0);
+}

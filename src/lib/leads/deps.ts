@@ -1,10 +1,12 @@
 import "server-only";
 import { getDb } from "@/lib/db";
 import { requireEnv } from "@/lib/env";
-import { LEAD_FROM_EMAIL, isProduction } from "@/lib/site";
+import { isProduction } from "@/lib/site";
 import { stock } from "@/lib/stock";
 import { getBindings } from "./bindings";
 import type { Deps, LeadStore, Mailer } from "./process";
+import { mirrorLead } from "@/lib/admin/real-leads";
+import { leadRecipients, sendToDealer } from "./mail";
 import { createDrizzleStore } from "./store";
 import { verifyTurnstile } from "./turnstile";
 
@@ -19,6 +21,7 @@ function fakeDeps(): Deps {
       insert: async (row) => {
         if (refs.has(row.clientRef)) return false;
         refs.add(row.clientRef);
+        await mirrorLead(row).catch(() => {}); // so the E2E run can see a booking arrive in the admin
         return true;
       },
       markNotified: async () => {},
@@ -40,8 +43,10 @@ const store: LeadStore = {
   // A lead nobody is told about is worse than a refused one: with no address to email, refuse before storing, so the buyer is
   // told to call instead of waiting for a reply that never comes. Set LEAD_TO_EMAIL before the bot-check secret.
   insert: async (row) => {
-    requireEnv("LEAD_TO_EMAIL");
-    return db().insert(row);
+    if ((await leadRecipients()).length === 0) throw new Error("Missing LEAD_TO_EMAIL");
+    const stored = await db().insert(row);
+    if (stored) await mirrorLead(row).catch(() => {}); // the admin's copy; its failure never fails the lead
+    return stored;
   },
   markNotified: (id) => db().markNotified(id),
 };
@@ -77,13 +82,7 @@ const bucket: Deps["bucket"] = {
 };
 
 // Cloudflare Email Service (D-01). From the onboarded domain to the dealer; the buyer's address only goes in replyTo (D-02).
-const mailer: Mailer = {
-  async send({ subject, text, replyTo }) {
-    const email = getBindings().EMAIL;
-    if (!email) throw new Error("Missing binding EMAIL");
-    await email.send({ to: requireEnv("LEAD_TO_EMAIL"), from: LEAD_FROM_EMAIL, subject, text, ...(replyTo && { replyTo }) });
-  },
-};
+const mailer: Mailer = { send: sendToDealer };
 
 // 5 requests a minute per IP (wrangler.jsonc LEAD_LIMITER; 03-01 proved it on wrangler dev, A3).
 const limiter: Deps["limiter"] = {

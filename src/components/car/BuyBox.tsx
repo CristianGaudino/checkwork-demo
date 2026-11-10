@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ShareButton } from "@/components/car/ShareButton";
 import { CompareButton } from "@/components/compare/CompareButton";
-import { LeadActions } from "@/components/leads/LeadDialog";
+import { LeadActions, StockAlertButton } from "@/components/leads/LeadDialog";
 import { SaveButton } from "@/components/saved/SaveButton";
 import { CalendarIcon, CarIcon, FuelIcon, GaugeIcon, GearIcon, ShieldCheckIcon } from "@/components/stock/icons";
 import { DEALER_WHATSAPP, NEW_CAR_WARRANTY, SITE_URL, WARRANTY } from "@/lib/site";
@@ -53,6 +53,7 @@ export function BuyBox({ car }: { car: Car }) {
             <Link href={`/used-cars/${car.makeSlug}`} className={button}>
               See More {car.make}
             </Link>
+            <StockAlertButton car={carSummary(car)} kind="back-in-stock" />
           </div>
         ) : (
           <LeadActions car={carSummary(car)} whatsapp={whatsapp} />
@@ -73,6 +74,7 @@ export function BuyBox({ car }: { car: Car }) {
       </dl>
       {/* Under the facts, full width, so the buttons and facts stay in view on a phone. */}
       {!sold && <CompareButton id={car.id} label={`Compare ${carName(car)}`} sizing="flex h-12 w-full px-4" />}
+      {!sold && <StockAlertButton car={carSummary(car)} kind="price-drop" />}
       {!sold && (
         <div className={`flex items-start gap-3 ${card} p-4`}>
           <ShieldCheckIcon className="mt-0.5 size-8 shrink-0 text-accent" />

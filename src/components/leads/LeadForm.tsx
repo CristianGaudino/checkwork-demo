@@ -176,7 +176,7 @@ export function LeadForm({
       if (r.status !== "invalid" && !(r.status === "failed" && r.kind === "rate")) turnstile.reset();
       setInvalid(undefined);
       if (r.status === "ok") {
-        setValues({});
+        setValues(prefill ?? {}); // back to how it started, so a form that carries a fixed answer (an alert kind) still does
         setStep(0);
         setPhotos([]);
         setErrors({});

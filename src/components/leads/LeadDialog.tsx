@@ -2,11 +2,12 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { PhoneLink } from "@/components/PhoneLink";
-import { CalendarIcon, CloseIcon, PhoneIcon } from "@/components/stock/icons";
+import { BellIcon, CalendarIcon, CloseIcon, PhoneIcon } from "@/components/stock/icons";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { LIMITS } from "@/lib/leads/constants";
 import { DEALER_TEL } from "@/lib/site";
 import { ContactFields, Field } from "./Field";
+import { DriveFields } from "./DriveFields";
 import { LeadForm } from "./LeadForm";
 import { closeButton, press, secondaryButton } from "@/components/ui";
 
@@ -44,33 +45,28 @@ export function LeadDialog({ title, open, onClose, children }: { title: string; 
   );
 }
 
-const TEST_DRIVE_NOTE = "I'd like to book a test drive.";
-
-// The car page action area: Enquire About This Car in the accent with Book a Test Drive beside it, then Call Us and WhatsApp. A test
-// drive is an enquiry with the note filled in, so there is one form and one kind of lead; the dialog's title says which was opened.
+// The car page action area: Enquire About This Car in the accent with Book a Test Drive beside it, then Call Us and WhatsApp. Each of the
+// two forms has its own dialog and stays mounted, so closing one never loses what was typed in it.
 export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: string }) {
-  const [open, setOpen] = useState(false);
-  const [prefill, setPrefill] = useState<Record<string, string>>();
-  const [testDrive, setTestDrive] = useState(false);
+  const [open, setOpen] = useState<"enquiry" | "drive" | null>(null);
   const opener = useRef<HTMLButtonElement>(null);
   const secondary = `flex h-12 items-center justify-center gap-2 px-3 text-text ${secondaryButton}`;
-
-  const show = (el: HTMLButtonElement, message?: string) => {
+  const show = (el: HTMLButtonElement, which: "enquiry" | "drive") => {
     opener.current = el;
-    setTestDrive(Boolean(message));
-    // A new object each time. A typed message is kept unless a note is being filled in, or the test drive note is being cleared
-    // because Enquire was opened after it.
-    setPrefill(message ? { message } : testDrive ? { message: "" } : {});
-    setOpen(true);
+    setOpen(which);
+  };
+  const close = () => {
+    setOpen(null);
+    opener.current?.focus();
   };
 
   return (
     <>
       <div className="grid grid-cols-2 gap-2 whitespace-nowrap">
-        <button type="button" onClick={(e) => show(e.currentTarget)} className={`col-span-2 flex h-12 w-full items-center justify-center gap-2 rounded-control bg-accent px-3 font-semibold text-on-accent sm:col-span-1 ${press}`}>
+        <button type="button" onClick={(e) => show(e.currentTarget, "enquiry")} className={`col-span-2 flex h-12 w-full items-center justify-center gap-2 rounded-control bg-accent px-3 font-semibold text-on-accent sm:col-span-1 ${press}`}>
           Enquire About This Car
         </button>
-        <button type="button" onClick={(e) => show(e.currentTarget, TEST_DRIVE_NOTE)} className={`col-span-2 sm:col-span-1 ${secondary}`}>
+        <button type="button" onClick={(e) => show(e.currentTarget, "drive")} className={`col-span-2 sm:col-span-1 ${secondary}`}>
           <CalendarIcon className="size-5 text-accent" />
           Book a Test Drive
         </button>
@@ -80,8 +76,38 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
         </a>
         <WhatsAppButton href={whatsapp} sizing="px-3" />
       </div>
+      <LeadDialog title="Enquire About This Car" open={open === "enquiry"} onClose={close}>
+        <LeadForm type="enquiry" car={car} variant="dialog" submitLabel="Send Enquiry" success={{ heading: "Thanks, we have your enquiry.", body: `We'll get back to you about the ${car.name}.` }}>
+          {({ bind }) => (
+            <>
+              <ContactFields bind={bind} />
+              <Field {...bind("message")} label="Message" optional multiline maxLength={LIMITS.message} />
+            </>
+          )}
+        </LeadForm>
+      </LeadDialog>
+      <LeadDialog title="Book a Test Drive" open={open === "drive"} onClose={close}>
+        <LeadForm type="test_drive" car={car} variant="dialog" submitLabel="Book Test Drive" success={{ heading: "Thanks, we have your request.", body: `We'll confirm your test drive in the ${car.name} by phone or email.` }}>
+          {({ bind }) => <DriveFields bind={bind} />}
+        </LeadForm>
+      </LeadDialog>
+    </>
+  );
+}
+
+// "Tell me if it comes back" on a sold car, "Tell me if the price drops" on one for sale. Just an email.
+export function StockAlertButton({ car, kind }: { car: CarSummary; kind: "back-in-stock" | "price-drop" }) {
+  const [open, setOpen] = useState(false);
+  const opener = useRef<HTMLButtonElement>(null);
+  const back = kind === "back-in-stock";
+  return (
+    <>
+      <button ref={opener} type="button" onClick={() => setOpen(true)} className={`flex h-12 w-full items-center justify-center gap-2 px-3 text-text ${secondaryButton}`}>
+        <BellIcon className="size-5 text-accent" />
+        {back ? "Tell Me If One Comes Back" : "Tell Me If the Price Drops"}
+      </button>
       <LeadDialog
-        title={testDrive ? "Book a Test Drive" : "Enquire About This Car"}
+        title={back ? "Tell me if one comes back" : "Tell me if the price drops"}
         open={open}
         onClose={() => {
           setOpen(false);
@@ -89,17 +115,17 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
         }}
       >
         <LeadForm
-          type="enquiry"
+          type="alert"
           car={car}
           variant="dialog"
-          prefill={prefill}
-          submitLabel="Send Enquiry"
-          success={{ heading: "Thanks, we have your enquiry.", body: `We'll get back to you about the ${car.name}.` }}
+          prefill={{ alertKind: kind }}
+          submitLabel="Set Alert"
+          success={{ heading: "You're on the list.", body: back ? `We'll email you if another ${car.name} comes in.` : `We'll email you if the price of the ${car.name} changes.` }}
         >
           {({ bind }) => (
             <>
-              <ContactFields bind={bind} />
-              <Field {...bind("message")} label="Message" optional multiline maxLength={LIMITS.message} />
+              <input type="hidden" name="alertKind" value={kind} />
+              <Field {...bind("email")} label="Email" type="email" autoComplete="email" maxLength={LIMITS.email} enterKeyHint="send" />
             </>
           )}
         </LeadForm>
