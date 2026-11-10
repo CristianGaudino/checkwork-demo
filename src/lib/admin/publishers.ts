@@ -1,25 +1,29 @@
 import "server-only";
-import { isConnected } from "@/lib/integrations";
+import { modeOf } from "@/lib/integrations";
 import type { Ad, Newsletter, SocialPost } from "./collections";
 import type { SendResult } from "./marketing";
 
 // The three places a draft leaves the admin: a post to Facebook or Instagram, an ad to Meta or Google, a newsletter to subscribers.
-// Each checks that its service is connected (src/lib/integrations.ts) and says so if it is not: it never reports a success that did not
-// happen. ADAPTER GOES HERE: when the keys exist and a provider is chosen, replace the second return in each with the real call.
+// A service with keys is "live" and goes to its adapter. One without keys is "simulated" on the demo (SIMULATE_INTEGRATIONS, default on):
+// it reports success so the whole flow can be shown, marks the result `simulated`, and sends nothing outside. With simulation off and no
+// keys it says not-connected. ADAPTER GOES HERE: when the keys exist and a provider is chosen, replace the "not-installed" return in each.
+const run = (id: Parameters<typeof modeOf>[0]): SendResult => {
+  const mode = modeOf(id);
+  if (mode === "off") return { ok: false, reason: "not-connected" };
+  return mode === "simulated" ? { ok: true, simulated: true } : { ok: false, reason: "not-installed" };
+};
+
 export async function publishPost(post: SocialPost): Promise<SendResult> {
   void post; // for the adapter that replaces the body below
-  if (!isConnected("social")) return { ok: false, reason: "not-connected" };
-  return { ok: false, reason: "not-installed" };
+  return run("social");
 }
 
 export async function startAd(ad: Ad): Promise<SendResult> {
   void ad;
-  if (!isConnected("ads")) return { ok: false, reason: "not-connected" };
-  return { ok: false, reason: "not-installed" };
+  return run("ads");
 }
 
 export async function sendNewsletter(n: Newsletter): Promise<SendResult> {
   void n;
-  if (!isConnected("newsletter")) return { ok: false, reason: "not-connected" };
-  return { ok: false, reason: "not-installed" };
+  return run("newsletter");
 }

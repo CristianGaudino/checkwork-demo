@@ -43,3 +43,16 @@ describe("writeNewsletter", () => {
     expect(n.body).toBe("Call in to see it.");
   });
 });
+
+import { simulatedAd, simulatedLetter, simulatedPost } from "./marketing";
+describe("simulated figures", () => {
+  it("are the same for the same record, and sensible", () => {
+    expect(simulatedPost("post-1")).toEqual(simulatedPost("post-1"));
+    const a = simulatedAd("ad-1");
+    expect(a.clicks).toBeLessThan(a.impressions);
+    const n = simulatedLetter("nl-1", 100);
+    expect(n.recipients).toBe(100);
+    expect(n.opens).toBeLessThanOrEqual(100);
+    expect(n.clicks).toBeLessThan(n.opens);
+  });
+});

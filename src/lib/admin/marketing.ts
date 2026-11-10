@@ -33,4 +33,11 @@ export function writeNewsletter(cars: Car[], voice: Voice): { subject: string; b
 }
 
 // What a send or a publish returns. A service that is not connected is a message, never a thrown error and never a pretend success.
-export type SendResult = { ok: true } | { ok: false; reason: "not-connected" | "not-installed" };
+export type SendResult = { ok: true; simulated?: boolean } | { ok: false; reason: "not-connected" | "not-installed" };
+
+// The figures a simulated send reports, so the lists and analytics have something to show. Worked out from the record's id, so a
+// record always gets the same figures and nothing about a real audience is claimed. Real adapters replace these with the provider's own.
+const spread = (id: string, mod: number) => [...id].reduce((n, ch) => (n * 31 + ch.charCodeAt(0)) % 100003, 7) % mod;
+export const simulatedPost = (id: string) => ({ reach: 380 + spread(id, 900), clicks: 14 + spread(id + "c", 60) });
+export const simulatedAd = (id: string) => ({ impressions: 2400 + spread(id, 6000), clicks: 40 + spread(id + "c", 160), leads: 1 + spread(id + "l", 7) });
+export const simulatedLetter = (id: string, subscribers: number) => ({ recipients: subscribers, opens: Math.round(subscribers * (0.38 + spread(id, 12) / 100)), clicks: Math.round(subscribers * (0.05 + spread(id + "c", 6) / 100)) });

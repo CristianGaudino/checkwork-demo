@@ -3,8 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { NETWORKS, adsStore, getSettings, newslettersStore, postsStore, type Network } from "@/lib/admin/collections";
-import { writeNewsletter, writePost, type SendResult } from "@/lib/admin/marketing";
+import { NETWORKS, adsStore, getSettings, newslettersStore, postsStore, subscribersStore, type Network } from "@/lib/admin/collections";
+import { simulatedAd, simulatedLetter, simulatedPost, writeNewsletter, writePost, type SendResult } from "@/lib/admin/marketing";
 import { publishPost, sendNewsletter, startAd } from "@/lib/admin/publishers";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { carName } from "@/lib/stock/format";
@@ -44,7 +44,7 @@ export async function publishPostAction(id: string) {
   const post = await postsStore.get(id);
   if (!post) return go("social", "invalid");
   const r = await publishPost(post);
-  if (r.ok) await postsStore.put({ ...post, status: "posted", postedAt: Date.now() });
+  if (r.ok) await postsStore.put({ ...post, status: "posted", postedAt: Date.now(), ...(r.simulated && simulatedPost(post.id)) });
   outcome("social", r, "post-published");
 }
 
@@ -67,7 +67,7 @@ export async function startAdAction(id: string) {
   const a = await adsStore.get(id);
   if (!a) return go("ads", "invalid");
   const r = await startAd(a);
-  if (r.ok) await adsStore.put({ ...a, status: "running" });
+  if (r.ok) await adsStore.put({ ...a, status: "running", ...(r.simulated && simulatedAd(a.id)) });
   outcome("ads", r, "ad-started");
 }
 
@@ -97,7 +97,7 @@ export async function sendNewsletterAction(id: string) {
   const n = await newslettersStore.get(id);
   if (!n || n.status !== "draft") return go("newsletters", "invalid");
   const r = await sendNewsletter(n);
-  if (r.ok) await newslettersStore.put({ ...n, status: "sent", sentAt: Date.now() });
+  if (r.ok) await newslettersStore.put({ ...n, status: "sent", sentAt: Date.now(), ...(r.simulated && simulatedLetter(n.id, (await subscribersStore.list()).filter((x) => x.status === "subscribed").length)) });
   outcome("newsletters", r, "letter-sent");
 }
 
