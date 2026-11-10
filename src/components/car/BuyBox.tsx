@@ -5,6 +5,8 @@ import { LeadActions } from "@/components/leads/LeadDialog";
 import { SaveButton } from "@/components/saved/SaveButton";
 import { CalendarIcon, CarIcon, FuelIcon, GaugeIcon, GearIcon, ShieldCheckIcon } from "@/components/stock/icons";
 import { DEALER_WHATSAPP, SITE_URL, WARRANTY } from "@/lib/site";
+import { priceInfo } from "@/lib/stock/price";
+import { PriceBlock } from "@/components/stock/PriceBlock";
 import { carMeta, carName, carSummary, formatPrice, keyFacts } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
@@ -17,6 +19,7 @@ const FACT_ICONS: Record<string, typeof CarIcon> = { Year: CalendarIcon, Mileage
 // Laid out as the mockup's car page: the title and a heart, the details line, the price, the buttons, four facts, the warranty.
 export function BuyBox({ car }: { car: Car }) {
   const sold = isSold(car);
+  const price = priceInfo(car);
   const url = `${SITE_URL}/used-cars/${car.slug}`;
   const whatsapp = `${DEALER_WHATSAPP}?text=${encodeURIComponent(`Hi, I'm interested in the ${carName(car)}: ${url}`)}`;
   return (
@@ -34,12 +37,12 @@ export function BuyBox({ car }: { car: Car }) {
         </h1>
         {/* Share beside the heart, where a buyer looks for them. */}
         <div className="flex shrink-0 items-center">
-          <ShareButton iconOnly title={carName(car)} text={sold ? carName(car) : `${carName(car)}, ${formatPrice(car.priceEur)}`} url={url} />
+          <ShareButton iconOnly title={carName(car)} text={sold ? carName(car) : `${carName(car)}, ${[price.headline, price.vatLine].filter(Boolean).join(" ")}`} url={url} />
           <SaveButton id={car.id} label="Save This Car" variant="page" />
         </div>
       </div>
       <p className="-mt-3 text-body text-text-2">{carMeta(car)}</p>
-      {!sold && <p className="text-hero font-bold tabular-nums">{formatPrice(car.priceEur)}</p>}
+      {!sold && <PriceBlock car={car} size="hero" />}
       {/* Reserved in Phase 2 for the lead buttons: so adding rows moves nothing below. */}
       <div data-testid="action-area" className="flex flex-col gap-3">
         {sold ? (

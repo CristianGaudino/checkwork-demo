@@ -14,6 +14,12 @@ export type Gearbox = (typeof GEARBOXES)[number];
 export const GEARBOX_LABELS: Record<Gearbox, string> = { manual: "Manual", automatic: "Automatic" };
 // The stops of the price slider (PriceRange). The first and last mean "no limit". Here, so the server schema can read them.
 export const PRICE_STOPS = [0, 2500, 5000, 7500, 10_000, 12_500, 15_000, 17_500, 20_000, 25_000, 30_000, 35_000, 40_000, 50_000, 60_000, 80_000, 100_000];
+// What kind of vehicle it is. Absent means used, which is every car in the seed today (#23, #24 add new and commercial).
+export const CONDITIONS = ["used", "new", "commercial"] as const;
+export type Condition = (typeof CONDITIONS)[number];
+// Whether priceEur has VAT in it. "inc": included. "ex": VAT on top, reclaimable by a VAT-registered buyer (vans). Absent: nothing said.
+export const VAT_STATUSES = ["inc", "ex"] as const;
+export type VatStatus = (typeof VAT_STATUSES)[number];
 export const SORT_KEYS = ["newest", "price-asc", "price-desc", "year-desc", "km-asc"] as const;
 export type SortKey = (typeof SORT_KEYS)[number];
 
@@ -37,7 +43,10 @@ export interface Car {
   modelSlug: string;
   variant?: string;
   year: number;
-  priceEur: number; // whole euro
+  priceEur: number; // whole euro, as advertised: see vat for whether VAT is in it
+  wasPriceEur?: number; // the earlier price, when this one is a drop
+  condition?: Condition;
+  vat?: VatStatus;
   mileageKm?: number;
   fuel?: Fuel;
   gearbox?: Gearbox;

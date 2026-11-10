@@ -42,6 +42,7 @@ Every merge to `main` deploys to production (deploy.yml). For now there are no r
 
 ## Product rules
 - On-screen text is plain, short and human. No em dashes anywhere on the site. If a label already says it, drop the helper text.
-- Finance figures are representative only and carry the dealer's required wording. Never invent APRs or terms: use the client's, or label them as placeholders.
+- Finance figures are representative only and carry the dealer's required wording. Never invent APRs or terms in the product: use the client's.
+- No demo, draft or placeholder pills, badges or labels anywhere on the site. It looks and feels like a real site. (The demo bar and the dev-only data toggle are the only chrome that says "demo".)
 - Real customer data (leads, subscribers) is personal data: collect with consent, keep it minimal, and never log it.
 - Mobile first. Fast on a mid-range phone is a feature, not a polish step.
