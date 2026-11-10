@@ -16,7 +16,7 @@ import { ChevronDownIcon, GridIcon, ListIcon } from "./icons";
 import { SearchBox, StockFilters } from "./StockFilters";
 import { stateButton } from "./StockError";
 import { setView, useView } from "./view";
-import { pageMain, secondaryButton, slash, subTitle } from "@/components/ui";
+import { eyebrow, pageMain, secondaryButton, subTitle } from "@/components/ui";
 
 type Summary = { total: number; facets: Facets } | null;
 type Stock = {
@@ -127,7 +127,7 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
             start higher. Below that the count sits under the intro (sort is in the sticky bar). */}
         <div className="lg:flex lg:items-end lg:justify-between lg:gap-8">
           <div>
-            <p className={`text-body ${slash}`}>Our Stock</p>
+            <p className={eyebrow}>Our Stock</p>
             <h1 className="mt-1 text-display font-bold lg:text-hero">Quality Used Cars</h1>
             <p className="mt-2 max-w-[65ch] text-pretty text-body text-text-2">Browse our current stock of used cars, all carefully selected.</p>
             {/* Under the intro and above the count on a phone; from 1024px the search is in the filter panel. */}

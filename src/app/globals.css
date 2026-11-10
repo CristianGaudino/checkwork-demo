@@ -405,37 +405,12 @@ input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
   box-shadow: 0 0 0 1px var(--color-destructive);
 }
 
-/* Home hero and the finance banner (mockup): a dark panel with a glow in the accent colour, no photo yet. */
+/* The finance band on the home page: a soft panel with a glow in the accent colour. */
 .hero-bg {
   background:
     radial-gradient(70% 90% at 92% 0%, color-mix(in srgb, var(--color-accent) 22%, transparent), transparent 65%),
     radial-gradient(50% 60% at 0% 100%, color-mix(in srgb, var(--color-accent) 8%, transparent), transparent 70%),
     linear-gradient(180deg, color-mix(in srgb, var(--color-text) 6%, var(--color-surface)) 0%, var(--color-surface) 100%);
-}
-
-/* The home hero: the dealer's photo with a dark wash over the side the words sit on (left on a desktop, all over on a phone). A smaller
-   file on phones, where the search card covers the lower half and the car would sit under the buttons. */
-.hero-photo {
-  background:
-    url("/brand/hero-sm.webp") center top / 100% auto no-repeat,
-    var(--color-surface);
-}
-.hero-photo::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  /* The photo is 900x700 and shown full width, so it is 78vw tall; the words start under the car (padding in the page) and the photo fades into the surface behind them. */
-  background: linear-gradient(180deg, color-mix(in srgb, var(--color-surface) 10%, transparent) 0, transparent 40vw, var(--color-surface) 76vw);
-}
-@media (min-width: 768px) {
-  .hero-photo {
-    background:
-      url("/brand/hero.webp") right center / cover no-repeat,
-      var(--color-surface);
-  }
-  .hero-photo::before {
-    background: linear-gradient(90deg, color-mix(in srgb, var(--color-surface) 80%, transparent) 0%, color-mix(in srgb, var(--color-surface) 45%, transparent) 38%, transparent 62%);
-  }
 }
 
 /* Stock list view (the toggle on /used-cars): one column of wide cards, photo on the left. From 1024px only, where the toggle shows,
