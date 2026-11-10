@@ -8,6 +8,7 @@ import { HomeSearch } from "@/components/home/HomeSearch";
 import { ShopByType } from "@/components/home/ShopByType";
 import { TrustStrip } from "@/components/home/TrustStrip";
 import { VisitUs } from "@/components/home/VisitUs";
+import { VehicleSwitch } from "@/components/VehicleSwitch";
 import { JsonLd } from "@/components/JsonLd";
 import { ReviewsStrip } from "@/components/reviews/ReviewsStrip";
 import { ListingCard } from "@/components/stock/ListingCard";
@@ -55,6 +56,8 @@ export default async function Home() {
             <div className="mt-8 w-full">
               <HomeSearch makes={search.makes} bodies={search.bodies} models={search.models} />
             </div>
+            {/* On a phone the header has no room for the switch: it sits under the search. */}
+            <VehicleSwitch className="mt-4 inline-flex lg:hidden" />
           </div>
           <HeroMosaic cars={all?.cars ?? []} />
         </div>

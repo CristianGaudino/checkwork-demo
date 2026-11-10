@@ -4,7 +4,7 @@ import { CompareButton } from "@/components/compare/CompareButton";
 import { LeadActions } from "@/components/leads/LeadDialog";
 import { SaveButton } from "@/components/saved/SaveButton";
 import { CalendarIcon, CarIcon, FuelIcon, GaugeIcon, GearIcon, ShieldCheckIcon } from "@/components/stock/icons";
-import { DEALER_WHATSAPP, SITE_URL, WARRANTY } from "@/lib/site";
+import { DEALER_WHATSAPP, NEW_CAR_WARRANTY, SITE_URL, WARRANTY } from "@/lib/site";
 import { priceInfo } from "@/lib/stock/price";
 import { PriceBlock } from "@/components/stock/PriceBlock";
 import { carMeta, carName, carSummary, keyFacts } from "@/lib/stock/format";
@@ -20,6 +20,7 @@ const FACT_ICONS: Record<string, typeof CarIcon> = { Year: CalendarIcon, Mileage
 export function BuyBox({ car }: { car: Car }) {
   const sold = isSold(car);
   const price = priceInfo(car);
+  const warranty = car.condition === "new" ? NEW_CAR_WARRANTY : WARRANTY;
   const url = `${SITE_URL}/used-cars/${car.slug}`;
   const whatsapp = `${DEALER_WHATSAPP}?text=${encodeURIComponent(`Hi, I'm interested in the ${carName(car)}: ${url}`)}`;
   return (
@@ -76,8 +77,8 @@ export function BuyBox({ car }: { car: Car }) {
         <div className={`flex items-start gap-3 ${card} p-4`}>
           <ShieldCheckIcon className="mt-0.5 size-8 shrink-0 text-accent" />
           <div className="flex min-w-0 flex-col gap-1">
-            <p className="text-body font-semibold">3 Month Warranty Included</p>
-            <p className="text-meta text-text-2">{WARRANTY.text}</p>
+            <p className="text-body font-semibold">{warranty.title} Included</p>
+            <p className="text-meta text-text-2">{warranty.text}</p>
           </div>
         </div>
       )}

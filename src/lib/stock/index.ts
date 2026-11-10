@@ -1,6 +1,7 @@
 import { withDevData } from "../dev-data";
 import { getBindings } from "../leads/bindings";
 import demoCars from "./demo-cars.json";
+import extraCars from "./demo-cars-extra.json";
 import { createStockEngine } from "./engine";
 import { DEFAULT_QUERY } from "./query";
 import type { Car, StockProvider, StockQuery } from "./types";
@@ -9,7 +10,7 @@ import type { Car, StockProvider, StockQuery } from "./types";
 // E2E run and `next dev`, the made-up demo cars in demo-cars.json stand in, the way the lead fakes do. Any other missing binding fails
 // loudly: stock never quietly falls back to the file on a deployed site.
 // Admin edits with no D1 binding land in memoryCars (src/lib/admin/stock-admin.ts), and the engine is rebuilt from it.
-export const memoryCars: Car[] = [...(demoCars as Car[])];
+export const memoryCars: Car[] = [...(demoCars as Car[]), ...(extraCars as Car[])];
 let memory = createStockEngine(memoryCars);
 export const refreshMemoryStock = () => void (memory = createStockEngine(memoryCars));
 const files: StockProvider = {
