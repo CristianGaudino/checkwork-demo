@@ -70,14 +70,13 @@ The admin uses the same tokens and components as the site but a denser, calmer l
 Each PR keeps every E2E test green (tests that pin the old look are updated with the change), runs the ponytail audit, and has screenshots at 360, 768 and 1280px in light and dark.
 
 ## 9. Decisions (owner, 2026-11-10)
-- Direction: "Showroom", light first and editorial.
-- Font: Manrope.
+- Direction: "Showroom" (a lit showroom, light first).
+- Font: Sora (see Showroom below).
 - The header is built now with the vehicle-type switch (Used, New, Commercial). It shows only the sections that exist.
 - Dark stays as a user choice, next to the light default.
 - Role switch (customer, dealer) as a demo bar: agreed.
 
 Update (2026-11): the superuser and the platform are not part of the dealer site. Dealers see everything except sensitive figures unless they have a permission (margins). See `docs/dealer-admin.md`.
-- Role switch (customer, dealer, superuser) as a demo bar: agreed.
 
 ## Showroom (owner decision, 2026-11)
 The look was redone so the demo reads as its own site. Direction: a lit showroom.
@@ -87,4 +86,3 @@ The look was redone so the demo reads as its own site. Direction: a lit showroom
 - **Panels:** `card` carries the floor shadow (`--shadow-panel`); radius 1.5rem for panels, 28px for photo tiles.
 - **Home:** a full-width hero (the dealership photo) with the headline on the left and the search on frosted glass.
 - **Make logos:** shown beside the make in the filter, the search drop-down, the chips, the cards and the make page heading (`MakeLogo`).
-- Font in use: Sora (this replaces the Manrope line above).
