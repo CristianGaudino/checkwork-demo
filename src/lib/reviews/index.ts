@@ -27,7 +27,7 @@ export type Reviews = {
 
 export type ReviewsProvider = { get(): Promise<Reviews | null> };
 
-const DEMO_PLACE = "https://www.google.com/maps/search/?api=1&query=V92%20NT93%2C%20Ireland";
+const DEMO_PLACE = "https://www.google.com/maps/search/?api=1&query=D00%200000%2C%20Ireland";
 const demo = (n: number, rating: number, text: string, relativeTime: string): Review => ({
   id: `demo-${n}`,
   author: `Sample customer ${"ABCDE"[n - 1]}.`,

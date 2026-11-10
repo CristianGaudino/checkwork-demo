@@ -5,7 +5,7 @@ import { CONSENT } from "./constants";
 // never edit an old entry.
 // The wording reads SITE_NAME, so a new brand name is a new version too (a clone adds its own entry).
 const FROZEN: Record<string, string> = {
-  "2026-11-06": "I agree to Carright using these details to reply to my request.",
+  "2026-11-10": "I agree to Checkwork Motors using these details to reply to my request.",
 };
 
 it("ties the consent wording to its version", () => {

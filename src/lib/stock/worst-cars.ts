@@ -24,7 +24,7 @@ const LONG_TEXT = [
   "FULL SERVICE HISTORY - 2 KEYS - NCT 07/2027 <b>no accidents</b> & never smoked in!!",
   "See the full video walk-around at https://www.example.com/dealers/kerry/used-cars/walkaround/9f8e7d6c5b4a?tab=video&source=autotrader&ref=website-listing-widget-2026",
   "",
-  "Finance available. Trade-ins welcome. Nationwide delivery 🚚 from €150. Call or WhatsApp 083 133 3154 anytime 👍",
+  "Finance available. Trade-ins welcome. Nationwide delivery 🚚 from €150. Call or WhatsApp 01 906 0045 anytime 👍",
   ...Array.from({ length: 12 }, (_, i) => `Line ${i + 1}: Recent timing belt, water pump, brake discs and pads, four new tyres, full valet and 12 months NCT. Warranty included on engine and gearbox.`),
 ].join("\n").slice(0, 2000);
 

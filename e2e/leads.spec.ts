@@ -163,7 +163,7 @@ test("the enquiry dialog always shows the phone number with +353, as a link that
   await enquire(page).click();
   const d = page.getByRole("dialog", { name: "Enquire" });
   await expect(d.getByText(/Or call us on/)).toBeVisible();
-  await expect(d.getByRole("link", { name: "+353 83 133 3154" })).toHaveAttribute("href", "tel:+353831333154");
+  await expect(d.getByRole("link", { name: "+353 1 906 0045" })).toHaveAttribute("href", "tel:+35319060045");
 });
 
 test.describe("on a desktop", () => {
@@ -196,7 +196,7 @@ test("the footer links the privacy page, which states the retention period", asy
   await expect(page.getByText("We keep each request for 12 months")).toBeVisible();
   // Deleting your details is asked for by email, not by phone.
   await expect(page.getByRole("main").getByRole("link", { name: /@/ })).toHaveAttribute("href", /^mailto:/);
-  await expect(page.getByRole("main").getByRole("link", { name: "+353 83 133 3154" })).toHaveCount(0);
+  await expect(page.getByRole("main").getByRole("link", { name: "+353 1 906 0045" })).toHaveCount(0);
 });
 
 test.describe("without JavaScript", () => {

@@ -4,7 +4,7 @@ For a new client site, or the generic Checkwork demo (issue #134). The site is b
 
 ## 1. Create the repo and the board
 1. On GitHub, make a new repo from this one (Use this template), not a fork. Set the template flag on the source repo once.
-2. Copy the issue labels: `gh label clone CristianGaudino/cartwright --repo <owner>/<new-repo>`.
+2. Copy the issue labels: `gh label clone <owner>/<source-repo> --repo <owner>/<new-repo>`.
 3. Copy the project (its fields, views and column setup, not the items): `gh project copy 6 --source-owner CristianGaudino --target-owner <owner> --title "<new title>"`, then link it to the new repo. Add new issues to it as they are opened.
 4. Issues are not copied. Open the new site's own issues.
 
@@ -21,7 +21,7 @@ For a new client site, or the generic Checkwork demo (issue #134). The site is b
 | Old-site redirects | `redirects()` in `next.config.ts`, `e2e/redirects.spec.ts`, and the `/sell-your-car 308` line in `.github/workflows/ci.yml`. Delete them for a site with no old pages. |
 
 ## 3. Stock
-`scripts/stock/demo-stock.mjs` built the Carright demo from the dealer's public pages. Do not use it for another business. Write a demo `src/lib/stock/demo-cars.json` and `public/stock/` photos you have the right to use, and replace `src/lib/stock/worst-cars.ts` (test text that names the old dealer). A real client uses the stock provider (`StockProvider`, issue #16).
+This demo's stock is made up (`scripts/demo/make-demo.mjs`) and lives in D1. Write a demo `src/lib/stock/demo-cars.json` and `public/stock/` photos you have the right to use, and replace `src/lib/stock/worst-cars.ts` (test text that names the old dealer). A real client uses the stock provider (`StockProvider`, issue #16).
 
 ## 4. Infrastructure names
 - `wrangler.jsonc`: `name`, the self-reference service name, `routes`, the R2 bucket, the D1 database name and id (`npx wrangler d1 create <name> --jurisdiction eu`), the send-email sender in `site.ts` (`LEAD_FROM_EMAIL`).

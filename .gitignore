@@ -46,6 +46,7 @@ next-env.d.ts
 
 # Demo stock scraper cache (also ignores itself)
 /.stock-cache/
+/seed/
 
 # Cloudflare Workers build output (OpenNext) and Wrangler state
 /.open-next/

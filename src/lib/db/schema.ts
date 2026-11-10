@@ -1,5 +1,6 @@
 import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import type { LeadType } from "@/lib/leads/schema";
+import type { Car } from "../stock/types";
 
 export type LeadStatus = "new"; // the admin phase (#20) adds more
 
@@ -35,3 +36,10 @@ export const leads = sqliteTable(
   },
   (t) => [index("leads_created_idx").on(t.createdAt)],
 );
+
+// The stock: one row per car, the whole Car as JSON, so a new Car field needs no migration.
+export const cars = sqliteTable("cars", {
+  id: text().primaryKey(),
+  slug: text().notNull().unique(),
+  data: text({ mode: "json" }).$type<Car>().notNull(),
+});

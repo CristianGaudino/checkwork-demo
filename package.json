@@ -1,5 +1,5 @@
 {
-  "name": "carright",
+  "name": "checkwork-demo",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -12,10 +12,11 @@
     "e2e": "playwright test",
     "db:migrate": "wrangler d1 migrations apply DB --remote",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "stock:fetch": "node scripts/stock/demo-stock.mjs fetch",
-    "stock:build": "node scripts/stock/demo-stock.mjs build",
-    "stock:redate": "node scripts/stock/demo-stock.mjs redate",
-    "stock:og": "node scripts/stock/og.mjs"
+    "stock:build": "node scripts/demo/make-demo.mjs build",
+    "stock:redate": "node scripts/demo/make-demo.mjs redate",
+    "stock:og": "node scripts/stock/og.mjs",
+    "stock:seed": "node scripts/stock/seed.mjs",
+    "db:seed": "wrangler d1 execute DB --remote --file=seed/stock.sql"
   },
   "engines": {
     "node": ">=24 <25"

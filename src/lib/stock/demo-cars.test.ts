@@ -3,7 +3,7 @@ import { join } from "node:path";
 import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 import demoCars from "./demo-cars.json";
-import { createFileProvider } from "./file-provider";
+import { createStockEngine } from "./engine";
 import { stock } from "./index";
 import { DEFAULT_QUERY } from "./query";
 import { FUELS, GEARBOXES, SOLD_VISIBLE_DAYS, TEXT_LIMITS } from "./types";
@@ -128,7 +128,7 @@ describe("generated demo cars", () => {
     const sold = cars.filter((c) => c.soldAt);
     // Never the real clock: the day after the newest sale date, so the result does not change as the calendar moves.
     const now = new Date(Math.max(...sold.map((c) => Date.parse(c.soldAt!))) + DAY);
-    const provider = createFileProvider(cars, { now: () => now });
+    const provider = createStockEngine(cars, { now: () => now });
 
     it("has a sale date that is absent or an ISO date", () => {
       for (const c of cars) if (c.soldAt !== undefined) expect(c.soldAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);

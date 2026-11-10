@@ -1,13 +1,13 @@
 {
-	// Demo domain on the cgaudino.com zone (already on Cloudflare). Swap for the client's domain at handover.
+	// The Checkwork demo: its own Worker, domain, D1 database and R2 bucket. The names below are created in the Cloudflare dashboard or with wrangler (docs/new-site-checklist.md).
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "cartwright",
+	"name": "checkwork-demo",
 	"main": "worker.mjs", // wraps .open-next/worker.js and adds the daily lead purge
 	"compatibility_date": "2026-10-01",
 	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
 	"assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
-	"services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "cartwright" }],
-	"routes": [{ "pattern": "carright.cgaudino.com", "custom_domain": true }],
+	"services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "checkwork-demo" }],
+	"routes": [{ "pattern": "demo.cgaudino.com", "custom_domain": true }],
 	"workers_dev": false,
 	// Deletes leads and their photos after LEAD_RETENTION_MONTHS (worker.mjs, src/lib/leads/purge.ts). Daily, 03:17 UTC.
 	"triggers": { "crons": ["17 3 * * *"] },
@@ -17,8 +17,8 @@
 	// Per-IP limit on lead submits (D-05), a second layer behind Turnstile: 5 per minute.
 	"ratelimits": [{ "name": "LEAD_LIMITER", "namespace_id": "1001", "simple": { "limit": 5, "period": 60 } }],
 	// Trade-in photos (D-13): private, EU jurisdiction, read only through the signed /lead-photos route. wrangler dev uses a local bucket.
-	"r2_buckets": [{ "binding": "LEAD_PHOTOS", "bucket_name": "carright-lead-photos", "jurisdiction": "eu" }],
-	// Leads (D-03): Cloudflare D1. Create it once with `npx wrangler d1 create carright --jurisdiction eu` and paste the id below
+	"r2_buckets": [{ "binding": "LEAD_PHOTOS", "bucket_name": "checkwork-demo-lead-photos", "jurisdiction": "eu" }],
+	// Leads (D-03): Cloudflare D1. Create it once with `npx wrangler d1 create checkwork-demo --jurisdiction eu` and paste the id below
 	// (an id is not a secret). migrations_dir is where drizzle-kit writes the SQL; npm run db:migrate applies it.
-	"d1_databases": [{ "binding": "DB", "database_name": "carright", "database_id": "b73076d5-9709-45ee-bf11-56ae9a9d3db3", "migrations_dir": "drizzle" }]
+	"d1_databases": [{ "binding": "DB", "database_name": "checkwork-demo", "database_id": "34be3b71-c449-4676-802f-04999ab61a73", "migrations_dir": "drizzle" }]
 }
