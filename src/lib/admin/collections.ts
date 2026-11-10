@@ -1,0 +1,242 @@
+import "server-only";
+import { DEALER_ADDRESS_LINES, DEALER_EMAIL, DEALER_PHONE, LEAD_FROM_EMAIL, OPENING_HOURS, SITE_NAME } from "@/lib/site";
+import { defineCollection } from "./docs";
+import { DAY, HOUR, carTitleOf, livePicks, person, rng } from "./seed-data";
+
+// The dealer's records. Each is a collection in the record store, with a typed shape and a seed. Never the real leads table: the admin
+// is open on the public demo, so it only ever shows made-up records (see the audit note in docs/v2-plan.md).
+
+// ---- Leads ----
+export const LEAD_STATUSES = ["new", "contacted", "appointment", "won", "lost"] as const;
+export type LeadStatus = (typeof LEAD_STATUSES)[number];
+export const LEAD_STATUS_LABELS: Record<LeadStatus, string> = { new: "New", contacted: "Contacted", appointment: "Appointment set", won: "Won", lost: "Lost" };
+export const LEAD_TYPES = ["enquiry", "test-drive", "finance", "trade-in", "find-a-car", "general"] as const;
+export type LeadType = (typeof LEAD_TYPES)[number];
+export const LEAD_TYPE_LABELS: Record<LeadType, string> = { enquiry: "Car enquiry", "test-drive": "Test drive", finance: "Finance", "trade-in": "Trade-in", "find-a-car": "Find a car", general: "General" };
+export const LEAD_SOURCES = ["Website", "WhatsApp", "Phone", "Facebook", "Google"] as const;
+
+export type Lead = {
+  id: string;
+  type: LeadType;
+  status: LeadStatus;
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+  source: (typeof LEAD_SOURCES)[number];
+  carSlug?: string;
+  carTitle?: string;
+  assignedTo?: string;
+  notes: { at: number; text: string }[];
+  createdAt: number;
+};
+
+export const TEAM = ["Aoife (sales)", "Conor (sales)", "Niamh (finance)"] as const;
+
+const MESSAGES: Record<LeadType, string[]> = {
+  enquiry: ["Is this still available? I could view it this weekend.", "Does it have a full service history?", "Is there any room on the price?", "Can you send me more photos of the interior?"],
+  "test-drive": ["Could I drive it on Saturday morning?", "Free after 5pm most days this week."],
+  finance: ["What would the monthly payment be with 10% down?", "Looking at 48 months. Can you come back to me with options?"],
+  "trade-in": ["I have a 2016 hatchback with 90,000 km to trade in against this.", "How much would you give me for my current car?"],
+  "find-a-car": ["Looking for a diesel estate under 15k, low mileage.", "Want an automatic SUV, family car, around 20k."],
+  general: ["What time do you close on Saturday?", "Do you do servicing as well?"],
+};
+
+function seedLeads(): Lead[] {
+  const r = rng(11);
+  const now = Date.now();
+  return Array.from({ length: 28 }, (_, i) => {
+    const type = r.pick(LEAD_TYPES);
+    const p = person(r);
+    const car = type === "find-a-car" || type === "general" ? undefined : livePicks(r);
+    const age = i < 6 ? r.int(1, 30) * HOUR : (i - 4) * r.int(6, 14) * HOUR + r.int(0, 5) * HOUR;
+    const status: LeadStatus = age < 30 * HOUR ? "new" : r.pick(["new", "contacted", "contacted", "appointment", "won", "lost"] as const);
+    return {
+      id: `lead-${1000 + i}`,
+      type,
+      status,
+      ...p,
+      message: r.pick(MESSAGES[type]),
+      source: r.pick(LEAD_SOURCES),
+      carSlug: car?.slug,
+      carTitle: car && carTitleOf(car),
+      assignedTo: status === "new" ? undefined : r.pick(TEAM),
+      notes: status === "contacted" || status === "appointment" ? [{ at: now - age + 2 * HOUR, text: "Called and left a message." }] : [],
+      createdAt: now - age,
+    };
+  });
+}
+export const leadsStore = defineCollection<Lead>("leads", seedLeads);
+
+// ---- Test drives ----
+export const DRIVE_STATUSES = ["requested", "confirmed", "completed", "no-show", "cancelled"] as const;
+export type DriveStatus = (typeof DRIVE_STATUSES)[number];
+export const DRIVE_STATUS_LABELS: Record<DriveStatus, string> = { requested: "Requested", confirmed: "Confirmed", completed: "Completed", "no-show": "No show", cancelled: "Cancelled" };
+export type TestDrive = { id: string; name: string; email: string; phone: string; carSlug: string; carTitle: string; startsAt: number; status: DriveStatus; notes: string; createdAt: number };
+
+function seedDrives(): TestDrive[] {
+  const r = rng(23);
+  const now = Date.now();
+  return Array.from({ length: 16 }, (_, i) => {
+    const car = livePicks(r);
+    const upcoming = i < 9;
+    const day = upcoming ? r.int(0, 9) : -r.int(1, 14);
+    const startsAt = new Date(now + day * DAY).setHours(r.int(10, 17), r.pick([0, 30]), 0, 0);
+    const status: DriveStatus = upcoming ? r.pick(["requested", "confirmed", "confirmed"] as const) : r.pick(["completed", "completed", "completed", "no-show", "cancelled"] as const);
+    return { id: `drive-${200 + i}`, ...person(r), carSlug: car.slug, carTitle: carTitleOf(car), startsAt, status, notes: r.pick(["", "", "Bringing a partner.", "Wants to compare with another car."]), createdAt: now - (Math.abs(day) + 2) * DAY };
+  });
+}
+export const drivesStore = defineCollection<TestDrive>("test-drives", seedDrives);
+
+// ---- Customers, stock alerts, newsletter ----
+export type Customer = { id: string; name: string; email: string; phone: string; source: string; marketingConsent: boolean; createdAt: number; lastContactAt: number };
+function seedCustomers(): Customer[] {
+  const r = rng(31);
+  const now = Date.now();
+  return Array.from({ length: 22 }, (_, i) => ({ id: `cust-${300 + i}`, ...person(r), source: r.pick(["Website", "Walk-in", "Referral", "Facebook"]), marketingConsent: r.next() > 0.35, createdAt: now - r.int(2, 200) * DAY, lastContactAt: now - r.int(0, 40) * DAY }));
+}
+export const customersStore = defineCollection<Customer>("customers", seedCustomers);
+
+export const ALERT_KINDS = ["back-in-stock", "price-drop", "new-arrival"] as const;
+export type AlertKind = (typeof ALERT_KINDS)[number];
+export const ALERT_KIND_LABELS: Record<AlertKind, string> = { "back-in-stock": "Back in stock", "price-drop": "Price drop", "new-arrival": "New arrival" };
+export type StockAlert = { id: string; email: string; kind: AlertKind; criteria: string; active: boolean; createdAt: number; lastSentAt?: number };
+function seedAlerts(): StockAlert[] {
+  const r = rng(41);
+  const now = Date.now();
+  return Array.from({ length: 14 }, (_, i) => {
+    const car = livePicks(r);
+    const kind = r.pick(ALERT_KINDS);
+    const criteria = kind === "price-drop" ? `${car.make} ${car.model}, any price drop` : kind === "new-arrival" ? `Any ${car.bodyType ?? "car"} under €${(Math.ceil(car.priceEur / 5000) * 5000).toLocaleString("en-IE")}` : `${car.make} ${car.model}`;
+    return { id: `alert-${400 + i}`, email: person(r).email, kind, criteria, active: r.next() > 0.15, createdAt: now - r.int(1, 90) * DAY, lastSentAt: r.next() > 0.6 ? now - r.int(1, 20) * DAY : undefined };
+  });
+}
+export const alertsStore = defineCollection<StockAlert>("alerts", seedAlerts);
+
+export type Subscriber = { id: string; email: string; status: "subscribed" | "unsubscribed"; createdAt: number };
+function seedSubscribers(): Subscriber[] {
+  const r = rng(53);
+  const now = Date.now();
+  return Array.from({ length: 30 }, (_, i) => ({ id: `sub-${500 + i}`, email: person(r).email, status: r.next() > 0.1 ? "subscribed" : "unsubscribed", createdAt: now - r.int(1, 240) * DAY }));
+}
+export const subscribersStore = defineCollection<Subscriber>("subscribers", seedSubscribers);
+
+// ---- Reviews ----
+export type AdminReview = { id: string; author: string; rating: 1 | 2 | 3 | 4 | 5; text: string; createdAt: number; reply?: string; repliedAt?: number; flagged?: boolean };
+const REVIEW_TEXT: [number, string][] = [
+  [5, "Easy to deal with from the first call. The car was ready when we came to collect it."],
+  [5, "No pressure at all. They answered every question and let us take our time."],
+  [5, "Straightforward buying and a fair price on my trade-in. Would go back."],
+  [4, "Good choice of cars. Took a while to get the paperwork done but they kept us posted."],
+  [4, "Friendly team, clean car. The finance explanation was clear."],
+  [3, "Car was fine, but I waited a while for a callback."],
+  [2, "The listing said full service history and the book had two gaps. They sorted it, but I had to ask."],
+  [5, "Second car from here. Same great service."],
+  [1, "Booked a test drive and nobody was expecting me."],
+  [5, "Brilliant. Fair, honest and quick."],
+];
+function seedReviews(): AdminReview[] {
+  const r = rng(67);
+  const now = Date.now();
+  return REVIEW_TEXT.map(([rating, text], i) => ({
+    id: `review-${600 + i}`,
+    author: person(r).name,
+    rating: rating as AdminReview["rating"],
+    text,
+    createdAt: now - (i * 11 + r.int(1, 8)) * DAY,
+    reply: rating >= 4 && i % 2 === 0 ? "Thank you for the kind words. We are glad you are happy with the car." : undefined,
+    repliedAt: rating >= 4 && i % 2 === 0 ? now - (i * 11) * DAY : undefined,
+  }));
+}
+export const reviewsStore = defineCollection<AdminReview>("reviews", seedReviews);
+
+// ---- Settings: one record ----
+export type DealerSettings = {
+  id: "dealer";
+  name: string;
+  phone: string;
+  whatsapp: string;
+  email: string;
+  leadEmail: string; // where lead emails go (#22)
+  address: string;
+  hours: { day: string; opens: string; closes: string; closed: boolean }[];
+  notifications: { newLead: boolean; testDrive: boolean; review: boolean; weeklyReport: boolean };
+  team: { id: string; name: string; email: string; role: "Owner" | "Sales" | "Finance" }[];
+  updatedAt: number;
+};
+function seedSettings(): DealerSettings[] {
+  const byDay = new Map(OPENING_HOURS.map((h) => [h.day, h]));
+  return [
+    {
+      id: "dealer",
+      name: SITE_NAME,
+      phone: DEALER_PHONE,
+      whatsapp: DEALER_PHONE,
+      email: DEALER_EMAIL,
+      leadEmail: LEAD_FROM_EMAIL,
+      address: DEALER_ADDRESS_LINES.join(", "),
+      hours: OPENING_HOURS.map(({ day }) => ({ day, opens: byDay.get(day)?.opens ?? "09:30", closes: byDay.get(day)?.closes ?? "18:00", closed: !byDay.get(day)?.opens })),
+      notifications: { newLead: true, testDrive: true, review: true, weeklyReport: false },
+      team: [
+        { id: "u1", name: "Aoife Brennan", email: "aoife@example.com", role: "Owner" },
+        { id: "u2", name: "Conor Doyle", email: "conor@example.com", role: "Sales" },
+        { id: "u3", name: "Niamh Kavanagh", email: "niamh@example.com", role: "Finance" },
+      ],
+      updatedAt: Date.now(),
+    },
+  ];
+}
+export const settingsStore = defineCollection<DealerSettings>("settings", seedSettings);
+
+// ---- Marketing: social posts, ads, newsletters ----
+export const NETWORKS = ["Facebook", "Instagram", "TikTok"] as const;
+export type Network = (typeof NETWORKS)[number];
+export type SocialPost = { id: string; network: Network; carSlug?: string; carTitle?: string; text: string; status: "draft" | "scheduled" | "posted"; scheduledFor?: number; postedAt?: number; reach?: number; clicks?: number; createdAt: number };
+export type Ad = { id: string; platform: "Meta" | "Google"; name: string; carTitle: string; budgetEur: number; status: "draft" | "running" | "paused" | "ended"; impressions: number; clicks: number; leads: number; createdAt: number };
+export type Newsletter = { id: string; subject: string; body: string; status: "draft" | "sent"; sentAt?: number; recipients?: number; opens?: number; clicks?: number; createdAt: number };
+
+function seedPosts(): SocialPost[] {
+  const r = rng(79);
+  const now = Date.now();
+  return Array.from({ length: 9 }, (_, i) => {
+    const car = livePicks(r);
+    const status = i < 2 ? "draft" : i < 4 ? "scheduled" : "posted";
+    return {
+      id: `post-${700 + i}`,
+      network: r.pick(NETWORKS),
+      carSlug: car.slug,
+      carTitle: carTitleOf(car),
+      text: `Just in: ${carTitleOf(car)}, ${car.mileageKm?.toLocaleString("en-IE")} km. Come and see it.`,
+      status,
+      scheduledFor: status === "scheduled" ? now + (i - 1) * DAY : undefined,
+      postedAt: status === "posted" ? now - (i - 3) * 3 * DAY : undefined,
+      reach: status === "posted" ? r.int(400, 5200) : undefined,
+      clicks: status === "posted" ? r.int(8, 140) : undefined,
+      createdAt: now - (i + 1) * 2 * DAY,
+    };
+  });
+}
+export const postsStore = defineCollection<SocialPost>("posts", seedPosts);
+
+function seedAds(): Ad[] {
+  const r = rng(83);
+  const now = Date.now();
+  return Array.from({ length: 5 }, (_, i) => {
+    const car = livePicks(r);
+    const status = (["running", "running", "paused", "ended", "draft"] as const)[i];
+    const impressions = status === "draft" ? 0 : r.int(4000, 60000);
+    const clicks = Math.round(impressions * (r.int(8, 30) / 1000));
+    return { id: `ad-${800 + i}`, platform: r.pick(["Meta", "Google"] as const), name: `${car.make} ${car.model} spring push`, carTitle: carTitleOf(car), budgetEur: r.pick([100, 150, 250, 400]), status, impressions, clicks, leads: Math.round(clicks * 0.06), createdAt: now - (i + 1) * 5 * DAY };
+  });
+}
+export const adsStore = defineCollection<Ad>("ads", seedAds);
+
+function seedNewsletters(): Newsletter[] {
+  const now = Date.now();
+  return [
+    { id: "nl-900", subject: "New arrivals this week", body: "Six new cars on the forecourt this week, including two SUVs under €20,000.", status: "sent", sentAt: now - 12 * DAY, recipients: 27, opens: 15, clicks: 6, createdAt: now - 13 * DAY },
+    { id: "nl-901", subject: "Trade-in event this Saturday", body: "Bring your car in this Saturday for a free, no-obligation valuation.", status: "sent", sentAt: now - 40 * DAY, recipients: 24, opens: 12, clicks: 4, createdAt: now - 41 * DAY },
+    { id: "nl-902", subject: "Winter service offer", body: "Book your winter check in November.", status: "draft", createdAt: now - 2 * DAY },
+  ];
+}
+export const newslettersStore = defineCollection<Newsletter>("newsletters", seedNewsletters);
