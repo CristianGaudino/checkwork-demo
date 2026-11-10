@@ -35,7 +35,7 @@ export function carJsonLd(car: Car): Record<string, unknown> {
     brand: { "@type": "Brand", name: car.make },
     model: car.model,
     vehicleModelDate: String(car.year),
-    itemCondition: "https://schema.org/UsedCondition",
+    itemCondition: car.condition === "new" ? "https://schema.org/NewCondition" : "https://schema.org/UsedCondition",
     mileageFromOdometer: car.mileageKm === undefined ? undefined : { "@type": "QuantitativeValue", value: car.mileageKm, unitCode: "KMT" },
     fuelType: car.fuel && FUEL_LABELS[car.fuel],
     vehicleTransmission: car.gearbox && GEARBOX_LABELS[car.gearbox],
@@ -48,7 +48,7 @@ export function carJsonLd(car: Car): Record<string, unknown> {
     offers: {
       "@type": "Offer",
       url,
-      itemCondition: "https://schema.org/UsedCondition",
+      itemCondition: car.condition === "new" ? "https://schema.org/NewCondition" : "https://schema.org/UsedCondition",
       availability: sold ? "https://schema.org/SoldOut" : "https://schema.org/InStock",
       price: sold ? undefined : car.priceEur,
       priceCurrency: sold ? undefined : "EUR",

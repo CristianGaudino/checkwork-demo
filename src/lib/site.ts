@@ -32,6 +32,8 @@ export const SERVICES = [
 export const DEALER_ADDRESS = { street: "1 Example Road", town: "Demotown", county: "Co. Demo", eircode: "D00 0000" };
 // PLACEHOLDER until the dealer confirms the warranty (owner decision, 2026-11-07): shown on the home page and every car for sale.
 export const WARRANTY = { title: "3 Month Warranty", text: "Engine & gearbox cover on all cars." };
+// A new car is covered by its maker, not by the dealer's used-car warranty.
+export const NEW_CAR_WARRANTY = { title: "Manufacturer's Warranty", text: "Covered by the manufacturer's warranty from the day you collect it." };
 export const DEALER_ADDRESS_LINES = [DEALER_ADDRESS.street, DEALER_ADDRESS.town, DEALER_ADDRESS.county, DEALER_ADDRESS.eircode];
 // "Tralee, Co. Kerry": where the dealer is, as the page descriptions say it.
 export const DEALER_LOCATION = `${DEALER_ADDRESS.town}, ${DEALER_ADDRESS.county}`;

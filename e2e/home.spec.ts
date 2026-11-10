@@ -239,7 +239,9 @@ test.describe("without JavaScript", () => {
 test("shop by type and browse by make link into the stock", async ({ page }) => {
   await page.goto("/");
   const types = page.getByRole("region", { name: "Shop by type" });
-  await expect(types.getByRole("link").first()).toHaveAttribute("href", /^\/used-cars\?body=[a-z-]+$/);
+  await expect(types.getByRole("link", { name: "New cars" })).toHaveAttribute("href", "/new-cars");
+  await expect(types.getByRole("link", { name: "Vans" })).toHaveAttribute("href", "/commercial");
+  await expect(types.getByRole("link").nth(2)).toHaveAttribute("href", /^\/used-cars\?body=[a-z-]+$/);
   const makes = page.getByRole("region", { name: "Browse by make" });
   await expect(makes.getByRole("link").first()).toHaveAttribute("href", /^\/used-cars\/[a-z-]+$/);
 });

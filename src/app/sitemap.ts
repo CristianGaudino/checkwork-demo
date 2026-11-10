@@ -11,10 +11,13 @@ export const dynamic = "force-dynamic";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (!indexable()) return [];
   const { cars } = await queryAll({ sold: "include" });
+  const others = [...(await queryAll({ condition: "new" })).cars, ...(await queryAll({ condition: "commercial" })).cars];
   const landing = new Set(cars.filter((c) => !isSold(c)).flatMap((c) => [c.makeSlug, ...(c.bodySlug ? [c.bodySlug] : []), `${c.makeSlug}/${c.modelSlug}`]));
   return [
     { url: `${SITE_URL}/` },
     { url: `${SITE_URL}/used-cars` },
+    { url: `${SITE_URL}/new-cars` },
+    { url: `${SITE_URL}/commercial` },
     { url: `${SITE_URL}/finance` },
     { url: `${SITE_URL}/trade-in` },
     { url: `${SITE_URL}/find-a-car` },
@@ -25,6 +28,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/terms` },
     { url: `${SITE_URL}/privacy` },
     ...[...landing].map((path) => ({ url: `${SITE_URL}/used-cars/${path}` })),
-    ...cars.map((c) => ({ url: `${SITE_URL}/used-cars/${c.slug}` })),
+    ...[...cars, ...others].map((c) => ({ url: `${SITE_URL}/used-cars/${c.slug}` })),
   ];
 }

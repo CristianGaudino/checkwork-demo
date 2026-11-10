@@ -76,7 +76,8 @@ export function createStockEngine(input: Car[], { now = () => new Date() }: { no
     async query(q): Promise<StockResult> {
       const visible = visibleNow();
       // Sold cars are not in the default pool, so they add no facet option and change no count.
-      const pool = cars.filter((c) => visible(c) && (q.sold === "only" ? isSold(c) : q.sold === "include" || !isSold(c)));
+      const kind = q.condition ?? "used";
+      const pool = cars.filter((c) => (c.condition ?? "used") === kind && visible(c) && (q.sold === "only" ? isSold(c) : q.sold === "include" || !isSold(c)));
       const years = pool.length ? { min: Math.min(...pool.map((c) => c.year)), max: Math.max(...pool.map((c) => c.year)) } : null;
       // Stable partition after the sort: each group keeps the chosen order, sold cars never ahead of buyable ones.
       const sorted = pool.filter((c) => matches(c, q)).sort(SORTS[q.sort]);
@@ -120,7 +121,7 @@ export function createStockEngine(input: Car[], { now = () => new Date() }: { no
     },
     // Over every car, expired included: the same lists the home search builds from the cars in stock.
     async taxonomy() {
-      return searchOptions(cars);
+      return searchOptions(cars.filter((c) => (c.condition ?? "used") === "used"));
     },
   };
 }

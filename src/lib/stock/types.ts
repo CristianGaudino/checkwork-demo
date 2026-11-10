@@ -67,6 +67,7 @@ export interface Car {
 }
 
 export interface StockQuery {
+  condition?: Condition; // absent means used: new cars and vans are asked for by name
   q?: string;
   make: string[]; // makeSlug values
   model: string[]; // modelSlug values

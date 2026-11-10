@@ -6,12 +6,13 @@ import { VEHICLE_TYPES, type VehicleType } from "@/lib/nav";
 import { press } from "@/components/ui";
 
 // Used, New, Commercial as a segmented control of links. Shows nothing until two sections exist: one choice is not a switch.
-export function VehicleSwitch({ types = VEHICLE_TYPES, className = "" }: { types?: readonly VehicleType[]; className?: string }) {
+// `className` carries the display too (inline-flex by default), so a caller can hide it at some widths.
+export function VehicleSwitch({ types = VEHICLE_TYPES, className = "inline-flex" }: { types?: readonly VehicleType[]; className?: string }) {
   const path = usePathname();
   const on = types.filter((t) => t.enabled);
   if (on.length < 2) return null;
   return (
-    <nav aria-label="Vehicle type" className={`inline-flex rounded-full bg-hairline p-1 ${className}`}>
+    <nav aria-label="Vehicle type" className={`rounded-full bg-hairline p-1 ${className}`}>
       {on.map((t) => {
         const current = path === t.href || path.startsWith(`${t.href}/`);
         return (

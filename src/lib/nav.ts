@@ -3,9 +3,9 @@
 // The vehicle-type switch (Used, New, Commercial). `enabled: false` hides a section until it exists (#23 new cars, #24 commercial).
 // The switch itself shows only when two or more are enabled, so today the header has none.
 export const VEHICLE_TYPES = [
-  { id: "used", label: "Used", href: "/used-cars", enabled: true },
-  { id: "new", label: "New", href: "/new-cars", enabled: false },
-  { id: "commercial", label: "Commercial", href: "/commercial", enabled: false },
+  { id: "used", label: "Used", href: "/used-cars", enabled: true, condition: "used", title: "Quality Used Cars", intro: "Browse our current stock of used cars, all carefully selected." },
+  { id: "new", label: "New", href: "/new-cars", enabled: true, condition: "new", title: "New Cars", intro: "Brand new cars from the makes we sell, with the manufacturer's warranty and finance offers." },
+  { id: "commercial", label: "Commercial", href: "/commercial", enabled: true, condition: "commercial", title: "Commercial Vehicles", intro: "Vans and light commercials. Prices are shown without VAT, which a VAT-registered buyer can usually reclaim, with the price including VAT underneath." },
 ] as const;
 
 export type VehicleType = (typeof VEHICLE_TYPES)[number];
