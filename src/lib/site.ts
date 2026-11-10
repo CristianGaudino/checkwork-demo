@@ -1,4 +1,4 @@
-export const SITE_URL = "https://demo.cgaudino.com"; // the demo domain (wrangler.jsonc routes)
+export const SITE_URL = "https://www.demo.checkwork.ie"; // the demo domain (wrangler.jsonc routes)
 export const SITE_NAME = "Checkwork Motors"; // a made-up dealer
 // Prefix for this site's keys in the visitor's browser storage (saved cars, compare, view). A clone sets its own, so two sites on one browser never share them.
 export const SITE_SLUG = "checkwork-demo";
@@ -6,14 +6,14 @@ export const SITE_SLUG = "checkwork-demo";
 export const DEFAULT_OG_IMAGE = { url: "/brand/og-default.png", width: 1200, height: 630, alt: SITE_NAME };
 // Made-up contact details for the demo dealer: not a real number or address.
 export const DEALER_PHONE = "+353 1 906 0045";
-export const DEALER_EMAIL = "demo@cgaudino.com";
+export const DEALER_EMAIL = "demo@checkwork.ie";
 export const DEALER_TEL = "+35319060045";
 // The same number is the demo dealer's WhatsApp.
 // The agency that built the site, credited in the footer.
 export const CHECKWORK_URL = "https://www.checkwork.ie";
 export const DEALER_WHATSAPP = `https://wa.me/${DEALER_TEL.slice(1)}`;
 // Placeholder until 03-02 onboards the sending domain and records the address; must be on that domain. Swap at handover.
-export const LEAD_FROM_EMAIL = "leads@cgaudino.com";
+export const LEAD_FROM_EMAIL = "leads@checkwork.ie";
 // The only reader of APP_ENV. A function so tests can stub the env.
 export const isProduction = () => process.env.APP_ENV === "production";
 export const indexable = () => isProduction();
