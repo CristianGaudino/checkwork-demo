@@ -12,11 +12,11 @@ import { AppliedFilters } from "./AppliedFilters";
 import { rememberList, rememberScroll, takeScroll } from "./BackToCars";
 import { FilterSheet } from "./FilterSheet";
 import { Combobox } from "@/components/Combobox";
-import { ChevronDownIcon, GridIcon, ListIcon } from "./icons";
+import { GridIcon, ListIcon } from "./icons";
 import { SearchBox, StockFilters } from "./StockFilters";
 import { stateButton } from "./StockError";
 import { setView, useView } from "./view";
-import { eyebrow, pageMain, secondaryButton, subTitle } from "@/components/ui";
+import { eyebrow, pageMain, subTitle } from "@/components/ui";
 
 type Summary = { total: number; facets: Facets } | null;
 type Stock = {
@@ -155,7 +155,7 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
           <div ref={results} onClickCapture={(e) => e.target instanceof Element && e.target.closest("a[href^='/used-cars/']") && rememberScroll(query)} className="min-w-0 scroll-mt-16 lg:min-h-[100dvh] lg:scroll-mt-6">
             <div
               data-testid="sticky-bar"
-              className="sticky top-0 z-20 -mx-4 flex h-14 items-center justify-between bg-surface/80 px-4 backdrop-blur-[20px] backdrop-saturate-[1.8] sm:-mx-6 sm:px-6 lg:mx-0 lg:justify-end lg:gap-3 lg:px-0 reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none reduce-transparency:backdrop-saturate-100"
+              className="sticky top-14 z-20 lg:top-0 -mx-4 flex h-14 items-center justify-between bg-surface/80 px-4 backdrop-blur-[20px] backdrop-saturate-[1.8] sm:-mx-6 sm:px-6 lg:mx-0 lg:justify-end lg:gap-3 lg:px-0 reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none reduce-transparency:backdrop-saturate-100"
             >
               <div className="lg:hidden">
                 <FilterSheet />
@@ -168,12 +168,6 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
             <AppliedFilters />
             <div data-view={view} aria-busy={pending} className={`transition-opacity duration-150 ease-out ${pending ? "opacity-60" : ""}`}>
               {children}
-            </div>
-            <div className="mt-8 flex justify-center">
-              <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" })} className={`inline-flex h-12 items-center gap-2 px-6 ${secondaryButton}`}>
-                Back to Top
-                <ChevronDownIcon className="size-5 rotate-180" />
-              </button>
             </div>
           </div>
         </div>
