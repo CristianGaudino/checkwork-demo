@@ -47,7 +47,7 @@ export default async function Page() {
 
   return (
     <>
-      <PageHeader title="Margins" text="What each car cost and what it should make. Only people with the margins permission see this." />
+      <PageHeader title="Margins" text="What each car cost and what it should make: the advertised price less the cost, before VAT and running costs. Only people with the margins permission see this." />
       <StatGrid>
         <StatCard label="Stock cost" value={fmtEur(stockCost)} hint={`${stock.length} cars for sale`} />
         <StatCard label="Stock value" value={fmtEur(stockPrice)} hint="At the advertised prices" />
