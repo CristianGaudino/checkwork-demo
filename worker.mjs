@@ -4,12 +4,20 @@
 import { drizzle } from "drizzle-orm/d1";
 import handler from "./.open-next/worker.js";
 import { purgeOldLeads } from "./src/lib/leads/purge.ts";
+import { apexRedirect } from "./src/lib/redirect.ts";
+import { SITE_URL } from "./src/lib/site.ts";
 
 // OpenNext's worker exports these classes for features this site does not use; kept so the wrapper stays a drop-in.
 export { BucketCachePurge, DOQueueHandler, DOShardedTagCache } from "./.open-next/worker.js";
 
+const HOST = new URL(SITE_URL).hostname;
+
 const worker = {
-  fetch: handler.fetch,
+  // The bare domain is a second custom domain on this Worker (wrangler.jsonc routes); it only redirects.
+  fetch(request, env, ctx) {
+    const to = apexRedirect(request.url, HOST);
+    return to ? Response.redirect(to, 308) : handler.fetch(request, env, ctx);
+  },
   // wrangler.jsonc "triggers". A failure throws, so Cloudflare marks the run failed and Workers Logs shows it.
   async scheduled(_controller, env) {
     const deleted = await purgeOldLeads(drizzle(env.DB), env.LEAD_PHOTOS);
