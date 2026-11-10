@@ -10,10 +10,10 @@ The full, all-inclusive version: the customer site, the dealer's admin area and 
 Project rules and the PR checklist are in [.claude/CLAUDE.md](.claude/CLAUDE.md).
 
 ## Demo data
-The stock lives in Cloudflare D1 (table `cars`, one row per car, the whole car as JSON). The demo cars are made up: their specs are examples, every description says so, and each photo is a drawn placeholder.
+The stock lives in Cloudflare D1 (table `cars`, one row per car, the whole car as JSON). The cars are written by hand in `scripts/stock/catalogue.mjs` (specs, prices and equipment are examples). Their photos come from the owner's open car photo dataset, which is not in this repo.
 
 - `src/lib/stock/demo-cars.json` is the seed. It is also what tests and `next dev` use when there is no D1 binding.
-- `npm run stock:build` rewrites the cars' text and draws the placeholder photos, the hero, the about picture, the logo and the share image (`scripts/demo/make-demo.mjs`). Manual: never run in CI or at build time.
+- `npm run stock:build -- <dataset dir>` writes the JSON and `public/stock/` photos from the catalogue (`scripts/stock/build.mjs`). `node scripts/stock/index-dataset.mjs <dataset dir> <out dir>` finds sets of one car in the dataset and makes contact sheets to choose from. Manual: never run in CI or at build time. The hero, about picture and logo are drawn by `node scripts/demo/make-demo.mjs build`.
 - `npm run stock:og` makes the per-car share images (`public/og/`). Manual too.
 - `npm run stock:redate` moves the sold cars' dates relative to today, so the sold examples stay inside their 30 day window. The deploy runs it, and runs weekly.
 - `npm run stock:seed` writes `seed/stock.sql` from the JSON, and `npm run db:seed` applies it to the remote D1 (replacing every row). The deploy runs both after the migration.

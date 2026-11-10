@@ -1,25 +1,12 @@
-import { describeCar } from "./describe.mjs";
-// Builds the demo's made-up content. Manual: never run in CI, at build time or at runtime, except `redate`, which is offline.
-//
-//   node scripts/demo/make-demo.mjs build     the fictional cars' text and placeholder photos, plus the brand pictures (hero, about, share image, logo)
-//   node scripts/demo/make-demo.mjs redate    sale dates relative to today, so the sold examples stay inside the 30 day window
-//
-// Nothing here comes from a real dealer. `build` reads the car specs already in src/lib/stock/demo-cars.json (the shapes the tests rely on),
-// rewrites every piece of free text, and draws each photo as a simple car shape in the car's colour. Re-running it overwrites its own output.
+// Draws the demo's brand pictures: the hero, the about picture, the logo files and the default share image. Manual: never run in CI,
+// at build time or at runtime.   node scripts/demo/make-demo.mjs build
+// The cars and their photos are not here: see scripts/stock/build.mjs.
 
-import { createHash } from "node:crypto";
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import sharp from "sharp";
 
-const CARS = "src/lib/stock/demo-cars.json";
 const BRAND = "public/brand";
-// id -> days before today. Every id must be a car in the file.
-const SOLD_DAYS_AGO = { 4521033: 4, 4491477: 1, 4359735: 9, 4532458: 120, 4396311: 45 };
-const soldDate = (id, today) => (id in SOLD_DAYS_AGO ? new Date(today.getTime() - SOLD_DAYS_AGO[id] * 86_400_000).toISOString().slice(0, 10) : undefined);
-
-const PAINT = { Green: "#2f6b4f", Black: "#262a33", White: "#dfe3ee", Silver: "#aeb4c2", Grey: "#636b7a", Blue: "#2f4f9e", Red: "#a52a31", Gold: "#b89a52" };
-const LIFT = { suv: 34, pickup: 30, mpv: 38, coupe: -26, estate: 12, saloon: 0, hatchback: 0 };
 const INDIGO = "#4f46e5";
 
 // A side-on car, 620 wide, on a 900 x 675 canvas. `lift` raises (or lowers) the roof.
@@ -47,31 +34,9 @@ function photoSvg({ paint, lift, flip, scale, hue, label }) {
 </svg>`;
 }
 
-const hash = (b) => createHash("sha256").update(b).digest("hex").slice(0, 8);
 const write = (p, data) => (mkdirSync(dirname(p), { recursive: true }), writeFileSync(p, data));
 
 async function build() {
-  const cars = JSON.parse(readFileSync(CARS, "utf8"));
-  rmSync("public/stock", { recursive: true, force: true });
-  rmSync("public/og", { recursive: true, force: true });
-  const today = new Date();
-  for (const c of cars) {
-    const n = c.photos.length || 6;
-    const paint = PAINT[c.colour] ?? PAINT.Grey;
-    c.photos = [];
-    for (let i = 1; i <= n; i++) {
-      const svg = photoSvg({ paint, lift: LIFT[c.bodySlug] ?? 0, flip: i % 2 === 0, scale: [1, 0.92, 1.05, 0.85, 1, 0.95][i - 1] ?? 1, hue: (Number(c.id) * 7 + i * 23) % 360, label: `DEMO PHOTO ${i}` });
-      const webp = await sharp(Buffer.from(svg)).webp({ quality: 82 }).toBuffer();
-      const src = `/stock/${c.id}/${i}-${hash(webp)}.webp`;
-      write(`public${src}`, webp);
-      c.photos.push({ src, width: 900, height: 675 });
-    }
-    c.description = describeCar(c);
-    c.soldAt = soldDate(c.id, today);
-    if (!c.soldAt) delete c.soldAt;
-  }
-  write(CARS, JSON.stringify(cars, null, 2) + "\n");
-
   // Brand pictures: the Checkwork logo, and a made-up hero, about picture and share image in its colours.
   const logo = readFileSync(`${BRAND}/checkwork-logo-on-dark.svg`);
   write(`${BRAND}/logo.svg`, logo);
@@ -92,12 +57,7 @@ async function build() {
 
 const [cmd] = process.argv.slice(2);
 if (cmd === "build") await build();
-else if (cmd === "redate") {
-  const cars = JSON.parse(readFileSync(CARS, "utf8"));
-  const today = new Date();
-  for (const c of cars) if (c.id in SOLD_DAYS_AGO) c.soldAt = soldDate(c.id, today);
-  writeFileSync(CARS, JSON.stringify(cars, null, 2) + "\n");
-} else {
-  console.error("Usage: make-demo.mjs build | redate");
+else {
+  console.error("Usage: make-demo.mjs build");
   process.exit(1);
 }

@@ -12,8 +12,8 @@
     "e2e": "playwright test",
     "db:migrate": "wrangler d1 migrations apply DB --remote",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "stock:build": "node scripts/demo/make-demo.mjs build",
-    "stock:redate": "node scripts/demo/make-demo.mjs redate",
+    "stock:build": "node scripts/stock/build.mjs",
+    "stock:redate": "node scripts/stock/build.mjs redate",
     "stock:og": "node scripts/stock/og.mjs",
     "stock:seed": "node scripts/stock/seed.mjs",
     "db:seed": "wrangler d1 execute DB --remote --file=seed/stock.sql"
