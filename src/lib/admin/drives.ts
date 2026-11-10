@@ -12,9 +12,9 @@ export function groupByDay(drives: TestDrive[]): DriveGroup[] {
   return [...map].map(([day, list]) => ({ day, drives: list }));
 }
 
-// Two bookings for the same car within an hour of each other clash: one car cannot be out twice.
-export function clashes(drives: TestDrive[], carSlug: string, startsAt: number, ignoreId?: string): TestDrive[] {
-  return drives.filter((d) => d.id !== ignoreId && d.carSlug === carSlug && (d.status === "requested" || d.status === "confirmed") && Math.abs(d.startsAt - startsAt) < 3_600_000);
+// Two bookings for the same car within the slot (an hour by default) of each other clash: one car cannot be out twice.
+export function clashes(drives: TestDrive[], carSlug: string, startsAt: number, ignoreId?: string, windowMs = 3_600_000): TestDrive[] {
+  return drives.filter((d) => d.id !== ignoreId && d.carSlug === carSlug && (d.status === "requested" || d.status === "confirmed") && Math.abs(d.startsAt - startsAt) < windowMs);
 }
 
 export const parseDriveStatus = (v: unknown): DriveStatus | undefined => (DRIVE_STATUSES as readonly unknown[]).includes(v) ? (v as DriveStatus) : undefined;
