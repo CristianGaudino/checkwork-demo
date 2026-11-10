@@ -43,7 +43,7 @@ test("/finance estimates a monthly payment at the dealer's fixed rate as the buy
 test("/finance is the estimator only: no car picker, no application, a button to choose a car, and the facts", async ({ page }) => {
   await open(page, "/finance");
   await expect(calc(page).getByLabel("Car")).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Start Your Application" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Apply" })).toHaveCount(0);
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Select a car to enquire" })).toHaveAttribute("href", "/used-cars");
   // The estimate wording is said once, in the dealer's notice under the calculator.
@@ -94,9 +94,9 @@ test.describe("finance application", () => {
     await open(page, `/used-cars/${live.slug}`);
     await calc(page).getByLabel("Deposit").fill("4000");
     await choose(calc(page).getByLabel("Term"), "36 months");
-    await page.getByRole("button", { name: "Start Your Application" }).click();
+    await page.getByRole("button", { name: "Apply" }).click();
 
-    const d = page.getByRole("dialog", { name: "Start Your Application" });
+    const d = page.getByRole("dialog", { name: "Apply" });
     await expect(d).toBeVisible();
     await expect(d.getByLabel("Deposit")).toHaveValue("4000");
     await expect(d.getByLabel("Term")).toHaveValue("36 months");
@@ -121,10 +121,10 @@ test.describe("finance application", () => {
     await expect(calc(page).getByLabel("Price")).toHaveCount(0); // text, not an input
     await expect(result(page)).toContainText(/About €[\d,]+ a month/);
 
-    const apply = page.getByRole("button", { name: "Start Your Application" });
+    const apply = page.getByRole("button", { name: "Apply" });
     await expect(apply).not.toHaveClass(/bg-accent/); // Enquire keeps the page's one accent
     await apply.click();
-    const d = page.getByRole("dialog", { name: "Start Your Application" });
+    const d = page.getByRole("dialog", { name: "Apply" });
     await expect(d).toBeVisible();
     await expect(d.getByText([live.make, live.model, live.variant].filter(Boolean).join(" "))).toBeVisible();
     await expect(d.getByText(price(live.priceEur))).toBeVisible();

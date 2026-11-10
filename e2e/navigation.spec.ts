@@ -15,7 +15,8 @@ const HEADER = [
   ["About", "/about"],
   ["Contact", "/contact"],
 ] as const;
-const MENU = [["Used Cars", "/used-cars"], HEADER[0], HEADER[1], ["Find a Car", "/find-a-car"], ["Compare Cars", "/compare"], ...HEADER.slice(2)] as const;
+const SECTIONS = [["Used Cars", "/used-cars"], ["New Cars", "/new-cars"], ["Commercial", "/commercial"]] as const;
+const MENU = [...SECTIONS, ["Test Drive", "/test-drive"], HEADER[0], HEADER[1], ["Find a Car", "/find-a-car"], ["Compare Cars", "/compare"], ...HEADER.slice(2)] as const;
 const FOOTER = [
   ["Used Cars", "/used-cars"],
   ["Finance", "/finance"],
@@ -31,19 +32,27 @@ const FOOTER = [
 ] as const;
 const PAGES = ["/", "/used-cars", `/used-cars/${live.slug}`, "/finance", "/trade-in", "/find-a-car", "/service", "/warranty", "/contact", "/about", "/terms", "/privacy"];
 
-test("from 1024px the header has Stock and five links, and no Enquire button", async ({ page }) => {
+test("from 1024px the header has Used, New, Commercial and five links, and no Enquire button or Stock menu", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/");
   const banner = page.getByRole("banner");
-  for (const [name, href] of HEADER) await expect(banner.getByRole("link", { name, exact: true })).toHaveAttribute("href", href);
+  for (const [name, href] of [...SECTIONS, ...HEADER]) await expect(banner.getByRole("link", { name, exact: true })).toHaveAttribute("href", href);
   await expect(banner.getByRole("link", { name: "Enquire" })).toHaveCount(0);
-  const stock = banner.getByRole("button", { name: "Stock" });
-  await expect(stock).toHaveAttribute("aria-expanded", "false");
-  await stock.click();
-  await expect(stock).toHaveAttribute("aria-expanded", "true");
-  for (const [name, href] of [["All Used Cars", "/used-cars"], ["Find a Car", "/find-a-car"], ["Compare Cars", "/compare"]]) await expect(banner.getByRole("link", { name, exact: true })).toHaveAttribute("href", href);
-  await page.keyboard.press("Escape");
-  await expect(stock).toHaveAttribute("aria-expanded", "false");
+  await expect(banner.getByRole("button", { name: "Stock" })).toHaveCount(0);
+  await expect(banner.getByRole("navigation", { name: "Vehicle type" })).toHaveCount(0);
+});
+
+test("a new car and a van mark New Cars and Commercial in the header, not Used Cars", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  const banner = page.getByRole("banner");
+  for (const [list, name, label] of [["/new-cars", "Niro", "New Cars"], ["/commercial", "Vito", "Commercial"]] as const) {
+    await page.goto(list);
+    await expect(banner.getByRole("link", { name: label, exact: true })).toHaveAttribute("aria-current", "page");
+    await page.locator("article").filter({ hasText: name }).getByRole("link").first().click();
+    await expect(page.getByTestId("buy-box")).toBeVisible();
+    await expect(banner.getByRole("link", { name: label, exact: true })).toHaveAttribute("aria-current", "page");
+    await expect(banner.getByRole("link", { name: "Used Cars", exact: true })).not.toHaveAttribute("aria-current", "page");
+  }
 });
 
 test("the current section has a red bar and aria-current", async ({ page }) => {
@@ -80,7 +89,7 @@ test("the footer has social icons and a Powered by Checkwork link that opens che
   await expect(credit.getByRole("img", { name: "Checkwork" })).toBeVisible();
 });
 
-test("on a phone the header is the logo on the left, then the heart and the menu on the right, level with each other; Used Cars is in the menu", async ({ page }) => {
+test("on a phone the header is the menu on the left, the logo in the middle and the heart on the right, level with each other; Used Cars is in the menu", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 640 });
   await page.goto("/");
   const banner = page.getByRole("banner");
@@ -89,8 +98,9 @@ test("on a phone the header is the logo on the left, then the heart and the menu
   const mid = (b: { y: number; height: number } | null) => b!.y + b!.height / 2;
   expect(mid(menu)).toBeCloseTo(mid(heart), 0);
   expect(mid(logo)).toBeCloseTo(mid(menu), 0);
+  expect(menu!.x).toBeLessThan(logo!.x);
   expect(logo!.x).toBeLessThan(heart!.x);
-  expect(heart!.x).toBeLessThan(menu!.x);
+  expect(Math.abs(logo!.x + logo!.width / 2 - 180)).toBeLessThan(2); // the logo is centred on a 360px phone
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
 });
 

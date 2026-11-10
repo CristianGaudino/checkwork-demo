@@ -25,7 +25,7 @@ export function MobileMenu({ links }: { links: { href: string; label: string }[]
         aria-label="Menu"
         aria-haspopup="dialog"
         onClick={() => dialog.current?.showModal()}
-        className={`-mr-2 flex h-11 w-11 items-center justify-center rounded-control lg:hidden ${press}`}
+        className={`-ml-2 flex h-11 w-11 items-center justify-center rounded-control lg:hidden ${press}`}
       >
         <MenuIcon />
       </button>

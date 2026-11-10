@@ -45,16 +45,16 @@ describe("carMetadata", () => {
 
 describe("carDescription", () => {
   it("lists year, specs, price and the dealer", () => {
-    expect(carDescription(car)).toBe("2019 Audi A4 2.0 TDI S line. 84,000 km, Diesel, Manual. €18,950. Checkwork Motors, Demotown, Co. Demo.");
+    expect(carDescription(car)).toBe("2019 Audi A4 2.0 TDI S line. 84,000 km, Diesel, Manual. €18,950. Checkwork Motors, Dublin 12, Co. Dublin.");
   });
 
   it("drops missing parts with their separators", () => {
-    expect(carDescription({ ...car, variant: undefined, mileageKm: undefined, gearbox: undefined })).toBe("2019 Audi A4. Diesel. €18,950. Checkwork Motors, Demotown, Co. Demo.");
-    expect(carDescription({ ...car, mileageKm: undefined, fuel: undefined, gearbox: undefined })).toBe("2019 Audi A4 2.0 TDI S line. €18,950. Checkwork Motors, Demotown, Co. Demo.");
+    expect(carDescription({ ...car, variant: undefined, mileageKm: undefined, gearbox: undefined })).toBe("2019 Audi A4. Diesel. €18,950. Checkwork Motors, Dublin 12, Co. Dublin.");
+    expect(carDescription({ ...car, mileageKm: undefined, fuel: undefined, gearbox: undefined })).toBe("2019 Audi A4 2.0 TDI S line. €18,950. Checkwork Motors, Dublin 12, Co. Dublin.");
   });
 
   it("says Sold. in place of the price, with no date", () => {
-    expect(carDescription(sold)).toBe("2019 Audi A4 2.0 TDI S line. 84,000 km, Diesel, Manual. Sold. Checkwork Motors, Demotown, Co. Demo.");
+    expect(carDescription(sold)).toBe("2019 Audi A4 2.0 TDI S line. 84,000 km, Diesel, Manual. Sold. Checkwork Motors, Dublin 12, Co. Dublin.");
   });
 });
 
@@ -77,7 +77,7 @@ describe("carJsonLd", () => {
         priceCurrency: "EUR",
         availability: "https://schema.org/InStock",
         url: "https://www.demo.checkwork.ie/used-cars/audi-a4-2019-101",
-        seller: { "@type": "AutoDealer", name: "Checkwork Motors", telephone: "+35319060045", address: { addressLocality: "Demotown", addressRegion: "Demo", addressCountry: "IE" } },
+        seller: { "@type": "AutoDealer", name: "Checkwork Motors", telephone: "+35319060045", address: { addressLocality: "Dublin 12", addressRegion: "Dublin", addressCountry: "IE" } },
       },
     });
   });

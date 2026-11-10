@@ -22,7 +22,8 @@ export function groupHours(days: typeof OPENING_HOURS = OPENING_HOURS): { label:
 }
 
 // The eircode pins the exact spot; the town alone does not.
-export const mapQuery = () => `${DEALER_ADDRESS.eircode}, Ireland`;
+// The street, not the eircode: the eircode here is illustrative, the street is real.
+export const mapQuery = () => `${DEALER_ADDRESS.street}, ${DEALER_ADDRESS.town}, Ireland`;
 
 export const directionsUrl = (placeId?: string) =>
   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery())}${placeId ? `&query_place_id=${encodeURIComponent(placeId)}` : ""}`;

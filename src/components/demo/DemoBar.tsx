@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useSyncExternalStore } from "react";
-import { DEMO_ROLES, THEME_KEY, roleForPath, type Theme } from "@/lib/demo";
+import { DEMO_ROLES, THEME_KEY, isAppPath, roleForPath, type Theme } from "@/lib/demo";
+import { setDemoRole, useDemoRole } from "@/lib/demo-role";
 import { press } from "@/components/ui";
 
 // The theme lives on <html data-theme>; this watches that attribute, so the button is right on first paint and after any change.
@@ -25,7 +26,12 @@ function setTheme(t: Theme) {
 }
 
 export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
-  const role = roleForPath(usePathname());
+  const path = usePathname();
+  const router = useRouter();
+  const inApp = isAppPath(path);
+  const saved = useDemoRole();
+  // In the dealer or platform area the route is the role. On a public page it is the remembered one.
+  const role = inApp ? roleForPath(path) : saved;
   const theme = useSyncExternalStore(subscribe, read, () => "light" as Theme);
   return (
     <div data-demo-bar className="theme-dark relative z-40 border-b border-hairline bg-band text-meta text-text">
@@ -36,6 +42,14 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
             <Link
               key={r.id}
               href={r.href}
+              onClick={(e) => {
+                setDemoRole(r.id);
+                // From a public page, Dealer and Superuser change that page (a strip, and stock and social controls on a car). The strip links on to the area.
+                if (!inApp && r.id !== "customer") {
+                  e.preventDefault();
+                  router.refresh();
+                }
+              }}
               aria-current={r.id === role ? "true" : undefined}
               className={`flex h-11 items-center px-2 sm:px-3 ${r.id === role ? "font-semibold text-text underline decoration-accent decoration-2 underline-offset-8" : "text-text-2"} ${press}`}
             >

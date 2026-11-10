@@ -82,7 +82,7 @@ export function HomeSearch({ makes, bodies, models }: Props) {
             ))}
           </ol>
           <Link href="/find-a-car" className={`inline-flex items-center justify-center gap-2 lg:shrink-0 ${accentButton}`}>
-            Ask Us to Find It
+            Find It for Me
             <ArrowRightIcon className="size-5" />
           </Link>
         </div>

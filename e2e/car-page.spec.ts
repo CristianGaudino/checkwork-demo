@@ -40,8 +40,8 @@ test.describe("a car for sale", () => {
     const call = box.getByRole("link", { name: /^Call Us/ });
     await expect(call).toHaveAttribute("href", "tel:+35319060045");
     await expect(box.getByRole("link", { name: /^WhatsApp/ })).toHaveAttribute("href", /^https:\/\/wa\.me\/35319060045\?text=/);
-    await expect(box.getByRole("button", { name: "Enquire About This Car", exact: true })).toBeVisible();
-    await expect(box.getByRole("button", { name: "Book a Test Drive", exact: true })).toBeVisible();
+    await expect(box.getByRole("button", { name: "Enquire", exact: true })).toBeVisible();
+    await expect(box.getByRole("button", { name: "Test Drive", exact: true })).toBeVisible();
     await expect(box.getByRole("button", { name: /Reserve/ })).toHaveCount(0);
 
     const tiles = box.locator("dl > div");
@@ -116,9 +116,9 @@ test.describe("on a desktop", () => {
     expect(box.x).toBeGreaterThan(photo.x + photo.width);
     expect(box.y).toBeLessThan(photo.y + photo.height);
     await expect(buyBox(page)).toHaveCSS("background-color", "rgba(0, 0, 0, 0)"); // no card behind it
-    // Enquire and Book a Test Drive share the first row; Call Us and WhatsApp the second.
+    // Enquire and Test Drive share the first row; Call Us and WhatsApp the second.
     const at = async (role: "button" | "link", name: string) => (await buyBox(page).getByRole(role, { name: new RegExp(`^${name}`) }).boundingBox())!;
-    const [enquire, drive, call, whatsapp] = [await at("button", "Enquire About This Car"), await at("button", "Book a Test Drive"), await at("link", "Call Us"), await at("link", "WhatsApp")];
+    const [enquire, drive, call, whatsapp] = [await at("button", "Enquire"), await at("button", "Test Drive"), await at("link", "Call Us"), await at("link", "WhatsApp")];
     expect(Math.round(enquire.y)).toBe(Math.round(drive.y));
     expect(Math.round(call.y)).toBe(Math.round(whatsapp.y));
     expect(call.y).toBeGreaterThan(enquire.y);
@@ -208,7 +208,7 @@ test("an in-stock car page has a canonical URL, a description and Product plus C
   const href = await firstCarHref(page);
   await page.goto(href);
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", `${ORIGIN}${href}`);
-  expect(await description(page)).toMatch(/Demotown, Co. Demo\.$/);
+  expect(await description(page)).toMatch(/Dublin 12, Co. Dublin\.$/);
   const ld = await jsonLd(page);
   expect(ld["@type"]).toEqual(expect.arrayContaining(["Car", "Product"]));
   const shown = await buyBox(page).getByText(/^€[\d,]+$/).filter({ visible: true }).textContent();

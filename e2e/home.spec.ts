@@ -28,7 +28,7 @@ test("picking a make narrows the model list, and the Find me a car tab links to 
   await choose(page.getByLabel("Make", { exact: true }), newest.make);
   expect((await optionLabels(model)).length).toBeLessThan(all);
   await page.getByRole("tab", { name: "Find me a car" }).click();
-  await expect(page.getByRole("link", { name: "Ask us to find it" })).toHaveAttribute("href", "/find-a-car");
+  await expect(page.getByRole("link", { name: "Find it for me" })).toHaveAttribute("href", "/find-a-car");
   await expect(page.getByLabel("Make", { exact: true })).toBeHidden();
 });
 
@@ -43,7 +43,7 @@ test("the Find me a car tab fits inside the Search Stock box and the page does n
   const after = (await box.boundingBox())!;
   expect(after.height).toBe(before.height);
   const p = (await panel.boundingBox())!;
-  for (const part of [panel.getByRole("link", { name: "Ask us to find it" }), panel.getByText("Can't see the car you want?")]) {
+  for (const part of [panel.getByRole("link", { name: "Find it for me" }), panel.getByText("Can't see the car you want?")]) {
     const b = (await part.boundingBox())!;
     expect(b.y).toBeGreaterThanOrEqual(p.y);
     expect(b.y + b.height).toBeLessThanOrEqual(p.y + p.height);
@@ -166,7 +166,7 @@ test.describe("desktop pointer", () => {
 // Tailwind's active:scale-* sets the scale property; a transition that only lists transform makes the press snap (#45).
 test("press feedback eases scale, and header links are 44px tall", async ({ page }) => {
   await page.goto("/");
-  for (const el of [page.getByRole("button", { name: "Search cars" }), page.getByRole("main").getByRole("link", { name: "Browse our stock" })]) {
+  for (const el of [page.getByRole("button", { name: "Search cars" }), page.getByRole("main").getByRole("link", { name: "Browse stock" })]) {
     await expect(el).toHaveCSS("transition-property", /\bscale\b/);
   }
   // A card never scales on press: on iOS that cancelled the photo swipe inside it (#44). Its body lightens instead.
@@ -186,9 +186,9 @@ test("reviews, the trust strip and finance banner, and AutoDealer JSON-LD", asyn
     [/^Extended Warranty/, "/warranty"],
     [/^Flexible Finance/, "/finance"],
     [/^Trade-In Welcome/, "/trade-in"],
-    [/^Test Drives/, "/used-cars"],
+    [/^Test Drives/, "/test-drive"],
     ["Check finance options", "/finance"],
-    ["Estimate your finance", "/finance"],
+    ["Estimate finance", "/finance"],
   ] as const) {
     await expect(main.getByRole("link", { name })).toHaveAttribute("href", href);
   }
@@ -251,4 +251,12 @@ test("visit us has the address, the hours and the way there", async ({ page }) =
   const visit = page.getByRole("region", { name: "Visit us" });
   await expect(visit.getByRole("heading", { name: "Opening hours" })).toBeVisible();
   await expect(visit.getByRole("link", { name: /Get directions/i })).toBeVisible();
+});
+
+test("the make chips show the maker's logo, and it loads", async ({ page }) => {
+  await page.goto("/");
+  const logo = page.locator('section[aria-labelledby="browse-by-make"] a img').first();
+  await logo.scrollIntoViewIfNeeded(); // lazy images load when they near the screen
+  await expect(logo).toBeVisible();
+  await expect.poll(() => logo.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0)).toBe(true);
 });

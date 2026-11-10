@@ -16,6 +16,7 @@
     "stock:redate": "node scripts/stock/build.mjs redate",
     "stock:og": "node scripts/stock/og.mjs",
     "stock:seed": "node scripts/stock/seed.mjs",
+    "stock:reset": "node scripts/stock/seed.mjs --reset",
     "db:seed": "wrangler d1 execute DB --remote --file=seed/stock.sql"
   },
   "engines": {

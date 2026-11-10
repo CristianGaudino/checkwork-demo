@@ -37,7 +37,7 @@ const POST_TONE: Record<string, Tone> = { draft: "neutral", scheduled: "info", p
 const AD_TONE: Record<string, Tone> = { draft: "neutral", running: "good", paused: "warn", ended: "neutral" };
 const quiet = "min-h-11 px-2 text-meta font-semibold underline";
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ tab?: string; notice?: string }> }) {
+export default async function Page({ searchParams }: { searchParams: Promise<{ tab?: string; notice?: string; car?: string }> }) {
   const sp = await searchParams;
   const tab = TABS.some(([k]) => k === sp.tab) ? sp.tab! : "social";
   const notice = sp.notice ? NOTICES[sp.notice] : undefined;
@@ -72,7 +72,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
           <Panel title="Write a post">
             <form action={createPostAction} className="grid grid-cols-1 gap-4 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_auto] sm:items-end">
               <Field label="Car">
-                <select name="carSlug" className={adminInput} defaultValue="">
+                <select name="carSlug" className={adminInput} defaultValue={forSale.some((c) => c.slug === sp.car) ? sp.car : ""}>
                   <option value="" disabled>Choose a car</option>
                   {carOptions}
                 </select>

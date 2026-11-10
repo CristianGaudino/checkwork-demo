@@ -177,7 +177,7 @@ test("a provider failure shows the error state and Sort still works", async ({ p
   const error = () => Promise.all([
     expect(page.getByRole("heading", { name: "We couldn't load the cars" })).toBeVisible(),
     expect(page.getByText("Check your connection and try again.")).toBeVisible(),
-    expect(page.getByRole("button", { name: "Try loading cars again" })).toBeVisible(),
+    expect(page.getByRole("button", { name: "Try again" })).toBeVisible(),
   ]);
   await error();
   await expect(page.locator("article")).toHaveCount(0);
@@ -190,7 +190,7 @@ test("a provider failure shows the error state and Sort still works", async ({ p
   await expect(page).toHaveURL(/q=e2e-forced-failure/);
   await error();
 
-  await page.getByRole("button", { name: "Try loading cars again" }).click();
+  await page.getByRole("button", { name: "Try again" }).click();
   await error();
   await expect(sort).toBeEnabled();
 

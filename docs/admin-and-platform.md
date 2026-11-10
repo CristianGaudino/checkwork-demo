@@ -16,6 +16,7 @@ The demo has three perspectives. The public site is `/`. The dealer admin is `/a
 1. Zero Trust, Access, Applications, Add, Self-hosted. Add two paths on the demo domain: `/admin*` and `/platform*`. Allow only the dealer's email addresses.
 2. Copy the application's Audience tag. Your team domain is `<team>.cloudflareaccess.com`.
 3. On the Worker, add two variables (not secrets): `CF_ACCESS_TEAM_DOMAIN` and `CF_ACCESS_AUD`.
+4. Optional, to keep the dealer's staff out of the platform: make a second Access application for `/platform*` alone (allow only the superuser's email), and set its audience tag as `CF_ACCESS_AUD_PLATFORM`. Without it the platform uses the dealer's application, so anyone allowed into the admin can open it.
 
 Until both are set the admin answers 404 for everyone. The Worker checks Access's signed token itself (`src/lib/access.ts`), so a missing policy fails closed instead of open.
 
