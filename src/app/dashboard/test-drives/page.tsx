@@ -50,7 +50,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
                       {time.format(d.startsAt)} · {d.name}
                     </span>
                     <span className="text-meta text-text-2">
-                      {d.carTitle} · <a href={`tel:${d.phone.replace(/\s/g, "")}`} className="underline">{d.phone}</a>
+                      {d.carTitle} · <a href={`tel:${d.phone.replace(/\s/g, "")}`} className="inline-flex min-h-11 items-center underline">{d.phone}</a>
                     </span>
                     {d.notes && <span className="text-meta text-text-2">{d.notes}</span>}
                   </div>

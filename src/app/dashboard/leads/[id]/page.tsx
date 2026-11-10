@@ -43,7 +43,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             {lead.carTitle && lead.carSlug && (
               <p className="text-meta text-text-2">
                 About{" "}
-                <Link href={`/used-cars/${lead.carSlug}`} className="font-semibold text-text underline">
+                <Link href={`/used-cars/${lead.carSlug}`} className="inline-flex min-h-11 items-center font-medium text-text underline">
                   {lead.carTitle}
                 </Link>
               </p>

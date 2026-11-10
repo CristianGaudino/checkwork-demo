@@ -29,11 +29,11 @@ export default async function Page() {
           <>
             <Link href="/dashboard/stock/new" className={adminButtonQuiet}>
               <CarIcon className="size-4" />
-              Add a car
+              Add car
             </Link>
             <Link href="/dashboard/test-drives" className={adminButtonQuiet}>
               <CalendarIcon className="size-4" />
-              Book a test drive
+              Test drive
             </Link>
             <Link href="/dashboard/marketing" className={adminButtonQuiet}>
               <ShareIcon className="size-4" />
@@ -52,7 +52,7 @@ export default async function Page() {
       </StatGrid>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-        <Panel title="Latest leads" action={<Link href="/dashboard/leads" className="text-meta font-medium text-accent-text underline">All leads</Link>}>
+        <Panel title="Latest leads" action={<Link href="/dashboard/leads" className="inline-flex min-h-11 items-center text-meta font-medium text-accent-text underline">All leads</Link>}>
           {o.recentLeads.length === 0 ? (
             <EmptyState title="No leads yet" />
           ) : (
@@ -90,7 +90,7 @@ export default async function Page() {
             )}
           </Panel>
 
-          <Panel title="Test drives this week" action={<Link href="/dashboard/test-drives" className="text-meta font-medium text-accent-text underline">All bookings</Link>}>
+          <Panel title="Test drives this week" action={<Link href="/dashboard/test-drives" className="inline-flex min-h-11 items-center text-meta font-medium text-accent-text underline">All bookings</Link>}>
             {o.upcomingDrives.length === 0 ? (
               <EmptyState title="None booked" />
             ) : (

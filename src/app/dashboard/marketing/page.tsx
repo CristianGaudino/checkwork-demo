@@ -19,7 +19,6 @@ const NOTICES: Record<string, { tone: "good" | "warn"; text: string }> = {
   "post-draft": { tone: "good", text: "Draft saved." },
   "draft-ad": { tone: "good", text: "Draft and ad draft saved." },
   "post-scheduled": { tone: "good", text: "Post scheduled." },
-  "scheduled-ad": { tone: "good", text: "Post scheduled. The ad is saved as a draft." },
   "post-published": { tone: "good", text: "Post published." },
   "published-ad": { tone: "good", text: "Post published and ad started." },
   "published-ad-draft": { tone: "warn", text: "Post published. The ad is saved as a draft because ads are not connected." },
@@ -55,6 +54,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
   const [posts, ads, letters, subs, cars, settings] = await Promise.all([postsStore.list(), adsStore.list(), newslettersStore.list(), subscribersStore.list(), adminCars(), getSettings()]);
   const forSale = cars.filter((c) => !isSold(c)).sort((a, b) => Number(b.id) - Number(a.id));
   const live = subs.filter((s) => s.status === "subscribed").length;
+  // shortcut: the text for every car and network is sent to the page; fine at about 100 cars, write it on choosing a car beyond that.
   const composerCars = forSale.map((c) => ({
     slug: c.slug,
     title: carName(c),

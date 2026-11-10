@@ -42,7 +42,7 @@ export default async function Home() {
         <HeroMosaic />
         <div className={`${pageWidth} grid grid-cols-1 gap-8 pb-24 pt-16 lg:min-h-[38rem] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-end lg:gap-12 lg:pb-28 lg:pt-24`}>
           <div className="theme-dark flex min-w-0 flex-col items-start text-text">
-            <h1 className="max-w-[10ch] text-hero font-semibold lg:text-hero-lg">Find your next car</h1>
+            <h1 className="max-w-[14ch] text-balance text-hero font-semibold lg:text-hero-lg">Find your next car</h1>
             <p className="mt-4 max-w-[40ch] text-body text-text/90">A carefully selected range of quality used cars, backed by trusted service and straightforward finance.</p>
             <p className="mt-2 max-w-measure text-meta text-text/75">Find us at {DEALER_ADDRESS_LINES.join(", ").replace(/ (\S+)$/, " $1")}.</p>
             <div className="mt-6 flex w-full flex-wrap gap-3">

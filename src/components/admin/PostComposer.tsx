@@ -47,7 +47,7 @@ export function PostComposer({ cars, initialSlug, action }: { cars: ComposerCar[
 
         <div role="group" aria-label="Where" className="flex flex-wrap gap-2">
           {NETWORKS.map((n) => (
-            <button key={n} type="button" aria-pressed={network === n} onClick={() => (setNetwork(n), setTyped(null))} className={chip(network === n)}>
+            <button key={n} type="button" aria-pressed={network === n} onClick={() => setNetwork(n)} className={chip(network === n)}>
               {n}
             </button>
           ))}
@@ -90,11 +90,14 @@ export function PostComposer({ cars, initialSlug, action }: { cars: ComposerCar[
         )}
         {photos.map((src) => <input key={src} type="hidden" name="photos" value={src} />)}
 
-        <label className="flex min-h-11 items-center gap-3">
-          <input type="checkbox" name="ad" checked={ad} onChange={(e) => setAd(e.target.checked)} className="size-5 accent-[var(--color-accent)]" />
-          <span className="text-body">Also run it as an ad</span>
-        </label>
-        {ad && (
+        {/* An ad starts with the post, so it is only offered for a post that goes out now. */}
+        {!later && (
+          <label className="flex min-h-11 items-center gap-3">
+            <input type="checkbox" name="ad" checked={ad} onChange={(e) => setAd(e.target.checked)} className="size-5 accent-[var(--color-accent)]" />
+            <span className="text-body">Also run it as an ad</span>
+          </label>
+        )}
+        {ad && !later && (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Ad platform">
               <Select name="platform" label="Ad platform" defaultValue="Meta" options={[["Meta", "Meta"], ["Google", "Google"]]} />

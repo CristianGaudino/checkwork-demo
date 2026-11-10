@@ -43,11 +43,11 @@ export async function composeAction(data: FormData) {
   const photos = data.getAll("photos").map(String).filter((src) => car.photos.some((p) => p.src === src)).slice(0, 4);
   const post: SocialPost = { id: newId("post"), network: d.network, carSlug: car.slug, carTitle: carName(car), text: d.text, ...(photos.length && { photos }), status: later ? "scheduled" : "draft", ...(later && { scheduledFor: when }), createdAt: Date.now() };
   await postsStore.put(post);
-  const withAd = d.ad === "on" && d.platform && d.budgetEur;
+  const withAd = d.ad === "on" && !later && d.platform && d.budgetEur; // an ad starts with the post, so not for a scheduled one
   const adDraft: Ad | null = withAd ? { id: newId("ad"), name: `${carName(car)} ${d.platform} ad`, platform: d.platform!, carTitle: carName(car), budgetEur: d.budgetEur!, status: "draft", impressions: 0, clicks: 0, leads: 0, createdAt: Date.now() } : null;
   if (adDraft) await adsStore.put(adDraft);
   if (d.intent === "draft") return go("posts", adDraft ? "draft-ad" : "post-draft");
-  if (later) return go("posts", adDraft ? "scheduled-ad" : "post-scheduled");
+  if (later) return go("posts", "post-scheduled");
   const sent = await publishPost(post);
   if (!sent.ok) return outcome("posts", "social", sent, "");
   await postsStore.put({ ...post, status: "posted", postedAt: Date.now(), ...(sent.simulated && { simulated: true, ...simulatedPost(post.id) }) });

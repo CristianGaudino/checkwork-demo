@@ -5,7 +5,7 @@ A made-up used car dealer site, "Checkwork Motors", that [Checkwork](https://www
 **Stack:** Next.js 16 (App Router) · Tailwind CSS v4 · Cloudflare D1 + Drizzle (leads and stock) · R2 (trade-in and find-a-car photos) · Cloudflare Workers via OpenNext · GitHub Actions
 
 ## Status
-The full, all-inclusive version: the customer site, the dealer's admin area (with permissions for sensitive figures), all on made-up data. Open work is in this repo's [issues](https://github.com/CristianGaudino/checkwork-demo/issues) and the [project board](https://github.com/users/CristianGaudino/projects/8).
+The full, all-inclusive version: the customer site, the dealer dashboard (with permissions for sensitive figures), all on made-up data. Open work is in this repo's [issues](https://github.com/CristianGaudino/checkwork-demo/issues) and the [project board](https://github.com/users/CristianGaudino/projects/8).
 
 Project rules and the PR checklist are in [.claude/CLAUDE.md](.claude/CLAUDE.md).
 
@@ -16,7 +16,7 @@ The stock lives in Cloudflare D1 (table `cars`, one row per car, the whole car a
 - `npm run stock:build -- <dataset dir>` writes the JSON and `public/stock/` photos from the catalogue (`scripts/stock/build.mjs`). `node scripts/stock/index-dataset.mjs <dataset dir> <out dir>` finds sets of one car in the dataset and makes contact sheets to choose from. Manual: never run in CI or at build time. The hero, about picture and logo are drawn by `node scripts/demo/make-demo.mjs build`.
 - `npm run stock:og` makes the per-car share images (`public/og/`). Manual too.
 - `npm run stock:redate` moves the sold cars' dates relative to today, so the sold examples stay inside their 30 day window. The deploy runs it, and runs weekly.
-- `npm run stock:seed` writes `seed/stock.sql` from the JSON, and `npm run db:seed` applies it to the remote D1. It adds missing cars and refreshes sold dates, so the dealer's changes in the admin survive. `npm run stock:reset` replaces every row with the files. The deploy runs the seed after `wrangler deploy` (so the photos are live first); run Deploy from the Actions tab with "reseed" ticked to reset.
+- `npm run stock:seed` writes `seed/stock.sql` from the JSON, and `npm run db:seed` applies it to the remote D1. It adds missing cars and refreshes sold dates, so the dealer's changes in the dashboard survive. `npm run stock:reset` replaces every row with the files. The deploy runs the seed after `wrangler deploy` (so the photos are live first); run Deploy from the Actions tab with "reseed" ticked to reset.
 
 E2E needs the same `APP_ENV` at build and at run time, for example `APP_ENV=production npm run build` then `APP_ENV=production npm run e2e`.
 

@@ -31,7 +31,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
           rowKey={(c) => c.id}
           columns={[
             { key: "name", header: "Name", cell: (c) => <span className="font-semibold">{c.name}</span> },
-            { key: "email", header: "Email", cell: (c) => <a href={`mailto:${c.email}`} className="underline">{c.email}</a> },
+            { key: "email", header: "Email", cell: (c) => <a href={`mailto:${c.email}`} className="inline-flex min-h-11 items-center underline">{c.email}</a> },
             { key: "source", header: "Source", cell: (c) => c.source },
             { key: "consent", header: "Marketing", cell: (c) => (c.marketingConsent ? <Badge tone="good">Agreed</Badge> : <Badge>No</Badge>) },
             { key: "last", header: "Last contact", cell: (c) => fmtAgo(c.lastContactAt), align: "right" },
