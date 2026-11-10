@@ -38,8 +38,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
           { key: "plan", header: "Plan", cell: (d) => planOf(d.plan).name },
           { key: "status", header: "Status", cell: (d) => <Badge tone={TONE[d.status]}>{LABEL[d.status]}</Badge> },
           { key: "cars", header: "Cars", align: "right", cell: (d) => fmtNum(d.cars) },
-          { key: "leads", header: "Leads this month", align: "right", cell: (d) => fmtNum(d.leadsMonth) },
-          { key: "mrr", header: "Per month", align: "right", cell: (d) => (monthlyEur(d) ? fmtEur(monthlyEur(d)) : "None") },
+          { key: "leads", header: "Leads this month", align: "right", hide: "md", cell: (d) => fmtNum(d.leadsMonth) },
+          { key: "mrr", header: "Per month", align: "right", hide: "sm", cell: (d) => (monthlyEur(d) ? fmtEur(monthlyEur(d)) : "None") },
         ]}
       />
       <Panel title="Add a dealership">

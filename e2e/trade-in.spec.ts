@@ -89,13 +89,7 @@ test("it is a trade-in valuation page that explains itself, in four steps, with 
   await expect(page.getByText("Prefer to talk?")).toHaveCount(0);
   await expect(page.getByRole("list", { name: "Progress" }).getByRole("listitem")).toHaveCount(4);
   await expect(page.getByRole("heading", { name: /^Step 1 of 4/ })).toBeVisible();
-  // The registration lookup is only an indication for now, joined to the field's right edge as one control.
-  const lookup = page.getByRole("button", { name: "Look Up", exact: true });
-  await expect(lookup).toHaveAttribute("aria-disabled", "true");
-  const [field, button] = [(await page.getByLabel("Registration", { exact: true }).boundingBox())!, (await lookup.boundingBox())!];
-  expect(Math.abs(field.x + field.width - button.x)).toBeLessThan(1.5);
-  expect(Math.abs(field.y - button.y)).toBeLessThan(1.5);
-  expect(Math.abs(field.height - button.height)).toBeLessThan(1.5);
+  await expect(page.getByRole("button", { name: "Look Up" })).toHaveCount(0); // no lookup is offered until there is a real one
 });
 
 test("Back keeps what was typed", async ({ page }) => {

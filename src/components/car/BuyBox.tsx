@@ -73,8 +73,12 @@ export function BuyBox({ car }: { car: Car }) {
         })}
       </dl>
       {/* Under the facts, full width, so the buttons and facts stay in view on a phone. */}
-      {!sold && <CompareButton id={car.id} label={`Compare ${carName(car)}`} sizing="flex h-12 w-full px-4" />}
-      {!sold && <StockAlertButton car={carSummary(car)} kind="price-drop" />}
+      {!sold && (
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <CompareButton id={car.id} label={`Compare ${carName(car)}`} sizing="flex h-12 w-full px-4" />
+          <StockAlertButton car={carSummary(car)} kind="price-drop" />
+        </div>
+      )}
       {!sold && (
         <div className={`flex items-start gap-3 ${card} p-4`}>
           <ShieldCheckIcon className="mt-0.5 size-8 shrink-0 text-accent" />

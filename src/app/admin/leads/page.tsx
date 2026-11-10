@@ -56,11 +56,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
               </Link>
             ),
           },
-          { key: "type", header: "Type", cell: (l) => LEAD_TYPE_LABELS[l.type] },
+          { key: "type", header: "Type", cell: (l) => LEAD_TYPE_LABELS[l.type], hide: "md", nowrap: true },
           { key: "about", header: "About", cell: (l) => l.carTitle ?? <span className="line-clamp-1 text-text-2">{l.message}</span>, className: "max-w-[18rem]" },
-          { key: "source", header: "Source", cell: (l) => l.source },
+          { key: "source", header: "Source", cell: (l) => l.source, hide: "lg" },
           { key: "status", header: "Status", cell: (l) => <LeadStatusBadge status={l.status} /> },
-          { key: "owner", header: "With", cell: (l) => l.assignedTo ?? <span className="text-text-2">Nobody yet</span> },
+          { key: "owner", header: "With", cell: (l) => l.assignedTo ?? <span className="text-text-2">Nobody yet</span>, hide: "lg" },
           { key: "when", header: "When", cell: (l) => fmtAgo(l.createdAt), align: "right", className: "whitespace-nowrap" },
         ]}
         empty={<EmptyState title="No leads match" text="Try another filter or search." />}

@@ -46,7 +46,7 @@ export default async function Page() {
           rowKey={(t) => t.id}
           columns={[
             { key: "name", header: "Name", cell: (t) => <span className="font-semibold">{t.name}</span> },
-            { key: "email", header: "Email", cell: (t) => t.email },
+            { key: "email", header: "Email", cell: (t) => t.email, hide: "sm" },
             { key: "role", header: "Role", cell: (t) => <Badge tone={t.role === "Owner" ? "info" : "neutral"}>{t.role}</Badge> },
             {
               key: "remove",

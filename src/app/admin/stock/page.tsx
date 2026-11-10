@@ -44,13 +44,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
       className: "max-w-[22rem]",
     },
     { key: "price", header: "Price", align: "right", cell: (c) => (priceInfo(c).was ? <span>{fmtEur(c.priceEur)} <Badge tone="good">Reduced</Badge></span> : fmtEur(c.priceEur)) },
-    { key: "km", header: "Mileage", align: "right", cell: (c) => (c.mileageKm !== undefined ? `${fmtNum(c.mileageKm)} km` : "") },
-    { key: "status", header: "Status", cell: (c) => (isSold(c) ? <Badge tone="neutral">Sold</Badge> : <Badge tone="good">For sale</Badge>) },
+    { key: "km", header: "Mileage", align: "right", hide: "md", cell: (c) => (c.mileageKm !== undefined ? `${fmtNum(c.mileageKm)} km` : "") },
+    { key: "status", header: "Status", hide: "md", cell: (c) => (isSold(c) ? <Badge tone="neutral">Sold</Badge> : <Badge tone="good">For sale</Badge>) },
     {
       key: "actions",
       header: "Actions",
       cell: (c) => (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex gap-3 whitespace-nowrap">
           <Link href={`/admin/stock/${c.id}`} className="inline-flex min-h-11 items-center text-meta font-semibold underline">
             Edit
           </Link>

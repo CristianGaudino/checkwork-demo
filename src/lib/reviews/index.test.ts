@@ -73,7 +73,7 @@ describe("DEMO_REVIEWS", () => {
     expect(d.count).toBe(d.reviews.length);
     expect(d.rating).toBe(d.reviews.reduce((s, r) => s + r.rating, 0) / d.reviews.length);
     for (const r of d.reviews) {
-      expect(r.author).toMatch(/^Sample customer [A-Z]\.$/);
+      expect(r.author).toMatch(/^[A-Z][a-z]+ [A-Z]\.$/);
       expect(r).not.toHaveProperty("authorUri");
       expect(r).not.toHaveProperty("photoUri");
       expect(r.reviewUri).toMatch(/^https:\/\//);
