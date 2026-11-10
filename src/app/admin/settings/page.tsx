@@ -1,4 +1,4 @@
-import { AddTeamForm, MarketingForm, NotificationsForm, TargetsForm } from "@/components/admin/SettingsForms";
+import { AddTeamForm, LeadEmailsForm, MarketingForm, NotificationsForm, TargetsForm } from "@/components/admin/SettingsForms";
 import { Badge, DataTable, PageHeader, Panel, adminButtonQuiet } from "@/components/admin/kit";
 import { getSettings } from "@/lib/admin/collections";
 import { INTEGRATIONS, isConnected, missingEnv } from "@/lib/integrations";
@@ -64,6 +64,10 @@ export default async function Page() {
           ]}
         />
         <AddTeamForm />
+      </Panel>
+
+      <Panel title="Lead emails">
+        <LeadEmailsForm settings={s} fallback={Boolean(process.env.LEAD_TO_EMAIL)} />
       </Panel>
 
       <Panel title="Notifications">

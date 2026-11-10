@@ -1,8 +1,8 @@
 "use client";
 
 import { useActionState } from "react";
-import { Field, adminButton, adminInput } from "@/components/admin/kit";
-import { addTeamAction, saveMarketingAction, saveNotificationsAction, saveTargetsAction, type SettingsState } from "@/app/admin/settings/actions";
+import { Field, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
+import { addTeamAction, saveLeadEmailsAction, saveMarketingAction, sendTestEmailAction, saveNotificationsAction, saveTargetsAction, type SettingsState } from "@/app/admin/settings/actions";
 import type { DealerSettings } from "@/lib/admin/collections";
 
 // Each settings panel is its own small form that saves on its own and says so. The server checks every value again.
@@ -42,6 +42,29 @@ export function TargetsForm({ settings }: { settings: DealerSettings }) {
         <Save pending={f.pending} saved={f.state?.saved} />
       </div>
     </form>
+  );
+}
+
+export function LeadEmailsForm({ settings, fallback }: { settings: DealerSettings; fallback: boolean }) {
+  const f = useSave(saveLeadEmailsAction);
+  const t = useSave(sendTestEmailAction as Action);
+  return (
+    <div className="flex flex-col gap-4">
+      <form action={f.run} className="flex flex-col gap-3" noValidate>
+        <Field label="Send new leads to" hint="One address per line. Leave empty to use the site's own address." error={f.errors.leadEmails}>
+          <textarea name="leadEmails" rows={3} defaultValue={settings.leadEmails.join(String.fromCharCode(10))} className={`${adminInput} h-auto py-2`} />
+        </Field>
+        {settings.leadEmails.length === 0 && <p className="text-meta text-text-2">{fallback ? "Using the site's own address." : "No address is set, so new leads cannot be sent yet."}</p>}
+        <Save pending={f.pending} saved={f.state?.saved} />
+      </form>
+      <form action={t.run} className="flex items-center gap-4">
+        <button type="submit" disabled={t.pending} className={adminButtonQuiet}>
+          {t.pending ? "Sending" : "Send a test email"}
+        </button>
+        {t.state?.saved && !t.pending && <p role="status" className="text-meta text-better">Sent</p>}
+        {t.errors.test && !t.pending && <p role="alert" className="text-meta text-destructive">{t.errors.test}</p>}
+      </form>
+    </div>
   );
 }
 

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { sendToDealer } from "@/lib/leads/mail";
 import { DEALER_COLLECTIONS, getSettings, leadsStore, settingsStore, type DealerSettings } from "@/lib/admin/collections";
 
 export type SettingsState = { errors?: Record<string, string>; saved?: boolean } | undefined;
@@ -41,6 +42,27 @@ export async function saveMarketingAction(_p: SettingsState, data: FormData): Pr
   if (!r.success) return fail(r.error);
   await change((s) => ({ ...s, marketing: r.data }));
   return { saved: true };
+}
+
+// The addresses that get the email when a visitor sends a form. Up to five, one per line or comma. Empty goes back to the site's own setting.
+const MAX_LEAD_EMAILS = 5;
+export async function saveLeadEmailsAction(_p: SettingsState, data: FormData): Promise<SettingsState> {
+  const list = [...new Set(String(data.get("leadEmails") ?? "").split(/[\s,;]+/).map((e) => e.trim().toLowerCase()).filter(Boolean))];
+  if (list.length > MAX_LEAD_EMAILS) return { errors: { leadEmails: `Use ${MAX_LEAD_EMAILS} addresses or fewer` } };
+  const bad = list.find((e) => !z.email().max(120).safeParse(e).success);
+  if (bad) return { errors: { leadEmails: `"${bad.slice(0, 40)}" is not a valid email` } };
+  await change((s) => ({ ...s, leadEmails: list }));
+  return { saved: true };
+}
+
+// Sends one test message to the saved addresses so the dealer can see it arrive.
+export async function sendTestEmailAction(): Promise<SettingsState> {
+  try {
+    await sendToDealer({ subject: "Test email from your dealer admin", text: "If you can read this, new leads will reach this address." });
+    return { saved: true };
+  } catch {
+    return { errors: { test: "The test email did not go. Email is not set up on this site yet, or there is no address to send to." } };
+  }
 }
 
 const member = z.object({ name: z.string().trim().min(1, "Enter a name").max(60), email: z.string().trim().email("Enter a valid email").max(120), role: z.enum(["Owner", "Sales", "Finance"]) });

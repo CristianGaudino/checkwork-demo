@@ -64,10 +64,11 @@ const KEYS = ["type", "carId", "clientRef", "sourcePath", "name", "phone", "emai
 
 // The one place car fields are set, for every lead type. The car always comes from the provider, never from the form (T-03-07).
 // No carId (sourcing, trade-in, finance from /finance): all four null. Unknown or sold car: null, so the lead is refused (Phase 2 D-05).
-export async function snapshotCar(carId: string | undefined, getCar: Deps["getCar"]): Promise<CarSnapshot | null> {
+// A stock alert may name a sold car ("tell me if it comes back"), so it is the one type allowed to.
+export async function snapshotCar(carId: string | undefined, getCar: Deps["getCar"], allowSold = false): Promise<CarSnapshot | null> {
   if (carId === undefined) return { carId: null, carSlug: null, carTitle: null, carPriceEur: null };
   const car = await getCar(carId);
-  if (!car || isSold(car)) return null;
+  if (!car || (isSold(car) && !allowSold)) return null;
   return { carId: car.id, carSlug: car.slug, carTitle: carTitle(car), carPriceEur: car.priceEur };
 }
 
@@ -129,7 +130,7 @@ export async function processLead(fd: FormData, ctx: { ip: string }, deps: Deps)
       return { status: "failed", kind: "captcha" };
     }
 
-    const car = await snapshotCar("carId" in input ? input.carId : undefined, deps.getCar);
+    const car = await snapshotCar("carId" in input ? input.carId : undefined, deps.getCar, input.type === "alert");
     if (!car) {
       logLead({ type: input.type, outcome: "invalid" });
       return { status: "failed", kind: "gone" }; // sold or removed since the buyer opened the form
@@ -145,7 +146,7 @@ export async function processLead(fd: FormData, ctx: { ip: string }, deps: Deps)
       type: input.type,
       ...car,
       sourcePath: input.sourcePath,
-      name: input.name,
+      name: input.name ?? "Stock alert",
       phone: input.phone ?? null,
       email: input.email ?? null,
       message: input.message ?? null,

@@ -137,6 +137,11 @@ export const CalendarIcon = (p: Props) => (
     <path d="M4 10h16M8.5 3v4M15.5 3v4" />
   </Icon>
 );
+export const BellIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15L6 16.5ZM10 20.5a2 2 0 0 0 4 0" />
+  </Icon>
+);
 export const GaugeIcon = (p: Props) => (
   <Icon {...p}>
     <path d="M4.5 17a8.5 8.5 0 1 1 15 0" />

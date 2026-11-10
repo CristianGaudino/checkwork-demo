@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { leads } from "@/lib/db/schema";
+import { adminDocs, leads } from "@/lib/db/schema";
 import { getDb, truncate } from "@/test/sqlite-db";
 import { CONSENT, LEAD_RETENTION_MONTHS } from "./constants";
 import { purgeOldLeads } from "./purge";
@@ -17,7 +17,7 @@ const lead = (id: string, createdAt: Date, photoKeys: string[] = []) => ({
 });
 const ids = async () => (await getDb().select({ id: leads.id }).from(leads)).map((r) => r.id).sort();
 
-beforeEach(() => truncate("leads"));
+beforeEach(() => truncate("leads", "admin_docs"));
 
 describe("purgeOldLeads", () => {
   it("deletes leads past the retention period with their photos, and keeps newer ones", async () => {
@@ -54,5 +54,18 @@ describe("purgeOldLeads", () => {
     const bucket = { delete: vi.fn(async () => {}) };
     expect(await purgeOldLeads(getDb(), bucket, NOW)).toBe(0);
     expect(bucket.delete).not.toHaveBeenCalled();
+  });
+
+  it("deletes the admin's copies of old leads, bookings and customers too, and keeps newer copies and the made-up seed records", async () => {
+    const old = monthsAgo(13).getTime();
+    const fresh = monthsAgo(0).getTime();
+    const doc = (collection: string, id: string, createdAt: number) => ({ collection, id, data: { id, createdAt } });
+    await getDb().insert(adminDocs).values([
+      doc("leads", "real-old", old), doc("test-drives", "real-old", old), doc("alerts", "real-old", old), doc("customers", "real-c-old", old),
+      doc("leads", "real-new", fresh), doc("leads", "lead-1000", old), // a seed record is not personal data and keeps its place
+    ]);
+    await purgeOldLeads(getDb(), { delete: async () => {} }, NOW);
+    const left = (await getDb().select({ id: adminDocs.id }).from(adminDocs)).map((r) => r.id).sort();
+    expect(left).toEqual(["lead-1000", "real-new"]);
   });
 });
