@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { LeadStatusBadge } from "@/components/admin/badges";
 import { DataTable, EmptyState, PageHeader, Panel, StatCard, StatGrid, adminButtonQuiet } from "@/components/admin/kit";
-import { drivesStore, leadsStore, reviewsStore } from "@/lib/admin/collections";
+import { drivesStore, getSettings, leadsStore, reviewsStore } from "@/lib/admin/collections";
 import { fmtAgo, fmtDateTime, fmtEur, fmtNum, fmtPct } from "@/lib/admin/format";
 import { overview } from "@/lib/admin/overview";
 import { SITE_NAME } from "@/lib/site";
@@ -10,8 +10,8 @@ import { queryAllOrNull } from "@/lib/stock";
 export const metadata = { title: "Overview" };
 
 export default async function Page() {
-  const [leads, drives, reviews, stock] = await Promise.all([leadsStore.list(), drivesStore.list(), reviewsStore.list(), queryAllOrNull()]);
-  const o = overview({ leads, drives, reviews });
+  const [leads, drives, reviews, stock, settings] = await Promise.all([leadsStore.list(), drivesStore.list(), reviewsStore.list(), queryAllOrNull(), getSettings()]);
+  const o = overview({ leads, drives, reviews, slaHours: settings.leadSlaHours });
   const cars = stock?.cars ?? [];
   const value = cars.reduce((s, c) => s + c.priceEur, 0);
   const thin = cars.filter((c) => c.photos.length < 4).length;

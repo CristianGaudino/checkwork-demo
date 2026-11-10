@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LeadStatusBadge } from "@/components/admin/badges";
 import { Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
-import { LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_TYPE_LABELS, TEAM, leadsStore } from "@/lib/admin/collections";
+import { LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_TYPE_LABELS, getSettings, leadsStore } from "@/lib/admin/collections";
 import { fmtDateTime } from "@/lib/admin/format";
 import { addNoteAction, updateLeadAction } from "../actions";
 
@@ -10,7 +10,7 @@ export const metadata = { title: "Lead" };
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const lead = await leadsStore.get(id);
+  const [lead, settings] = await Promise.all([leadsStore.get(id), getSettings()]);
   if (!lead) notFound();
   const wa = lead.phone.replace(/[^\d]/g, "");
 
@@ -77,9 +77,9 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
               <Field label="Who has it">
                 <select name="assignedTo" defaultValue={lead.assignedTo ?? ""} className={adminInput}>
                   <option value="">Nobody yet</option>
-                  {TEAM.map((t) => (
-                    <option key={t} value={t}>
-                      {t}
+                  {settings.team.map((t) => (
+                    <option key={t.id} value={t.name}>
+                      {t.name}
                     </option>
                   ))}
                 </select>

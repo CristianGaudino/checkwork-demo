@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { drivesStore } from "@/lib/admin/collections";
+import { drivesStore, getSettings } from "@/lib/admin/collections";
 import { clashes, parseDriveStatus } from "@/lib/admin/drives";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { carName } from "@/lib/stock/format";
@@ -42,7 +42,7 @@ export async function addDriveAction(_prev: DriveFormState, data: FormData): Pro
   if (Number.isNaN(startsAt)) return { errors: { date: "Choose a day" } };
   // An hour of grace, so "now" on the form is not refused. A typo for last year is.
   if (startsAt < Date.now() - 3_600_000) return { errors: { date: "Choose a day that has not passed" } };
-  const clash = clashes(await drivesStore.list(), car.slug, startsAt);
+  const clash = clashes(await drivesStore.list(), car.slug, startsAt, undefined, (await getSettings()).driveSlotMinutes * 60_000);
   if (clash.length) return { errors: { time: `${carName(car)} is already booked around then` } };
   await drivesStore.put({ id: `drive-${Date.now()}`, name: b.name, phone: b.phone, email: b.email ?? "", carSlug: car.slug, carTitle: carName(car), startsAt, status: "confirmed", notes: b.notes ?? "", createdAt: Date.now() });
   revalidatePath("/admin/test-drives");

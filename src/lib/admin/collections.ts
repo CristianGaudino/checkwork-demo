@@ -1,5 +1,4 @@
 import "server-only";
-import { DEALER_ADDRESS_LINES, DEALER_EMAIL, DEALER_PHONE, LEAD_FROM_EMAIL, OPENING_HOURS, SITE_NAME } from "@/lib/site";
 import { defineCollection } from "./docs";
 import { DAY, HOUR, carTitleOf, livePicks, person, rng } from "./seed-data";
 
@@ -31,7 +30,12 @@ export type Lead = {
   createdAt: number;
 };
 
-export const TEAM = ["Aoife (sales)", "Conor (sales)", "Niamh (finance)"] as const;
+// The team the demo starts with. Leads are assigned by name, and the settings page edits this list.
+export const TEAM_SEED = [
+  { id: "u1", name: "Aoife Brennan", email: "aoife@example.com", role: "Owner" },
+  { id: "u2", name: "Conor Doyle", email: "conor@example.com", role: "Sales" },
+  { id: "u3", name: "Niamh Kavanagh", email: "niamh@example.com", role: "Finance" },
+] as const;
 
 const MESSAGES: Record<LeadType, string[]> = {
   enquiry: ["Is this still available? I could view it this weekend.", "Does it have a full service history?", "Is there any room on the price?", "Can you send me more photos of the interior?"],
@@ -60,7 +64,7 @@ function seedLeads(): Lead[] {
       source: r.pick(LEAD_SOURCES),
       carSlug: car?.slug,
       carTitle: car && carTitleOf(car),
-      assignedTo: status === "new" ? undefined : r.pick(TEAM),
+      assignedTo: status === "new" ? undefined : r.pick(TEAM_SEED).name,
       notes: status === "contacted" || status === "appointment" ? [{ at: now - age + 2 * HOUR, text: "Called and left a message." }] : [],
       createdAt: now - age,
     };
@@ -151,41 +155,27 @@ function seedReviews(): AdminReview[] {
 export const reviewsStore = defineCollection<AdminReview>("reviews", seedReviews);
 
 // ---- Settings: one record ----
+// Only what the admin itself uses. The business details (name, phone, hours) live in the site configuration and change with a deploy.
+export type TeamMember = { id: string; name: string; email: string; role: "Owner" | "Sales" | "Finance" };
 export type DealerSettings = {
   id: "dealer";
-  name: string;
-  phone: string;
-  whatsapp: string;
-  email: string;
-  leadEmail: string; // where lead emails go (#22)
-  address: string;
-  hours: { day: string; opens: string; closes: string; closed: boolean }[];
+  leadSlaHours: number; // a new lead waiting longer than this needs attention (overview)
+  driveSlotMinutes: number; // one car cannot be booked twice within this many minutes (test drives)
   notifications: { newLead: boolean; testDrive: boolean; review: boolean; weeklyReport: boolean };
-  team: { id: string; name: string; email: string; role: "Owner" | "Sales" | "Finance" }[];
+  marketing: { voice: string; hashtags: string; signOff: string }; // used by the post and newsletter writers
+  team: TeamMember[];
   updatedAt: number;
 };
-function seedSettings(): DealerSettings[] {
-  const byDay = new Map(OPENING_HOURS.map((h) => [h.day, h]));
-  return [
-    {
-      id: "dealer",
-      name: SITE_NAME,
-      phone: DEALER_PHONE,
-      whatsapp: DEALER_PHONE,
-      email: DEALER_EMAIL,
-      leadEmail: LEAD_FROM_EMAIL,
-      address: DEALER_ADDRESS_LINES.join(", "),
-      hours: OPENING_HOURS.map(({ day }) => ({ day, opens: byDay.get(day)?.opens ?? "09:30", closes: byDay.get(day)?.closes ?? "18:00", closed: !byDay.get(day)?.opens })),
-      notifications: { newLead: true, testDrive: true, review: true, weeklyReport: false },
-      team: [
-        { id: "u1", name: "Aoife Brennan", email: "aoife@example.com", role: "Owner" },
-        { id: "u2", name: "Conor Doyle", email: "conor@example.com", role: "Sales" },
-        { id: "u3", name: "Niamh Kavanagh", email: "niamh@example.com", role: "Finance" },
-      ],
-      updatedAt: Date.now(),
-    },
-  ];
-}
+export const SETTINGS_DEFAULT: DealerSettings = {
+  id: "dealer",
+  leadSlaHours: 24,
+  driveSlotMinutes: 60,
+  notifications: { newLead: true, testDrive: true, review: true, weeklyReport: false },
+  marketing: { voice: "Friendly and plain. Short sentences. No hype.", hashtags: "#usedcars #carsforsale", signOff: "Call in or message us to arrange a viewing." },
+  team: TEAM_SEED.map((t) => ({ ...t })),
+  updatedAt: 0,
+};
+const seedSettings = (): DealerSettings[] => [{ ...SETTINGS_DEFAULT, updatedAt: Date.now() }];
 export const settingsStore = defineCollection<DealerSettings>("settings", seedSettings);
 
 // ---- Marketing: social posts, ads, newsletters ----
@@ -240,3 +230,11 @@ function seedNewsletters(): Newsletter[] {
   ];
 }
 export const newslettersStore = defineCollection<Newsletter>("newsletters", seedNewsletters);
+
+// The settings record, or the defaults if it is somehow missing, so no page has to handle "no settings".
+export async function getSettings(): Promise<DealerSettings> {
+  return (await settingsStore.get("dealer")) ?? SETTINGS_DEFAULT;
+}
+
+// Every dealer collection, so "Reset demo data" puts the whole demo back to its seed.
+export const DEALER_COLLECTIONS = [leadsStore, drivesStore, customersStore, alertsStore, subscribersStore, reviewsStore, settingsStore, postsStore, adsStore, newslettersStore];
