@@ -22,7 +22,7 @@ E2E needs the same `APP_ENV` at build and at run time, for example `APP_ENV=prod
 
 ## Set-up still to do
 - Create the Cloudflare resources and put the D1 id in `wrangler.jsonc` (`REPLACE_WITH_D1_ID`): `npx wrangler d1 create checkwork-demo --jurisdiction eu`, then the R2 bucket `checkwork-demo-lead-photos`.
-- Point `demo.cgaudino.com` at the Worker and add the repo secrets listed in `.env.example`.
+- Point `www.demo.checkwork.ie` at the Worker and add the repo secrets listed in `.env.example`.
 
 ## Design skills
 Skills live in `.agents/skills` (pinned in `skills-lock.json`), primarily `apple-design`.
