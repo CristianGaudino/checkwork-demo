@@ -87,11 +87,18 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
         </LeadForm>
       </LeadDialog>
       <LeadDialog title="Test Drive" open={open === "drive"} onClose={close}>
-        <LeadForm type="test_drive" car={car} variant="dialog" submitLabel="Book" success={{ heading: "Thanks, we have your request.", body: `We'll confirm your test drive in the ${car.name} by phone or email.` }}>
-          {({ bind }) => <DriveFields bind={bind} />}
-        </LeadForm>
+        <TestDriveForm car={car} />
       </LeadDialog>
     </>
+  );
+}
+
+// The test drive form inside a dialog: a day and a time, then the thanks. Used on a car page and on the Test Drive page.
+export function TestDriveForm({ car }: { car: CarSummary }) {
+  return (
+    <LeadForm type="test_drive" car={car} variant="dialog" submitLabel="Book" success={{ heading: "Thanks, we have your request.", body: `We'll confirm your test drive in the ${car.name} by phone or email.` }}>
+      {({ bind }) => <DriveFields bind={bind} />}
+    </LeadForm>
   );
 }
 

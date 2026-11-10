@@ -1,4 +1,5 @@
 import { DRIVE_STATUSES, type DriveStatus, type TestDrive } from "./collections";
+import { HOUR } from "@/lib/time";
 
 // Agenda helpers for the test drive bookings. Pure, so the grouping and the checks are tested.
 export type DriveGroup = { day: string; drives: TestDrive[] };
@@ -13,7 +14,7 @@ export function groupByDay(drives: TestDrive[]): DriveGroup[] {
 }
 
 // Two bookings for the same car within the slot (an hour by default) of each other clash: one car cannot be out twice.
-export function clashes(drives: TestDrive[], carSlug: string, startsAt: number, ignoreId?: string, windowMs = 3_600_000): TestDrive[] {
+export function clashes(drives: TestDrive[], carSlug: string, startsAt: number, ignoreId?: string, windowMs = HOUR): TestDrive[] {
   return drives.filter((d) => d.id !== ignoreId && d.carSlug === carSlug && (d.status === "requested" || d.status === "confirmed") && Math.abs(d.startsAt - startsAt) < windowMs);
 }
 

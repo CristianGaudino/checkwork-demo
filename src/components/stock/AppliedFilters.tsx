@@ -1,5 +1,6 @@
 "use client";
 
+import { press } from "@/components/ui";
 import { appliedFilters, clearFilters } from "@/lib/stock/query";
 import { CloseIcon } from "./icons";
 import { useStock } from "./StockShell";
@@ -17,7 +18,7 @@ export function AppliedFilters() {
           aria-label={`Remove ${chip.label}`}
           title={chip.label}
           onClick={() => navigate(chip.next)}
-          className="inline-flex min-h-11 max-w-full items-center gap-2 rounded-full border border-hairline bg-card px-4 text-meta font-semibold active:scale-[0.97] motion-reduce:active:scale-100"
+          className={`inline-flex min-h-11 max-w-full items-center gap-2 rounded-full border border-hairline bg-card px-4 text-meta font-semibold ${press}`}
         >
           <span className="min-w-0 truncate">{chip.label}</span>
           <CloseIcon className="h-4 w-4 shrink-0" />
@@ -28,7 +29,7 @@ export function AppliedFilters() {
         <button
           type="button"
           onClick={() => navigate(clearFilters(query))}
-          className="inline-flex min-h-11 items-center px-2 text-meta font-semibold underline active:scale-[0.97] motion-reduce:active:scale-100"
+          className={`inline-flex min-h-11 items-center px-2 text-meta font-semibold underline ${press}`}
         >
           Clear All Filters
         </button>

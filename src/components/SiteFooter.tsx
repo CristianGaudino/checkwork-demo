@@ -1,3 +1,4 @@
+import { pageWidth, NEW_TAB } from "@/components/ui";
 import Image from "next/image";
 import Link from "next/link";
 import { FacebookIcon, InstagramIcon, TikTokIcon } from "@/components/stock/icons";
@@ -50,7 +51,7 @@ const tight = "inline-flex min-h-9 items-center transition-colors hover:text-tex
 export function SiteFooter() {
   return (
     <footer className="mt-auto border-t border-hairline bg-card">
-      <div className="mx-auto flex max-w-[1280px] flex-col gap-6 px-4 py-6 sm:px-6 lg:gap-8 lg:px-8 lg:py-8">
+      <div className={`${pageWidth} flex flex-col gap-6 py-6 lg:gap-8 lg:py-8`}>
         <div className="grid grid-cols-2 gap-x-6 gap-y-4 lg:grid-cols-[2fr_1fr_1fr_1fr] lg:gap-y-8">
           <div className="col-span-2 flex flex-col items-start gap-2 lg:col-span-1">
             {/* On a phone Back to top sits level with the logo, on the right, so it is one tap away on every page. */}
@@ -77,7 +78,7 @@ export function SiteFooter() {
                 const Icon = SOCIAL_ICONS[name];
                 return (
                   <li key={name}>
-                    <a href={href} target="_blank" rel="noopener noreferrer" aria-label={`${name} (opens in a new tab)`} className="inline-flex size-11 items-center justify-center rounded-full transition-colors hover:text-text-2">
+                    <a href={href} {...NEW_TAB} aria-label={`${name} (opens in a new tab)`} className="inline-flex size-11 items-center justify-center rounded-full transition-colors hover:text-text-2">
                       <Icon className="size-6" />
                     </a>
                   </li>
@@ -116,7 +117,7 @@ export function SiteFooter() {
             ))}
           </ul>
           <p>© {SITE_NAME}</p>
-          <a href={CHECKWORK_URL} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-2 transition-colors hover:text-text">
+          <a href={CHECKWORK_URL} {...NEW_TAB} className="inline-flex min-h-11 items-center gap-2 transition-colors hover:text-text">
             Powered by
             <Image src="/brand/checkwork-logo-on-light.svg" width={345} height={60} alt="Checkwork" unoptimized className="h-4 w-auto dark:hidden" />
             <Image src="/brand/checkwork-logo-on-dark.svg" width={345} height={60} alt="Checkwork" unoptimized className="hidden h-4 w-auto dark:block" />

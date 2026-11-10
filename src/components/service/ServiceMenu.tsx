@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { LeadPageForm } from "@/components/leads/LeadPageForm";
+import { MESSAGE_SENT } from "@/lib/leads/constants";
 import { CheckIcon } from "@/components/stock/icons";
 import { PhoneLink } from "@/components/PhoneLink";
 import { card, subTitle } from "@/components/ui";
@@ -38,9 +39,9 @@ function Panel({ service }: { service: Service }) {
           Prefer to talk? Call <PhoneLink className="font-semibold underline" />.
         </p>
       </div>
-      <div data-wells className="flex flex-col gap-4 rounded-card border border-hairline p-4 sm:p-5">
+      <div data-wells className={`flex flex-col gap-4 ${card} p-4 sm:p-5`}>
         <h4 className="text-body font-semibold">Tell us what your car needs</h4>
-        <LeadPageForm type="general" prefill={prefill} submitLabel="Send Message" success={{ heading: "Thanks, we have your message.", body: "We'll get back to you." }} />
+        <LeadPageForm type="general" prefill={prefill} submitLabel="Send Message" success={MESSAGE_SENT} />
       </div>
     </div>
   );

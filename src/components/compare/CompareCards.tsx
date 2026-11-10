@@ -16,6 +16,7 @@ import { payableEur, priceInfo } from "@/lib/stock/price";
 import { carTitle, formatKm, specRows } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
+import { COMPARE_CLEARED } from "@/lib/copy";
 
 const never = () => () => {};
 
@@ -98,7 +99,7 @@ export function CompareCards() {
           type="button"
           onClick={() => {
             clearCompare();
-            showToast("Compare list cleared", () => restoreCompare(live));
+            showToast(COMPARE_CLEARED, () => restoreCompare(live));
           }}
           className={`h-11 px-4 text-meta ${secondaryButton}`}
         >
@@ -110,7 +111,7 @@ export function CompareCards() {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {cars.map((car, ci) => (
           <article key={car.id} data-testid="compare-card" aria-label={carTitle(car)} className={`group flex flex-col overflow-hidden ${card} md:row-span-3 md:grid md:grid-rows-subgrid`}>
-            <div className="relative aspect-[4/3] bg-photo-bg">
+            <div className="relative aspect-photo bg-photo-bg">
               {/* The same swipeable photos as a stock card, so cars compare by look as well as by figures. */}
               <PhotoCarousel photos={car.photos} href={`/used-cars/${car.slug}`} label={carTitle(car)} priority={false} />
               <button

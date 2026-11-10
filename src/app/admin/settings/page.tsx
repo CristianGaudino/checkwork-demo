@@ -94,7 +94,7 @@ export default async function Page() {
       </Panel>
 
       <Panel title="Demo data">
-        <p className="max-w-[65ch] text-body">Put the leads, bookings, reviews, marketing and settings back to how they started.</p>
+        <p className="max-w-measure text-body">Put the leads, bookings, reviews, marketing and settings back to how they started.</p>
         <form action={resetDemoAction}>
           <button type="submit" className={adminButtonQuiet}>
             Reset demo data

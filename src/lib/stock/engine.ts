@@ -1,6 +1,7 @@
 import { searchOptions } from "./search-options";
 import { FUEL_LABELS, GEARBOX_LABELS, SOLD_VISIBLE_DAYS, isSold } from "./types";
 import type { Car, FacetGroup, FacetOption, SortKey, StockProvider, StockQuery, StockResult } from "./types";
+import { DAY } from "@/lib/time";
 
 // Search ignores case and accents, so "skoda" finds "Škoda" and "citroen" finds "Citroën".
 const fold = (s: string) => s.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
@@ -31,7 +32,7 @@ export function createStockEngine(input: Car[], { now = () => new Date() }: { no
   // In stock, or sold inside the period. The clock is read per call, never once here: a Worker lives for days.
   const visibleNow = () => {
     const t = now().getTime();
-    return (c: Car) => !c.soldAt || Date.parse(c.soldAt) + SOLD_VISIBLE_DAYS * 86_400_000 > t;
+    return (c: Car) => !c.soldAt || Date.parse(c.soldAt) + SOLD_VISIBLE_DAYS * DAY > t;
   };
 
   // Every filter applies unless its group is `skip`, which is how facet counts stay disjunctive.

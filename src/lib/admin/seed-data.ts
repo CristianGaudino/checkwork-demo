@@ -26,8 +26,6 @@ export function rng(seed: number) {
 const FIRST = ["Aoife", "Ciaran", "Niamh", "Sean", "Orla", "Conor", "Saoirse", "Darragh", "Roisin", "Eoin", "Grainne", "Fionn", "Maeve", "Cathal", "Sinead", "Tadhg", "Aisling", "Rory", "Clodagh", "Donal", "Una", "Padraig", "Eimear", "Colm"];
 const LAST = ["Brennan", "Doyle", "Kavanagh", "Lynch", "Murphy", "Nolan", "O'Brien", "Quinn", "Ryan", "Walsh", "Byrne", "Fitzgerald", "Gallagher", "Hegarty", "Keane", "McCarthy", "Sheehan", "Foley", "Daly", "Moran"];
 
-export const DAY = 86_400_000;
-export const HOUR = 3_600_000;
 
 export function person(r: ReturnType<typeof rng>) {
   const first = r.pick(FIRST);
@@ -39,5 +37,3 @@ export function person(r: ReturnType<typeof rng>) {
 
 export const carTitleOf = (c: Car) => `${c.year} ${c.make} ${c.model}`;
 export const livePicks = (r: ReturnType<typeof rng>) => r.pick(live);
-export const liveCars = live;
-export const allCars = cars;

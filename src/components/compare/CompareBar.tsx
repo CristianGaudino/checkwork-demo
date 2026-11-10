@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { showToast } from "@/components/toast";
 import { clearCompare, MAX_COMPARE, restoreCompare, toggleCompare, useCompareIds } from "@/lib/compare/store";
 import { press } from "@/components/ui";
+import { COMPARE_CLEARED } from "@/lib/copy";
 
 // A pill at the bottom of every page once a car is picked for comparison. Not on /compare itself. The layout places it.
 export function CompareBar() {
@@ -21,7 +22,7 @@ export function CompareBar() {
         type="button"
         onClick={() => {
           clearCompare();
-          showToast("Compare list cleared", () => restoreCompare(ids));
+          showToast(COMPARE_CLEARED, () => restoreCompare(ids));
         }}
         className="min-h-11 rounded-control px-2 text-meta font-semibold underline"
       >

@@ -1,3 +1,4 @@
+import { pageWidth } from "@/components/ui";
 import Link from "next/link";
 import { HeaderLinks } from "@/components/HeaderLinks";
 import { Logo } from "@/components/Logo";
@@ -11,7 +12,7 @@ import { SITE_NAME } from "@/lib/site";
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-30 border-b border-hairline/60 bg-surface/75 text-text backdrop-blur-xl reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none lg:static">
-      <div className="mx-auto grid h-14 max-w-[1280px] grid-cols-[1fr_auto_1fr] items-center gap-4 px-4 sm:px-6 lg:flex lg:h-16 lg:px-8">
+      <div className={`${pageWidth} grid h-14 grid-cols-[1fr_auto_1fr] items-center gap-4 lg:flex lg:h-16`}>
         <div className="flex justify-start lg:hidden">
           <MobileMenu links={MENU} />
         </div>

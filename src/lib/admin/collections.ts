@@ -3,7 +3,8 @@ import demoCars from "@/lib/stock/demo-cars.json";
 import extraCars from "@/lib/stock/demo-cars-extra.json";
 import { defineCollection } from "./docs";
 import { demoCost } from "./margins";
-import { DAY, HOUR, carTitleOf, livePicks, person, rng } from "./seed-data";
+import { DAY, HOUR } from "@/lib/time";
+import { carTitleOf, livePicks, person, rng } from "./seed-data";
 
 // The dealer's records. Each is a collection in the record store, with a typed shape and a seed. Never the real leads table: the admin
 // is open on the public demo, so it only ever shows made-up records (see the audit note in docs/v2-plan.md).

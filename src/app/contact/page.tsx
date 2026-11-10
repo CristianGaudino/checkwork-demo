@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { connection } from "next/server";
 import { CallButton } from "@/components/InfoPage";
 import { LeadPageForm } from "@/components/leads/LeadPageForm";
+import { MESSAGE_SENT } from "@/lib/leads/constants";
 import { JsonLd } from "@/components/JsonLd";
 import { MapBox } from "@/components/MapBox";
 import { OpeningHours } from "@/components/OpeningHours";
@@ -22,7 +23,7 @@ export default async function ContactPage() {
     <main className={pageMain}>
       <JsonLd data={dealerJsonLd(await getReviews())} />
       <h1 className={pageTitle}>Contact</h1>
-      <p className="mt-2 max-w-[65ch] text-pretty text-body">Call or message us, or come and see us.</p>
+      <p className="mt-2 max-w-measure text-pretty text-body">Call or message us, or come and see us.</p>
       <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-start">
         {/* On a phone the two columns melt into one list, in the order a buyer wants it: call, map, message, then hours. */}
         <div className="flex flex-col gap-6 max-lg:contents">
@@ -41,7 +42,7 @@ export default async function ContactPage() {
           )}
           <section data-wells className={`order-3 flex flex-col gap-4 ${card} p-5 sm:p-6`}>
             <h2 className={subTitle}>Send Us a Message</h2>
-            <LeadPageForm type="general" submitLabel="Send Message" success={{ heading: "Thanks, we have your message.", body: "We'll get back to you." }} />
+            <LeadPageForm type="general" submitLabel="Send Message" success={MESSAGE_SENT} />
           </section>
         </div>
         <div className="flex flex-col gap-6 max-lg:contents">

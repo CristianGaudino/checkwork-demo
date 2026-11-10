@@ -9,7 +9,7 @@ export const textLink = "inline-flex min-h-11 items-center underline";
 export const pageTitle = `text-display font-bold lg:text-hero`;
 export const sectionTitle = `text-heading font-bold sm:text-display`;
 // The page frame every page shares (w-full, because the body is a flex column that keeps the footer at the bottom): centred, 1280px wide, the same side padding at each width. `pageMain` adds the vertical space.
-export const pageWidth = "mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8";
+export const pageWidth = "mx-auto w-full max-w-page px-4 sm:px-6 lg:px-8";
 export const pageMain = `${pageWidth} pb-16 pt-12`;
 // A smaller heading for a section inside a page (the bold one is `sectionTitle`).
 export const subTitle = "text-heading font-semibold";
@@ -35,3 +35,6 @@ export const messagePage = `${pageMain} flex flex-1 flex-col items-center justif
 
 // The small coloured line above a page title.
 export const eyebrow = "text-meta font-semibold text-accent";
+
+// For a link that opens another site in a new tab: it cannot reach back into this page.
+export const NEW_TAB = { target: "_blank", rel: "noopener noreferrer" } as const;

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { sendToDealer } from "@/lib/leads/mail";
 import { DEALER_COLLECTIONS, getSettings, leadsStore, settingsStore, type DealerSettings } from "@/lib/admin/collections";
+import { EMAIL_INVALID, NAME_REQUIRED } from "@/lib/copy";
 
 export type SettingsState = { errors?: Record<string, string>; saved?: boolean } | undefined;
 
@@ -65,7 +66,7 @@ export async function sendTestEmailAction(): Promise<SettingsState> {
   }
 }
 
-const member = z.object({ name: z.string().trim().min(1, "Enter a name").max(60), email: z.string().trim().email("Enter a valid email").max(120), role: z.enum(["Owner", "Sales", "Finance"]) });
+const member = z.object({ name: z.string().trim().min(1, NAME_REQUIRED).max(60), email: z.string().trim().email(EMAIL_INVALID).max(120), role: z.enum(["Owner", "Sales", "Finance"]) });
 export async function addTeamAction(_p: SettingsState, data: FormData): Promise<SettingsState> {
   const r = member.safeParse(Object.fromEntries(data));
   if (!r.success) return fail(r.error);

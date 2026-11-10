@@ -2,6 +2,7 @@ import "server-only";
 import { postsStore } from "./collections";
 import { simulatedPost } from "./marketing";
 import { publishPost } from "./publishers";
+import { MINUTE } from "@/lib/time";
 
 // Sends the scheduled posts whose time has come. Anything can call it: today the marketing page does when it opens, and a cron trigger on the
 // Worker can call it on a timer (wrangler.jsonc "triggers") when a real publisher is connected. A post that fails to send stays scheduled.
@@ -9,7 +10,7 @@ import { publishPost } from "./publishers";
 // again, and gives a failing post a pause before the next try.
 // shortcut: the claim is read then written, not atomic, so two calls in the same instant can still both send. Use a D1 conditional update
 // when a live publisher is connected.
-const CLAIM_MS = 5 * 60_000;
+const CLAIM_MS = 5 * MINUTE;
 export async function sendDuePosts(now = Date.now()): Promise<number> {
   let sent = 0;
   for (const p of await postsStore.list()) {

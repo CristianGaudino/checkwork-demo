@@ -23,6 +23,11 @@
   --text-display--line-height: 1.1;
   --text-display--letter-spacing: -0.02em;
 
+  /* Widths and ratios used across pages, so a change is one edit. */
+  --container-page: 80rem; /* the page frame, max-w-page */
+  --container-measure: 65ch; /* a comfortable line length for running text, max-w-measure */
+  --aspect-photo: 4 / 3; /* car photos, aspect-photo */
+
   --font-weight-*: initial;
   --font-weight-normal: 400;
   --font-weight-semibold: 600;
@@ -49,6 +54,7 @@
   --color-whatsapp: #25d366; /* WhatsApp's own green, for its icon only */
 
   --radius-card: 1.5rem;
+  --radius-tile: 1.75rem; /* every photo tile: cards, the car page, the social strip */
   --radius-control: 0.75rem;
 
   --shadow-lift: 0 10px 28px rgb(46 40 28 / 0.2);

@@ -7,8 +7,6 @@ export const VEHICLE_TYPES = [
   { id: "commercial", label: "Commercial", nav: "Commercial", href: "/commercial", enabled: true, condition: "commercial", title: "Commercial Vehicles", intro: "Vans and light commercials. Prices are shown without VAT, which a VAT-registered buyer can usually reclaim, with the price including VAT underneath." },
 ] as const;
 
-export type VehicleType = (typeof VEHICLE_TYPES)[number];
-
 // The phone menu holds every page; the footer repeats them (#57).
 export const MENU = [
   { href: "/", label: "Home" },

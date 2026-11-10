@@ -3,10 +3,9 @@ import { StarIcon } from "@/components/stock/icons";
 import type { Review, Reviews } from "@/lib/reviews";
 import { formatCount } from "@/lib/stock/format";
 import { ReviewAvatar } from "./ReviewAvatar";
-import { card, sectionTitle, textLink } from "@/components/ui";
+import { card, sectionTitle, textLink, NEW_TAB } from "@/components/ui";
 
 const POLICY_URI = "https://support.google.com/contributionpolicy/answer/7422880";
-const NEW_TAB = { target: "_blank", rel: "noopener noreferrer" } as const;
 const NewTab = ({ label = "" }: { label?: string }) => <span className="sr-only">{label} (opens in a new tab)</span>;
 
 // Google's Places policy: when no Google map is shown, the attribution is the text "Google Maps" in white, black or

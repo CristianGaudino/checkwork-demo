@@ -1,4 +1,5 @@
 import { OPENING_HOURS, SITE_NAME } from "../site";
+import { DAY } from "../time";
 
 // What the lead forms and the server share. No zod here: client components import this file, and pulling in
 // schema.ts would ship zod to every car page.
@@ -8,6 +9,8 @@ export const CONSENT = { version: "2026-11-10", text: `I agree to ${SITE_NAME} u
 // D-04: leads are kept this long, then deleted by the daily purge (worker.mjs, docs/lead-retention.md). The dealer must confirm
 // the period; /privacy and docs/lead-retention.md state it, so change all three together.
 export const LEAD_RETENTION_MONTHS = 12;
+// What the contact form and the service form say after a message goes.
+export const MESSAGE_SENT = { heading: "Thanks, we have your message.", body: "We'll get back to you." } as const;
 export const LIMITS = { name: 100, phone: 30, email: 200, message: 1000 } as const;
 // D-12: shown once, under Email; ContactFields marks both fields when it is set.
 // Country codes for the phone field. Ireland first and the default; the rest are the places most buyers ring from.
@@ -55,7 +58,6 @@ export const PHOTO_TOTAL_MAX_BYTES = 16 * 1024 * 1024;
 export const PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
 export const photoError = (filename: string) => `${filename} isn't a photo we can use. Use a JPEG, PNG or WebP under ${PHOTO_MAX_MB} MB.`;
 export const photoCountError = (max: number) => `You can add up to ${max} photos.`;
-export const PHOTO_COUNT_ERROR = photoCountError(PHOTO_MAX_COUNT);
 export const PHOTO_TOTAL_ERROR = "The photos are too big to send together. Remove one and try again.";
 
 // D-17: the only thing a finance application asks about the buyer's circumstances. No income, date of birth or bank details.
@@ -84,7 +86,7 @@ export const BAD_DRIVE_TIME = "Choose a time from the list.";
 const mins = (hhmm: string) => Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3, 5));
 const hhmm = (m: number) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
 const dublinDate = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: TEST_DRIVE.timeZone }); // 2026-11-10
-const addDays = (iso: string, n: number) => new Date(Date.parse(`${iso}T12:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10);
+const addDays = (iso: string, n: number) => new Date(Date.parse(`${iso}T12:00:00Z`) + n * DAY).toISOString().slice(0, 10);
 const hoursFor = (iso: string) => OPENING_HOURS[(new Date(`${iso}T12:00:00Z`).getUTCDay() + 6) % 7]; // OPENING_HOURS starts on Monday
 
 /** The times a car can be driven on a day: every slot from opening until an hour before closing. Empty on a closed day. */

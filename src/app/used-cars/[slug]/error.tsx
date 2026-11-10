@@ -8,5 +8,5 @@ import { ErrorScreen } from "@/components/ErrorScreen";
 export default function SegmentError({ retry }: { error: unknown; retry: () => void }) {
   const { slug } = useParams<{ slug: string }>();
   const isCar = /-\d+$/.test(slug);
-  return <ErrorScreen title={isCar ? "We Couldn't Load This Car" : "We Couldn't Load the Cars"} button={isCar ? "Try Again" : "Try Again"} retry={() => retry()} />;
+  return <ErrorScreen title={isCar ? "We Couldn't Load This Car" : "We Couldn't Load the Cars"} button="Try Again" retry={() => retry()} />;
 }

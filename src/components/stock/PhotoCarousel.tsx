@@ -6,9 +6,9 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Brandmark } from "@/components/Brandmark";
 import { useSlideIndex } from "@/components/car/useSlideIndex";
-import { ChevronLeftIcon, ChevronRightIcon } from "@/components/stock/icons";
 import type { Photo } from "@/lib/stock/types";
-import { arrow, arrowEnd, settle } from "./photo-load";
+import { PhotoArrow } from "./PhotoArrow";
+import { settle } from "./photo-load";
 
 // Shown with the card's hover or any focus inside it.
 const arrowLive = "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100";
@@ -117,24 +117,8 @@ export function PhotoCarousel({ photos: allPhotos, href, label, priority }: { ph
               </button>
             ))}
           </div>
-          <button
-            type="button"
-            aria-label="Previous photo"
-            aria-disabled={atStart}
-            onClick={() => !atStart && go(-1)}
-            className={`${arrow} left-2 ${atStart ? arrowEnd : arrowLive}`}
-          >
-            <ChevronLeftIcon />
-          </button>
-          <button
-            type="button"
-            aria-label="Next photo"
-            aria-disabled={atEnd}
-            onClick={() => !atEnd && go(1)}
-            className={`${arrow} right-2 ${atEnd ? arrowEnd : arrowLive}`}
-          >
-            <ChevronRightIcon />
-          </button>
+          <PhotoArrow dir="previous" disabled={atStart} onClick={() => go(-1)} className={`left-2 ${atStart ? "" : arrowLive}`} />
+          <PhotoArrow dir="next" disabled={atEnd} onClick={() => go(1)} className={`right-2 ${atEnd ? "" : arrowLive}`} />
         </>
       )}
     </div>

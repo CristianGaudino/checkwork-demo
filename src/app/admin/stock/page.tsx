@@ -9,6 +9,7 @@ import { priceInfo } from "@/lib/stock/price";
 import { carName } from "@/lib/stock/format";
 import { isSold, type Car } from "@/lib/stock/types";
 import { deleteCarAction, toggleSoldAction } from "./actions";
+import { SEARCH_MAKE_MODEL } from "@/lib/copy";
 
 export const metadata = { title: "Stock" };
 
@@ -82,7 +83,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
         <FilterTabs items={FILTERS.map(([k, label]) => ({ label, count: counts[k], href: `/admin/stock?status=${k}${q ? `&q=${encodeURIComponent(q)}` : ""}`, active: status === k }))} />
         <form action="/admin/stock" method="get" className="flex w-full gap-2 sm:w-auto">
           <input type="hidden" name="status" value={status} />
-          <input name="q" defaultValue={q} placeholder="Search make or model" aria-label="Search stock" className={`${adminInput} min-w-0 flex-1 sm:w-56 sm:flex-none`} />
+          <input name="q" defaultValue={q} placeholder={SEARCH_MAKE_MODEL} aria-label="Search stock" className={`${adminInput} min-w-0 flex-1 sm:w-56 sm:flex-none`} />
           <button type="submit" className={adminButtonQuiet}>Search</button>
         </form>
       </div>
@@ -94,7 +95,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
       />
       <details className="text-meta text-text-2">
         <summary className="min-h-11 cursor-pointer py-3">Delete a car for good</summary>
-        <p className="mb-2 max-w-[65ch]">Marking a car sold is usually what you want: it stays on the site as Sold for a while. Deleting removes it at once, and its link stops working.</p>
+        <p className="mb-2 max-w-measure">Marking a car sold is usually what you want: it stays on the site as Sold for a while. Deleting removes it at once, and its link stops working.</p>
         <ul className="flex flex-col gap-1">
           {rows.slice(0, 20).map((c) => (
             <li key={c.id}>

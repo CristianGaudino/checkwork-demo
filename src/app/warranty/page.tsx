@@ -15,7 +15,7 @@ export default function WarrantyPage() {
       <div className="lg:flex lg:items-end lg:justify-between lg:gap-8">
         <div>
           <h1 className={pageTitle}>Warranty</h1>
-          <p className="mt-2 max-w-[65ch] text-pretty text-body">Every car comes with cover, and you can add more.</p>
+          <p className="mt-2 max-w-measure text-pretty text-body">Every car comes with cover, and you can add more.</p>
         </div>
         <div className="mt-6 flex flex-col gap-3 sm:flex-row lg:mt-0 lg:shrink-0">
           <CallButton>Call {DEALER_PHONE}</CallButton>

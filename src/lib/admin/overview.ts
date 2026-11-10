@@ -1,5 +1,5 @@
 import type { AdminReview, Lead, TestDrive } from "./collections";
-import { DAY, HOUR } from "./seed-data";
+import { DAY, HOUR } from "@/lib/time";
 
 // The numbers on the dealer's overview, worked out from the records. Pure, so the rules are tested.
 export type Attention = { key: string; label: string; count: number; href: string };

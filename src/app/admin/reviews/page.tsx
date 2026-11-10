@@ -56,7 +56,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ f
                 </button>
               </form>
             </div>
-            <p className="max-w-[65ch] text-body">{r.text}</p>
+            <p className="max-w-measure text-body">{r.text}</p>
             <form action={replyAction.bind(null, r.id)} className="flex flex-col gap-2">
               <label className="flex flex-col gap-1">
                 <span className="text-meta font-semibold">{r.reply ? "Your reply" : "Reply"}</span>

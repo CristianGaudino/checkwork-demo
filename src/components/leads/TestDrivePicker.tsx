@@ -1,10 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { DriveFields } from "./DriveFields";
-import { LeadDialog } from "./LeadDialog";
+import { LeadDialog, TestDriveForm } from "./LeadDialog";
 import type { CarSummary } from "./LeadDialog";
-import { LeadForm } from "./LeadForm";
 import { CalendarIcon } from "@/components/stock/icons";
 import { card, press, secondaryButton } from "@/components/ui";
 
@@ -50,11 +48,8 @@ export function TestDrivePicker({ cars }: { cars: CarSummary[] }) {
           opener.current?.focus();
         }}
       >
-        {car && (
-          <LeadForm key={car.id} type="test_drive" car={car} variant="dialog" submitLabel="Book" success={{ heading: "Thanks, we have your request.", body: `We'll confirm your test drive in the ${car.name} soon.` }}>
-            {({ bind }) => <DriveFields bind={bind} />}
-          </LeadForm>
-        )}
+        {/* Keyed by the car, so choosing another one never books the wrong car. */}
+        {car && <TestDriveForm key={car.id} car={car} />}
       </LeadDialog>
     </>
   );

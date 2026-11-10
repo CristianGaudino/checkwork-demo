@@ -81,4 +81,3 @@ export function defineCollection<T extends Doc>(name: string, seed: () => T[]) {
   };
 }
 
-export type Collection<T extends Doc> = ReturnType<typeof defineCollection<T>>;
