@@ -36,7 +36,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
       <body className="flex min-h-dvh flex-col">
-        {DEMO_BAR_ENABLED && <DemoBar showAreas={adminReachable()} />}
+        {DEMO_BAR_ENABLED && <DemoBar showAreas={adminReachable() || process.env.NEXT_PUBLIC_ACCESS_ENABLED === "1"} />}
         <SiteChrome>
           <SiteHeader />
         </SiteChrome>

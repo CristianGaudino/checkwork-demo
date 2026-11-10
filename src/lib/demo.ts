@@ -19,9 +19,9 @@ export function roleForPath(pathname: string): DemoRole {
 // The dealer and platform areas have their own frame: the public header and footer are left out there.
 export const isAppPath = (pathname: string) => roleForPath(pathname) !== "customer";
 
-// The dealer and platform areas have no login yet, and the stock editor changes what the public site shows. So on any deployed site
-// (APP_ENV is set: demo or production) they are closed (404) unless the build sets NEXT_PUBLIC_ADMIN_OPEN=1, a deliberate choice.
-// Both are fixed at build time, so every page and the proxy agree. Cloudflare Access is the real protection (#7, #21).
+// The dealer and platform areas hold the stock editor and real leads. In development (no APP_ENV) they are open. On a deployed site
+// they are closed unless the build sets NEXT_PUBLIC_ADMIN_OPEN=1 (skips protection: only for CI) or the request carries a valid
+// Cloudflare Access token, which the proxy checks (src/lib/access.ts). This is only the build-time half of that rule.
 export const adminReachable = (appEnv: string | undefined = process.env.APP_ENV, open: string | undefined = process.env.NEXT_PUBLIC_ADMIN_OPEN) => !appEnv || open === "1";
 
 export const THEME_KEY = `${SITE_SLUG}:theme`;

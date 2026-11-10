@@ -1,13 +1,21 @@
 # Dealer admin and platform
 
-The demo has three perspectives. The public site is `/`. The dealer admin is `/admin`. The platform (superuser) is `/platform`. The demo bar at the top of every page switches between them. There is no login: the area you are in is the role. Real access is Cloudflare Access (issues #7 and #21).
+The demo has three perspectives. The public site is `/`. The dealer admin is `/admin`. The platform (superuser) is `/platform`. The demo bar at the top of every page switches between them. There is no login of our own: the area you are in is the role, and on a deployed site Cloudflare Access is the login (see Cloudflare Access below).
 
 ## Rules
 
-- **The admin never reads the real `leads` table.** The areas are open on the public demo, so showing real visitor leads there would expose personal data. The admin shows seeded demo records only. Real leads still go to the dealer by email.
+- **Real visitor records only appear behind Cloudflare Access.** The admin shows seeded records plus what visitors send (leads, test drives, stock alerts). That is personal data, so on a deployed site the admin only answers with a valid Access token (checked in `src/proxy.ts`). `NEXT_PUBLIC_ADMIN_OPEN=1` skips the check and is for CI only: never set it on a deploy.
 - **Nothing is sent or posted without a connected service.** Publishing a post, starting an ad and sending a newsletter go through `src/lib/admin/publishers.ts`. Each says "not connected" (or "not switched on") and changes nothing. A unit test pins that they never report a success that did not happen.
 - **No demo, draft or placeholder labels on the public site.** The demo bar and the dev-only data toggle are the only chrome that says "demo".
 - All names, emails, numbers and figures in the admin and platform are made up. Emails use `example.com`.
+
+## Cloudflare Access (owner set-up, once)
+
+1. Zero Trust, Access, Applications, Add, Self-hosted. Add two paths on the demo domain: `/admin*` and `/platform*`. Allow only the dealer's email addresses.
+2. Copy the application's Audience tag. Your team domain is `<team>.cloudflareaccess.com`.
+3. On the Worker, add two variables (not secrets): `CF_ACCESS_TEAM_DOMAIN` and `CF_ACCESS_AUD`.
+
+Until both are set the admin answers 404 for everyone. The Worker checks Access's signed token itself (`src/lib/access.ts`), so a missing policy fails closed instead of open.
 
 ## Where things are
 
