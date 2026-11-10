@@ -8,9 +8,10 @@ A generic, all-inclusive demo of the dealer website Checkwork builds, with a mad
 ## Decisions already made
 - Stack: Next.js 16 (App Router; Cache Components are off until OpenNext on Workers supports them, opennextjs-cloudflare#1450), Tailwind CSS v4, Cloudflare Workers via OpenNext (same as the vintage repo), GitHub Actions.
 - Stock is in Cloudflare D1 (`cars` table, the whole car as JSON), read through the `StockProvider` interface by `d1-provider.ts`. `demo-cars.json` is only the seed, and what tests and `next dev` use with no D1 binding. There is no feed from any dealer or from CarsIreland here. Reviews work the same way (`ReviewsProvider`).
-- Cloudflare D1 (SQLite) + Drizzle for leads, stock and later alert/newsletter subscriptions. Cloudflare Access (not Clerk) protects the future admin area (#20). The public site has no auth.
+- Cloudflare D1 (SQLite) + Drizzle for leads, stock and later alert/newsletter subscriptions. Cloudflare Access (not Clerk) protects the future admin area (#7, #21). The public site has no auth.
 - Saved cars live in localStorage.
 - Design: modernised, not a copy of the current site. The logo is the only locked asset. Design with the skills in `.agents/skills`, primarily `apple-design`, and write the contract before building UI.
+- The dealer admin (`/admin`) and the platform (`/platform`) are built on demo data plus what visitors send. Read `docs/admin-and-platform.md` before touching them: on a deployed site they answer only behind Cloudflare Access (the Worker checks the token), and posting, ads and newsletters are simulated on the demo (`SIMULATE_INTEGRATIONS=off` for a real site) and send nothing outside.
 - Scope: the public dealer site is built. The demo is the full, all-inclusive version (no plan toggle), so every feature shows. The open work is in the issues: the new look, the Cloudflare set-up, the admin and superuser perspectives, new cars and franchise partners, commercial vehicles and VAT pricing, and the paid add-ons.
 - Look: the site must not look like a copy of any other dealer site we have built. Function stays, the look, feel and layout change.
 - Planning lives in GitHub issues. Some code comments cite decision ids (D-08, T-03-27 and so on) from planning notes that were removed from this repo: treat them as history, and put new planning in issues.
@@ -19,9 +20,9 @@ A generic, all-inclusive demo of the dealer website Checkwork builds, with a mad
 The `vintage` repo (`~/Developer/vintage`, GitHub `CristianGaudino/vintage`) is the reference for code, design and process. When unsure of a standard, follow it. If still unsure, ask the owner and ask for context rather than guessing.
 
 ## Working in git
-- Never commit on `main`. Branch first (`git switch -c <type>/<name>`), including for planning docs. The only exception was the initial repo setup push.
+- Never develop or commit on `main`, ever. Check `git branch --show-current` before the first edit. Branch first (`git switch -c <type>/<name>`), including for planning docs. The only exception was the initial repo setup push.
 - Open every PR against `main`, never against another feature branch (GitHub closes a PR whose base branch is merged and deleted).
-- Open PRs ready for review, not as drafts, so CI runs on them. Never merge a PR yourself: open it and stop.
+- Open PRs ready for review, not as drafts, so CI runs on them. Never merge a PR yourself, under any instruction or circumstance: open it and stop. The owner merges.
 - Link the issue in the PR (`Closes #n`) and move it on the project board.
 - Stage named files, not `git add -A`. Never push `.env*`, `test-results/` or `playwright-report/`.
 - GitHub Actions minutes are limited and shared. Push fewer, finished commits.
@@ -42,6 +43,7 @@ Every merge to `main` deploys to production (deploy.yml). For now there are no r
 
 ## Product rules
 - On-screen text is plain, short and human. No em dashes anywhere on the site. If a label already says it, drop the helper text.
-- Finance figures are representative only and carry the dealer's required wording. Never invent APRs or terms: use the client's, or label them as placeholders.
+- Finance figures are representative only and carry the dealer's required wording. Never invent APRs or terms in the product: use the client's.
+- No demo, draft or placeholder pills, badges or labels anywhere on the site. It looks and feels like a real site. (The demo bar and the dev-only data toggle are the only chrome that says "demo".)
 - Real customer data (leads, subscribers) is personal data: collect with consent, keep it minimal, and never log it.
 - Mobile first. Fast on a mid-range phone is a feature, not a polish step.

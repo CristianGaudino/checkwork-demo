@@ -33,7 +33,7 @@ export function CompareBar() {
           // On a car page the car in view joins the list, so Compare opens it with that car in it.
           if (carId && !ids.includes(carId) && ids.length < MAX_COMPARE) toggleCompare(carId);
         }}
-        className={`inline-flex h-11 items-center rounded-control bg-accent px-5 text-meta font-semibold text-white ${press}`}
+        className={`inline-flex h-11 items-center rounded-control bg-accent px-5 text-meta font-semibold text-on-accent ${press}`}
       >
         Compare
       </Link>

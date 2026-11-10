@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { ShareButton } from "@/components/car/ShareButton";
 import { CompareButton } from "@/components/compare/CompareButton";
-import { LeadActions } from "@/components/leads/LeadDialog";
+import { LeadActions, StockAlertButton } from "@/components/leads/LeadDialog";
 import { SaveButton } from "@/components/saved/SaveButton";
 import { CalendarIcon, CarIcon, FuelIcon, GaugeIcon, GearIcon, ShieldCheckIcon } from "@/components/stock/icons";
-import { DEALER_WHATSAPP, SITE_URL, WARRANTY } from "@/lib/site";
-import { carMeta, carName, carSummary, formatPrice, keyFacts } from "@/lib/stock/format";
+import { DEALER_WHATSAPP, NEW_CAR_WARRANTY, SITE_URL, WARRANTY } from "@/lib/site";
+import { priceInfo } from "@/lib/stock/price";
+import { PriceBlock } from "@/components/stock/PriceBlock";
+import { carMeta, carName, carSummary, keyFacts } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 import { accentButton, card } from "@/components/ui";
@@ -17,6 +19,8 @@ const FACT_ICONS: Record<string, typeof CarIcon> = { Year: CalendarIcon, Mileage
 // Laid out as the mockup's car page: the title and a heart, the details line, the price, the buttons, four facts, the warranty.
 export function BuyBox({ car }: { car: Car }) {
   const sold = isSold(car);
+  const price = priceInfo(car);
+  const warranty = car.condition === "new" ? NEW_CAR_WARRANTY : WARRANTY;
   const url = `${SITE_URL}/used-cars/${car.slug}`;
   const whatsapp = `${DEALER_WHATSAPP}?text=${encodeURIComponent(`Hi, I'm interested in the ${carName(car)}: ${url}`)}`;
   return (
@@ -34,12 +38,12 @@ export function BuyBox({ car }: { car: Car }) {
         </h1>
         {/* Share beside the heart, where a buyer looks for them. */}
         <div className="flex shrink-0 items-center">
-          <ShareButton iconOnly title={carName(car)} text={sold ? carName(car) : `${carName(car)}, ${formatPrice(car.priceEur)}`} url={url} />
+          <ShareButton iconOnly title={carName(car)} text={sold ? carName(car) : `${carName(car)}, ${[price.headline, price.vatLine].filter(Boolean).join(" ")}`} url={url} />
           <SaveButton id={car.id} label="Save This Car" variant="page" />
         </div>
       </div>
       <p className="-mt-3 text-body text-text-2">{carMeta(car)}</p>
-      {!sold && <p className="text-hero font-bold tabular-nums">{formatPrice(car.priceEur)}</p>}
+      {!sold && <PriceBlock car={car} size="hero" />}
       {/* Reserved in Phase 2 for the lead buttons: so adding rows moves nothing below. */}
       <div data-testid="action-area" className="flex flex-col gap-3">
         {sold ? (
@@ -49,6 +53,7 @@ export function BuyBox({ car }: { car: Car }) {
             <Link href={`/used-cars/${car.makeSlug}`} className={button}>
               See More {car.make}
             </Link>
+            <StockAlertButton car={carSummary(car)} kind="back-in-stock" />
           </div>
         ) : (
           <LeadActions car={carSummary(car)} whatsapp={whatsapp} />
@@ -68,13 +73,18 @@ export function BuyBox({ car }: { car: Car }) {
         })}
       </dl>
       {/* Under the facts, full width, so the buttons and facts stay in view on a phone. */}
-      {!sold && <CompareButton id={car.id} label={`Compare ${carName(car)}`} sizing="flex h-12 w-full px-4" />}
+      {!sold && (
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <CompareButton id={car.id} label={`Compare ${carName(car)}`} sizing="flex h-12 w-full px-4" />
+          <StockAlertButton car={carSummary(car)} kind="price-drop" />
+        </div>
+      )}
       {!sold && (
         <div className={`flex items-start gap-3 ${card} p-4`}>
           <ShieldCheckIcon className="mt-0.5 size-8 shrink-0 text-accent" />
           <div className="flex min-w-0 flex-col gap-1">
-            <p className="text-body font-semibold">3 Month Warranty Included</p>
-            <p className="text-meta text-text-2">{WARRANTY.text}</p>
+            <p className="text-body font-semibold">{warranty.title} Included</p>
+            <p className="text-meta text-text-2">{warranty.text}</p>
           </div>
         </div>
       )}

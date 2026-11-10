@@ -44,7 +44,7 @@ export function FilterSheet() {
         <SlidersIcon className="h-6 w-6" />
         Filters
         {applied > 0 && (
-          <span data-testid="filter-badge" className="inline-flex min-w-6 items-center justify-center rounded-full bg-accent px-1.5 text-meta text-white">
+          <span data-testid="filter-badge" className="inline-flex min-w-6 items-center justify-center rounded-full bg-accent px-1.5 text-meta text-on-accent">
             {applied}
           </span>
         )}

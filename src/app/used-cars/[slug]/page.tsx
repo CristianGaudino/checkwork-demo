@@ -9,8 +9,9 @@ import { AboutCar, Equipment, SimilarCars, Specifications } from "@/components/c
 import { FinanceCalculator } from "@/components/finance/FinanceCalculator";
 import { resolveLanding } from "@/components/landing/data";
 import { LandingPage } from "@/components/landing/LandingPage";
+import { VehicleHint } from "@/components/vehicleHint";
 import { SoldBadge } from "@/components/stock/SoldBadge";
-import { pageMain, slash } from "@/components/ui";
+import { pageMain } from "@/components/ui";
 import { financeable } from "@/lib/finance/payment";
 import { stock } from "@/lib/stock";
 import { carName, carSummary } from "@/lib/stock/format";
@@ -56,6 +57,7 @@ export default async function CarPage({ params }: PageProps<"/used-cars/[slug]">
   return (
     <main className={pageMain}>
       <JsonLd data={carJsonLd(car)} />
+      <VehicleHint condition={car.condition ?? "used"} />
       <Breadcrumb car={car} />
       <div className="mt-6 grid grid-cols-1 gap-y-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-x-10">
         <div className="relative lg:col-start-1">
@@ -72,7 +74,7 @@ export default async function CarPage({ params }: PageProps<"/used-cars/[slug]">
           {/* In stock only: a sold car offers no finance (UI-SPEC section 7). Only the summary and price reach the client. */}
           {!isSold(car) && financeable(car.priceEur) && (
             <section className="flex flex-col gap-4">
-              <h2 className={`text-heading font-semibold ${slash}`}>Finance</h2>
+              <h2 className={`text-heading font-semibold`}>Finance</h2>
               <FinanceCalculator car={{ ...carSummary(car), priceEur: car.priceEur }} />
             </section>
           )}

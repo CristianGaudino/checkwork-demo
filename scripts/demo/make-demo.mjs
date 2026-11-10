@@ -1,3 +1,4 @@
+import { describeCar } from "./describe.mjs";
 // Builds the demo's made-up content. Manual: never run in CI, at build time or at runtime, except `redate`, which is offline.
 //
 //   node scripts/demo/make-demo.mjs build     the fictional cars' text and placeholder photos, plus the brand pictures (hero, about, share image, logo)
@@ -65,7 +66,7 @@ async function build() {
       write(`public${src}`, webp);
       c.photos.push({ src, width: 900, height: 675 });
     }
-    c.description = `A demo listing for the ${c.year} ${c.make} ${c.model}. This car is made up to show how a stock page looks. It is not for sale.\n\nThe details, the price and the pictures are examples only.`;
+    c.description = describeCar(c);
     c.soldAt = soldDate(c.id, today);
     if (!c.soldAt) delete c.soldAt;
   }

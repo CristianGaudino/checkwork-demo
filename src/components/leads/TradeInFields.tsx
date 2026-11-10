@@ -1,6 +1,5 @@
 "use client";
 
-import { SearchIcon } from "@/components/stock/icons";
 import { LIMITS, PHOTO_MIN_COUNT, PHOTO_MIN_ERROR, PHOTO_SLOTS } from "@/lib/leads/constants";
 import { ContactFields, Field } from "./Field";
 import type { FieldBinding, FormStep, PhotoBinding } from "./LeadForm";
@@ -17,20 +16,6 @@ export const TRADE_IN_STEPS: FormStep[] = [
 
 const GUIDE_NOTES = ["Warning lights or faults", "Accident or body damage", "Service history and NCT", "Number of owners"];
 
-// The registration lookup is a stub for now (#114): it shows the option is coming. Nothing is looked up and nothing is sent.
-const LookUp = (
-  <button
-    type="button"
-    aria-disabled="true"
-    title="Registration lookup is coming soon"
-    onClick={(e) => e.preventDefault()}
-    className="inline-flex h-12 shrink-0 cursor-not-allowed items-center gap-2 rounded-r-control border border-l-0 border-control bg-card px-4 text-meta font-semibold text-text-2"
-  >
-    <SearchIcon className="size-5" />
-    Look Up
-  </button>
-);
-
 // Every step stays in the form (hidden, not removed) so the send reads all of it; only the current one shows.
 export function TradeInFields({ bind, photos, step }: { bind(name: string): FieldBinding; photos: PhotoBinding; step: number }) {
   return (
@@ -45,8 +30,6 @@ export function TradeInFields({ bind, photos, step }: { bind(name: string): Fiel
           maxLength={12}
           placeholder="191-KY-1234"
           enterKeyHint="next"
-          helper="Looking up your car from its registration is coming soon."
-          action={LookUp}
         />
         <Field {...bind("mileage")} label="Mileage" inputMode="numeric" suffix="km" maxLength={9} enterKeyHint="next" />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

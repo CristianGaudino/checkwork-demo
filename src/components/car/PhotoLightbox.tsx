@@ -61,7 +61,7 @@ export function PhotoLightbox({
         autoFocus
         aria-label="Close photos"
         onClick={() => dialogRef.current?.close()}
-        className="absolute right-4 top-4 z-10 flex size-11 items-center justify-center rounded-full bg-white/85 text-ink backdrop-blur-md reduce-transparency:bg-white reduce-transparency:backdrop-blur-none"
+        className="absolute right-4 top-4 z-10 flex size-11 items-center justify-center rounded-full bg-band/85 text-on-accent backdrop-blur-md reduce-transparency:bg-band reduce-transparency:backdrop-blur-none"
       >
         <CloseIcon />
       </button>
@@ -70,7 +70,7 @@ export function PhotoLightbox({
         aria-label={zoom ? "Zoom out" : "Zoom in"}
         aria-pressed={zoom}
         onClick={() => setZoom(!zoom)}
-        className="absolute right-4 top-18 z-10 flex size-11 items-center justify-center rounded-full bg-white/85 text-ink backdrop-blur-md reduce-transparency:bg-white reduce-transparency:backdrop-blur-none"
+        className="absolute right-4 top-18 z-10 flex size-11 items-center justify-center rounded-full bg-band/85 text-on-accent backdrop-blur-md reduce-transparency:bg-band reduce-transparency:backdrop-blur-none"
       >
         <svg viewBox="0 0 24 24" aria-hidden="true" className="size-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
           <circle cx="11" cy="11" r="6" />

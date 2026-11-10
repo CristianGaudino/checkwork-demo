@@ -1,6 +1,6 @@
-import { lt } from "drizzle-orm";
+import { and, inArray, like, lt, sql } from "drizzle-orm";
 import type { BaseSQLiteDatabase } from "drizzle-orm/sqlite-core";
-import { leads } from "../db/schema";
+import { adminDocs, leads } from "../db/schema";
 import type * as schema from "../db/schema";
 import { LEAD_RETENTION_MONTHS } from "./constants";
 
@@ -21,6 +21,10 @@ export async function purgeOldLeads(
   const keys = old.flatMap((r) => r.photoKeys);
   for (let i = 0; i < keys.length; i += R2_DELETE_MAX) await bucket.delete(keys.slice(i, i + R2_DELETE_MAX));
   // Rows only get newer than the cutoff, so this deletes exactly the rows whose photos were just deleted.
+  // The admin's copies of leads, bookings, alerts and customers (src/lib/admin/real-leads.ts) go on the same day. They are the "real-" rows.
+  const copies = (collections: string[], field: string) => and(inArray(adminDocs.collection, collections), like(adminDocs.id, "real-%"), lt(sql`json_extract(${adminDocs.data}, ${field})`, cutoff.getTime()));
+  await db.delete(adminDocs).where(copies(["leads", "test-drives", "alerts"], "$.createdAt"));
+  await db.delete(adminDocs).where(copies(["customers"], "$.lastContactAt")); // a customer who wrote in recently stays, whenever they first came
   const gone = await db.delete(leads).where(lt(leads.createdAt, cutoff)).returning({ id: leads.id });
   return gone.length;
 }

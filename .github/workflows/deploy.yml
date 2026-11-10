@@ -30,6 +30,10 @@ jobs:
       # The demo deploy is not production: every page is noindex, the sitemap is empty and robots.txt only lets the
       # share-preview bots in. Set production only when this deploys the client's live domain (owner decision 1).
       APP_ENV: demo
+      # The dealer admin (/admin) and platform (/platform) sit behind Cloudflare Access. The Worker also checks Access's signed token itself
+      # (src/lib/access.ts), so they stay closed (404) until CF_ACCESS_TEAM_DOMAIN and CF_ACCESS_AUD are set on the Worker. This flag only
+      # shows the Dealer and Superuser links in the demo bar. Set-up steps: docs/admin-and-platform.md, "Cloudflare Access".
+      NEXT_PUBLIC_ACCESS_ENABLED: 1
       # Turnstile site key: public, inlined into the browser bundle at build. Its secret is a Worker secret.
       NEXT_PUBLIC_TURNSTILE_SITE_KEY: 0x4AAAAAAF6rFQ-bqDaE2f7y
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import { SOLD_VISIBLE_DAYS } from "../src/lib/stock/types";
+import { choose } from "./combo";
 import { stubTurnstile } from "./turnstile";
 
 // Runs only on the local server with fake backends: it must never send a lead to a deployed site.
@@ -129,33 +130,54 @@ test("a field error keeps what was typed, and consent is needed to send", async 
   await expect(privacy).toHaveAttribute("target", "_blank");
 });
 
-test("Book a Test Drive opens the same enquiry dialog with the note filled in, and there is no Reserve", async ({ page }) => {
+test("Book a Test Drive asks for a day and a time, reaches the dealer's admin as a booking, and there is no Reserve", async ({ page }) => {
   await open(page, live.slug);
   await expect(page.getByRole("button", { name: /Reserve/ })).toHaveCount(0);
   await page.getByRole("button", { name: "Book a Test Drive", exact: true }).click();
   const d = page.getByRole("dialog");
   await expect(d).toHaveAccessibleName("Book a Test Drive");
-  await expect(d.getByLabel("Message")).toHaveValue("I'd like to book a test drive.");
-  await expect(d.getByRole("radio")).toHaveCount(0); // no more choosing a kind of request
-  await d.getByLabel("Name").fill("Test Driver");
+  await d.getByLabel("Name").fill("Drive Booker");
   await d.getByLabel("Phone").fill("087 123 4567");
   await d.getByRole("checkbox").check();
-  await d.getByRole("button", { name: "Send Enquiry" }).click();
-  await expect(d.getByRole("heading", { name: "Thanks, we have your enquiry." })).toBeFocused();
+  await d.getByRole("button", { name: "Book Test Drive" }).click();
+  await expect(d.locator("p", { hasText: "Choose a day from the list." })).toBeVisible();
+  await choose(d.getByLabel("Day"), 0);
+  await expect(d.getByLabel("Time")).toBeVisible();
+  await choose(d.getByLabel("Time"), 0);
+  await d.getByRole("button", { name: "Book Test Drive" }).click();
+  await expect(d.getByRole("heading", { name: "Thanks, we have your request." })).toBeFocused();
+  // The booking is now on the dealer's list (the admin is open in this run).
+  await page.goto("/admin/test-drives?status=requested");
+  await expect(page.getByText("Drive Booker").first()).toBeVisible();
 });
 
-test("Enquire opened after Book a Test Drive does not keep the test drive note, but keeps a message typed in Enquire", async ({ page }) => {
+test("a price drop alert takes an email and says what happens next", async ({ page }) => {
   await open(page, live.slug);
-  await page.getByRole("button", { name: "Book a Test Drive", exact: true }).click();
-  await expect(page.getByRole("dialog").getByLabel("Message")).toHaveValue("I'd like to book a test drive.");
-  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "Tell Me If the Price Drops" }).click();
+  const d = page.getByRole("dialog");
+  await d.getByLabel("Email").fill("alert.person@example.com");
+  await d.getByRole("checkbox").check();
+  await d.getByRole("button", { name: "Set Alert" }).click();
+  await expect(d.getByRole("heading", { name: "You're on the list." })).toBeFocused();
+  await page.goto("/admin/customers?tab=alerts");
+  await expect(page.getByText("alert.person@example.com").first()).toBeVisible();
+});
+
+test("a sold car offers an alert for when one comes back", async ({ page }) => {
+  test.skip(!sold, "No demo car is inside the sold window: run npm run stock:redate");
+  await open(page, sold!.slug);
+  await expect(page.getByRole("button", { name: "Tell Me If One Comes Back" })).toBeVisible();
+});
+
+test("Enquire keeps a message typed in it when the dialog is closed and opened again", async ({ page }) => {
+  await open(page, live.slug);
   await enquire(page).click();
   await expect(dialog(page)).toHaveAccessibleName("Enquire About This Car");
   await expect(dialog(page).getByLabel("Message")).toHaveValue("");
   await dialog(page).getByLabel("Message").fill("Is it taxed?");
   await page.keyboard.press("Escape");
   await enquire(page).click();
-  await expect(dialog(page).getByLabel("Message")).toHaveValue("Is it taxed?"); // closing and reopening keeps what was typed
+  await expect(dialog(page).getByLabel("Message")).toHaveValue("Is it taxed?");
 });
 
 test("the enquiry dialog always shows the phone number with +353, as a link that dials", async ({ page }) => {

@@ -10,6 +10,12 @@ export default defineConfig({
   expect: { timeout: 10_000 },
   reporter: process.env.CI ? [["github"], ["list"]] : "list",
   use: { baseURL, ...devices["Pixel 7"] },
+  // Specs run in parallel against one server, and many assume the newest car is the first demo car. A spec that adds or edits cars
+  // (admin-stock) would change what they see, so it runs alone, after everything else.
+  projects: [
+    { name: "main", testIgnore: /admin-stock\.spec/ },
+    { name: "stock-writes", testMatch: /admin-stock\.spec/, dependencies: ["main"] },
+  ],
   // E2E_FAIL_QUERY is the failure-state switch; a server already running on that port without it makes the failure specs fail.
   // E2E_FAKE_BACKENDS swaps the lead store and mailer for in-memory fakes (src/lib/leads/deps.ts). Only ever set here.
   webServer: process.env.E2E_BASE_URL

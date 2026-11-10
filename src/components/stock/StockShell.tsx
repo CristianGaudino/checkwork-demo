@@ -16,7 +16,7 @@ import { ChevronDownIcon, GridIcon, ListIcon } from "./icons";
 import { SearchBox, StockFilters } from "./StockFilters";
 import { stateButton } from "./StockError";
 import { setView, useView } from "./view";
-import { pageMain, secondaryButton, slash, subTitle } from "@/components/ui";
+import { eyebrow, pageMain, secondaryButton, subTitle } from "@/components/ui";
 
 type Summary = { total: number; facets: Facets } | null;
 type Stock = {
@@ -74,7 +74,7 @@ function ViewToggle() {
       aria-label={label}
       aria-pressed={view === v}
       onClick={() => setView(v)}
-      className={`flex size-12 items-center justify-center transition-colors ${view === v ? "bg-accent text-white" : "hover:bg-hairline"}`}
+      className={`flex size-12 items-center justify-center transition-colors ${view === v ? "bg-accent text-on-accent" : "hover:bg-hairline"}`}
     >
       <Icon className="size-6" />
     </button>
@@ -127,7 +127,7 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
             start higher. Below that the count sits under the intro (sort is in the sticky bar). */}
         <div className="lg:flex lg:items-end lg:justify-between lg:gap-8">
           <div>
-            <p className={`text-body ${slash}`}>Our Stock</p>
+            <p className={eyebrow}>Our Stock</p>
             <h1 className="mt-1 text-display font-bold lg:text-hero">Quality Used Cars</h1>
             <p className="mt-2 max-w-[65ch] text-pretty text-body text-text-2">Browse our current stock of used cars, all carefully selected.</p>
             {/* Under the intro and above the count on a phone; from 1024px the search is in the filter panel. */}
@@ -139,14 +139,10 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
             <p aria-live="polite" data-testid="count" className="text-heading font-semibold">
               {summary && countLabel(summary.total)}
             </p>
-            <div className="hidden items-center gap-3 lg:flex">
-              <SortControl className="flex" />
-              <ViewToggle />
-            </div>
           </div>
         </div>
         <div className="mt-6 lg:grid lg:grid-cols-[280px_1fr] lg:gap-8">
-          <aside className="hidden lg:block lg:sticky lg:top-6 lg:max-h-[calc(100dvh-3rem)] lg:self-start lg:overflow-y-auto lg:rounded-card lg:border lg:border-hairline lg:bg-card lg:p-4">
+          <aside className="hidden lg:block lg:sticky lg:top-6 lg:max-h-[calc(100dvh-3rem)] lg:self-start lg:overflow-y-auto lg:rounded-card lg:bg-card lg:p-4">
             <div className="mb-4 flex items-center justify-between gap-2 border-b border-hairline pb-4">
               <h2 className={subTitle}>Filter &amp; Refine</h2>
               <button type="button" onClick={() => navigate(clearFilters(optimisticQuery))} className="min-h-11 text-meta font-semibold underline">
@@ -159,10 +155,15 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
           <div ref={results} onClickCapture={(e) => e.target instanceof Element && e.target.closest("a[href^='/used-cars/']") && rememberScroll(query)} className="min-w-0 scroll-mt-16 lg:min-h-[100dvh] lg:scroll-mt-6">
             <div
               data-testid="sticky-bar"
-              className="sticky top-0 z-20 -mx-4 flex h-14 items-center justify-between bg-surface/80 px-4 backdrop-blur-[20px] backdrop-saturate-[1.8] sm:-mx-6 sm:px-6 lg:hidden reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none reduce-transparency:backdrop-saturate-100"
+              className="sticky top-0 z-20 -mx-4 flex h-14 items-center justify-between bg-surface/80 px-4 backdrop-blur-[20px] backdrop-saturate-[1.8] sm:-mx-6 sm:px-6 lg:mx-0 lg:justify-end lg:gap-3 lg:px-0 reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none reduce-transparency:backdrop-saturate-100"
             >
-              <FilterSheet />
+              <div className="lg:hidden">
+                <FilterSheet />
+              </div>
               <SortControl className="flex" />
+              <div className="hidden lg:block">
+                <ViewToggle />
+              </div>
             </div>
             <AppliedFilters />
             <div data-view={view} aria-busy={pending} className={`transition-opacity duration-150 ease-out ${pending ? "opacity-60" : ""}`}>

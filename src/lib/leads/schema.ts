@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { FINANCE } from "@/lib/finance/finance.config";
 import { PRICE_STOPS } from "@/lib/stock/types";
-import { BAD_KM, phoneError, BAD_REG, CONTACT_ERROR, EMPLOYMENT, KM_PATTERN, LIMITS, REG_PATTERN, SOURCING_BODIES, SOURCING_CAR_ERROR } from "./constants";
+import { BAD_DRIVE_DAY, BAD_DRIVE_TIME, BAD_KM, driveDays, driveTimes, phoneError, BAD_REG, CONTACT_ERROR, EMPLOYMENT, KM_PATTERN, LIMITS, REG_PATTERN, SOURCING_BODIES, SOURCING_CAR_ERROR } from "./constants";
 
 // The lead validation, run on the server. Client components import ./constants, never this file (it brings zod).
 
@@ -95,6 +95,23 @@ const finance = {
   employment: given(z.enum(Object.keys(EMPLOYMENT) as [keyof typeof EMPLOYMENT], { error: "Choose an employment status." })),
 };
 
+// A booking: the car, a day and a time that are really open (from the opening hours), then contact details.
+// Checked from a day earlier, so a form opened before midnight Irish time still sends its "tomorrow" after midnight.
+const testDrive = {
+  carId,
+  driveDate: given(z.string({ error: BAD_DRIVE_DAY }).refine((v) => driveDays(new Date(Date.now() - 86_400_000)).includes(v), BAD_DRIVE_DAY)),
+  driveTime: given(z.string({ error: BAD_DRIVE_TIME })),
+};
+
+// A stock alert: an email is all it takes. It may name a car (back in stock, price drop) or none (any new arrival).
+export const ALERT_KINDS = ["back-in-stock", "price-drop", "new-arrival"] as const;
+const alert = {
+  email: given(z.email({ error: "Enter an email like name@example.com." }).max(LIMITS.email, tooLong(LIMITS.email))),
+  name: given(oneLine(z.string().trim().max(LIMITS.name, tooLong(LIMITS.name))).optional()),
+  carId: given(carId.optional()),
+  alertKind: z.enum(ALERT_KINDS, { error: "Choose an alert." }),
+};
+
 export const leadSchema = z
   .discriminatedUnion("type", [
     z.object({ type: z.literal("enquiry"), carId, ...contact }),
@@ -105,6 +122,8 @@ export const leadSchema = z
     z.object({ type: z.literal("general"), ...contact, ...general }),
     z.object({ type: z.literal("trade_in"), ...contact, ...tradeIn }),
     z.object({ type: z.literal("finance"), ...contact, ...finance }),
+    z.object({ type: z.literal("test_drive"), ...contact, ...testDrive }).refine((d) => driveTimes(d.driveDate ?? "").includes(d.driveTime ?? ""), { path: ["driveTime"], message: BAD_DRIVE_TIME, when: (p) => typeof p.value === "object" && p.value !== null }),
+    z.object({ type: z.literal("alert"), ...contact, ...alert }),
   ])
   // D-12. `when` runs it even if another field failed, so a blank form shows every error at once.
   .refine((d) => Boolean(d.phone || d.email), {
@@ -122,6 +141,8 @@ export const TYPE_LABELS: Record<LeadType, string> = {
   sourcing: "Find a car request",
   trade_in: "Trade-in valuation", // never the reg: nothing the buyer typed reaches a subject (T-03-29)
   finance: "Finance application",
+  test_drive: "Test drive booking",
+  alert: "Stock alert sign-up",
   general: "Message from the website",
 };
 // Detail key to email label, in the order the email lists them; a new type's fields need only a line here.
@@ -136,4 +157,7 @@ export const DETAIL_LABELS: Record<string, string> = {
   deposit: "Deposit",
   term: "Term (months)",
   employment: "Employment status",
+  driveDate: "Day",
+  driveTime: "Time",
+  alertKind: "Alert",
 };

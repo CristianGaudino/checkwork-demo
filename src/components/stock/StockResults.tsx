@@ -23,7 +23,7 @@ export function StockResults({ result, query }: { result: StockResult; query: St
   if (result.total === 0) return <EmptyState />;
   return (
     <>
-      <div data-grid className="mt-2 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+      <div data-grid className="mt-2 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2">
         {cars.map((car, i) => (
           <ListingCard key={car.id} car={car} priority={i < 2} />
         ))}
@@ -56,7 +56,7 @@ export function StockResults({ result, query }: { result: StockResult; query: St
               ) : (
                 <li key={p} className="hidden sm:block">
                   {p === page ? (
-                    <span aria-current="page" aria-label={`Page ${p}, current page`} className={`${seg} bg-accent text-white`}>
+                    <span aria-current="page" aria-label={`Page ${p}, current page`} className={`${seg} bg-accent text-on-accent`}>
                       {p}
                     </span>
                   ) : (

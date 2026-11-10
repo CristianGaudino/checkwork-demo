@@ -12,7 +12,8 @@ import { card, glass, secondaryButton } from "@/components/ui";
 import { MAX_COMPARE, clearCompare, removeCompare, restoreCompare, useCompareIds } from "@/lib/compare/store";
 import { rank } from "@/lib/compare/rank";
 import type { Mark } from "@/lib/compare/rank";
-import { carTitle, formatKm, formatPrice, specRows } from "@/lib/stock/format";
+import { payableEur, priceInfo } from "@/lib/stock/price";
+import { carTitle, formatKm, specRows } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 
@@ -22,7 +23,7 @@ const never = () => () => {};
 type Row = { label: string; number?: (c: Car) => number | undefined; text: (c: Car) => string | undefined; better?: "low" | "high" };
 const spec = (label: string) => (c: Car) => specRows(c).find((r) => r.label === label)?.value;
 const ROWS: Row[] = [
-  { label: "Price", number: (c) => (isSold(c) ? undefined : c.priceEur), text: (c) => (isSold(c) ? "Sold" : formatPrice(c.priceEur)), better: "low" },
+  { label: "Price", number: (c) => (isSold(c) ? undefined : payableEur(c)), text: (c) => priceInfo(c).headline, better: "low" },
   { label: "Year", number: (c) => c.year, text: (c) => String(c.year), better: "high" },
   { label: "Mileage", number: (c) => c.mileageKm, text: (c) => (c.mileageKm === undefined ? undefined : formatKm(c.mileageKm)), better: "low" },
   { label: "Fuel", text: spec("Fuel") },

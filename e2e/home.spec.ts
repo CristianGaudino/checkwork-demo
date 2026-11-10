@@ -50,36 +50,6 @@ test("the Find me a car tab fits inside the Search Stock box and the page does n
   }
 });
 
-test("a drifting row moves smoothly, not a page at a time, and stops under the pointer", async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 900 });
-  await page.emulateMedia({ reducedMotion: "no-preference" });
-  await page.goto("/");
-  const row = page.getByRole("group", { name: "Featured stock" }).locator(":scope > ul");
-  await row.scrollIntoViewIfNeeded();
-  const at = () => row.evaluate((el) => el.scrollLeft);
-  const first = await at();
-  await page.waitForTimeout(700);
-  const second = await at();
-  await page.waitForTimeout(700);
-  const third = await at();
-  expect(second).toBeGreaterThan(first);
-  expect(third).toBeGreaterThan(second);
-  expect(third - first).toBeLessThan(120); // a drift, nowhere near a page (about 400px)
-  await row.hover();
-  const held = await at();
-  await page.waitForTimeout(600);
-  expect(Math.abs((await at()) - held)).toBeLessThan(2);
-});
-
-test("on a phone the featured row has no count, arrows or dots", async ({ page }) => {
-  await page.goto("/");
-  const row = page.getByRole("group", { name: "Featured stock" });
-  const cards = await row.locator("article").count();
-  expect(cards).toBeGreaterThan(4); // more dots than a phone has room for (the controls would shrink): a count instead
-  await expect(row.getByText(`1 / ${cards}`)).toBeHidden(); // no count, arrows or dots on a phone: the row is swiped
-  await expect(row.getByRole("button", { name: /^(Previous|Next) cars$/ })).toBeHidden();
-});
-
 // Typing into a drop-down is for a mouse and keyboard: a phone only picks (no keyboard rises over the list).
 const desktop = async (browser: import("@playwright/test").Browser, baseURL: string | undefined) =>
   (await browser.newContext({ baseURL, viewport: { width: 1280, height: 800 }, isMobile: false, hasTouch: false })).newPage();
@@ -174,6 +144,7 @@ test("the search offers only makes that have a car in stock", async ({ page }) =
 test("featured stock: the newest in-stock cars and View all stock", async ({ page }) => {
   await page.goto("/");
   const section = page.locator("section").filter({ has: page.getByRole("heading", { name: "Featured stock" }) });
+  await expect(page.getByRole("group", { name: "Featured stock" })).toHaveCount(0); // a grid, not a carousel
   const cards = section.locator("article");
   await expect(cards).toHaveCount(Math.min(6, inStock.length));
   await expect(cards.first().locator("a").first()).toHaveAttribute("href", `/used-cars/${newest.slug}`);
@@ -183,20 +154,8 @@ test("featured stock: the newest in-stock cars and View all stock", async ({ pag
 test.describe("desktop pointer", () => {
   test.use({ viewport: { width: 1280, height: 800 }, isMobile: false, hasTouch: false });
 
-  test("the featured row pages with its arrows, and the trust icons are all the same size", async ({ page }) => {
+  test("the trust icons are all the same size", async ({ page }) => {
     await page.goto("/");
-    const row = page.getByRole("group", { name: "Featured stock" });
-    const next = row.getByRole("button", { name: "Next cars" });
-    await expect(next).toBeVisible();
-    await expect(row.getByRole("button", { name: "Previous cars" })).toHaveCSS("opacity", "0.3");
-    // The arrows sit under the row, beside the dots, not over the cards; a dot is a button that goes to its page.
-    const rowBox = (await row.locator(":scope > ul").boundingBox())!;
-    expect((await next.boundingBox())!.y).toBeGreaterThan(rowBox.y + rowBox.height - 4);
-    await next.click();
-    await expect(row.getByRole("button", { name: "Previous cars" })).toHaveCSS("opacity", "1");
-    await expect(row.getByRole("button", { name: /^Go to page 2 of/ })).toHaveAttribute("aria-current", "true");
-    await row.getByRole("button", { name: /^Go to page 1 of/ }).click();
-    await expect(row.getByRole("button", { name: /^Go to page 1 of/ })).toHaveAttribute("aria-current", "true");
     for (const icon of await page.getByRole("region", { name: "Why buy from us" }).locator("svg").all()) {
       const box = (await icon.boundingBox())!;
       expect([box.width, box.height]).toEqual([24, 24]);
@@ -240,11 +199,11 @@ test("reviews, the trust strip and finance banner, and AutoDealer JSON-LD", asyn
   expect(data).not.toHaveProperty("aggregateRating");
 });
 
-test("the hero uses the dealer's photo, and the header logo is the vector one", async ({ page, request }) => {
+test("the hero uses the dealer's photo, and the header logo is the vector one, in the colour that reads on the theme", async ({ page, request }) => {
   await page.goto("/");
-  await expect(page.locator("section.hero-photo")).toHaveCSS("background-image", /\/brand\/hero(-sm)?\.webp/);
-  await expect(page.getByRole("banner").getByRole("img", { name: SITE_NAME })).toHaveAttribute("src", "/brand/logo.svg");
-  for (const path of ["/brand/hero.webp", "/brand/hero-sm.webp", "/brand/about.webp", "/brand/logo.svg"]) expect((await request.get(path)).status(), path).toBe(200);
+  await expect(page.locator("main section").first().locator("img").first()).toHaveAttribute("src", "/brand/hero.webp");
+  await expect(page.getByRole("banner").getByRole("img", { name: SITE_NAME })).toHaveAttribute("src", "/brand/logo-on-light.svg");
+  for (const path of ["/brand/hero.webp", "/brand/about.webp", "/brand/logo.svg", "/brand/logo-on-light.svg"]) expect((await request.get(path)).status(), path).toBe(200);
 });
 
 test("every item in the trust strip is a link with the same padding, so the row lines up", async ({ page }) => {
@@ -276,32 +235,20 @@ test.describe("without JavaScript", () => {
   });
 });
 
-test("a drifting row starts again when the pointer leaves", async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 900 });
-  await page.emulateMedia({ reducedMotion: "no-preference" });
+
+test("shop by type and browse by make link into the stock", async ({ page }) => {
   await page.goto("/");
-  const row = page.getByRole("group", { name: "Featured stock" }).locator(":scope > ul");
-  await row.scrollIntoViewIfNeeded();
-  const at = () => row.evaluate((el) => el.scrollLeft);
-  await row.hover();
-  const held = await at();
-  await page.mouse.move(5, 5);
-  await expect.poll(at).toBeGreaterThan(held + 5);
+  const types = page.getByRole("region", { name: "Shop by type" });
+  await expect(types.getByRole("link", { name: "New cars" })).toHaveAttribute("href", "/new-cars");
+  await expect(types.getByRole("link", { name: "Vans" })).toHaveAttribute("href", "/commercial");
+  await expect(types.getByRole("link").nth(2)).toHaveAttribute("href", /^\/used-cars\?body=[a-z-]+$/);
+  const makes = page.getByRole("region", { name: "Browse by make" });
+  await expect(makes.getByRole("link").first()).toHaveAttribute("href", /^\/used-cars\/[a-z-]+$/);
 });
 
-test("on a phone a touch stops the row for good, and there is no pause button", async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: "no-preference" });
+test("visit us has the address, the hours and the way there", async ({ page }) => {
   await page.goto("/");
-  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
-  const group = page.getByRole("group", { name: "Featured stock" });
-  const row = group.locator(":scope > ul");
-  await row.scrollIntoViewIfNeeded();
-  const at = () => row.evaluate((el) => el.scrollLeft);
-  await expect.poll(at).toBeGreaterThan(5); // it drifts on its own first
-  await expect(group.getByRole("button", { name: /moving the cars along/ })).toHaveCount(0);
-  await group.dispatchEvent("pointerdown", { pointerType: "touch" });
-  await page.waitForTimeout(100);
-  const held = await at();
-  await page.waitForTimeout(5000); // longer than the old 4 second resume
-  expect(Math.abs((await at()) - held)).toBeLessThan(2);
+  const visit = page.getByRole("region", { name: "Visit us" });
+  await expect(visit.getByRole("heading", { name: "Opening hours" })).toBeVisible();
+  await expect(visit.getByRole("link", { name: /Get directions/i })).toBeVisible();
 });
