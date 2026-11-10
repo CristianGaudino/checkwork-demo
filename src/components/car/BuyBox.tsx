@@ -7,7 +7,7 @@ import { CalendarIcon, CarIcon, FuelIcon, GaugeIcon, GearIcon, ShieldCheckIcon }
 import { DEALER_WHATSAPP, SITE_URL, WARRANTY } from "@/lib/site";
 import { priceInfo } from "@/lib/stock/price";
 import { PriceBlock } from "@/components/stock/PriceBlock";
-import { carMeta, carName, carSummary, formatPrice, keyFacts } from "@/lib/stock/format";
+import { carMeta, carName, carSummary, keyFacts } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 import { accentButton, card } from "@/components/ui";
