@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { unfold } from "./open";
 import type { Page } from "@playwright/test";
 import { choose } from "./combo";
 import { SITE_NAME } from "../src/lib/site";
@@ -281,7 +282,7 @@ test("opening the list from the footer starts at the top, even after a car was o
   await page.locator("article h2 a").nth(8).scrollIntoViewIfNeeded();
   await page.locator("article h2 a").nth(8).click();
   await expect(page).toHaveURL(/\/used-cars\/[a-z0-9-]+$/);
-  await page.getByRole("contentinfo").getByRole("link", { name: "Used cars" }).click(); // a client-side link, so the saved position is in play
+  await (await unfold(page.getByRole("contentinfo"))).getByRole("link", { name: "Used cars" }).click(); // a client-side link, so the saved position is in play
   await expect(page).toHaveURL(/\/used-cars$/);
   await expect.poll(() => page.evaluate(() => Math.round(scrollY))).toBeLessThan(50);
 });

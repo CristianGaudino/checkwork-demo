@@ -84,12 +84,12 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
             <Panel title="Worth posting">
               <ul className="-mx-5 flex flex-col">
                 {ideas.map(({ car, reason }) => (
-                  <li key={car.id} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-5 py-2 even:bg-row-alt">
-                    <span className="flex min-w-0 flex-col">
+                  <li key={car.id} className="flex items-center justify-between gap-4 px-5 py-2 even:bg-row-alt">
+                    <span className="flex min-w-0 flex-1 flex-col">
                       <span className="font-medium">{carName(car)}</span>
                       <span className="text-meta text-text-2">{reason}</span>
                     </span>
-                    <Link href={`/dashboard/marketing?car=${encodeURIComponent(car.slug)}`} className={rowButton}>
+                    <Link href={`/dashboard/marketing?car=${encodeURIComponent(car.slug)}`} className={`${rowButton} shrink-0`}>
                       Write a post
                     </Link>
                   </li>

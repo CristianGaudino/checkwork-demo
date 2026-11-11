@@ -251,13 +251,19 @@ test("browse by make comes before browse by type, and both link into the stock",
 
 test("browse by make: the makes in stock first with their counts, then the popular makes always", async ({ page }) => {
   await page.goto("/");
-  const chips = page.getByRole("region", { name: "Browse by make" }).getByRole("listitem");
-  const labels = (await chips.allTextContents()).map((t) => t.trim());
-  const counted = labels.map((l) => /\d+$/.test(l));
-  expect(counted[0]).toBe(true);
-  expect(counted.indexOf(false)).toBeGreaterThan(0);
-  expect(counted.slice(counted.indexOf(false)).every((c) => !c)).toBe(true); // no make in stock after the first one without
-  expect(labels.some((l) => l.startsWith("Audi"))).toBe(true); // popular, never stocked in the demo
+  // Two rows that scroll together, the makes alternating between them: each row runs busiest first, then the makes we do not have.
+  const rows = page.getByRole("region", { name: "Browse by make" }).getByRole("list");
+  await expect(rows).toHaveCount(2);
+  const all: string[] = [];
+  for (const row of await rows.all()) {
+    const labels = (await row.getByRole("listitem").allTextContents()).map((t) => t.trim());
+    const counted = labels.map((l) => /\d+$/.test(l));
+    expect(counted[0]).toBe(true);
+    expect(counted.indexOf(false)).toBeGreaterThan(0);
+    expect(counted.slice(counted.indexOf(false)).every((c) => !c)).toBe(true); // no make in stock after the first one without
+    all.push(...labels);
+  }
+  expect(all.some((l) => l.startsWith("Audi"))).toBe(true); // popular, never stocked in the demo
 });
 
 test("visit us has the address, the hours and the way there", async ({ page }) => {

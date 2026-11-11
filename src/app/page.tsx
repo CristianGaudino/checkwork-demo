@@ -116,12 +116,13 @@ export default async function Home() {
           <div className="flex flex-col items-start gap-4">
             <h2 className={sectionTitle}>Finance made simple</h2>
             <p className="max-w-[40ch] text-body text-text-2">Estimate your monthly payment online, then send us your details to start the process.</p>
-            <div className="mt-2 flex flex-wrap gap-3">
-              <Link href="/finance" className={`inline-flex items-center gap-2 ${accentButton} lg:h-14 lg:px-8 lg:text-heading`}>
+            {/* Full width and stacked on a phone, like the hero's two buttons; side by side from 640px. */}
+            <div className="mt-2 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
+              <Link href="/finance" className={`inline-flex items-center justify-center gap-2 ${accentButton} lg:h-14 lg:px-8 lg:text-heading`}>
                 Check finance options
                 <ArrowRightIcon className="size-5" />
               </Link>
-              <Link href="/trade-in" className={`inline-flex h-12 items-center gap-2 px-6 lg:h-14 lg:px-8 ${secondaryButton}`}>
+              <Link href="/trade-in" className={`inline-flex h-12 items-center justify-center gap-2 px-6 lg:h-14 lg:px-8 ${secondaryButton}`}>
                 Value your trade-in
               </Link>
             </div>

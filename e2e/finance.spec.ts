@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
+import { unfold } from "./open";
 import type { Page } from "@playwright/test";
 import { FINANCE } from "../src/lib/finance/finance.config";
 import { quote } from "../src/lib/finance/payment";
@@ -73,7 +74,7 @@ test("the header links /finance from 1024px, the footer always, and the header s
   await expect(page).toHaveURL(/\/finance$/);
   await page.setViewportSize({ width: 320, height: 640 });
   await expect(page.getByRole("banner").getByRole("link", { name: "Finance" })).toBeHidden();
-  await expect(page.getByRole("contentinfo").getByRole("link", { name: "Finance" })).toHaveAttribute("href", "/finance");
+  await expect((await unfold(page.getByRole("contentinfo"))).getByRole("link", { name: "Finance" })).toHaveAttribute("href", "/finance");
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
 });
 

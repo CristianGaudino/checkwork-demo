@@ -31,6 +31,7 @@ test("with the permission the Margins screen, the column, the stat and the cost 
 });
 
 test("the demo bar's role decides what the dealer sees, the owner by default", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 }); // the sidebar, and the demo bar as one line
   await page.goto("/");
   const bar = page.locator("[data-demo-bar]");
   const role = bar.getByRole("combobox", { name: "Role" });

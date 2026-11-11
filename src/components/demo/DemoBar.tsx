@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import { DEMO_ROLES, THEME_KEY, isAppPath, roleForPath, type Theme } from "@/lib/demo";
 import { setDealerRole, setDemoRole, setDemoStockSource, useDealerRole, useDemoRole, useStockSource } from "@/lib/demo-role";
 import { ROLES, type Role } from "@/lib/permission-rules";
+import { ChevronDownIcon } from "@/components/stock/icons";
 import { press } from "@/components/ui";
 
 // The theme lives on <html data-theme>; this watches that attribute, so the button is right on first paint and after any change.
@@ -26,6 +27,25 @@ function setTheme(t: Theme) {
   }
 }
 
+// The page keeps room for whichever form of the bar is showing (--demo-bar-h): the whole bar from 640px, the pill and its gap on a phone.
+// Hidden (display: none) forms report nothing, so the two never fight.
+function useRoomFor(extra: number) {
+  return useCallback(
+    (el: HTMLElement | null) => {
+      if (!el) return;
+      const set = () => el.getClientRects().length && document.documentElement.style.setProperty("--demo-bar-h", `${el.offsetHeight + extra}px`);
+      set();
+      const o = new ResizeObserver(set);
+      o.observe(el);
+      return () => o.disconnect();
+    },
+    [extra],
+  );
+}
+
+// The demo's own controls: view as the customer or the dealer, and as the dealer, the role and where the stock comes from; and the theme.
+// Not part of the site: a real client site has none (NEXT_PUBLIC_DEMO_BAR=off). On a phone it folds into a small pill at the bottom right
+// that opens the controls above it; from 640px it is one slim line at the foot of the screen (docs/mobile-navigation.md).
 export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
   const path = usePathname();
   const router = useRouter();
@@ -35,85 +55,117 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
   const role = inApp ? roleForPath(path) : saved;
   const theme = useSyncExternalStore(subscribe, read, () => "light" as Theme);
   const dealerRole = useDealerRole();
-  const measure = useCallback((el: HTMLDivElement | null) => {
-    if (!el) return;
-    const set = () => document.documentElement.style.setProperty("--demo-bar-h", `${el.offsetHeight}px`);
-    set();
-    const o = new ResizeObserver(set);
-    o.observe(el);
-    return () => o.disconnect();
-  }, []);
   const donedeal = useStockSource() === "donedeal";
-  return (
-    // At the foot of the screen, so the site reads as itself from the top. Its height is shared as --demo-bar-h, which keeps the page's
-    // last lines and the compare bar clear of it however many lines it wraps to.
-    <div ref={measure} data-demo-bar className="theme-dark fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-band pb-[env(safe-area-inset-bottom)] text-meta text-text">
-      <div className="mx-auto flex min-h-11 max-w-page flex-wrap items-center justify-between gap-x-1 px-2 sm:gap-x-3 sm:px-6 lg:px-8">
-        <nav aria-label="View the demo as" className="flex flex-wrap items-center gap-y-1 py-1 sm:py-0">
-          <span className="hidden text-text-2 sm:inline">View as</span>
-          {DEMO_ROLES.filter((r) => showAreas || r.id === "customer").map((r) => (
-            <Link
-              key={r.id}
-              href={r.href}
-              onClick={(e) => {
-                setDemoRole(r.id);
-                // From a public page, Dealer changes that page (a Dashboard link in the header, and stock and social links on a car) instead of leaving it.
-                if (!inApp && r.id !== "customer") {
-                  e.preventDefault();
-                  router.refresh();
-                }
-              }}
-              aria-current={r.id === role ? "true" : undefined}
-              className={`flex h-11 items-center px-2 sm:px-3 ${r.id === role ? "font-semibold text-text underline decoration-accent decoration-2 underline-offset-8" : "text-text-2"} ${press}`}
-            >
-              {r.label}
-            </Link>
-          ))}
-          {role === "dealer" && showAreas && (
-            // Which member of the team the demo acts as: the role decides what they may see (src/lib/permissions.ts). The browser's own
-            // select, not the site's Combobox: it is one compact control in a bar fixed to the foot of the screen, where a list would open off it.
-            <label className="ml-0.5 flex h-8 shrink-0 items-center rounded-full border border-hairline pl-2 sm:ml-1 sm:pl-3">
-              <span aria-hidden className="hidden text-text-2 sm:mr-1 sm:inline">Role</span>
-              <select
-                aria-label="Role"
-                value={dealerRole}
-                onChange={(e) => {
-                  setDealerRole(e.target.value as Role);
-                  router.refresh();
-                }}
-                className="h-full cursor-pointer rounded-full bg-transparent pr-2 text-meta font-medium text-text sm:pr-3"
-              >
-                {ROLES.map((r) => (
-                  <option key={r} value={r} className="bg-band text-text">
-                    {r}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
-          {role === "dealer" && showAreas && (
-            // Where the stock comes from: added here, or synced from DoneDeal and read only here (src/lib/stock-source.ts).
-            <button
-              type="button"
-              aria-pressed={donedeal}
-              onClick={() => {
-                setDemoStockSource(donedeal ? "checkwork" : "donedeal");
+  const [open, setOpen] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
+  const panelId = useId();
+  const barRoom = useRoomFor(0);
+  const pillRoom = useRoomFor(20); // the pill and the 12px gap under it, and a little air above
+
+  // Open on a phone: a tap anywhere else, or Escape, folds it again.
+  useEffect(() => {
+    if (!open) return;
+    const away = (e: PointerEvent) => !root.current?.contains(e.target as Node) && setOpen(false);
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("pointerdown", away);
+    document.addEventListener("keydown", esc);
+    return () => {
+      document.removeEventListener("pointerdown", away);
+      document.removeEventListener("keydown", esc);
+    };
+  }, [open]);
+
+  const chip = "flex h-9 shrink-0 items-center rounded-full border px-3 text-meta";
+  const controls = (
+    <>
+      <nav aria-label="View the demo as" className="flex items-center">
+        <span className="pr-1 text-text-2 max-sm:pl-2">View as</span>
+        {DEMO_ROLES.filter((r) => showAreas || r.id === "customer").map((r) => (
+          <Link
+            key={r.id}
+            href={r.href}
+            onClick={(e) => {
+              setDemoRole(r.id);
+              // From a public page, Dealer changes that page (a Dashboard link in the header, and stock and social links on a car) instead of leaving it.
+              if (!inApp && r.id !== "customer") {
+                e.preventDefault();
+                router.refresh();
+              }
+            }}
+            aria-current={r.id === role ? "true" : undefined}
+            className={`flex h-11 items-center px-2 sm:px-3 ${r.id === role ? "font-semibold text-text underline decoration-accent decoration-2 underline-offset-8" : "text-text-2"} ${press}`}
+          >
+            {r.label}
+          </Link>
+        ))}
+      </nav>
+      {role === "dealer" && showAreas && (
+        <div className="flex items-center gap-2">
+          {/* Which member of the team the demo acts as: the role decides what they may see (src/lib/permissions.ts). The browser's own
+              select, not the site's Combobox: one compact control in a bar fixed to the foot of the screen, where a list would open off it. */}
+          <label className={`${chip} border-hairline pr-0`}>
+            <span aria-hidden className="mr-1 text-text-2">Role</span>
+            <select
+              aria-label="Role"
+              value={dealerRole}
+              onChange={(e) => {
+                setDealerRole(e.target.value as Role);
                 router.refresh();
               }}
-              className={`ml-0.5 flex h-8 shrink-0 items-center rounded-full border px-2 text-meta sm:ml-1 sm:px-3 ${donedeal ? "border-accent bg-accent text-on-accent" : "border-hairline text-text-2"} ${press}`}
+              className="h-full cursor-pointer rounded-full bg-transparent pr-3 text-meta font-medium text-text"
             >
-              DoneDeal{" "}<span className="sr-only sm:not-sr-only sm:ml-1">{donedeal ? "on" : "off"}</span>
-            </button>
-          )}
-        </nav>
+              {ROLES.map((r) => (
+                <option key={r} value={r} className="bg-band text-text">
+                  {r}
+                </option>
+              ))}
+            </select>
+          </label>
+          {/* Where the stock comes from: added here, or synced from DoneDeal and read only here (src/lib/stock-source.ts). */}
+          <button
+            type="button"
+            aria-pressed={donedeal}
+            onClick={() => {
+              setDemoStockSource(donedeal ? "checkwork" : "donedeal");
+              router.refresh();
+            }}
+            className={`${chip} ${donedeal ? "border-accent bg-accent text-on-accent" : "border-hairline text-text-2"} ${press}`}
+          >
+            DoneDeal<span className="ml-1">{donedeal ? "on" : "off"}</span>
+          </button>
+        </div>
+      )}
+      <button type="button" aria-pressed={theme === "dark"} onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className={`flex h-11 items-center px-2 text-text-2 sm:ml-auto ${press}`}>
+        {theme === "dark" ? "Dark" : "Light"}
+      </button>
+    </>
+  );
+
+  return (
+    <div ref={root} data-demo-bar className="theme-dark text-meta text-text">
+      {/* A phone: the pill, and the controls above it when open. Above the dashboard's tab bar in the dealer area. */}
+      <div className={`fixed right-3 z-40 flex flex-col items-end gap-2 sm:hidden ${inApp ? "bottom-[calc(4rem+env(safe-area-inset-bottom))]" : "bottom-[calc(0.75rem+env(safe-area-inset-bottom))]"}`}>
+        {open && (
+          <div id={panelId} className="flex w-[min(20rem,calc(100vw-1.5rem))] flex-col items-start gap-1 rounded-card border border-hairline bg-band p-2 shadow-panel">
+            {controls}
+          </div>
+        )}
         <button
+          ref={pillRoom}
           type="button"
-          aria-pressed={theme === "dark"}
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className={`flex h-11 items-center px-2 text-text-2 ${press}`}
+          aria-expanded={open}
+          aria-controls={panelId}
+          onClick={() => setOpen((o) => !o)}
+          className={`flex h-10 items-center gap-1.5 rounded-full border border-hairline bg-band pl-4 pr-3 shadow-panel ${press}`}
         >
-          {theme === "dark" ? "Dark" : "Light"}
+          <span className="text-text-2">Demo</span>
+          <span className="font-semibold">{role === "dealer" ? "Dealer" : "Customer"}</span>
+          <ChevronDownIcon className={`size-4 text-text-2 transition-transform motion-reduce:transition-none ${open ? "" : "rotate-180"}`} />
         </button>
+      </div>
+      {/* From 640px: one slim line at the foot of the screen. */}
+      <div ref={barRoom} className="fixed inset-x-0 bottom-0 z-40 hidden border-t border-hairline bg-band pb-[env(safe-area-inset-bottom)] sm:block">
+        <div className="mx-auto flex min-h-11 max-w-page items-center gap-x-3 px-6 lg:px-8">{controls}</div>
       </div>
     </div>
   );

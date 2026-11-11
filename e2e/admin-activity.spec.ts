@@ -5,6 +5,7 @@ const as = (context: import("@playwright/test").BrowserContext, role: string) =>
 const menu = (page: import("@playwright/test").Page) => page.getByRole("navigation", { name: "Dealer dashboard" });
 
 test("sales and finance have no Activity page; owners and managers do", async ({ page, context }) => {
+  await page.setViewportSize({ width: 1280, height: 900 }); // the sidebar; the phone tab bar has its own test (admin-shell)
   for (const role of ["Sales", "Finance"]) {
     await as(context, role);
     await page.goto("/dashboard");

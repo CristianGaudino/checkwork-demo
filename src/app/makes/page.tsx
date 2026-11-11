@@ -30,7 +30,7 @@ export default async function MakesPage() {
                 <Link href={`/makes/${m.slug}`} className={`${card} flex h-full items-center gap-3 p-4 transition-shadow hover:shadow-lift ${press}`}>
                   <MakeLogo slug={m.slug} className="size-8" />
                   <span className="flex min-w-0 flex-col">
-                    <span className="truncate font-medium">{m.label}</span>
+                    <span className="font-medium break-words">{m.label}</span>
                     <span className="text-meta text-text-2">{countLabel(m.count)}</span>
                   </span>
                 </Link>

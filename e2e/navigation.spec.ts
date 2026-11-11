@@ -2,22 +2,21 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import { SITE_NAME } from "../src/lib/site";
+import { unfold } from "./open";
 
 type Demo = { slug: string; soldAt?: string };
 const cars: Demo[] = JSON.parse(readFileSync(join(process.cwd(), "src/lib/stock/demo-cars.json"), "utf8"));
 const live = cars.find((c) => !c.soldAt)!;
 
-// The header links from 1024px, then the phone menu (which adds Used cars and Find a car), then the footer.
+// The header links from 1024px (seven at most with the three sections: docs/mobile-navigation.md), then the phone menu, then the footer.
 const HEADER = [
-  ["Makes", "/makes"],
   ["Finance", "/finance"],
   ["Sell or trade in", "/sell-your-car"],
   ["Service", "/service"],
-  ["About", "/about"],
   ["Contact", "/contact"],
 ] as const;
 const SECTIONS = [["Used cars", "/used-cars"], ["New cars", "/new-cars"], ["Commercial", "/commercial"]] as const;
-// Every page, in the phone menu's groups: Cars, Buying, Selling, Dealership.
+// Every page in the phone menu: the stock first, then the groups that fold (Buying, Selling, Dealership).
 const MENU = [
   ...SECTIONS,
   ["Makes", "/makes"],
@@ -28,9 +27,11 @@ const MENU = [
   ["Finance", "/finance"],
   ["Warranty", "/warranty"],
   ["Sell your car", "/sell-your-car"],
-  ["Trade-in", "/trade-in"],
+  ["Trade in your car", "/trade-in"],
   ["Service", "/service"],
-  ["About", "/about"],
+  ["Reviews", "/reviews"],
+  ["Questions", "/faq"],
+  ["About us", "/about"],
   ["Contact", "/contact"],
 ] as const;
 const FOOTER = [
@@ -53,11 +54,12 @@ const FOOTER = [
 ] as const;
 const PAGES = ["/", "/used-cars", `/used-cars/${live.slug}`, "/finance", "/trade-in", "/find-a-car", "/service", "/warranty", "/contact", "/about", "/terms", "/privacy"];
 
-test("from 1024px the header has Used, New, Commercial and six links, and no Enquire button or Stock menu", async ({ page }) => {
+test("from 1024px the header has Used, New, Commercial and four links, and no Enquire button or Stock menu", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/");
   const banner = page.getByRole("banner");
   for (const [name, href] of [...SECTIONS, ...HEADER]) await expect(banner.getByRole("link", { name, exact: true })).toHaveAttribute("href", href);
+  for (const name of ["Makes", "About"]) await expect(banner.getByRole("link", { name, exact: true })).toHaveCount(0); // one level down
   await expect(banner.getByRole("link", { name: "Enquire" })).toHaveCount(0);
   await expect(banner.getByRole("button", { name: "Stock" })).toHaveCount(0);
   await expect(banner.getByRole("navigation", { name: "Vehicle type" })).toHaveCount(0);
@@ -89,7 +91,7 @@ test("at 320px the header holds the menu button, and the footer reaches every pa
   await expect(banner.getByRole("button", { name: "Menu" })).toBeVisible();
   for (const [name] of HEADER) await expect(banner.getByRole("link", { name, exact: true })).toBeHidden();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
-  const footer = page.getByRole("contentinfo");
+  const footer = await unfold(page.getByRole("contentinfo")); // each group folds on a phone
   // The hours link is for wider screens; Contact is in the footer on a phone.
   for (const [name, href] of FOOTER.filter(([n]) => n !== "Opening hours and directions")) await expect(footer.getByRole("link", { name, exact: true })).toHaveAttribute("href", href);
   await expect(footer.getByRole("link", { name: "+353 1 906 0045" })).toHaveAttribute("href", "tel:+35319060045");
@@ -129,7 +131,9 @@ test.describe("the mobile menu", () => {
   const open = async (page: import("@playwright/test").Page) => {
     await page.goto("/");
     await page.getByRole("banner").getByRole("button", { name: "Menu" }).click();
-    return page.getByRole("dialog", { name: "Menu" });
+    const menu = page.getByRole("dialog", { name: "Menu" });
+    await expect(menu).toBeVisible();
+    return unfold(menu); // the groups fold: open them all
   };
 
   test("opens with every page and a Call now button, in 44px or taller targets", async ({ page }) => {
@@ -141,6 +145,17 @@ test.describe("the mobile menu", () => {
       expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     }
     await expect(menu.getByRole("link", { name: "Call us" })).toHaveAttribute("href", "tel:+35319060045");
+  });
+
+  test("the stock is at the top, and the groups fold, open only where the page you are on is", async ({ page }) => {
+    await page.goto("/finance");
+    await page.getByRole("banner").getByRole("button", { name: "Menu" }).click();
+    const menu = page.getByRole("dialog", { name: "Menu" });
+    for (const name of ["Used cars", "New cars", "Commercial", "Makes"]) await expect(menu.getByRole("link", { name, exact: true })).toBeVisible();
+    await expect(menu.locator("details[open] > summary")).toHaveText(["Buying"]);
+    await expect(menu.getByRole("link", { name: "Sell your car" })).toBeHidden();
+    await menu.getByText("Selling", { exact: true }).click();
+    await expect(menu.getByRole("link", { name: "Sell your car" })).toBeVisible();
   });
 
   test("Home is in the menu on every page except Home", async ({ page }) => {

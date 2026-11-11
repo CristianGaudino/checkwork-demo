@@ -61,7 +61,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
               ),
             },
             { key: "source", header: "Source", cell: (c) => c.source, hide: "sm" },
-            { key: "consent", header: "Marketing", cell: (c) => (c.marketingConsent ? <Badge tone="good">Agreed</Badge> : <Badge>No</Badge>) },
+            { key: "consent", header: "Marketing", hide: "sm", cell: (c) => (c.marketingConsent ? <Badge tone="good">Agreed</Badge> : <Badge>No</Badge>) },
             { key: "last", header: "Last contact", cell: (c) => fmtAgo(c.lastContactAt), align: "right", nowrap: true },
           ]}
         />

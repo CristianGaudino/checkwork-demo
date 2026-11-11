@@ -38,11 +38,12 @@ test("the used make page links to the make's page across every kind", async ({ p
   await expect(page).toHaveURL(/\/makes\/toyota$/);
 });
 
-test("the demo bar sits at the foot of the screen and the page ends above it", async ({ page }) => {
+test("on a phone the demo bar is a pill at the foot of the screen, and the page ends above it", async ({ page }) => {
   await page.goto("/");
-  const bar = (await page.locator("[data-demo-bar]").boundingBox())!;
+  const bar = (await page.locator("[data-demo-bar]").getByRole("button", { name: /^Demo/ }).boundingBox())!;
   const vh = page.viewportSize()!.height;
-  expect(Math.round(bar.y + bar.height)).toBe(vh);
+  expect(bar.height).toBeLessThanOrEqual(44); // small: one line, not a strip across the screen
+  expect(vh - (bar.y + bar.height)).toBeLessThanOrEqual(16);
   // The page's room for the bar is set once the bar has measured itself (after hydration): wait for it, as a slow load is late with it.
   await expect.poll(() => page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--demo-bar-h").trim())).not.toBe("");
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));

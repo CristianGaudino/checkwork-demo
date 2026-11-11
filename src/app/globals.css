@@ -24,9 +24,6 @@
   --text-hero-lg: 3.5rem;
   --text-hero-lg--line-height: 1.02;
   --text-hero-lg--letter-spacing: -0.04em;
-  --text-stat: 1.625rem; /* the big number on a stat card: fits a euro amount in a half-width card on a phone */
-  --text-stat--line-height: 1.1;
-  --text-stat--letter-spacing: -0.02em;
   --text-display: 2rem;
   --text-display--line-height: 1.1;
   --text-display--letter-spacing: -0.02em;
@@ -195,7 +192,6 @@
   .text-hero,
   .text-hero-lg,
   .text-display,
-  .text-stat,
   h1,
   h2,
   h3 {
