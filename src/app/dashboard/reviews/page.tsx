@@ -1,22 +1,38 @@
-import { Badge, EmptyState, PageHeader, Panel, SummaryTabs, adminButton, adminInput, rowButton } from "@/components/admin/kit";
+import { EmptyState, PageHeader, Panel, SummaryTabs, adminButton, adminInput, rowButton } from "@/components/admin/kit";
 import { Stars } from "@/components/admin/Stars";
 import { card } from "@/components/ui";
 import { reviewsStore } from "@/lib/admin/collections";
 import { fmtDate } from "@/lib/admin/format";
 import { REVIEW_FILTERS, filterReviews, parseReviewFilter, ratingSummary } from "@/lib/admin/reviews";
-import { flagAction, replyAction } from "./actions";
+import { replyAction } from "./actions";
+import { INTEGRATIONS, modeOf } from "@/lib/integrations";
+
+// What a reply came back as (replyAction). Only these codes are ever shown.
+const NOTICES: Record<string, { tone: "good" | "warn"; text: string }> = {
+  "reply-posted": { tone: "good", text: "Reply posted on Google." },
+  "reply-removed": { tone: "good", text: "Reply removed from Google." },
+  "not-connected": { tone: "warn", text: "Google review replies are not connected, so nothing was posted. Connect them under Settings." },
+  "not-installed": { tone: "warn", text: "The Google keys are set, but posting replies is not switched on yet. Nothing was posted." },
+};
 
 export const metadata = { title: "Reviews" };
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ filter?: string }> }) {
-  const filter = parseReviewFilter((await searchParams).filter);
+export default async function Page({ searchParams }: { searchParams: Promise<{ filter?: string; notice?: string }> }) {
+  const sp = await searchParams;
+  const filter = parseReviewFilter(sp.filter);
+  const notice = sp.notice ? NOTICES[sp.notice] : undefined;
   const all = await reviewsStore.list();
   const s = ratingSummary(all);
   const rows = filterReviews(all, filter);
 
   return (
     <>
-      <PageHeader title="Reviews" text={s.count ? `${s.average.toFixed(1)} average from ${s.count} reviews` : undefined} />
+      <PageHeader title="Reviews" text={`${s.count ? `${s.average.toFixed(1)} average from ${s.count} Google reviews. ` : ""}Replies post on Google${modeOf("gbp") === "simulated" ? `, as ${INTEGRATIONS.find((i) => i.id === "gbp")!.demoAccount}` : ""}.`} />
+      {notice && (
+        <p role="status" className={`rounded-control px-4 py-3 text-body ${notice.tone === "good" ? "bg-ok-soft text-ok" : "bg-warn-soft text-warn"}`}>
+          {notice.text}
+        </p>
+      )}
       <SummaryTabs label="Reviews" items={REVIEW_FILTERS.map(([k, label]) => ({ label, href: `/dashboard/reviews?filter=${k}`, active: filter === k, count: filterReviews(all, k).length }))} />
       {rows.length === 0 ? (
         <Panel>
@@ -31,7 +47,6 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ f
                 <span data-author className="font-medium">{r.author}</span>
                 <Stars rating={r.rating} />
                 <span className="text-meta text-text-2">{fmtDate(r.createdAt)}</span>
-                {r.flagged && <Badge tone="warn">Flagged</Badge>}
               </div>
               <p className="max-w-measure text-body">{r.text}</p>
               {r.reply && (
@@ -49,9 +64,6 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ f
                     <button type="submit" className={`${adminButton} self-start`}>{r.reply ? "Update reply" : "Post reply"}</button>
                   </form>
                 </details>
-                <form action={flagAction.bind(null, r.id)}>
-                  <button type="submit" className={rowButton}>{r.flagged ? "Remove flag" : "Flag for review"}</button>
-                </form>
               </div>
             </li>
           ))}

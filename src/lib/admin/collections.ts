@@ -150,7 +150,7 @@ function seedSubscribers(): Subscriber[] {
 export const subscribersStore = defineCollection<Subscriber>("subscribers", seedSubscribers);
 
 // ---- Reviews ----
-export type AdminReview = { id: string; author: string; rating: 1 | 2 | 3 | 4 | 5; text: string; createdAt: number; reply?: string; repliedAt?: number; flagged?: boolean };
+export type AdminReview = { id: string; author: string; rating: 1 | 2 | 3 | 4 | 5; text: string; createdAt: number; reply?: string; repliedAt?: number };
 const REVIEW_TEXT: [number, string][] = [
   [5, "Easy to deal with from the first call. The car was ready when we came to collect it."],
   [5, "No pressure at all. They answered every question and let us take our time."],

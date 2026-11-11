@@ -1,6 +1,6 @@
 import "server-only";
 import { modeOf } from "@/lib/integrations";
-import type { Ad, Newsletter, SocialPost } from "./collections";
+import type { Ad, AdminReview, Newsletter, SocialPost } from "./collections";
 import type { SendResult } from "./marketing";
 
 // The three places a draft leaves the admin: a post to Facebook or Instagram, an ad to Meta or Google, a newsletter to subscribers.
@@ -26,4 +26,12 @@ export async function startAd(ad: Ad): Promise<SendResult> {
 export async function sendNewsletter(n: Newsletter): Promise<SendResult> {
   void n;
   return run("newsletter");
+}
+
+// A reply to a Google review, or "" to remove it: Google Business Profile's reviews.updateReply / deleteReply, for the dealer's verified
+// profile. ADAPTER GOES HERE with GOOGLE_BUSINESS_LOCATION and an OAuth refresh token from an owner or manager.
+export async function postReviewReply(review: AdminReview, reply: string): Promise<SendResult> {
+  void review;
+  void reply;
+  return run("gbp");
 }

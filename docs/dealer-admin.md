@@ -73,6 +73,16 @@ with no D1). The actor is the signed-in person (`currentMember`), or a named one
   Bodywork, Transport, Other), folded away until used. Margins permission only. A car's whole cost is its cost price plus its prep
   (`src/lib/admin/costs.ts`), and every margin uses it.
 
+## Reviews
+
+- **On the site** (`/reviews`, and the strip on the home page): the reviews Google's Places API gives (up to five, most relevant first),
+  as Google gives them, with the rating, the count and the way to every review on Google Maps. None are chosen or hidden by us (owner's
+  decision, 2026-11-11): selecting reviews would mislead, and Irish consumer law asks traders to be open about how reviews are shown.
+- **In the dashboard** a reply goes to Google first, through the Business Profile API (`postReviewReply` in `publishers.ts`, simulated on
+  the demo), and is kept only once Google has it. There is no flag: Google offers no way to take one. The list itself comes from the
+  Business Profile once it is connected; on the demo it is the seeded reviews.
+- **Questions** (`/faq`) answers only from what the site already says (warranty, finance wording, selling, hours), so it promises nothing new.
+
 ## DoneDeal stock
 
 A dealer whose stock is on DoneDeal (`NEXT_PUBLIC_STOCK_SOURCE=donedeal`, or the demo bar's DoneDeal switch) keeps one source of truth:

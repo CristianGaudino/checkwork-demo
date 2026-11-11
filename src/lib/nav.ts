@@ -31,6 +31,8 @@ export const PAGE = {
   saved: link("/saved", "Saved cars"),
   service: link("/service", "Service"),
   warranty: link("/warranty", "Warranty"),
+  reviews: link("/reviews", "Reviews"),
+  faq: link("/faq", "Questions"),
   about: link("/about", "About", "About us", true),
   contact: link("/contact", "Contact"),
   privacy: link("/privacy", "Privacy policy"),
@@ -43,9 +45,9 @@ export const HEADER_LINKS = [PAGE.makes, PAGE.finance, PAGE.sellOrTrade, PAGE.se
 // Every page, in groups by what a visitor came to do: the phone menu shows these, and the footer repeats them with the legal pages.
 export const MENU_GROUPS = [
   { title: "Cars", links: [PAGE.used, PAGE.new, PAGE.commercial, PAGE.makes, PAGE.findACar, PAGE.compare, PAGE.saved] },
-  { title: "Buying", links: [PAGE.testDrive, PAGE.finance, PAGE.warranty] },
+  { title: "Buying", links: [PAGE.testDrive, PAGE.finance, PAGE.warranty, PAGE.faq] },
   { title: "Selling", links: [PAGE.sell, PAGE.tradeIn] },
-  { title: "Dealership", links: [PAGE.service, PAGE.about, PAGE.contact] },
+  { title: "Dealership", links: [PAGE.service, PAGE.reviews, PAGE.about, PAGE.contact] },
 ] as const;
 
 export const FOOTER_GROUPS = [...MENU_GROUPS, { title: "Legal", links: [PAGE.privacy, PAGE.terms] }] as const;
