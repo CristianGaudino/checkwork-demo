@@ -18,6 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/used-cars` },
     { url: `${SITE_URL}/new-cars` },
     { url: `${SITE_URL}/commercial` },
+    { url: `${SITE_URL}/makes` },
     { url: `${SITE_URL}/finance` },
     { url: `${SITE_URL}/trade-in` },
     { url: `${SITE_URL}/sell-your-car` },
@@ -30,6 +31,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/terms` },
     { url: `${SITE_URL}/privacy` },
     ...[...landing].map((path) => ({ url: `${SITE_URL}/used-cars/${path}` })),
+    // A make page, and its new and van lists, while a car of that make is in stock (the empty ones are noindex).
+    ...[...new Set([...cars.filter((c) => !isSold(c)), ...others].map((c) => c.makeSlug))].map((m) => ({ url: `${SITE_URL}/makes/${m}` })),
+    ...[...new Set(others.map((c) => `${c.condition === "new" ? "new-cars" : "commercial"}/${c.makeSlug}`))].map((p) => ({ url: `${SITE_URL}/${p}` })),
     ...[...cars, ...others].map((c) => ({ url: `${SITE_URL}/used-cars/${c.slug}` })),
   ];
 }

@@ -137,8 +137,9 @@ test("the test drive list is searched and paged on the server, 24 cars a page", 
   await expect(page.getByText("No car matches. Try a make or a model, or call us.")).toBeVisible();
 });
 
-test("home: each Shop by type tile says how many cars it opens", async ({ page }) => {
+test("home: each Browse by type tile has a photo and says how many cars it opens", async ({ page }) => {
   await page.goto("/");
-  const tiles = page.getByRole("region", { name: "Shop by type" }).getByRole("link");
+  const tiles = page.getByRole("region", { name: "Browse by type" }).getByRole("link");
+  await expect(tiles.first().locator("img")).toHaveCount(1);
   await expect(tiles.first()).toContainText(/\d+ cars?|No cars/);
 });

@@ -6,7 +6,8 @@ import { BrowseByMake } from "@/components/home/BrowseByMake";
 import { HeroMosaic } from "@/components/home/HeroMosaic";
 import { HomeSearch } from "@/components/home/HomeSearch";
 import { SocialStrip } from "@/components/home/SocialStrip";
-import { ShopByType } from "@/components/home/ShopByType";
+import { BrowseByType, type TypeTile } from "@/components/home/BrowseByType";
+import { makeDirectory } from "@/lib/stock/makes";
 import { TrustStrip } from "@/components/home/TrustStrip";
 import { VisitUs } from "@/components/home/VisitUs";
 import { JsonLd } from "@/components/JsonLd";
@@ -32,9 +33,17 @@ export default async function Home() {
   // The home page must never error: a stock failure shows a line in place of the grid, and the search still renders (UI-SPEC state table).
   // The newest cars feed the featured grid, and all of them feed the search drop-downs, so every choice has a car behind it.
   const [all, reviews, fresh, vans] = await Promise.all([queryAllOrNull(), getReviews(), queryAllOrNull({ condition: "new" }), queryAllOrNull({ condition: "commercial" })]);
-  // How many cars each Shop by type tile opens, so a tile says what is behind it.
-  const typeCounts: Record<string, number> = { new: fresh?.total ?? 0, commercial: vans?.total ?? 0 };
-  for (const c of all?.cars ?? []) if (c.bodySlug) typeCounts[c.bodySlug] = (typeCounts[c.bodySlug] ?? 0) + 1;
+  // Browse by type: new cars and vans, then each body type of the used stock, each with its newest car's photo and how many there are.
+  const used = all?.cars ?? [];
+  const typeTiles: TypeTile[] = [
+    ...(fresh?.total ? [{ key: "new", href: "/new-cars", label: "New cars", count: fresh.total, photo: fresh.cars[0]?.photos[0] }] : []),
+    ...(vans?.total ? [{ key: "commercial", href: "/commercial", label: "Vans", count: vans.total, photo: vans.cars[0]?.photos[0] }] : []),
+    ...searchOptions(used).bodies.map((b) => {
+      const of = used.filter((c) => c.bodySlug === b.slug);
+      return { key: b.slug, href: `/used-cars?body=${b.slug}`, label: b.label, count: of.length, photo: of[0]?.photos[0] };
+    }),
+  ].slice(0, HOME.shopByTypeMax);
+  const makes = await makeDirectory();
   const featured = all?.cars.slice(0, HOME.featuredCount) ?? null;
   const search = searchOptions(all?.cars ?? []);
   return (
@@ -65,7 +74,6 @@ export default async function Home() {
       </section>
 
       <div className={`${pageMain} flex flex-col gap-12 lg:gap-16`}>
-        <ShopByType bodies={search.bodies.slice(0, HOME.shopByTypeMax)} counts={typeCounts} />
 
         <section aria-labelledby="featured" className="flex flex-col gap-4">
           {!featured ? (
@@ -132,7 +140,9 @@ export default async function Home() {
           </ol>
         </section>
 
-        <BrowseByMake makes={search.makes.slice(0, HOME.makeChipsMax)} />
+        <BrowseByMake makes={makes.slice(0, HOME.makeChipsMax)} />
+
+        <BrowseByType tiles={typeTiles} />
 
         <ReviewsStrip data={reviews} />
 

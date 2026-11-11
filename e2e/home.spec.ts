@@ -237,14 +237,27 @@ test.describe("without JavaScript", () => {
 });
 
 
-test("shop by type and browse by make link into the stock", async ({ page }) => {
+test("browse by make comes before browse by type, and both link into the stock", async ({ page }) => {
   await page.goto("/");
-  const types = page.getByRole("region", { name: "Shop by type" });
-  await expect(types.getByRole("link", { name: "New cars" })).toHaveAttribute("href", "/new-cars");
-  await expect(types.getByRole("link", { name: "Vans" })).toHaveAttribute("href", "/commercial");
-  await expect(types.getByRole("link").nth(2)).toHaveAttribute("href", /^\/used-cars\?body=[a-z-]+$/);
+  const types = page.getByRole("region", { name: "Browse by type" });
   const makes = page.getByRole("region", { name: "Browse by make" });
-  await expect(makes.getByRole("link").first()).toHaveAttribute("href", /^\/used-cars\/[a-z-]+$/);
+  expect((await makes.boundingBox())!.y).toBeLessThan((await types.boundingBox())!.y);
+  await expect(types.getByRole("link", { name: /^New cars/ })).toHaveAttribute("href", "/new-cars");
+  await expect(types.getByRole("link", { name: /^Vans/ })).toHaveAttribute("href", "/commercial");
+  await expect(types.getByRole("link").nth(2)).toHaveAttribute("href", /^\/used-cars\?body=[a-z-]+$/);
+  await expect(makes.getByRole("link", { name: "All makes" })).toHaveAttribute("href", "/makes");
+  await expect(makes.getByRole("listitem").first().getByRole("link")).toHaveAttribute("href", /^\/makes\/[a-z-]+$/);
+});
+
+test("browse by make: the makes in stock first with their counts, then the popular makes always", async ({ page }) => {
+  await page.goto("/");
+  const chips = page.getByRole("region", { name: "Browse by make" }).getByRole("listitem");
+  const labels = (await chips.allTextContents()).map((t) => t.trim());
+  const counted = labels.map((l) => /\d+$/.test(l));
+  expect(counted[0]).toBe(true);
+  expect(counted.indexOf(false)).toBeGreaterThan(0);
+  expect(counted.slice(counted.indexOf(false)).every((c) => !c)).toBe(true); // no make in stock after the first one without
+  expect(labels.some((l) => l.startsWith("Audi"))).toBe(true); // popular, never stocked in the demo
 });
 
 test("visit us has the address, the hours and the way there", async ({ page }) => {
