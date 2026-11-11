@@ -72,7 +72,7 @@ async function encodeTo(page: Page, bytes: number, ms = 0) {
   );
 }
 
-test("it is a trade-in valuation page that explains itself, in four steps, with the lookup joined to the registration", async ({ page }) => {
+test("it is a trade-in valuation page that explains itself, in four steps, with a lookup beside the registration", async ({ page }) => {
   await open(page);
   await expect(page.getByRole("heading", { level: 1, name: "Sell your car" })).toBeVisible();
   // The three steps open on a tap, and the notes sit under the step they belong to (no column of tips beside the form).
@@ -89,7 +89,7 @@ test("it is a trade-in valuation page that explains itself, in four steps, with 
   await expect(page.getByText("Prefer to talk?")).toHaveCount(0);
   await expect(page.getByRole("list", { name: "Progress" }).getByRole("listitem")).toHaveCount(4);
   await expect(page.getByRole("heading", { name: /^Step 1 of 4/ })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Look up" })).toHaveCount(0); // no lookup is offered until there is a real one
+  await expect(page.getByRole("button", { name: "Look up" })).toBeVisible(); // beside the registration
 });
 
 test("Back keeps what was typed", async ({ page }) => {

@@ -70,7 +70,7 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
               }}
               className={`ml-0.5 flex h-8 shrink-0 items-center rounded-full border px-2 text-meta sm:ml-1 sm:px-3 ${margins ? "border-accent bg-accent text-on-accent" : "border-hairline text-text-2"} ${press}`}
             >
-              Margins<span className="sr-only sm:not-sr-only"> {margins ? "on" : "off"}</span>
+              Margins{" "}<span className="sr-only sm:not-sr-only sm:ml-1">{margins ? "on" : "off"}</span>
             </button>
           )}
           {role === "dealer" && showAreas && (
@@ -84,7 +84,7 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
               }}
               className={`ml-0.5 flex h-8 shrink-0 items-center rounded-full border px-2 text-meta sm:ml-1 sm:px-3 ${donedeal ? "border-accent bg-accent text-on-accent" : "border-hairline text-text-2"} ${press}`}
             >
-              DoneDeal<span className="sr-only sm:not-sr-only"> {donedeal ? "on" : "off"}</span>
+              DoneDeal{" "}<span className="sr-only sm:not-sr-only sm:ml-1">{donedeal ? "on" : "off"}</span>
             </button>
           )}
         </nav>

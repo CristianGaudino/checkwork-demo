@@ -30,6 +30,7 @@ export type Lead = {
   source: (typeof LEAD_SOURCES)[number];
   carSlug?: string;
   carTitle?: string;
+  reg?: string; // the registration of the car a person wants to sell or trade in
   assignedTo?: string;
   notes: { at: number; text: string }[];
   createdAt: number;
@@ -58,7 +59,7 @@ function seedLeads(): Lead[] {
   return Array.from({ length: 28 }, (_, i) => {
     const type = r.pick(LEAD_TYPES);
     const p = person(r);
-    const car = type === "find-a-car" || type === "general" ? undefined : livePicks(r);
+    const car = type === "find-a-car" || type === "general" || type === "sell" ? undefined : livePicks(r);
     const age = i < 6 ? r.int(1, 30) * HOUR : (i - 4) * r.int(6, 14) * HOUR + r.int(0, 5) * HOUR;
     const status: LeadStatus = age < 30 * HOUR ? "new" : r.pick(["new", "contacted", "contacted", "appointment", "won", "lost"] as const);
     return {
@@ -70,6 +71,8 @@ function seedLeads(): Lead[] {
       source: r.pick(LEAD_SOURCES),
       carSlug: car?.slug,
       carTitle: car && carTitleOf(car),
+      // A plate for the cars people want to sell or trade in, from the index (not the random sequence, so the rest of the seed is unchanged).
+      ...((type === "trade-in" || type === "sell") && { reg: `${15 + (i % 9)}${1 + (i % 2)}-${["D", "C", "KY", "G", "L", "WX"][i % 6]}-${1000 + i * 37}` }),
       assignedTo: status === "new" ? undefined : r.pick(TEAM_SEED).name,
       notes: status === "contacted" || status === "appointment" ? [{ at: now - age + 2 * HOUR, text: "Called and left a message." }] : [],
       createdAt: now - age,

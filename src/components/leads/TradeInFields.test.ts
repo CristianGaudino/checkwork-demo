@@ -1,7 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { vi, describe, expect, it } from "vitest";
 import { BAD_KM, BAD_REG, PHOTO_MIN_COUNT, PHOTO_MIN_ERROR } from "@/lib/leads/constants";
 import { fieldErrors } from "@/lib/leads/validate";
 import { TRADE_IN_STEPS } from "./TradeInFields";
+
+vi.mock("server-only", () => ({})); // the lookup button imports its server action, which the test only needs to load
 
 // The typed fields of a step are checked with the server's own rules (validate.ts), which also wants a name and consent: those come
 // from the last step, so these tests only read the errors of the first step's fields.

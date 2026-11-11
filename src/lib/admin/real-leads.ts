@@ -54,6 +54,7 @@ export function mirrorOf(row: LeadRow): Mirror {
     source: "Website",
     carSlug: row.carSlug ?? undefined,
     carTitle: row.carTitle ?? undefined,
+    ...(typeof row.details.reg === "string" && { reg: row.details.reg }),
     notes: [],
     createdAt: at,
   };
