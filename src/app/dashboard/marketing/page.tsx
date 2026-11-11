@@ -1,4 +1,4 @@
-import { Badge, EmptyState, FilterTabs, Field, PageHeader, Panel, StatCard, StatGrid, adminButton, adminButtonQuiet, adminInput, type Tone } from "@/components/admin/kit";
+import { Badge, EmptyState, Field, PageHeader, Panel, SummaryTabs, adminButton, adminButtonQuiet, adminInput, rowButton, type Tone } from "@/components/admin/kit";
 import { PostComposer } from "@/components/admin/PostComposer";
 import { sendDuePosts } from "@/lib/admin/scheduler";
 import { NETWORKS, adsStore, getSettings, newslettersStore, postsStore, subscribersStore } from "@/lib/admin/collections";
@@ -44,7 +44,6 @@ const STATUS: Record<string, { tone: Tone; label: string }> = {
   paused: { tone: "warn", label: "Paused" },
   ended: { tone: "neutral", label: "Ended" },
 };
-const quiet = "min-h-11 px-2 text-meta font-medium underline";
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ tab?: string; notice?: string; car?: string }> }) {
   const sp = await searchParams;
@@ -72,7 +71,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
           {notice.text}
         </p>
       )}
-      <FilterTabs items={TABS.map(([k, label]) => ({ label, href: `/dashboard/marketing?tab=${k}`, active: tab === k }))} />
+      <SummaryTabs
+        label="Marketing"
+        items={[
+          { label: "Posts and ads", count: fmtNum(posts.filter((p) => p.status === "posted").length), hint: `posted, ${ads.filter((a) => a.status === "running").length} ads running`, href: "/dashboard/marketing?tab=posts", active: tab === "posts" },
+          { label: "Newsletters", count: fmtNum(live), hint: "subscribers", href: "/dashboard/marketing?tab=newsletters", active: tab === "newsletters" },
+        ]}
+      />
 
       {tab === "posts" && (
         <>
@@ -80,20 +85,14 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
             <PostComposer cars={composerCars} initialSlug={sp.car ?? ""} action={composeAction} />
             {!isUsable("social") && <p className="text-meta text-text-2">Facebook and Instagram are not connected, so posts are kept as drafts.</p>}
           </Panel>
-          <StatGrid>
-            <StatCard label="Posts published" value={fmtNum(posts.filter((p) => p.status === "posted").length)} />
-            <StatCard label="Scheduled" value={fmtNum(posts.filter((p) => p.status === "scheduled").length)} />
-            <StatCard label="Reach" value={fmtNum(posts.reduce((s, p) => s + (p.reach ?? 0), 0))} />
-            <StatCard label="Ads running" value={fmtNum(ads.filter((a) => a.status === "running").length)} />
-          </StatGrid>
           <Panel title="Posts and ads">
             {feed.length === 0 ? (
               <EmptyState title="Nothing yet" />
             ) : (
-              <ul className="flex flex-col divide-y divide-hairline">
+              <ul className="-mx-5 flex flex-col">
                 {feed.map((item) =>
                   item.kind === "post" ? (
-                    <li key={item.p.id} className="flex flex-col gap-2 py-3">
+                    <li key={item.p.id} className="flex flex-col gap-2 px-5 py-3 even:bg-row-alt">
                       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                         <span className="font-medium">{item.p.network}</span>
                         <Badge tone={STATUS[item.p.status].tone}>{STATUS[item.p.status].label}</Badge>
@@ -105,13 +104,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                       <p className="line-clamp-2 max-w-measure whitespace-pre-line text-body text-text-2">{item.p.text}</p>
                       {item.p.status !== "posted" && (
                         <div className="flex flex-wrap items-center gap-2">
-                          <form action={publishPostAction.bind(null, item.p.id)}><button type="submit" className={`${adminButtonQuiet} h-11`}>Publish now</button></form>
-                          <form action={deletePostAction.bind(null, item.p.id)}><button type="submit" className={`${quiet} text-bad`}>Delete</button></form>
+                          <form action={publishPostAction.bind(null, item.p.id)}><button type="submit" className={rowButton}>Publish now</button></form>
+                          <form action={deletePostAction.bind(null, item.p.id)}><button type="submit" className={`${rowButton} text-bad`}>Delete</button></form>
                         </div>
                       )}
                     </li>
                   ) : (
-                    <li key={item.a.id} className="flex flex-col gap-2 py-3">
+                    <li key={item.a.id} className="flex flex-col gap-2 px-5 py-3 even:bg-row-alt">
                       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                         <span className="font-medium">{item.a.platform} ad</span>
                         <Badge tone={STATUS[item.a.status].tone}>{STATUS[item.a.status].label}</Badge>
@@ -124,8 +123,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                       </div>
                       {item.a.status === "draft" && (
                         <div className="flex flex-wrap items-center gap-2">
-                          <form action={startAdAction.bind(null, item.a.id)}><button type="submit" className={`${adminButtonQuiet} h-11`}>Start ad</button></form>
-                          <form action={deleteAdAction.bind(null, item.a.id)}><button type="submit" className={`${quiet} text-bad`}>Delete</button></form>
+                          <form action={startAdAction.bind(null, item.a.id)}><button type="submit" className={rowButton}>Start ad</button></form>
+                          <form action={deleteAdAction.bind(null, item.a.id)}><button type="submit" className={`${rowButton} text-bad`}>Delete</button></form>
                         </div>
                       )}
                     </li>
@@ -149,9 +148,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
             {letters.length === 0 ? (
               <EmptyState title="No newsletters yet" />
             ) : (
-              <ul className="flex flex-col divide-y divide-hairline">
+              <ul className="-mx-5 flex flex-col">
                 {[...letters].sort((a, b) => b.createdAt - a.createdAt).map((n) => (
-                  <li key={n.id} className="flex flex-col gap-2 py-3">
+                  <li key={n.id} className="flex flex-col gap-2 px-5 py-3 even:bg-row-alt">
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                       <span className="font-medium">{n.subject}</span>
                       <Badge tone={n.status === "sent" ? "good" : "neutral"}>{n.status === "sent" ? "Sent" : "Draft"}</Badge>
@@ -163,8 +162,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                     <p className="line-clamp-2 max-w-measure whitespace-pre-line text-body text-text-2">{n.body}</p>
                     {n.status === "draft" && (
                       <div className="flex flex-wrap items-center gap-2">
-                        <form action={sendNewsletterAction.bind(null, n.id)}><button type="submit" className={`${adminButtonQuiet} h-11`}>Send to {fmtNum(live)}</button></form>
-                        <form action={deleteNewsletterAction.bind(null, n.id)}><button type="submit" className={`${quiet} text-bad`}>Delete</button></form>
+                        <form action={sendNewsletterAction.bind(null, n.id)}><button type="submit" className={rowButton}>Send to {fmtNum(live)}</button></form>
+                        <form action={deleteNewsletterAction.bind(null, n.id)}><button type="submit" className={`${rowButton} text-bad`}>Delete</button></form>
                       </div>
                     )}
                   </li>

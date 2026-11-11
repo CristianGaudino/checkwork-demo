@@ -5,7 +5,7 @@ import { subTitle } from "@/components/ui";
 import { LeadPage } from "@/components/leads/LeadPage";
 import { TestDrivePicker } from "@/components/leads/TestDrivePicker";
 import { DEALER_LOCATION, DEALER_PHONE, SITE_NAME } from "@/lib/site";
-import { queryAllOrNull } from "@/lib/stock";
+import { everyKindOrNull } from "@/lib/stock";
 import { carSummary } from "@/lib/stock/format";
 
 export const metadata: Metadata = {
@@ -18,8 +18,7 @@ export const dynamic = "force-dynamic";
 
 export default async function TestDrivePage() {
   // Used, new and commercial: a test drive is as likely on a new car or a van.
-  const lists = await Promise.all([queryAllOrNull(), queryAllOrNull({ condition: "new" }), queryAllOrNull({ condition: "commercial" })]);
-  const cars = lists.flatMap((l) => l?.cars ?? []);
+  const cars = (await everyKindOrNull()) ?? [];
   return (
     <LeadPage
       bare

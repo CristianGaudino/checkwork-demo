@@ -111,7 +111,7 @@ export default async function Home() {
                 <ArrowRightIcon className="size-5" />
               </Link>
               <Link href="/trade-in" className={`inline-flex h-12 items-center gap-2 px-6 lg:h-14 lg:px-8 ${secondaryButton}`}>
-                Value Your Trade-in
+                Value your trade-in
               </Link>
             </div>
           </div>

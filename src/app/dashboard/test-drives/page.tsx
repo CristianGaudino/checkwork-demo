@@ -1,9 +1,10 @@
 import { DriveStatusBadge } from "@/components/admin/badges";
 import { AddDriveForm } from "@/components/admin/AddDriveForm";
-import { EmptyState, FilterTabs, PageHeader, Panel } from "@/components/admin/kit";
+import { EmptyState, PageHeader, Panel, SummaryTabs, adminButton, rowButton } from "@/components/admin/kit";
+import { PlusIcon } from "@/components/stock/icons";
+import { card } from "@/components/ui";
 import { DRIVE_STATUSES, DRIVE_STATUS_LABELS, drivesStore } from "@/lib/admin/collections";
 import { groupByDay, parseDriveStatus } from "@/lib/admin/drives";
-import { fmtDate } from "@/lib/admin/format";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { carName } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
@@ -11,6 +12,7 @@ import { setDriveStatusAction } from "./actions";
 
 export const metadata = { title: "Test drives" };
 
+const day = new Intl.DateTimeFormat("en-IE", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Dublin" });
 const time = new Intl.DateTimeFormat("en-IE", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Dublin" });
 // What the dealer can do next from each status. Anything else is not offered.
 const NEXT: Record<string, [string, string][]> = {
@@ -29,50 +31,66 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
   return (
     <>
       <PageHeader title="Test drives" />
-      <FilterTabs
+      <SummaryTabs
+        label="Booking status"
         items={[
           { label: "Upcoming", href: "/dashboard/test-drives", active: !status, count: all.filter((d) => open(d.status)).length },
           ...DRIVE_STATUSES.map((s) => ({ label: DRIVE_STATUS_LABELS[s], href: `/dashboard/test-drives?status=${s}`, active: status === s, count: count(s) })),
         ]}
       />
+      {/* Taken by phone or in person: the form opens on demand, so the list comes first. */}
+      <details className="group">
+        <summary className={`${adminButton} w-fit cursor-pointer list-none [&::-webkit-details-marker]:hidden`}>
+          <PlusIcon className="size-4" />
+          Add a booking
+        </summary>
+        <Panel className="mt-3">
+          <AddDriveForm cars={cars.filter((c) => !isSold(c)).map((c) => ({ slug: c.slug, label: carName(c) }))} />
+        </Panel>
+      </details>
       {groups.length === 0 ? (
         <Panel>
           <EmptyState title="No bookings here" />
         </Panel>
       ) : (
-        groups.map((g) => (
-          <Panel key={g.day} title={fmtDate(g.drives[0].startsAt)}>
-            <ul className="flex flex-col divide-y divide-hairline">
-              {g.drives.map((d) => (
-                <li key={d.id} className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 py-3">
-                  <div className="flex min-w-0 flex-col gap-0.5">
-                    <span className="font-semibold">
-                      {time.format(d.startsAt)} · {d.name}
-                    </span>
-                    <span className="text-meta text-text-2">
-                      {d.carTitle} · <a href={`tel:${d.phone.replace(/\s/g, "")}`} className="inline-flex min-h-11 items-center underline">{d.phone}</a>
-                    </span>
-                    {d.notes && <span className="text-meta text-text-2">{d.notes}</span>}
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <DriveStatusBadge status={d.status} />
-                    {(NEXT[d.status] ?? []).map(([to, label]) => (
-                      <form key={to} action={setDriveStatusAction.bind(null, d.id, to)}>
-                        <button type="submit" className="min-h-11 px-2 text-meta font-semibold underline">
-                          {label}
-                        </button>
-                      </form>
-                    ))}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </Panel>
-        ))
+        // One list, a heading row per day, and every other booking filled, as in the other tables.
+        <section aria-label="Bookings" className={`${card} overflow-hidden`}>
+          {groups.map((g) => (
+            <div key={g.day}>
+              <h2 className="border-b border-hairline bg-surface px-4 py-2 text-meta font-medium text-text-2">{day.format(g.drives[0].startsAt)}</h2>
+              <ul>
+                {g.drives.map((d) => (
+                  <li key={d.id} className="grid grid-cols-[4rem_minmax(0,1fr)] items-center gap-x-4 gap-y-2 px-4 py-3 even:bg-row-alt md:grid-cols-[4rem_minmax(0,1fr)_auto]">
+                    <span className="self-start font-medium tabular-nums md:self-center">{time.format(d.startsAt)}</span>
+                    <div className="flex min-w-0 flex-col">
+                      <span className="flex flex-wrap items-center gap-2 font-medium">
+                        <span data-name>{d.name}</span>
+                        <DriveStatusBadge status={d.status} />
+                      </span>
+                      <span className="text-meta text-text-2">{d.carTitle}</span>
+                      <a href={`tel:${d.phone.replace(/\s/g, "")}`} className="inline-flex min-h-11 w-fit items-center text-meta text-text-2 underline-offset-2 hover:underline md:min-h-0">
+                        {d.phone}
+                      </a>
+                      {d.notes && <span className="text-meta text-text-2">{d.notes}</span>}
+                    </div>
+                    {(NEXT[d.status] ?? []).length > 0 && (
+                      <div className="col-start-2 flex flex-wrap gap-2 md:col-start-3 md:justify-end">
+                        {(NEXT[d.status] ?? []).map(([to, label]) => (
+                          <form key={to} action={setDriveStatusAction.bind(null, d.id, to)}>
+                            <button type="submit" className={`${rowButton} ${to === "cancelled" ? "text-bad" : ""}`}>
+                              {label}
+                            </button>
+                          </form>
+                        ))}
+                      </div>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </section>
       )}
-      <Panel title="Add a booking">
-        <AddDriveForm cars={cars.filter((c) => !isSold(c)).map((c) => ({ slug: c.slug, label: carName(c) }))} />
-      </Panel>
     </>
   );
 }

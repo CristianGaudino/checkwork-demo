@@ -13,7 +13,8 @@ export function PriceBlock({ car, size = "card" }: { car: Pick<Car, "priceEur" |
       </p>
       {p.vatLine && <p className="text-meta text-text-2">{p.vatLine}</p>}
       {p.incVat && <p className="text-meta tabular-nums text-text-2">{p.incVat}</p>}
-      {p.drop && (
+      {/* On a card the drop is a tag on the photo (ListingCard), so the price lines up with the cards beside it. */}
+      {p.drop && hero && (
         <p className="text-meta tabular-nums">
           <s className="text-text-2">{p.was}</s> <span className="font-semibold text-better">{p.drop}</span>
         </p>

@@ -38,7 +38,7 @@ export default function TermsPage() {
           amount you are offered depend on your circumstances, and the lender confirms them. Nothing on this site is financial advice.
         </p>
       </InfoSection>
-      <InfoSection title="Trade-in Valuations and Requests">
+      <InfoSection title="Valuations and requests">
         <p>
           A trade-in valuation we give you after an online request is an estimate, based on what you tell us and your photos. It can change when we inspect the car. Sending a trade-in or find-a-car request does not commit you or us to anything.
         </p>

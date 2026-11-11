@@ -44,8 +44,10 @@ export function CarGallery({ photos, name }: { photos: Photo[]; name: string }) 
   const atEnd = index >= n - 1;
 
   return (
-    <div data-testid="gallery">
-      <div ref={root} className="group group/pc relative aspect-photo overflow-hidden rounded-tile bg-photo-bg lg:hidden">
+    <div data-testid="gallery" className="flex flex-col gap-3">
+      {/* One stage at every width: swipe on a phone, arrows with a mouse, and a press opens the viewer. From 640px every photo is also in a
+          strip below; on a phone the strip would push the price off the first screen, and the swipe and counter do the same job. */}
+      <div ref={root} className="group group/pc relative aspect-photo overflow-hidden rounded-tile bg-photo-bg">
         <div
           ref={scroller}
           onScroll={onScroll}
@@ -58,12 +60,13 @@ export function CarGallery({ photos, name }: { photos: Photo[]; name: string }) 
             <div key={photo.src} role="group" aria-roledescription="slide" aria-label={`Photo ${i + 1} of ${n}`} className="group/slide relative h-full w-full flex-none snap-start">
               {/* A photo that fails to load leaves the same words as a car with no photos. */}
               <span aria-hidden="true" className="absolute inset-0 hidden items-center justify-center text-meta text-text-2 group-has-[img[data-failed]]/slide:flex">No photo yet</span>
-              <button type="button" aria-label={`View photo ${i + 1} of ${n} larger`} onClick={(e) => openLightbox(i, e.currentTarget)} className="block size-full focus-visible:-outline-offset-2">
+              <button type="button" aria-label={`View photo ${i + 1} of ${n} larger`} onClick={(e) => openLightbox(i, e.currentTarget)} className="block size-full cursor-zoom-in focus-visible:-outline-offset-2">
                 <Image
                   ref={settle}
                   src={photo.src}
-                  width={900}
-                  height={675}
+                  width={1200}
+                  height={900}
+                  sizes="(min-width: 1024px) 60vw, 100vw"
                   alt={`${name}, photo ${i + 1} of ${n}`}
                   loading={i === 0 ? "eager" : "lazy"}
                   fetchPriority={i === 0 ? "high" : undefined}
@@ -86,32 +89,23 @@ export function CarGallery({ photos, name }: { photos: Photo[]; name: string }) 
           </>
         )}
       </div>
-      {/* From 1024px the photos are a grid: four tiles that open the viewer, "Show all" on the last when there are more. */}
-      <div data-testid="photo-grid" className={`hidden gap-3 lg:grid ${n === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
-        {photos.slice(0, 4).map((photo, i) => (
-          <div key={photo.src} className={`relative aspect-photo overflow-hidden rounded-tile bg-photo-bg ${n === 3 && i === 0 ? "col-span-2" : ""}`}>
-            <button type="button" aria-label={`View photo ${i + 1} of ${n} larger`} onClick={(e) => openLightbox(i, e.currentTarget)} className="group/tile block size-full focus-visible:-outline-offset-2">
-              <Image
-                src={photo.src}
-                width={900}
-                height={675}
-                alt=""
-                loading={i === 0 ? "eager" : "lazy"}
-                fetchPriority={i === 0 ? "high" : undefined}
-                decoding={i === 0 ? undefined : "async"}
-                draggable={false}
-                className="size-full object-cover transition-transform duration-300 group-hover/tile:scale-[1.02] motion-reduce:transition-none"
-              />
-            </button>
-            <Brandmark />
-            {i === 3 && n > 4 && (
-              <span aria-hidden="true" className="pointer-events-none absolute bottom-3 right-3 rounded-full bg-card/90 px-4 py-2 text-meta font-semibold text-text">
-                Show all {n} photos
-              </span>
-            )}
-          </div>
-        ))}
-      </div>
+      {n > 1 && (
+        <ul aria-label="All photos" className="hidden grid-cols-6 gap-2 sm:grid">
+          {photos.map((photo, i) => (
+            <li key={photo.src}>
+              <button
+                type="button"
+                aria-label={`Show photo ${i + 1} of ${n}`}
+                aria-current={i === index ? "true" : undefined}
+                onClick={() => show(i)}
+                className={`block aspect-photo w-full overflow-hidden rounded-control bg-photo-bg ring-offset-2 ring-offset-surface transition-[box-shadow,opacity] ${i === index ? "ring-2 ring-accent" : "opacity-80 hover:opacity-100"}`}
+              >
+                <Image src={photo.src} width={200} height={150} alt="" loading="lazy" draggable={false} className="size-full object-cover" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
       <PhotoLightbox photos={photos} name={name} dialogRef={dialog} index={lightIndex} onIndex={setLightIndex} onClose={() => opener.current?.focus()} />
     </div>
   );

@@ -1,5 +1,5 @@
 import { AddTeamForm, LeadEmailsForm, MarketingForm, NotificationsForm, TargetsForm } from "@/components/admin/SettingsForms";
-import { Badge, DataTable, PageHeader, Panel, adminButtonQuiet } from "@/components/admin/kit";
+import { Badge, DataTable, PageHeader, Panel, adminButtonQuiet, rowButton } from "@/components/admin/kit";
 import { getSettings } from "@/lib/admin/collections";
 import { INTEGRATIONS, isUsable, missingEnv, modeOf } from "@/lib/integrations";
 import { DEALER_ADDRESS_LINES, DEALER_EMAIL, DEALER_PHONE, OPENING_HOURS, SITE_NAME } from "@/lib/site";
@@ -45,7 +45,7 @@ export default async function Page() {
           rows={s.team}
           rowKey={(t) => t.id}
           columns={[
-            { key: "name", header: "Name", cell: (t) => <span className="font-semibold">{t.name}</span> },
+            { key: "name", header: "Name", cell: (t) => <span className="font-medium">{t.name}</span> },
             { key: "email", header: "Email", cell: (t) => t.email, hide: "sm" },
             { key: "role", header: "Role", cell: (t) => <Badge tone={t.role === "Owner" ? "info" : "neutral"}>{t.role}</Badge> },
             {
@@ -54,7 +54,7 @@ export default async function Page() {
               cell: (t) =>
                 s.team.length > 1 && (
                   <form action={removeTeamAction.bind(null, t.id)}>
-                    <button type="submit" className="min-h-11 px-2 text-meta font-semibold text-destructive underline">
+                    <button type="submit" className={`${rowButton} text-bad`}>
                       Remove
                     </button>
                   </form>
@@ -84,7 +84,7 @@ export default async function Page() {
           rows={[...INTEGRATIONS]}
           rowKey={(i) => i.id}
           columns={[
-            { key: "name", header: "Service", cell: (i) => <span className="font-semibold">{i.name}</span> },
+            { key: "name", header: "Service", cell: (i) => <span className="font-medium">{i.name}</span> },
             { key: "purpose", header: "What it does", cell: (i) => i.purpose, className: "max-w-[20rem]" },
             { key: "status", header: "Status", cell: (i) => (isUsable(i.id) ? <Badge tone="good">Connected</Badge> : <Badge tone="warn">Not connected</Badge>) },
             { key: "missing", header: "Account or still needed", cell: (i) => <span className="break-words text-meta text-text-2">{modeOf(i.id) === "off" ? missingEnv(i).join(", ") : modeOf(i.id) === "simulated" ? i.demoAccount : "Nothing"}</span> },

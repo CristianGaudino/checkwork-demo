@@ -60,7 +60,12 @@ const sourcing = {
 
 // D-14: plain fields, no reg lookup. Commas in the mileage are stripped; the year is the car's, so up to next year.
 const nextYear = () => new Date().getUTCFullYear() + 1;
+// Selling outright or trading in: one form for both doors (/sell-your-car and /trade-in). A chosen car of ours makes it a trade-in, so
+// the dealer sees what it is against; choosing one is never required, so a valuation without one is still a lead.
+export const TRADE_INTENTS = ["sell", "trade"] as const;
 const tradeIn = {
+  carId: given(carId.optional()),
+  intent: given(z.enum(TRADE_INTENTS).optional()),
   reg: given(z.string({ error: BAD_REG }).trim().toUpperCase().regex(REG_PATTERN, BAD_REG)),
   mileage: given(
     z
@@ -148,6 +153,7 @@ export const TYPE_LABELS: Record<LeadType, string> = {
 };
 // Detail key to email label, in the order the email lists them; a new type's fields need only a line here.
 export const DETAIL_LABELS: Record<string, string> = {
+  intent: "Wants to",
   reg: "Registration",
   mileage: "Mileage",
   make: "Make",

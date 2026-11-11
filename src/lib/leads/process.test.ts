@@ -247,17 +247,36 @@ describe("processLead bot checks (D-05)", () => {
     expect(getCar).not.toHaveBeenCalled();
   });
 
-  it("stores a trade-in with no car and its reg and mileage in details, and never looks a car up", async () => {
+  it("stores a valuation to sell with no car, and never looks a car up", async () => {
     const { deps, rows, mail } = fakeDeps();
     const getCar = vi.fn(deps.getCar);
     deps.getCar = getCar;
-    const fd = enquiryForm({ type: "trade_in", sourcePath: "/trade-in", reg: "191-ky-1234", mileage: "120,500", year: "", carId: live.id });
+    const fd = enquiryForm({ type: "trade_in", sourcePath: "/sell-your-car", intent: "sell", reg: "191-ky-1234", mileage: "120,500", year: "" });
+    fd.delete("carId"); // no car of ours chosen
     for (let i = 0; i < PHOTO_MIN_COUNT; i++) fd.append("photos", new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0])], `p${i}.jpg`));
     expect(await processLead(fd, ctx, deps)).toEqual({ status: "ok" });
     expect(rows[0]).toMatchObject({ type: "trade_in", carId: null, carSlug: null, carTitle: null, carPriceEur: null });
-    expect(rows[0].details).toEqual({ reg: "191-KY-1234", mileage: 120500 });
+    expect(rows[0].details).toEqual({ intent: "sell", reg: "191-KY-1234", mileage: 120500 });
     expect(getCar).not.toHaveBeenCalled();
-    expect(mail[0].subject).toBe("[DEMO] Trade-in valuation"); // no reg in the subject (T-03-29)
+    expect(mail[0].subject).toBe("[DEMO] Car to buy from a seller"); // no reg in the subject (T-03-29)
+  });
+
+  it("a valuation that names one of our cars is a trade-in against it, whichever page it came from", async () => {
+    const { deps, rows, mail } = fakeDeps();
+    const fd = enquiryForm({ type: "trade_in", sourcePath: "/sell-your-car", intent: "sell", reg: "191-ky-1234", mileage: "120500", carId: live.id });
+    for (let i = 0; i < PHOTO_MIN_COUNT; i++) fd.append("photos", new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0])], `p${i}.jpg`));
+    expect(await processLead(fd, ctx, deps)).toEqual({ status: "ok" });
+    expect(rows[0]).toMatchObject({ type: "trade_in", carId: live.id });
+    expect(rows[0].details.intent).toBe("trade");
+    expect(mail[0].subject).toMatch(/^\[DEMO\] Trade-in valuation: /);
+  });
+
+  it("a trade-in whose chosen car is gone is still stored, as a valuation with no car", async () => {
+    const { deps, rows } = fakeDeps();
+    const fd = enquiryForm({ type: "trade_in", sourcePath: "/trade-in", intent: "trade", reg: "191-ky-1234", mileage: "120500", carId: "999999999" });
+    for (let i = 0; i < PHOTO_MIN_COUNT; i++) fd.append("photos", new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0])], `p${i}.jpg`));
+    expect(await processLead(fd, ctx, deps)).toEqual({ status: "ok" });
+    expect(rows[0]).toMatchObject({ type: "trade_in", carId: null });
   });
 
   // Confirms the 03-05 snapshotCar rule for finance from /finance: if this fails, fix snapshotCar, never the test.

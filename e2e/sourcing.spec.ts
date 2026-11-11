@@ -64,7 +64,7 @@ test("on a phone the form pages are in the footer, not the header, and the heade
   await page.setViewportSize({ width: 390, height: 800 });
   await page.goto("/used-cars");
   for (const [name, href] of [
-    ["Trade-in Valuation", "/trade-in"],
+    ["Trade in your car", "/trade-in"],
     ["Find a car", "/find-a-car"],
   ]) {
     await expect(page.getByRole("banner").getByRole("link", { name, exact: true })).toBeHidden();

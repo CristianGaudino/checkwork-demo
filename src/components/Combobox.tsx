@@ -69,6 +69,7 @@ export function Combobox({
   const [active, setActive] = useState(0);
   const [place, setPlace] = useState<Place>();
   const root = useRef<HTMLDivElement>(null);
+  const pressed = useRef(false);
   const fine = useSyncExternalStore(watchFine, () => window.matchMedia(FINE).matches, () => false);
   const typeable = fine;
   const shown = useMemo(() => (typed ? options.filter((o) => fold(o.label).includes(fold(typed))) : options), [options, typed]);
@@ -124,6 +125,18 @@ export function Combobox({
     onChange?.(o.value);
     close();
   };
+
+  // Any press outside the field and its list closes it. Blur alone missed presses that keep the focus where it is: the field's own <label>,
+  // plain text, a scrollbar.
+  useEffect(() => {
+    if (!open) return;
+    const outside = (e: PointerEvent) => {
+      const t = e.target as Node;
+      if (!root.current?.contains(t) && !document.getElementById(listId)?.contains(t)) close();
+    };
+    document.addEventListener("pointerdown", outside, true);
+    return () => document.removeEventListener("pointerdown", outside, true);
+  }, [open, listId]);
 
   useEffect(() => {
     if (open) document.getElementById(`${uid}-opt-${active}`)?.scrollIntoView({ block: "nearest" });
@@ -184,9 +197,14 @@ export function Combobox({
           setOpen(true);
         }}
         onFocus={(e) => typeable && e.currentTarget.select()}
+        // A second press on the field closes it, as a browser's own drop-down does. Typing opens it again. A click the field's <label>
+        // passes on (a press on the label text) only focuses it: `pressed` is set by a real press on the field itself.
+        onPointerDown={() => (pressed.current = true)}
         onClick={() => {
-          if (!open) show();
-          else if (!typeable) close();
+          if (!pressed.current) return;
+          pressed.current = false;
+          if (open) close();
+          else show();
         }}
         onKeyDown={onKeyDown}
         className={`${size === "md" ? "h-11" : "h-12"} w-full min-w-0 cursor-pointer truncate rounded-control border border-control py-0 pl-4 pr-12 text-body ${tone === "card" ? "bg-card" : "bg-surface"} aria-[invalid=true]:border-destructive ${className}`}

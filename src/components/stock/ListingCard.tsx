@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowRightIcon } from "@/components/stock/icons";
 import { PriceBlock } from "@/components/stock/PriceBlock";
 import { carMeta, carName, keyFacts } from "@/lib/stock/format";
+import { priceInfo } from "@/lib/stock/price";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 
@@ -13,6 +14,7 @@ import type { Car } from "@/lib/stock/types";
 // the featured cars, where a two line name would make the cards uneven.
 export function ListingCard({ car, priority, oneLine = false }: { car: Car; priority: boolean; oneLine?: boolean }) {
   const href = `/used-cars/${car.slug}`;
+  const drop = priceInfo(car).drop;
   return (
     // The photo is the card: it carries the rounded corners and the lift, and the words sit under it on the page itself.
     <article data-card className="@container group relative scroll-mt-20 transition-opacity duration-100 has-[h2_a:active]:opacity-80">
@@ -20,6 +22,12 @@ export function ListingCard({ car, priority, oneLine = false }: { car: Car; prio
         <PhotoCarousel photos={car.photos} href={href} label={carName(car)} priority={priority} />
         {/* The word in the price slot is what screen readers hear; this badge is the same word for the eye. */}
         {isSold(car) && <SoldBadge hidden className="absolute left-4 top-4 z-20" />}
+        {/* The drop, as a tag on the photo: under the price it pushed the details down and out of line with the cards beside it. */}
+        {!isSold(car) && drop && (
+          <span className="pointer-events-none absolute left-4 top-4 z-20 inline-flex h-7 items-center rounded-full bg-ok-soft px-3 text-meta font-medium text-ok">
+            {drop}
+          </span>
+        )}
         {/* z-20 and outside the title link: above the carousel and never a card tap. Sold cars keep it. */}
         <SaveButton id={car.id} label={`Save ${carName(car)}`} variant="card" />
       </div>

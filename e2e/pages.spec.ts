@@ -49,7 +49,7 @@ test("/terms is the dealer's full terms: no draft banner, the sections, and an e
     "Using the site",
     "Cars and prices",
     "Finance figures",
-    "Trade-in Valuations and Requests",
+    "Valuations and requests",
     "Reviews and other websites",
     "Our content",
     "Our responsibility",
@@ -84,7 +84,7 @@ test("/contact gives the phone, WhatsApp, the hours under the map, and no addres
   await expect(rows.nth(1)).toContainText("Saturday");
   await expect(rows.last()).toContainText("Closed");
   await expect(main(page).getByRole("link", { name: "Ask us to find a car" })).toHaveCount(0); // the footer has those
-  await expect(main(page).getByRole("link", { name: "Trade-in Valuation" })).toHaveCount(0);
+  await expect(main(page).getByRole("link", { name: "Trade in your car" })).toHaveCount(0);
   await expect(main(page).getByRole("link", { name: /^WhatsApp/ }).locator("svg")).toHaveCSS("color", "rgb(37, 211, 102)"); // WhatsApp's green
 });
 

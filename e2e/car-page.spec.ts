@@ -111,7 +111,7 @@ test.describe("on a desktop", () => {
   test("the buy box is the right-hand column, flat, beside the photo and at its height", async ({ page }) => {
     await page.goto(await firstCarHref(page));
     const box = (await buyBox(page).boundingBox())!;
-    const photo = (await page.getByTestId("photo-grid").boundingBox())!; // the four tiles, as one block
+    const photo = (await page.getByTestId("gallery").boundingBox())!; // the photo and its strip, as one block
     expect(box.width).toBeGreaterThan(420);
     expect(box.x).toBeGreaterThan(photo.x + photo.width);
     expect(box.y).toBeLessThan(photo.y + photo.height);

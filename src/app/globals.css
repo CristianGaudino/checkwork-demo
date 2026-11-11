@@ -44,6 +44,7 @@
      names under [data-theme="dark"] below: a deep teal-black with warm light. */
   --color-surface: #ebe8e1;
   --color-card: #f8f6f2;
+  --color-row-alt: #f0ede6; /* every other table row, between card and surface */
   --color-ink: #ffffff; /* the inverse of text: for words on a bg-text pill */
   --color-band: #0a1a1f; /* a band that stays dark in both themes (footer, demo bar, photo overlays) */
   --color-accent: #4f46e5; /* the fill of buttons and chips, with white text on it */
@@ -95,6 +96,7 @@
   --color-accent: #6159ec; /* white button text on it reaches 4.5:1 */
   --color-accent-text: #9c97ff; /* accent text on the teal-black reaches 4.5:1 */
   --color-card: #112a31;
+  --color-row-alt: #153138;
   --color-ink: #0a1a1f;
   --color-text: #f3f1ec;
   --color-text-2: #a9b8bc;

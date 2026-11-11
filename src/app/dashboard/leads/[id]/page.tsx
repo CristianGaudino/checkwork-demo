@@ -2,10 +2,10 @@ import { NEW_TAB } from "@/components/ui";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LeadStatusBadge } from "@/components/admin/badges";
-import { Avatar, ChoiceButton, Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
+import { Avatar, ChoiceButton, Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput, rowButton } from "@/components/admin/kit";
 import { LEAD_STATUS_LABELS, LEAD_TYPE_LABELS, getSettings, leadsStore } from "@/lib/admin/collections";
 import { fmtDateTime } from "@/lib/admin/format";
-import { CalendarIcon, CheckIcon, CloseIcon, PhoneIcon } from "@/components/stock/icons";
+import { CalendarIcon, CheckIcon, CloseIcon, PhoneIcon, WhatsAppIcon } from "@/components/stock/icons";
 import type { LeadStatus } from "@/lib/admin/collections";
 import { addNoteAction, assignLeadAction, setStatusAction } from "../actions";
 
@@ -74,6 +74,26 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         </div>
 
         <div className="flex min-w-0 flex-col gap-6 max-lg:order-first">
+          {/* The first thing a lead needs is a reply: three ways, each one press. */}
+          <Panel title="Contact">
+            <p className="flex flex-col text-meta text-text-2">
+              <span className="break-all">{lead.email}</span>
+              <span>{lead.phone}</span>
+            </p>
+            <div className="grid grid-cols-3 gap-2">
+              <a href={`tel:${wa}`} className={rowButton}>
+                <PhoneIcon className="size-4" />
+                Call
+              </a>
+              <a href={`mailto:${lead.email}`} className={rowButton}>
+                Email
+              </a>
+              <a href={`https://wa.me/${wa}`} {...NEW_TAB} className={rowButton}>
+                <WhatsAppIcon className="size-4 text-whatsapp" />
+                WhatsApp<span className="sr-only"> (opens in a new tab)</span>
+              </a>
+            </div>
+          </Panel>
           <Panel title="Status" action={<LeadStatusBadge status={lead.status} />}>
             <div className="flex flex-wrap gap-2">
               {STATUS_ACTIONS.map(({ status, Icon }) => (
@@ -96,25 +116,6 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                 </ChoiceButton>
               ))}
             </div>
-          </Panel>
-          <Panel title="Contact">
-            <ul className="flex flex-col gap-1">
-              <li>
-                <a href={`mailto:${lead.email}`} className="inline-flex min-h-11 items-center break-all underline">
-                  {lead.email}
-                </a>
-              </li>
-              <li>
-                <a href={`tel:${wa}`} className="inline-flex min-h-11 items-center underline">
-                  {lead.phone}
-                </a>
-              </li>
-              <li>
-                <a href={`https://wa.me/${wa}`} {...NEW_TAB} className="inline-flex min-h-11 items-center underline">
-                  WhatsApp<span className="sr-only"> (opens in a new tab)</span>
-                </a>
-              </li>
-            </ul>
           </Panel>
         </div>
       </div>

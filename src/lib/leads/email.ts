@@ -8,6 +8,7 @@ import { DETAIL_LABELS, TYPE_LABELS } from "./schema";
 function show(key: string, value: unknown): string {
   const v = String(value);
   if (key === "employment") return EMPLOYMENT[v as keyof typeof EMPLOYMENT] ?? v;
+  if (key === "intent") return v === "sell" ? "Sell the car" : "Trade it in";
   if (key === "mileage") return `${Number(v).toLocaleString("en-IE")} km`;
   if (key === "budgetMax" || key === "deposit") return formatPrice(Number(v));
   return v;
@@ -16,7 +17,9 @@ function show(key: string, value: unknown): string {
 // Text only, no HTML: nothing the buyer typed can inject markup. The subject is built from server values only (D-02).
 // photoPaths are the signed /lead-photos paths for row.photoKeys, made by processLead so this file never sees the secret.
 export function buildLeadEmail(row: LeadRow, opts: { demo: boolean; photoPaths?: string[] }): { subject: string; text: string } {
-  const subject = `${opts.demo ? "[DEMO] " : ""}${TYPE_LABELS[row.type]}${row.carTitle ? `: ${row.carTitle}` : ""}`;
+  // A car to sell outright says so, so the dealer does not look for a car it is against.
+  const label = row.type === "trade_in" && row.details.intent === "sell" ? "Car to buy from a seller" : TYPE_LABELS[row.type];
+  const subject = `${opts.demo ? "[DEMO] " : ""}${label}${row.carTitle ? `: ${row.carTitle}` : ""}`;
   const lines = [
     `Name: ${row.name}`,
     row.phone && `Phone: ${row.phone}`,

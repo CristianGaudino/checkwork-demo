@@ -97,10 +97,14 @@ describe("trade-in (LED-04, D-14)", () => {
   const KM = ["Enter the mileage in km, numbers only."];
   const year = new Date().getUTCFullYear();
 
-  it("stores the registration upper case and the mileage as a number, with no car", () => {
-    const r = leadSchema.parse({ ...sell, reg: " 191-ky-1234 ", mileage: "120,500" });
+  it("stores the registration upper case and the mileage as a number; a car of ours is optional", () => {
+    const { carId: _ignored, ...noCar } = { ...sell, carId: undefined };
+    void _ignored;
+    const r = leadSchema.parse({ ...noCar, reg: " 191-ky-1234 ", mileage: "120,500" });
     expect(r).toMatchObject({ reg: "191-KY-1234", mileage: 120500 });
     expect(r).not.toHaveProperty("carId");
+    expect(leadSchema.parse({ ...sell, carId: "123", intent: "trade" })).toMatchObject({ carId: "123", intent: "trade" });
+    expect(leadSchema.safeParse({ ...sell, intent: "steal" }).success).toBe(false);
   });
 
   it.each(["", "  ", "191-KY-123456", "191/KY/1234", "<b>"])("refuses the registration %j", (reg) => {

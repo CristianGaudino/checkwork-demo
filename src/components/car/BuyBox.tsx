@@ -3,7 +3,7 @@ import { ShareButton } from "@/components/car/ShareButton";
 import { CompareButton } from "@/components/compare/CompareButton";
 import { LeadActions, StockAlertButton } from "@/components/leads/LeadDialog";
 import { SaveButton } from "@/components/saved/SaveButton";
-import { CalendarIcon, CarIcon, FuelIcon, GaugeIcon, GearIcon, ShieldCheckIcon } from "@/components/stock/icons";
+import { CalendarIcon, CarIcon, FuelIcon, GaugeIcon, GearIcon, ShieldCheckIcon, SwapIcon } from "@/components/stock/icons";
 import { DEALER_WHATSAPP, NEW_CAR_WARRANTY, SITE_URL, WARRANTY } from "@/lib/site";
 import { priceInfo } from "@/lib/stock/price";
 import { PriceBlock } from "@/components/stock/PriceBlock";
@@ -77,6 +77,11 @@ export function BuyBox({ car }: { car: Car }) {
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <CompareButton id={car.id} label={`Compare ${carName(car)}`} sizing="flex h-12 w-full px-4" />
           <StockAlertButton car={carSummary(car)} kind="price-drop" />
+          {/* The trade-in door with this car already chosen. */}
+          <Link href={`/trade-in?car=${car.slug}`} className="inline-flex min-h-11 items-center gap-2 text-meta font-medium text-accent-text underline sm:col-span-2">
+            <SwapIcon className="size-4" />
+            Trade in your car against this one
+          </Link>
         </div>
       )}
       {!sold && (

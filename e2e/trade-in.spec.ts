@@ -8,12 +8,12 @@ test.skip(Boolean(process.env.E2E_BASE_URL), "Lead specs never run against a dep
 
 // A tap before React attaches does nothing.
 async function open(page: Page) {
-  await page.goto("/trade-in");
+  await page.goto("/sell-your-car");
   await page.waitForFunction(() => Object.keys(document.querySelector("form")!).some((k) => k.startsWith("__reactFiber")));
 }
 
 const next = (page: Page) => page.getByRole("button", { name: "Next", exact: true });
-const send = (page: Page) => page.getByRole("button", { name: "Get my valuation" });
+const send = (page: Page) => page.getByRole("button", { name: "Get my offer" });
 
 // The four steps: your car, condition, photos, your details.
 async function car(page: Page, reg = "191-KY-1234", km = "120500") {
@@ -74,15 +74,15 @@ async function encodeTo(page: Page, bytes: number, ms = 0) {
 
 test("it is a trade-in valuation page that explains itself, in four steps, with the lookup joined to the registration", async ({ page }) => {
   await open(page);
-  await expect(page.getByRole("heading", { level: 1, name: "Trade-in Valuation" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Sell your car" })).toBeVisible();
   // The three steps open on a tap, and the notes sit under the step they belong to (no column of tips beside the form).
   const how = page.getByRole("list").filter({ has: page.locator("details") });
-  await expect(page.getByText("The valuation is an estimate. It can change when we inspect the car.")).toBeHidden();
+  await expect(page.getByText("The offer is an estimate until we see the car.")).toBeHidden();
   await how.getByText("Send some photos").click();
   await expect(how.getByText(new RegExp(`At least ${PHOTO_MIN_COUNT} photos.*Front.*Dashboard and mileage\.$`))).toBeVisible(); // the angles in one bullet, not one each
-  await expect(how.getByText("Include photos of all damage, even small marks.")).toBeVisible();
-  await how.getByText("We come back to you").click();
-  await expect(how.getByText("The valuation is an estimate. It can change when we inspect the car.")).toBeVisible();
+  await expect(how.getByText("Include photos of any damage, even small marks.")).toBeVisible();
+  await how.getByText("We make you an offer").click();
+  await expect(how.getByText("The offer is an estimate until we see the car.")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Required photos" })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Good to know" })).toHaveCount(0);
   await expect(page.getByText("Four short steps")).toHaveCount(0);
@@ -218,7 +218,7 @@ test("a photo still over 4 MB after shrinking is refused by name", async ({ page
 
 test("a request the server refuses for size keeps the photos and the typed details", async ({ page }) => {
   await open(page);
-  await page.route("**/trade-in", (route) => (route.request().method() === "POST" ? route.fulfill({ status: 413, body: "" }) : route.fallback()));
+  await page.route("**/sell-your-car", (route) => (route.request().method() === "POST" ? route.fulfill({ status: 413, body: "" }) : route.fallback()));
   await toStep(page, 3);
   await picker(page).setInputFiles(files(await jpeg(page), PHOTO_MIN_COUNT));
   await expect(tiles(page)).toHaveCount(PHOTO_MIN_COUNT);

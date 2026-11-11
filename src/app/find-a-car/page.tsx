@@ -20,7 +20,7 @@ export default function FindACarPage() {
         { title: "We get in touch", text: "If we find a match, we contact you. No obligation.", more: ["We reach you by the phone number or email you give us.", "There is no obligation to buy."] },
       ]}
     >
-      <LeadPageForm type="sourcing" submitLabel="Find it for me" success={{ heading: "Thanks, we'll look for it.", body: "We'll get in touch if we find a match." }} />
+      <LeadPageForm form="sourcing" submitLabel="Find it for me" success={{ heading: "Thanks, we'll look for it.", body: "We'll get in touch if we find a match." }} />
     </LeadPage>
   );
 }

@@ -48,3 +48,9 @@ export const queryAll = (extra: Partial<StockQuery> = {}) => stock.query({ ...DE
 // The same, for a page that must still render when stock fails: null, and one log line with the error name only.
 export const queryAllOrNull = (extra?: Partial<StockQuery>) =>
   queryAll(extra).catch((e) => (console.error("stock.query failed", e instanceof Error ? e.name : typeof e), null));
+
+// Every car for sale of every kind (used, new and commercial), for the pages that offer a choice of any car: test drive, trade-in.
+export async function everyKindOrNull() {
+  const lists = await Promise.all([queryAllOrNull(), queryAllOrNull({ condition: "new" }), queryAllOrNull({ condition: "commercial" })]);
+  return lists.every((l) => l === null) ? null : lists.flatMap((l) => l?.cars ?? []);
+}

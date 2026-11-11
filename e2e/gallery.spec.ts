@@ -50,16 +50,15 @@ test("at 320px the page does not scroll sideways and the price and first fact ar
 test.describe("on a desktop", () => {
   test.use({ viewport: { width: 1280, height: 900 }, isMobile: false, hasTouch: false });
 
-  test("the photos are a grid of up to four tiles; a tile opens the viewer at that photo, and the last says Show all when there are more", async ({ page }) => {
+  test("one big photo with a strip of every photo under it; a thumbnail shows that photo, the photo opens the viewer", async ({ page }) => {
     await open(page, car!.slug);
-    const grid = page.getByTestId("photo-grid");
-    const tiles = grid.getByRole("button", { name: /larger$/ });
-    await expect(tiles).toHaveCount(Math.min(n, 4));
-    await expect(gallery(page)).toBeHidden(); // the swipe row is the phone's
-    if (n > 4) await expect(grid.getByText(`Show all ${n} photos`)).toBeVisible();
-    await tiles.nth(2).click();
-    const box = page.getByRole("dialog", { name: /^Photos of/ });
-    await expect(box).toBeVisible();
+    const strip = page.getByRole("list", { name: "All photos" });
+    await expect(strip.getByRole("button")).toHaveCount(n);
+    await strip.getByRole("button", { name: `Show photo 3 of ${n}` }).click();
+    await expect(counter(page)).toHaveText(`3 / ${n}`);
+    await expect(strip.getByRole("button", { name: `Show photo 3 of ${n}` })).toHaveAttribute("aria-current", "true");
+    await gallery(page).getByRole("button", { name: `View photo 3 of ${n} larger` }).click();
+    await expect(page.getByRole("dialog", { name: /^Photos of/ })).toBeVisible();
     await expect(dialogCounter(page)).toHaveText(`3 / ${n}`);
   });
 });

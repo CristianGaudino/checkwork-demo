@@ -11,7 +11,7 @@ test("filters by status and search, and keeps the filter in the link", async ({ 
   const won = (await rows.count()) - 1;
   expect(won).toBeLessThan(all);
   await page.getByLabel("Search leads").fill("zzzz-nobody");
-  await page.getByRole("button", { name: "Search" }).click();
+  await page.getByLabel("Search leads").press("Enter");
   await expect(page.getByText("No leads match")).toBeVisible();
   await expect(page).toHaveURL(/status=won/);
 });
