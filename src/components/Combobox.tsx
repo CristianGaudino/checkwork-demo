@@ -3,11 +3,10 @@
 import { MakeLogo } from "@/components/MakeLogo";
 import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { CheckIcon, ChevronDownIcon } from "@/components/stock/icons";
+import { fold } from "@/lib/stock/format";
 
 export type ComboOption = { value: string; label: string; logo?: string }; // `logo`: a make slug, shown beside the label
 
-// Search ignores case and accents, as the stock search does.
-const fold = (s: string) => s.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
 // Typing is for a mouse and keyboard, on a list of any length: it narrows as you type. A touch screen only picks, so no keyboard rises over the list.
 // False until read, so the server and first paint match.
 const FINE = "(hover: hover) and (pointer: fine)";

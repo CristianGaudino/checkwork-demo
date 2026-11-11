@@ -9,7 +9,8 @@ const dayKey = (t: number) => new Date(t).toLocaleDateString("en-CA", { timeZone
 // Bookings grouped by day, days in order, and within a day by time.
 export function groupByDay(drives: TestDrive[]): DriveGroup[] {
   const map = new Map<string, TestDrive[]>();
-  for (const d of [...drives].sort((a, b) => a.startsAt - b.startsAt)) map.set(dayKey(d.startsAt), [...(map.get(dayKey(d.startsAt)) ?? []), d]);
+  // In the order given: the page sorts soonest first for what is coming up and latest first for what is past.
+  for (const d of drives) map.set(dayKey(d.startsAt), [...(map.get(dayKey(d.startsAt)) ?? []), d]);
   return [...map].map(([day, list]) => ({ day, drives: list }));
 }
 

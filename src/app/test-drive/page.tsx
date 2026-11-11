@@ -6,7 +6,7 @@ import { LeadPage } from "@/components/leads/LeadPage";
 import { TestDrivePicker } from "@/components/leads/TestDrivePicker";
 import { DEALER_LOCATION, DEALER_PHONE, SITE_NAME } from "@/lib/site";
 import { everyKindOrNull } from "@/lib/stock";
-import { carSummary } from "@/lib/stock/format";
+import { carSummary, fold } from "@/lib/stock/format";
 import { Pager, paginate } from "@/components/admin/kit";
 import { SearchIcon } from "@/components/stock/icons";
 import { SEARCH_MAKE_MODEL } from "@/lib/copy";
@@ -20,8 +20,6 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 const PER_PAGE = 24;
-// Search ignores case and accents, as the stock search does.
-const fold = (t: string) => t.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
 
 export default async function TestDrivePage({ searchParams }: PageProps<"/test-drive">) {
   const sp = await searchParams;

@@ -8,9 +8,10 @@ const at = (day: number, hour: number) => new Date(2026, 10, day, hour, 0).getTi
 const drive = (id: string, startsAt: number, o: Partial<D> = {}): D => ({ id, name: id, email: "", phone: "", carSlug: "car-1", carTitle: "Car", startsAt, status: "confirmed", notes: "", createdAt: 0, ...o });
 
 describe("test drive agenda", () => {
-  it("groups by day, days and times in order", () => {
-    const g = groupByDay([drive("c", at(12, 9)), drive("a", at(10, 15)), drive("b", at(10, 11))]);
-    expect(g.map((x) => x.drives.map((d) => d.id))).toEqual([["b", "a"], ["c"]]);
+  it("groups by day and keeps the order it is given, soonest first or latest first", () => {
+    const soonest = [drive("b", at(10, 11)), drive("a", at(10, 15)), drive("c", at(12, 9))];
+    expect(groupByDay(soonest).map((x) => x.drives.map((d) => d.id))).toEqual([["b", "a"], ["c"]]);
+    expect(groupByDay([...soonest].reverse()).map((x) => x.drives.map((d) => d.id))).toEqual([["c"], ["a", "b"]]);
     expect(groupByDay([])).toEqual([]);
   });
   it("finds a clash for the same car within the hour, and only for open bookings", () => {

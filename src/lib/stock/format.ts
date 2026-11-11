@@ -79,3 +79,6 @@ export const plainText = (s: string) =>
     .replace(/&#39;/g, "'")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
+
+// Search ignores case and accents, so "skoda" finds "Škoda" and "citroen" finds "Citroën". The one rule for every search on the site.
+export const fold = (s: string) => s.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
