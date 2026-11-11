@@ -109,3 +109,12 @@ describe("featureLabel", () => {
     expect(featureLabel("Stop/Start Button")).toBe("Stop/Start button");
   });
 });
+
+describe("plainText", () => {
+  it("drops tags, keeps line breaks and decodes entities", async () => {
+    const { plainText } = await import("./format");
+    expect(plainText("FULL HISTORY <b>no accidents</b> &amp; one owner<br>NCT 2027")).toBe("FULL HISTORY no accidents & one owner\nNCT 2027");
+    expect(plainText("<p></p>")).toBe("");
+    expect(plainText("Price &lt; 10k")).toBe("Price < 10k");
+  });
+});

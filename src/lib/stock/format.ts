@@ -64,3 +64,18 @@ export const featureLabel = (f: string) =>
     .split(" ")
     .map((w, i) => (i > 0 && /^[A-Z][a-z]+$/.test(w) && !KEEP.has(w) ? w.toLowerCase() : w))
     .join(" ");
+
+// Dealer text as plain words: tags dropped (a <br> or </p> becomes a line break) and the common entities decoded. React still escapes
+// what is left, so this is about looks, not safety.
+export const plainText = (s: string) =>
+  s
+    .replace(/<br\s*\/?>|<\/p>/gi, "\n")
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();

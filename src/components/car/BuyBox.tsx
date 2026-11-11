@@ -27,7 +27,8 @@ export function BuyBox({ car }: { car: Car }) {
     <div data-testid="buy-box" className="flex flex-col gap-5">
       <div className="flex items-start justify-between gap-3">
         {/* Make and model large, the variant under it: a 60 character variant would otherwise fill a phone screen. The text reads as carTitle. */}
-        <h1 className="min-w-0 break-words text-display font-bold">
+        {/* A long make and model (a 40 character van name) steps down a size on a phone, so no word is split in the middle. */}
+        <h1 className={`min-w-0 break-words font-bold ${`${car.make} ${car.model}`.length > 24 ? "text-heading sm:text-display" : "text-display"}`}>
           {car.make} {car.model}
           {car.variant && (
             <>

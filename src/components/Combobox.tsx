@@ -199,9 +199,11 @@ export function Combobox({
         onFocus={(e) => typeable && e.currentTarget.select()}
         // A second press on the field closes it, as a browser's own drop-down does. Typing opens it again. A click the field's <label>
         // passes on (a press on the label text) only focuses it: `pressed` is set by a real press on the field itself.
+        // A label passes the press on with detail 1, so it is still ignored.
         onPointerDown={() => (pressed.current = true)}
-        onClick={() => {
-          if (!pressed.current) return;
+        onClick={(e) => {
+          // detail 0: a click from the keyboard or a screen reader (VoiceOver's activate), which has no press before it.
+          if (!pressed.current && e.detail !== 0) return;
           pressed.current = false;
           if (open) close();
           else show();

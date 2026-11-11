@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CarForm } from "@/components/admin/CarForm";
-import { PageHeader, Panel, adminButtonQuiet } from "@/components/admin/kit";
+import { Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
 import { SyncedNotice } from "@/components/admin/SyncedNotice";
 import { TrashIcon } from "@/components/stock/icons";
 import { costsStore } from "@/lib/admin/collections";
@@ -9,24 +9,37 @@ import { adminCar } from "@/lib/admin/stock-admin";
 import { can } from "@/lib/permissions";
 import { carName } from "@/lib/stock/format";
 import { stockSource } from "@/lib/stock-source";
-import { deleteCarAction } from "../actions";
+import { deleteCarAction, saveCostAction } from "../actions";
 
 export const metadata = { title: "Edit car" };
 
-export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+export default async function Page({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ cost?: string }> }) {
   const { id } = await params;
+  const costSaved = (await searchParams).cost === "saved";
   const car = await adminCar(id);
   if (!car) notFound();
   const view = <Link href={`/used-cars/${car.slug}`} className={adminButtonQuiet}>View on the site</Link>;
+  const cost = (await can("margins")) ? { eur: (await costsStore.get(id))?.costEur } : undefined;
   if ((await stockSource()) === "donedeal") {
     return (
       <>
         <PageHeader title={carName(car)} actions={view} />
         <SyncedNotice />
+        {/* DoneDeal has the car; the cost is the dealer's own, so it is still entered here. */}
+        {cost && (
+          <Panel title="Cost price">
+            {costSaved && <p role="status" className="rounded-control bg-ok-soft px-4 py-3 text-body text-ok">Cost saved.</p>}
+            <form action={saveCostAction.bind(null, car.id)} className="flex flex-wrap items-end gap-3">
+              <Field label="Cost price (€)" hint="Leave empty to clear it" className="sm:max-w-xs">
+                <input name="costEur" inputMode="numeric" defaultValue={cost.eur ?? ""} className={adminInput} />
+              </Field>
+              <button type="submit" className={adminButton}>Save cost</button>
+            </form>
+          </Panel>
+        )}
       </>
     );
   }
-  const cost = (await can("margins")) ? { eur: (await costsStore.get(id))?.costEur } : undefined;
   return (
     <>
       <PageHeader title={carName(car)} actions={view} />

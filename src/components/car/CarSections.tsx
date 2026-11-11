@@ -3,7 +3,7 @@ import Link from "next/link";
 import { CheckIcon } from "@/components/stock/icons";
 import { card, carSlide } from "@/components/ui";
 import { ListingCard } from "@/components/stock/ListingCard";
-import { featureLabel, specRows } from "@/lib/stock/format";
+import { featureLabel, plainText, specRows } from "@/lib/stock/format";
 import type { Car } from "@/lib/stock/types";
 
 const VISIBLE_FEATURES = 12;
@@ -14,15 +14,17 @@ const h2 = "text-heading font-semibold";
 
 // Server components. Dealer text is rendered as React text only, never as HTML (T-02-14). Each returns nothing when it has nothing to show.
 export function AboutCar({ car }: { car: Car }) {
-  if (!car.description) return null;
+  // Feeds send HTML now and then ("<b>no accidents</b>"): it is shown as words, never as markup and never as raw tags.
+  const description = plainText(car.description ?? "");
+  if (!description) return null;
   return (
     <section>
       <h2 className={h2}>About this car</h2>
-      {car.description.length > LONG_DESCRIPTION ? (
+      {description.length > LONG_DESCRIPTION ? (
         <>
           {/* One copy of the text: the checkbox, before it, lifts the clamp (peer), so it works without JavaScript and the page holds the text once. */}
           <input type="checkbox" id={`more-${car.id}`} className="peer sr-only" />
-          <p className={`${text} line-clamp-8 peer-checked:line-clamp-none`}>{car.description}</p>
+          <p className={`${text} line-clamp-8 peer-checked:line-clamp-none`}>{description}</p>
           <label
             htmlFor={`more-${car.id}`}
             className="flex min-h-11 cursor-pointer items-center font-semibold peer-focus-visible:underline [&>span:last-child]:hidden peer-checked:[&>span:first-child]:hidden peer-checked:[&>span:last-child]:inline"
@@ -32,7 +34,7 @@ export function AboutCar({ car }: { car: Car }) {
           </label>
         </>
       ) : (
-        <p className={text}>{car.description}</p>
+        <p className={text}>{description}</p>
       )}
     </section>
   );

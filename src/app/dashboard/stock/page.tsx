@@ -30,7 +30,7 @@ type View = keyof typeof VIEWS;
 export default async function Page({ searchParams }: { searchParams: Promise<{ view?: string; status?: string; q?: string; saved?: string; deleted?: string }> }) {
   const sp = await searchParams;
   const asked = sp.view ?? sp.status; // `status` is the old name for the view, kept so old links still work
-  const view: View = asked && asked in VIEWS ? (asked as View) : "for-sale";
+  const view: View = asked && Object.hasOwn(VIEWS, asked) ? (asked as View) : "for-sale";
   const q = (sp.q ?? "").trim().toLowerCase().slice(0, 60);
   const [all, source] = await Promise.all([adminCars(), stockSource()]);
   const synced = source === "donedeal";

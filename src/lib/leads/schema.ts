@@ -62,7 +62,7 @@ const sourcing = {
 const nextYear = () => new Date().getUTCFullYear() + 1;
 // Selling outright or trading in: one form for both doors (/sell-your-car and /trade-in). A chosen car of ours makes it a trade-in, so
 // the dealer sees what it is against; choosing one is never required, so a valuation without one is still a lead.
-export const TRADE_INTENTS = ["sell", "trade"] as const;
+const TRADE_INTENTS = ["sell", "trade"] as const;
 const tradeIn = {
   carId: given(carId.optional()),
   intent: given(z.enum(TRADE_INTENTS).optional()),

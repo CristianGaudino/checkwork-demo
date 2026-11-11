@@ -31,6 +31,16 @@ export async function saveCarAction(id: string | null, _prev: CarFormState, data
   redirect(`/dashboard/stock?saved=${result.car.id}`);
 }
 
+// The cost is the dealer's own figure, never DoneDeal's, so it can be set on synced stock too. Margins permission only; a bad figure saves nothing.
+export async function saveCostAction(id: string, data: FormData) {
+  if (!(await can("margins")) || !(await adminCar(id))) return;
+  const cost = parseCost(String(data.get("costEur") ?? ""));
+  if (cost === "invalid") return;
+  if (cost === null) await costsStore.remove(id);
+  else await costsStore.put({ id, costEur: cost });
+  redirect(`/dashboard/stock/${id}?cost=saved`);
+}
+
 export async function toggleSoldAction(id: string) {
   if (await readOnly()) return;
   const car = await adminCar(id);

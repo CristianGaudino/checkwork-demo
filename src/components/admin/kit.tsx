@@ -89,7 +89,7 @@ export type Column<T> = { key: string; header: string; cell: (row: T) => React.R
 const colClass = (c: Column<unknown>) => `${c.hide ? HIDE[c.hide] : ""} ${c.nowrap ? "whitespace-nowrap" : ""}`;
 
 // The dealer's tables: every other row filled, so a long list is easy to follow across; 48px rows; numbers on the right in even figures.
-// On a phone it scrolls sideways inside its card; from 1024px it clips instead, so the header can stick to the top of the window.
+// A table wider than its card scrolls sideways inside it at every width, so no column or button is ever cut off.
 // `bare` drops the table's own card, for use inside a Panel. `linkRows`: each row is one link, the one with `after:absolute after:inset-0`
 // in its first cell, so the whole row is clickable.
 export function DataTable<T>({ columns, rows, rowKey, empty, bare = false, linkRows = false, label }: { columns: Column<T>[]; rows: T[]; rowKey: (row: T) => string; empty?: React.ReactNode; bare?: boolean; linkRows?: boolean; label?: string }) {
@@ -97,12 +97,12 @@ export function DataTable<T>({ columns, rows, rowKey, empty, bare = false, linkR
   if (rows.length === 0) return <div className={frame}>{empty ?? <EmptyState title="Nothing here yet" />}</div>;
   return (
     // Focusable, so a keyboard user can scroll it sideways on a phone.
-    <div tabIndex={0} aria-label={label} className={`${frame} overflow-x-auto lg:overflow-clip`}>
+    <div tabIndex={0} aria-label={label} className={`${frame} overflow-x-auto`}>
       <table className="w-full min-w-[22rem] border-collapse text-left text-body">
         <thead>
           <tr className="text-meta text-text-2">
             {columns.map((c) => (
-              <th key={c.key} scope="col" className={`relative z-10 h-11 border-b border-hairline bg-card px-4 font-medium lg:sticky lg:top-0 ${c.align === "right" ? "text-right" : ""} ${colClass(c as Column<unknown>)}`}>
+              <th key={c.key} scope="col" className={`relative z-10 h-11 border-b border-hairline bg-card px-4 font-medium ${c.align === "right" ? "text-right" : ""} ${colClass(c as Column<unknown>)}`}>
                 {/* The screen reader text is positioned inside this cell (relative above), so the scroll box clips it and it cannot widen the page. */}
                 {c.header || <span className="sr-only">Actions</span>}
               </th>
