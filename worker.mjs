@@ -1,8 +1,9 @@
-// The Worker entry (wrangler.jsonc "main"): OpenNext's worker, plus the daily lead purge. OpenNext's own worker has no scheduled
+// The Worker entry (wrangler.jsonc "main"): OpenNext's worker, plus the daily purge of old leads and activity. OpenNext's own worker has no scheduled
 // handler, so this wraps it. Plain JS on purpose: it imports .open-next/worker.js, which exists only after `opennextjs-cloudflare build`,
 // so a typecheck of it would fail on a clean checkout.
 import { drizzle } from "drizzle-orm/d1";
 import handler from "./.open-next/worker.js";
+import { purgeOldActivity } from "./src/lib/admin/activity-purge.ts";
 import { purgeOldLeads } from "./src/lib/leads/purge.ts";
 import { apexRedirect } from "./src/lib/redirect.ts";
 import { SITE_URL } from "./src/lib/site.ts";
@@ -22,6 +23,7 @@ const worker = {
   async scheduled(_controller, env) {
     const deleted = await purgeOldLeads(drizzle(env.DB), env.LEAD_PHOTOS);
     console.log(JSON.stringify({ job: "purge-leads", deleted })); // a count only, never a lead (D-08)
+    console.log(JSON.stringify({ job: "purge-activity", deleted: await purgeOldActivity(drizzle(env.DB)) }));
   },
 };
 export default worker;

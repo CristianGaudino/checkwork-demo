@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { drivesStore, getSettings } from "@/lib/admin/collections";
+import { logActivity } from "@/lib/admin/activity";
+import { DRIVE_STATUS_LABELS, drivesStore, getSettings } from "@/lib/admin/collections";
 import { clashes, parseDriveStatus } from "@/lib/admin/drives";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { carName } from "@/lib/stock/format";
@@ -17,8 +18,9 @@ export type DriveFormState = { errors?: Record<string, string>; done?: string } 
 export async function setDriveStatusAction(id: string, status: string) {
   const next = parseDriveStatus(status);
   const drive = await drivesStore.get(id);
-  if (!next || !drive) return;
+  if (!next || !drive || drive.status === next) return;
   await drivesStore.put({ ...drive, status: next });
+  await logActivity("test-drives", `Changed the test drive from ${DRIVE_STATUS_LABELS[drive.status]} to ${DRIVE_STATUS_LABELS[next]}`, { kind: "drive", id });
   revalidatePath("/dashboard/test-drives");
 }
 
@@ -45,7 +47,9 @@ export async function addDriveAction(_prev: DriveFormState, data: FormData): Pro
   if (startsAt < Date.now() - HOUR) return { errors: { date: "Choose a day that has not passed" } };
   const clash = clashes(await drivesStore.list(), car.slug, startsAt, undefined, (await getSettings()).driveSlotMinutes * MINUTE);
   if (clash.length) return { errors: { time: `${carName(car)} is already booked around then` } };
-  await drivesStore.put({ id: newId("drive"), name: b.name, phone: b.phone, email: b.email ?? "", carSlug: car.slug, carTitle: carName(car), startsAt, status: "confirmed", notes: b.notes ?? "", createdAt: Date.now() });
+  const id = newId("drive");
+  await drivesStore.put({ id, name: b.name, phone: b.phone, email: b.email ?? "", carSlug: car.slug, carTitle: carName(car), startsAt, status: "confirmed", notes: b.notes ?? "", createdAt: Date.now() });
+  await logActivity("test-drives", "Booked a test drive", { kind: "drive", id });
   revalidatePath("/dashboard/test-drives");
   return { done: `Booked ${b.name} for ${carName(car)}.` };
 }

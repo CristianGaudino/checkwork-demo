@@ -12,7 +12,7 @@ import { isProduction } from "@/lib/site";
 export type Doc = { id: string } & Record<string, unknown>;
 
 const memory = new Map<string, Map<string, Doc>>();
-const SEEDED = "_seeded"; // collection holding one marker row per seeded collection
+export const SEEDED = "_seeded"; // collection holding one marker row per seeded collection (the activity log uses it too)
 const seededHere = new Set<string>(); // collections this instance already knows are seeded, so a call costs no extra query
 
 const hasDb = () => Boolean(getBindings().DB);

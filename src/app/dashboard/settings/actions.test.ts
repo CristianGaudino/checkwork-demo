@@ -11,6 +11,7 @@ vi.mock("next/headers", () => ({
 }));
 const { addTeamAction, removeTeamAction, saveLeadEmailsAction, saveTargetsAction, setRoleAction } = await import("./actions");
 const { getSettings, leadsStore, settingsStore } = await import("@/lib/admin/collections");
+const { listActivity } = await import("@/lib/admin/activity");
 
 const form = (o: Record<string, string>) => Object.entries(o).reduce((f, [k, v]) => (f.set(k, v), f), new FormData());
 
@@ -63,6 +64,8 @@ describe("team settings", () => {
     const sales = team.find((t) => t.role === "Sales")!;
     const owner = team.find((t) => t.role === "Owner")!;
     expect((await setRoleAction(sales.id, undefined, form({ role: "Finance" })))?.saved).toBe(true);
+    // The activity history has it, by the manager, naming the team member (staff, not a customer).
+    expect((await listActivity({}, 1, 1)).rows[0]).toMatchObject({ actor: "Ciara Walsh", area: "settings", summary: `Changed ${sales.name}'s role from Sales to Finance`, refLabel: sales.name });
     expect((await setRoleAction(sales.id, undefined, form({ role: "Owner" })))?.errors?.role).toMatch(/Only an owner/);
     expect((await setRoleAction(owner.id, undefined, form({ role: "Sales" })))?.errors?.role).toMatch(/Only an owner/);
     expect((await addTeamAction(undefined, form({ name: "New boss", email: "boss@example.com", role: "Owner" })))?.errors?.role).toMatch(/Only an owner/);
@@ -90,6 +93,15 @@ describe("lead emails", () => {
     role = undefined;
     return settingsStore.reset();
   });
+  it("records a change in the activity history, and not a save that changed nothing", async () => {
+    const before = (await listActivity({ area: "settings" }, 1, 1)).total;
+    await saveLeadEmailsAction(undefined, form({ leadEmails: "a@example.com" }));
+    await saveLeadEmailsAction(undefined, form({ leadEmails: "a@example.com" }));
+    const after = await listActivity({ area: "settings" }, 1, 1);
+    expect(after.total).toBe(before + 1);
+    expect(after.rows[0].summary).toBe("Changed who gets the lead emails");
+  });
+
   it("saves a list (lower case, no repeats), and an empty box goes back to the site's own address", async () => {
     expect((await saveLeadEmailsAction(undefined, form({ leadEmails: "A@example.com, b@example.com\na@example.com" })))?.saved).toBe(true);
     expect((await getSettings()).leadEmails).toEqual(["a@example.com", "b@example.com"]);

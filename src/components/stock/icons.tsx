@@ -142,6 +142,13 @@ export const CalendarIcon = (p: Props) => (
     <path d="M4 10h16M8.5 3v4M15.5 3v4" />
   </Icon>
 );
+// A clock with a turning arrow: the dashboard's activity history.
+export const HistoryIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4" />
+    <path d="M12 8v4.5l3 2" />
+  </Icon>
+);
 export const BellIcon = (p: Props) => (
   <Icon {...p}>
     <path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15L6 16.5ZM10 20.5a2 2 0 0 0 4 0" />

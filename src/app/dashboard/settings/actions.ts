@@ -10,6 +10,7 @@ import { seedsDemoRecords } from "@/lib/admin/docs";
 import { fieldErrors } from "@/lib/admin/validation";
 import { can, currentMember } from "@/lib/permissions";
 import { ROLES, type Role } from "@/lib/permission-rules";
+import { logActivity, resetActivity } from "@/lib/admin/activity";
 
 export type SettingsState = { errors?: Record<string, string>; saved?: boolean } | undefined;
 
@@ -24,6 +25,8 @@ async function change(fn: (s: DealerSettings) => DealerSettings) {
 }
 
 const fail = (e: z.ZodError): SettingsState => ({ errors: fieldErrors(e) });
+// A save that changes nothing is not recorded in the activity history. Same keys in the same order, as each form always sends them.
+const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
 const targets = z.object({
   leadSlaHours: z.coerce.number().int("Whole hours").min(1, "At least 1 hour").max(168, "At most 168 hours (a week)"),
@@ -34,7 +37,10 @@ export async function saveTargetsAction(_p: SettingsState, data: FormData): Prom
   if (no) return no;
   const r = targets.safeParse(Object.fromEntries(data));
   if (!r.success) return fail(r.error);
+  const was = await getSettings();
   await change((s) => ({ ...s, ...r.data }));
+  if (was.leadSlaHours !== r.data.leadSlaHours) await logActivity("settings", `Changed the lead reply target from ${was.leadSlaHours} to ${r.data.leadSlaHours} hours`);
+  if (was.driveSlotMinutes !== r.data.driveSlotMinutes) await logActivity("settings", `Changed the test drive slot from ${was.driveSlotMinutes} to ${r.data.driveSlotMinutes} minutes`);
   return { saved: true };
 }
 
@@ -42,7 +48,10 @@ export async function saveNotificationsAction(_p: SettingsState, data: FormData)
   const no = await refused("notifications");
   if (no) return no;
   const on = (k: string) => data.get(k) === "on";
-  await change((s) => ({ ...s, notifications: { newLead: on("newLead"), testDrive: on("testDrive"), review: on("review"), weeklyReport: on("weeklyReport") } }));
+  const notifications = { newLead: on("newLead"), testDrive: on("testDrive"), review: on("review"), weeklyReport: on("weeklyReport") };
+  const was = await getSettings();
+  await change((s) => ({ ...s, notifications }));
+  if (!same(was.notifications, notifications)) await logActivity("settings", "Changed the email notifications");
   return { saved: true };
 }
 
@@ -52,7 +61,9 @@ export async function saveMarketingAction(_p: SettingsState, data: FormData): Pr
   if (no) return no;
   const r = marketing.safeParse(Object.fromEntries(data));
   if (!r.success) return fail(r.error);
+  const was = await getSettings();
   await change((s) => ({ ...s, marketing: r.data }));
+  if (!same(was.marketing, r.data)) await logActivity("settings", "Changed the marketing voice");
   return { saved: true };
 }
 
@@ -65,7 +76,9 @@ export async function saveLeadEmailsAction(_p: SettingsState, data: FormData): P
   if (list.length > MAX_LEAD_EMAILS) return { errors: { leadEmails: `Use ${MAX_LEAD_EMAILS} addresses or fewer` } };
   const bad = list.find((e) => !z.email().max(120).safeParse(e).success);
   if (bad) return { errors: { leadEmails: `"${bad.slice(0, 40)}" is not a valid email` } };
+  const was = await getSettings();
   await change((s) => ({ ...s, leadEmails: list }));
+  if (!same(was.leadEmails, list)) await logActivity("settings", "Changed who gets the lead emails");
   return { saved: true };
 }
 
@@ -104,7 +117,9 @@ export async function addTeamAction(_p: SettingsState, data: FormData): Promise<
   const { team } = await getSettings();
   if (team.some((t) => t.name.toLowerCase() === r.data.name.toLowerCase())) return { errors: { name: "Someone with that name is already on the team" } };
   if (team.some((t) => t.email.toLowerCase() === r.data.email)) return { errors: { email: "Someone with that email is already on the team" } };
-  await change((s) => ({ ...s, team: [...s.team, { id: newId("u"), ...r.data }] }));
+  const id = newId("u");
+  await change((s) => ({ ...s, team: [...s.team, { id, ...r.data }] }));
+  await logActivity("settings", `Added ${r.data.name} to the team as ${r.data.role}`, { kind: "team", id, label: r.data.name });
   return { saved: true };
 }
 
@@ -118,7 +133,9 @@ export async function setRoleAction(id: string, _p: SettingsState, data: FormDat
   if (no) return { errors: { role: no } };
   const next = team.map((t) => (t.id === id ? { ...t, role: role.data } : t));
   if (hasOwner(team) && !hasOwner(next)) return { errors: { role: NO_OWNER } };
+  if (was.role === role.data) return { saved: true };
   await change((s) => ({ ...s, team: next }));
+  await logActivity("settings", `Changed ${was.name}'s role from ${was.role} to ${role.data}`, { kind: "team", id, label: was.name });
   return { saved: true };
 }
 
@@ -131,10 +148,13 @@ export async function removeTeamAction(id: string) {
   if (hasOwner(team) && !hasOwner(team.filter((t) => t.id !== id))) return;
   await change((s) => ({ ...s, team: s.team.filter((t) => t.id !== id) }));
   for (const l of await leadsStore.list()) if (l.assignedTo === gone.name) await leadsStore.put({ ...l, assignedTo: undefined });
+  await logActivity("settings", `Removed ${gone.name} from the team`, { kind: "team", id, label: gone.name });
 }
 
 export async function resetDemoAction() {
   if (!seedsDemoRecords() || !(await can("settings"))) return; // a real dealer's records are never wiped from a button
   for (const c of DEALER_COLLECTIONS) await c.reset();
+  await resetActivity();
+  await logActivity("settings", "Reset the demo data");
   revalidatePath("/dashboard", "layout");
 }

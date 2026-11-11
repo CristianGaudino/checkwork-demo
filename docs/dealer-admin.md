@@ -7,12 +7,12 @@ The demo has two views. The public site is `/`. The dealer dashboard is `/dashbo
 Everyone the dashboard lets in works the everyday dashboard (leads, test drives, stock, customers, reviews, marketing). A role adds
 permissions, each checked on the server in every page and action that needs it (`src/lib/permissions.ts`, rules in `permission-rules.ts`):
 
-| Role | Margins (costs and profit) | Team | Business settings |
-|---|---|---|---|
-| Owner | Yes | Yes | Yes |
-| Manager | Yes | Yes, except an owner | Yes |
-| Finance | Yes | No | No |
-| Sales | No | No | No |
+| Role | Margins (costs and profit) | Team | Business settings | Activity history |
+|---|---|---|---|---|
+| Owner | Yes | Yes | Yes | Yes |
+| Manager | Yes | Yes, except an owner | Yes | Yes |
+| Finance | Yes | No | No | No |
+| Sales | No | No | No | No |
 
 - **Margins:** a Margins screen, a margin column on the stock list, a Stock margin stat on the overview and a cost price box on the car
   form. Without it none of those are in the page, and the Margins page and the cost field answer as if they were not there. Costs are kept
@@ -20,6 +20,9 @@ permissions, each checked on the server in every page and action that needs it (
 - **Team:** add people, change roles, remove people. A manager cannot add, change or remove an owner, or make anyone one. A team with an
   owner always keeps one, and the last person cannot be removed.
 - **Business settings:** targets, lead emails, notifications, marketing voice and the demo reset. Others see them read only.
+
+- **Activity history** (`/dashboard/activity`): every change made in the dashboard, newest first, with who made it, filtered by area,
+  person and period. Changes only, never page views. See below.
 
 Who the person is:
 - **On the demo** (the demo bar is on) the bar's role buttons (Owner, Manager, Sales, Finance), shown while viewing as the dealer, set a
@@ -37,6 +40,19 @@ Who the person is:
 - **No demo, draft or placeholder labels on the public site.** The demo bar and the dev-only data toggle are the only chrome that says "demo".
 - All names, emails, numbers and figures in the admin are made up. Emails use `example.com`.
 
+## Activity history
+
+Every dashboard action records what it changed through `logActivity` (`src/lib/admin/activity.ts`), in the `activity` table (memory
+with no D1). The actor is the signed-in person (`currentMember`), or a named one such as the stock sync.
+- **Changes only:** a price from and to, a lead moved from New to Contacted, a role changed, a post published. Never page views, and never
+  what a customer wrote (a note is "Added a note", not its text).
+- **No names of customers kept:** an entry about a lead, a test drive, an alert, a subscriber or a review keeps only its kind and id. The
+  page reads the name from the live record, so once the record is deleted (the lead purge, an erasure request) the entry says "A deleted
+  lead". Cars, posts, newsletters and team members keep their label.
+- **Best effort:** a log that cannot be written never stops the change; the failure is logged without the entry.
+- **Kept 12 months** (`ACTIVITY_RETENTION_MONTHS`), then deleted by the daily job in `worker.mjs`, which logs `{"job":"purge-activity"}`.
+- **The demo** seeds a history of the made-up team on the seeded records; Reset demo data puts it back.
+
 ## Cloudflare Access (owner set-up, once)
 
 1. Zero Trust, Access, Applications, Add, Self-hosted. Add the path `/dashboard*` on the demo domain. Allow only the dealer's email addresses.
@@ -52,6 +68,7 @@ Until both are set the admin answers 404 for everyone. The Worker checks Access'
 | Record store (one D1 table, `admin_docs`; memory with no D1) | `src/lib/admin/docs.ts` |
 | The dealer's collections, types and seeds | `src/lib/admin/collections.ts`, `seed-data.ts` |
 | Roles and permissions | `src/lib/permissions.ts`, `permission-rules.ts` |
+| Activity history (write, list, purge) | `src/lib/admin/activity.ts`, `activity-refs.ts`, `activity-purge.ts` |
 | Cost prices and margin maths | `costsStore` in `collections.ts`, `src/lib/admin/margins.ts` |
 | Outside services and the settings each needs | `src/lib/integrations.ts` |
 | Admin kit (tables, stat cards, forms, charts) | `src/components/admin/` |

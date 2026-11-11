@@ -9,7 +9,7 @@ import { currentMember } from "@/lib/permissions";
 import { ROLES, roleCan, type Role } from "@/lib/permission-rules";
 
 // What each role may see, in words, so the owner knows what a role change does.
-const GRANTS: Record<Role, string> = { Owner: "Everything", Manager: "Everything except changing an owner", Sales: "Everything except margins, the team and settings", Finance: "Margins, and everything Sales sees" };
+const GRANTS: Record<Role, string> = { Owner: "Everything", Manager: "Everything except changing an owner", Sales: "Everything except margins, the team, settings and activity", Finance: "Margins, and everything Sales sees" };
 
 export const metadata = { title: "Settings" };
 

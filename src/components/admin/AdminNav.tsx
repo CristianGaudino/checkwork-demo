@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { NavIcon, NavItem } from "@/lib/admin/nav";
-import { CalendarIcon, CarIcon, ChartIcon, CogIcon, HomeIcon, InboxIcon, MegaphoneIcon, PercentIcon, StarIcon, UsersIcon } from "@/components/stock/icons";
+import { CalendarIcon, CarIcon, ChartIcon, CogIcon, HistoryIcon, HomeIcon, InboxIcon, MegaphoneIcon, PercentIcon, StarIcon, UsersIcon } from "@/components/stock/icons";
 import { press } from "@/components/ui";
 
-const ICONS: Record<NavIcon, typeof HomeIcon> = { home: HomeIcon, inbox: InboxIcon, car: CarIcon, calendar: CalendarIcon, users: UsersIcon, megaphone: MegaphoneIcon, chart: ChartIcon, percent: PercentIcon, star: StarIcon, cog: CogIcon };
+const ICONS: Record<NavIcon, typeof HomeIcon> = { home: HomeIcon, inbox: InboxIcon, car: CarIcon, calendar: CalendarIcon, users: UsersIcon, megaphone: MegaphoneIcon, chart: ChartIcon, percent: PercentIcon, star: StarIcon, cog: CogIcon, history: HistoryIcon };
 
 // A row you can swipe on a phone; from 1024px a column in groups, each with a small heading. The current section is filled.
 export function AdminNav({ items, label }: { items: NavItem[]; label: string }) {
