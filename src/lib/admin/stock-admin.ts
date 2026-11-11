@@ -5,7 +5,7 @@ import { cars } from "@/lib/db/schema";
 import { getBindings } from "@/lib/leads/bindings";
 import { memoryCars, refreshMemoryStock } from "@/lib/stock";
 import type { Car } from "@/lib/stock/types";
-import { devMode } from "@/lib/dev-data";
+import { devFixtureCars } from "@/lib/dev-data";
 
 // The dealer's view of the stock: every car, sold ones too, and the writes. On the Worker this is the `cars` table the public site reads
 // (so a change shows on the site within seconds). With no D1 binding it edits the in-memory list the site reads (dev and E2E).
@@ -19,9 +19,8 @@ async function afterWrite() {
 export async function adminCars(): Promise<Car[]> {
   if (!hasDb()) {
     // break-ui: in `next dev` the Demo / Worst case switch reaches the dashboard too, so its lists can be tried at 0, 1 or 1,284 cars.
-    const mode = await devMode();
-    if (mode !== "demo") return [...(await import("@/lib/stock/worst-cars")).fixtureCars(mode)];
-    return [...memoryCars];
+    const dev = await devFixtureCars();
+    return [...(dev ?? memoryCars)];
   }
   const rows = await getDb().select({ data: cars.data }).from(cars);
   return rows.map((r) => r.data as Car);
