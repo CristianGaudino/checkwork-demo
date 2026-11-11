@@ -1,5 +1,6 @@
 "use client";
 
+import { UnitToggle } from "@/components/UnitToggle";
 import Link from "next/link";
 import { StateBlock } from "@/components/StateBlock";
 import { useRouter } from "next/navigation";
@@ -161,6 +162,8 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
               <div className="lg:hidden">
                 <FilterSheet />
               </div>
+              {/* km or miles for every card on the list: a view, not a filter. */}
+              <UnitToggle className="max-lg:hidden" />
               <SortControl className="flex" />
               <div className="hidden lg:block">
                 <ViewToggle />

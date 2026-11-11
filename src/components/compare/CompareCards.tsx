@@ -13,7 +13,8 @@ import { MAX_COMPARE, clearCompare, removeCompare, restoreCompare, useCompareIds
 import { rank } from "@/lib/compare/rank";
 import type { Mark } from "@/lib/compare/rank";
 import { payableEur, priceInfo } from "@/lib/stock/price";
-import { carTitle, formatKm, specRows } from "@/lib/stock/format";
+import { carTitle, specRows } from "@/lib/stock/format";
+import { Mileage } from "@/components/Mileage";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 import { COMPARE_CLEARED } from "@/lib/copy";
@@ -21,12 +22,12 @@ import { COMPARE_CLEARED } from "@/lib/copy";
 const never = () => () => {};
 
 // What the cards compare. `better` is which end is good news for a buyer; with none (the engine) the marks are only higher and lower.
-type Row = { label: string; number?: (c: Car) => number | undefined; text: (c: Car) => string | undefined; better?: "low" | "high" };
+type Row = { label: string; number?: (c: Car) => number | undefined; text: (c: Car) => React.ReactNode | undefined; better?: "low" | "high" };
 const spec = (label: string) => (c: Car) => specRows(c).find((r) => r.label === label)?.value;
 const ROWS: Row[] = [
   { label: "Price", number: (c) => (isSold(c) ? undefined : payableEur(c)), text: (c) => priceInfo(c).headline, better: "low" },
   { label: "Year", number: (c) => c.year, text: (c) => String(c.year), better: "high" },
-  { label: "Mileage", number: (c) => c.mileageKm, text: (c) => (c.mileageKm === undefined ? undefined : formatKm(c.mileageKm)), better: "low" },
+  { label: "Mileage", number: (c) => c.mileageKm, text: (c) => (c.mileageKm === undefined ? undefined : <Mileage km={c.mileageKm} />), better: "low" },
   { label: "Fuel", text: spec("Fuel") },
   { label: "Transmission", text: spec("Transmission") },
   { label: "Engine", number: (c) => c.engineLitres, text: spec("Engine") },

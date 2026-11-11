@@ -3,13 +3,14 @@ import { DEALER_LOCATION, SITE_NAME } from "@/lib/site";
 import { LeadPage } from "@/components/leads/LeadPage";
 import { LeadPageForm } from "@/components/leads/LeadPageForm";
 import { MAKE_OPTIONS } from "@/lib/leads/makes";
+import { slugify } from "@/lib/admin/stock-admin-pure";
 
 export const metadata: Metadata = { title: "Find a car", description: `Can't see the car you want? Tell us what you're looking for and we'll look for it. ${SITE_NAME}, ${DEALER_LOCATION}.` };
 
-// A make page sends ?make=Audi: the form starts with it chosen. Only a make from the list is taken.
+// A make page sends ?make=Audi: the form starts with it chosen. Only a make from the list is taken, matched by slug so "Škoda" finds "Skoda".
 export default async function FindACarPage({ searchParams }: PageProps<"/find-a-car">) {
   const asked = (await searchParams).make;
-  const make = typeof asked === "string" ? MAKE_OPTIONS.find((o) => o.value && o.value.toLowerCase() === asked.toLowerCase())?.value : undefined;
+  const make = typeof asked === "string" ? MAKE_OPTIONS.find((o) => o.value && slugify(o.value) === slugify(asked))?.value : undefined;
   return (
     <LeadPage
       title="Find a car"

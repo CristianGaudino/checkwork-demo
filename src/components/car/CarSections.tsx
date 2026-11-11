@@ -4,6 +4,8 @@ import { CheckIcon } from "@/components/stock/icons";
 import { card, carSlide } from "@/components/ui";
 import { ListingCard } from "@/components/stock/ListingCard";
 import { featureLabel, plainText, specRows } from "@/lib/stock/format";
+import { FactValue } from "@/components/stock/CarMeta";
+import { UnitToggle } from "@/components/UnitToggle";
 import type { Car } from "@/lib/stock/types";
 
 const VISIBLE_FEATURES = 12;
@@ -43,13 +45,18 @@ export function AboutCar({ car }: { car: Car }) {
 export function Specifications({ car }: { car: Car }) {
   return (
     <section>
-      <h2 className={h2}>Specifications</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className={h2}>Specifications</h2>
+        {car.mileageKm !== undefined && <UnitToggle />}
+      </div>
       {/* Every other row filled (in pairs from 640px, where two rows sit side by side), so a label is easy to follow to its value. */}
       <dl className={`mt-4 grid grid-cols-1 gap-x-4 ${card} p-2 sm:grid-cols-2`}>
         {specRows(car).map((r) => (
           <div key={r.label} className="flex justify-between gap-4 rounded-control px-3 py-2.5 even:bg-row-alt sm:even:bg-transparent sm:[&:nth-child(4n+1)]:bg-row-alt sm:[&:nth-child(4n+2)]:bg-row-alt">
             <dt className="shrink-0 text-text-2">{r.label}</dt>
-            <dd className="min-w-0 text-right font-medium [overflow-wrap:anywhere]">{r.value}</dd>
+            <dd className="min-w-0 text-right font-medium [overflow-wrap:anywhere]">
+              <FactValue car={car} {...r} />
+            </dd>
           </div>
         ))}
       </dl>

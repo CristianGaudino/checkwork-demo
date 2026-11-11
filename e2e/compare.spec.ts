@@ -147,6 +147,7 @@ test("each compare card has swipeable photos, like a stock card", async ({ page 
     const carousel = card.getByRole("group", { name: /^Photos of / });
     await expect(carousel).toBeVisible();
     await expect(carousel.getByRole("group", { name: /^Photo \d+ of / }).first()).toBeVisible();
+    await carousel.scrollIntoViewIfNeeded(); // the later photos load near the screen, as they would while scrolling
     // The rest of the photos load after the card is near the screen; then there is more than one screen of them to swipe through.
     await expect.poll(() => carousel.evaluate((el) => el.scrollWidth > el.clientWidth * 2)).toBe(true);
   }

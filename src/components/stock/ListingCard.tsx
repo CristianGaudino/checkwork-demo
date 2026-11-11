@@ -5,7 +5,9 @@ import { SoldBadge } from "@/components/stock/SoldBadge";
 import Link from "next/link";
 import { ArrowRightIcon } from "@/components/stock/icons";
 import { PriceBlock } from "@/components/stock/PriceBlock";
-import { carMeta, carName, keyFacts } from "@/lib/stock/format";
+import { carName, keyFacts } from "@/lib/stock/format";
+import { CarMeta, FactValue } from "@/components/stock/CarMeta";
+import { rareMarker } from "@/lib/stock/markers";
 import { priceInfo } from "@/lib/stock/price";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
@@ -15,6 +17,7 @@ import type { Car } from "@/lib/stock/types";
 export function ListingCard({ car, priority, oneLine = false }: { car: Car; priority: boolean; oneLine?: boolean }) {
   const href = `/used-cars/${car.slug}`;
   const drop = priceInfo(car).drop;
+  const marker = rareMarker(car);
   return (
     // The photo is the card: it carries the rounded corners and the lift, and the words sit under it on the page itself.
     <article data-card className="@container group relative scroll-mt-20 transition-opacity duration-100 has-[h2_a:active]:opacity-80">
@@ -22,10 +25,11 @@ export function ListingCard({ car, priority, oneLine = false }: { car: Car; prio
         <PhotoCarousel photos={car.photos} href={href} label={carName(car)} priority={priority} />
         {/* The word in the price slot is what screen readers hear; this badge is the same word for the eye. */}
         {isSold(car) && <SoldBadge hidden className="absolute left-4 top-4 z-20" />}
-        {/* The drop, as a tag on the photo: under the price it pushed the details down and out of line with the cards beside it. */}
-        {!isSold(car) && drop && (
-          <span className="pointer-events-none absolute left-4 top-4 z-20 inline-flex h-7 items-center rounded-full bg-ok-soft px-3 text-meta font-medium text-ok">
-            {drop}
+        {/* One tag on the photo at most: a rare marker (src/lib/stock/markers.ts) first, as it is the less common news, else the price drop.
+            On the photo, not under the price, so the details line up with the cards beside it. */}
+        {!isSold(car) && (marker || drop) && (
+          <span className={`pointer-events-none absolute left-4 top-4 z-20 inline-flex h-7 items-center rounded-full px-3 text-meta font-medium ${marker ? "bg-info-soft text-info" : "bg-ok-soft text-ok"}`}>
+            {marker ?? drop}
           </span>
         )}
         {/* z-20 and outside the title link: above the carousel and never a card tap. Sold cars keep it. */}
@@ -46,13 +50,15 @@ export function ListingCard({ car, priority, oneLine = false }: { car: Car; prio
           </h2>
           <PriceBlock car={car} />
         </div>
-        <p data-meta className="line-clamp-2 text-meta text-text-2">{carMeta(car)}</p>
+        <p data-meta className="line-clamp-2 text-meta text-text-2">
+          <CarMeta car={car} />
+        </p>
         {/* Only in the list view (see globals.css): the key facts as chips, and the way on. */}
         <div data-list-only className="hidden flex-col gap-4">
           <ul className="flex flex-wrap gap-2">
             {keyFacts(car).map((f) => (
               <li key={f.label} className="rounded-full border border-hairline bg-surface px-3 py-1 text-meta">
-                {f.value}
+                <FactValue car={car} {...f} />
               </li>
             ))}
           </ul>
