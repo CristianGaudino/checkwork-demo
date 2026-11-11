@@ -60,5 +60,9 @@ describe("listing date", () => {
     const existing = { ...(added.ok ? added.car : ({} as Car)), listedAt: "2026-09-01" };
     const edited = carFromForm(form({ priceEur: "9999" }), "50", existing, "2026-11-11");
     expect(edited.ok && edited.car.listedAt).toBe("2026-09-01");
+    // A car from before dates were kept is not stamped as listed today by an edit.
+    const undated = { ...existing, listedAt: undefined };
+    const editedUndated = carFromForm(form({ priceEur: "9999" }), "50", undated, "2026-11-11");
+    expect(editedUndated.ok && editedUndated.car.listedAt).toBeUndefined();
   });
 });
