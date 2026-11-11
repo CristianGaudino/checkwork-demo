@@ -1,12 +1,32 @@
 # Dealer dashboard
 
-The demo has two views. The public site is `/`. The dealer dashboard is `/dashboard`. The demo bar at the top of every page switches between them: choosing Dealer on a public page keeps that page and adds a Dashboard link to the header (and stock and social links on a car page). There is no login of our own: on a deployed site Cloudflare Access is the login (see below). There is no superuser role and no platform in this site: running many dealers is a separate program, not part of what a dealer is sold. The platform that was here is in git history (PR #30).
+The demo has two views. The public site is `/`. The dealer dashboard is `/dashboard`. The demo bar at the foot of every page switches between them: choosing Dealer on a public page keeps that page and adds a Dashboard link to the header (and stock and social links on a car page). There is no login of our own: on a deployed site Cloudflare Access is the login (see below). There is no superuser role and no platform in this site: running many dealers is a separate program, not part of what a dealer is sold. The platform that was here is in git history (PR #30).
 
-## Permissions
+## Roles and permissions
 
-A dealer sees everything in the admin except sensitive figures, unless they have the permission for them. Today there is one: **margins** (cost prices and profit). With it a dealer gets a Margins screen, a margin column on the stock list, a Stock margin stat on the overview and a cost price box on the car form. Without it none of those are in the page, and the Margins page and the cost field answer as if they were not there (checked on the server, `src/lib/permissions.ts`). Costs are kept in the admin store (`car-costs`), never in the public car data.
-- **On the demo** (the demo bar is on) the bar's **Margins on / off** switch, shown while viewing as the dealer, is the permission: a cookie the server reads.
-- **On a real site** (the demo bar is off, `NEXT_PUBLIC_DEMO_BAR=off`) the permission comes from the signed-in Access email, which the proxy verifies and passes on. Set the Worker variable `ADMIN_MARGINS_EMAILS` to the comma separated addresses that have it. Nobody has it by default.
+Everyone the dashboard lets in works the everyday dashboard (leads, test drives, stock, customers, reviews, marketing). A role adds
+permissions, each checked on the server in every page and action that needs it (`src/lib/permissions.ts`, rules in `permission-rules.ts`):
+
+| Role | Margins (costs and profit) | Team | Business settings |
+|---|---|---|---|
+| Owner | Yes | Yes | Yes |
+| Manager | Yes | Yes, except an owner | Yes |
+| Finance | Yes | No | No |
+| Sales | No | No | No |
+
+- **Margins:** a Margins screen, a margin column on the stock list, a Stock margin stat on the overview and a cost price box on the car
+  form. Without it none of those are in the page, and the Margins page and the cost field answer as if they were not there. Costs are kept
+  in the admin store (`car-costs`), never in the public car data.
+- **Team:** add people, change roles, remove people. A manager cannot add, change or remove an owner, or make anyone one. A team with an
+  owner always keeps one, and the last person cannot be removed.
+- **Business settings:** targets, lead emails, notifications, marketing voice and the demo reset. Others see them read only.
+
+Who the person is:
+- **On the demo** (the demo bar is on) the bar's role buttons (Owner, Manager, Sales, Finance), shown while viewing as the dealer, set a
+  cookie the server reads, and the demo acts as the first team member with that role. It opens as the owner, so every feature shows.
+- **On a real site** (the demo bar is off, `NEXT_PUBLIC_DEMO_BAR=off`) the signed-in Access email, which the proxy verifies and passes on.
+  An address in `ADMIN_OWNER_EMAILS` is an owner (that is how a new dealer, with no team yet, gets in to set one up); anyone else has the
+  role their email has on the team in Settings, or none. A cookie never grants anything there.
 
 ## Rules
 
@@ -31,7 +51,7 @@ Until both are set the admin answers 404 for everyone. The Worker checks Access'
 |---|---|
 | Record store (one D1 table, `admin_docs`; memory with no D1) | `src/lib/admin/docs.ts` |
 | The dealer's collections, types and seeds | `src/lib/admin/collections.ts`, `seed-data.ts` |
-| Permissions (who may see margins) | `src/lib/permissions.ts`, `permission-rules.ts` |
+| Roles and permissions | `src/lib/permissions.ts`, `permission-rules.ts` |
 | Cost prices and margin maths | `costsStore` in `collections.ts`, `src/lib/admin/margins.ts` |
 | Outside services and the settings each needs | `src/lib/integrations.ts` |
 | Admin kit (tables, stat cards, forms, charts) | `src/components/admin/` |

@@ -67,9 +67,8 @@ test("add a car, see it on the site with its VAT line, change its price to a dro
   await expect(page.getByRole("row", { name: new RegExp(MAKE) })).toHaveCount(0);
 });
 
-test("with the margins permission the cost is saved with the car and shows on the Margins screen", async ({ page, context }) => {
-  await page.setViewportSize({ width: 1280, height: 800 });
-  await context.addCookies([{ name: "checkwork-demo-perms", value: "margins", url: "http://localhost:3000" }]);
+test("with the margins permission the cost is saved with the car and shows on the Margins screen", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 }); // the demo opens as the owner, who has margins
   await page.goto("/dashboard/stock/new");
   await page.getByLabel("Make", { exact: true }).fill(MAKE);
   await page.getByLabel("Model", { exact: true }).fill("Margin");

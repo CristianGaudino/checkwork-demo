@@ -5,6 +5,7 @@ import { defineCollection, seedsDemoRecords } from "./docs";
 import { NETWORKS, type Network } from "./networks";
 import { demoCost } from "./margins";
 import { DAY, HOUR } from "@/lib/time";
+import type { Role } from "@/lib/permission-rules";
 import { carTitleOf, livePicks, person, rng } from "./seed-data";
 
 // The dealer's records. Each is a collection in the record store, with a typed shape and a seed. Never the real leads table: the admin
@@ -41,6 +42,7 @@ export const TEAM_SEED = [
   { id: "u1", name: "Aoife Brennan", email: "aoife@example.com", role: "Owner" },
   { id: "u2", name: "Conor Doyle", email: "conor@example.com", role: "Sales" },
   { id: "u3", name: "Niamh Kavanagh", email: "niamh@example.com", role: "Finance" },
+  { id: "u4", name: "Ciara Walsh", email: "ciara@example.com", role: "Manager" },
 ] as const;
 
 const MESSAGES: Record<LeadType, string[]> = {
@@ -174,7 +176,7 @@ export const reviewsStore = defineCollection<AdminReview>("reviews", seedReviews
 
 // ---- Settings: one record ----
 // Only what the admin itself uses. The business details (name, phone, hours) live in the site configuration and change with a deploy.
-export type TeamMember = { id: string; name: string; email: string; role: "Owner" | "Sales" | "Finance" };
+export type TeamMember = { id: string; name: string; email: string; role: Role }; // matched to the signed-in Access email (src/lib/permissions.ts)
 export type DealerSettings = {
   id: "dealer";
   leadSlaHours: number; // a new lead waiting longer than this needs attention (overview)

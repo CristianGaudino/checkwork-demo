@@ -38,10 +38,11 @@ deploy fails its tests while it is false.
 - Replace `src/lib/stock/demo-cars.json` and `public/stock/` with photos you have the right to use, or start the D1 `cars` table empty.
 
 ### The dashboard
-- It starts empty on a production site (no made-up leads, reviews or team). Staff add the team in Settings, then Lead emails.
+- It starts empty on a production site (no made-up leads, reviews or team). Set `ADMIN_OWNER_EMAILS` to the owner's Access email; the
+  owner then adds the team in Settings, each with a role, then Lead emails.
 - Cloudflare Access: an application for `/dashboard*` on the dealer's domain, allowing only their staff. Set `CF_ACCESS_TEAM_DOMAIN`,
   `CF_ACCESS_AUD` and `NEXT_PUBLIC_ACCESS_ENABLED=1`. Without them the dashboard answers 404 (it fails closed).
-- Who sees margins: `ADMIN_MARGINS_EMAILS`.
+- Who sees what: the team's roles in Settings (Owner, Manager, Sales, Finance). See `docs/dealer-admin.md`.
 
 ### Switches for a real site
 `APP_ENV=production`, `NEXT_PUBLIC_DEMO_BAR=off`. Simulation and demo records then turn off by themselves; a service without keys says

@@ -5,9 +5,10 @@ vi.mock("next/cache", () => ({ revalidatePath: () => {} }));
 vi.mock("next/navigation", () => ({ redirect: (to: string) => { throw new Error(`redirect:${to}`); } }));
 // The demo's stock switch is a cookie (src/lib/stock-source.ts); this run says DoneDeal.
 let stockCookie = "donedeal";
-let perms = "";
+let role = "Sales"; // the demo bar's role (src/lib/permissions.ts): sales has no margins
+vi.mock("react", async (orig) => ({ ...(await orig<typeof import("react")>()), cache: <T,>(fn: T) => fn }));
 vi.mock("next/headers", () => ({
-  cookies: async () => ({ get: (n: string) => (n === "checkwork-demo-stock" ? { value: stockCookie } : n === "checkwork-demo-perms" ? { value: perms } : undefined) }),
+  cookies: async () => ({ get: (n: string) => (n === "checkwork-demo-stock" ? { value: stockCookie } : n === "checkwork-demo-role" ? { value: role } : undefined) }),
   headers: async () => ({ get: () => null }),
 }));
 const { deleteCarAction, saveCarAction, saveCostAction, toggleSoldAction } = await import("./actions");
@@ -17,7 +18,7 @@ const { adminCar, adminCars } = await import("@/lib/admin/stock-admin");
 describe("stock synced from DoneDeal", () => {
   beforeEach(() => {
     stockCookie = "donedeal";
-    perms = "";
+    role = "Sales";
   });
 
   it("still takes the cost, which is the dealer's own, from staff with the margins permission only", async () => {
@@ -29,7 +30,7 @@ describe("stock synced from DoneDeal", () => {
     };
     await saveCostAction(car.id, form("12345"));
     expect((await costsStore.get(car.id))?.costEur).not.toBe(12345); // no permission, no change
-    perms = "margins";
+    role = "Finance";
     await expect(saveCostAction(car.id, form("12345"))).rejects.toThrow(/redirect/);
     expect((await costsStore.get(car.id))?.costEur).toBe(12345);
     await saveCostAction(car.id, form("not a number"));
