@@ -5,7 +5,7 @@ import { SITE_NAME } from "@/lib/site";
 // Every outside service the site can use, in one list. A service is "connected" when all its settings are present. Nothing here holds a
 // secret: `env` names the variables to set (Cloudflare dashboard, or `.dev.vars` for local work). The admin shows this list, and any
 // feature that needs a service asks `isConnected(id)` first, so a missing key is a clear message and never an error.
-export type IntegrationId = "reviews" | "social" | "ads" | "newsletter" | "email" | "botcheck" | "analytics";
+export type IntegrationId = "reviews" | "social" | "ads" | "newsletter" | "email" | "botcheck" | "analytics" | "reglookup";
 
 export type Integration = {
   id: IntegrationId;
@@ -27,6 +27,7 @@ export const INTEGRATIONS: readonly Integration[] = [
   { id: "newsletter", demoAccount: `news@${HANDLE}.example`, name: "Newsletter sending", purpose: "Sends the newsletters written in Marketing and the stock alerts.", env: ["NEWSLETTER_API_KEY", "NEWSLETTER_FROM_EMAIL"], where: "The email sending provider, and a verified sending domain" },
   { id: "email", name: "Lead email", purpose: "Emails each new lead to the dealer.", env: ["LEAD_TO_EMAIL"], where: "Cloudflare Email Service (the EMAIL binding) and this address" },
   { id: "botcheck", name: "Bot check on forms", purpose: "Keeps spam out of the lead forms.", env: ["TURNSTILE_SECRET_KEY", "NEXT_PUBLIC_TURNSTILE_SITE_KEY"], where: "Cloudflare Turnstile" },
+  { id: "reglookup", demoAccount: `${SITE_NAME} on Cartell`, name: "Registration lookup", purpose: "Fills in the make, model and details from a registration on the trade-in, sell and stock forms.", env: ["CARTELL_API_KEY"], where: "Cartell, a business account" },
   { id: "analytics", name: "Site analytics", purpose: "Real visitor numbers in Analytics instead of the sample figures.", env: ["CF_ANALYTICS_TOKEN", "CF_ZONE_ID"], where: "Cloudflare dashboard, an API token with analytics read" },
 ];
 
@@ -46,7 +47,7 @@ export const isConnected = (id: IntegrationId) => {
 };
 
 export type Mode = "live" | "simulated" | "off";
-// Only the three outward services are simulated. Lead email, the bot check, reviews and analytics always show their true state.
-const SIMULATABLE: readonly IntegrationId[] = ["social", "ads", "newsletter"];
+// Only the outward services (and the registration lookup) are simulated. Lead email, the bot check, reviews and analytics always show their true state.
+const SIMULATABLE: readonly IntegrationId[] = ["social", "ads", "newsletter", "reglookup"];
 export const modeOf = (id: IntegrationId): Mode => (isConnected(id) ? "live" : simulating() && SIMULATABLE.includes(id) ? "simulated" : "off");
 export const isUsable = (id: IntegrationId) => modeOf(id) !== "off";

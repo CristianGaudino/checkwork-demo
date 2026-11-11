@@ -4,6 +4,7 @@ import { LIMITS, PHOTO_MIN_COUNT, PHOTO_MIN_ERROR, PHOTO_SLOTS } from "@/lib/lea
 import { ContactFields, Field } from "./Field";
 import type { FieldBinding, FormStep, PhotoBinding } from "./LeadForm";
 import { PhotoPicker } from "./PhotoPicker";
+import { RegLookup } from "./RegLookup";
 
 // The trade-in is four short steps. What is typed is checked with the server's own rules (LeadForm runs validate.ts for the step's fields);
 // the photos are the one thing the rules cannot see in the typed values, so their count is checked here, with the server's number.
@@ -36,16 +37,34 @@ export function TradeInFields({ bind, photos, step, mode = "sell", cars = [] }: 
       )}
       <div hidden={step !== at} className="flex flex-col gap-4">
         <p className="text-body text-text-2">Start with the registration and the mileage. The rest helps us value it but you can leave it out.</p>
-        <Field
-          {...bind("reg")}
-          label="Registration"
-          required
-          autoCapitalize="characters"
-          spellCheck={false}
-          maxLength={12}
-          placeholder="191-KY-1234"
-          enterKeyHint="next"
-        />
+        {/* The lookup fills make, model and year from the registration, only where they are still empty. */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start">
+          <div className="min-w-0 flex-1">
+            <Field
+              {...bind("reg")}
+              label="Registration"
+              required
+              autoCapitalize="characters"
+              spellCheck={false}
+              maxLength={12}
+              placeholder="191-KY-1234"
+              enterKeyHint="next"
+            />
+          </div>
+          <RegLookup
+            reg={bind("reg").value}
+            className="sm:mt-7 sm:w-44"
+            onFound={({ year, car }) => {
+              const fill = (name: string, v: string | number | undefined) => {
+                const b = bind(name);
+                if (v !== undefined && !b.value) b.onChange(String(v));
+              };
+              fill("year", year);
+              fill("make", car?.make);
+              fill("model", car?.model);
+            }}
+          />
+        </div>
         <Field {...bind("mileage")} label="Mileage" required inputMode="numeric" suffix="km" maxLength={9} enterKeyHint="next" />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Field {...bind("make")} label="Make" optional maxLength={60} enterKeyHint="next" />

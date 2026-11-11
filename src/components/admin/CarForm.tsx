@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useRef, useState } from "react";
+import { RegLookup } from "@/components/leads/RegLookup";
 import { Select } from "@/components/Select";
 import { Field, Panel, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
 import { saveCarAction, type CarFormState } from "@/app/dashboard/stock/actions";
@@ -14,13 +15,43 @@ import type { Car } from "@/lib/stock/types";
 export function CarForm({ car, cost }: { car?: Car; cost?: { eur?: number } }) {
   const [state, action, pending] = useActionState<CarFormState, FormData>(saveCarAction.bind(null, car?.id ?? null), undefined);
   const errors = state?.errors ?? {};
+  // What the registration lookup filled in. The boxes are uncontrolled, so a lookup redraws them (`drawn`) from what was typed plus what
+  // was found; a box already typed in keeps its value.
+  const [found, setFound] = useState<Record<string, string>>({});
+  const [drawn, setDrawn] = useState(0);
+  const [reg, setReg] = useState("");
+  const form = useRef<HTMLFormElement>(null);
   const value = (name: string): string => {
+    if (found[name] !== undefined) return found[name];
     const v = name === "features" ? car?.features?.join("\n") : (car as Record<string, unknown> | undefined)?.[name];
     return v === undefined || v === null ? "" : String(v);
   };
+  const fill = (from: Record<string, string | number | undefined>) => {
+    const typed = Object.fromEntries([...new FormData(form.current!)].map(([k, v]) => [k, String(v)]));
+    const next: Record<string, string> = { ...typed };
+    for (const [k, v] of Object.entries(from)) if (v !== undefined && !typed[k]) next[k] = String(v);
+    setFound(next);
+    setDrawn((n) => n + 1);
+  };
 
   return (
-    <form action={action} className="flex flex-col gap-6" noValidate>
+    <form ref={form} action={action} className="flex flex-col gap-6" noValidate>
+      {/* Adding a car starts from its registration: the lookup fills the basics and details, and every box can still be changed. */}
+      {!car && (
+        <Panel title="Registration">
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start">
+            <Field label="Registration" className="flex-1 sm:max-w-xs">
+              <input value={reg} onChange={(e) => setReg(e.target.value.toUpperCase())} autoCapitalize="characters" spellCheck={false} maxLength={12} placeholder="191-KY-1234" className={adminInput} />
+            </Field>
+            <RegLookup
+              reg={reg}
+              className="h-11 sm:mt-6 sm:w-44"
+              onFound={({ year, car: c }) => fill({ year, make: c?.make, model: c?.model, fuel: c?.fuel, engineLitres: c?.engineLitres, colour: c?.colour, bodyType: c?.bodyType })}
+            />
+          </div>
+        </Panel>
+      )}
+      <div key={drawn} className="flex flex-col gap-6">
       {FIELD_GROUPS.map((group) => (
         <Panel key={group} title={group}>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -39,6 +70,7 @@ export function CarForm({ car, cost }: { car?: Car; cost?: { eur?: number } }) {
         </Panel>
       ))}
 
+      </div>
       {cost && (
         <Panel title="Cost">
           <Field label="Cost price (€)" hint="What the car cost you. Only people with the margins permission see this." error={errors.costEur} className="sm:max-w-xs">

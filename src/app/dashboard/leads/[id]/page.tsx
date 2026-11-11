@@ -2,6 +2,7 @@ import { NEW_TAB } from "@/components/ui";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LeadStatusBadge } from "@/components/admin/badges";
+import { RegLookup } from "@/components/leads/RegLookup";
 import { Avatar, ChoiceButton, Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput, rowButton } from "@/components/admin/kit";
 import { LEAD_STATUS_LABELS, LEAD_TYPE_LABELS, getSettings, leadsStore } from "@/lib/admin/collections";
 import { fmtDateTime } from "@/lib/admin/format";
@@ -49,6 +50,17 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
               </p>
             )}
           </Panel>
+          {/* Selling or trading in: the car's plate, and a lookup so the dealer sees what it is before calling back. */}
+          {lead.reg && (
+            <Panel title="Their car">
+              <p className="text-body">
+                Registration <span className="font-medium tabular-nums">{lead.reg}</span>
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <RegLookup reg={lead.reg} className="sm:w-44" />
+              </div>
+            </Panel>
+          )}
           <Panel title="Notes">
             {lead.notes.length === 0 ? (
               <p className="text-body text-text-2">No notes yet.</p>
