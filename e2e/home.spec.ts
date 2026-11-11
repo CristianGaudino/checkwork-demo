@@ -54,10 +54,17 @@ test("the Find me a car tab fits inside the Search Stock box and the page does n
 const desktop = async (browser: import("@playwright/test").Browser, baseURL: string | undefined) =>
   (await browser.newContext({ baseURL, viewport: { width: 1280, height: 800 }, isMobile: false, hasTouch: false })).newPage();
 
-test("on a phone the drop-downs only pick: the field cannot be typed into", async ({ page }) => {
+test("on a phone the drop-downs only pick: the field cannot be typed into, however long the list", async ({ page }) => {
   await page.goto("/");
   await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
   await expect(page.getByLabel("Make", { exact: true })).toHaveAttribute("readonly", "");
+  // A long list (every car in stock, in the post composer) only picks too, and every option is there to scroll to.
+  await page.goto("/dashboard/marketing");
+  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+  const car = page.getByLabel("Car").first();
+  await expect(car).toHaveAttribute("readonly", "");
+  await car.click();
+  expect(await page.getByRole("listbox").getByRole("option").count()).toBeGreaterThan(30);
 });
 
 test("the drop-downs are the site's own: typing narrows the list, Enter picks, Escape puts it back", async ({ browser, baseURL }) => {

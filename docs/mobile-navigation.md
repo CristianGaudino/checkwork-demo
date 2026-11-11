@@ -42,9 +42,10 @@ section 7). The rules in `docs/dashboard-polish.md` still hold: quiet chrome, on
 - Settings gets a real gear icon (it was drawn as a sun).
 
 ## 5. Home: browse by make
-- **Two rows that scroll sideways together**, at every width. The makes alternate between the rows (first, third, fifth on the top;
-  second, fourth on the bottom), so the busiest makes lead both, and the bottom row starts half a pill in, so the pills stagger.
-- The rows fade at the edges they scroll from. With a mouse, arrow buttons scroll a screen at a time. All makes stays above, on the right.
+- **Two rows that scroll sideways together**, at every width, by swipe or trackpad. The makes alternate between the rows (first,
+  third, fifth on the top; second, fourth on the bottom), so the busiest makes lead both. Both rows start at the left edge; the pills' own
+  widths stagger them (owner, 2026-11-11: no forced indent, no arrows).
+- The rows fade at the edges. All makes stays above, on the right.
 
 ## 6. The pass after
 Screenshots at 360, 390 and 1280px, light and dark, of every public page and every dashboard page, looking for what the owner named:
