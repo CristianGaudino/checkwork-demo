@@ -1,7 +1,7 @@
 import "server-only";
 import demoCars from "@/lib/stock/demo-cars.json";
 import extraCars from "@/lib/stock/demo-cars-extra.json";
-import { defineCollection } from "./docs";
+import { defineCollection, seedsDemoRecords } from "./docs";
 import { NETWORKS, type Network } from "./networks";
 import { demoCost } from "./margins";
 import { DAY, HOUR } from "@/lib/time";
@@ -195,8 +195,9 @@ export const SETTINGS_DEFAULT: DealerSettings = {
   leadEmails: [],
   updatedAt: 0,
 };
-const seedSettings = (): DealerSettings[] => [{ ...SETTINGS_DEFAULT, updatedAt: Date.now() }];
-export const settingsStore = defineCollection<DealerSettings>("settings", seedSettings);
+// A real dealer starts with no team (the made-up one is the demo's) and adds its people in Settings.
+const seedSettings = (): DealerSettings[] => [{ ...SETTINGS_DEFAULT, team: seedsDemoRecords() ? SETTINGS_DEFAULT.team : [], updatedAt: Date.now() }];
+export const settingsStore = defineCollection<DealerSettings>("settings", seedSettings, { always: true });
 
 // ---- Marketing: social posts, ads, newsletters ----
 export { NETWORKS, type Network };

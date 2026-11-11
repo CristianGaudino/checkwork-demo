@@ -3,6 +3,7 @@ import { and, eq, notLike } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { adminDocs } from "@/lib/db/schema";
 import { getBindings } from "@/lib/leads/bindings";
+import { isProduction } from "@/lib/site";
 
 // One small record store for everything the dealer admin keeps (test drives, posts, campaigns, settings...). On the Worker it
 // is the `admin_docs` D1 table; with no D1 binding (next dev, the E2E run) it is a map in memory, so the areas work with nothing set up.
@@ -16,7 +17,13 @@ const seededHere = new Set<string>(); // collections this instance already knows
 
 const hasDb = () => Boolean(getBindings().DB);
 
-export function defineCollection<T extends Doc>(name: string, seed: () => T[]) {
+// The made-up records (leads, reviews, posts, a team...) are for the demo. A real dealer's dashboard starts empty: on a production site
+// (APP_ENV=production) nothing is seeded, unless DEMO_RECORDS=on; DEMO_RECORDS=off turns them off anywhere. `always` is for a record a
+// site cannot run without (the settings), which seeds its defaults either way.
+export const seedsDemoRecords = () => (process.env.DEMO_RECORDS ? process.env.DEMO_RECORDS !== "off" : !isProduction());
+
+export function defineCollection<T extends Doc>(name: string, demoSeed: () => T[], { always = false }: { always?: boolean } = {}) {
+  const seed = () => (always || seedsDemoRecords() ? demoSeed() : []);
   // `seedIfNew` false is for a public page: it never writes, so a visitor's page view cannot seed a collection. Returns whether it is ready.
   async function ready(seedIfNew = true): Promise<boolean> {
     if (!hasDb()) {

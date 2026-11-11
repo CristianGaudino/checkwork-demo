@@ -4,6 +4,7 @@ import { getSettings } from "@/lib/admin/collections";
 import { INTEGRATIONS, isUsable, missingEnv, modeOf } from "@/lib/integrations";
 import { DEALER_ADDRESS_LINES, DEALER_EMAIL, DEALER_PHONE, OPENING_HOURS, SITE_NAME } from "@/lib/site";
 import { removeTeamAction, resetDemoAction } from "./actions";
+import { seedsDemoRecords } from "@/lib/admin/docs";
 
 export const metadata = { title: "Settings" };
 
@@ -93,6 +94,8 @@ export default async function Page() {
         <p className="text-meta text-text-2">Add a missing setting in the Cloudflare dashboard (Workers, Settings, Variables and secrets) and the service connects on the next request.</p>
       </Panel>
 
+      {/* Only where there are made-up records to put back: a real dealer's dashboard has no demo, and the server refuses it there too. */}
+      {seedsDemoRecords() && (
       <Panel title="Demo data">
         <p className="max-w-measure text-body">Put the leads, bookings, reviews, marketing and settings back to how they started.</p>
         <form action={resetDemoAction}>
@@ -101,6 +104,7 @@ export default async function Page() {
           </button>
         </form>
       </Panel>
+      )}
     </>
   );
 }

@@ -1,33 +1,69 @@
 # Starting a new site from this repo
 
-For a new client site, or the generic Checkwork demo (issue #134). The site is built so that the brand and the dealer's facts live in a few places. A test (`src/lib/clone-ready.test.ts`) fails if a page writes the brand, town or phone in by hand, so these stay the only places.
+For a dealer who has signed, or a custom demo before a pitch. The dealer's facts and brand live in a few files, and
+`src/lib/clone-ready.test.ts` fails if a page writes the name, town or phone in by hand, so these stay the only places.
 
-## 1. Create the repo and the board
-1. On GitHub, make a new repo from this one (Use this template), not a fork. Set the template flag on the source repo once.
-2. Copy the issue labels: `gh label clone <owner>/<source-repo> --repo <owner>/<new-repo>`.
-3. Copy the project (its fields, views and column setup, not the items): `gh project copy 6 --source-owner CristianGaudino --target-owner <owner> --title "<new title>"`, then link it to the new repo. Add new issues to it as they are opened.
-4. Issues are not copied. Open the new site's own issues.
+## A custom demo in under an hour
+Keep the demo stock and records; change what the dealer will recognise.
+1. `src/lib/site.ts`: name, domain, slug, phone, email, address, opening hours, social links, warranty, services.
+2. `public/brand/`: the dealer's logo (`logo.svg` for dark, `logo-on-light.svg` for light), `og-default.png` (1200x630), `hero.webp`
+   (1920x819) and `hero-sm.webp` (a car-centred crop of it, 960 wide), `about.webp`.
+3. `src/lib/home.config.ts`: the hero title and line, and how many featured cars, type tiles and make chips the home page shows.
+4. `src/lib/partners.ts`: the makes the dealer sells new (New cars shows them first). Empty if they sell used only.
+5. Colours, only if the dealer has its own: `--color-accent` and `--color-accent-text` in both theme blocks of `src/app/globals.css`.
+   Keep white text on the accent at 4.5:1 or more. Everything else stays the Checkwork palette, so every site reads as one family.
+6. Deploy it as a demo (no `APP_ENV=production`): it stays out of search, its emails say DEMO, and the dashboard has its lived-in records.
 
-## 2. Brand and facts (change these files)
+## A real dealer
+Everything above, then:
+
+### Facts and wording
 | What | Where |
 |---|---|
 | Name, domain, slug, phone, email, address, hours, social links, warranty, services, "facts confirmed" flag | `src/lib/site.ts` |
-| Colours (accent, surface, text), radii | the `@theme` block in `src/app/globals.css` (the hero glow follows the accent) |
-| Font | `src/app/layout.tsx` and `src/app/fonts/` |
-| Logo, share image, hero and about photos | `public/brand/` (`logo.svg`, `logo.png`, `og-default.png`, `hero*.webp`, `about.webp`). `hero-sm.webp` is a car-centred crop of `hero.webp` (sharp `extract` left 960, top 100, width 900, height 700; the phone hero shows it full width above the words): re-cut it whenever the hero photo changes. The Checkwork footer credit stays. |
-| Finance figures and wording | `src/lib/finance/finance.config.ts` (placeholder until the dealer supplies them) |
-| Consent wording | `CONSENT` in `src/lib/leads/constants.ts`. A new brand is new wording: set a new version and add it to the frozen list in `src/lib/leads/consent.test.ts`. |
-| Reviews | set `GOOGLE_PLACE_ID` and `GOOGLE_PLACES_API_KEY`, or keep the labelled demo reviews (`src/lib/reviews/`) |
-| Old-site redirects | `redirects()` in `next.config.ts`, `e2e/redirects.spec.ts`, and the `/sell-your-car 308` line in `.github/workflows/ci.yml`. Delete them for a site with no old pages. |
+| Finance figures and the lender's wording | `src/lib/finance/finance.config.ts` (the dealer supplies them; never invent an APR) |
+| Consent wording | `CONSENT` in `src/lib/leads/constants.ts`. New wording is a new version: add it to the frozen list in `src/lib/leads/consent.test.ts`. |
+| Home page words and counts | `src/lib/home.config.ts` |
+| New car franchises | `src/lib/partners.ts` |
+| Font | `src/app/layout.tsx` and `src/app/fonts/` (Sora for headings, Inter for text, both kept in the repo) |
 
-## 3. Stock
-This demo's stock is written by hand in `scripts/stock/catalogue.mjs`, with photos from the owner's open dataset, and lives in D1. Write a demo `src/lib/stock/demo-cars.json` and `public/stock/` photos you have the right to use, and replace `src/lib/stock/worst-cars.ts` (test text that names the old dealer). A real client uses the stock provider (`StockProvider`, issue #16).
+Set `DEALER_FACTS_CONFIRMED = true` in `site.ts` once the dealer has confirmed the services, warranty and About wording: a production
+deploy fails its tests while it is false.
 
-## 4. Infrastructure names
-- `wrangler.jsonc`: `name`, the self-reference service name, `routes`, the R2 bucket, the D1 database name and id (`npx wrangler d1 create <name> --jurisdiction eu`), the send-email sender in `site.ts` (`LEAD_FROM_EMAIL`).
-- `package.json` `name`, `.github/workflows/ci.yml` (`site=` line), `deploy.yml`.
-- Secrets and variables (names only, see `.env.example`): `LEAD_TO_EMAIL`, `TURNSTILE_SECRET_KEY`, `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `PHOTO_LINK_SECRET`, and optionally the two Google ones. `APP_ENV=production` only on the real site.
-- A demo is never `APP_ENV=production`: it stays noindex and its emails are marked DEMO. For a showcase with no real backends, run with the fake backends the E2E suite uses (`E2E_FAKE_BACKENDS`, never set on a real client's Worker).
+### Stock
+- **Their own uploader:** `NEXT_PUBLIC_STOCK_SOURCE=checkwork`. Staff add and edit cars in the dashboard; the registration lookup fills the basics.
+- **DoneDeal:** `NEXT_PUBLIC_STOCK_SOURCE=donedeal` and `NEXT_PUBLIC_DONEDEAL_DEALER_URL`. The dashboard's stock is read only and every
+  edit button points to DoneDeal. The DoneDeal API is licensed to one dealer's own site with their written consent: get that first. The
+  sync job is written when the key is issued.
+- Replace `src/lib/stock/demo-cars.json` and `public/stock/` with photos you have the right to use, or start the D1 `cars` table empty.
 
-## 5. Words and docs
-Update `README.md`, `AGENTS.md`, `.claude/CLAUDE.md`, `docs/carsie-feed.md`, `docs/lead-retention.md` and `.planning/` so they name the new business. Then run `npm test`, `npm run build` and the E2E suite: they read the name, town and domain from `site.ts`, so they should pass without edits. `consent.test.ts` is the one that needs the new frozen wording.
+### The dashboard
+- It starts empty on a production site (no made-up leads, reviews or team). Staff add the team in Settings, then Lead emails.
+- Cloudflare Access: an application for `/dashboard*` on the dealer's domain, allowing only their staff. Set `CF_ACCESS_TEAM_DOMAIN`,
+  `CF_ACCESS_AUD` and `NEXT_PUBLIC_ACCESS_ENABLED=1`. Without them the dashboard answers 404 (it fails closed).
+- Who sees margins: `ADMIN_MARGINS_EMAILS`.
+
+### Switches for a real site
+`APP_ENV=production`, `NEXT_PUBLIC_DEMO_BAR=off`. Simulation and demo records then turn off by themselves; a service without keys says
+"not connected" in Settings instead of pretending. Every variable is listed, with what it does, in `.env.example`.
+
+### Outside services
+Each is optional and listed in the dashboard (Settings, Connected services) with the variables still missing: lead email, bot check,
+Google reviews, registration lookup (Cartell), Facebook and Instagram, ads, newsletters, analytics. Lead email and the bot check are
+the two a real site needs before it takes a lead.
+
+### Infrastructure names
+- `wrangler.jsonc`: `name`, the self-reference service, `routes`, the R2 bucket, the D1 database name and id
+  (`npx wrangler d1 create <name> --jurisdiction eu`). The sending address is `LEAD_FROM_EMAIL` in `site.ts`, on an onboarded domain.
+- `package.json` `name`, the `site=` line in `.github/workflows/ci.yml`, and the `env` block in `.github/workflows/deploy.yml`.
+
+### Repo and board
+1. On GitHub, make a new repo from this one (Use this template), not a fork.
+2. Copy the labels: `gh label clone <owner>/<source-repo> --repo <owner>/<new-repo>`.
+3. Copy the project (fields and views, not items): `gh project copy <number> --source-owner CristianGaudino --target-owner <owner> --title "<title>"`.
+4. Update `README.md`, `AGENTS.md`, `.claude/CLAUDE.md` and `docs/lead-retention.md` so they name the new business.
+
+### Check it
+`npm test`, `npm run build` and the E2E suite read the name, town and domain from `site.ts`, so they pass without edits; only
+`consent.test.ts` needs the new frozen wording. Then `next dev` with the break-ui switch (Worst case, Empty, One, 1,284 cars) to see the
+pages with the dealer's real data at its edges.

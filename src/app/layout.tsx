@@ -13,6 +13,8 @@ import "./globals.css";
 // Sora, from a file kept in the repo (src/app/fonts): no request to Google when a visitor loads the site, and none when the site is
 // built. One variable file covers every weight; the latin range covers English and Irish.
 const sora = localFont({ src: "./fonts/sora-latin.woff2", weight: "100 800", display: "swap", variable: "--font-sora" });
+// Inter for running text, Sora for headings: the pair the Checkwork company site uses. Kept in the repo the same way.
+const inter = localFont({ src: "./fonts/inter-latin.woff2", weight: "100 900", display: "swap", variable: "--font-inter" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -30,7 +32,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // break-ui: both imports sit inside the dev branch, so a production build leaves them out entirely.
   const dev = process.env.NODE_ENV === "development" ? { Toggle: (await import("@/components/DevDataToggle")).DevDataToggle, mode: await (await import("@/lib/dev-data")).devMode() } : null;
   return (
-    <html lang="en-IE" className={sora.variable} suppressHydrationWarning>
+    <html lang="en-IE" className={`${sora.variable} ${inter.variable}`} suppressHydrationWarning>
       <head>
         {/* Sets a stored dark choice before first paint. */}
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
