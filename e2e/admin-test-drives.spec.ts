@@ -5,7 +5,7 @@ test("bookings are grouped by day, and a request can be confirmed", async ({ pag
   await page.goto("/dashboard/test-drives?status=requested");
   const first = page.getByRole("listitem").filter({ has: page.getByRole("button", { name: "Confirm" }) }).first();
   await expect(first).toBeVisible();
-  const who = (await first.locator("span.font-semibold").first().textContent())!.split("·")[1].trim();
+  const who = (await first.locator("[data-name]").textContent())!.trim();
   await first.getByRole("button", { name: "Confirm" }).click();
   await expect(page.getByText(who)).toHaveCount(0); // it left the Requested list
   await page.goto("/dashboard/test-drives?status=confirmed");
@@ -14,6 +14,7 @@ test("bookings are grouped by day, and a request can be confirmed", async ({ pag
 
 test("a new booking is added, and the same car at the same time is refused", async ({ page }) => {
   await page.goto("/dashboard/test-drives");
+  await page.getByText("Add a booking", { exact: true }).click();
   // A different day each run, so a retry against the same server never meets the booking of the first try.
   const day = `2031-05-${String(1 + (Date.now() % 28)).padStart(2, "0")}`;
   const book = async () => {
@@ -32,6 +33,7 @@ test("a new booking is added, and the same car at the same time is refused", asy
 
 test("a day that has passed is refused", async ({ page }) => {
   await page.goto("/dashboard/test-drives");
+  await page.getByText("Add a booking", { exact: true }).click();
   await page.getByLabel("Name", { exact: true }).fill("Test booker");
   await page.getByLabel("Phone").fill("+353 83 000 1234");
   await choose(page.getByLabel("Car"), 1);
@@ -43,6 +45,7 @@ test("a day that has passed is refused", async ({ page }) => {
 
 test("the form says what is missing", async ({ page }) => {
   await page.goto("/dashboard/test-drives");
+  await page.getByText("Add a booking", { exact: true }).click();
   await page.getByRole("button", { name: "Add booking" }).click();
   await expect(page.getByText("Enter a name")).toBeVisible();
   await expect(page.getByRole("alert").filter({ hasText: "Choose a car" })).toBeVisible();

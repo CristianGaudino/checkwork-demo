@@ -111,7 +111,7 @@ test.describe("on a desktop", () => {
   test("the buy box is the right-hand column, flat, beside the photo and at its height", async ({ page }) => {
     await page.goto(await firstCarHref(page));
     const box = (await buyBox(page).boundingBox())!;
-    const photo = (await page.getByTestId("photo-grid").boundingBox())!; // the four tiles, as one block
+    const photo = (await page.getByTestId("gallery").boundingBox())!; // the photo and its strip, as one block
     expect(box.width).toBeGreaterThan(420);
     expect(box.x).toBeGreaterThan(photo.x + photo.width);
     expect(box.y).toBeLessThan(photo.y + photo.height);
@@ -150,7 +150,7 @@ test.describe("a sold car", () => {
 
 type Rich = Demo & { features: string[]; maxSpeedMph?: number; description: string };
 const rich = (cars as Rich[]).find((c) => !c.soldAt && c.features?.length > 12 && c.maxSpeedMph && c.description?.includes("\n"));
-const ORDER = ["Year", "Mileage", "Fuel", "Transmission", "Body type", "Engine", "Colour", "Doors", "Seats", "Owners", "NCT Expires", "Max speed", "0 to 62 mph"];
+const ORDER = ["Year", "Mileage", "Fuel", "Transmission", "Body type", "Engine", "Colour", "Doors", "Seats", "Owners", "NCT expires", "Max speed", "0 to 62 mph"];
 const section = (page: Page, name: string) => page.locator("section").filter({ has: page.getByRole("heading", { level: 2, name, exact: true }) });
 
 test.describe("the sections below the buy box", () => {

@@ -3,6 +3,7 @@
 import { useSyncExternalStore } from "react";
 import { DEMO_BAR_ENABLED, type DemoRole } from "@/lib/demo";
 import { PERMS_COOKIE, parsePerms, type Permission } from "@/lib/permission-rules";
+import { STOCK_COOKIE, parseStockSource, type StockSource } from "@/lib/stock-source-rules";
 import { SITE_SLUG } from "@/lib/site";
 
 // How the demo is being viewed on the public pages, remembered in this browser: as a customer, or as the dealer's staff (who then get a
@@ -44,3 +45,13 @@ export function setDemoPermission(permission: Permission, on: boolean) {
 }
 
 export const useDemoPermissions = () => useSyncExternalStore(subscribe, () => cookieValue(), () => "");
+
+// The demo's stock switch: our own uploader, or stock synced from DoneDeal (src/lib/stock-source.ts).
+const stockValue = () => parseStockSource(document.cookie.split("; ").find((c) => c.startsWith(`${STOCK_COOKIE}=`))?.slice(STOCK_COOKIE.length + 1));
+export function setDemoStockSource(source: StockSource) {
+  document.cookie = `${STOCK_COOKIE}=${source}; path=/; max-age=31536000; samesite=lax`;
+  notify();
+}
+// On a real site the build's setting; on the demo the switch.
+export const useStockSource = () =>
+  useSyncExternalStore(subscribe, () => (DEMO_BAR_ENABLED ? stockValue() : parseStockSource(process.env.NEXT_PUBLIC_STOCK_SOURCE)), () => parseStockSource(process.env.NEXT_PUBLIC_STOCK_SOURCE));

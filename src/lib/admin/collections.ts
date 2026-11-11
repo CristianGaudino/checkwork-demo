@@ -14,9 +14,9 @@ import { carTitleOf, livePicks, person, rng } from "./seed-data";
 export const LEAD_STATUSES = ["new", "contacted", "appointment", "won", "lost"] as const;
 export type LeadStatus = (typeof LEAD_STATUSES)[number];
 export const LEAD_STATUS_LABELS: Record<LeadStatus, string> = { new: "New", contacted: "Contacted", appointment: "Appointment set", won: "Won", lost: "Lost" };
-export const LEAD_TYPES = ["enquiry", "test-drive", "finance", "trade-in", "find-a-car", "general"] as const;
+export const LEAD_TYPES = ["enquiry", "test-drive", "finance", "trade-in", "sell", "find-a-car", "general"] as const;
 export type LeadType = (typeof LEAD_TYPES)[number];
-export const LEAD_TYPE_LABELS: Record<LeadType, string> = { enquiry: "Car enquiry", "test-drive": "Test drive", finance: "Finance", "trade-in": "Trade-in", "find-a-car": "Find a car", general: "General" };
+export const LEAD_TYPE_LABELS: Record<LeadType, string> = { enquiry: "Car enquiry", "test-drive": "Test drive", finance: "Finance", "trade-in": "Trade-in", sell: "Selling a car", "find-a-car": "Find a car", general: "General" };
 export const LEAD_SOURCES = ["Website", "WhatsApp", "Phone", "Facebook", "Google"] as const;
 
 export type Lead = {
@@ -47,6 +47,7 @@ const MESSAGES: Record<LeadType, string[]> = {
   "test-drive": ["Could I drive it on Saturday morning?", "Free after 5pm most days this week."],
   finance: ["What would the monthly payment be with 10% down?", "Looking at 48 months. Can you come back to me with options?"],
   "trade-in": ["I have a 2016 hatchback with 90,000 km to trade in against this.", "How much would you give me for my current car?"],
+  sell: ["Selling my 2018 Golf, 110,000 km, full service history.", "Not buying right now, just want to sell my car."],
   "find-a-car": ["Looking for a diesel estate under 15k, low mileage.", "Want an automatic SUV, family car, around 20k."],
   general: ["What time do you close on Saturday?", "Do you do servicing as well?"],
 };

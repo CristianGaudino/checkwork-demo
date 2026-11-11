@@ -261,7 +261,7 @@ export function LeadForm({
                   <p className="font-semibold text-destructive">This car has just been sold.</p>
                   <p className="text-meta">
                     <Link href="/used-cars" className="font-semibold underline">
-                      See the Cars We Have
+                      See the cars we have
                     </Link>
                   </p>
                 </>

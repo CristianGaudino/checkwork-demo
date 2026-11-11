@@ -217,3 +217,59 @@ export const CameraIcon = (p: Props) => (
     <circle cx="12" cy="13" r="3.2" />
   </Icon>
 );
+
+// Dashboard navigation and row actions.
+export const HomeIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" />
+  </Icon>
+);
+export const InboxIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M4 13.5 6.5 5h11l2.5 8.5M4 13.5V19a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-5.5M4 13.5h4.5l1 2h5l1-2H20" />
+  </Icon>
+);
+export const UsersIcon = (p: Props) => (
+  <Icon {...p}>
+    <circle cx="9" cy="8.5" r="3.5" />
+    <path d="M3 19.5c.7-3.2 3.1-5 6-5s5.3 1.8 6 5M15.5 5.2a3.5 3.5 0 0 1 0 6.6M17.5 14.8c1.8.6 3.1 2.2 3.5 4.7" />
+  </Icon>
+);
+export const MegaphoneIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M4 10v4a1 1 0 0 0 1 1h3l7 4V5L8 9H5a1 1 0 0 0-1 1zM8 15l1.5 5M18 9.5a3 3 0 0 1 0 5" />
+  </Icon>
+);
+export const ChartIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M4 20h16M7 16v-5M12 16V7M17 16v-8" />
+  </Icon>
+);
+export const PercentIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M18 6 6 18" />
+    <circle cx="7.5" cy="7.5" r="2.5" />
+    <circle cx="16.5" cy="16.5" r="2.5" />
+  </Icon>
+);
+export const CogIcon = (p: Props) => (
+  <Icon {...p}>
+    <circle cx="12" cy="12" r="3" />
+    <path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8" />
+  </Icon>
+);
+export const ExternalIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />
+  </Icon>
+);
+export const TrashIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 12.5h9l1-12.5M10 11v5M14 11v5" />
+  </Icon>
+);
+export const SyncIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M20 12a8 8 0 0 1-14 5.3M4 12a8 8 0 0 1 14-5.3M18 3v4h-4M6 21v-4h4" />
+  </Icon>
+);

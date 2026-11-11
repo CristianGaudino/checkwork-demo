@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSyncExternalStore } from "react";
 import { DEMO_ROLES, THEME_KEY, isAppPath, roleForPath, type Theme } from "@/lib/demo";
-import { setDemoPermission, setDemoRole, useDemoPermissions, useDemoRole } from "@/lib/demo-role";
+import { setDemoPermission, setDemoRole, setDemoStockSource, useDemoPermissions, useDemoRole, useStockSource } from "@/lib/demo-role";
 import { parsePerms } from "@/lib/permission-rules";
 import { press } from "@/components/ui";
 
@@ -35,10 +35,11 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
   const role = inApp ? roleForPath(path) : saved;
   const theme = useSyncExternalStore(subscribe, read, () => "light" as Theme);
   const margins = parsePerms(useDemoPermissions()).includes("margins");
+  const donedeal = useStockSource() === "donedeal";
   return (
     <div data-demo-bar className="theme-dark relative z-40 border-b border-hairline bg-band text-meta text-text">
       <div className="mx-auto flex min-h-11 max-w-page flex-wrap items-center justify-between gap-x-1 px-2 sm:gap-x-3 sm:px-6 lg:px-8">
-        <nav aria-label="View the demo as" className="flex items-center">
+        <nav aria-label="View the demo as" className="flex flex-wrap items-center gap-y-1 py-1 sm:py-0">
           <span className="hidden text-text-2 sm:inline">View as</span>
           {DEMO_ROLES.filter((r) => showAreas || r.id === "customer").map((r) => (
             <Link
@@ -67,9 +68,23 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
                 setDemoPermission("margins", !margins);
                 router.refresh();
               }}
-              className={`ml-1 flex h-8 items-center rounded-full border px-3 text-meta ${margins ? "border-accent bg-accent text-on-accent" : "border-hairline text-text-2"} ${press}`}
+              className={`ml-0.5 flex h-8 shrink-0 items-center rounded-full border px-2 text-meta sm:ml-1 sm:px-3 ${margins ? "border-accent bg-accent text-on-accent" : "border-hairline text-text-2"} ${press}`}
             >
-              Margins {margins ? "on" : "off"}
+              Margins<span className="sr-only sm:not-sr-only"> {margins ? "on" : "off"}</span>
+            </button>
+          )}
+          {role === "dealer" && showAreas && (
+            // Where the stock comes from: added here, or synced from DoneDeal and read only here (src/lib/stock-source.ts).
+            <button
+              type="button"
+              aria-pressed={donedeal}
+              onClick={() => {
+                setDemoStockSource(donedeal ? "checkwork" : "donedeal");
+                router.refresh();
+              }}
+              className={`ml-0.5 flex h-8 shrink-0 items-center rounded-full border px-2 text-meta sm:ml-1 sm:px-3 ${donedeal ? "border-accent bg-accent text-on-accent" : "border-hairline text-text-2"} ${press}`}
+            >
+              DoneDeal<span className="sr-only sm:not-sr-only"> {donedeal ? "on" : "off"}</span>
             </button>
           )}
         </nav>

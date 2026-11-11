@@ -44,7 +44,7 @@ export default async function ContactPage() {
           )}
           <section data-wells className={`order-3 flex flex-col gap-4 ${card} p-5 sm:p-6`}>
             <h2 className={subTitle}>Send us a message</h2>
-            <LeadPageForm type="general" submitLabel="Send message" success={MESSAGE_SENT} />
+            <LeadPageForm form="general" submitLabel="Send message" success={MESSAGE_SENT} />
           </section>
         </div>
         <div className="flex flex-col gap-6 max-lg:contents">

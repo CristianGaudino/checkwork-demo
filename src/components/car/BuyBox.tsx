@@ -3,7 +3,7 @@ import { ShareButton } from "@/components/car/ShareButton";
 import { CompareButton } from "@/components/compare/CompareButton";
 import { LeadActions, StockAlertButton } from "@/components/leads/LeadDialog";
 import { SaveButton } from "@/components/saved/SaveButton";
-import { CalendarIcon, CarIcon, FuelIcon, GaugeIcon, GearIcon, ShieldCheckIcon } from "@/components/stock/icons";
+import { CalendarIcon, CarIcon, FuelIcon, GaugeIcon, GearIcon, ShieldCheckIcon, SwapIcon } from "@/components/stock/icons";
 import { DEALER_WHATSAPP, NEW_CAR_WARRANTY, SITE_URL, WARRANTY } from "@/lib/site";
 import { priceInfo } from "@/lib/stock/price";
 import { PriceBlock } from "@/components/stock/PriceBlock";
@@ -27,7 +27,8 @@ export function BuyBox({ car }: { car: Car }) {
     <div data-testid="buy-box" className="flex flex-col gap-5">
       <div className="flex items-start justify-between gap-3">
         {/* Make and model large, the variant under it: a 60 character variant would otherwise fill a phone screen. The text reads as carTitle. */}
-        <h1 className="min-w-0 break-words text-display font-bold">
+        {/* A long make and model (a 40 character van name) steps down a size on a phone, so no word is split in the middle. */}
+        <h1 className={`min-w-0 break-words font-bold ${`${car.make} ${car.model}`.length > 24 ? "text-heading sm:text-display" : "text-display"}`}>
           {car.make} {car.model}
           {car.variant && (
             <>
@@ -77,6 +78,11 @@ export function BuyBox({ car }: { car: Car }) {
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <CompareButton id={car.id} label={`Compare ${carName(car)}`} sizing="flex h-12 w-full px-4" />
           <StockAlertButton car={carSummary(car)} kind="price-drop" />
+          {/* The trade-in door with this car already chosen. */}
+          <Link href={`/trade-in?car=${car.slug}`} className="inline-flex min-h-11 items-center gap-2 text-meta font-medium text-accent-text underline sm:col-span-2">
+            <SwapIcon className="size-4" />
+            Trade in your car against this one
+          </Link>
         </div>
       )}
       {!sold && (

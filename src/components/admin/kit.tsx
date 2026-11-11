@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { useId } from "react";
+import { SearchIcon } from "@/components/stock/icons";
 import { card, press } from "@/components/ui";
 
 // The admin kit: the few pieces every admin page is made of. Same tokens as the site, denser and calmer.
@@ -69,7 +70,7 @@ const TONES = { neutral: "bg-hairline text-text", good: "bg-ok-soft text-ok", wa
 export type Tone = keyof typeof TONES;
 // A short status in words, never a colour alone.
 export function Badge({ tone = "neutral", children }: { tone?: Tone; children: React.ReactNode }) {
-  return <span className={`inline-flex h-6 items-center whitespace-nowrap rounded-full px-2.5 text-meta font-semibold ${TONES[tone]}`}>{children}</span>;
+  return <span className={`inline-flex h-6 items-center whitespace-nowrap rounded-full px-2.5 text-meta font-medium ${TONES[tone]}`}>{children}</span>;
 }
 
 export function EmptyState({ title, text, action }: { title: string; text?: string; action?: React.ReactNode }) {
@@ -87,30 +88,32 @@ const HIDE = { sm: "hidden sm:table-cell", md: "hidden md:table-cell", lg: "hidd
 export type Column<T> = { key: string; header: string; cell: (row: T) => React.ReactNode; align?: "right"; className?: string; hide?: keyof typeof HIDE; nowrap?: boolean };
 const colClass = (c: Column<unknown>) => `${c.hide ? HIDE[c.hide] : ""} ${c.nowrap ? "whitespace-nowrap" : ""}`;
 
-// A table that scrolls sideways inside its card on a phone and never makes the page scroll.
-// `bare` drops the table's own card, for use inside a Panel. `linkRows`: each row is one link, the one with `after:absolute after:inset-0` in its first cell, so the whole row is clickable.
-export function DataTable<T>({ columns, rows, rowKey, empty, bare = false, linkRows = false }: { columns: Column<T>[]; rows: T[]; rowKey: (row: T) => string; empty?: React.ReactNode; bare?: boolean; linkRows?: boolean }) {
+// The dealer's tables: every other row filled, so a long list is easy to follow across; 48px rows; numbers on the right in even figures.
+// A table wider than its card scrolls sideways inside it at every width, so no column or button is ever cut off.
+// `bare` drops the table's own card, for use inside a Panel. `linkRows`: each row is one link, the one with `after:absolute after:inset-0`
+// in its first cell, so the whole row is clickable.
+export function DataTable<T>({ columns, rows, rowKey, empty, bare = false, linkRows = false, label }: { columns: Column<T>[]; rows: T[]; rowKey: (row: T) => string; empty?: React.ReactNode; bare?: boolean; linkRows?: boolean; label?: string }) {
   const frame = bare ? "" : card;
   if (rows.length === 0) return <div className={frame}>{empty ?? <EmptyState title="Nothing here yet" />}</div>;
   return (
     // Focusable, so a keyboard user can scroll it sideways on a phone.
-    <div tabIndex={0} className={`${frame} overflow-x-auto`}>
+    <div tabIndex={0} aria-label={label} className={`${frame} overflow-x-auto`}>
       <table className="w-full min-w-[22rem] border-collapse text-left text-body">
         <thead>
-          <tr className="border-b border-hairline text-meta text-text-2">
+          <tr className="text-meta text-text-2">
             {columns.map((c) => (
-              <th key={c.key} scope="col" className={`relative px-4 py-3 font-semibold ${c.align === "right" ? "text-right" : ""} ${colClass(c as Column<unknown>)}`}>
+              <th key={c.key} scope="col" className={`relative z-10 h-11 border-b border-hairline bg-card px-4 font-medium ${c.align === "right" ? "text-right" : ""} ${colClass(c as Column<unknown>)}`}>
                 {/* The screen reader text is positioned inside this cell (relative above), so the scroll box clips it and it cannot widen the page. */}
                 {c.header || <span className="sr-only">Actions</span>}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-hairline">
+        <tbody>
           {rows.map((r) => (
-            <tr key={rowKey(r)} className={`align-top ${linkRows ? "relative transition-colors hover:bg-surface" : ""}`}>
+            <tr key={rowKey(r)} className={`even:bg-row-alt ${linkRows ? "relative transition-colors hover:bg-surface" : ""}`}>
               {columns.map((c) => (
-                <td key={c.key} className={`px-4 py-3 ${c.align === "right" ? "text-right tabular-nums" : ""} ${c.className ?? ""} ${colClass(c as Column<unknown>)}`}>
+                <td key={c.key} className={`h-12 px-4 py-2 align-middle ${c.align === "right" ? "text-right tabular-nums" : ""} ${c.className ?? ""} ${colClass(c as Column<unknown>)}`}>
                   {c.cell(r)}
                 </td>
               ))}
@@ -122,7 +125,75 @@ export function DataTable<T>({ columns, rows, rowKey, empty, bare = false, linkR
   );
 }
 
-// Filter links: the filter lives in the URL, so a filtered list can be shared and the back button works.
+// The summary that is also the filter: one tile per view, its count, and the chosen one filled. The filter lives in the URL, so a filtered
+// list can be shared and the back button works. Never a row of numbers above a separate row of chips.
+export type SummaryTab = { label: string; href: string; active: boolean; count?: number | string; hint?: string };
+export function SummaryTabs({ items, label = "Filter" }: { items: SummaryTab[]; label?: string }) {
+  return (
+    <nav aria-label={label} className="scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-[repeat(auto-fit,minmax(9rem,1fr))] sm:overflow-visible sm:px-0">
+      {items.map((i) => (
+        <Link
+          key={i.label}
+          href={i.href}
+          aria-current={i.active ? "true" : undefined}
+          className={`flex min-w-32 shrink-0 flex-col gap-0.5 rounded-card border px-4 py-3 transition-colors ${i.active ? "border-accent bg-accent text-on-accent" : "border-hairline bg-card text-text hover:border-control"} ${press}`}
+        >
+          <span className={`text-meta ${i.active ? "" : "text-text-2"}`}>{i.label}</span>
+          {i.count !== undefined && <span className="text-heading font-semibold tabular-nums">{i.count}</span>}
+          {i.hint && <span className={`text-meta ${i.active ? "" : "text-text-2"}`}>{i.hint}</span>}
+        </Link>
+      ))}
+    </nav>
+  );
+}
+
+// A search that is its own small form: the box with an icon, Enter to search. `keep` carries the page's other filters along.
+export function SearchBar({ action, name = "q", value, placeholder, label, keep = {} }: { action: string; name?: string; value?: string; placeholder: string; label: string; keep?: Record<string, string | undefined> }) {
+  return (
+    <form action={action} method="get" role="search" className="relative w-full sm:max-w-sm">
+      {Object.entries(keep).map(([k, v]) => v && <input key={k} type="hidden" name={k} value={v} />)}
+      <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-text-2" />
+      <input type="search" name={name} defaultValue={value} placeholder={placeholder} aria-label={label} enterKeyHint="search" className={`${adminInput} w-full pl-10`} />
+    </form>
+  );
+}
+
+// Long lists in pages, so a dealer with a big stock or a busy year of leads gets a page that loads fast and reads well. `page` is
+// 1-based and clamped, so a stale link past the end shows the last page, never an empty one.
+export const PAGE_SIZE = 50;
+export function paginate<T>(rows: T[], asked: string | undefined, size = PAGE_SIZE) {
+  const pageCount = Math.max(1, Math.ceil(rows.length / size));
+  const page = Math.min(pageCount, Math.max(1, Number.parseInt(asked ?? "1", 10) || 1));
+  return { rows: rows.slice((page - 1) * size, page * size), page, pageCount, total: rows.length };
+}
+
+export function Pager({ page, pageCount, total, href }: { page: number; pageCount: number; total: number; href: (page: number) => string }) {
+  if (pageCount <= 1) return null;
+  return (
+    <nav aria-label="Pages" className="flex flex-wrap items-center justify-between gap-3">
+      <p className="text-meta text-text-2">
+        Page {page} of {pageCount}, {total} in all
+      </p>
+      <div className="flex gap-2">
+        {page > 1 && (
+          <Link href={href(page - 1)} className={rowButton}>
+            Previous
+          </Link>
+        )}
+        {page < pageCount && (
+          <Link href={href(page + 1)} className={rowButton}>
+            Next
+          </Link>
+        )}
+      </div>
+    </nav>
+  );
+}
+
+// A small button in a table row: always a word, sometimes an icon before it.
+export const rowButton = `inline-flex h-10 items-center justify-center gap-1.5 whitespace-nowrap rounded-control border border-hairline bg-card px-3 text-meta font-medium text-text transition-colors hover:border-control ${press}`;
+
+// Filter links as chips: for a second, smaller filter under SummaryTabs (lead type, review rating).
 export function FilterTabs({ items, label = "Filter" }: { items: { label: string; href: string; active: boolean; count?: number }[]; label?: string }) {
   return (
     <nav aria-label={label} className="scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
@@ -131,10 +202,10 @@ export function FilterTabs({ items, label = "Filter" }: { items: { label: string
           key={i.label}
           href={i.href}
           aria-current={i.active ? "true" : undefined}
-          className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-meta font-semibold ${i.active ? "border-accent bg-accent text-on-accent" : "border-control"} ${press}`}
+          className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-meta font-medium ${i.active ? "border-text bg-text text-ink" : "border-hairline bg-card hover:border-control"} ${press}`}
         >
           {i.label}
-          {i.count !== undefined && <span className="tabular-nums font-normal">{i.count}</span>}
+          {i.count !== undefined && <span className="tabular-nums">{i.count}</span>}
         </Link>
       ))}
     </nav>

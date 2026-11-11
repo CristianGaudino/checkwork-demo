@@ -131,7 +131,9 @@ export async function processLead(fd: FormData, ctx: { ip: string }, deps: Deps)
       return { status: "failed", kind: "captcha" };
     }
 
-    const car = await snapshotCar("carId" in input ? input.carId : undefined, deps.getCar, input.type === "alert");
+    const asked = await snapshotCar("carId" in input ? input.carId : undefined, deps.getCar, input.type === "alert");
+    // A valuation is a lead with or without a car of ours: one whose chosen car sold meanwhile is kept, as a valuation with no car.
+    const car = asked ?? (input.type === "trade_in" ? await snapshotCar(undefined, deps.getCar) : null);
     if (!car) {
       logLead({ type: input.type, outcome: "invalid" });
       return { status: "failed", kind: "gone" }; // sold or removed since the buyer opened the form
@@ -151,7 +153,10 @@ export async function processLead(fd: FormData, ctx: { ip: string }, deps: Deps)
       phone: input.phone ?? null,
       email: input.email ?? null,
       message: input.message ?? null,
-      details: Object.fromEntries(Object.entries(input).filter(([k, v]) => Object.hasOwn(DETAIL_LABELS, k) && v !== undefined)),
+      // A car of ours named on the valuation makes it a trade-in, whichever door it came through.
+      details: Object.fromEntries(
+        Object.entries(input.type === "trade_in" && car.carId ? { ...input, intent: "trade" } : input).filter(([k, v]) => Object.hasOwn(DETAIL_LABELS, k) && v !== undefined),
+      ),
       photoKeys: [],
       consentAt: new Date(),
       consentVersion: CONSENT.version,

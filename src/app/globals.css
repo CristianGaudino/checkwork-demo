@@ -44,6 +44,7 @@
      names under [data-theme="dark"] below: a deep teal-black with warm light. */
   --color-surface: #ebe8e1;
   --color-card: #f8f6f2;
+  --color-row-alt: #f0ede6; /* every other table row, between card and surface */
   --color-ink: #ffffff; /* the inverse of text: for words on a bg-text pill */
   --color-band: #0a1a1f; /* a band that stays dark in both themes (footer, demo bar, photo overlays) */
   --color-accent: #4f46e5; /* the fill of buttons and chips, with white text on it */
@@ -95,6 +96,7 @@
   --color-accent: #6159ec; /* white button text on it reaches 4.5:1 */
   --color-accent-text: #9c97ff; /* accent text on the teal-black reaches 4.5:1 */
   --color-card: #112a31;
+  --color-row-alt: #153138;
   --color-ink: #0a1a1f;
   --color-text: #f3f1ec;
   --color-text-2: #a9b8bc;
@@ -488,13 +490,6 @@ input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
 }
 
 /* The finance band on the home page: a soft panel with a glow in the accent colour. */
-.hero-bg {
-  background:
-    radial-gradient(70% 90% at 92% 0%, color-mix(in srgb, var(--color-accent) 22%, transparent), transparent 65%),
-    radial-gradient(50% 60% at 0% 100%, color-mix(in srgb, var(--color-accent) 8%, transparent), transparent 70%),
-    linear-gradient(180deg, color-mix(in srgb, var(--color-text) 6%, var(--color-surface)) 0%, var(--color-surface) 100%);
-}
-
 /* Stock list view (the toggle on /used-cars): one column of wide cards, photo on the left. From 1024px only, where the toggle shows,
    so a choice made on a desktop never sticks on a tablet with no way back. Unlayered so it beats the grid utilities. */
 @media (min-width: 1024px) {

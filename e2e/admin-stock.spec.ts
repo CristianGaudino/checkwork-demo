@@ -5,12 +5,15 @@ import { choose } from "./combo";
 // deleted at the end whatever happens.
 const MAKE = "Zztest";
 
+// The row buttons (Edit, Mark sold) are a desktop table's; on a phone the row itself opens the car.
+test.use({ viewport: { width: 1280, height: 800 }, isMobile: false, hasTouch: false });
+
 test.afterEach(async ({ page }) => {
   await page.goto("/dashboard/stock?status=all&q=" + MAKE);
   const row = page.getByRole("row", { name: new RegExp(MAKE) });
   while ((await row.count()) > 0) {
-    await page.getByText("Delete a car for good").click();
-    await page.getByRole("button", { name: "Delete" }).first().click();
+    await row.first().getByRole("link", { name: /^Edit / }).click();
+    await page.getByRole("button", { name: /^Delete / }).click();
     await page.goto("/dashboard/stock?status=all&q=" + MAKE);
   }
 });
@@ -55,11 +58,11 @@ test("add a car, see it on the site with its VAT line, change its price to a dro
   await page.getByRole("button", { name: "Mark sold" }).click();
   await expect(page.getByRole("row", { name: new RegExp(MAKE) })).toHaveCount(0);
   await page.goto("/dashboard/stock?status=sold&q=" + MAKE);
-  await expect(page.getByRole("row", { name: new RegExp(MAKE) })).toContainText("Sold");
+  await expect(page.getByRole("row", { name: new RegExp(MAKE) }).getByRole("button", { name: "Back on sale" })).toBeVisible();
 
-  // Delete: gone from the dealer's list and from the site.
-  await page.getByText("Delete a car for good").click();
-  await page.getByRole("button", { name: "Delete" }).first().click();
+  // Delete, from the car's own page: gone from the dealer's list and from the site.
+  await page.getByRole("row", { name: new RegExp(MAKE) }).getByRole("link", { name: /^Edit / }).click();
+  await page.getByRole("button", { name: /^Delete / }).click();
   await expect(page.getByRole("status")).toHaveText("Car deleted.");
   await expect(page.getByRole("row", { name: new RegExp(MAKE) })).toHaveCount(0);
 });

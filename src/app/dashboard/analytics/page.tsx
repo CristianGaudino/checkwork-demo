@@ -51,7 +51,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
             rows={a.sources}
             rowKey={(s) => s.name}
             columns={[
-              { key: "name", header: "Source", cell: (s) => <span className="font-semibold">{s.name}</span> },
+              { key: "name", header: "Source", cell: (s) => <span className="font-medium">{s.name}</span> },
               { key: "v", header: "Visitors", align: "right", cell: (s) => fmtNum(s.visitors) },
               { key: "l", header: "Leads", align: "right", cell: (s) => fmtNum(s.leads) },
               { key: "c", header: "Rate", align: "right", cell: (s) => fmtPct(s.visitors ? (s.leads / s.visitors) * 100 : 0) },

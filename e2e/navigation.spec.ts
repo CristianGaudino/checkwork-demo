@@ -16,11 +16,12 @@ const HEADER = [
   ["Contact", "/contact"],
 ] as const;
 const SECTIONS = [["Used cars", "/used-cars"], ["New cars", "/new-cars"], ["Commercial", "/commercial"]] as const;
-const MENU = [...SECTIONS, ["Test drive", "/test-drive"], HEADER[0], HEADER[1], ["Find a car", "/find-a-car"], ["Compare cars", "/compare"], ...HEADER.slice(2)] as const;
+const MENU = [...SECTIONS, ["Test drive", "/test-drive"], HEADER[0], HEADER[1], ["Sell your car", "/sell-your-car"], ["Find a car", "/find-a-car"], ["Compare cars", "/compare"], ...HEADER.slice(2)] as const;
 const FOOTER = [
   ["Used cars", "/used-cars"],
   ["Finance", "/finance"],
-  ["Trade-in Valuation", "/trade-in"],
+  ["Trade in your car", "/trade-in"],
+  ["Sell your car", "/sell-your-car"],
   ["Find a car", "/find-a-car"],
   ["Service", "/service"],
   ["Warranty", "/warranty"],

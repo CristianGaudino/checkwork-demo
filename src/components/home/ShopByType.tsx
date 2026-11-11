@@ -2,11 +2,12 @@ import Link from "next/link";
 import { ArrowRightIcon } from "@/components/stock/icons";
 import { card, press, sectionTitle } from "@/components/ui";
 import { VEHICLE_TYPES } from "@/lib/nav";
+import { countLabel } from "@/lib/stock/format";
 
 type Option = { slug: string; label: string };
 
 // "Shop by type": one tile per body type that has a car in stock now, each opening the stock filtered to it.
-export function ShopByType({ bodies }: { bodies: Option[] }) {
+export function ShopByType({ bodies, counts = {} }: { bodies: Option[]; counts?: Record<string, number> }) {
   // New cars and vans first (once those sections are on), then each body type that has a car in stock.
   const items = [
     ...VEHICLE_TYPES.filter((t) => t.enabled && t.condition !== "used").map((t) => ({ key: t.id, href: t.href, label: t.id === "commercial" ? "Vans" : `${t.label} cars` })),
@@ -21,7 +22,10 @@ export function ShopByType({ bodies }: { bodies: Option[] }) {
           <li key={b.key}>
             <Link href={b.href} className={`${card} flex min-h-24 flex-col justify-between p-4 transition-shadow hover:shadow-lift ${press}`}>
               <span className="text-body font-semibold">{b.label}</span>
-              <ArrowRightIcon aria-hidden="true" className="size-5 text-accent-text" />
+              <span className="flex items-center justify-between gap-2 text-meta text-text-2">
+                {counts[b.key] !== undefined && countLabel(counts[b.key])}
+                <ArrowRightIcon aria-hidden="true" className="ml-auto size-5 text-accent-text" />
+              </span>
             </Link>
           </li>
         ))}

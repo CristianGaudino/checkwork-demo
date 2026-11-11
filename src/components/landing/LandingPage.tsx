@@ -103,7 +103,7 @@ export function LandingPage({ data }: { data: LandingData }) {
               <h2 className={subTitle}>Not quite right?</h2>
               <p className="text-body text-text-2">Tell us what you&apos;re looking for and we&apos;ll look for it.</p>
               <Link href="/find-a-car" className={`inline-flex h-12 items-center px-6 ${secondaryButton}`}>
-                Find Me a Car
+                Find me a car
               </Link>
             </div>
           </div>

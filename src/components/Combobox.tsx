@@ -3,11 +3,10 @@
 import { MakeLogo } from "@/components/MakeLogo";
 import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { CheckIcon, ChevronDownIcon } from "@/components/stock/icons";
+import { fold } from "@/lib/stock/format";
 
 export type ComboOption = { value: string; label: string; logo?: string }; // `logo`: a make slug, shown beside the label
 
-// Search ignores case and accents, as the stock search does.
-const fold = (s: string) => s.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
 // Typing is for a mouse and keyboard, on a list of any length: it narrows as you type. A touch screen only picks, so no keyboard rises over the list.
 // False until read, so the server and first paint match.
 const FINE = "(hover: hover) and (pointer: fine)";
@@ -21,6 +20,8 @@ const LIST_MAX_PX = 288;
 const LIST_MIN_PX = 120;
 const LIST_ROOM_PX = 300;
 const LIST_GAP_PX = 4;
+const LONG_LIST = 30;
+const SHOWN_MAX = 100;
 
 // Where the open list sits, in viewport coordinates: it is in the top layer (a popover), so no scrolling or clipping ancestor
 // (the filter panel, a dialog's body) can cut it off.
@@ -69,9 +70,13 @@ export function Combobox({
   const [active, setActive] = useState(0);
   const [place, setPlace] = useState<Place>();
   const root = useRef<HTMLDivElement>(null);
+  const pressed = useRef(false);
   const fine = useSyncExternalStore(watchFine, () => window.matchMedia(FINE).matches, () => false);
-  const typeable = fine;
-  const shown = useMemo(() => (typed ? options.filter((o) => fold(o.label).includes(fold(typed))) : options), [options, typed]);
+  // A long list (a dealer's whole stock) can be typed into on a phone too: scrolling 1,000 options is worse than a keyboard over the list.
+  const typeable = fine || options.length > LONG_LIST;
+  const matching = useMemo(() => (typed ? options.filter((o) => fold(o.label).includes(fold(typed))) : options), [options, typed]);
+  // At most SHOWN_MAX options are drawn at once; the rest are reached by typing.
+  const shown = matching.length > SHOWN_MAX ? matching.slice(0, SHOWN_MAX) : matching;
 
   const measure = useCallback(() => {
     const r = root.current?.getBoundingClientRect();
@@ -124,6 +129,18 @@ export function Combobox({
     onChange?.(o.value);
     close();
   };
+
+  // Any press outside the field and its list closes it. Blur alone missed presses that keep the focus where it is: the field's own <label>,
+  // plain text, a scrollbar.
+  useEffect(() => {
+    if (!open) return;
+    const outside = (e: PointerEvent) => {
+      const t = e.target as Node;
+      if (!root.current?.contains(t) && !document.getElementById(listId)?.contains(t)) close();
+    };
+    document.addEventListener("pointerdown", outside, true);
+    return () => document.removeEventListener("pointerdown", outside, true);
+  }, [open, listId]);
 
   useEffect(() => {
     if (open) document.getElementById(`${uid}-opt-${active}`)?.scrollIntoView({ block: "nearest" });
@@ -184,9 +201,16 @@ export function Combobox({
           setOpen(true);
         }}
         onFocus={(e) => typeable && e.currentTarget.select()}
-        onClick={() => {
-          if (!open) show();
-          else if (!typeable) close();
+        // A second press on the field closes it, as a browser's own drop-down does. Typing opens it again. A click the field's <label>
+        // passes on (a press on the label text) only focuses it: `pressed` is set by a real press on the field itself.
+        // A label passes the press on with detail 1, so it is still ignored.
+        onPointerDown={() => (pressed.current = true)}
+        onClick={(e) => {
+          // detail 0: a click from the keyboard or a screen reader (VoiceOver's activate), which has no press before it.
+          if (!pressed.current && e.detail !== 0) return;
+          pressed.current = false;
+          if (open) close();
+          else show();
         }}
         onKeyDown={onKeyDown}
         className={`${size === "md" ? "h-11" : "h-12"} w-full min-w-0 cursor-pointer truncate rounded-control border border-control py-0 pl-4 pr-12 text-body ${tone === "card" ? "bg-card" : "bg-surface"} aria-[invalid=true]:border-destructive ${className}`}
@@ -226,6 +250,11 @@ export function Combobox({
               {o.value === current && <CheckIcon className="size-4 shrink-0" />}
             </li>
           ))}
+          {matching.length > shown.length && (
+            <li role="presentation" className="px-3 py-2.5 text-meta text-text-2">
+              {matching.length - shown.length} more. Type to narrow the list.
+            </li>
+          )}
         </ul>
       )}
     </div>

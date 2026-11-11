@@ -21,20 +21,19 @@ describe("CarGallery", () => {
     expect(html).not.toContain("Next photo");
   });
 
-  it("three photos: counter and both arrows on the phone row, and a tile grid for a desktop", () => {
+  it("three photos: counter and both arrows, and a strip with every photo", () => {
     const html = render(3);
     expect(html).toContain("1 / 3");
-    expect(html).toContain('data-testid="photo-grid"');
-    expect(html.match(/aria-label="View photo \d of 3 larger"/g)).toHaveLength(6); // three in the row, three in the grid
+    expect(html.match(/aria-label="View photo \d of 3 larger"/g)).toHaveLength(3);
+    expect(html.match(/aria-label="Show photo \d of 3"/g)).toHaveLength(3);
     expect(html.match(/<button[^>]*aria-label="Previous photo"[^>]*>/)![0]).toContain('aria-disabled="true"');
     expect(html).toContain('alt="2019 Audi A4, photo 2 of 3"');
   });
 
-  it("the grid shows four tiles at most, and says Show all on the last when there are more", () => {
+  it("every photo is reachable: six photos, six thumbnails, nothing hidden behind Show all", () => {
     const html = render(6);
-    expect(html.match(/data-testid="photo-grid"[\s\S]*$/)![0].match(/aria-label="View photo \d of 6 larger"/g)).toHaveLength(4);
-    expect(html).toContain("Show all 6 photos");
-    expect(render(4)).not.toContain("Show all");
+    expect(html.match(/aria-label="Show photo \d of 6"/g)).toHaveLength(6);
+    expect(html).not.toContain("Show all");
   });
 
   it("only the first photo is eager and high priority", () => {

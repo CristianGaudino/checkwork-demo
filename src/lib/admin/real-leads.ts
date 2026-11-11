@@ -45,7 +45,7 @@ export function mirrorOf(row: LeadRow): Mirror {
   const drive = row.type === "test_drive" && row.carSlug && row.carTitle ? { id, name: row.name, email: row.email ?? "", phone: row.phone ?? "", carSlug: row.carSlug, carTitle: row.carTitle, startsAt: dublinMs(String(row.details.driveDate), String(row.details.driveTime)), status: "requested" as const, notes: row.message ?? "", createdAt: at } : undefined;
   const lead: Lead = {
     id,
-    type: LEAD_TYPE[row.type],
+    type: row.type === "trade_in" && row.details.intent === "sell" ? "sell" : LEAD_TYPE[row.type],
     status: "new",
     name: row.name,
     email: row.email ?? "",

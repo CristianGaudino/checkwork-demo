@@ -22,7 +22,8 @@ export const PAGE = {
   commercial: section("commercial"),
   testDrive: link("/test-drive", "Test drive"),
   finance: link("/finance", "Finance"),
-  tradeIn: link("/trade-in", "Trade-in", "Trade-in Valuation"),
+  tradeIn: link("/trade-in", "Trade-in", "Trade in your car"),
+  sell: link("/sell-your-car", "Sell your car"),
   findACar: link("/find-a-car", "Find a car"),
   compare: link("/compare", "Compare cars"),
   saved: link("/saved", "Saved cars"),
@@ -38,11 +39,11 @@ export const PAGE = {
 export const HEADER_LINKS = [PAGE.finance, PAGE.tradeIn, PAGE.service, PAGE.about, PAGE.contact];
 
 // The phone menu holds every page; the footer repeats them (#57).
-export const MENU = [PAGE.home, PAGE.used, PAGE.new, PAGE.commercial, PAGE.testDrive, PAGE.finance, PAGE.tradeIn, PAGE.findACar, PAGE.compare, PAGE.service, PAGE.about, PAGE.contact];
+export const MENU = [PAGE.home, PAGE.used, PAGE.new, PAGE.commercial, PAGE.testDrive, PAGE.finance, PAGE.tradeIn, PAGE.sell, PAGE.findACar, PAGE.compare, PAGE.service, PAGE.about, PAGE.contact];
 
 export const FOOTER_GROUPS = [
   { title: "Cars", links: [PAGE.used, PAGE.new, PAGE.commercial, PAGE.saved] },
-  { title: "Buying", links: [PAGE.testDrive, PAGE.finance, PAGE.tradeIn, PAGE.findACar] },
+  { title: "Buying", links: [PAGE.testDrive, PAGE.finance, PAGE.tradeIn, PAGE.sell, PAGE.findACar] },
   { title: "Company", links: [PAGE.service, PAGE.warranty, PAGE.about, PAGE.contact] },
   { title: "Legal", links: [PAGE.privacy, PAGE.terms] },
 ] as const;

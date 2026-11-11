@@ -41,7 +41,7 @@ export function SiteFooter() {
             <div className="flex w-full items-center justify-between lg:flex-col lg:items-start lg:gap-2">
             <PhoneLink className={`${link} text-body font-semibold`} />
             <Link href="/contact" className={`${link} underline max-lg:hidden`}>
-              Opening Hours and Directions
+              Opening hours and directions
             </Link>
             <ul aria-label="Social media" className="-mr-3 flex lg:-ml-3 lg:mr-0">
               {SOCIAL_LINKS.map(({ name, href }) => {

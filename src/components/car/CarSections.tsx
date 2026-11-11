@@ -3,7 +3,7 @@ import Link from "next/link";
 import { CheckIcon } from "@/components/stock/icons";
 import { card, carSlide } from "@/components/ui";
 import { ListingCard } from "@/components/stock/ListingCard";
-import { specRows } from "@/lib/stock/format";
+import { featureLabel, plainText, specRows } from "@/lib/stock/format";
 import type { Car } from "@/lib/stock/types";
 
 const VISIBLE_FEATURES = 12;
@@ -14,15 +14,17 @@ const h2 = "text-heading font-semibold";
 
 // Server components. Dealer text is rendered as React text only, never as HTML (T-02-14). Each returns nothing when it has nothing to show.
 export function AboutCar({ car }: { car: Car }) {
-  if (!car.description) return null;
+  // Feeds send HTML now and then ("<b>no accidents</b>"): it is shown as words, never as markup and never as raw tags.
+  const description = plainText(car.description ?? "");
+  if (!description) return null;
   return (
     <section>
       <h2 className={h2}>About this car</h2>
-      {car.description.length > LONG_DESCRIPTION ? (
+      {description.length > LONG_DESCRIPTION ? (
         <>
           {/* One copy of the text: the checkbox, before it, lifts the clamp (peer), so it works without JavaScript and the page holds the text once. */}
           <input type="checkbox" id={`more-${car.id}`} className="peer sr-only" />
-          <p className={`${text} line-clamp-8 peer-checked:line-clamp-none`}>{car.description}</p>
+          <p className={`${text} line-clamp-8 peer-checked:line-clamp-none`}>{description}</p>
           <label
             htmlFor={`more-${car.id}`}
             className="flex min-h-11 cursor-pointer items-center font-semibold peer-focus-visible:underline [&>span:last-child]:hidden peer-checked:[&>span:first-child]:hidden peer-checked:[&>span:last-child]:inline"
@@ -32,7 +34,7 @@ export function AboutCar({ car }: { car: Car }) {
           </label>
         </>
       ) : (
-        <p className={text}>{car.description}</p>
+        <p className={text}>{description}</p>
       )}
     </section>
   );
@@ -42,11 +44,12 @@ export function Specifications({ car }: { car: Car }) {
   return (
     <section>
       <h2 className={h2}>Specifications</h2>
-      <dl className={`mt-4 grid grid-cols-1 gap-x-6 ${card} p-4 sm:grid-cols-2`}>
+      {/* Every other row filled (in pairs from 640px, where two rows sit side by side), so a label is easy to follow to its value. */}
+      <dl className={`mt-4 grid grid-cols-1 gap-x-4 ${card} p-2 sm:grid-cols-2`}>
         {specRows(car).map((r) => (
-          <div key={r.label} className="flex justify-between gap-4 border-b border-hairline py-3">
+          <div key={r.label} className="flex justify-between gap-4 rounded-control px-3 py-2.5 even:bg-row-alt sm:even:bg-transparent sm:[&:nth-child(4n+1)]:bg-row-alt sm:[&:nth-child(4n+2)]:bg-row-alt">
             <dt className="shrink-0 text-text-2">{r.label}</dt>
-            <dd className="min-w-0 text-right font-semibold [overflow-wrap:anywhere]">{r.value}</dd>
+            <dd className="min-w-0 text-right font-medium [overflow-wrap:anywhere]">{r.value}</dd>
           </div>
         ))}
       </dl>
@@ -59,7 +62,7 @@ const List = ({ items }: { items: string[] }) => (
     {items.map((f, i) => (
       <li key={i} className="flex items-start gap-2">
         <CheckIcon className="mt-1 size-4 shrink-0" />
-        <span className="min-w-0 break-words">{f}</span>
+        <span className="min-w-0 break-words">{featureLabel(f)}</span>
       </li>
     ))}
   </ul>

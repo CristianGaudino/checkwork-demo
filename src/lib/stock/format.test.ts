@@ -69,7 +69,7 @@ describe("specRows", () => {
       { label: "Doors", value: "4" },
       { label: "Seats", value: "5" },
       { label: "Owners", value: "2" },
-      { label: "NCT Expires", value: "Jul 2027" },
+      { label: "NCT expires", value: "Jul 2027" },
       { label: "Max speed", value: "126 mph" },
       { label: "0 to 62 mph", value: "9.9 s" },
     ]);
@@ -80,7 +80,7 @@ describe("specRows", () => {
     const bare: Car = { id: "1", slug: "a-b-2020-1", make: "A", makeSlug: "a", model: "B", modelSlug: "b", year: 2020, priceEur: 1, photos: [] };
     expect(specRows(bare)).toEqual([{ label: "Year", value: "2020" }]);
     for (const r of specRows({ ...full, nctExpiry: "soon" })) expect(r.value).not.toMatch(/undefined|^$/);
-    expect(specRows({ ...full, nctExpiry: "soon" }).some((r) => r.label === "NCT Expires")).toBe(false);
+    expect(specRows({ ...full, nctExpiry: "soon" }).some((r) => r.label === "NCT expires")).toBe(false);
   });
 
   it("never shows a road tax row", () => {
@@ -96,5 +96,25 @@ describe("keyFacts", () => {
   it("fills a missing slot from Body Type, Engine and Colour, at most 4", () => {
     expect(keyFacts({ ...full, mileageKm: undefined, fuel: undefined }).map((f) => f.label)).toEqual(["Year", "Transmission", "Body type", "Engine"]);
     expect(keyFacts({ ...full, mileageKm: undefined, fuel: undefined, gearbox: undefined, bodyType: undefined, engineLitres: undefined }).map((f) => f.label)).toEqual(["Year", "Colour"]);
+  });
+});
+
+describe("featureLabel", () => {
+  it("writes equipment in sentence case and keeps acronyms and brand names", async () => {
+    const { featureLabel } = await import("./format");
+    expect(featureLabel("Air Conditioning")).toBe("Air conditioning");
+    expect(featureLabel("Dual Zone Climate Control")).toBe("Dual zone climate control");
+    expect(featureLabel("DAB Radio")).toBe("DAB radio");
+    expect(featureLabel("Android Auto")).toBe("Android Auto");
+    expect(featureLabel("Stop/Start Button")).toBe("Stop/Start button");
+  });
+});
+
+describe("plainText", () => {
+  it("drops tags, keeps line breaks and decodes entities", async () => {
+    const { plainText } = await import("./format");
+    expect(plainText("FULL HISTORY <b>no accidents</b> &amp; one owner<br>NCT 2027")).toBe("FULL HISTORY no accidents & one owner\nNCT 2027");
+    expect(plainText("<p></p>")).toBe("");
+    expect(plainText("Price &lt; 10k")).toBe("Price < 10k");
   });
 });

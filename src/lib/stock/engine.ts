@@ -1,3 +1,4 @@
+import { fold } from "./format";
 import { searchOptions } from "./search-options";
 import { FUEL_LABELS, GEARBOX_LABELS, SOLD_VISIBLE_DAYS, isSold } from "./types";
 import type { Car, FacetGroup, FacetOption, SortKey, StockProvider, StockQuery, StockResult } from "./types";
@@ -14,8 +15,6 @@ const partnersFirst = (q: StockQuery, makes: FacetOption[]): FacetOption[] => {
   return [...makes].sort((a, b) => rank(a) - rank(b));
 };
 
-// Search ignores case and accents, so "skoda" finds "Škoda" and "citroen" finds "Citroën".
-const fold = (s: string) => s.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
 
 
 // `cars` is presorted newest first and Array.prototype.sort is stable, so every key ties by id descending.
