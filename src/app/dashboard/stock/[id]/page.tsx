@@ -4,7 +4,8 @@ import { CarForm } from "@/components/admin/CarForm";
 import { Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
 import { SyncedNotice } from "@/components/admin/SyncedNotice";
 import { TrashIcon } from "@/components/stock/icons";
-import { costsStore } from "@/lib/admin/collections";
+import { costsStore, prepStore } from "@/lib/admin/collections";
+import { PrepPanel } from "@/components/admin/PrepPanel";
 import { adminCar } from "@/lib/admin/stock-admin";
 import { can } from "@/lib/permissions";
 import { carName } from "@/lib/stock/format";
@@ -19,12 +20,15 @@ export default async function Page({ params, searchParams }: { params: Promise<{
   const car = await adminCar(id);
   if (!car) notFound();
   const view = <Link href={`/used-cars/${car.slug}`} className={adminButtonQuiet}>View on the site</Link>;
-  const cost = (await can("margins")) ? { eur: (await costsStore.get(id))?.costEur } : undefined;
+  const margins = await can("margins");
+  const cost = margins ? { eur: (await costsStore.get(id))?.costEur } : undefined;
+  // Prep, for staff who see margins: in both versions, since it is the dealer's own spend.
+  const prep = margins ? <PrepPanel carId={car.id} lines={(await prepStore.get(id))?.lines ?? []} /> : null;
   if ((await stockSource()) === "donedeal") {
     return (
       <>
         <PageHeader title={carName(car)} actions={view} />
-        <SyncedNotice />
+        <SyncedNotice car={car} />
         {/* DoneDeal has the car; the cost is the dealer's own, so it is still entered here. */}
         {cost && (
           <Panel title="Cost price">
@@ -37,6 +41,7 @@ export default async function Page({ params, searchParams }: { params: Promise<{
             </form>
           </Panel>
         )}
+        {prep}
       </>
     );
   }
@@ -44,6 +49,7 @@ export default async function Page({ params, searchParams }: { params: Promise<{
     <>
       <PageHeader title={carName(car)} actions={view} />
       <CarForm car={car} cost={cost} />
+      {prep}
       {/* Out of the way, at the end: marking a car sold is nearly always what is wanted, and it keeps the car's page as Sold for a while. */}
       <Panel title="Delete this car">
         <p className="max-w-measure text-body text-text-2">It leaves the site at once and its link stops working. To keep it on the site as sold, use Mark sold instead.</p>

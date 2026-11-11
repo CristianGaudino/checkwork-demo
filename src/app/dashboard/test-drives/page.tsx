@@ -1,10 +1,11 @@
 import { DriveStatusBadge } from "@/components/admin/badges";
 import { AddDriveForm } from "@/components/admin/AddDriveForm";
-import { EmptyState, PageHeader, Pager, Panel, SummaryTabs, adminButton, paginate, rowButton } from "@/components/admin/kit";
+import { Badge, EmptyState, PageHeader, Pager, Panel, SummaryTabs, adminButton, paginate, rowButton } from "@/components/admin/kit";
 import { PlusIcon } from "@/components/stock/icons";
 import { card } from "@/components/ui";
 import { DRIVE_STATUSES, DRIVE_STATUS_LABELS, drivesStore } from "@/lib/admin/collections";
-import { groupByDay, parseDriveStatus } from "@/lib/admin/drives";
+import { DRIVE_MONTHS_AHEAD, groupByDay, parseDriveStatus } from "@/lib/admin/drives";
+import { addMonths, dublinDay } from "@/lib/admin/format";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { carName } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
@@ -13,6 +14,8 @@ import { setDriveStatusAction } from "./actions";
 export const metadata = { title: "Test drives" };
 
 const day = new Intl.DateTimeFormat("en-IE", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Dublin" });
+// A day in another year says which, so a booking typed a year out never reads as this year.
+const dayLabel = (t: number) => (dublinDay(t).slice(0, 4) === dublinDay().slice(0, 4) ? day.format(t) : `${day.format(t)} ${dublinDay(t).slice(0, 4)}`);
 const time = new Intl.DateTimeFormat("en-IE", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Dublin" });
 // What the dealer can do next from each status. Anything else is not offered.
 const NEXT: Record<string, [string, string][]> = {
@@ -24,6 +27,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
   const sp = await searchParams;
   const status = parseDriveStatus(sp.status);
   const [all, cars] = await Promise.all([drivesStore.list(), adminCars()]);
+  const soldSlugs = new Set(cars.filter(isSold).map((c) => c.slug)); // a booking still open on a car that has since sold needs a call
   const open = (s: string) => s === "requested" || s === "confirmed";
   const rows = all.filter((d) => (status ? d.status === status : open(d.status)));
   // Done, no-show and cancelled only grow: every list is in pages, then grouped by day.
@@ -50,7 +54,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
           Add a booking
         </summary>
         <Panel className="mt-3">
-          <AddDriveForm cars={cars.filter((c) => !isSold(c)).map((c) => ({ slug: c.slug, label: carName(c) }))} />
+          <AddDriveForm cars={cars.filter((c) => !isSold(c)).map((c) => ({ slug: c.slug, label: carName(c) }))} min={dublinDay()} max={addMonths(dublinDay(), DRIVE_MONTHS_AHEAD)} />
         </Panel>
       </details>
       {groups.length === 0 ? (
@@ -62,7 +66,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
         <section aria-label="Bookings" className={`${card} overflow-hidden`}>
           {groups.map((g) => (
             <div key={g.day}>
-              <h2 className="border-b border-hairline bg-surface px-4 py-2 text-meta font-medium text-text-2">{day.format(g.drives[0].startsAt)}</h2>
+              <h2 className="border-b border-hairline bg-surface px-4 py-2 text-meta font-medium text-text-2">{dayLabel(g.drives[0].startsAt)}</h2>
               <ul>
                 {g.drives.map((d) => (
                   <li key={d.id} className="grid grid-cols-[4rem_minmax(0,1fr)] items-center gap-x-4 gap-y-2 px-4 py-3 even:bg-row-alt md:grid-cols-[4rem_minmax(0,1fr)_auto]">
@@ -72,7 +76,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
                         <span data-name>{d.name}</span>
                         <DriveStatusBadge status={d.status} />
                       </span>
-                      <span className="text-meta text-text-2">{d.carTitle}</span>
+                      <span className="flex flex-wrap items-center gap-2 text-meta text-text-2">
+                        {d.carTitle}
+                        {open(d.status) && soldSlugs.has(d.carSlug) && <Badge tone="warn">Car sold</Badge>}
+                      </span>
                       <a href={`tel:${d.phone.replace(/\s/g, "")}`} className="inline-flex min-h-11 w-fit items-center text-meta text-text-2 underline-offset-2 hover:underline md:min-h-0">
                         {d.phone}
                       </a>

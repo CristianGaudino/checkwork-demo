@@ -1,10 +1,13 @@
 "use client";
 
 import { Select } from "@/components/Select";
-import { useActionState } from "react";
+import { startTransition, useActionState, useState } from "react";
 import { Field, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
-import { addTeamAction, saveLeadEmailsAction, saveMarketingAction, sendTestEmailAction, saveNotificationsAction, saveTargetsAction, type SettingsState } from "@/app/dashboard/settings/actions";
-import type { DealerSettings } from "@/lib/admin/collections";
+import { addTeamAction, setRoleAction, saveLeadEmailsAction, saveMarketingAction, sendTestEmailAction, saveNotificationsAction, saveTargetsAction, type SettingsState } from "@/app/dashboard/settings/actions";
+import type { DealerSettings, TeamMember } from "@/lib/admin/collections";
+import { ROLES } from "@/lib/permission-rules";
+
+const ROLE_OPTIONS = ROLES.map((r) => [r, r] as const);
 
 // Each settings panel is its own small form that saves on its own and says so. The server checks every value again.
 type Action = (prev: SettingsState, data: FormData) => Promise<SettingsState>;
@@ -69,7 +72,7 @@ export function LeadEmailsForm({ settings, fallback }: { settings: DealerSetting
   );
 }
 
-const NOTES: [keyof DealerSettings["notifications"], string][] = [["newLead", "A new lead arrives"], ["testDrive", "A test drive is requested"], ["review", "A new review is posted"], ["weeklyReport", "A weekly summary, every Monday"]];
+const NOTES: [keyof DealerSettings["notifications"], string][] = [["newLead", "A new lead arrives"], ["testDrive", "A test drive is requested"], ["review", "A new review is posted"], ["weeklyReport", "A weekly summary, every Monday"], ["followUps", "Follow-ups are due: each salesperson gets theirs each morning"]];
 
 export function NotificationsForm({ settings, emailConnected }: { settings: DealerSettings; emailConnected: boolean }) {
   const f = useSave(saveNotificationsAction);
@@ -85,6 +88,7 @@ export function NotificationsForm({ settings, emailConnected }: { settings: Deal
         ))}
       </fieldset>
       {!emailConnected && <p className="text-meta text-text-2">Email sending is not connected yet. See Connected services below.</p>}
+      {f.errors.notifications && !f.pending && <p role="alert" className="text-meta text-destructive">{f.errors.notifications}</p>}
       <Save pending={f.pending} saved={f.state?.saved} />
     </form>
   );
@@ -110,7 +114,8 @@ export function MarketingForm({ settings }: { settings: DealerSettings }) {
   );
 }
 
-export function AddTeamForm() {
+// `owner`: the signed-in person is an owner, so Owner is a role they may give.
+export function AddTeamForm({ owner }: { owner: boolean }) {
   const f = useSave(addTeamAction);
   return (
     <form action={f.run} className="grid grid-cols-1 gap-4 sm:grid-cols-4 sm:items-start" noValidate>
@@ -120,12 +125,47 @@ export function AddTeamForm() {
       <Field label="Email" error={f.errors.email}>
         <input name="email" type="email" className={adminInput} autoComplete="off" />
       </Field>
-      <Field label="Role">
-        <Select name="role" defaultValue="Sales" options={[["Owner", "Owner"], ["Sales", "Sales"], ["Finance", "Finance"]]} />
+      <Field label="Role" error={f.errors.role}>
+        <Select name="role" defaultValue="Sales" options={owner ? ROLE_OPTIONS : ROLE_OPTIONS.filter(([r]) => r !== "Owner")} />
       </Field>
       <div className="sm:pt-6">
         <Save pending={f.pending} saved={f.state?.saved} />
       </div>
     </form>
+  );
+}
+
+// One person's role, saved as soon as it is picked, by an owner or manager (the server checks again). A refused change shows why and puts
+// the picker back to the role they still have.
+export function RoleForm({ member, owner }: { member: TeamMember; owner: boolean }) {
+  const f = useSave(setRoleAction.bind(null, member.id));
+  const [picked, setPicked] = useState<string>(member.role);
+  const shown = f.state?.errors && !f.pending ? member.role : picked;
+  return (
+    <div className="flex flex-col items-end gap-1">
+      <div className="w-36">
+        <Select
+          label={`Role for ${member.name}`}
+          value={shown}
+          onChange={(role) => {
+            setPicked(role);
+            const data = new FormData();
+            data.set("role", role);
+            startTransition(() => f.run(data));
+          }}
+          options={owner ? ROLE_OPTIONS : ROLE_OPTIONS.filter(([r]) => r !== "Owner")}
+        />
+      </div>
+      {f.errors.role && !f.pending && (
+        <p role="alert" className="max-w-48 text-right text-meta text-destructive">
+          {f.errors.role}
+        </p>
+      )}
+      {f.state?.saved && !f.pending && (
+        <p role="status" className="text-meta text-better">
+          Saved
+        </p>
+      )}
+    </div>
   );
 }

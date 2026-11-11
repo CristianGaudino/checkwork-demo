@@ -75,7 +75,8 @@ function ReviewCard({ review }: { review: Review }) {
 }
 
 // Server component. Nothing renders without reviews: no heading, no gap, no error text (UI-SPEC failure behaviour).
-export function ReviewsStrip({ data }: { data: Reviews | null }) {
+// `grid`: every review laid out at once (the Reviews page), instead of the home page's moving row.
+export function ReviewsStrip({ data, grid = false }: { data: Reviews | null; grid?: boolean }) {
   if (!data?.reviews.length) return null;
   const { rating, count } = data;
   const reviewCount = count === undefined ? "" : `${formatCount(count)} Google ${count === 1 ? "review" : "reviews"}`;
@@ -107,14 +108,24 @@ export function ReviewsStrip({ data }: { data: Reviews | null }) {
           </div>
         </div>
       )}
-      {/* Moves along by itself and stops under the pointer: one card on a phone, two, then four across (more than three shows). */}
-      <AutoCarousel label="Google reviews" noun="reviews">
-        {data.reviews.map((r) => (
-          <li key={r.id} className="w-[85%] shrink-0 sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-3rem)/4)]">
-            <ReviewCard review={r} />
-          </li>
-        ))}
-      </AutoCarousel>
+      {grid ? (
+        <ul aria-label="Google reviews" className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {data.reviews.map((r) => (
+            <li key={r.id}>
+              <ReviewCard review={r} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        // Moves along by itself and stops under the pointer: one card on a phone, two, then four across (more than three shows).
+        <AutoCarousel label="Google reviews" noun="reviews">
+          {data.reviews.map((r) => (
+            <li key={r.id} className="w-[85%] shrink-0 sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-3rem)/4)]">
+              <ReviewCard review={r} />
+            </li>
+          ))}
+        </AutoCarousel>
+      )}
       {/* Google requires its review policy to be linked wherever its reviews show. */}
       <a href={POLICY_URI} {...NEW_TAB} className={`${textLink} self-start text-meta`}>
         Google&apos;s review policy

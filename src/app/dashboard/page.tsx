@@ -2,23 +2,30 @@ import Link from "next/link";
 import { LeadStatusBadge } from "@/components/admin/badges";
 import { Badge, EmptyState, PageHeader, Panel, StatCard, StatGrid, adminButtonQuiet } from "@/components/admin/kit";
 import { CalendarIcon, CarIcon, ShareIcon } from "@/components/stock/icons";
-import { costsStore, drivesStore, getSettings, leadsStore, reviewsStore } from "@/lib/admin/collections";
+import { carCosts } from "@/lib/admin/costs";
+import { drivesStore, getSettings, leadsStore, reviewsStore, salesStore } from "@/lib/admin/collections";
 import { marginOf } from "@/lib/admin/margins";
 import { can } from "@/lib/permissions";
 import { fmtAgo, fmtDateTime, fmtEur, fmtNum } from "@/lib/admin/format";
 import { overview } from "@/lib/admin/overview";
-import { queryAllOrNull } from "@/lib/stock";
+import { SyncPanel } from "@/components/admin/SyncPanel";
+import { adminCars } from "@/lib/admin/stock-admin";
+import { syncStatus } from "@/lib/donedeal/sync";
+import { stockSource } from "@/lib/stock-source";
+import { isSold } from "@/lib/stock/types";
 
 export const metadata = { title: "Overview" };
 
 const row = "flex min-h-14 items-center justify-between gap-3 px-1 py-3 transition-colors hover:bg-surface";
 
 export default async function Page() {
-  const [leads, drives, reviews, stock, settings] = await Promise.all([leadsStore.list(), drivesStore.list(), reviewsStore.list(), queryAllOrNull(), getSettings()]);
-  const o = overview({ leads, drives, reviews, slaHours: settings.leadSlaHours });
-  const cars = stock?.cars ?? [];
+  const [leads, drives, reviews, all, settings, source, sales] = await Promise.all([leadsStore.list(), drivesStore.list(), reviewsStore.list(), adminCars(), getSettings(), stockSource(), salesStore.list()]);
+  const synced = source === "donedeal";
+  const sync = synced ? await syncStatus() : null;
+  const cars = all.filter((c) => !isSold(c));
   // Only for staff with the margins permission: the costs are not read without it.
-  const costs = (await can("margins")) ? new Map((await costsStore.list()).map((c) => [c.id, c.costEur])) : null;
+  const costs = (await can("margins")) ? new Map([...(await carCosts())].map(([id, c]) => [id, c.total])) : null;
+  const o = overview({ leads, drives, reviews, cars: all, costs: costs ? new Set(costs.keys()) : undefined, sales: new Set(sales.map((s) => s.id)), syncProblem: Boolean(sync?.problem), slaHours: settings.leadSlaHours });
   const margin = costs ? cars.filter((c) => costs.has(c.id)).reduce((s, c) => s + marginOf(c.priceEur, costs.get(c.id)!).eur, 0) : 0;
 
   return (
@@ -27,10 +34,13 @@ export default async function Page() {
         title="Overview"
         actions={
           <>
-            <Link href="/dashboard/stock/new" className={adminButtonQuiet}>
-              <CarIcon className="size-4" />
-              Add car
-            </Link>
+            {/* Stock from DoneDeal is added there, never here. */}
+            {!synced && (
+              <Link href="/dashboard/stock/new" className={adminButtonQuiet}>
+                <CarIcon className="size-4" />
+                Add car
+              </Link>
+            )}
             <Link href="/dashboard/test-drives" className={adminButtonQuiet}>
               <CalendarIcon className="size-4" />
               Test drive
@@ -73,6 +83,7 @@ export default async function Page() {
         </Panel>
 
         <div className="flex min-w-0 flex-col gap-6">
+          {sync && <SyncPanel status={sync} canForce={await can("settings")} />}
           <Panel title="Needs attention">
             {o.attention.length === 0 ? (
               <EmptyState title="All clear" />

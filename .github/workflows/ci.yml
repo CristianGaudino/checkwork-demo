@@ -1,10 +1,12 @@
 name: CI
 
-# Pull requests only: the release deploy tests again. Actions minutes are limited and shared.
+# Pushes to main only (owner, 2026-11-11): Actions minutes are limited and shared, so pull requests are checked locally before they are
+# opened (.claude/CLAUDE.md), and CI checks what was merged. Run it by hand on any branch from the Actions tab.
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches: [main]
     paths-ignore: ['**.md']
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -18,7 +20,6 @@ env:
 
 jobs:
   check:
-    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -35,12 +36,11 @@ jobs:
         run: npx drizzle-kit check
       # The deploy migrates before the new code is live, so a new migration may only add things
       - name: Migrations only add
-        run: bash scripts/check-migrations.sh "${{ github.base_ref }}"
+        run: bash scripts/check-migrations.sh "${{ github.event.before || 'main' }}" # what main was before this push
 
   # The Worker has to start before a change reaches production: the normal build can't see what only fails on Cloudflare.
   # OpenNext runs the Next build, so there is no separate build job.
   worker:
-    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -103,12 +103,14 @@ jobs:
           # E2E_FAIL_QUERY check above). It is only ever set in playwright.config.ts.
           if grep -q E2E_FAKE_BACKENDS wrangler.jsonc .github/workflows/deploy.yml; then echo 'E2E_FAKE_BACKENDS is set for the Worker'; fail=1; fi
           # The daily purge (audit): the handler must load, reach its bindings and finish, or old leads stay past the 12 months /privacy promises
-          # and nobody is told. It logs one {"job":"purge-leads"} line when it has run.
+          # and nobody is told. It logs a {"job":"purge-leads"}, a {"job":"purge-activity"} and a {"job":"anonymise-sales"} line when it has run.
           code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 'http://127.0.0.1:8787/__scheduled?cron=17+3+*+*+*') || true
           echo "scheduled purge: $code (want 200)"
           [ "$code" = 200 ] || fail=1
-          for i in 1 2 3 4 5; do grep -q 'purge-leads' wrangler.log && break; sleep 1; done
+          for i in 1 2 3 4 5; do grep -q 'anonymise-sales' wrangler.log && break; sleep 1; done
           grep -q 'purge-leads' wrangler.log || { echo 'the daily purge did not log a run'; fail=1; }
+          grep -q 'purge-activity' wrangler.log || { echo 'the daily activity purge did not log a run'; fail=1; }
+          grep -q 'anonymise-sales' wrangler.log || { echo 'the daily sale anonymiser did not log a run'; fail=1; }
           # The dev-only data switch (break-ui) must not be in the production build: it would show fake cars to anyone with the cookie.
           if grep -rlE 'worst-cars|DevDataToggle|break-ui' .next --include='*.js' --include='*.html' --include='*.rsc' 2>/dev/null | grep -q .; then echo 'the dev-only data switch is in the production build'; fail=1; fi
           if grep -q 'ERROR' wrangler.log; then echo 'the Worker logged an error'; fail=1; fi
@@ -116,7 +118,6 @@ jobs:
 
   # A plain production build, not the Worker build: faster, and the worker job covers Cloudflare.
   e2e:
-    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 12
     container:

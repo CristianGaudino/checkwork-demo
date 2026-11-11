@@ -58,3 +58,21 @@ export const adminDocs = sqliteTable(
   },
   (t) => [primaryKey({ columns: [t.collection, t.id] })],
 );
+
+// The dashboard's activity history (src/lib/admin/activity.ts): one row per change a person (or the stock sync) made. Never what a customer
+// wrote: a record that holds personal data is kept as its kind and id, and its name is looked up when the page is shown. Deleted after
+// ACTIVITY_RETENTION_MONTHS by the daily job.
+export const activity = sqliteTable(
+  "activity",
+  {
+    id: text().primaryKey(),
+    at: integer({ mode: "number" }).notNull(), // epoch milliseconds
+    actor: text().notNull(), // a team member's name, or the sync
+    area: text().notNull(), // stock, leads, test-drives, customers, reviews, marketing, settings
+    summary: text().notNull(), // "Changed the price from €17,950 to €16,950"
+    refKind: text("ref_kind"), // car, lead, drive, alert, subscriber, review, post, ad, newsletter, team
+    refId: text("ref_id"),
+    refLabel: text("ref_label"), // only for a record with no personal data (a car's title, a post's car, a team member)
+  },
+  (t) => [index("activity_at_idx").on(t.at)],
+);

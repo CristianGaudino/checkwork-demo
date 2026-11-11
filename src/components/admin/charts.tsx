@@ -7,7 +7,8 @@ import { fmtNum } from "@/lib/admin/format";
 type Point = { label: string; value: number };
 
 // A filled line over time. The line keeps a constant width however the box is stretched (non-scaling-stroke).
-export function AreaChart({ data, summary }: { data: Point[]; summary: string }) {
+// `format` writes a value (euros on Reports, a plain count on Analytics), in the caption and the table read aloud.
+export function AreaChart({ data, summary, format = fmtNum }: { data: Point[]; summary: string; format?: (n: number) => string }) {
   const W = 600;
   const H = 180;
   const max = Math.max(1, ...data.map((d) => d.value));
@@ -28,7 +29,7 @@ export function AreaChart({ data, summary }: { data: Point[]; summary: string })
       <figcaption className="flex flex-wrap justify-between gap-x-4 text-meta text-text-2">
         <span>{data[0]?.label}</span>
         <span>
-          Busiest: {peak.label}, {fmtNum(peak.value)}
+          Busiest: {peak.label}, {format(peak.value)}
         </span>
         <span>{data.at(-1)?.label}</span>
       </figcaption>
@@ -40,7 +41,7 @@ export function AreaChart({ data, summary }: { data: Point[]; summary: string })
           {data.map((d) => (
             <tr key={d.label}>
               <th scope="row">{d.label}</th>
-              <td>{d.value}</td>
+              <td>{format(d.value)}</td>
             </tr>
           ))}
         </tbody>

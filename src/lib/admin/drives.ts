@@ -2,6 +2,9 @@ import { DRIVE_STATUSES, type DriveStatus, type TestDrive } from "./collections"
 import { HOUR } from "@/lib/time";
 
 // Agenda helpers for the test drive bookings. Pure, so the grouping and the checks are tested.
+// How far ahead the dealer can book a test drive at the desk (the website offers three weeks, src/lib/leads/constants.ts).
+export const DRIVE_MONTHS_AHEAD = 2;
+
 export type DriveGroup = { day: string; drives: TestDrive[] };
 
 const dayKey = (t: number) => new Date(t).toLocaleDateString("en-CA", { timeZone: "Europe/Dublin" }); // 2026-11-10, in the Irish day

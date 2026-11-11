@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { Badge, DataTable, EmptyState, PageHeader, Pager, SearchBar, SummaryTabs, adminButton, paginate, rowButton, type Column } from "@/components/admin/kit";
+import { Badge, DataTable, EmptyState, PageHeader, Pager, SearchBar, SummaryTabs, adminButton, paginate, rowButton, type Column, adminButtonQuiet } from "@/components/admin/kit";
 import { ExternalIcon, PencilIcon, PlusIcon, SyncIcon } from "@/components/stock/icons";
 import { NEW_TAB } from "@/components/ui";
-import { costsStore } from "@/lib/admin/collections";
+import { carCosts } from "@/lib/admin/costs";
 import { marginOf } from "@/lib/admin/margins";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { can } from "@/lib/permissions";
@@ -10,7 +10,11 @@ import { fmtEur, fmtNum } from "@/lib/admin/format";
 import { carName } from "@/lib/stock/format";
 import { isSold, type Car } from "@/lib/stock/types";
 import { stockSource } from "@/lib/stock-source";
-import { DONEDEAL_DEALER_URL } from "@/lib/stock-source-rules";
+import { DONEDEAL_DEALER_URL, listingHref } from "@/lib/stock-source-rules";
+import { SyncPanel } from "@/components/admin/SyncPanel";
+import { FEW_PHOTOS, STOCK_VIEWS, parseStockList, stockList, type StockView } from "@/lib/admin/stock-views";
+import { salesStore } from "@/lib/admin/collections";
+import { syncStatus } from "@/lib/donedeal/sync";
 import { SEARCH_MAKE_MODEL } from "@/lib/copy";
 import { toggleSoldAction } from "./actions";
 
@@ -22,33 +26,29 @@ const daysIn = (listedAt: string, now = Date.now()) => {
   return d === 0 ? "Today" : d === 1 ? "1 day" : `${d} days`;
 };
 
-// The views are the summary: each is a tile with its count, and the chosen one filters the table.
-const FEW_PHOTOS = 4;
-const VIEWS = {
-  "for-sale": { label: "For sale", test: (c: Car) => !isSold(c) },
-  reduced: { label: "Reduced", test: (c: Car) => !isSold(c) && c.wasPriceEur !== undefined && c.wasPriceEur > c.priceEur },
-  photos: { label: "Need photos", test: (c: Car) => !isSold(c) && c.photos.length < FEW_PHOTOS },
-  sold: { label: "Sold", test: (c: Car) => isSold(c) },
-  all: { label: "All", test: () => true },
-} as const;
-type View = keyof typeof VIEWS;
+// The views (src/lib/admin/stock-views.ts) are the summary: each is a tile with its count, and the chosen one filters the table.
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ view?: string; status?: string; q?: string; saved?: string; deleted?: string; page?: string }> }) {
+export default async function Page({ searchParams }: { searchParams: Promise<{ view?: string; status?: string; q?: string; saved?: string; deleted?: string; sale?: string; page?: string }> }) {
   const sp = await searchParams;
-  const asked = sp.view ?? sp.status; // `status` is the old name for the view, kept so old links still work
-  const view: View = asked && Object.hasOwn(VIEWS, asked) ? (asked as View) : "for-sale";
-  const q = (sp.q ?? "").trim().toLowerCase().slice(0, 60);
+  const { view, q } = parseStockList(sp);
   const [all, source] = await Promise.all([adminCars(), stockSource()]);
   const synced = source === "donedeal";
+  const sync = synced ? await syncStatus() : null;
+  const sales = new Map((await salesStore.list()).map((s) => [s.id, s]));
+  const saleFor = sp.sale ? all.find((c) => c.id === sp.sale) : undefined;
+  // A sold car with no sale recorded gets the button: Mark sold in our version records it; after the DoneDeal sync it is asked for here.
+  const recordSale = (c: Car) =>
+    isSold(c) && !sales.has(c.id) ? (
+      <Link href={`/dashboard/stock/${c.id}/sale`} className={rowButton}>
+        Record sale
+      </Link>
+    ) : null;
   // The margin column is for staff with the margins permission; without it the costs are not even read.
-  const costs = (await can("margins")) ? new Map((await costsStore.list()).map((c) => [c.id, c.costEur])) : null;
-  const matching = all
-    .filter(VIEWS[view].test)
-    .filter((c) => !q || `${c.make} ${c.model} ${c.variant ?? ""} ${c.year}`.toLowerCase().includes(q))
-    .sort((a, b) => Number(b.id) - Number(a.id));
+  const costs = (await can("margins")) ? new Map([...(await carCosts())].map(([id, c]) => [id, c.total])) : null;
+  const matching = stockList(all, view, q);
   const { rows, page, pageCount, total } = paginate(matching, sp.page);
   const saved = sp.saved ? all.find((c) => c.id === sp.saved) : undefined;
-  const href = (v: View) => `/dashboard/stock?view=${v}${q ? `&q=${encodeURIComponent(q)}` : ""}`;
+  const href = (v: StockView) => `/dashboard/stock?view=${v}${q ? `&q=${encodeURIComponent(q)}` : ""}`;
   // Where a row goes: the car's editor here, or, for synced stock, the car on the site (it is changed on DoneDeal).
   const open = (c: Car) => (synced ? `/used-cars/${c.slug}` : `/dashboard/stock/${c.id}`);
 
@@ -80,7 +80,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
       cell: (c) => (
         <span className="flex flex-col items-end">
           {fmtEur(c.priceEur)}
-          {c.wasPriceEur !== undefined && c.wasPriceEur > c.priceEur && <span className="text-meta text-ok">was {fmtEur(c.wasPriceEur)}</span>}
+          {isSold(c) && sales.has(c.id) ? (
+            <span className="text-meta text-text-2">sold for {fmtEur(sales.get(c.id)!.priceEur)}</span>
+          ) : (
+            c.wasPriceEur !== undefined && c.wasPriceEur > c.priceEur && <span className="text-meta text-ok">was {fmtEur(c.wasPriceEur)}</span>
+          )}
         </span>
       ),
     },
@@ -98,11 +102,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
       cell: (c) =>
         // Above the row's own link, so these buttons are what a press on them hits.
         synced ? (
-          <div className="relative z-10 flex justify-end">
-            <a href={DONEDEAL_DEALER_URL} {...NEW_TAB} className={rowButton}>
+          <div className="relative z-10 flex justify-end gap-2">
+            {recordSale(c)}
+            <a href={listingHref(c)} {...NEW_TAB} className={rowButton} aria-label={`Edit ${carName(c)} on DoneDeal (opens in a new tab)`}>
               DoneDeal
               <ExternalIcon className="size-4" />
-              <span className="sr-only"> (opens in a new tab)</span>
             </a>
           </div>
         ) : (
@@ -111,11 +115,18 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
               <PencilIcon className="size-4" />
               Edit
             </Link>
-            <form action={toggleSoldAction.bind(null, c.id)}>
-              <button type="submit" className={rowButton}>
-                {isSold(c) ? "Back on sale" : "Mark sold"}
-              </button>
-            </form>
+            {recordSale(c)}
+            {isSold(c) ? (
+              <form action={toggleSoldAction.bind(null, c.id)}>
+                <button type="submit" className={rowButton}>
+                  Back on sale
+                </button>
+              </form>
+            ) : (
+              <Link href={`/dashboard/stock/${c.id}/sale`} className={rowButton}>
+                Mark sold
+              </Link>
+            )}
           </div>
         ),
     },
@@ -127,23 +138,31 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         title="Stock"
         text={synced ? "Synced from DoneDeal. Add, edit and sell cars there; they update here within 15 minutes." : undefined}
         actions={
-          synced ? (
-            <a href={DONEDEAL_DEALER_URL} {...NEW_TAB} className={adminButton}>
-              <SyncIcon className="size-4" />
-              Open DoneDeal
-              <span className="sr-only"> (opens in a new tab)</span>
+          <>
+            {/* The list as it is filtered now: cost and margin columns only for the margins roles. */}
+            <a href={`/dashboard/stock/export?view=${view}${q ? `&q=${encodeURIComponent(q)}` : ""}`} className={adminButtonQuiet} download>
+              Export CSV
             </a>
-          ) : (
-            <Link href="/dashboard/stock/new" className={adminButton}>
-              <PlusIcon className="size-4" />
-              Add a car
-            </Link>
-          )
+            {synced ? (
+              <a href={DONEDEAL_DEALER_URL} {...NEW_TAB} className={adminButton}>
+                <SyncIcon className="size-4" />
+                Open DoneDeal
+                <span className="sr-only"> (opens in a new tab)</span>
+              </a>
+            ) : (
+              <Link href="/dashboard/stock/new" className={adminButton}>
+                <PlusIcon className="size-4" />
+                Add a car
+              </Link>
+            )}
+          </>
         }
       />
+      {sync && <SyncPanel status={sync} canForce={await can("settings")} />}
       {saved && <p role="status" className="rounded-control bg-ok-soft px-4 py-3 text-body text-ok">Saved {carName(saved)}.</p>}
+      {saleFor && <p role="status" className="rounded-control bg-ok-soft px-4 py-3 text-body text-ok">Sale recorded for {carName(saleFor)}.</p>}
       {sp.deleted && <p role="status" className="rounded-control bg-hairline px-4 py-3 text-body">Car deleted.</p>}
-      <SummaryTabs label="Stock views" items={(Object.keys(VIEWS) as View[]).map((v) => ({ label: VIEWS[v].label, count: all.filter(VIEWS[v].test).length, href: href(v), active: view === v }))} />
+      <SummaryTabs label="Stock views" items={(Object.keys(STOCK_VIEWS) as StockView[]).map((v) => ({ label: STOCK_VIEWS[v].label, count: all.filter(STOCK_VIEWS[v].test).length, href: href(v), active: view === v }))} />
       <SearchBar action="/dashboard/stock" value={q} placeholder={SEARCH_MAKE_MODEL} label="Search stock" keep={{ view }} />
       <DataTable
         label="Stock"

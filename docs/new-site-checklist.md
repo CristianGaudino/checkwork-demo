@@ -33,15 +33,18 @@ deploy fails its tests while it is false.
 ### Stock
 - **Their own uploader:** `NEXT_PUBLIC_STOCK_SOURCE=checkwork`. Staff add and edit cars in the dashboard; the registration lookup fills the basics.
 - **DoneDeal:** `NEXT_PUBLIC_STOCK_SOURCE=donedeal` and `NEXT_PUBLIC_DONEDEAL_DEALER_URL`. The dashboard's stock is read only and every
-  edit button points to DoneDeal. The DoneDeal API is licensed to one dealer's own site with their written consent: get that first. The
-  sync job is written when the key is issued.
+  edit button points to DoneDeal. The DoneDeal API is licensed to one dealer's own site with their written consent: get that first, then
+  set `DONEDEAL_API_KEY` and `CRON_KEY` (secrets). The sync runs every 15 minutes (`docs/dealer-admin.md`, DoneDeal stock). The adapter
+  that reads DoneDeal's API is written once DoneDeal sends its docs (`src/lib/donedeal/feed.ts`, issue #108). Empty
+  `src/lib/stock/demo-cars*.json` first, so a deploy adds none of the demo cars to a stock that DoneDeal owns.
 - Replace `src/lib/stock/demo-cars.json` and `public/stock/` with photos you have the right to use, or start the D1 `cars` table empty.
 
 ### The dashboard
-- It starts empty on a production site (no made-up leads, reviews or team). Staff add the team in Settings, then Lead emails.
+- It starts empty on a production site (no made-up leads, reviews or team). Set `ADMIN_OWNER_EMAILS` to the owner's Access email; the
+  owner then adds the team in Settings, each with a role, then Lead emails.
 - Cloudflare Access: an application for `/dashboard*` on the dealer's domain, allowing only their staff. Set `CF_ACCESS_TEAM_DOMAIN`,
   `CF_ACCESS_AUD` and `NEXT_PUBLIC_ACCESS_ENABLED=1`. Without them the dashboard answers 404 (it fails closed).
-- Who sees margins: `ADMIN_MARGINS_EMAILS`.
+- Who sees what: the team's roles in Settings (Owner, Manager, Sales, Finance). See `docs/dealer-admin.md`.
 
 ### Switches for a real site
 `APP_ENV=production`, `NEXT_PUBLIC_DEMO_BAR=off`. Simulation and demo records then turn off by themselves; a service without keys says

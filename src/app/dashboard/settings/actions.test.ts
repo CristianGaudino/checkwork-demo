@@ -2,13 +2,25 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 vi.mock("next/cache", () => ({ revalidatePath: () => {} }));
-const { addTeamAction, removeTeamAction, saveLeadEmailsAction } = await import("./actions");
+// These act as the demo's roles (the demo bar's cookie), which count only on the demo deploy (src/lib/demo.ts, demoCookiesCount).
+beforeEach(() => vi.stubEnv("APP_ENV", "demo"));
+
+// The demo acts as the role in the demo bar's cookie (src/lib/permissions.ts); set per test, the owner by default.
+let role: string | undefined;
+vi.mock("react", async (orig) => ({ ...(await orig<typeof import("react")>()), cache: <T,>(fn: T) => fn }));
+vi.mock("next/headers", () => ({
+  cookies: async () => ({ get: (n: string) => (n === "checkwork-demo-role" && role ? { value: role } : undefined) }),
+  headers: async () => ({ get: () => null }),
+}));
+const { addTeamAction, removeTeamAction, saveLeadEmailsAction, saveTargetsAction, setRoleAction } = await import("./actions");
 const { getSettings, leadsStore, settingsStore } = await import("@/lib/admin/collections");
+const { listActivity } = await import("@/lib/admin/activity");
 
 const form = (o: Record<string, string>) => Object.entries(o).reduce((f, [k, v]) => (f.set(k, v), f), new FormData());
 
 describe("team settings", () => {
   beforeEach(async () => {
+    role = undefined;
     await settingsStore.reset();
     await leadsStore.reset();
   });
@@ -24,24 +36,75 @@ describe("team settings", () => {
     expect(Object.keys(r?.errors ?? {}).sort()).toEqual(["email", "name"]);
   });
 
+  it("refuses the same email twice", async () => {
+    expect((await addTeamAction(undefined, form({ name: "Someone new", email: "Conor@Example.com", role: "Sales" })))?.errors?.email).toMatch(/already on the team/);
+  });
+
   it("removing a person unassigns their leads, and the last person cannot be removed", async () => {
-    const { team } = await getSettings();
     const leads = await leadsStore.list();
-    const target = leads.find((l) => l.assignedTo)!;
-    const member = team.find((t) => t.name === target.assignedTo)!;
+    const target = leads.find((l) => l.assignedTo && l.assignedTo !== "Aoife Brennan")!;
+    const member = (await getSettings()).team.find((t) => t.name === target.assignedTo)!;
     await removeTeamAction(member.id);
     expect((await getSettings()).team.some((t) => t.id === member.id)).toBe(false);
     expect((await leadsStore.get(target.id))!.assignedTo).toBeUndefined();
-    for (const t of (await getSettings()).team.slice(1)) await removeTeamAction(t.id);
+    for (const t of (await getSettings()).team.filter((t) => t.role !== "Owner")) await removeTeamAction(t.id);
     const last = (await getSettings()).team;
-    expect(last).toHaveLength(1);
+    expect(last.map((t) => t.role)).toEqual(["Owner"]);
     await removeTeamAction(last[0].id);
     expect((await getSettings()).team).toHaveLength(1);
+  });
+
+  it("keeps an owner: the only owner cannot be demoted or removed", async () => {
+    const owner = (await getSettings()).team.find((t) => t.role === "Owner")!;
+    expect((await setRoleAction(owner.id, undefined, form({ role: "Sales" })))?.errors?.role).toMatch(/at least one owner/);
+    await removeTeamAction(owner.id);
+    expect((await getSettings()).team.some((t) => t.id === owner.id)).toBe(true);
+  });
+
+  it("a manager changes everyone but an owner, and cannot make anyone one", async () => {
+    role = "Manager";
+    const { team } = await getSettings();
+    const sales = team.find((t) => t.role === "Sales")!;
+    const owner = team.find((t) => t.role === "Owner")!;
+    expect((await setRoleAction(sales.id, undefined, form({ role: "Finance" })))?.saved).toBe(true);
+    // The activity history has it, by the manager, naming the team member (staff, not a customer).
+    expect((await listActivity({}, 1, 1)).rows[0]).toMatchObject({ actor: "Ciara Walsh", area: "settings", summary: `Changed ${sales.name}'s role from Sales to Finance`, refLabel: sales.name });
+    expect((await setRoleAction(sales.id, undefined, form({ role: "Owner" })))?.errors?.role).toMatch(/Only an owner/);
+    expect((await setRoleAction(owner.id, undefined, form({ role: "Sales" })))?.errors?.role).toMatch(/Only an owner/);
+    expect((await addTeamAction(undefined, form({ name: "New boss", email: "boss@example.com", role: "Owner" })))?.errors?.role).toMatch(/Only an owner/);
+    await removeTeamAction(owner.id);
+    expect((await getSettings()).team.find((t) => t.id === owner.id)?.role).toBe("Owner");
+  });
+
+  it("sales and finance cannot change the team or the settings", async () => {
+    for (const r of ["Sales", "Finance"]) {
+      role = r;
+      const sales = (await getSettings()).team.find((t) => t.role === "Sales")!;
+      expect((await addTeamAction(undefined, form({ name: "Sneaky", email: "sneaky@example.com", role: "Sales" })))?.errors?.role).toMatch(/owner or manager/);
+      expect((await setRoleAction(sales.id, undefined, form({ role: "Manager" })))?.errors?.role).toMatch(/owner or manager/);
+      await removeTeamAction(sales.id);
+      expect((await saveTargetsAction(undefined, form({ leadSlaHours: "2", driveSlotMinutes: "30" })))?.errors?.leadSlaHours).toMatch(/owner or manager/);
+    }
+    expect((await getSettings()).team.map((t) => t.name)).not.toContain("Sneaky");
+    expect((await getSettings()).team.filter((t) => t.role === "Manager")).toHaveLength(1); // nobody was promoted
+    expect((await getSettings()).leadSlaHours).toBe(24);
   });
 });
 
 describe("lead emails", () => {
-  beforeEach(() => settingsStore.reset());
+  beforeEach(() => {
+    role = undefined;
+    return settingsStore.reset();
+  });
+  it("records a change in the activity history, and not a save that changed nothing", async () => {
+    const before = (await listActivity({ area: "settings" }, 1, 1)).total;
+    await saveLeadEmailsAction(undefined, form({ leadEmails: "a@example.com" }));
+    await saveLeadEmailsAction(undefined, form({ leadEmails: "a@example.com" }));
+    const after = await listActivity({ area: "settings" }, 1, 1);
+    expect(after.total).toBe(before + 1);
+    expect(after.rows[0].summary).toBe("Changed who gets the lead emails");
+  });
+
   it("saves a list (lower case, no repeats), and an empty box goes back to the site's own address", async () => {
     expect((await saveLeadEmailsAction(undefined, form({ leadEmails: "A@example.com, b@example.com\na@example.com" })))?.saved).toBe(true);
     expect((await getSettings()).leadEmails).toEqual(["a@example.com", "b@example.com"]);

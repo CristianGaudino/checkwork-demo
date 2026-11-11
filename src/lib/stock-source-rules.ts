@@ -7,3 +7,14 @@ export const STOCK_COOKIE = "checkwork-demo-stock";
 export const parseStockSource = (v: string | undefined): StockSource => (v === "donedeal" ? "donedeal" : "checkwork");
 // The dealer's page on DoneDeal: where "Open DoneDeal" goes, and where a car goes until the sync stores each listing's own address.
 export const DONEDEAL_DEALER_URL = process.env.NEXT_PUBLIC_DONEDEAL_DEALER_URL || "https://www.donedeal.ie/";
+// A car's own ad on DoneDeal, where it is edited; the dealer's page when the sync has not stored one. The address comes from DoneDeal's
+// feed, so only an https link on donedeal.ie is used: anything else (a javascript: link, a look-alike host) falls back to the dealer's page.
+export function listingHref(car: { listingUrl?: string }): string {
+  try {
+    const u = new URL(car.listingUrl ?? "");
+    if (u.protocol === "https:" && (u.hostname === "donedeal.ie" || u.hostname.endsWith(".donedeal.ie"))) return u.href;
+  } catch {
+    // no address, or not one
+  }
+  return DONEDEAL_DEALER_URL;
+}

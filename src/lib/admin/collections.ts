@@ -5,6 +5,8 @@ import { defineCollection, seedsDemoRecords } from "./docs";
 import { NETWORKS, type Network } from "./networks";
 import { demoCost } from "./margins";
 import { DAY, HOUR } from "@/lib/time";
+import type { Role } from "@/lib/permission-rules";
+import type { PrepLine } from "./prep";
 import { carTitleOf, livePicks, person, rng } from "./seed-data";
 
 // The dealer's records. Each is a collection in the record store, with a typed shape and a seed. Never the real leads table: the admin
@@ -32,6 +34,7 @@ export type Lead = {
   carTitle?: string;
   reg?: string; // the registration of the car a person wants to sell or trade in
   assignedTo?: string;
+  followUpOn?: string; // YYYY-MM-DD, the Irish day to get back to them; cleared once the lead is won or lost
   notes: { at: number; text: string }[];
   createdAt: number;
 };
@@ -41,6 +44,7 @@ export const TEAM_SEED = [
   { id: "u1", name: "Aoife Brennan", email: "aoife@example.com", role: "Owner" },
   { id: "u2", name: "Conor Doyle", email: "conor@example.com", role: "Sales" },
   { id: "u3", name: "Niamh Kavanagh", email: "niamh@example.com", role: "Finance" },
+  { id: "u4", name: "Ciara Walsh", email: "ciara@example.com", role: "Manager" },
 ] as const;
 
 const MESSAGES: Record<LeadType, string[]> = {
@@ -74,6 +78,8 @@ function seedLeads(): Lead[] {
       // A plate for the cars people want to sell or trade in, from the index (not the random sequence, so the rest of the seed is unchanged).
       ...((type === "trade-in" || type === "sell") && { reg: `${15 + (i % 9)}${1 + (i % 2)}-${["D", "C", "KY", "G", "L", "WX"][i % 6]}-${1000 + i * 37}` }),
       assignedTo: status === "new" ? undefined : r.pick(TEAM_SEED).name,
+      // A few open leads with a follow-up: one overdue, one today, two coming (by index, so the random sequence above is unchanged).
+      ...((status === "contacted" || status === "appointment") && i % 3 === 0 && { followUpOn: new Date(now + ((i % 4) - 1) * DAY).toLocaleDateString("en-CA", { timeZone: "Europe/Dublin" }) }),
       notes: status === "contacted" || status === "appointment" ? [{ at: now - age + 2 * HOUR, text: "Called and left a message." }] : [],
       createdAt: now - age,
     };
@@ -144,7 +150,7 @@ function seedSubscribers(): Subscriber[] {
 export const subscribersStore = defineCollection<Subscriber>("subscribers", seedSubscribers);
 
 // ---- Reviews ----
-export type AdminReview = { id: string; author: string; rating: 1 | 2 | 3 | 4 | 5; text: string; createdAt: number; reply?: string; repliedAt?: number; flagged?: boolean };
+export type AdminReview = { id: string; author: string; rating: 1 | 2 | 3 | 4 | 5; text: string; createdAt: number; reply?: string; repliedAt?: number };
 const REVIEW_TEXT: [number, string][] = [
   [5, "Easy to deal with from the first call. The car was ready when we came to collect it."],
   [5, "No pressure at all. They answered every question and let us take our time."],
@@ -174,12 +180,12 @@ export const reviewsStore = defineCollection<AdminReview>("reviews", seedReviews
 
 // ---- Settings: one record ----
 // Only what the admin itself uses. The business details (name, phone, hours) live in the site configuration and change with a deploy.
-export type TeamMember = { id: string; name: string; email: string; role: "Owner" | "Sales" | "Finance" };
+export type TeamMember = { id: string; name: string; email: string; role: Role }; // matched to the signed-in Access email (src/lib/permissions.ts)
 export type DealerSettings = {
   id: "dealer";
   leadSlaHours: number; // a new lead waiting longer than this needs attention (overview)
   driveSlotMinutes: number; // one car cannot be booked twice within this many minutes (test drives)
-  notifications: { newLead: boolean; testDrive: boolean; review: boolean; weeklyReport: boolean };
+  notifications: { newLead: boolean; testDrive: boolean; review: boolean; weeklyReport: boolean; followUps: boolean }; // followUps: the morning email
   marketing: { voice: string; hashtags: string; signOff: string }; // used by the post and newsletter writers
   team: TeamMember[];
   leadEmails: string[]; // who gets the email when a visitor sends a form; empty means the LEAD_TO_EMAIL variable
@@ -189,7 +195,7 @@ export const SETTINGS_DEFAULT: DealerSettings = {
   id: "dealer",
   leadSlaHours: 24,
   driveSlotMinutes: 60,
-  notifications: { newLead: true, testDrive: true, review: true, weeklyReport: false },
+  notifications: { newLead: true, testDrive: true, review: true, weeklyReport: false, followUps: false },
   marketing: { voice: "Friendly and plain. Short sentences. No hype.", hashtags: "#usedcars #carsforsale", signOff: "Call in or message us to arrange a viewing." },
   team: TEAM_SEED.map((t) => ({ ...t })),
   leadEmails: [],
@@ -256,11 +262,65 @@ export async function getSettings(): Promise<DealerSettings> {
   return { ...SETTINGS_DEFAULT, ...(await settingsStore.get("dealer")) }; // a saved record from before a setting existed still reads whole
 }
 
+// ---- Sales ----
+// What a car sold for, when, by whom and to whom: one record per car (its id). The buyer is a customer record, by id, so their details live
+// in one place. Recorded from Mark sold in our version, and after the sync marks a car sold in the DoneDeal version. Personal data: after
+// SALE_KEEP_YEARS the link to the buyer is removed (src/lib/admin/sales-purge.ts) and the figures stay for the reports.
+export type Sale = { id: string; carTitle: string; priceEur: number; soldOn: string; salesperson?: string; customerId?: string; createdAt: number };
+function seedSales(): Sale[] {
+  // Most of the demo's sold cars have their sale recorded; the rest show as "no sale recorded" on the overview.
+  const sold = (demoCars as { id: string; year: number; make: string; model: string; priceEur: number; soldAt?: string }[]).filter((c) => c.soldAt);
+  return sold.slice(0, Math.max(0, sold.length - 2)).map((c, i) => ({
+    id: c.id,
+    carTitle: `${c.year} ${c.make} ${c.model}`,
+    priceEur: c.priceEur - [0, 250, 500][i % 3],
+    soldOn: c.soldAt!,
+    salesperson: TEAM_SEED[i % 2 === 0 ? 1 : 0].name,
+    customerId: `cust-${300 + i}`,
+    createdAt: Date.parse(`${c.soldAt}T16:00:00Z`),
+  }));
+}
+// The demo's last year of sales, before the cars in stock now: cars long gone from the site, kept only as sales (and their costs), so the
+// reports have a year to show. Two to four a month, by the made-up team, to the made-up customers.
+const PAST_SALES: { sale: Sale; costEur: number }[] = (() => {
+  const r = rng(101);
+  const cars = demoCars as { make: string; model: string; year: number; priceEur: number }[];
+  const out: { sale: Sale; costEur: number }[] = [];
+  for (let back = 11; back >= 1; back--) {
+    for (let n = r.int(2, 4); n > 0; n--) {
+      const c = r.pick(cars);
+      const d = new Date();
+      d.setUTCDate(1);
+      d.setUTCMonth(d.getUTCMonth() - back);
+      d.setUTCDate(r.int(1, 28));
+      const priceEur = c.priceEur - r.pick([0, 250, 500, 1000]);
+      const sale = { id: `past-${out.length}`, carTitle: `${c.year - 1} ${c.make} ${c.model}`, priceEur, soldOn: d.toISOString().slice(0, 10), salesperson: r.pick(["Conor Doyle", "Conor Doyle", "Aoife Brennan", "Ciara Walsh"]), customerId: `cust-${300 + r.int(0, 21)}`, createdAt: d.getTime() };
+      out.push({ sale, costEur: Math.round((priceEur * r.int(80, 90)) / 100 / 50) * 50 });
+    }
+  }
+  return out;
+})();
+export const salesStore = defineCollection<Sale>("sales", () => [...seedSales(), ...PAST_SALES.map((p) => p.sale)]);
+
 // ---- Cost prices ----
 // What each car cost the dealer. Kept here, never in the public car data, and only shown to staff with the "margins" permission
 // (src/lib/permissions.ts). One record per car id; a car added in the admin has none until someone enters it.
 export type CarCost = { id: string; costEur: number };
-export const costsStore = defineCollection<CarCost>("car-costs", () => [...demoCars, ...extraCars].map((c) => ({ id: c.id, costEur: demoCost(c.id, c.priceEur) })));
+export const costsStore = defineCollection<CarCost>("car-costs", () => [...[...demoCars, ...extraCars].map((c) => ({ id: c.id, costEur: demoCost(c.id, c.priceEur) })), ...PAST_SALES.map((p) => ({ id: p.sale.id, costEur: p.costEur }))]);
+
+// Prep: what was spent getting a car ready to sell, on top of its cost (valet, tyres, NCT...). One record per car, its lines in a fixed
+// list of kinds, so reports can total them. Margins permission only, like the cost.
+export { PREP_KINDS, type PrepKind, type PrepLine } from "./prep";
+export type CarPrep = { id: string; lines: PrepLine[] };
+function seedPrep(): CarPrep[] {
+  // A valet on every other demo car, and tyres or an NCT on some, so the margins and reports show prep without every car carrying it.
+  const r = rng(91);
+  return [...demoCars, ...extraCars].filter((_, i) => i % 2 === 0).map((c, i) => ({
+    id: c.id,
+    lines: [{ kind: "Valet" as const, eur: 120, at: Date.now() - (i + 5) * DAY }, ...(i % 3 === 0 ? [{ kind: r.pick(["Tyres", "NCT", "Service"] as const), eur: r.pick([90, 180, 320, 450]), at: Date.now() - (i + 3) * DAY }] : [])],
+  }));
+}
+export const prepStore = defineCollection<CarPrep>("car-prep", seedPrep);
 
 // Every dealer collection, so "Reset demo data" puts the whole demo back to its seed.
-export const DEALER_COLLECTIONS = [leadsStore, drivesStore, customersStore, alertsStore, subscribersStore, reviewsStore, settingsStore, postsStore, adsStore, newslettersStore, costsStore];
+export const DEALER_COLLECTIONS = [leadsStore, drivesStore, customersStore, alertsStore, subscribersStore, reviewsStore, settingsStore, postsStore, adsStore, newslettersStore, costsStore, salesStore, prepStore];

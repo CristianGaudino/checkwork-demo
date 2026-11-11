@@ -1,3 +1,4 @@
+import { isBankHoliday } from "../bank-holidays";
 import { OPENING_HOURS, SITE_NAME } from "../site";
 import { DAY } from "../time";
 
@@ -9,6 +10,8 @@ export const CONSENT = { version: "2026-11-10", text: `I agree to ${SITE_NAME} u
 // D-04: leads are kept this long, then deleted by the daily purge (worker.mjs, docs/lead-retention.md). The dealer must confirm
 // the period; /privacy and docs/lead-retention.md state it, so change all three together.
 export const LEAD_RETENTION_MONTHS = 12;
+// A sale record names its buyer: kept this many years (Irish business records), then the buyer is removed (src/lib/admin/sales-purge.ts).
+export const SALE_KEEP_YEARS = 6;
 // What the contact form and the service form say after a message goes.
 export const MESSAGE_SENT = { heading: "Thanks, we have your message.", body: "We'll get back to you." } as const;
 export const LIMITS = { name: 100, phone: 30, email: 200, message: 1000 } as const;
@@ -89,8 +92,9 @@ const dublinDate = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: TEST_D
 const addDays = (iso: string, n: number) => new Date(Date.parse(`${iso}T12:00:00Z`) + n * DAY).toISOString().slice(0, 10);
 const hoursFor = (iso: string) => OPENING_HOURS[(new Date(`${iso}T12:00:00Z`).getUTCDay() + 6) % 7]; // OPENING_HOURS starts on Monday
 
-/** The times a car can be driven on a day: every slot from opening until an hour before closing. Empty on a closed day. */
+/** The times a car can be driven on a day: every slot from opening until an hour before closing. Empty on a closed day, bank holidays included. */
 export function driveTimes(iso: string): string[] {
+  if (isBankHoliday(iso)) return [];
   const h = hoursFor(iso);
   if (!h?.opens || !h.closes) return [];
   const out: string[] = [];

@@ -6,6 +6,12 @@ Leads are personal data. Deleting old leads is automatic (see "Automatic purge")
 
 Leads are kept for **12 months** from when they were sent, then deleted. The period is the constant `LEAD_RETENTION_MONTHS` in `src/lib/leads/constants.ts`, and the `/privacy` page (added in 03-10) states it. The dealer must confirm the period. If it changes, change the constant, `/privacy`, the lifecycle rule's days and this page together.
 
+## Sale records
+
+A sale recorded in the dashboard names its buyer (a customer, by id). It is kept **6 years** (`SALE_KEEP_YEARS`, Irish business records),
+then the same daily job removes the buyer from it and keeps the figures (`src/lib/admin/sales-purge.ts`, `{"job":"anonymise-sales"}`).
+`/privacy` states it; change both together.
+
 ## Automatic purge
 
 A Cloudflare cron trigger (wrangler.jsonc `triggers`, daily at 03:17 UTC) runs `purgeOldLeads` (src/lib/leads/purge.ts) from `worker.mjs`. It deletes the trade-in photos of every lead older than `LEAD_RETENTION_MONTHS` from R2, then deletes those lead rows. Photos go first: if R2 fails, the rows stay and the next run tries again. Each run logs one line, `{"job":"purge-leads","deleted":<count>}`, and nothing else. A run that throws shows as a failed cron in the Cloudflare dashboard (Workers, the Worker, Cron Triggers) and in Workers Logs.

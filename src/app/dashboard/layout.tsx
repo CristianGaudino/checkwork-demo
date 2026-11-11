@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { DEALER_NAV } from "@/lib/admin/nav";
-import { can } from "@/lib/permissions";
+import { currentMember } from "@/lib/permissions";
+import { roleCan } from "@/lib/permission-rules";
 import { SITE_NAME } from "@/lib/site";
 
 // Never indexed. Real access is Cloudflare Access (#7, #21); the demo shows it open so every role can be seen.
@@ -11,9 +12,9 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: { default: "Dealer dashboard", template: "%s | Dealer dashboard" }, robots: { index: false } };
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
-  const margins = await can("margins");
+  const { role } = await currentMember();
   // A screen that needs a permission is left out of the menu, and the page itself refuses (notFound) without it.
-  const nav = DEALER_NAV.filter((i) => i.permission !== "margins" || margins);
+  const nav = DEALER_NAV.filter((i) => !i.permission || roleCan(role, i.permission));
   return (
     <AdminShell title={SITE_NAME} subtitle="Dealer dashboard" nav={nav} navLabel="Dealer dashboard">
       {children}

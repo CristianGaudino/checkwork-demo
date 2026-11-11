@@ -22,9 +22,11 @@ test("the composer suggests text for the car, shows a preview, and publishing po
 test("a post for a car can be scheduled, and is kept as a draft with Save draft", async ({ page }) => {
   await page.goto("/dashboard/marketing");
   await choose(page.getByLabel("Car", { exact: true }), 1);
+  await expect(page.getByLabel("Text")).not.toHaveValue(""); // the suggested text arrives once the car loads; an empty post is refused
   await page.getByRole("button", { name: "Save draft" }).click();
   await expect(page.getByRole("status")).toContainText("Draft saved");
   await choose(page.getByLabel("Car", { exact: true }), 1);
+  await expect(page.getByLabel("Text")).not.toHaveValue(""); // the suggested text arrives once the car loads; an empty post is refused
   await page.getByRole("button", { name: "Later" }).click();
   await page.getByLabel("Date and time").fill("2031-01-01T10:00");
   await page.getByRole("button", { name: "Schedule", exact: true }).click();
@@ -34,6 +36,7 @@ test("a post for a car can be scheduled, and is kept as a draft with Save draft"
 test("a time in the past is refused", async ({ page }) => {
   await page.goto("/dashboard/marketing");
   await choose(page.getByLabel("Car", { exact: true }), 1);
+  await expect(page.getByLabel("Text")).not.toHaveValue(""); // the suggested text arrives once the car loads; an empty post is refused
   await page.getByRole("button", { name: "Later" }).click();
   await page.getByLabel("Date and time").fill("2020-01-01T10:00");
   await page.getByRole("button", { name: "Schedule", exact: true }).click();
@@ -46,6 +49,7 @@ test("the ad switch adds a budget, and publishing starts the ad with the post", 
   await choose(page.getByLabel("Car", { exact: true }), 1);
   await page.getByLabel("Also run it as an ad").check();
   await page.getByLabel("Budget (€)").fill("150");
+  await expect(page.getByLabel("Text")).not.toHaveValue(""); // the suggested text arrives once the car loads; an empty post is refused
   await page.getByRole("button", { name: "Publish", exact: true }).click();
   await expect(page.getByRole("status")).toContainText("Post published and ad started");
   await expect(page.getByRole("listitem").filter({ hasText: "Meta ad" }).filter({ hasText: "Running" }).filter({ hasText: "€150" }).first()).toBeVisible();

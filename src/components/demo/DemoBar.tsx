@@ -4,8 +4,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useSyncExternalStore } from "react";
 import { DEMO_ROLES, THEME_KEY, isAppPath, roleForPath, type Theme } from "@/lib/demo";
-import { setDemoPermission, setDemoRole, setDemoStockSource, useDemoPermissions, useDemoRole, useStockSource } from "@/lib/demo-role";
-import { parsePerms } from "@/lib/permission-rules";
+import { setDealerRole, setDemoRole, setDemoStockSource, useDealerRole, useDemoRole, useStockSource } from "@/lib/demo-role";
+import { ROLES, type Role } from "@/lib/permission-rules";
 import { press } from "@/components/ui";
 
 // The theme lives on <html data-theme>; this watches that attribute, so the button is right on first paint and after any change.
@@ -34,7 +34,7 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
   // In the dealer area the route is the role. On a public page it is the remembered one.
   const role = inApp ? roleForPath(path) : saved;
   const theme = useSyncExternalStore(subscribe, read, () => "light" as Theme);
-  const margins = parsePerms(useDemoPermissions()).includes("margins");
+  const dealerRole = useDealerRole();
   const measure = useCallback((el: HTMLDivElement | null) => {
     if (!el) return;
     const set = () => document.documentElement.style.setProperty("--demo-bar-h", `${el.offsetHeight}px`);
@@ -70,18 +70,26 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
             </Link>
           ))}
           {role === "dealer" && showAreas && (
-            // What the dealer may see: off is an ordinary dealer, on is one with the margins permission (src/lib/permissions.ts).
-            <button
-              type="button"
-              aria-pressed={margins}
-              onClick={() => {
-                setDemoPermission("margins", !margins);
-                router.refresh();
-              }}
-              className={`ml-0.5 flex h-8 shrink-0 items-center rounded-full border px-2 text-meta sm:ml-1 sm:px-3 ${margins ? "border-accent bg-accent text-on-accent" : "border-hairline text-text-2"} ${press}`}
-            >
-              Margins{" "}<span className="sr-only sm:not-sr-only sm:ml-1">{margins ? "on" : "off"}</span>
-            </button>
+            // Which member of the team the demo acts as: the role decides what they may see (src/lib/permissions.ts). The browser's own
+            // select, not the site's Combobox: it is one compact control in a bar fixed to the foot of the screen, where a list would open off it.
+            <label className="ml-0.5 flex h-8 shrink-0 items-center rounded-full border border-hairline pl-2 sm:ml-1 sm:pl-3">
+              <span aria-hidden className="hidden text-text-2 sm:mr-1 sm:inline">Role</span>
+              <select
+                aria-label="Role"
+                value={dealerRole}
+                onChange={(e) => {
+                  setDealerRole(e.target.value as Role);
+                  router.refresh();
+                }}
+                className="h-full cursor-pointer rounded-full bg-transparent pr-2 text-meta font-medium text-text sm:pr-3"
+              >
+                {ROLES.map((r) => (
+                  <option key={r} value={r} className="bg-band text-text">
+                    {r}
+                  </option>
+                ))}
+              </select>
+            </label>
           )}
           {role === "dealer" && showAreas && (
             // Where the stock comes from: added here, or synced from DoneDeal and read only here (src/lib/stock-source.ts).

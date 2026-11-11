@@ -10,8 +10,15 @@ import { adminCars } from "@/lib/admin/stock-admin";
 import { carName } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
 import { newId } from "@/lib/admin/ids";
+import { logActivity } from "@/lib/admin/activity";
+import { fmtEur } from "@/lib/admin/format";
+import { aOrAn } from "@/lib/admin/activity-text";
 import type { ComposerCar } from "@/components/admin/PostComposer";
 import { dublinMs } from "@/lib/admin/real-leads";
+
+const postRef = (p: SocialPost) => ({ kind: "post" as const, id: p.id, label: p.carTitle ?? "A post" });
+const adRef = (a: Ad) => ({ kind: "ad" as const, id: a.id, label: a.carTitle });
+const letterRef = (n: { id: string; subject: string }) => ({ kind: "newsletter" as const, id: n.id, label: n.subject });
 
 // A result goes back to the page as a short code, never as text from the request, so the page can only ever say what it knows.
 const go = (tab: string, notice: string): never => redirect(`/dashboard/marketing?tab=${tab}&notice=${notice}`);
@@ -47,14 +54,27 @@ export async function composeAction(data: FormData) {
   const withAd = d.ad === "on" && !later && d.platform && d.budgetEur; // an ad starts with the post, so not for a scheduled one
   const adDraft: Ad | null = withAd ? { id: newId("ad"), name: `${carName(car)} ${d.platform} ad`, platform: d.platform!, carTitle: carName(car), budgetEur: d.budgetEur!, status: "draft", impressions: 0, clicks: 0, leads: 0, createdAt: Date.now() } : null;
   if (adDraft) await adsStore.put(adDraft);
-  if (d.intent === "draft") return go("posts", adDraft ? "draft-ad" : "post-draft");
-  if (later) return go("posts", "post-scheduled");
+  if (d.intent === "draft") {
+    await logActivity("marketing", `Saved a draft ${d.network} post${adDraft ? " and ad" : ""}`, postRef(post));
+    return go("posts", adDraft ? "draft-ad" : "post-draft");
+  }
+  if (later) {
+    await logActivity("marketing", `Scheduled ${aOrAn(d.network)} post`, postRef(post));
+    return go("posts", "post-scheduled");
+  }
   const sent = await publishPost(post);
-  if (!sent.ok) return outcome("posts", "social", sent, "");
+  if (!sent.ok) {
+    await logActivity("marketing", `Saved a draft ${d.network} post (it could not be posted)`, postRef(post));
+    return outcome("posts", "social", sent, "");
+  }
   await postsStore.put({ ...post, status: "posted", postedAt: Date.now(), ...(sent.simulated && { simulated: true, ...simulatedPost(post.id) }) });
+  await logActivity("marketing", `Published ${aOrAn(d.network)} post`, postRef(post));
   if (!adDraft) return go("posts", "post-published");
   const started = await startAd(adDraft);
-  if (started.ok) await adsStore.put({ ...adDraft, status: "running", ...(started.simulated && simulatedAd(adDraft.id)) });
+  if (started.ok) {
+    await adsStore.put({ ...adDraft, status: "running", ...(started.simulated && simulatedAd(adDraft.id)) });
+    await logActivity("marketing", `Started a ${adDraft.platform} ad with a ${fmtEur(adDraft.budgetEur)} budget`, adRef(adDraft));
+  }
   go("posts", started.ok ? "published-ad" : "published-ad-draft");
 }
 
@@ -62,12 +82,17 @@ export async function publishPostAction(id: string) {
   const post = await postsStore.get(id);
   if (!post) return go("posts", "invalid");
   const r = await publishPost(post);
-  if (r.ok) await postsStore.put({ ...post, status: "posted", postedAt: Date.now(), ...(r.simulated && { simulated: true, ...simulatedPost(post.id) }) });
+  if (r.ok) {
+    await postsStore.put({ ...post, status: "posted", postedAt: Date.now(), ...(r.simulated && { simulated: true, ...simulatedPost(post.id) }) });
+    await logActivity("marketing", `Published ${aOrAn(post.network)} post`, postRef(post));
+  }
   outcome("posts", "social", r, "post-published");
 }
 
 export async function deletePostAction(id: string) {
+  const post = await postsStore.get(id);
   await postsStore.remove(id);
+  if (post) await logActivity("marketing", `Deleted ${aOrAn(post.network)} post`, postRef(post));
   revalidatePath("/dashboard/marketing");
   go("posts", "deleted");
 }
@@ -76,12 +101,17 @@ export async function startAdAction(id: string) {
   const a = await adsStore.get(id);
   if (!a) return go("posts", "invalid");
   const r = await startAd(a);
-  if (r.ok) await adsStore.put({ ...a, status: "running", ...(r.simulated && simulatedAd(a.id)) });
+  if (r.ok) {
+    await adsStore.put({ ...a, status: "running", ...(r.simulated && simulatedAd(a.id)) });
+    await logActivity("marketing", `Started a ${a.platform} ad with a ${fmtEur(a.budgetEur)} budget`, adRef(a));
+  }
   outcome("posts", "ads", r, "ad-started");
 }
 
 export async function deleteAdAction(id: string) {
+  const ad = await adsStore.get(id);
   await adsStore.remove(id);
+  if (ad) await logActivity("marketing", `Deleted a ${ad.platform} ad`, adRef(ad));
   go("posts", "deleted");
 }
 
@@ -106,7 +136,9 @@ export async function createNewsletterAction(data: FormData) {
     if (!r.success || !r.data.subject || !r.data.body) return go("newsletters", "invalid");
     ({ subject, body } = r.data);
   }
-  await newslettersStore.put({ id: newId("nl"), subject, body, status: "draft", createdAt: Date.now() });
+  const letterDraft = { id: newId("nl"), subject, body, status: "draft" as const, createdAt: Date.now() };
+  await newslettersStore.put(letterDraft);
+  await logActivity("marketing", "Wrote a newsletter", letterRef(letterDraft));
   go("newsletters", "letter-created");
 }
 
@@ -114,11 +146,16 @@ export async function sendNewsletterAction(id: string) {
   const n = await newslettersStore.get(id);
   if (!n || n.status !== "draft") return go("newsletters", "invalid");
   const r = await sendNewsletter(n);
-  if (r.ok) await newslettersStore.put({ ...n, status: "sent", sentAt: Date.now(), ...(r.simulated && simulatedLetter(n.id, (await subscribersStore.list()).filter((x) => x.status === "subscribed").length)) });
+  if (r.ok) {
+    await newslettersStore.put({ ...n, status: "sent", sentAt: Date.now(), ...(r.simulated && simulatedLetter(n.id, (await subscribersStore.list()).filter((x) => x.status === "subscribed").length)) });
+    await logActivity("marketing", "Sent the newsletter", letterRef(n));
+  }
   outcome("newsletters", "newsletters", r, "letter-sent");
 }
 
 export async function deleteNewsletterAction(id: string) {
+  const n = await newslettersStore.get(id);
   await newslettersStore.remove(id);
+  if (n) await logActivity("marketing", "Deleted a newsletter", letterRef(n));
   go("newsletters", "deleted");
 }

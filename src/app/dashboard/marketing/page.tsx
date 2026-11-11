@@ -3,6 +3,8 @@ import { PostComposer } from "@/components/admin/PostComposer";
 import { sendDuePosts } from "@/lib/admin/scheduler";
 import { adsStore, newslettersStore, postsStore, subscribersStore } from "@/lib/admin/collections";
 import { fmtDate, fmtDateTime, fmtEur, fmtNum, fmtPct } from "@/lib/admin/format";
+import Link from "next/link";
+import { worthPosting } from "@/lib/admin/marketing";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { isUsable } from "@/lib/integrations";
 import { carName } from "@/lib/stock/format";
@@ -53,6 +55,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
   const forSale = cars.filter((c) => !isSold(c)).sort((a, b) => Number(b.id) - Number(a.id));
   const live = subs.filter((s) => s.status === "subscribed").length;
   const composerCars = forSale.map((c) => [c.slug, carName(c)] as [string, string]);
+  const ideas = sp.car ? [] : worthPosting(forSale, posts); // not while a post for a chosen car is being written
   // Posts and ads in one list, newest first.
   const feed = [...posts.map((p) => ({ kind: "post" as const, at: p.createdAt, p })), ...ads.map((a) => ({ kind: "ad" as const, at: a.createdAt, a }))].sort((x, y) => y.at - x.at);
 
@@ -77,6 +80,23 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
 
       {tab === "posts" && (
         <>
+          {ideas.length > 0 && (
+            <Panel title="Worth posting">
+              <ul className="-mx-5 flex flex-col">
+                {ideas.map(({ car, reason }) => (
+                  <li key={car.id} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-5 py-2 even:bg-row-alt">
+                    <span className="flex min-w-0 flex-col">
+                      <span className="font-medium">{carName(car)}</span>
+                      <span className="text-meta text-text-2">{reason}</span>
+                    </span>
+                    <Link href={`/dashboard/marketing?car=${encodeURIComponent(car.slug)}`} className={rowButton}>
+                      Write a post
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </Panel>
+          )}
           <Panel title="New post">
             <PostComposer cars={composerCars} initialSlug={sp.car ?? ""} action={composeAction} load={composerCarAction} />
             {!isUsable("social") && <p className="text-meta text-text-2">Facebook and Instagram are not connected, so posts are kept as drafts.</p>}

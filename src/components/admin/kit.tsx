@@ -38,7 +38,9 @@ export function StatCard({ label, value, hint, tone, href }: { label: string; va
   const body = (
     <>
       <p className="text-meta text-text-2">{label}</p>
-      <p className="text-stat font-semibold tabular-nums [overflow-wrap:anywhere] sm:text-display">{value}</p>
+      {/* The longer the figure, the smaller, so a half-width tile on a phone keeps it on one line: €120,925 at the stat size, a year's
+          sales (€5,864,950) a step down. Anything longer still wraps, never spills. */}
+      <p className={`font-semibold tabular-nums [overflow-wrap:anywhere] ${value.length > 8 ? "text-heading sm:text-stat" : value.length > 7 ? "text-stat" : "text-stat sm:text-display"}`}>{value}</p>
       {hint && <p className={`text-meta ${tone === "good" ? "text-ok" : tone === "bad" ? "text-bad" : "text-text-2"}`}>{hint}</p>}
     </>
   );
@@ -63,7 +65,8 @@ export function Meter({ value, max, tone = "accent", className = "" }: { value: 
 }
 
 export function StatGrid({ children }: { children: React.ReactNode }) {
-  return <div className="grid grid-cols-2 gap-3 sm:grid-cols-[repeat(auto-fit,minmax(11rem,1fr))]">{children}</div>;
+  // One column under 360px: two tiles there are too narrow for a euro figure on one line.
+  return <div className="grid grid-cols-1 gap-3 min-[22.5rem]:grid-cols-2 sm:grid-cols-[repeat(auto-fit,minmax(11rem,1fr))]">{children}</div>;
 }
 
 const TONES = { neutral: "bg-hairline text-text", good: "bg-ok-soft text-ok", warn: "bg-warn-soft text-warn", bad: "bg-bad-soft text-bad", info: "bg-info-soft text-info" } as const;

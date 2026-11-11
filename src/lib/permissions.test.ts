@@ -4,51 +4,72 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 let cookie: string | undefined;
 let email: string | undefined;
 vi.mock("server-only", () => ({}));
+vi.mock("react", async (orig) => ({ ...(await orig<typeof import("react")>()), cache: <T,>(fn: T) => fn })); // a fresh answer per call
 vi.mock("next/headers", () => ({
-  cookies: async () => ({ get: (n: string) => (n === "checkwork-demo-perms" && cookie !== undefined ? { value: cookie } : undefined) }),
+  cookies: async () => ({ get: (n: string) => (n === "checkwork-demo-role" && cookie !== undefined ? { value: cookie } : undefined) }),
   headers: async () => ({ get: (n: string) => (n === "x-admin-email" ? (email ?? null) : null) }),
 }));
-const { can } = await import("./permissions");
+const { can, currentMember } = await import("./permissions");
+const { settingsStore } = await import("@/lib/admin/collections");
 
-afterEach(() => {
+afterEach(async () => {
   vi.unstubAllEnvs();
   cookie = undefined;
   email = undefined;
+  await settingsStore.reset();
 });
 
-describe("can('margins')", () => {
-  it("on the demo, follows the demo bar's cookie", async () => {
+const production = () => {
+  vi.stubEnv("APP_ENV", "production");
+  vi.stubEnv("NEXT_PUBLIC_ADMIN_OPEN", "");
+  vi.stubEnv("DEMO_RECORDS", "on"); // the demo team (Aoife Owner, Conor Sales, Niamh Finance), to match emails against
+};
+
+describe("on the demo", () => {
+  it("acts as the owner by default, and as the first team member with the role the bar picked", async () => {
     vi.stubEnv("APP_ENV", "demo");
-    expect(await can("margins")).toBe(false);
-    cookie = "margins";
+    expect(await currentMember()).toMatchObject({ name: "Aoife Brennan", role: "Owner" });
     expect(await can("margins")).toBe(true);
-    cookie = "something-else";
+    cookie = "Sales";
+    expect(await currentMember()).toMatchObject({ name: "Conor Doyle", role: "Sales" });
+    expect(await can("margins")).toBe(false);
+    cookie = "Finance";
+    expect([await can("margins"), await can("team")]).toEqual([true, false]);
+    cookie = "nonsense";
+    expect((await currentMember()).role).toBe("Owner");
+  });
+});
+
+describe("on a production site", () => {
+  it("ignores the cookie, even with the demo bar left on", async () => {
+    production();
+    cookie = "Owner";
+    expect(await currentMember()).toMatchObject({ role: null });
+    expect(await can("margins")).toBe(false);
+    // A build that forgot APP_ENV is treated the same: a cookie never makes anyone the owner.
+    vi.stubEnv("APP_ENV", "");
     expect(await can("margins")).toBe(false);
   });
 
-  it("on a production site ignores the cookie, even with the demo bar left on", async () => {
-    vi.stubEnv("APP_ENV", "production");
-    vi.stubEnv("NEXT_PUBLIC_ADMIN_OPEN", "");
-    cookie = "margins";
+  it("matches the signed-in email to the team, whatever its case", async () => {
+    production();
+    email = "CONOR@example.com";
+    expect(await currentMember()).toMatchObject({ name: "Conor Doyle", role: "Sales" });
     expect(await can("margins")).toBe(false);
+    email = "niamh@example.com";
+    expect([await can("margins"), await can("team")]).toEqual([true, false]);
+    email = "aoife@example.com";
+    expect(await can("team")).toBe(true);
   });
 
-  it("on a production site grants it only to a listed, signed-in address", async () => {
-    vi.stubEnv("APP_ENV", "production");
-    vi.stubEnv("NEXT_PUBLIC_ADMIN_OPEN", "");
-    vi.stubEnv("ADMIN_MARGINS_EMAILS", "Owner@dealer.ie, accounts@dealer.ie");
-    email = "owner@dealer.ie";
-    expect(await can("margins")).toBe(true);
-    email = "staff@dealer.ie";
-    expect(await can("margins")).toBe(false);
+  it("makes ADMIN_OWNER_EMAILS owners, team or not, and grants nothing to anyone else", async () => {
+    production();
+    vi.stubEnv("ADMIN_OWNER_EMAILS", "Boss@dealer.ie, other@dealer.ie");
+    email = "boss@dealer.ie";
+    expect(await can("team")).toBe(true);
+    email = "stranger@dealer.ie";
+    expect(await currentMember()).toMatchObject({ role: null });
     email = undefined;
-    expect(await can("margins")).toBe(false);
-  });
-
-  it("grants nothing on a production site with no list", async () => {
-    vi.stubEnv("APP_ENV", "production");
-    vi.stubEnv("NEXT_PUBLIC_ADMIN_OPEN", "");
-    email = "owner@dealer.ie";
     expect(await can("margins")).toBe(false);
   });
 });

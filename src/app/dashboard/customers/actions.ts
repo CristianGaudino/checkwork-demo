@@ -1,23 +1,31 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { logActivity } from "@/lib/admin/activity";
 import { alertsStore, subscribersStore } from "@/lib/admin/collections";
 
-export async function toggleAlertAction(id: string) {
+// Consent only goes one way here: staff can stop an alert or the newsletter (the person asked, by phone or in person), never start one
+// again. Only the person can sign up again, on the website. Restarting it for them would send marketing they did not agree to.
+
+export async function pauseAlertAction(id: string) {
   const a = await alertsStore.get(id);
-  if (!a) return;
-  await alertsStore.put({ ...a, active: !a.active });
+  if (!a?.active) return;
+  await alertsStore.put({ ...a, active: false });
+  await logActivity("customers", "Paused the stock alert", { kind: "alert", id });
   revalidatePath("/dashboard/customers");
 }
 
 export async function removeAlertAction(id: string) {
+  if (!(await alertsStore.get(id))) return;
   await alertsStore.remove(id);
+  await logActivity("customers", "Removed a stock alert", { kind: "alert", id });
   revalidatePath("/dashboard/customers");
 }
 
-export async function toggleSubscriberAction(id: string) {
+export async function unsubscribeAction(id: string) {
   const s = await subscribersStore.get(id);
-  if (!s) return;
-  await subscribersStore.put({ ...s, status: s.status === "subscribed" ? "unsubscribed" : "subscribed" });
+  if (s?.status !== "subscribed") return;
+  await subscribersStore.put({ ...s, status: "unsubscribed" });
+  await logActivity("customers", "Unsubscribed from the newsletter", { kind: "subscriber", id });
   revalidatePath("/dashboard/customers");
 }

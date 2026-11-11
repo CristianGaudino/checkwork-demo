@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Car } from "@/lib/stock/types";
-import { writeNewsletter, writePost } from "./marketing";
+import { worthPosting, writeNewsletter, writePost } from "./marketing";
 
 const voice = { voice: "Plain.", hashtags: "#usedcars", signOff: "Call in to see it." };
 const car = { id: "1", slug: "ford-focus-2019-1", make: "Ford", model: "Focus", variant: "1.0 Titanium", year: 2019, priceEur: 13950, mileageKm: 129999, fuel: "petrol", gearbox: "manual", photos: [] } as unknown as Car;
@@ -54,5 +54,23 @@ describe("simulated figures", () => {
     expect(n.recipients).toBe(100);
     expect(n.opens).toBeLessThanOrEqual(100);
     expect(n.clicks).toBeLessThan(n.opens);
+  });
+});
+
+describe("worthPosting", () => {
+  const now = Date.parse("2026-11-11T12:00:00Z");
+  const c = (slug: string, o: Partial<Car>) => ({ ...car, id: slug, slug, ...o }) as Car;
+  it("suggests new cars first, then reduced ones, never one posted lately or sold, at most three", () => {
+    const cars = [
+      c("old-plain", { listedAt: "2026-09-01" }),
+      c("reduced", { listedAt: "2026-09-01", priceEur: 9000, wasPriceEur: 9500 }),
+      c("new-a", { listedAt: "2026-11-05" }),
+      c("new-b", { listedAt: "2026-11-10" }),
+      c("new-posted", { listedAt: "2026-11-10" }),
+      c("new-sold", { listedAt: "2026-11-10", soldAt: "2026-11-11" }),
+    ];
+    const ideas = worthPosting(cars, [{ carSlug: "new-posted", createdAt: now - 3_600_000 }], now);
+    expect(ideas.map((i) => [i.car.slug, i.reason])).toEqual([["new-b", "New this week"], ["new-a", "New this week"], ["reduced", "Price dropped"]]);
+    expect(worthPosting([...cars, c("new-c", { listedAt: "2026-11-09" })], [], now)).toHaveLength(3);
   });
 });

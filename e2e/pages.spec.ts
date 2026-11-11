@@ -78,10 +78,12 @@ test("/contact gives the phone, WhatsApp, the hours under the map, and no addres
   await expect(main(page).locator("address")).toHaveCount(0); // the address is in the footer
   await expect(main(page).getByRole("heading", { name: "Address" })).toHaveCount(0);
   const rows = main(page).locator("dl > div");
-  await expect(rows).toHaveCount(3);
+  await expect(rows).toHaveCount(4);
   await expect(rows.first()).toContainText("Monday to Friday");
   await expect(rows.first()).toContainText("9:30am to 6pm");
   await expect(rows.nth(1)).toContainText("Saturday");
+  await expect(rows.nth(2)).toContainText("Closed"); // Sunday
+  await expect(rows.last()).toContainText("Bank holidays");
   await expect(rows.last()).toContainText("Closed");
   await expect(main(page).getByRole("link", { name: "Ask us to find a car" })).toHaveCount(0); // the footer has those
   await expect(main(page).getByRole("link", { name: "Trade in your car" })).toHaveCount(0);

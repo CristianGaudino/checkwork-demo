@@ -25,9 +25,12 @@ describe("the dashboard gate in the proxy", () => {
     expect((await get("/dashboard")).status).toBe(404);
     expect((await get("/dashboard", { "cf-access-jwt-assertion": "a.b.c" })).status).toBe(404);
   });
-  it("is open in development (no APP_ENV), and the public site is never gated", async () => {
-    vi.stubEnv("APP_ENV", "");
+  it("is open in next dev, closed in a build with no APP_ENV, and the public site is never gated", async () => {
+    vi.stubEnv("NODE_ENV", "development");
     expect((await get("/dashboard")).status).toBe(200);
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("APP_ENV", "");
+    expect((await get("/dashboard")).status).toBe(404); // a client build that forgot APP_ENV stays closed
     vi.stubEnv("APP_ENV", "demo");
     expect((await get("/used-cars")).status).toBe(200);
   });
@@ -45,7 +48,7 @@ describe("the dashboard gate in the proxy", () => {
     expect((await get("/dashboard", { "cf-access-jwt-assertion": "a.b.c", "x-admin-email": "forged@evil.example" })).status).toBe(404);
   });
   it("in development (no Access) drops any x-admin-email the browser sent", async () => {
-    vi.stubEnv("APP_ENV", "");
+    vi.stubEnv("NODE_ENV", "development");
     const res = await get("/dashboard", { "x-admin-email": "forged@evil.example" });
     expect(res.headers.get("x-middleware-request-x-admin-email")).toBeNull();
     expect(res.headers.get("x-middleware-override-headers") ?? "").not.toContain("x-admin-email");

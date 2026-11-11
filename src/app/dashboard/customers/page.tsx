@@ -1,7 +1,8 @@
-import { Badge, DataTable, EmptyState, PageHeader, Pager, SummaryTabs, paginate, rowButton } from "@/components/admin/kit";
+import { Badge, DataTable, EmptyState, PageHeader, Pager, SummaryTabs, adminButtonQuiet, paginate, rowButton } from "@/components/admin/kit";
+import { can } from "@/lib/permissions";
 import { ALERT_KIND_LABELS, alertsStore, customersStore, subscribersStore } from "@/lib/admin/collections";
 import { fmtAgo, fmtDate, fmtNum } from "@/lib/admin/format";
-import { removeAlertAction, toggleAlertAction, toggleSubscriberAction } from "./actions";
+import { pauseAlertAction, removeAlertAction, unsubscribeAction } from "./actions";
 
 export const metadata = { title: "Customers" };
 
@@ -21,7 +22,17 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
 
   return (
     <>
-      <PageHeader title="Customers" />
+      <PageHeader
+        title="Customers"
+        actions={
+          (await can("data")) && (
+            // This tab's list. Owners and managers only.
+            <a href={`/dashboard/customers/export?tab=${tab}`} className={adminButtonQuiet} download>
+              Export CSV
+            </a>
+          )
+        }
+      />
       {/* The three lists are the summary: each tile is its count and opens its list. */}
       <SummaryTabs
         label="Customer lists"
@@ -74,9 +85,12 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
               header: "",
               cell: (a) => (
                 <div className="flex justify-end gap-2">
-                  <form action={toggleAlertAction.bind(null, a.id)}>
-                    <button type="submit" className={rowButton}>{a.active ? "Pause" : "Resume"}</button>
-                  </form>
+                  {/* Pause only: an alert starts again only when the person signs up again (actions.ts). */}
+                  {a.active && (
+                    <form action={pauseAlertAction.bind(null, a.id)}>
+                      <button type="submit" className={rowButton}>Pause</button>
+                    </form>
+                  )}
                   <form action={removeAlertAction.bind(null, a.id)}>
                     <button type="submit" className={`${rowButton} text-bad`}>Remove</button>
                   </form>
@@ -103,11 +117,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
             {
               key: "actions",
               header: "",
-              cell: (s) => (
-                <form action={toggleSubscriberAction.bind(null, s.id)} className="flex justify-end">
-                  <button type="submit" className={rowButton}>{s.status === "subscribed" ? "Unsubscribe" : "Resubscribe"}</button>
-                </form>
-              ),
+              // Unsubscribe only: only the person can sign up again (actions.ts).
+              cell: (s) =>
+                s.status === "subscribed" && (
+                  <form action={unsubscribeAction.bind(null, s.id)} className="flex justify-end">
+                    <button type="submit" className={rowButton}>Unsubscribe</button>
+                  </form>
+                ),
             },
           ]}
         />

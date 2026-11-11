@@ -65,6 +65,7 @@ export interface Car {
   photos: Photo[]; // 0 to 6, local /stock/... paths
   soldAt?: string; // ISO date (YYYY-MM-DD). Drives the sold window and the 410 only. Never render it anywhere.
   listedAt?: string; // ISO date (YYYY-MM-DD) the car went on the site: the Newest sort, days in stock, the sitemap date
+  listingUrl?: string; // its ad on DoneDeal, for stock synced from there (src/lib/donedeal): where the dealer edits it
 }
 
 export interface StockQuery {
