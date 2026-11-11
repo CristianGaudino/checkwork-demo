@@ -11,7 +11,7 @@
 	"routes": [{ "pattern": "www.demo.checkwork.ie", "custom_domain": true }, { "pattern": "demo.checkwork.ie", "custom_domain": true }],
 	"workers_dev": false,
 	// worker.mjs: daily at 03:17 UTC, deletes old leads, their photos and old activity. Every 15 minutes, syncs DoneDeal stock (it does nothing
-	// on a site whose stock is not from DoneDeal, or without the SYNC_KEY secret).
+	// on a site whose stock is not from DoneDeal, or without the CRON_KEY secret).
 	"triggers": { "crons": ["17 3 * * *", "*/15 * * * *"] },
 	"observability": { "enabled": true },
 	// Cloudflare Access for /admin (src/lib/access.ts): the team domain and this application's audience tag. Neither is a secret.

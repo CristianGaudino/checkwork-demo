@@ -15,10 +15,10 @@ const HOST = new URL(SITE_URL).hostname;
 const SYNC_CRON = "*/15 * * * *";
 
 // The DoneDeal sync lives in the app (src/lib/donedeal/sync.ts), so the cron calls its route through the app's own handler, with the
-// SYNC_KEY secret. Without the key there is nothing to run. Logs counts only.
+// CRON_KEY secret. Without the key there is nothing to run. Logs counts only.
 async function syncDoneDeal(env, ctx) {
-  if (!env.SYNC_KEY) return;
-  const res = await handler.fetch(new Request(`${SITE_URL}/api/donedeal/sync`, { method: "POST", headers: { authorization: `Bearer ${env.SYNC_KEY}` } }), env, ctx);
+  if (!env.CRON_KEY) return;
+  const res = await handler.fetch(new Request(`${SITE_URL}/api/donedeal/sync`, { method: "POST", headers: { authorization: `Bearer ${env.CRON_KEY}` } }), env, ctx);
   if (res.status === 404) return; // this site's stock is not from DoneDeal
   const body = await res.json().catch(() => null);
   console.log(JSON.stringify({ job: "donedeal-sync", status: res.status, ok: body?.ok ?? false, result: body?.result ?? null }));

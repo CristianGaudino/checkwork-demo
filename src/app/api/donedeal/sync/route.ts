@@ -2,10 +2,10 @@ import { runSync, syncRunsHere } from "@/lib/donedeal/sync";
 
 const headers = { "Cache-Control": "no-store", "X-Robots-Tag": "noindex" };
 
-// The Worker's 15-minute cron (worker.mjs) runs the DoneDeal sync through here, with SYNC_KEY (a secret) as a bearer token. Without the
+// The Worker's 15-minute cron (worker.mjs) runs the DoneDeal sync through here, with CRON_KEY (a secret) as a bearer token. Without the
 // key set, or on a site whose stock is not from DoneDeal, it is not there. The answer is counts only, never a car or a person.
 export async function POST(req: Request) {
-  const key = process.env.SYNC_KEY;
+  const key = process.env.CRON_KEY;
   if (!key || !syncRunsHere() || !same(req.headers.get("authorization") ?? "", `Bearer ${key}`)) return new Response(null, { status: 404, headers });
   const s = await runSync();
   return Response.json({ ok: !s.problem, result: s.result ?? null, held: Boolean(s.held) }, { headers });
