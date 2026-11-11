@@ -46,6 +46,9 @@ describe("on a production site", () => {
     cookie = "Owner";
     expect(await currentMember()).toMatchObject({ role: null });
     expect(await can("margins")).toBe(false);
+    // A build that forgot APP_ENV is treated the same: a cookie never makes anyone the owner.
+    vi.stubEnv("APP_ENV", "");
+    expect(await can("margins")).toBe(false);
   });
 
   it("matches the signed-in email to the team, whatever its case", async () => {

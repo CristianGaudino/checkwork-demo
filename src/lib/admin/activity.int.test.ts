@@ -6,6 +6,9 @@ vi.mock("react", async (orig) => ({ ...(await orig<typeof import("react")>()), c
 vi.mock("@/lib/db", () => import("@/test/sqlite-db"));
 vi.mock("@/lib/leads/bindings", () => ({ getBindings: () => ({ DB: {} }) }));
 vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => undefined }), headers: async () => ({ get: () => null }) }));
+// These act as the demo's roles (the demo bar's cookie), which count only on the demo deploy (src/lib/demo.ts, demoCookiesCount).
+beforeEach(() => vi.stubEnv("APP_ENV", "demo"));
+
 const { listActivity, logActivity, resetActivity } = await import("./activity");
 const { purgeOldActivity } = await import("./activity-purge");
 const { getDb } = await import("@/test/sqlite-db");

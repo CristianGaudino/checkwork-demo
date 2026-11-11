@@ -68,7 +68,7 @@ function seedActivity(now = Date.now()): ActivityEntry[] {
     },
     (at) => row(at, "Ciara Walsh", "marketing", `Published ${aOrAn(r.pick(["Facebook", "Instagram"]))} post`, { kind: "post", id: `post-${700 + r.int(4, 8)}`, label: carTitleOf(r.pick(live)) }),
     (at) => row(at, "Aoife Brennan", "reviews", "Replied to the review", { kind: "review", id: `review-${600 + r.int(0, 9)}` }),
-    (at) => row(at, "Ciara Walsh", "customers", r.pick(["Paused the stock alert", "Turned the stock alert back on"]), { kind: "alert", id: `alert-${400 + r.int(0, 13)}` }),
+    (at) => row(at, "Ciara Walsh", "customers", r.pick(["Paused the stock alert", "Removed a stock alert"]), { kind: "alert", id: `alert-${400 + r.int(0, 13)}` }),
   ];
   const sold = cars.filter((c) => c.soldAt).map((c) => row(new Date(`${c.soldAt}T15:00:00Z`).getTime(), "Conor Doyle", "stock", "Marked sold", car(c)));
   const rows = Array.from({ length: 70 }, (_, i) => make[r.int(0, make.length - 1)](now - i * 14 * HOUR - r.int(5, 50) * MINUTE));

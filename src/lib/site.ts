@@ -16,6 +16,8 @@ export const DEALER_WHATSAPP = `https://wa.me/${DEALER_TEL.slice(1)}`;
 export const LEAD_FROM_EMAIL = "leads@checkwork.ie";
 // The only reader of APP_ENV. A function so tests can stub the env.
 export const isProduction = () => process.env.APP_ENV === "production";
+// The Checkwork demo deploy (deploy.yml sets it). Only there do the demo bar's role and stock switches count on a deployed site.
+export const isDemoSite = () => process.env.APP_ENV === "demo";
 export const indexable = () => isProduction();
 
 // PLACEHOLDER: stays false until the dealer confirms the services, About story and terms (address and hours are confirmed). While

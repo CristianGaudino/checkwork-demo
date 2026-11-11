@@ -26,18 +26,14 @@ describe("isAppPath", () => {
 });
 
 describe("adminReachable", () => {
-  // The deploy job sets APP_ENV for the whole run, and passing undefined would fall back to it, so the environment is cleared first.
-  beforeEach(() => {
-    vi.stubEnv("APP_ENV", "");
-    vi.stubEnv("NEXT_PUBLIC_ADMIN_OPEN", "");
-  });
+  // The CI job may set the open switch for the whole run, and passing undefined would fall back to it, so it is cleared first.
+  beforeEach(() => vi.stubEnv("NEXT_PUBLIC_ADMIN_OPEN", ""));
   afterEach(() => vi.unstubAllEnvs());
-  it("is open with no APP_ENV (development), and closed on any deployed site unless the open switch is 1", () => {
-    expect(adminReachable(undefined, undefined)).toBe(true);
-    expect(adminReachable("", undefined)).toBe(true);
-    expect(adminReachable("demo", undefined)).toBe(false);
-    expect(adminReachable("production", undefined)).toBe(false);
-    expect(adminReachable("demo", "true")).toBe(false);
-    expect(adminReachable("demo", "1")).toBe(true);
+  it("is open in next dev, and closed in any build unless the open switch is 1", () => {
+    expect(adminReachable("development", undefined)).toBe(true);
+    expect(adminReachable("production", undefined)).toBe(false); // a build, whatever APP_ENV says, or with none
+    expect(adminReachable(undefined, undefined)).toBe(false); // the tests themselves (NODE_ENV=test)
+    expect(adminReachable("production", "true")).toBe(false);
+    expect(adminReachable("production", "1")).toBe(true);
   });
 });

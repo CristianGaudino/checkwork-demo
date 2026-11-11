@@ -3,6 +3,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 vi.mock("next/cache", () => ({ revalidatePath: () => {} }));
 vi.mock("next/navigation", () => ({ redirect: (to: string) => { throw new Error(`redirect:${to}`); } }));
+// These act as the demo's roles (the demo bar's cookie), which count only on the demo deploy (src/lib/demo.ts, demoCookiesCount).
+beforeEach(() => vi.stubEnv("APP_ENV", "demo"));
+
 // The demo's stock switch is a cookie (src/lib/stock-source.ts); this run says DoneDeal.
 let stockCookie = "donedeal";
 let role = "Sales"; // the demo bar's role (src/lib/permissions.ts): sales has no margins
