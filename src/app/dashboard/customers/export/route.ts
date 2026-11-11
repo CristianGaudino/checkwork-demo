@@ -2,8 +2,7 @@ import { logActivity } from "@/lib/admin/activity";
 import { ALERT_KIND_LABELS, alertsStore, customersStore, subscribersStore } from "@/lib/admin/collections";
 import { csvResponse, toCsv } from "@/lib/admin/csv";
 import { can } from "@/lib/permissions";
-
-const day = (t: number) => new Date(t).toISOString().slice(0, 10);
+import { dublinDay as day } from "@/lib/admin/format";
 
 // The Customers page's list (customers, stock alerts or the newsletter) as a CSV. Personal data: owners and managers only, each export in
 // the activity history.

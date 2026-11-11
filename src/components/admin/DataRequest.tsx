@@ -7,8 +7,10 @@ import { eraseAction, exportAction, findAction, type FindState } from "@/app/das
 // Find what is held about a person, then send them a copy or erase it. The email or phone stays in the page, never in the address.
 export function DataRequest() {
   const [state, find, pending] = useActionState<FindState, FormData>(findAction, undefined);
-  const [checked, setChecked] = useState(false);
+  // The tick is for the person on screen: a new search clears it.
+  const [checkedFor, setCheckedFor] = useState<string>();
   const found = state?.groups;
+  const checked = checkedFor !== undefined && checkedFor === state?.q;
   return (
     <>
       <Panel title="Find a person">
@@ -48,7 +50,7 @@ export function DataRequest() {
                 <form action={eraseAction} className="flex flex-col items-start gap-3">
                   <input type="hidden" name="q" value={state.q} />
                   <label className="flex min-h-11 items-center gap-3 text-body">
-                    <input type="checkbox" name="checked" checked={checked} onChange={(e) => setChecked(e.target.checked)} className="size-5 accent-accent" />
+                    <input type="checkbox" name="checked" checked={checked} onChange={(e) => setCheckedFor(e.target.checked ? state.q : undefined)} className="size-5 accent-accent" />
                     I have checked this is the person asking
                   </label>
                   <button type="submit" disabled={!checked} className="inline-flex h-11 items-center rounded-control border border-bad px-4 text-meta font-semibold text-bad disabled:opacity-50">

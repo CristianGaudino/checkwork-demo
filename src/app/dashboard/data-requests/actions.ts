@@ -31,8 +31,9 @@ export async function findAction(_prev: FindState, data: FormData): Promise<Find
   const day = (t: number | Date | string) => fmtDate(typeof t === "string" ? `${t}T12:00:00Z` : t instanceof Date ? t.getTime() : t);
   const groups = [
     { label: "Requests sent from the website", items: h.formLeads.map((r) => `${r.type.replace(/_/g, " ")}, ${day(r.createdAt)}${r.photoKeys.length ? `, ${r.photoKeys.length} photos` : ""}`) },
-    { label: "Leads", items: h.leads.map((l) => `${LEAD_TYPE_LABELS[l.type]}, ${day(l.createdAt)}`) },
-    { label: "Test drives", items: h.drives.map((d) => `${d.carTitle}, ${day(d.startsAt)}`) },
+    // With the name, so staff can spot a record of someone else's found through a shared phone or email before erasing.
+    { label: "Leads", items: h.leads.map((l) => `${l.name}, ${LEAD_TYPE_LABELS[l.type]}, ${day(l.createdAt)}`) },
+    { label: "Test drives", items: h.drives.map((d) => `${d.name}, ${d.carTitle}, ${day(d.startsAt)}`) },
     { label: "Stock alerts", items: h.alerts.map((a) => `${a.criteria}${a.active ? "" : ", paused"}`) },
     { label: "Newsletter", items: h.subscribers.map((s) => (s.status === "subscribed" ? "Subscribed" : "Unsubscribed")) },
     { label: "Customer record", items: h.customers.map((c) => `${c.name}, since ${day(c.createdAt)}`) },

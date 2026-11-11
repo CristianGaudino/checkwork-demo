@@ -1,7 +1,7 @@
 import { logActivity } from "@/lib/admin/activity";
 import { LEAD_STATUS_LABELS, LEAD_TYPE_LABELS, leadsStore } from "@/lib/admin/collections";
 import { csvResponse, toCsv } from "@/lib/admin/csv";
-import { dublinDay } from "@/lib/admin/format";
+import { dublinDateTime, dublinDay } from "@/lib/admin/format";
 import { filterLeads, parseLeadFilter } from "@/lib/admin/leads";
 import { can } from "@/lib/permissions";
 
@@ -15,7 +15,7 @@ export async function GET(req: Request) {
   return csvResponse(
     "leads",
     toCsv(rows, [
-      ["Received", (l) => new Date(l.createdAt).toISOString().slice(0, 16).replace("T", " ")],
+      ["Received", (l) => dublinDateTime(l.createdAt)],
       ["Name", (l) => l.name],
       ["Email", (l) => l.email],
       ["Phone", (l) => l.phone],

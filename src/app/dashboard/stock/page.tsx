@@ -26,9 +26,7 @@ const daysIn = (listedAt: string, now = Date.now()) => {
   return d === 0 ? "Today" : d === 1 ? "1 day" : `${d} days`;
 };
 
-// The views are the summary: each is a tile with its count, and the chosen one filters the table (src/lib/admin/stock-views.ts).
-const VIEWS = STOCK_VIEWS;
-type View = StockView;
+// The views (src/lib/admin/stock-views.ts) are the summary: each is a tile with its count, and the chosen one filters the table.
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ view?: string; status?: string; q?: string; saved?: string; deleted?: string; sale?: string; page?: string }> }) {
   const sp = await searchParams;
@@ -50,7 +48,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
   const matching = stockList(all, view, q);
   const { rows, page, pageCount, total } = paginate(matching, sp.page);
   const saved = sp.saved ? all.find((c) => c.id === sp.saved) : undefined;
-  const href = (v: View) => `/dashboard/stock?view=${v}${q ? `&q=${encodeURIComponent(q)}` : ""}`;
+  const href = (v: StockView) => `/dashboard/stock?view=${v}${q ? `&q=${encodeURIComponent(q)}` : ""}`;
   // Where a row goes: the car's editor here, or, for synced stock, the car on the site (it is changed on DoneDeal).
   const open = (c: Car) => (synced ? `/used-cars/${c.slug}` : `/dashboard/stock/${c.id}`);
 
@@ -164,7 +162,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
       {saved && <p role="status" className="rounded-control bg-ok-soft px-4 py-3 text-body text-ok">Saved {carName(saved)}.</p>}
       {saleFor && <p role="status" className="rounded-control bg-ok-soft px-4 py-3 text-body text-ok">Sale recorded for {carName(saleFor)}.</p>}
       {sp.deleted && <p role="status" className="rounded-control bg-hairline px-4 py-3 text-body">Car deleted.</p>}
-      <SummaryTabs label="Stock views" items={(Object.keys(VIEWS) as View[]).map((v) => ({ label: VIEWS[v].label, count: all.filter(VIEWS[v].test).length, href: href(v), active: view === v }))} />
+      <SummaryTabs label="Stock views" items={(Object.keys(STOCK_VIEWS) as StockView[]).map((v) => ({ label: STOCK_VIEWS[v].label, count: all.filter(STOCK_VIEWS[v].test).length, href: href(v), active: view === v }))} />
       <SearchBar action="/dashboard/stock" value={q} placeholder={SEARCH_MAKE_MODEL} label="Search stock" keep={{ view }} />
       <DataTable
         label="Stock"
