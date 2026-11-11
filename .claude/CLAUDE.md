@@ -22,7 +22,7 @@ The `vintage` repo (`~/Developer/vintage`, GitHub `CristianGaudino/vintage`) is 
 ## Working in git
 - Never develop or commit on `main`, ever. Check `git branch --show-current` before the first edit. Branch first (`git switch -c <type>/<name>`), including for planning docs. The only exception was the initial repo setup push.
 - Open every PR against `main`, never against another feature branch (GitHub closes a PR whose base branch is merged and deleted).
-- Open PRs ready for review, not as drafts, so CI runs on them. Never merge a PR yourself, under any instruction or circumstance: open it and stop. The owner merges.
+- Open PRs ready for review, not as drafts. CI runs on pushes to `main` only (Actions minutes), not on PRs, so the local checks below are the gate. Never merge a PR yourself, under any instruction or circumstance: open it and stop. The owner merges.
 - Link the issue in the PR (`Closes #n`) and move it on the project board.
 - Stage named files, not `git add -A`. Never push `.env*`, `test-results/` or `playwright-report/`.
 - GitHub Actions minutes are limited and shared. Push fewer, finished commits.
@@ -30,7 +30,7 @@ The `vintage` repo (`~/Developer/vintage`, GitHub `CristianGaudino/vintage`) is 
 ## Before opening a PR
 1. Run the ponytail audit (`/ponytail:ponytail-audit`) on what the branch changed: the changed files plus their callers and tests.
 2. Fix what it raises on the same branch. A real trade-off goes in the PR description for the owner to decide.
-3. Run lint, typecheck, unit tests and the E2E spec against a production build. Open the PR only if they pass. Say what the audit found and the E2E result in the PR.
+3. Run lint, typecheck, unit tests, `bash scripts/check-migrations.sh main` and the E2E suite against a production build. Open the PR only if they pass. Say what the audit found and the E2E result in the PR.
 4. Skip steps 1 and 3 for docs-only, workflow-only or copy-only changes, and say so in the PR.
 
 Check by exit code, not by reading output for "error": `npm run lint; echo $?`, `npm test`, `npm run build`. Typecheck with `npx tsc --noEmit`.
