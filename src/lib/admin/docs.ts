@@ -8,7 +8,8 @@ import { isProduction } from "@/lib/site";
 // One small record store for everything the dealer admin keeps (test drives, posts, campaigns, settings...). On the Worker it
 // is the `admin_docs` D1 table; with no D1 binding (next dev, the E2E run) it is a map in memory, so the areas work with nothing set up.
 // A collection starts from its seed function the first time it is read, so a fresh database shows a lived-in demo.
-// shortcut: memory is per server instance, so with no D1 binding edits last only as long as the process does. Fine for dev and tests.
+// shortcut: memory is per server instance (and `next start` gives route handlers their own copy, apart from pages and actions), so with no
+// D1 binding edits last only as long as the process, and a route handler sees the seed. Fine for dev and tests; the Worker uses D1.
 export type Doc = { id: string } & Record<string, unknown>;
 
 const memory = new Map<string, Map<string, Doc>>();

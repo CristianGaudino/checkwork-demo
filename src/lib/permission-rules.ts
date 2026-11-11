@@ -1,7 +1,7 @@
 // What each member of a dealer's team may see and do beyond the everyday dashboard. No imports, so the demo bar (client) and the server
 // share it. A permission unlocks extra screens and elements (a Margins screen, a cost price on the car form); without it they are absent
 // and refused on the server.
-export const PERMISSIONS = ["margins", "team", "settings", "activity", "reports"] as const;
+export const PERMISSIONS = ["margins", "team", "settings", "activity", "reports", "data"] as const; // data: a person's data, and the lead and customer exports
 export type Permission = (typeof PERMISSIONS)[number];
 
 // A role is a set of permissions: owners and managers see and change everything (the team, the business settings, the activity history),

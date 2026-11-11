@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LeadStatusBadge } from "@/components/admin/badges";
-import { Avatar, DataTable, EmptyState, FilterTabs, PageHeader, Pager, SearchBar, SummaryTabs, paginate } from "@/components/admin/kit";
+import { Avatar, DataTable, EmptyState, FilterTabs, PageHeader, Pager, SearchBar, SummaryTabs, adminButtonQuiet, paginate } from "@/components/admin/kit";
+import { can } from "@/lib/permissions";
 import { LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_TYPES, LEAD_TYPE_LABELS, leadsStore } from "@/lib/admin/collections";
 import { dublinDay, fmtAgo, fmtDate } from "@/lib/admin/format";
 import { countByStatus, filterLeads, followUpDue, isOpenLead, parseLeadFilter } from "@/lib/admin/leads";
@@ -30,7 +31,17 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
 
   return (
     <>
-      <PageHeader title="Leads" />
+      <PageHeader
+        title="Leads"
+        actions={
+          (await can("data")) && (
+            // The list as it is filtered now. Owners and managers only.
+            <a href={`/dashboard/leads/export${href({}).replace("/dashboard/leads", "")}`} className={adminButtonQuiet} download>
+              Export CSV
+            </a>
+          )
+        }
+      />
       <SummaryTabs
         label="Lead status"
         items={[{ label: "All", href: href({ status: undefined }), active: !f.status, count: all.length }, ...LEAD_STATUSES.map((s) => ({ label: LEAD_STATUS_LABELS[s], href: href({ status: s }), active: f.status === s, count: counts[s] }))]}

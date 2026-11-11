@@ -1,4 +1,5 @@
-import { Badge, DataTable, EmptyState, PageHeader, Pager, SummaryTabs, paginate, rowButton } from "@/components/admin/kit";
+import { Badge, DataTable, EmptyState, PageHeader, Pager, SummaryTabs, adminButtonQuiet, paginate, rowButton } from "@/components/admin/kit";
+import { can } from "@/lib/permissions";
 import { ALERT_KIND_LABELS, alertsStore, customersStore, subscribersStore } from "@/lib/admin/collections";
 import { fmtAgo, fmtDate, fmtNum } from "@/lib/admin/format";
 import { removeAlertAction, toggleAlertAction, toggleSubscriberAction } from "./actions";
@@ -21,7 +22,17 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
 
   return (
     <>
-      <PageHeader title="Customers" />
+      <PageHeader
+        title="Customers"
+        actions={
+          (await can("data")) && (
+            // This tab's list. Owners and managers only.
+            <a href={`/dashboard/customers/export?tab=${tab}`} className={adminButtonQuiet} download>
+              Export CSV
+            </a>
+          )
+        }
+      />
       {/* The three lists are the summary: each tile is its count and opens its list. */}
       <SummaryTabs
         label="Customer lists"

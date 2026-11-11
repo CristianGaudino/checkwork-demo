@@ -7,12 +7,12 @@ The demo has two views. The public site is `/`. The dealer dashboard is `/dashbo
 Everyone the dashboard lets in works the everyday dashboard (leads, test drives, stock, customers, reviews, marketing). A role adds
 permissions, each checked on the server in every page and action that needs it (`src/lib/permissions.ts`, rules in `permission-rules.ts`):
 
-| Role | Margins (costs, prep and profit) | Reports | Team | Business settings | Activity history |
-|---|---|---|---|---|---|
-| Owner | Yes | The dealership's | Yes | Yes | Yes |
-| Manager | Yes | The dealership's | Yes, except an owner | Yes | Yes |
-| Finance | Yes | The dealership's | No | No | No |
-| Sales | No | Their own, counts only | No | No | No |
+| Role | Margins (costs, prep and profit) | Reports | Team | Business settings | Activity history | Data requests and lead exports |
+|---|---|---|---|---|---|---|
+| Owner | Yes | The dealership's | Yes | Yes | Yes | Yes |
+| Manager | Yes | The dealership's | Yes, except an owner | Yes | Yes | Yes |
+| Finance | Yes | The dealership's | No | No | No | No |
+| Sales | No | Their own, counts only | No | No | No | No |
 
 - **Margins:** a Margins screen, a margin column on the stock list, a Stock margin stat on the overview and a cost price box on the car
   form. Without it none of those are in the page, and the Margins page and the cost field answer as if they were not there. Costs are kept
@@ -72,6 +72,18 @@ with no D1). The actor is the signed-in person (`currentMember`), or a named one
 - **Prep costs** (`prepStore`, kinds in `src/lib/admin/prep.ts`): lines on a car's dashboard page (Valet, Tyres, NCT, Service, Repairs,
   Bodywork, Transport, Other), folded away until used. Margins permission only. A car's whole cost is its cost price plus its prep
   (`src/lib/admin/costs.ts`), and every margin uses it.
+
+## Data requests and exports
+
+- **Data requests** (`/dashboard/data-requests`, `src/lib/admin/data-requests.ts`): when someone asks what we hold about them, or for it
+  to be deleted (GDPR articles 15 and 17, answer within a month). Search by the email or phone they gave; the search then widens once by
+  the other details their customer record and leads hold. It finds the website form submissions (D1, with their photos in R2), leads,
+  test drives, stock alerts, the newsletter, the customer record and purchases. Download a copy (JSON) or erase, after ticking that it is
+  the person asking. Erasure deletes the photos, then the rows and records; a purchase stays for the books without the buyer. The email or
+  phone is never in an address. Each request is in the activity history, without the person.
+- **CSV exports**: Leads (with the list's filters) and Customers (the open tab) for owners and managers, each recorded in Activity;
+  Stock (view and search) for everyone, with cost, prep and margin only for the margins roles. A cell that starts like a formula is
+  prefixed with ' so a spreadsheet never runs it (`src/lib/admin/csv.ts`).
 
 ## Reviews
 

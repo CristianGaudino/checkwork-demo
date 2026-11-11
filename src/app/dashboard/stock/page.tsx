@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Badge, DataTable, EmptyState, PageHeader, Pager, SearchBar, SummaryTabs, adminButton, paginate, rowButton, type Column } from "@/components/admin/kit";
+import { Badge, DataTable, EmptyState, PageHeader, Pager, SearchBar, SummaryTabs, adminButton, paginate, rowButton, type Column, adminButtonQuiet } from "@/components/admin/kit";
 import { ExternalIcon, PencilIcon, PlusIcon, SyncIcon } from "@/components/stock/icons";
 import { NEW_TAB } from "@/components/ui";
 import { carCosts } from "@/lib/admin/costs";
@@ -12,7 +12,7 @@ import { isSold, type Car } from "@/lib/stock/types";
 import { stockSource } from "@/lib/stock-source";
 import { DONEDEAL_DEALER_URL, listingHref } from "@/lib/stock-source-rules";
 import { SyncPanel } from "@/components/admin/SyncPanel";
-import { OLD_STOCK_DAYS, isOldStock } from "@/lib/admin/overview";
+import { FEW_PHOTOS, STOCK_VIEWS, parseStockList, stockList, type StockView } from "@/lib/admin/stock-views";
 import { salesStore } from "@/lib/admin/collections";
 import { syncStatus } from "@/lib/donedeal/sync";
 import { SEARCH_MAKE_MODEL } from "@/lib/copy";
@@ -26,23 +26,13 @@ const daysIn = (listedAt: string, now = Date.now()) => {
   return d === 0 ? "Today" : d === 1 ? "1 day" : `${d} days`;
 };
 
-// The views are the summary: each is a tile with its count, and the chosen one filters the table.
-const FEW_PHOTOS = 4;
-const VIEWS = {
-  "for-sale": { label: "For sale", test: (c: Car) => !isSold(c) },
-  reduced: { label: "Reduced", test: (c: Car) => !isSold(c) && c.wasPriceEur !== undefined && c.wasPriceEur > c.priceEur },
-  photos: { label: "Need photos", test: (c: Car) => !isSold(c) && c.photos.length < FEW_PHOTOS },
-  old: { label: `${OLD_STOCK_DAYS} days or more`, test: (c: Car) => isOldStock(c, Date.now()) },
-  sold: { label: "Sold", test: (c: Car) => isSold(c) },
-  all: { label: "All", test: () => true },
-} as const;
-type View = keyof typeof VIEWS;
+// The views are the summary: each is a tile with its count, and the chosen one filters the table (src/lib/admin/stock-views.ts).
+const VIEWS = STOCK_VIEWS;
+type View = StockView;
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ view?: string; status?: string; q?: string; saved?: string; deleted?: string; sale?: string; page?: string }> }) {
   const sp = await searchParams;
-  const asked = sp.view ?? sp.status; // `status` is the old name for the view, kept so old links still work
-  const view: View = asked && Object.hasOwn(VIEWS, asked) ? (asked as View) : "for-sale";
-  const q = (sp.q ?? "").trim().toLowerCase().slice(0, 60);
+  const { view, q } = parseStockList(sp);
   const [all, source] = await Promise.all([adminCars(), stockSource()]);
   const synced = source === "donedeal";
   const sync = synced ? await syncStatus() : null;
@@ -57,10 +47,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
     ) : null;
   // The margin column is for staff with the margins permission; without it the costs are not even read.
   const costs = (await can("margins")) ? new Map([...(await carCosts())].map(([id, c]) => [id, c.total])) : null;
-  const matching = all
-    .filter(VIEWS[view].test)
-    .filter((c) => !q || `${c.make} ${c.model} ${c.variant ?? ""} ${c.year}`.toLowerCase().includes(q))
-    .sort((a, b) => Number(b.id) - Number(a.id));
+  const matching = stockList(all, view, q);
   const { rows, page, pageCount, total } = paginate(matching, sp.page);
   const saved = sp.saved ? all.find((c) => c.id === sp.saved) : undefined;
   const href = (v: View) => `/dashboard/stock?view=${v}${q ? `&q=${encodeURIComponent(q)}` : ""}`;
@@ -153,18 +140,24 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         title="Stock"
         text={synced ? "Synced from DoneDeal. Add, edit and sell cars there; they update here within 15 minutes." : undefined}
         actions={
-          synced ? (
-            <a href={DONEDEAL_DEALER_URL} {...NEW_TAB} className={adminButton}>
-              <SyncIcon className="size-4" />
-              Open DoneDeal
-              <span className="sr-only"> (opens in a new tab)</span>
+          <>
+            {/* The list as it is filtered now: cost and margin columns only for the margins roles. */}
+            <a href={`/dashboard/stock/export?view=${view}${q ? `&q=${encodeURIComponent(q)}` : ""}`} className={adminButtonQuiet} download>
+              Export CSV
             </a>
-          ) : (
-            <Link href="/dashboard/stock/new" className={adminButton}>
-              <PlusIcon className="size-4" />
-              Add a car
-            </Link>
-          )
+            {synced ? (
+              <a href={DONEDEAL_DEALER_URL} {...NEW_TAB} className={adminButton}>
+                <SyncIcon className="size-4" />
+                Open DoneDeal
+                <span className="sr-only"> (opens in a new tab)</span>
+              </a>
+            ) : (
+              <Link href="/dashboard/stock/new" className={adminButton}>
+                <PlusIcon className="size-4" />
+                Add a car
+              </Link>
+            )}
+          </>
         }
       />
       {sync && <SyncPanel status={sync} canForce={await can("settings")} />}
