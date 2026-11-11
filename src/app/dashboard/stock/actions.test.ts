@@ -11,8 +11,9 @@ vi.mock("next/headers", () => ({
   cookies: async () => ({ get: (n: string) => (n === "checkwork-demo-stock" ? { value: stockCookie } : n === "checkwork-demo-role" ? { value: role } : undefined) }),
   headers: async () => ({ get: () => null }),
 }));
-const { deleteCarAction, recordSaleAction, saveCarAction, saveCostAction, toggleSoldAction } = await import("./actions");
-const { costsStore, customersStore, salesStore } = await import("@/lib/admin/collections");
+const { addPrepAction, removePrepAction, deleteCarAction, recordSaleAction, saveCarAction, saveCostAction, toggleSoldAction } = await import("./actions");
+const { costsStore, customersStore, prepStore, salesStore } = await import("@/lib/admin/collections");
+const { carCosts } = await import("@/lib/admin/costs");
 const { adminCar, adminCars } = await import("@/lib/admin/stock-admin");
 
 describe("stock synced from DoneDeal", () => {
@@ -93,5 +94,25 @@ describe("recording a sale", () => {
     expect((await recordSaleAction(car.id, undefined, form({ priceEur: "-1", soldOn: today, customerId: "" })))?.errors?.priceEur).toBeTruthy();
     expect((await recordSaleAction(car.id, undefined, form({ priceEur: "9000", soldOn: tomorrow, customerId: "", name: "Pat", phone: "1" })))?.errors?.soldOn).toMatch(/passed or today/);
     expect(await salesStore.get(car.id)).toBeUndefined();
+  });
+});
+
+describe("prep costs", () => {
+  const form = (o: Record<string, string>) => Object.entries(o).reduce((f, [k, v]) => (f.set(k, v), f), new FormData());
+  it("only staff who see margins add a line; a bad one is refused; each counts in the car's whole cost, and can be removed", async () => {
+    const car = (await adminCars()).find((c) => !c.soldAt)!;
+    const before = (await prepStore.get(car.id))?.lines.length ?? 0;
+    role = "Sales";
+    expect((await addPrepAction(car.id, undefined, form({ kind: "Tyres", eur: "300" })))?.errors?.kind).toMatch(/margins/);
+    role = "Finance";
+    expect(Object.keys((await addPrepAction(car.id, undefined, form({ kind: "Wheels", eur: "0" })))?.errors ?? {}).sort()).toEqual(["eur", "kind"]);
+    expect((await prepStore.get(car.id))?.lines.length ?? 0).toBe(before);
+    await costsStore.put({ id: car.id, costEur: 10000 });
+    const was = (await carCosts()).get(car.id)!;
+    expect((await addPrepAction(car.id, undefined, form({ kind: "Tyres", eur: "300", note: "Two fronts" })))?.added).toBeTruthy();
+    expect((await carCosts()).get(car.id)).toEqual({ purchase: 10000, prep: was.prep + 300, total: was.total + 300 });
+    const line = (await prepStore.get(car.id))!.lines.at(-1)!;
+    await removePrepAction(car.id, line.at);
+    expect((await carCosts()).get(car.id)!.total).toBe(was.total);
   });
 });

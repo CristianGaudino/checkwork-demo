@@ -6,6 +6,7 @@ import { NETWORKS, type Network } from "./networks";
 import { demoCost } from "./margins";
 import { DAY, HOUR } from "@/lib/time";
 import type { Role } from "@/lib/permission-rules";
+import type { PrepLine } from "./prep";
 import { carTitleOf, livePicks, person, rng } from "./seed-data";
 
 // The dealer's records. Each is a collection in the record store, with a typed shape and a seed. Never the real leads table: the admin
@@ -279,13 +280,47 @@ function seedSales(): Sale[] {
     createdAt: Date.parse(`${c.soldAt}T16:00:00Z`),
   }));
 }
-export const salesStore = defineCollection<Sale>("sales", seedSales);
+// The demo's last year of sales, before the cars in stock now: cars long gone from the site, kept only as sales (and their costs), so the
+// reports have a year to show. Two to four a month, by the made-up team, to the made-up customers.
+const PAST_SALES: { sale: Sale; costEur: number }[] = (() => {
+  const r = rng(101);
+  const cars = demoCars as { make: string; model: string; year: number; priceEur: number }[];
+  const out: { sale: Sale; costEur: number }[] = [];
+  for (let back = 11; back >= 1; back--) {
+    for (let n = r.int(2, 4); n > 0; n--) {
+      const c = r.pick(cars);
+      const d = new Date();
+      d.setUTCDate(1);
+      d.setUTCMonth(d.getUTCMonth() - back);
+      d.setUTCDate(r.int(1, 28));
+      const priceEur = c.priceEur - r.pick([0, 250, 500, 1000]);
+      const sale = { id: `past-${out.length}`, carTitle: `${c.year - 1} ${c.make} ${c.model}`, priceEur, soldOn: d.toISOString().slice(0, 10), salesperson: r.pick(["Conor Doyle", "Conor Doyle", "Aoife Brennan", "Ciara Walsh"]), customerId: `cust-${300 + r.int(0, 21)}`, createdAt: d.getTime() };
+      out.push({ sale, costEur: Math.round((priceEur * r.int(80, 90)) / 100 / 50) * 50 });
+    }
+  }
+  return out;
+})();
+export const salesStore = defineCollection<Sale>("sales", () => [...seedSales(), ...PAST_SALES.map((p) => p.sale)]);
 
 // ---- Cost prices ----
 // What each car cost the dealer. Kept here, never in the public car data, and only shown to staff with the "margins" permission
 // (src/lib/permissions.ts). One record per car id; a car added in the admin has none until someone enters it.
 export type CarCost = { id: string; costEur: number };
-export const costsStore = defineCollection<CarCost>("car-costs", () => [...demoCars, ...extraCars].map((c) => ({ id: c.id, costEur: demoCost(c.id, c.priceEur) })));
+export const costsStore = defineCollection<CarCost>("car-costs", () => [...[...demoCars, ...extraCars].map((c) => ({ id: c.id, costEur: demoCost(c.id, c.priceEur) })), ...PAST_SALES.map((p) => ({ id: p.sale.id, costEur: p.costEur }))]);
+
+// Prep: what was spent getting a car ready to sell, on top of its cost (valet, tyres, NCT...). One record per car, its lines in a fixed
+// list of kinds, so reports can total them. Margins permission only, like the cost.
+export { PREP_KINDS, type PrepKind, type PrepLine } from "./prep";
+export type CarPrep = { id: string; lines: PrepLine[] };
+function seedPrep(): CarPrep[] {
+  // A valet on every other demo car, and tyres or an NCT on some, so the margins and reports show prep without every car carrying it.
+  const r = rng(91);
+  return [...demoCars, ...extraCars].filter((_, i) => i % 2 === 0).map((c, i) => ({
+    id: c.id,
+    lines: [{ kind: "Valet" as const, eur: 120, at: Date.now() - (i + 5) * DAY }, ...(i % 3 === 0 ? [{ kind: r.pick(["Tyres", "NCT", "Service"] as const), eur: r.pick([90, 180, 320, 450]), at: Date.now() - (i + 3) * DAY }] : [])],
+  }));
+}
+export const prepStore = defineCollection<CarPrep>("car-prep", seedPrep);
 
 // Every dealer collection, so "Reset demo data" puts the whole demo back to its seed.
-export const DEALER_COLLECTIONS = [leadsStore, drivesStore, customersStore, alertsStore, subscribersStore, reviewsStore, settingsStore, postsStore, adsStore, newslettersStore, costsStore, salesStore];
+export const DEALER_COLLECTIONS = [leadsStore, drivesStore, customersStore, alertsStore, subscribersStore, reviewsStore, settingsStore, postsStore, adsStore, newslettersStore, costsStore, salesStore, prepStore];

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Badge, DataTable, EmptyState, PageHeader, Pager, SearchBar, SummaryTabs, adminButton, paginate, rowButton, type Column } from "@/components/admin/kit";
 import { ExternalIcon, PencilIcon, PlusIcon, SyncIcon } from "@/components/stock/icons";
 import { NEW_TAB } from "@/components/ui";
-import { costsStore } from "@/lib/admin/collections";
+import { carCosts } from "@/lib/admin/costs";
 import { marginOf } from "@/lib/admin/margins";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { can } from "@/lib/permissions";
@@ -56,7 +56,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
       </Link>
     ) : null;
   // The margin column is for staff with the margins permission; without it the costs are not even read.
-  const costs = (await can("margins")) ? new Map((await costsStore.list()).map((c) => [c.id, c.costEur])) : null;
+  const costs = (await can("margins")) ? new Map([...(await carCosts())].map(([id, c]) => [id, c.total])) : null;
   const matching = all
     .filter(VIEWS[view].test)
     .filter((c) => !q || `${c.make} ${c.model} ${c.variant ?? ""} ${c.year}`.toLowerCase().includes(q))

@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge, DataTable, PageHeader, Pager, Panel, StatCard, StatGrid, paginate, type Column } from "@/components/admin/kit";
-import { costsStore, salesStore } from "@/lib/admin/collections";
+import { salesStore } from "@/lib/admin/collections";
+import { carCosts } from "@/lib/admin/costs";
 import { fmtEur, fmtPct } from "@/lib/admin/format";
 import { marginOf } from "@/lib/admin/margins";
 import { adminCars } from "@/lib/admin/stock-admin";
@@ -18,8 +19,8 @@ type Row = { car: Car; cost?: number; price: number; salePrice?: number };
 // Needs the "margins" permission. Without it the page is not there: a hidden link is never the only protection.
 export default async function Page({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
   if (!(await can("margins"))) notFound();
-  const [cars, costs, sales] = await Promise.all([adminCars(), costsStore.list(), salesStore.list()]);
-  const byId = new Map(costs.map((c) => [c.id, c.costEur]));
+  const [cars, costs, sales] = await Promise.all([adminCars(), carCosts(), salesStore.list()]);
+  const byId = new Map([...costs].map(([id, c]) => [id, c.total]));
   const soldFor = new Map(sales.map((s) => [s.id, s.priceEur]));
   const rows: Row[] = cars
     .map((car) => {
@@ -47,14 +48,23 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
     },
     { key: "status", header: "Status", hide: "md", cell: (r) => (isSold(r.car) ? <Badge tone="neutral">Sold</Badge> : <Badge tone="good">For sale</Badge>) },
     { key: "price", header: "Price", align: "right", cell: (r) => (r.salePrice !== undefined ? <span className="flex flex-col items-end">{fmtEur(r.salePrice)}<span className="text-meta text-text-2">sold for</span></span> : fmtEur(r.car.priceEur)) },
-    { key: "cost", header: "Cost", align: "right", cell: (r) => (r.cost === undefined ? "Not set" : fmtEur(r.cost)) },
+    {
+      key: "cost",
+      header: "Cost",
+      align: "right",
+      cell: (r) => {
+        if (r.cost === undefined) return "Not set";
+        const prep = costs.get(r.car.id)!.prep;
+        return prep ? <span className="flex flex-col items-end">{fmtEur(r.cost)}<span className="text-meta text-text-2">with {fmtEur(prep)} prep</span></span> : fmtEur(r.cost);
+      },
+    },
     { key: "margin", header: "Margin", align: "right", cell: (r) => (r.cost === undefined ? "" : fmtEur(marginOf(r.price, r.cost).eur)) },
     { key: "pct", header: "Margin %", align: "right", hide: "md", cell: (r) => (r.cost === undefined ? "" : fmtPct(marginOf(r.price, r.cost).pct)) },
   ];
 
   return (
     <>
-      <PageHeader title="Margins" text="What each car cost and what it makes: the price less the cost, before VAT and running costs. A sold car uses what it sold for. Only owners, managers and finance see this." />
+      <PageHeader title="Margins" text="What each car cost, prep included, and what it makes: the price less the cost, before VAT and running costs. A sold car uses what it sold for. Only owners, managers and finance see this." />
       <StatGrid>
         <StatCard label="Stock cost" value={fmtEur(stockCost)} hint={`${stock.length} cars for sale`} />
         <StatCard label="Stock value" value={fmtEur(stockPrice)} hint="At the advertised prices" />

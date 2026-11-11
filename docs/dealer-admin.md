@@ -7,12 +7,12 @@ The demo has two views. The public site is `/`. The dealer dashboard is `/dashbo
 Everyone the dashboard lets in works the everyday dashboard (leads, test drives, stock, customers, reviews, marketing). A role adds
 permissions, each checked on the server in every page and action that needs it (`src/lib/permissions.ts`, rules in `permission-rules.ts`):
 
-| Role | Margins (costs and profit) | Team | Business settings | Activity history |
-|---|---|---|---|---|
-| Owner | Yes | Yes | Yes | Yes |
-| Manager | Yes | Yes, except an owner | Yes | Yes |
-| Finance | Yes | No | No | No |
-| Sales | No | No | No | No |
+| Role | Margins (costs, prep and profit) | Reports | Team | Business settings | Activity history |
+|---|---|---|---|---|---|
+| Owner | Yes | The dealership's | Yes | Yes | Yes |
+| Manager | Yes | The dealership's | Yes, except an owner | Yes | Yes |
+| Finance | Yes | The dealership's | No | No | No |
+| Sales | No | Their own, counts only | No | No | No |
 
 - **Margins:** a Margins screen, a margin column on the stock list, a Stock margin stat on the overview and a cost price box on the car
   form. Without it none of those are in the page, and the Margins page and the cost field answer as if they were not there. Costs are kept
@@ -63,6 +63,15 @@ with no D1). The actor is the signed-in person (`currentMember`), or a named one
 - **A follow-up** (`followUpOn` on a lead): Tomorrow, In 3 days, Next week or a day, on the lead. Cleared when the lead is won or lost.
   Overview counts the ones due (today and overdue); the leads list filters by them. The morning email (Settings, Notifications, off by
   default) sends each salesperson theirs, and the unassigned ones to owners and managers, at 07:00 UTC (`/api/follow-ups/digest`).
+
+## Reports and prep costs
+
+- **Reports** (`/dashboard/reports`, figures in `src/lib/admin/reports.ts`): the last 3, 6 or 12 months by month. Owners, managers and
+  finance see sales, profit (sale price less cost and prep), days to sell, each salesperson, which lead sources win, stock by age and prep
+  spend by kind. A salesperson sees "Your report": their cars sold, leads, leads won and follow-ups due. Counts only, no money, nobody else.
+- **Prep costs** (`prepStore`, kinds in `src/lib/admin/prep.ts`): lines on a car's dashboard page (Valet, Tyres, NCT, Service, Repairs,
+  Bodywork, Transport, Other), folded away until used. Margins permission only. A car's whole cost is its cost price plus its prep
+  (`src/lib/admin/costs.ts`), and every margin uses it.
 
 ## DoneDeal stock
 

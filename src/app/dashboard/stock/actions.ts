@@ -1,11 +1,13 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { carFromForm } from "@/lib/admin/car-form";
 import { logActivity } from "@/lib/admin/activity";
 import { carEditSummary, costText } from "@/lib/admin/activity-text";
 import { z } from "zod";
-import { costsStore, customersStore, getSettings, salesStore } from "@/lib/admin/collections";
+import { PREP_KINDS } from "@/lib/admin/prep";
+import { costsStore, customersStore, getSettings, prepStore, salesStore } from "@/lib/admin/collections";
 import { dublinDay, fmtEur } from "@/lib/admin/format";
 import { newId } from "@/lib/admin/ids";
 import { fieldErrors } from "@/lib/admin/validation";
@@ -77,7 +79,8 @@ export async function deleteCarAction(id: string) {
   if (await readOnly()) return;
   const car = await adminCar(id);
   await removeCar(id);
-  await costsStore.remove(id); // the cost goes with the car
+  await costsStore.remove(id); // the cost and the prep go with the car
+  await prepStore.remove(id);
   if (car) await logActivity("stock", "Deleted the car", carRef(car));
   redirect("/dashboard/stock?deleted=1");
 }
@@ -127,4 +130,34 @@ export async function recordSaleAction(carId: string, _prev: SaleFormState, data
   if (markSold) await saveCar({ ...car, soldAt: d.soldOn });
   await logActivity("stock", `${was ? "Changed the sale to" : "Recorded the sale for"} ${fmtEur(d.priceEur)}${markSold ? " and marked it sold" : ""}`, carRef(car));
   redirect(`/dashboard/stock?view=sold&sale=${car.id}`);
+}
+
+// Prep costs: one line at a time, from the fixed list of kinds, margins permission only. Both versions: prep is the dealer's own spend.
+const prepLine = z.object({
+  kind: z.enum(PREP_KINDS, { message: "Choose what it was for" }),
+  eur: z.coerce.number({ message: "Enter the amount in whole euros" }).int("Enter the amount in whole euros").min(1, "Enter the amount in whole euros").max(100_000, "That amount looks too high"),
+  note: z.string().trim().max(80).optional(),
+});
+export type PrepFormState = { errors?: Record<string, string>; added?: number } | undefined;
+export async function addPrepAction(carId: string, _prev: PrepFormState, data: FormData): Promise<PrepFormState> {
+  const car = (await can("margins")) ? await adminCar(carId) : undefined;
+  if (!car) return { errors: { kind: "Only staff who see margins can add prep costs" } };
+  const r = prepLine.safeParse(Object.fromEntries(data));
+  if (!r.success) return { errors: fieldErrors(r.error) };
+  const prep = (await prepStore.get(carId)) ?? { id: carId, lines: [] };
+  await prepStore.put({ ...prep, lines: [...prep.lines, { kind: r.data.kind, eur: r.data.eur, ...(r.data.note && { note: r.data.note }), at: Date.now() }] });
+  await logActivity("stock", `Added a prep cost: ${r.data.kind}, ${fmtEur(r.data.eur)}`, carRef(car));
+  revalidatePath(`/dashboard/stock/${carId}`);
+  return { added: Date.now() }; // a new value each time, so the form clears after every line
+}
+
+// `at` names the line: two lines can share a kind and an amount, never the moment they were added.
+export async function removePrepAction(carId: string, at: number) {
+  const car = (await can("margins")) ? await adminCar(carId) : undefined;
+  const prep = car && (await prepStore.get(carId));
+  const line = prep?.lines.find((l) => l.at === at);
+  if (!car || !prep || !line) return;
+  await prepStore.put({ ...prep, lines: prep.lines.filter((l) => l !== line) });
+  await logActivity("stock", `Removed a prep cost: ${line.kind}, ${fmtEur(line.eur)}`, carRef(car));
+  revalidatePath(`/dashboard/stock/${carId}`);
 }
