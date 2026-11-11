@@ -22,6 +22,14 @@ describe("driveDays", () => {
     expect(days[1]).toBe("2026-11-16");
     expect(days.at(-1)! <= "2026-12-04").toBe(true);
   });
+  it("skips bank holidays: no Christmas, St Stephen's Day or its Monday", () => {
+    const xmas = driveDays(new Date("2026-12-20T10:00:00Z"));
+    expect(xmas).not.toContain("2026-12-25");
+    expect(xmas).not.toContain("2026-12-26"); // a Saturday, open on any other week
+    expect(xmas).not.toContain("2026-12-28");
+    expect(xmas).toContain("2026-12-29");
+    expect(driveTimes("2026-12-26")).toEqual([]);
+  });
   it("uses the Irish date, so late evening in Ireland is still that day", () => {
     expect(driveDays(new Date("2026-11-13T23:30:00Z"))[0]).toBe("2026-11-14");
   });

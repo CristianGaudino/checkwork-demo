@@ -1,3 +1,4 @@
+import { isBankHoliday } from "../bank-holidays";
 import { OPENING_HOURS, SITE_NAME } from "../site";
 import { DAY } from "../time";
 
@@ -91,8 +92,9 @@ const dublinDate = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: TEST_D
 const addDays = (iso: string, n: number) => new Date(Date.parse(`${iso}T12:00:00Z`) + n * DAY).toISOString().slice(0, 10);
 const hoursFor = (iso: string) => OPENING_HOURS[(new Date(`${iso}T12:00:00Z`).getUTCDay() + 6) % 7]; // OPENING_HOURS starts on Monday
 
-/** The times a car can be driven on a day: every slot from opening until an hour before closing. Empty on a closed day. */
+/** The times a car can be driven on a day: every slot from opening until an hour before closing. Empty on a closed day, bank holidays included. */
 export function driveTimes(iso: string): string[] {
+  if (isBankHoliday(iso)) return [];
   const h = hoursFor(iso);
   if (!h?.opens || !h.closes) return [];
   const out: string[] = [];

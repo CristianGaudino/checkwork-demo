@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import { choose } from "./combo";
+import { openDay } from "./days";
 
 // Data requests and the list exports: personal data, owners and managers only.
 const as = (context: import("@playwright/test").BrowserContext, role: string) => context.addCookies([{ name: "checkwork-demo-role", value: role, url: "http://localhost:3000" }]);
@@ -47,7 +48,7 @@ test("a data request finds a person by email, including what they booked by phon
   await page.getByLabel("Phone").fill(phone);
   await page.getByLabel("Email (optional)").fill(email);
   await choose(page.getByLabel("Car"), 3);
-  await page.locator('input[name="date"]').fill(`2031-06-${String(1 + (n % 28)).padStart(2, "0")}`);
+  await page.locator('input[name="date"]').fill(openDay(n + 7));
   await page.locator('input[name="time"]').fill("15:00");
   await page.getByRole("button", { name: "Add booking" }).click();
   await expect(page.getByRole("status")).toContainText("Booked Pat Request");

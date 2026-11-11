@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fmtAgo, fmtDateTime, fmtEur, fmtPct } from "./format";
+import { addMonths, fmtAgo, fmtDateTime, fmtEur, fmtPct } from "./format";
 
 describe("admin format", () => {
   const now = new Date("2026-11-10T12:00:00Z").getTime();
@@ -19,5 +19,13 @@ describe("Irish time", () => {
   it("shows a summer moment an hour ahead of UTC, and a winter one the same", () => {
     expect(fmtDateTime(Date.UTC(2026, 6, 1, 10, 0))).toContain("11:00");
     expect(fmtDateTime(Date.UTC(2026, 0, 15, 10, 0))).toContain("10:00");
+  });
+});
+
+describe("addMonths", () => {
+  it("keeps the day, or takes the month's last when it is shorter", () => {
+    expect(addMonths("2026-11-11", 2)).toBe("2027-01-11");
+    expect(addMonths("2026-12-31", 2)).toBe("2027-02-28");
+    expect(addMonths("2027-12-31", 2)).toBe("2028-02-29");
   });
 });

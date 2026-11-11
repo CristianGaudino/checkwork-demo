@@ -12,6 +12,12 @@ export const fmtNum = (n: number) => num.format(n);
 export const dublinDay = (t: number = Date.now()) => new Date(t).toLocaleDateString("en-CA", { timeZone });
 export const dublinDateTime = (t: number) => new Date(t).toLocaleString("sv-SE", { timeZone }).slice(0, 16); // "2026-11-11 14:30", as spreadsheets read it
 export const addDays = (day: string, n: number) => new Date(Date.parse(`${day}T12:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10);
+// The same day n months on, or the month's last day when it is shorter ("2026-12-31" plus 2 is "2027-02-28").
+export function addMonths(day: string, n: number) {
+  const [y, m, d] = day.split("-").map(Number);
+  const last = new Date(Date.UTC(y, m - 1 + n + 1, 0));
+  return new Date(Date.UTC(last.getUTCFullYear(), last.getUTCMonth(), Math.min(d, last.getUTCDate()))).toISOString().slice(0, 10);
+}
 export const fmtEur = (n: number) => eur.format(n);
 export const fmtPct = (n: number) => `${(Math.round(n * 10) / 10).toString()}%`;
 

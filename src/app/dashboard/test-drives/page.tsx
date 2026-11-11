@@ -4,8 +4,8 @@ import { Badge, EmptyState, PageHeader, Pager, Panel, SummaryTabs, adminButton, 
 import { PlusIcon } from "@/components/stock/icons";
 import { card } from "@/components/ui";
 import { DRIVE_STATUSES, DRIVE_STATUS_LABELS, drivesStore } from "@/lib/admin/collections";
-import { groupByDay, parseDriveStatus } from "@/lib/admin/drives";
-import { dublinDay } from "@/lib/admin/format";
+import { DRIVE_MONTHS_AHEAD, groupByDay, parseDriveStatus } from "@/lib/admin/drives";
+import { addMonths, dublinDay } from "@/lib/admin/format";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { carName } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
@@ -54,7 +54,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
           Add a booking
         </summary>
         <Panel className="mt-3">
-          <AddDriveForm cars={cars.filter((c) => !isSold(c)).map((c) => ({ slug: c.slug, label: carName(c) }))} />
+          <AddDriveForm cars={cars.filter((c) => !isSold(c)).map((c) => ({ slug: c.slug, label: carName(c) }))} min={dublinDay()} max={addMonths(dublinDay(), DRIVE_MONTHS_AHEAD)} />
         </Panel>
       </details>
       {groups.length === 0 ? (

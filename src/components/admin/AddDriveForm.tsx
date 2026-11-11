@@ -6,7 +6,8 @@ import { Field, adminButton, adminInput } from "@/components/admin/kit";
 import { addDriveAction, type DriveFormState } from "@/app/dashboard/test-drives/actions";
 
 // A booking taken by phone or at the desk. The server checks every box and refuses a clash; this only draws the boxes and the messages.
-export function AddDriveForm({ cars }: { cars: { slug: string; label: string }[] }) {
+// `min` and `max`: the days the server accepts (today to two months on), so the picker offers no other. Closed days are refused on save.
+export function AddDriveForm({ cars, min, max }: { cars: { slug: string; label: string }[]; min: string; max: string }) {
   const [state, action, pending] = useActionState<DriveFormState, FormData>(addDriveAction, undefined);
   const e = state?.errors ?? {};
   return (
@@ -24,7 +25,7 @@ export function AddDriveForm({ cars }: { cars: { slug: string; label: string }[]
         <Select name="carSlug" options={[["", "Choose a car"], ...cars.map((c) => [c.slug, c.label] as const)]} />
       </Field>
       <Field label="Day" error={e.date}>
-        <input name="date" type="date" className={adminInput} />
+        <input name="date" type="date" min={min} max={max} className={adminInput} />
       </Field>
       <Field label="Time" error={e.time}>
         <input name="time" type="time" step={900} className={adminInput} />

@@ -13,6 +13,11 @@ export function OpeningHours() {
             <dd className={`text-right tabular-nums ${h.hours === "Closed" ? "text-text-2" : "font-semibold"}`}>{h.hours}</dd>
           </div>
         ))}
+        {/* Test drives are never offered on one (src/lib/bank-holidays.ts). */}
+        <div className="flex items-baseline justify-between gap-4 py-3">
+          <dt>Bank holidays</dt>
+          <dd className="text-right text-text-2">Closed</dd>
+        </div>
       </dl>
     </section>
   );

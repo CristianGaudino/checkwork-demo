@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { logActivity } from "@/lib/admin/activity";
 import { DRIVE_STATUS_LABELS, drivesStore, getSettings } from "@/lib/admin/collections";
-import { clashes, parseDriveStatus } from "@/lib/admin/drives";
+import { DRIVE_MONTHS_AHEAD, clashes, parseDriveStatus } from "@/lib/admin/drives";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { carName } from "@/lib/stock/format";
 import { HOUR, MINUTE } from "@/lib/time";
@@ -12,6 +12,9 @@ import { EMAIL_INVALID, NAME_REQUIRED } from "@/lib/copy";
 import { newId } from "@/lib/admin/ids";
 import { dublinMs } from "@/lib/admin/real-leads";
 import { fieldErrors } from "@/lib/admin/validation";
+import { addMonths, dublinDay } from "@/lib/admin/format";
+import { isBankHoliday } from "@/lib/bank-holidays";
+import { driveTimes } from "@/lib/leads/constants";
 
 export type DriveFormState = { errors?: Record<string, string>; done?: string } | undefined;
 
@@ -45,6 +48,10 @@ export async function addDriveAction(_prev: DriveFormState, data: FormData): Pro
   if (Number.isNaN(startsAt)) return { errors: { date: "Choose a day" } };
   // An hour of grace, so "now" on the form is not refused. A typo for last year is.
   if (startsAt < Date.now() - HOUR) return { errors: { date: "Choose a day that has not passed" } };
+  // Up to two months ahead (a typo for next year is refused), and only on a day we are open: never a bank holiday or a closed day.
+  if (b.date > addMonths(dublinDay(), DRIVE_MONTHS_AHEAD)) return { errors: { date: "Choose a day in the next two months" } };
+  if (isBankHoliday(b.date)) return { errors: { date: "That's a bank holiday. We're closed" } };
+  if (!driveTimes(b.date).length) return { errors: { date: "We're closed that day" } };
   const clash = clashes(await drivesStore.list(), car.slug, startsAt, undefined, (await getSettings()).driveSlotMinutes * MINUTE);
   if (clash.length) return { errors: { time: `${carName(car)} is already booked around then` } };
   const id = newId("drive");
