@@ -13,16 +13,6 @@ export const carName = (car: Pick<Car, "year" | "make" | "model">) => `${car.yea
 // What a lead dialog shows of a car (CarSummary). Only these fields cross into client components, never the Car (LED-02).
 export const carSummary = (car: Car) => ({ id: car.id, name: carName(car), title: carTitle(car), price: formatPrice(car.priceEur), photo: car.photos[0]?.src });
 
-export const carMeta = (car: Car) =>
-  [
-    car.year,
-    car.mileageKm !== undefined && formatKm(car.mileageKm),
-    car.fuel && FUEL_LABELS[car.fuel],
-    car.gearbox && GEARBOX_LABELS[car.gearbox],
-  ]
-    .filter(Boolean)
-    .join(" · ");
-
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 // "2027-07" -> "Jul 2027". Fixed names, not Intl, so the Worker and Node print the same text.
 const nctLabel = (s: string) => {

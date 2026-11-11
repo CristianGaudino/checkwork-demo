@@ -47,3 +47,8 @@ test("the demo bar sits at the foot of the screen and the page ends above it", a
   const footer = (await page.getByRole("contentinfo").boundingBox())!;
   expect(footer.y + footer.height).toBeLessThanOrEqual(bar.y + 1);
 });
+
+test("Find a car takes a make with an accent from the link", async ({ page }) => {
+  await page.goto("/find-a-car?make=%C5%A0koda"); // Škoda, as a feed may spell it
+  await expect(page.getByLabel("Make", { exact: true })).toHaveValue("Skoda");
+});

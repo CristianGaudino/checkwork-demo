@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { carMeta, carName, carTitle, countLabel, formatKm, formatPrice, keyFacts, specRows } from "./format";
+import { carName, carTitle, countLabel, formatKm, formatPrice, keyFacts, specRows } from "./format";
 import type { Car } from "./types";
 
 const audi: Car = {
@@ -28,11 +28,6 @@ describe("formatters", () => {
     expect(carTitle(audi)).toBe("Audi A4 2.0 TDI S line");
     expect(carTitle({ ...audi, variant: undefined })).toBe("Audi A4");
     expect(carName(audi)).toBe("2019 Audi A4");
-  });
-
-  it("builds the meta line and drops missing parts with their separator", () => {
-    expect(carMeta(audi)).toBe("2019 · 84,000 km · Diesel · Manual");
-    expect(carMeta({ ...audi, mileageKm: undefined, fuel: undefined })).toBe("2019 · Manual");
   });
 
   it("labels the result count", () => {

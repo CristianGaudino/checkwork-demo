@@ -1,8 +1,7 @@
 import { Mileage } from "@/components/Mileage";
 import { FUEL_LABELS, GEARBOX_LABELS, type Car } from "@/lib/stock/types";
 
-// "2016 · 104,800 km · Diesel · Manual", with the mileage in the buyer's chosen unit. carMeta (format.ts) is the plain-text twin for
-// places that need a string (share text, structured data).
+// "2016 · 104,800 km · Diesel · Manual", with the mileage in the buyer's chosen unit.
 export function CarMeta({ car }: { car: Pick<Car, "year" | "mileageKm" | "fuel" | "gearbox"> }) {
   const parts: React.ReactNode[] = [
     car.year,

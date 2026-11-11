@@ -10,7 +10,10 @@ export const RARE_ONE_OWNER_MIN_AGE = 10;
 export function rareMarker(car: Pick<Car, "condition" | "year" | "mileageKm" | "owners" | "soldAt">, now = new Date()): string | undefined {
   if ((car.condition ?? "used") !== "used" || isSold(car)) return undefined;
   const age = now.getUTCFullYear() - car.year;
-  if (car.mileageKm !== undefined && age >= RARE_LOW_KM_MIN_AGE && car.mileageKm / age < RARE_LOW_KM_PER_YEAR) return "Very low mileage";
+  // A car has a year, not a month: a 2023 car in January 2026 may be just over two years old. The rate uses the youngest it can be
+  // (age - 1), so the marker only shows when it holds whatever month the car was registered.
+  const youngest = age - 1;
+  if (car.mileageKm !== undefined && youngest >= RARE_LOW_KM_MIN_AGE && car.mileageKm / youngest < RARE_LOW_KM_PER_YEAR) return "Very low mileage";
   if (car.owners === 1 && age >= RARE_ONE_OWNER_MIN_AGE) return "One owner from new";
   return undefined;
 }

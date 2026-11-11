@@ -10,6 +10,9 @@ const used = (o: Partial<Car>) => ({ condition: "used" as const, year: 2015, mil
 describe("rare markers", () => {
   it("very low mileage: under 5,000 km a year, on a car three years old or more", () => {
     expect(rareMarker(used({ year: 2016, mileageKm: 40000 }), now)).toBe("Very low mileage");
+    // A 2023 car in 2026 may be just over two years old: 14,000 km is 7,000 a year at worst, ordinary, so no marker.
+    expect(rareMarker(used({ year: 2023, mileageKm: 14000 }), now)).toBeUndefined();
+    expect(rareMarker(used({ year: 2022, mileageKm: 14000 }), now)).toBe("Very low mileage"); // at least three full years
     expect(rareMarker(used({ year: 2016, mileageKm: 60000 }), now)).toBeUndefined(); // 6,000 a year: good, not rare
     expect(rareMarker(used({ year: 2025, mileageKm: 2000 }), now)).toBeUndefined(); // a young car with few km is normal
   });
