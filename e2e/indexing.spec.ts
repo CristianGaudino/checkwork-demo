@@ -39,7 +39,10 @@ test("sitemap lists the visible cars in production and nothing otherwise", async
   expect(res.status()).toBe(200);
   const body = await res.text();
   if (!production) return expect(body).not.toContain("<url>");
-  expect(body).not.toMatch(/lastmod/i);
+  // Car pages carry the date they went on the site; the other pages have no date to give.
+  const live = cars.find((c) => !c.soldAt)!;
+  expect(body).toMatch(new RegExp(`${loc(`/used-cars/${live.slug}`).replace(/[.?]/g, "\\$&")}\\s*<lastmod>\\d{4}-\\d{2}-\\d{2}`));
+  expect(body).toMatch(new RegExp(`${loc("/used-cars").replace(/[.?]/g, "\\$&")}\\s*</url>`));
   expect(body).toContain(loc("/used-cars"));
   for (const c of cars.filter((c) => !c.soldAt)) expect(body).toContain(loc(`/used-cars/${c.slug}`));
   const oldest = cars.filter((c) => c.soldAt).sort((a, b) => a.soldAt!.localeCompare(b.soldAt!))[0];

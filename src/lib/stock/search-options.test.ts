@@ -29,3 +29,18 @@ describe("searchOptions", () => {
     expect(o.models).toHaveLength(2);
   });
 });
+
+describe("newest first by listing date", () => {
+  it("sorts by the date the car went on the site, and a car without one keeps its id order", async () => {
+    const { createStockEngine } = await import("./engine");
+    const { DEFAULT_QUERY } = await import("./query");
+    const base = { make: "Kia", makeSlug: "kia", model: "Rio", modelSlug: "rio", year: 2019, priceEur: 1, photos: [] };
+    const engine = createStockEngine([
+      { ...base, id: "3", slug: "kia-rio-2019-3", listedAt: "2026-10-01" },
+      { ...base, id: "2", slug: "kia-rio-2019-2", listedAt: "2026-11-05" },
+      { ...base, id: "1", slug: "kia-rio-2019-1" },
+    ]);
+    const r = await engine.query({ ...DEFAULT_QUERY, sort: "newest" });
+    expect(r.cars.map((c) => c.id)).toEqual(["2", "3", "1"]);
+  });
+});
