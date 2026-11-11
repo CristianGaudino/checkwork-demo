@@ -158,6 +158,38 @@ export function SearchBar({ action, name = "q", value, placeholder, label, keep 
   );
 }
 
+// Long lists in pages, so a dealer with a big stock or a busy year of leads gets a page that loads fast and reads well. `page` is
+// 1-based and clamped, so a stale link past the end shows the last page, never an empty one.
+export const PAGE_SIZE = 50;
+export function paginate<T>(rows: T[], asked: string | undefined, size = PAGE_SIZE) {
+  const pageCount = Math.max(1, Math.ceil(rows.length / size));
+  const page = Math.min(pageCount, Math.max(1, Number.parseInt(asked ?? "1", 10) || 1));
+  return { rows: rows.slice((page - 1) * size, page * size), page, pageCount, total: rows.length };
+}
+
+export function Pager({ page, pageCount, total, href }: { page: number; pageCount: number; total: number; href: (page: number) => string }) {
+  if (pageCount <= 1) return null;
+  return (
+    <nav aria-label="Pages" className="flex flex-wrap items-center justify-between gap-3">
+      <p className="text-meta text-text-2">
+        Page {page} of {pageCount}, {total} in all
+      </p>
+      <div className="flex gap-2">
+        {page > 1 && (
+          <Link href={href(page - 1)} className={rowButton}>
+            Previous
+          </Link>
+        )}
+        {page < pageCount && (
+          <Link href={href(page + 1)} className={rowButton}>
+            Next
+          </Link>
+        )}
+      </div>
+    </nav>
+  );
+}
+
 // A small button in a table row: always a word, sometimes an icon before it.
 export const rowButton = `inline-flex h-10 items-center justify-center gap-1.5 whitespace-nowrap rounded-control border border-hairline bg-card px-3 text-meta font-medium text-text transition-colors hover:border-control ${press}`;
 

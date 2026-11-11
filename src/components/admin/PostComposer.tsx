@@ -1,22 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Field, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
 import { Select } from "@/components/Select";
 import { CheckIcon } from "@/components/stock/icons";
 import { NETWORKS, type Network } from "@/lib/admin/networks";
 import { press } from "@/components/ui";
 
+// The page sends only the list of cars; the chosen car's photos and suggested text are asked for when it is chosen (`load`), so the page
+// stays small with any size of stock.
 export type ComposerCar = { slug: string; title: string; photos: { src: string; width: number; height: number }[]; text: Record<Network, string> };
 
 const chip = (on: boolean) => `inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-meta font-medium ${on ? "border-accent bg-accent text-on-accent" : "border-control bg-card text-text"} ${press}`;
 
 // One composer for a post and its ad: pick the car and where it goes, edit the suggested text, choose photos, see it as it will look, then
 // publish, schedule or keep it as a draft. The ad is a switch on the same form. `action` is a server action; every field is validated there.
-export function PostComposer({ cars, initialSlug, action }: { cars: ComposerCar[]; initialSlug: string; action: (data: FormData) => void | Promise<void> }) {
-  const [slug, setSlug] = useState(cars.some((c) => c.slug === initialSlug) ? initialSlug : "");
+export function PostComposer({
+  cars,
+  initialSlug,
+  action,
+  load,
+}: {
+  cars: [string, string][];
+  initialSlug: string;
+  action: (data: FormData) => void | Promise<void>;
+  load: (slug: string) => Promise<ComposerCar | null>;
+}) {
+  const [slug, setSlug] = useState(cars.some(([s]) => s === initialSlug) ? initialSlug : "");
   const [network, setNetwork] = useState<Network>("Facebook");
-  const car = cars.find((c) => c.slug === slug);
+  const [loaded, setLoaded] = useState<ComposerCar | null>(null);
+  useEffect(() => {
+    if (!slug) return;
+    let live = true; // a slower answer for a car chosen earlier never replaces the current one
+    load(slug).then((c) => live && setLoaded(c));
+    return () => {
+      live = false;
+    };
+  }, [slug, load]);
+  const car = loaded?.slug === slug ? loaded : undefined;
   const suggestion = car ? car.text[network] : "";
   // The text follows the suggestion until the dealer types; "Use the suggestion" brings it back.
   const [typed, setTyped] = useState<string | null>(null);
@@ -41,7 +62,7 @@ export function PostComposer({ cars, initialSlug, action }: { cars: ComposerCar[
               setTyped(null);
               setChosen(null);
             }}
-            options={[["", "Choose a car"], ...cars.map((c) => [c.slug, c.title] as const)]}
+            options={[["", "Choose a car"], ...cars]}
           />
         </Field>
 

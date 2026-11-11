@@ -4,12 +4,13 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { NETWORKS, adsStore, getSettings, newslettersStore, postsStore, subscribersStore, type Ad, type SocialPost } from "@/lib/admin/collections";
-import { simulatedAd, simulatedLetter, simulatedPost, writeNewsletter, type SendResult } from "@/lib/admin/marketing";
+import { simulatedAd, simulatedLetter, simulatedPost, writeNewsletter, writePost, type SendResult } from "@/lib/admin/marketing";
 import { publishPost, sendNewsletter, startAd } from "@/lib/admin/publishers";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { carName } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
 import { newId } from "@/lib/admin/ids";
+import type { ComposerCar } from "@/components/admin/PostComposer";
 import { dublinMs } from "@/lib/admin/real-leads";
 
 // A result goes back to the page as a short code, never as text from the request, so the page can only ever say what it knows.
@@ -82,6 +83,14 @@ export async function startAdAction(id: string) {
 export async function deleteAdAction(id: string) {
   await adsStore.remove(id);
   go("posts", "deleted");
+}
+
+// The composer asks for a car's photos and suggested text when the dealer picks it, so the page never carries them for the whole stock.
+export async function composerCarAction(slug: string): Promise<ComposerCar | null> {
+  const car = (await adminCars()).find((c) => c.slug === slug && !isSold(c));
+  if (!car) return null;
+  const { marketing } = await getSettings();
+  return { slug: car.slug, title: carName(car), photos: car.photos.slice(0, 6), text: Object.fromEntries(NETWORKS.map((n) => [n, writePost(car, n, marketing)])) as ComposerCar["text"] };
 }
 
 // "Write from the newest cars" fills the letter from the stock; otherwise the dealer's own subject and text are used.

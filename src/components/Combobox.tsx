@@ -21,6 +21,8 @@ const LIST_MAX_PX = 288;
 const LIST_MIN_PX = 120;
 const LIST_ROOM_PX = 300;
 const LIST_GAP_PX = 4;
+const LONG_LIST = 30;
+const SHOWN_MAX = 100;
 
 // Where the open list sits, in viewport coordinates: it is in the top layer (a popover), so no scrolling or clipping ancestor
 // (the filter panel, a dialog's body) can cut it off.
@@ -71,8 +73,11 @@ export function Combobox({
   const root = useRef<HTMLDivElement>(null);
   const pressed = useRef(false);
   const fine = useSyncExternalStore(watchFine, () => window.matchMedia(FINE).matches, () => false);
-  const typeable = fine;
-  const shown = useMemo(() => (typed ? options.filter((o) => fold(o.label).includes(fold(typed))) : options), [options, typed]);
+  // A long list (a dealer's whole stock) can be typed into on a phone too: scrolling 1,000 options is worse than a keyboard over the list.
+  const typeable = fine || options.length > LONG_LIST;
+  const matching = useMemo(() => (typed ? options.filter((o) => fold(o.label).includes(fold(typed))) : options), [options, typed]);
+  // At most SHOWN_MAX options are drawn at once; the rest are reached by typing.
+  const shown = matching.length > SHOWN_MAX ? matching.slice(0, SHOWN_MAX) : matching;
 
   const measure = useCallback(() => {
     const r = root.current?.getBoundingClientRect();
@@ -246,6 +251,11 @@ export function Combobox({
               {o.value === current && <CheckIcon className="size-4 shrink-0" />}
             </li>
           ))}
+          {matching.length > shown.length && (
+            <li role="presentation" className="px-3 py-2.5 text-meta text-text-2">
+              {matching.length - shown.length} more. Type to narrow the list.
+            </li>
+          )}
         </ul>
       )}
     </div>

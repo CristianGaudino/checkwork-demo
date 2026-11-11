@@ -1,17 +1,18 @@
 import Link from "next/link";
 import { LeadStatusBadge } from "@/components/admin/badges";
-import { Avatar, DataTable, EmptyState, FilterTabs, PageHeader, SearchBar, SummaryTabs } from "@/components/admin/kit";
+import { Avatar, DataTable, EmptyState, FilterTabs, PageHeader, Pager, SearchBar, SummaryTabs, paginate } from "@/components/admin/kit";
 import { LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_TYPES, LEAD_TYPE_LABELS, leadsStore } from "@/lib/admin/collections";
 import { fmtAgo } from "@/lib/admin/format";
 import { countByStatus, filterLeads, parseLeadFilter } from "@/lib/admin/leads";
 
 export const metadata = { title: "Leads" };
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ status?: string; type?: string; q?: string }> }) {
-  const f = parseLeadFilter(await searchParams);
+export default async function Page({ searchParams }: { searchParams: Promise<{ status?: string; type?: string; q?: string; page?: string }> }) {
+  const sp = await searchParams;
+  const f = parseLeadFilter(sp);
   const all = await leadsStore.list();
   const counts = countByStatus(all);
-  const rows = filterLeads(all, f);
+  const { rows, page, pageCount, total } = paginate(filterLeads(all, f), sp.page);
   // Links keep the other filters, so picking a status does not forget the type or the search.
   const href = (over: { status?: string; type?: string }) => {
     const p = new URLSearchParams();
@@ -66,6 +67,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
         ]}
         empty={<EmptyState title="No leads match" text="Try another filter or search." />}
       />
+      <Pager page={page} pageCount={pageCount} total={total} href={(n) => `${href({})}${href({}).includes("?") ? "&" : "?"}page=${n}`} />
     </>
   );
 }

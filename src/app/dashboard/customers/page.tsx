@@ -1,4 +1,4 @@
-import { Badge, DataTable, EmptyState, PageHeader, SummaryTabs, rowButton } from "@/components/admin/kit";
+import { Badge, DataTable, EmptyState, PageHeader, Pager, SummaryTabs, paginate, rowButton } from "@/components/admin/kit";
 import { ALERT_KIND_LABELS, alertsStore, customersStore, subscribersStore } from "@/lib/admin/collections";
 import { fmtAgo, fmtDate, fmtNum } from "@/lib/admin/format";
 import { removeAlertAction, toggleAlertAction, toggleSubscriberAction } from "./actions";
@@ -7,11 +7,17 @@ export const metadata = { title: "Customers" };
 
 const TABS = [["customers", "Customers"], ["alerts", "Stock alerts"], ["newsletter", "Newsletter"]] as const;
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
+export default async function Page({ searchParams }: { searchParams: Promise<{ tab?: string; page?: string }> }) {
   const sp = await searchParams;
   const tab = TABS.some(([k]) => k === sp.tab) ? sp.tab! : "customers";
   const [customers, alerts, subs] = await Promise.all([customersStore.list(), alertsStore.list(), subscribersStore.list()]);
   const live = subs.filter((s) => s.status === "subscribed").length;
+  // Each list in pages of 50: a dealer's customers and subscribers only grow.
+  const pageOf = <T,>(rows: T[]) => paginate(rows, sp.page);
+  const pager = (p: { page: number; pageCount: number; total: number }) => <Pager {...p} href={(n) => `/dashboard/customers?tab=${tab}&page=${n}`} />;
+  const people = pageOf([...customers].sort((a, b) => b.lastContactAt - a.lastContactAt));
+  const alertRows = pageOf([...alerts].sort((a, b) => b.createdAt - a.createdAt));
+  const subRows = pageOf([...subs].sort((a, b) => b.createdAt - a.createdAt));
 
   return (
     <>
@@ -27,9 +33,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
       />
 
       {tab === "customers" && (
+        <>
         <DataTable
           label="Customers"
-          rows={[...customers].sort((a, b) => b.lastContactAt - a.lastContactAt)}
+          rows={people.rows}
           rowKey={(c) => c.id}
           columns={[
             {
@@ -47,12 +54,15 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
             { key: "last", header: "Last contact", cell: (c) => fmtAgo(c.lastContactAt), align: "right", nowrap: true },
           ]}
         />
+        {pager(people)}
+        </>
       )}
 
       {tab === "alerts" && (
+        <>
         <DataTable
           label="Stock alerts"
-          rows={[...alerts].sort((a, b) => b.createdAt - a.createdAt)}
+          rows={alertRows.rows}
           rowKey={(a) => a.id}
           columns={[
             { key: "kind", header: "Alert", cell: (a) => ALERT_KIND_LABELS[a.kind] },
@@ -76,12 +86,15 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
           ]}
           empty={<EmptyState title="No alerts yet" text="Visitors can ask to be told about a car. They show here." />}
         />
+        {pager(alertRows)}
+        </>
       )}
 
       {tab === "newsletter" && (
+        <>
         <DataTable
           label="Newsletter subscribers"
-          rows={[...subs].sort((a, b) => b.createdAt - a.createdAt)}
+          rows={subRows.rows}
           rowKey={(s) => s.id}
           columns={[
             { key: "email", header: "Email", cell: (s) => s.email },
@@ -98,6 +111,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
             },
           ]}
         />
+        {pager(subRows)}
+        </>
       )}
     </>
   );

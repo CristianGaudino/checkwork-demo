@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Badge, DataTable, EmptyState, PageHeader, SearchBar, SummaryTabs, adminButton, rowButton, type Column } from "@/components/admin/kit";
+import { Badge, DataTable, EmptyState, PageHeader, Pager, SearchBar, SummaryTabs, adminButton, paginate, rowButton, type Column } from "@/components/admin/kit";
 import { ExternalIcon, PencilIcon, PlusIcon, SyncIcon } from "@/components/stock/icons";
 import { NEW_TAB } from "@/components/ui";
 import { costsStore } from "@/lib/admin/collections";
@@ -27,7 +27,7 @@ const VIEWS = {
 } as const;
 type View = keyof typeof VIEWS;
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ view?: string; status?: string; q?: string; saved?: string; deleted?: string }> }) {
+export default async function Page({ searchParams }: { searchParams: Promise<{ view?: string; status?: string; q?: string; saved?: string; deleted?: string; page?: string }> }) {
   const sp = await searchParams;
   const asked = sp.view ?? sp.status; // `status` is the old name for the view, kept so old links still work
   const view: View = asked && Object.hasOwn(VIEWS, asked) ? (asked as View) : "for-sale";
@@ -36,10 +36,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
   const synced = source === "donedeal";
   // The margin column is for staff with the margins permission; without it the costs are not even read.
   const costs = (await can("margins")) ? new Map((await costsStore.list()).map((c) => [c.id, c.costEur])) : null;
-  const rows = all
+  const matching = all
     .filter(VIEWS[view].test)
     .filter((c) => !q || `${c.make} ${c.model} ${c.variant ?? ""} ${c.year}`.toLowerCase().includes(q))
     .sort((a, b) => Number(b.id) - Number(a.id));
+  const { rows, page, pageCount, total } = paginate(matching, sp.page);
   const saved = sp.saved ? all.find((c) => c.id === sp.saved) : undefined;
   const href = (v: View) => `/dashboard/stock?view=${v}${q ? `&q=${encodeURIComponent(q)}` : ""}`;
   // Where a row goes: the car's editor here, or, for synced stock, the car on the site (it is changed on DoneDeal).
@@ -144,6 +145,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         columns={columns}
         empty={<EmptyState title="No cars match" text={q ? "Try a different search." : undefined} action={!synced && !q ? <Link href="/dashboard/stock/new" className={adminButton}>Add a car</Link> : undefined} />}
       />
+      <Pager page={page} pageCount={pageCount} total={total} href={(n) => `${href(view)}&page=${n}`} />
     </>
   );
 }

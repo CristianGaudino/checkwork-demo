@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Badge, DataTable, PageHeader, Panel, StatCard, StatGrid, type Column } from "@/components/admin/kit";
+import { Badge, DataTable, PageHeader, Pager, Panel, StatCard, StatGrid, paginate, type Column } from "@/components/admin/kit";
 import { costsStore } from "@/lib/admin/collections";
 import { fmtEur, fmtPct } from "@/lib/admin/format";
 import { marginOf } from "@/lib/admin/margins";
@@ -15,7 +15,7 @@ export const metadata = { title: "Margins" };
 type Row = { car: Car; cost?: number };
 
 // Needs the "margins" permission. Without it the page is not there: a hidden link is never the only protection.
-export default async function Page() {
+export default async function Page({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
   if (!(await can("margins"))) notFound();
   const [cars, costs] = await Promise.all([adminCars(), costsStore.list()]);
   const byId = new Map(costs.map((c) => [c.id, c.costEur]));
@@ -27,6 +27,7 @@ export default async function Page() {
   const sold = known.filter((r) => isSold(r.car));
   const soldMargin = sold.reduce((s, r) => s + marginOf(r.car.priceEur, r.cost).eur, 0);
   const stockMargin = marginOf(stockPrice, stockCost);
+  const paged = paginate(rows, (await searchParams).page); // the figures above are over every car; the table is in pages
 
   const columns: Column<Row>[] = [
     {
@@ -55,7 +56,8 @@ export default async function Page() {
         <StatCard label="Margin on sold cars" value={fmtEur(soldMargin)} hint={`${sold.length} sold cars shown on the site`} />
       </StatGrid>
       <Panel title="Every car">
-        <DataTable bare columns={columns} rows={rows} rowKey={(r) => r.car.id} />
+        <DataTable bare columns={columns} rows={paged.rows} rowKey={(r) => r.car.id} />
+        <Pager page={paged.page} pageCount={paged.pageCount} total={paged.total} href={(n) => `/dashboard/margins?page=${n}`} />
       </Panel>
     </>
   );

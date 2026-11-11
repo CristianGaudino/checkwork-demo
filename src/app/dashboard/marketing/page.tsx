@@ -1,14 +1,13 @@
-import { Badge, EmptyState, Field, PageHeader, Panel, SummaryTabs, adminButton, adminButtonQuiet, adminInput, rowButton, type Tone } from "@/components/admin/kit";
+import { Badge, EmptyState, Field, PageHeader, Pager, Panel, SummaryTabs, paginate, adminButton, adminButtonQuiet, adminInput, rowButton, type Tone } from "@/components/admin/kit";
 import { PostComposer } from "@/components/admin/PostComposer";
 import { sendDuePosts } from "@/lib/admin/scheduler";
-import { NETWORKS, adsStore, getSettings, newslettersStore, postsStore, subscribersStore } from "@/lib/admin/collections";
+import { adsStore, newslettersStore, postsStore, subscribersStore } from "@/lib/admin/collections";
 import { fmtDate, fmtDateTime, fmtEur, fmtNum, fmtPct } from "@/lib/admin/format";
-import { writePost } from "@/lib/admin/marketing";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { isUsable } from "@/lib/integrations";
 import { carName } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
-import { composeAction, createNewsletterAction, deleteAdAction, deleteNewsletterAction, deletePostAction, publishPostAction, sendNewsletterAction, startAdAction } from "./actions";
+import { composeAction, composerCarAction, createNewsletterAction, deleteAdAction, deleteNewsletterAction, deletePostAction, publishPostAction, sendNewsletterAction, startAdAction } from "./actions";
 
 export const metadata = { title: "Marketing" };
 
@@ -45,23 +44,20 @@ const STATUS: Record<string, { tone: Tone; label: string }> = {
   ended: { tone: "neutral", label: "Ended" },
 };
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ tab?: string; notice?: string; car?: string }> }) {
+export default async function Page({ searchParams }: { searchParams: Promise<{ tab?: string; notice?: string; car?: string; page?: string }> }) {
   const sp = await searchParams;
   const tab = TABS.some(([k]) => k === sp.tab) ? sp.tab! : "posts";
   const notice = sp.notice ? NOTICES[sp.notice] : undefined;
   await sendDuePosts(); // posts whose time has come go out before the list is read
-  const [posts, ads, letters, subs, cars, settings] = await Promise.all([postsStore.list(), adsStore.list(), newslettersStore.list(), subscribersStore.list(), adminCars(), getSettings()]);
+  const [posts, ads, letters, subs, cars] = await Promise.all([postsStore.list(), adsStore.list(), newslettersStore.list(), subscribersStore.list(), adminCars()]);
   const forSale = cars.filter((c) => !isSold(c)).sort((a, b) => Number(b.id) - Number(a.id));
   const live = subs.filter((s) => s.status === "subscribed").length;
-  // shortcut: the text for every car and network is sent to the page; fine at about 100 cars, write it on choosing a car beyond that.
-  const composerCars = forSale.map((c) => ({
-    slug: c.slug,
-    title: carName(c),
-    photos: c.photos.slice(0, 6),
-    text: Object.fromEntries(NETWORKS.map((n) => [n, writePost(c, n, settings.marketing)])) as Record<(typeof NETWORKS)[number], string>,
-  }));
+  const composerCars = forSale.map((c) => [c.slug, carName(c)] as [string, string]);
   // Posts and ads in one list, newest first.
   const feed = [...posts.map((p) => ({ kind: "post" as const, at: p.createdAt, p })), ...ads.map((a) => ({ kind: "ad" as const, at: a.createdAt, a }))].sort((x, y) => y.at - x.at);
+
+  const paged = paginate(feed, sp.page);
+  const sentLetters = paginate([...letters].sort((a, b) => b.createdAt - a.createdAt), sp.page);
 
   return (
     <>
@@ -82,15 +78,15 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
       {tab === "posts" && (
         <>
           <Panel title="New post">
-            <PostComposer cars={composerCars} initialSlug={sp.car ?? ""} action={composeAction} />
+            <PostComposer cars={composerCars} initialSlug={sp.car ?? ""} action={composeAction} load={composerCarAction} />
             {!isUsable("social") && <p className="text-meta text-text-2">Facebook and Instagram are not connected, so posts are kept as drafts.</p>}
           </Panel>
           <Panel title="Posts and ads">
-            {feed.length === 0 ? (
+            {paged.total === 0 ? (
               <EmptyState title="Nothing yet" />
             ) : (
               <ul className="-mx-5 flex flex-col">
-                {feed.map((item) =>
+                {paged.rows.map((item) =>
                   item.kind === "post" ? (
                     <li key={item.p.id} className="flex flex-col gap-2 px-5 py-3 even:bg-row-alt">
                       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -133,6 +129,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
               </ul>
             )}
           </Panel>
+          <Pager page={paged.page} pageCount={paged.pageCount} total={paged.total} href={(n) => `/dashboard/marketing?tab=posts&page=${n}`} />
         </>
       )}
 
@@ -149,7 +146,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
               <EmptyState title="No newsletters yet" />
             ) : (
               <ul className="-mx-5 flex flex-col">
-                {[...letters].sort((a, b) => b.createdAt - a.createdAt).map((n) => (
+                {sentLetters.rows.map((n) => (
                   <li key={n.id} className="flex flex-col gap-2 px-5 py-3 even:bg-row-alt">
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                       <span className="font-medium">{n.subject}</span>
@@ -171,6 +168,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
               </ul>
             )}
           </Panel>
+          <Pager page={sentLetters.page} pageCount={sentLetters.pageCount} total={sentLetters.total} href={(n) => `/dashboard/marketing?tab=newsletters&page=${n}`} />
           <details className="group">
             <summary className="flex min-h-11 cursor-pointer list-none items-center text-meta font-medium text-accent-text underline [&::-webkit-details-marker]:hidden">Write your own</summary>
             <Panel className="mt-3">

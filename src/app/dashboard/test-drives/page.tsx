@@ -1,6 +1,6 @@
 import { DriveStatusBadge } from "@/components/admin/badges";
 import { AddDriveForm } from "@/components/admin/AddDriveForm";
-import { EmptyState, PageHeader, Panel, SummaryTabs, adminButton, rowButton } from "@/components/admin/kit";
+import { EmptyState, PageHeader, Pager, Panel, SummaryTabs, adminButton, paginate, rowButton } from "@/components/admin/kit";
 import { PlusIcon } from "@/components/stock/icons";
 import { card } from "@/components/ui";
 import { DRIVE_STATUSES, DRIVE_STATUS_LABELS, drivesStore } from "@/lib/admin/collections";
@@ -20,12 +20,17 @@ const NEXT: Record<string, [string, string][]> = {
   confirmed: [["completed", "Mark done"], ["no-show", "No show"], ["cancelled", "Cancel"]],
 };
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
-  const status = parseDriveStatus((await searchParams).status);
+export default async function Page({ searchParams }: { searchParams: Promise<{ status?: string; page?: string }> }) {
+  const sp = await searchParams;
+  const status = parseDriveStatus(sp.status);
   const [all, cars] = await Promise.all([drivesStore.list(), adminCars()]);
   const open = (s: string) => s === "requested" || s === "confirmed";
   const rows = all.filter((d) => (status ? d.status === status : open(d.status)));
-  const groups = groupByDay(rows);
+  // Done, no-show and cancelled only grow: every list is in pages, then grouped by day.
+  // Coming up: soonest first. Done, no-show and cancelled: most recent first, so page 1 is what just happened.
+  const ahead = !status || status === "requested" || status === "confirmed";
+  const paged = paginate([...rows].sort((x, y) => (ahead ? x.startsAt - y.startsAt : y.startsAt - x.startsAt)), sp.page);
+  const groups = groupByDay(paged.rows);
   const count = (s: string) => all.filter((d) => d.status === s).length;
 
   return (
@@ -91,6 +96,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
           ))}
         </section>
       )}
+      <Pager page={paged.page} pageCount={paged.pageCount} total={paged.total} href={(n) => `/dashboard/test-drives?${status ? `status=${status}&` : ""}page=${n}`} />
     </>
   );
 }

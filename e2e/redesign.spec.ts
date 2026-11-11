@@ -123,14 +123,17 @@ test("the summary tiles are the filter: one press filters the table and marks th
   await expect(page.getByRole("columnheader", { name: "Looking for" })).toBeVisible();
 });
 
-test("the test drive list narrows as you type a make or model", async ({ page }) => {
+test("the test drive list is searched and paged on the server, 24 cars a page", async ({ page }) => {
   await page.goto("/test-drive");
   const books = page.getByRole("button", { name: "Book", exact: true });
-  const all = await books.count();
-  await page.getByRole("searchbox", { name: "Search make or model" }).fill(live.make);
-  await expect.poll(() => books.count()).toBeLessThan(all);
+  expect(await books.count()).toBeLessThanOrEqual(24);
+  const box = page.getByRole("searchbox", { name: "Search make or model" });
+  await box.fill(live.make);
+  await box.press("Enter");
+  await expect(page).toHaveURL(new RegExp(`q=${live.make}`));
   await expect(books.first()).toBeVisible();
-  await page.getByRole("searchbox", { name: "Search make or model" }).fill("zzzz");
+  await box.fill("zzzz");
+  await box.press("Enter");
   await expect(page.getByText("No car matches. Try a make or a model, or call us.")).toBeVisible();
 });
 
