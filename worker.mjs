@@ -4,6 +4,7 @@
 import { drizzle } from "drizzle-orm/d1";
 import handler from "./.open-next/worker.js";
 import { purgeOldActivity } from "./src/lib/admin/activity-purge.ts";
+import { anonymiseOldSales } from "./src/lib/admin/sales-purge.ts";
 import { purgeOldLeads } from "./src/lib/leads/purge.ts";
 import { apexRedirect } from "./src/lib/redirect.ts";
 import { SITE_URL } from "./src/lib/site.ts";
@@ -12,16 +13,18 @@ import { SITE_URL } from "./src/lib/site.ts";
 export { BucketCachePurge, DOQueueHandler, DOShardedTagCache } from "./.open-next/worker.js";
 
 const HOST = new URL(SITE_URL).hostname;
-const SYNC_CRON = "*/15 * * * *";
+// The jobs that live in the app, by cron (wrangler.jsonc triggers): the Worker calls their route through the app's own handler with the
+// CRON_KEY secret. Without the key nothing runs. A 404 means the job does not apply to this site. Logs counts only.
+const APP_JOBS = {
+  "*/15 * * * *": { job: "donedeal-sync", path: "/api/donedeal/sync" }, // src/lib/donedeal/sync.ts
+  "0 7 * * *": { job: "follow-up-digest", path: "/api/follow-ups/digest" }, // src/lib/admin/follow-up-digest.ts, 7am or 8am Irish time
+};
 
-// The DoneDeal sync lives in the app (src/lib/donedeal/sync.ts), so the cron calls its route through the app's own handler, with the
-// CRON_KEY secret. Without the key there is nothing to run. Logs counts only.
-async function syncDoneDeal(env, ctx) {
+async function runAppJob({ job, path }, env, ctx) {
   if (!env.CRON_KEY) return;
-  const res = await handler.fetch(new Request(`${SITE_URL}/api/donedeal/sync`, { method: "POST", headers: { authorization: `Bearer ${env.CRON_KEY}` } }), env, ctx);
-  if (res.status === 404) return; // this site's stock is not from DoneDeal
-  const body = await res.json().catch(() => null);
-  console.log(JSON.stringify({ job: "donedeal-sync", status: res.status, ok: body?.ok ?? false, result: body?.result ?? null }));
+  const res = await handler.fetch(new Request(`${SITE_URL}${path}`, { method: "POST", headers: { authorization: `Bearer ${env.CRON_KEY}` } }), env, ctx);
+  if (res.status === 404) return;
+  console.log(JSON.stringify({ job, status: res.status, ...(await res.json().catch(() => ({}))) }));
 }
 
 const worker = {
@@ -32,10 +35,11 @@ const worker = {
   },
   // wrangler.jsonc "triggers". A failure throws, so Cloudflare marks the run failed and Workers Logs shows it.
   async scheduled(controller, env, ctx) {
-    if (controller.cron === SYNC_CRON) return syncDoneDeal(env, ctx);
+    if (APP_JOBS[controller.cron]) return runAppJob(APP_JOBS[controller.cron], env, ctx);
     const deleted = await purgeOldLeads(drizzle(env.DB), env.LEAD_PHOTOS);
     console.log(JSON.stringify({ job: "purge-leads", deleted })); // a count only, never a lead (D-08)
     console.log(JSON.stringify({ job: "purge-activity", deleted: await purgeOldActivity(drizzle(env.DB)) }));
+    console.log(JSON.stringify({ job: "anonymise-sales", done: await anonymiseOldSales(drizzle(env.DB)) }));
   },
 };
 export default worker;

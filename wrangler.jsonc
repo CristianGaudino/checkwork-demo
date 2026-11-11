@@ -10,9 +10,10 @@
 	// The bare domain is a second custom domain: worker.mjs redirects it to www.
 	"routes": [{ "pattern": "www.demo.checkwork.ie", "custom_domain": true }, { "pattern": "demo.checkwork.ie", "custom_domain": true }],
 	"workers_dev": false,
-	// worker.mjs: daily at 03:17 UTC, deletes old leads, their photos and old activity. Every 15 minutes, syncs DoneDeal stock (it does nothing
-	// on a site whose stock is not from DoneDeal, or without the CRON_KEY secret).
-	"triggers": { "crons": ["17 3 * * *", "*/15 * * * *"] },
+	// worker.mjs: daily at 03:17 UTC, deletes old leads, their photos and old activity, and removes the buyer from sales over six years old.
+	// Every 15 minutes, syncs DoneDeal stock (nothing on a site whose stock is not from DoneDeal). At 07:00 UTC, the follow-up emails (only
+	// when the dealer turned them on). The last two need the CRON_KEY secret.
+	"triggers": { "crons": ["17 3 * * *", "*/15 * * * *", "0 7 * * *"] },
 	"observability": { "enabled": true },
 	// Cloudflare Access for /admin (src/lib/access.ts): the team domain and this application's audience tag. Neither is a secret.
 	"vars": {

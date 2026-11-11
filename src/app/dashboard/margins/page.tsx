@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge, DataTable, PageHeader, Pager, Panel, StatCard, StatGrid, paginate, type Column } from "@/components/admin/kit";
-import { costsStore } from "@/lib/admin/collections";
+import { costsStore, salesStore } from "@/lib/admin/collections";
 import { fmtEur, fmtPct } from "@/lib/admin/format";
 import { marginOf } from "@/lib/admin/margins";
 import { adminCars } from "@/lib/admin/stock-admin";
@@ -12,20 +12,26 @@ import type { Car } from "@/lib/stock/types";
 
 export const metadata = { title: "Margins" };
 
-type Row = { car: Car; cost?: number };
+// `price`: what the car sold for when a sale is recorded, else its advertised price. The margin is worked on it.
+type Row = { car: Car; cost?: number; price: number; salePrice?: number };
 
 // Needs the "margins" permission. Without it the page is not there: a hidden link is never the only protection.
 export default async function Page({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
   if (!(await can("margins"))) notFound();
-  const [cars, costs] = await Promise.all([adminCars(), costsStore.list()]);
+  const [cars, costs, sales] = await Promise.all([adminCars(), costsStore.list(), salesStore.list()]);
   const byId = new Map(costs.map((c) => [c.id, c.costEur]));
-  const rows: Row[] = cars.map((car) => ({ car, cost: byId.get(car.id) })).sort((a, b) => Number(isSold(a.car)) - Number(isSold(b.car)) || Number(b.car.id) - Number(a.car.id));
+  const soldFor = new Map(sales.map((s) => [s.id, s.priceEur]));
+  const rows: Row[] = cars
+    .map((car) => {
+      const salePrice = isSold(car) ? soldFor.get(car.id) : undefined;
+      return { car, cost: byId.get(car.id), price: salePrice ?? car.priceEur, salePrice };
+    }).sort((a, b) => Number(isSold(a.car)) - Number(isSold(b.car)) || Number(b.car.id) - Number(a.car.id));
   const known = rows.filter((r): r is Row & { cost: number } => r.cost !== undefined);
   const stock = known.filter((r) => !isSold(r.car));
   const stockPrice = stock.reduce((s, r) => s + r.car.priceEur, 0);
   const stockCost = stock.reduce((s, r) => s + r.cost, 0);
   const sold = known.filter((r) => isSold(r.car));
-  const soldMargin = sold.reduce((s, r) => s + marginOf(r.car.priceEur, r.cost).eur, 0);
+  const soldMargin = sold.reduce((s, r) => s + marginOf(r.price, r.cost).eur, 0);
   const stockMargin = marginOf(stockPrice, stockCost);
   const paged = paginate(rows, (await searchParams).page); // the figures above are over every car; the table is in pages
 
@@ -40,20 +46,20 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
       ),
     },
     { key: "status", header: "Status", hide: "md", cell: (r) => (isSold(r.car) ? <Badge tone="neutral">Sold</Badge> : <Badge tone="good">For sale</Badge>) },
-    { key: "price", header: "Price", align: "right", cell: (r) => fmtEur(r.car.priceEur) },
+    { key: "price", header: "Price", align: "right", cell: (r) => (r.salePrice !== undefined ? <span className="flex flex-col items-end">{fmtEur(r.salePrice)}<span className="text-meta text-text-2">sold for</span></span> : fmtEur(r.car.priceEur)) },
     { key: "cost", header: "Cost", align: "right", cell: (r) => (r.cost === undefined ? "Not set" : fmtEur(r.cost)) },
-    { key: "margin", header: "Margin", align: "right", cell: (r) => (r.cost === undefined ? "" : fmtEur(marginOf(r.car.priceEur, r.cost).eur)) },
-    { key: "pct", header: "Margin %", align: "right", hide: "md", cell: (r) => (r.cost === undefined ? "" : fmtPct(marginOf(r.car.priceEur, r.cost).pct)) },
+    { key: "margin", header: "Margin", align: "right", cell: (r) => (r.cost === undefined ? "" : fmtEur(marginOf(r.price, r.cost).eur)) },
+    { key: "pct", header: "Margin %", align: "right", hide: "md", cell: (r) => (r.cost === undefined ? "" : fmtPct(marginOf(r.price, r.cost).pct)) },
   ];
 
   return (
     <>
-      <PageHeader title="Margins" text="What each car cost and what it should make: the advertised price less the cost, before VAT and running costs. Only owners, managers and finance see this." />
+      <PageHeader title="Margins" text="What each car cost and what it makes: the price less the cost, before VAT and running costs. A sold car uses what it sold for. Only owners, managers and finance see this." />
       <StatGrid>
         <StatCard label="Stock cost" value={fmtEur(stockCost)} hint={`${stock.length} cars for sale`} />
         <StatCard label="Stock value" value={fmtEur(stockPrice)} hint="At the advertised prices" />
         <StatCard label="Expected margin" value={fmtEur(stockMargin.eur)} hint={`${fmtPct(stockMargin.pct)} of the value`} />
-        <StatCard label="Margin on sold cars" value={fmtEur(soldMargin)} hint={`${sold.length} sold cars shown on the site`} />
+        <StatCard label="Margin on sold cars" value={fmtEur(soldMargin)} hint={`${sold.length} sold cars, at what they sold for where recorded`} />
       </StatGrid>
       <Panel title="Every car">
         <DataTable bare columns={columns} rows={paged.rows} rowKey={(r) => r.car.id} />

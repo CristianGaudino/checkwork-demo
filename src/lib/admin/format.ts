@@ -8,6 +8,9 @@ const eur = new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR",
 export const fmtDate = (t: number | string) => date.format(new Date(t));
 export const fmtDateTime = (t: number | string) => dateTime.format(new Date(t));
 export const fmtNum = (n: number) => num.format(n);
+// The Irish calendar day of a moment, as YYYY-MM-DD ("today" for follow-ups and sales), and a day n days on.
+export const dublinDay = (t: number = Date.now()) => new Date(t).toLocaleDateString("en-CA", { timeZone });
+export const addDays = (day: string, n: number) => new Date(Date.parse(`${day}T12:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10);
 export const fmtEur = (n: number) => eur.format(n);
 export const fmtPct = (n: number) => `${(Math.round(n * 10) / 10).toString()}%`;
 

@@ -3,14 +3,17 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LeadStatusBadge } from "@/components/admin/badges";
 import { RegLookup } from "@/components/leads/RegLookup";
-import { Avatar, ChoiceButton, Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput, rowButton } from "@/components/admin/kit";
+import { Avatar, Badge, ChoiceButton, Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput, rowButton } from "@/components/admin/kit";
 import { LEAD_STATUS_LABELS, LEAD_TYPE_LABELS, getSettings, leadsStore } from "@/lib/admin/collections";
 import { fmtDateTime } from "@/lib/admin/format";
+
 import { adminCars } from "@/lib/admin/stock-admin";
 import { isSold } from "@/lib/stock/types";
 import { CalendarIcon, CheckIcon, CloseIcon, PhoneIcon, WhatsAppIcon } from "@/components/stock/icons";
 import type { LeadStatus } from "@/lib/admin/collections";
-import { addNoteAction, assignLeadAction, setStatusAction } from "../actions";
+import { addNoteAction, assignLeadAction, setFollowUpAction, setStatusAction } from "../actions";
+import { dublinDay, fmtDate } from "@/lib/admin/format";
+import { followUpDue, isOpenLead } from "@/lib/admin/leads";
 
 // The quick actions on a lead: the steps it moves through. New is where it starts, so it has no button.
 const STATUS_ACTIONS: { status: LeadStatus; Icon: typeof PhoneIcon }[] = [
@@ -29,6 +32,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   // The car the lead asked about has sold since (here, or on DoneDeal): the salesperson offers something like it.
   const car = lead.carSlug ? (await adminCars()).find((c) => c.slug === lead.carSlug) : undefined;
   const carSold = car !== undefined && isSold(car);
+  const today = dublinDay();
   const wa = lead.phone.replace(/[^\d]/g, "");
 
   return (
@@ -130,6 +134,34 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
               ))}
             </div>
           </Panel>
+          {/* The day to get back to them. Only while the lead is open: won and lost need none. */}
+          {isOpenLead(lead) && (
+            <Panel title="Follow up" action={lead.followUpOn && <Badge tone={followUpDue(lead, today) ? "warn" : "neutral"}>{lead.followUpOn === today ? "Today" : fmtDate(`${lead.followUpOn}T12:00:00Z`)}</Badge>}>
+              <div className="flex flex-wrap gap-2">
+                {([[1, "Tomorrow"], [3, "In 3 days"], [7, "Next week"]] as const).map(([n, label]) => (
+                  <ChoiceButton key={n} action={setFollowUpAction.bind(null, lead.id)} name="in" value={String(n)} active={false}>
+                    {label}
+                  </ChoiceButton>
+                ))}
+              </div>
+              <form action={setFollowUpAction.bind(null, lead.id)} className="flex flex-wrap items-end gap-2">
+                <Field label="Or a day" className="w-44">
+                  <input type="date" name="on" min={today} defaultValue={lead.followUpOn ?? ""} required className={adminInput} />
+                </Field>
+                <button type="submit" className={rowButton}>
+                  Set
+                </button>
+              </form>
+              {lead.followUpOn && (
+                <form action={setFollowUpAction.bind(null, lead.id)}>
+                  <input type="hidden" name="clear" value="1" />
+                  <button type="submit" className={`${rowButton} text-bad`}>
+                    Clear the follow-up
+                  </button>
+                </form>
+              )}
+            </Panel>
+          )}
           <Panel title="Who has it">
             <div className="flex flex-wrap gap-2">
               <ChoiceButton action={assignLeadAction.bind(null, lead.id)} name="assignedTo" value="" active={!lead.assignedTo}>

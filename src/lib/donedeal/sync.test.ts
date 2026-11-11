@@ -50,6 +50,16 @@ describe("the DoneDeal sync", () => {
     expect(log).toEqual(expect.arrayContaining(["Added from DoneDeal", "Marked sold: no longer on DoneDeal", expect.stringMatching(/^Changed the price from/)]));
   });
 
+  it("a sold car DoneDeal lists again goes back on sale, and its sale goes with it", async () => {
+    const { salesStore } = await import("@/lib/admin/collections");
+    const sold = (await adminCars()).find((c) => c.soldAt && c.id !== "dd-1")!;
+    await salesStore.put({ id: sold.id, carTitle: "x", priceEur: 1, soldOn: sold.soldAt!, createdAt: 0 });
+    feed = async () => ({ ok: true, listings: [...(await forSale()), { ...sold, soldAt: undefined }] });
+    await runSync();
+    expect((await adminCars()).find((c) => c.id === sold.id)?.soldAt).toBeUndefined();
+    expect(await salesStore.get(sold.id)).toBeUndefined();
+  });
+
   it("a broken answer changes nothing and is held", async () => {
     const before = await adminCars();
     feed = async () => ({ ok: true, listings: [] });

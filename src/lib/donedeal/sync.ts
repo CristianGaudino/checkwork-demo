@@ -1,7 +1,7 @@
 import "server-only";
 import { logActivity } from "@/lib/admin/activity";
 import { carEditSummary } from "@/lib/admin/activity-text";
-import { getSettings } from "@/lib/admin/collections";
+import { getSettings, salesStore } from "@/lib/admin/collections";
 import { defineCollection } from "@/lib/admin/docs";
 import { carTitleOf } from "@/lib/admin/seed-data";
 import { adminCars, saveCar } from "@/lib/admin/stock-admin";
@@ -73,7 +73,11 @@ export async function runSync({ force = false, now = Date.now() } = {}): Promise
   };
   const result = { added: 0, changed: 0, sold: 0 };
   for (const c of plan.added) if (await apply(c, "Added from DoneDeal")) result.added++;
-  for (const { before, after } of plan.changed) if (await apply(after, before.soldAt ? "Back on sale on DoneDeal" : carEditSummary(before, after))) result.changed++;
+  for (const { before, after } of plan.changed) {
+    if (!(await apply(after, before.soldAt ? "Back on sale on DoneDeal" : carEditSummary(before, after)))) continue;
+    result.changed++;
+    if (before.soldAt) await salesStore.remove(after.id); // back on sale: the sale fell through, as Back on sale does in our version
+  }
   for (const c of plan.gone) if (await apply(c, "Marked sold: no longer on DoneDeal")) result.sold++;
   const status: SyncStatus = { id: "status", lastRunAt: now, lastOkAt: now, result, ...(skipped && { problem: `${skipped === 1 ? "1 car" : `${skipped} cars`} from DoneDeal could not be saved. The rest are up to date.` }) };
   await statusStore.put(status);

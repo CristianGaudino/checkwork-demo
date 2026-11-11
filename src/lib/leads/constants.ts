@@ -9,6 +9,8 @@ export const CONSENT = { version: "2026-11-10", text: `I agree to ${SITE_NAME} u
 // D-04: leads are kept this long, then deleted by the daily purge (worker.mjs, docs/lead-retention.md). The dealer must confirm
 // the period; /privacy and docs/lead-retention.md state it, so change all three together.
 export const LEAD_RETENTION_MONTHS = 12;
+// A sale record names its buyer: kept this many years (Irish business records), then the buyer is removed (src/lib/admin/sales-purge.ts).
+export const SALE_KEEP_YEARS = 6;
 // What the contact form and the service form say after a message goes.
 export const MESSAGE_SENT = { heading: "Thanks, we have your message.", body: "We'll get back to you." } as const;
 export const LIMITS = { name: 100, phone: 30, email: 200, message: 1000 } as const;

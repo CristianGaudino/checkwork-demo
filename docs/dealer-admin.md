@@ -53,6 +53,17 @@ with no D1). The actor is the signed-in person (`currentMember`), or a named one
 - **Kept 12 months** (`ACTIVITY_RETENTION_MONTHS`), then deleted by the daily job in `worker.mjs`, which logs `{"job":"purge-activity"}`.
 - **The demo** seeds a history of the made-up team on the seeded records; Reset demo data puts it back.
 
+## Sales and follow-ups
+
+- **A sale** (`salesStore`, one per car): the price it sold for, the day, who sold it and the buyer, a customer on file or a new one made
+  on the form. In our version Mark sold opens the form and marks the car sold on the sale's day; Back on sale removes the sale. In the
+  DoneDeal version the sync marks the car sold, and Overview ("Sold cars with no sale recorded", the last 90 days) and the Sold view on Stock
+  (Record sale) ask for it. Margins use the sale price for a sold car. After six years the daily job removes the buyer from a sale
+  (`src/lib/admin/sales-purge.ts`, `{"job":"anonymise-sales"}`); the figures stay. /privacy says so.
+- **A follow-up** (`followUpOn` on a lead): Tomorrow, In 3 days, Next week or a day, on the lead. Cleared when the lead is won or lost.
+  Overview counts the ones due (today and overdue); the leads list filters by them. The morning email (Settings, Notifications, off by
+  default) sends each salesperson theirs, and the unassigned ones to owners and managers, at 07:00 UTC (`/api/follow-ups/digest`).
+
 ## DoneDeal stock
 
 A dealer whose stock is on DoneDeal (`NEXT_PUBLIC_STOCK_SOURCE=donedeal`, or the demo bar's DoneDeal switch) keeps one source of truth:

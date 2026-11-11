@@ -72,7 +72,7 @@ export function LeadEmailsForm({ settings, fallback }: { settings: DealerSetting
   );
 }
 
-const NOTES: [keyof DealerSettings["notifications"], string][] = [["newLead", "A new lead arrives"], ["testDrive", "A test drive is requested"], ["review", "A new review is posted"], ["weeklyReport", "A weekly summary, every Monday"]];
+const NOTES: [keyof DealerSettings["notifications"], string][] = [["newLead", "A new lead arrives"], ["testDrive", "A test drive is requested"], ["review", "A new review is posted"], ["weeklyReport", "A weekly summary, every Monday"], ["followUps", "Follow-ups are due: each salesperson gets theirs each morning"]];
 
 export function NotificationsForm({ settings, emailConnected }: { settings: DealerSettings; emailConnected: boolean }) {
   const f = useSave(saveNotificationsAction);

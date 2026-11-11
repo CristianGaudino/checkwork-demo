@@ -4,7 +4,12 @@ import { redirect } from "next/navigation";
 import { carFromForm } from "@/lib/admin/car-form";
 import { logActivity } from "@/lib/admin/activity";
 import { carEditSummary, costText } from "@/lib/admin/activity-text";
-import { costsStore } from "@/lib/admin/collections";
+import { z } from "zod";
+import { costsStore, customersStore, getSettings, salesStore } from "@/lib/admin/collections";
+import { dublinDay, fmtEur } from "@/lib/admin/format";
+import { newId } from "@/lib/admin/ids";
+import { fieldErrors } from "@/lib/admin/validation";
+import { EMAIL_INVALID } from "@/lib/copy";
 import { carTitleOf } from "@/lib/admin/seed-data";
 import { BAD_COST, parseCost } from "@/lib/admin/margins";
 import { can } from "@/lib/permissions";
@@ -12,7 +17,7 @@ import { adminCar, adminCars, removeCar, saveCar } from "@/lib/admin/stock-admin
 import { nextCarId } from "@/lib/admin/stock-admin-pure";
 import { stockSource } from "@/lib/stock-source";
 import { runSync } from "@/lib/donedeal/sync";
-import type { Car } from "@/lib/stock/types";
+import { isSold, type Car } from "@/lib/stock/types";
 
 const carRef = (c: Car) => ({ kind: "car" as const, id: c.id, label: carTitleOf(c) });
 
@@ -63,6 +68,7 @@ export async function toggleSoldAction(id: string) {
   if (!car) return;
   const { soldAt: was, ...rest } = car;
   await saveCar(was ? rest : { ...car, soldAt: new Date().toISOString().slice(0, 10) });
+  if (was) await salesStore.remove(id); // back on sale: the sale fell through
   await logActivity("stock", was ? "Put back on sale" : "Marked sold", carRef(car));
   redirect("/dashboard/stock");
 }
@@ -82,4 +88,43 @@ export async function syncNowAction(force: boolean) {
   if (!(await readOnly())) return;
   await runSync({ force: force && (await can("settings")) });
   redirect(`/dashboard/stock?synced=1`);
+}
+
+export type SaleFormState = { errors?: Record<string, string> } | undefined;
+const sale = z.object({
+  priceEur: z.coerce.number({ message: "Enter the price in whole euros" }).int("Enter the price in whole euros").min(1, "Enter the price in whole euros").max(10_000_000, "That price looks too high"),
+  soldOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Choose the day it sold"),
+  salesperson: z.string().max(80).optional(),
+  customerId: z.string().max(40).optional(),
+  name: z.string().trim().max(80).optional(),
+  email: z.preprocess((v) => (v === "" ? undefined : v), z.string().trim().toLowerCase().email(EMAIL_INVALID).max(120).optional()),
+  phone: z.string().trim().max(30).optional(),
+});
+
+// What the car sold for, when, by whom and to whom. The buyer is a customer already on file, or a new one made here. In our version this
+// is Mark sold, so the car is marked sold on the sale's day. In the DoneDeal version the car is sold there; the sale is only recorded.
+export async function recordSaleAction(carId: string, _prev: SaleFormState, data: FormData): Promise<SaleFormState> {
+  const car = await adminCar(carId);
+  if (!car) return { errors: { priceEur: "This car no longer exists" } };
+  const r = sale.safeParse(Object.fromEntries(data));
+  if (!r.success) return { errors: fieldErrors(r.error) };
+  const d = r.data;
+  const today = dublinDay();
+  if (d.soldOn > today) return { errors: { soldOn: "Choose a day that has passed or today" } };
+  const { team } = await getSettings();
+  const salesperson = team.some((t) => t.name === d.salesperson) ? d.salesperson : undefined;
+  let customerId = d.customerId && (await customersStore.get(d.customerId)) ? d.customerId : undefined;
+  if (!customerId) {
+    if (!d.name) return { errors: { name: "Choose a customer, or enter the new customer's name" } };
+    if (!d.email && !d.phone) return { errors: { phone: "Enter a phone number or an email" } };
+    customerId = newId("cust");
+    const at = Date.now();
+    await customersStore.put({ id: customerId, name: d.name, email: d.email ?? "", phone: d.phone ?? "", source: "Sale", marketingConsent: false, createdAt: at, lastContactAt: at });
+  }
+  const was = await salesStore.get(car.id);
+  await salesStore.put({ id: car.id, carTitle: carTitleOf(car), priceEur: d.priceEur, soldOn: d.soldOn, salesperson, customerId, createdAt: was?.createdAt ?? Date.now() });
+  const markSold = !isSold(car) && !(await readOnly());
+  if (markSold) await saveCar({ ...car, soldAt: d.soldOn });
+  await logActivity("stock", `${was ? "Changed the sale to" : "Recorded the sale for"} ${fmtEur(d.priceEur)}${markSold ? " and marked it sold" : ""}`, carRef(car));
+  redirect(`/dashboard/stock?view=sold&sale=${car.id}`);
 }

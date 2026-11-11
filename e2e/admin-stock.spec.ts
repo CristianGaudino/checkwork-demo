@@ -53,12 +53,21 @@ test("add a car, see it on the site with its VAT line, change its price to a dro
   await page.goto(`/used-cars?q=${MAKE}`);
   await expect(page.locator("article").filter({ hasText: "Roadster" }).getByText("Reduced by €1,450")).toBeVisible();
 
-  // Sold: out of "For sale", in "Sold".
+  // Sold: Mark sold records the sale (price, day, salesperson, a new customer), then the car is out of "For sale" and in "Sold".
   await page.goto("/dashboard/stock?q=" + MAKE);
+  await page.getByRole("link", { name: "Mark sold" }).click();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Mark sold");
+  await page.getByLabel("Sale price (€)").fill("18000");
+  await page.getByLabel("Name", { exact: true }).fill("Pat Byrne");
+  await page.getByLabel("Phone", { exact: true }).fill("+353 83 000 4321");
   await page.getByRole("button", { name: "Mark sold" }).click();
+  await expect(page.getByRole("status")).toContainText(/Sale recorded for/);
+  await page.goto("/dashboard/stock?q=" + MAKE);
   await expect(page.getByRole("row", { name: new RegExp(MAKE) })).toHaveCount(0);
-  await page.goto("/dashboard/stock?status=sold&q=" + MAKE);
-  await expect(page.getByRole("row", { name: new RegExp(MAKE) }).getByRole("button", { name: "Back on sale" })).toBeVisible();
+  await page.goto("/dashboard/stock?view=sold&q=" + MAKE);
+  const sold = page.getByRole("row", { name: new RegExp(MAKE) });
+  await expect(sold).toContainText("sold for €18,000");
+  await expect(sold.getByRole("button", { name: "Back on sale" })).toBeVisible();
 
   // Delete, from the car's own page: gone from the dealer's list and from the site.
   await page.getByRole("row", { name: new RegExp(MAKE) }).getByRole("link", { name: /^Edit / }).click();

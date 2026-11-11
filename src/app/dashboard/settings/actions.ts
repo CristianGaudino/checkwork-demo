@@ -49,7 +49,7 @@ export async function saveNotificationsAction(_p: SettingsState, data: FormData)
   const no = await refused("notifications");
   if (no) return no;
   const on = (k: string) => data.get(k) === "on";
-  const notifications = { newLead: on("newLead"), testDrive: on("testDrive"), review: on("review"), weeklyReport: on("weeklyReport") };
+  const notifications = { newLead: on("newLead"), testDrive: on("testDrive"), review: on("review"), weeklyReport: on("weeklyReport"), followUps: on("followUps") };
   const was = await getSettings();
   await change((s) => ({ ...s, notifications }));
   if (!same(was.notifications, notifications)) await logActivity("settings", "Changed the email notifications");

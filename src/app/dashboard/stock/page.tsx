@@ -13,6 +13,7 @@ import { stockSource } from "@/lib/stock-source";
 import { DONEDEAL_DEALER_URL, listingHref } from "@/lib/stock-source-rules";
 import { SyncPanel } from "@/components/admin/SyncPanel";
 import { OLD_STOCK_DAYS, isOldStock } from "@/lib/admin/overview";
+import { salesStore } from "@/lib/admin/collections";
 import { syncStatus } from "@/lib/donedeal/sync";
 import { SEARCH_MAKE_MODEL } from "@/lib/copy";
 import { toggleSoldAction } from "./actions";
@@ -37,7 +38,7 @@ const VIEWS = {
 } as const;
 type View = keyof typeof VIEWS;
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ view?: string; status?: string; q?: string; saved?: string; deleted?: string; page?: string }> }) {
+export default async function Page({ searchParams }: { searchParams: Promise<{ view?: string; status?: string; q?: string; saved?: string; deleted?: string; sale?: string; page?: string }> }) {
   const sp = await searchParams;
   const asked = sp.view ?? sp.status; // `status` is the old name for the view, kept so old links still work
   const view: View = asked && Object.hasOwn(VIEWS, asked) ? (asked as View) : "for-sale";
@@ -45,6 +46,15 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
   const [all, source] = await Promise.all([adminCars(), stockSource()]);
   const synced = source === "donedeal";
   const sync = synced ? await syncStatus() : null;
+  const sales = new Map((await salesStore.list()).map((s) => [s.id, s]));
+  const saleFor = sp.sale ? all.find((c) => c.id === sp.sale) : undefined;
+  // A sold car with no sale recorded gets the button: Mark sold in our version records it; after the DoneDeal sync it is asked for here.
+  const recordSale = (c: Car) =>
+    isSold(c) && !sales.has(c.id) ? (
+      <Link href={`/dashboard/stock/${c.id}/sale`} className={rowButton}>
+        Record sale
+      </Link>
+    ) : null;
   // The margin column is for staff with the margins permission; without it the costs are not even read.
   const costs = (await can("margins")) ? new Map((await costsStore.list()).map((c) => [c.id, c.costEur])) : null;
   const matching = all
@@ -85,7 +95,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
       cell: (c) => (
         <span className="flex flex-col items-end">
           {fmtEur(c.priceEur)}
-          {c.wasPriceEur !== undefined && c.wasPriceEur > c.priceEur && <span className="text-meta text-ok">was {fmtEur(c.wasPriceEur)}</span>}
+          {isSold(c) && sales.has(c.id) ? (
+            <span className="text-meta text-text-2">sold for {fmtEur(sales.get(c.id)!.priceEur)}</span>
+          ) : (
+            c.wasPriceEur !== undefined && c.wasPriceEur > c.priceEur && <span className="text-meta text-ok">was {fmtEur(c.wasPriceEur)}</span>
+          )}
         </span>
       ),
     },
@@ -103,7 +117,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
       cell: (c) =>
         // Above the row's own link, so these buttons are what a press on them hits.
         synced ? (
-          <div className="relative z-10 flex justify-end">
+          <div className="relative z-10 flex justify-end gap-2">
+            {recordSale(c)}
             <a href={listingHref(c)} {...NEW_TAB} className={rowButton} aria-label={`Edit ${carName(c)} on DoneDeal (opens in a new tab)`}>
               DoneDeal
               <ExternalIcon className="size-4" />
@@ -115,11 +130,18 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
               <PencilIcon className="size-4" />
               Edit
             </Link>
-            <form action={toggleSoldAction.bind(null, c.id)}>
-              <button type="submit" className={rowButton}>
-                {isSold(c) ? "Back on sale" : "Mark sold"}
-              </button>
-            </form>
+            {recordSale(c)}
+            {isSold(c) ? (
+              <form action={toggleSoldAction.bind(null, c.id)}>
+                <button type="submit" className={rowButton}>
+                  Back on sale
+                </button>
+              </form>
+            ) : (
+              <Link href={`/dashboard/stock/${c.id}/sale`} className={rowButton}>
+                Mark sold
+              </Link>
+            )}
           </div>
         ),
     },
@@ -147,6 +169,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
       />
       {sync && <SyncPanel status={sync} canForce={await can("settings")} />}
       {saved && <p role="status" className="rounded-control bg-ok-soft px-4 py-3 text-body text-ok">Saved {carName(saved)}.</p>}
+      {saleFor && <p role="status" className="rounded-control bg-ok-soft px-4 py-3 text-body text-ok">Sale recorded for {carName(saleFor)}.</p>}
       {sp.deleted && <p role="status" className="rounded-control bg-hairline px-4 py-3 text-body">Car deleted.</p>}
       <SummaryTabs label="Stock views" items={(Object.keys(VIEWS) as View[]).map((v) => ({ label: VIEWS[v].label, count: all.filter(VIEWS[v].test).length, href: href(v), active: view === v }))} />
       <SearchBar action="/dashboard/stock" value={q} placeholder={SEARCH_MAKE_MODEL} label="Search stock" keep={{ view }} />

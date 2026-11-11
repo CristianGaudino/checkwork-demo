@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { InfoPage, InfoSection } from "@/components/InfoPage";
-import { LEAD_RETENTION_MONTHS } from "@/lib/leads/constants";
+import { LEAD_RETENTION_MONTHS, SALE_KEEP_YEARS } from "@/lib/leads/constants";
 import { DEALER_EMAIL, SITE_NAME } from "@/lib/site";
 
 export const metadata: Metadata = { title: "Privacy policy", description: `How ${SITE_NAME} uses the details you send us, how long we keep them, and how to ask for them to be deleted.` };
@@ -30,6 +30,7 @@ export default function PrivacyPage() {
       </InfoSection>
       <InfoSection title="How long we keep it">
         <p>We keep each request for {LEAD_RETENTION_MONTHS} months, then delete it.</p>
+        <p>If you buy a car from us, we keep the record of the sale for {SALE_KEEP_YEARS} years, as Irish law asks of business records, then remove your name from it.</p>
       </InfoSection>
       <InfoSection title="How to ask us to delete it">
         <p>

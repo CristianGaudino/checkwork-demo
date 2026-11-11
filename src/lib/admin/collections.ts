@@ -33,6 +33,7 @@ export type Lead = {
   carTitle?: string;
   reg?: string; // the registration of the car a person wants to sell or trade in
   assignedTo?: string;
+  followUpOn?: string; // YYYY-MM-DD, the Irish day to get back to them; cleared once the lead is won or lost
   notes: { at: number; text: string }[];
   createdAt: number;
 };
@@ -76,6 +77,8 @@ function seedLeads(): Lead[] {
       // A plate for the cars people want to sell or trade in, from the index (not the random sequence, so the rest of the seed is unchanged).
       ...((type === "trade-in" || type === "sell") && { reg: `${15 + (i % 9)}${1 + (i % 2)}-${["D", "C", "KY", "G", "L", "WX"][i % 6]}-${1000 + i * 37}` }),
       assignedTo: status === "new" ? undefined : r.pick(TEAM_SEED).name,
+      // A few open leads with a follow-up: one overdue, one today, two coming (by index, so the random sequence above is unchanged).
+      ...((status === "contacted" || status === "appointment") && i % 3 === 0 && { followUpOn: new Date(now + ((i % 4) - 1) * DAY).toLocaleDateString("en-CA", { timeZone: "Europe/Dublin" }) }),
       notes: status === "contacted" || status === "appointment" ? [{ at: now - age + 2 * HOUR, text: "Called and left a message." }] : [],
       createdAt: now - age,
     };
@@ -181,7 +184,7 @@ export type DealerSettings = {
   id: "dealer";
   leadSlaHours: number; // a new lead waiting longer than this needs attention (overview)
   driveSlotMinutes: number; // one car cannot be booked twice within this many minutes (test drives)
-  notifications: { newLead: boolean; testDrive: boolean; review: boolean; weeklyReport: boolean };
+  notifications: { newLead: boolean; testDrive: boolean; review: boolean; weeklyReport: boolean; followUps: boolean }; // followUps: the morning email
   marketing: { voice: string; hashtags: string; signOff: string }; // used by the post and newsletter writers
   team: TeamMember[];
   leadEmails: string[]; // who gets the email when a visitor sends a form; empty means the LEAD_TO_EMAIL variable
@@ -191,7 +194,7 @@ export const SETTINGS_DEFAULT: DealerSettings = {
   id: "dealer",
   leadSlaHours: 24,
   driveSlotMinutes: 60,
-  notifications: { newLead: true, testDrive: true, review: true, weeklyReport: false },
+  notifications: { newLead: true, testDrive: true, review: true, weeklyReport: false, followUps: false },
   marketing: { voice: "Friendly and plain. Short sentences. No hype.", hashtags: "#usedcars #carsforsale", signOff: "Call in or message us to arrange a viewing." },
   team: TEAM_SEED.map((t) => ({ ...t })),
   leadEmails: [],
@@ -258,6 +261,26 @@ export async function getSettings(): Promise<DealerSettings> {
   return { ...SETTINGS_DEFAULT, ...(await settingsStore.get("dealer")) }; // a saved record from before a setting existed still reads whole
 }
 
+// ---- Sales ----
+// What a car sold for, when, by whom and to whom: one record per car (its id). The buyer is a customer record, by id, so their details live
+// in one place. Recorded from Mark sold in our version, and after the sync marks a car sold in the DoneDeal version. Personal data: after
+// SALE_KEEP_YEARS the link to the buyer is removed (src/lib/admin/sales-purge.ts) and the figures stay for the reports.
+export type Sale = { id: string; carTitle: string; priceEur: number; soldOn: string; salesperson?: string; customerId?: string; createdAt: number };
+function seedSales(): Sale[] {
+  // Most of the demo's sold cars have their sale recorded; the rest show as "no sale recorded" on the overview.
+  const sold = (demoCars as { id: string; year: number; make: string; model: string; priceEur: number; soldAt?: string }[]).filter((c) => c.soldAt);
+  return sold.slice(0, Math.max(0, sold.length - 2)).map((c, i) => ({
+    id: c.id,
+    carTitle: `${c.year} ${c.make} ${c.model}`,
+    priceEur: c.priceEur - [0, 250, 500][i % 3],
+    soldOn: c.soldAt!,
+    salesperson: TEAM_SEED[i % 2 === 0 ? 1 : 0].name,
+    customerId: `cust-${300 + i}`,
+    createdAt: Date.parse(`${c.soldAt}T16:00:00Z`),
+  }));
+}
+export const salesStore = defineCollection<Sale>("sales", seedSales);
+
 // ---- Cost prices ----
 // What each car cost the dealer. Kept here, never in the public car data, and only shown to staff with the "margins" permission
 // (src/lib/permissions.ts). One record per car id; a car added in the admin has none until someone enters it.
@@ -265,4 +288,4 @@ export type CarCost = { id: string; costEur: number };
 export const costsStore = defineCollection<CarCost>("car-costs", () => [...demoCars, ...extraCars].map((c) => ({ id: c.id, costEur: demoCost(c.id, c.priceEur) })));
 
 // Every dealer collection, so "Reset demo data" puts the whole demo back to its seed.
-export const DEALER_COLLECTIONS = [leadsStore, drivesStore, customersStore, alertsStore, subscribersStore, reviewsStore, settingsStore, postsStore, adsStore, newslettersStore, costsStore];
+export const DEALER_COLLECTIONS = [leadsStore, drivesStore, customersStore, alertsStore, subscribersStore, reviewsStore, settingsStore, postsStore, adsStore, newslettersStore, costsStore, salesStore];

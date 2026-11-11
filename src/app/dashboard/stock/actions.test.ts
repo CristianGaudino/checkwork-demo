@@ -11,8 +11,8 @@ vi.mock("next/headers", () => ({
   cookies: async () => ({ get: (n: string) => (n === "checkwork-demo-stock" ? { value: stockCookie } : n === "checkwork-demo-role" ? { value: role } : undefined) }),
   headers: async () => ({ get: () => null }),
 }));
-const { deleteCarAction, saveCarAction, saveCostAction, toggleSoldAction } = await import("./actions");
-const { costsStore } = await import("@/lib/admin/collections");
+const { deleteCarAction, recordSaleAction, saveCarAction, saveCostAction, toggleSoldAction } = await import("./actions");
+const { costsStore, customersStore, salesStore } = await import("@/lib/admin/collections");
 const { adminCar, adminCars } = await import("@/lib/admin/stock-admin");
 
 describe("stock synced from DoneDeal", () => {
@@ -53,5 +53,45 @@ describe("stock synced from DoneDeal", () => {
     await expect(toggleSoldAction(car.id)).rejects.toThrow(/redirect/);
     expect((await adminCar(car.id))?.soldAt).toBeDefined();
     await expect(toggleSoldAction(car.id)).rejects.toThrow(/redirect/); // put it back for the next test
+  });
+});
+
+describe("recording a sale", () => {
+  const form = (o: Record<string, string>) => Object.entries(o).reduce((f, [k, v]) => (f.set(k, v), f), new FormData());
+  const today = new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Dublin" });
+
+  it("with our own stock, records the sale with a new customer and marks the car sold on the sale's day", async () => {
+    stockCookie = "checkwork";
+    const car = (await adminCars()).find((c) => !c.soldAt)!;
+    await expect(recordSaleAction(car.id, undefined, form({ priceEur: "15000", soldOn: today, salesperson: "Conor Doyle", customerId: "", name: "Pat Byrne", phone: "+353 83 000 1234" }))).rejects.toThrow(/redirect:\/dashboard\/stock\?view=sold&sale=/);
+    const sale = (await salesStore.get(car.id))!;
+    expect(sale).toMatchObject({ priceEur: 15000, soldOn: today, salesperson: "Conor Doyle" });
+    expect((await customersStore.get(sale.customerId!))?.name).toBe("Pat Byrne");
+    expect((await adminCar(car.id))?.soldAt).toBe(today);
+    // Back on sale: the sale fell through, so it goes.
+    await expect(toggleSoldAction(car.id)).rejects.toThrow(/redirect/);
+    expect(await salesStore.get(car.id)).toBeUndefined();
+  });
+
+  it("with DoneDeal stock, records the sale of a car the sync marked sold, and never marks one sold itself", async () => {
+    stockCookie = "donedeal";
+    const sold = (await adminCars()).find((c) => c.soldAt)!;
+    const customer = (await customersStore.list())[0];
+    await expect(recordSaleAction(sold.id, undefined, form({ priceEur: "9000", soldOn: sold.soldAt!, customerId: customer.id }))).rejects.toThrow(/redirect/);
+    expect((await salesStore.get(sold.id))?.customerId).toBe(customer.id);
+    const forSale = (await adminCars()).find((c) => !c.soldAt)!;
+    await expect(recordSaleAction(forSale.id, undefined, form({ priceEur: "9000", soldOn: today, customerId: customer.id }))).rejects.toThrow(/redirect/);
+    expect((await adminCar(forSale.id))?.soldAt).toBeUndefined(); // the sync marks it, from DoneDeal
+  });
+
+  it("refuses a missing buyer, a bad price and a day to come, and saves nothing", async () => {
+    const recorded = new Set((await salesStore.list()).map((x) => x.id));
+    const car = (await adminCars()).find((c) => !c.soldAt && !recorded.has(c.id))!;
+    const tomorrow = new Date(Date.now() + 2 * 86_400_000).toISOString().slice(0, 10);
+    expect((await recordSaleAction(car.id, undefined, form({ priceEur: "9000", soldOn: today, customerId: "" })))?.errors?.name).toMatch(/Choose a customer/);
+    expect((await recordSaleAction(car.id, undefined, form({ priceEur: "9000", soldOn: today, customerId: "", name: "Pat" })))?.errors?.phone).toMatch(/phone number or an email/);
+    expect((await recordSaleAction(car.id, undefined, form({ priceEur: "-1", soldOn: today, customerId: "" })))?.errors?.priceEur).toBeTruthy();
+    expect((await recordSaleAction(car.id, undefined, form({ priceEur: "9000", soldOn: tomorrow, customerId: "", name: "Pat", phone: "1" })))?.errors?.soldOn).toMatch(/passed or today/);
+    expect(await salesStore.get(car.id)).toBeUndefined();
   });
 });
