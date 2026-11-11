@@ -6,6 +6,7 @@ import { sendToDealer } from "@/lib/leads/mail";
 import { DEALER_COLLECTIONS, getSettings, leadsStore, settingsStore, type DealerSettings } from "@/lib/admin/collections";
 import { EMAIL_INVALID, NAME_REQUIRED } from "@/lib/copy";
 import { newId } from "@/lib/admin/ids";
+import { seedsDemoRecords } from "@/lib/admin/docs";
 import { fieldErrors } from "@/lib/admin/validation";
 
 export type SettingsState = { errors?: Record<string, string>; saved?: boolean } | undefined;
@@ -85,6 +86,7 @@ export async function removeTeamAction(id: string) {
 }
 
 export async function resetDemoAction() {
+  if (!seedsDemoRecords()) return; // a real dealer's records are never wiped from a button
   for (const c of DEALER_COLLECTIONS) await c.reset();
   revalidatePath("/dashboard", "layout");
 }
