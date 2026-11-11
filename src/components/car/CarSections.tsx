@@ -3,7 +3,7 @@ import Link from "next/link";
 import { CheckIcon } from "@/components/stock/icons";
 import { card, carSlide } from "@/components/ui";
 import { ListingCard } from "@/components/stock/ListingCard";
-import { specRows } from "@/lib/stock/format";
+import { featureLabel, specRows } from "@/lib/stock/format";
 import type { Car } from "@/lib/stock/types";
 
 const VISIBLE_FEATURES = 12;
@@ -60,7 +60,7 @@ const List = ({ items }: { items: string[] }) => (
     {items.map((f, i) => (
       <li key={i} className="flex items-start gap-2">
         <CheckIcon className="mt-1 size-4 shrink-0" />
-        <span className="min-w-0 break-words">{f}</span>
+        <span className="min-w-0 break-words">{featureLabel(f)}</span>
       </li>
     ))}
   </ul>

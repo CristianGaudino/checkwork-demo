@@ -43,7 +43,7 @@ export function specRows(car: Car): { label: string; value: string }[] {
     ["Doors", car.doors === undefined ? undefined : String(car.doors)],
     ["Seats", car.seats === undefined ? undefined : String(car.seats)],
     ["Owners", car.owners === undefined ? undefined : String(car.owners)],
-    ["NCT Expires", car.nctExpiry && nctLabel(car.nctExpiry)],
+    ["NCT expires", car.nctExpiry && nctLabel(car.nctExpiry)],
     ["Max speed", car.maxSpeedMph === undefined ? undefined : `${car.maxSpeedMph} mph`],
     ["0 to 62 mph", car.zeroTo62Secs === undefined ? undefined : `${car.zeroTo62Secs} s`],
   ];
@@ -55,3 +55,12 @@ const KEY_LABELS = ["Year", "Mileage", "Fuel", "Transmission", "Body type", "Eng
 export const keyFacts = (car: Car) => specRows(car).filter((r) => KEY_LABELS.includes(r.label)).slice(0, 4);
 
 export const countLabel = (n: number) => (n === 0 ? "No cars" : n === 1 ? "1 car" : `${formatCount(n)} cars`);
+
+// Equipment comes from the dealer's feed in Title Case ("Air Conditioning"); the site writes sentence case ("Air conditioning"). Only
+// plain capitalised words after the first are lowered: acronyms (ABS, DAB) and brand names in KEEP stay as they are.
+const KEEP = new Set(["Android", "Apple", "Auto", "Bluetooth", "Isofix", "Bose", "Harman", "Kardon", "Meridian", "Alcantara"]);
+export const featureLabel = (f: string) =>
+  f
+    .split(" ")
+    .map((w, i) => (i > 0 && /^[A-Z][a-z]+$/.test(w) && !KEEP.has(w) ? w.toLowerCase() : w))
+    .join(" ");

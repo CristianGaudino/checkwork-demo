@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { FeatureCard, TitleText } from "@/components/Feature";
+import { FeatureCard, IconBadge, TitleText } from "@/components/Feature";
 import { CheckIcon, ShieldCheckIcon, SwapIcon } from "@/components/stock/icons";
 import { DirectionsButton } from "@/components/DirectionsButton";
 import { OpeningHours } from "@/components/OpeningHours";
@@ -15,7 +15,7 @@ export const metadata: Metadata = { title: "About us", description: `${SITE_NAME
 const WHY = [
   { Icon: CheckIcon, title: "Carefully selected cars", text: "A range of used cars chosen with care, each shown with its details and photos." },
   { Icon: ShieldCheckIcon, title: "Straightforward buying", text: "Plain answers and no pressure. Ask us anything about a car before you decide." },
-  { Icon: SwapIcon, title: "Finance and Trade-ins", text: "Estimate your monthly payment online, and get a valuation on the car you're trading in." },
+  { Icon: SwapIcon, title: "Finance and trade-ins", text: "Estimate your monthly payment online, and get a valuation on the car you're trading in." },
 ];
 const EXPECT = [
   { title: "Browse", text: "Look through the stock online, save the cars you like and compare them." },
@@ -47,8 +47,9 @@ export default function AboutPage() {
             <h2 className={subTitle}>What to expect</h2>
             <ol className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               {EXPECT.map((s, i) => (
+                // The same numbered step as the form pages and the finance band.
                 <li key={s.title} className="flex gap-4 sm:flex-col">
-                  <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-text font-semibold text-ink">{i + 1}</span>
+                  <IconBadge size="sm">{i + 1}</IconBadge>
                   <TitleText title={s.title} text={s.text} />
                 </li>
               ))}

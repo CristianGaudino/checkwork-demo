@@ -110,7 +110,7 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
             </button>
           ) : (
             <Link href="/used-cars" className={`mt-auto flex h-12 w-full items-center justify-center gap-2 text-center ${accentButton}`}>
-              Select a Car to Enquire
+              Select a car to enquire
               <ArrowRightIcon className="size-5" />
             </Link>
           )}

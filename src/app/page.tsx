@@ -13,7 +13,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { ReviewsStrip } from "@/components/reviews/ReviewsStrip";
 import { ListingCard } from "@/components/stock/ListingCard";
 import { ArrowRightIcon } from "@/components/stock/icons";
-import { accentButton, pageMain, pageWidth, press, sectionTitle, secondaryButton, textLink } from "@/components/ui";
+import { accentButton, card, pageMain, pageWidth, press, sectionTitle, secondaryButton, textLink } from "@/components/ui";
 import { dealerJsonLd } from "@/lib/dealer";
 import { HOME } from "@/lib/home.config";
 import { getReviews } from "@/lib/reviews";
@@ -31,7 +31,10 @@ export default async function Home() {
   await connection();
   // The home page must never error: a stock failure shows a line in place of the grid, and the search still renders (UI-SPEC state table).
   // The newest cars feed the featured grid, and all of them feed the search drop-downs, so every choice has a car behind it.
-  const [all, reviews] = await Promise.all([queryAllOrNull(), getReviews()]);
+  const [all, reviews, fresh, vans] = await Promise.all([queryAllOrNull(), getReviews(), queryAllOrNull({ condition: "new" }), queryAllOrNull({ condition: "commercial" })]);
+  // How many cars each Shop by type tile opens, so a tile says what is behind it.
+  const typeCounts: Record<string, number> = { new: fresh?.total ?? 0, commercial: vans?.total ?? 0 };
+  for (const c of all?.cars ?? []) if (c.bodySlug) typeCounts[c.bodySlug] = (typeCounts[c.bodySlug] ?? 0) + 1;
   const featured = all?.cars.slice(0, HOME.featuredCount) ?? null;
   const search = searchOptions(all?.cars ?? []);
   return (
@@ -62,7 +65,7 @@ export default async function Home() {
       </section>
 
       <div className={`${pageMain} flex flex-col gap-12 lg:gap-16`}>
-        <ShopByType bodies={search.bodies.slice(0, HOME.shopByTypeMax)} />
+        <ShopByType bodies={search.bodies.slice(0, HOME.shopByTypeMax)} counts={typeCounts} />
 
         <section aria-labelledby="featured" className="flex flex-col gap-4">
           {!featured ? (
@@ -101,7 +104,7 @@ export default async function Home() {
 
         <TrustStrip />
 
-        <section className="hero-bg grid grid-cols-1 gap-8 rounded-card p-6 lg:grid-cols-[1fr_1.2fr] lg:items-center lg:gap-12 lg:p-12">
+        <section className={`${card} grid grid-cols-1 gap-8 p-6 lg:grid-cols-[1fr_1.2fr] lg:items-center lg:gap-12 lg:p-12`}>
           <div className="flex flex-col items-start gap-4">
             <h2 className={sectionTitle}>Finance made simple</h2>
             <p className="max-w-[40ch] text-body text-text-2">Estimate your monthly payment online, then send us your details to start the process.</p>
@@ -121,7 +124,7 @@ export default async function Home() {
               ["2", "See an estimate", "A monthly figure, worked out as you go."],
               ["3", "We call you", "Send your details and we come back with the real amounts."],
             ].map(([n, title, text]) => (
-              <li key={n} className="flex gap-4 rounded-card bg-card p-4 sm:flex-col">
+              <li key={n} className="flex gap-4 rounded-tile bg-surface p-4 sm:flex-col">
                 <IconBadge size="sm">{n}</IconBadge>
                 <TitleText title={title} text={text} />
               </li>

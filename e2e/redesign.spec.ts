@@ -122,3 +122,20 @@ test("the summary tiles are the filter: one press filters the table and marks th
   await page.getByRole("navigation", { name: "Customer lists" }).getByRole("link", { name: /^Stock alerts/ }).click();
   await expect(page.getByRole("columnheader", { name: "Looking for" })).toBeVisible();
 });
+
+test("the test drive list narrows as you type a make or model", async ({ page }) => {
+  await page.goto("/test-drive");
+  const books = page.getByRole("button", { name: "Book", exact: true });
+  const all = await books.count();
+  await page.getByRole("searchbox", { name: "Search make or model" }).fill(live.make);
+  await expect.poll(() => books.count()).toBeLessThan(all);
+  await expect(books.first()).toBeVisible();
+  await page.getByRole("searchbox", { name: "Search make or model" }).fill("zzzz");
+  await expect(page.getByText("No car matches. Try a make or a model, or call us.")).toBeVisible();
+});
+
+test("home: each Shop by type tile says how many cars it opens", async ({ page }) => {
+  await page.goto("/");
+  const tiles = page.getByRole("region", { name: "Shop by type" }).getByRole("link");
+  await expect(tiles.first()).toContainText(/\d+ cars?|No cars/);
+});
