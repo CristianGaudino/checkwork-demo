@@ -1,10 +1,12 @@
 name: CI
 
-# Pull requests only: the release deploy tests again. Actions minutes are limited and shared.
+# Pushes to main only (owner, 2026-11-11): Actions minutes are limited and shared, so pull requests are checked locally before they are
+# opened (.claude/CLAUDE.md), and CI checks what was merged. Run it by hand on any branch from the Actions tab.
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches: [main]
     paths-ignore: ['**.md']
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -18,7 +20,6 @@ env:
 
 jobs:
   check:
-    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -35,12 +36,11 @@ jobs:
         run: npx drizzle-kit check
       # The deploy migrates before the new code is live, so a new migration may only add things
       - name: Migrations only add
-        run: bash scripts/check-migrations.sh "${{ github.base_ref }}"
+        run: bash scripts/check-migrations.sh "${{ github.event.before || 'main' }}" # what main was before this push
 
   # The Worker has to start before a change reaches production: the normal build can't see what only fails on Cloudflare.
   # OpenNext runs the Next build, so there is no separate build job.
   worker:
-    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -116,7 +116,6 @@ jobs:
 
   # A plain production build, not the Worker build: faster, and the worker job covers Cloudflare.
   e2e:
-    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 12
     container:
