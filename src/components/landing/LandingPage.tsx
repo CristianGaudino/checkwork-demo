@@ -83,6 +83,11 @@ export function LandingPage({ data }: { data: LandingData }) {
         <>
           <JsonLd data={itemListJsonLd(shown)} />
           <p className="mt-4 max-w-measure text-body">{landingIntro(landing, facts)}</p>
+          {landing.kind === "make" && (
+            <Link href={`/makes/${landing.makeSlug}`} className="mt-2 inline-flex min-h-11 items-center font-medium underline">
+              Every {landing.make}: used, new and commercial
+            </Link>
+          )}
           {landing.kind === "make" && <LinkChips heading="Models" options={facets.model} href={toModel} />}
           {landing.kind === "body" && <LinkChips heading="Makes" options={facets.make} href={toPage} logos />}
           {landing.kind === "model" && (
@@ -117,7 +122,7 @@ export function LandingPage({ data }: { data: LandingData }) {
       )}
       {!facts && (
         <>
-          <h2 className="mt-4 text-heading font-semibold">No {name} in Stock Right Now</h2>
+          <h2 className="mt-4 text-heading font-semibold">No {name} in stock right now</h2>
           <p className="mt-2 max-w-measure text-pretty text-body">Have a look at these instead.</p>
           {landing.kind === "body" ? (
             <LinkChips heading="Body types in stock" options={facets.body} href={toPage} />

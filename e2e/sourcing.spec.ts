@@ -54,8 +54,8 @@ test("from 1024px the header links both form pages", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/used-cars");
   const header = page.getByRole("banner");
-  await header.getByRole("link", { name: "Trade-in", exact: true }).click();
-  await expect(page).toHaveURL(/\/trade-in$/);
+  await header.getByRole("link", { name: "Sell or trade in", exact: true }).click();
+  await expect(page).toHaveURL(/\/sell-your-car$/);
   await page.getByRole("contentinfo").getByRole("link", { name: "Find a car" }).click();
   await expect(page).toHaveURL(/\/find-a-car$/);
 });

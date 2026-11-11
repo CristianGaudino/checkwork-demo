@@ -4,7 +4,7 @@ import { HeaderLinks } from "@/components/HeaderLinks";
 import { Logo } from "@/components/Logo";
 import { MobileMenu } from "@/components/MobileMenu";
 import { SavedLink } from "@/components/saved/SavedLink";
-import { MENU } from "@/lib/nav";
+import { MENU_GROUPS, PAGE } from "@/lib/nav";
 import { SITE_NAME } from "@/lib/site";
 
 // Sticks to the top on a phone, where the menu button is the way round the site; from 1024px it scrolls away with the page (D-12).
@@ -14,7 +14,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-30 border-b border-hairline/60 bg-surface/75 text-text backdrop-blur-xl reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none lg:static">
       <div className={`${pageWidth} grid h-14 grid-cols-[1fr_auto_1fr] items-center gap-4 lg:flex lg:h-16`}>
         <div className="flex justify-start lg:hidden">
-          <MobileMenu links={MENU} />
+          <MobileMenu home={PAGE.home} groups={MENU_GROUPS} />
         </div>
         <Link href="/" aria-label={SITE_NAME} className="flex h-11 shrink-0 items-center lg:order-first">
           <Logo className="h-7 w-auto sm:h-8 xl:h-9" eager />

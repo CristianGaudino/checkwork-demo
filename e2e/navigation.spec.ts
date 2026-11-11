@@ -9,20 +9,40 @@ const live = cars.find((c) => !c.soldAt)!;
 
 // The header links from 1024px, then the phone menu (which adds Used cars and Find a car), then the footer.
 const HEADER = [
+  ["Makes", "/makes"],
   ["Finance", "/finance"],
-  ["Trade-in", "/trade-in"],
+  ["Sell or trade in", "/sell-your-car"],
   ["Service", "/service"],
   ["About", "/about"],
   ["Contact", "/contact"],
 ] as const;
 const SECTIONS = [["Used cars", "/used-cars"], ["New cars", "/new-cars"], ["Commercial", "/commercial"]] as const;
-const MENU = [...SECTIONS, ["Test drive", "/test-drive"], HEADER[0], HEADER[1], ["Sell your car", "/sell-your-car"], ["Find a car", "/find-a-car"], ["Compare cars", "/compare"], ...HEADER.slice(2)] as const;
+// Every page, in the phone menu's groups: Cars, Buying, Selling, Dealership.
+const MENU = [
+  ...SECTIONS,
+  ["Makes", "/makes"],
+  ["Find a car", "/find-a-car"],
+  ["Compare cars", "/compare"],
+  ["Saved cars", "/saved"],
+  ["Test drive", "/test-drive"],
+  ["Finance", "/finance"],
+  ["Warranty", "/warranty"],
+  ["Sell your car", "/sell-your-car"],
+  ["Trade-in", "/trade-in"],
+  ["Service", "/service"],
+  ["About", "/about"],
+  ["Contact", "/contact"],
+] as const;
 const FOOTER = [
   ["Used cars", "/used-cars"],
   ["Finance", "/finance"],
   ["Trade in your car", "/trade-in"],
   ["Sell your car", "/sell-your-car"],
   ["Find a car", "/find-a-car"],
+  ["Makes", "/makes"],
+  ["Compare cars", "/compare"],
+  ["Saved cars", "/saved"],
+  ["Test drive", "/test-drive"],
   ["Service", "/service"],
   ["Warranty", "/warranty"],
   ["About us", "/about"],
@@ -33,7 +53,7 @@ const FOOTER = [
 ] as const;
 const PAGES = ["/", "/used-cars", `/used-cars/${live.slug}`, "/finance", "/trade-in", "/find-a-car", "/service", "/warranty", "/contact", "/about", "/terms", "/privacy"];
 
-test("from 1024px the header has Used, New, Commercial and five links, and no Enquire button or Stock menu", async ({ page }) => {
+test("from 1024px the header has Used, New, Commercial and six links, and no Enquire button or Stock menu", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/");
   const banner = page.getByRole("banner");

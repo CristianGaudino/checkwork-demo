@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useSyncExternalStore } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 import { DEMO_ROLES, THEME_KEY, isAppPath, roleForPath, type Theme } from "@/lib/demo";
 import { setDemoPermission, setDemoRole, setDemoStockSource, useDemoPermissions, useDemoRole, useStockSource } from "@/lib/demo-role";
 import { parsePerms } from "@/lib/permission-rules";
@@ -35,9 +35,19 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
   const role = inApp ? roleForPath(path) : saved;
   const theme = useSyncExternalStore(subscribe, read, () => "light" as Theme);
   const margins = parsePerms(useDemoPermissions()).includes("margins");
+  const measure = useCallback((el: HTMLDivElement | null) => {
+    if (!el) return;
+    const set = () => document.documentElement.style.setProperty("--demo-bar-h", `${el.offsetHeight}px`);
+    set();
+    const o = new ResizeObserver(set);
+    o.observe(el);
+    return () => o.disconnect();
+  }, []);
   const donedeal = useStockSource() === "donedeal";
   return (
-    <div data-demo-bar className="theme-dark relative z-40 border-b border-hairline bg-band text-meta text-text">
+    // At the foot of the screen, so the site reads as itself from the top. Its height is shared as --demo-bar-h, which keeps the page's
+    // last lines and the compare bar clear of it however many lines it wraps to.
+    <div ref={measure} data-demo-bar className="theme-dark fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-band pb-[env(safe-area-inset-bottom)] text-meta text-text">
       <div className="mx-auto flex min-h-11 max-w-page flex-wrap items-center justify-between gap-x-1 px-2 sm:gap-x-3 sm:px-6 lg:px-8">
         <nav aria-label="View the demo as" className="flex flex-wrap items-center gap-y-1 py-1 sm:py-0">
           <span className="hidden text-text-2 sm:inline">View as</span>

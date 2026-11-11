@@ -20,10 +20,12 @@ export const PAGE = {
   used: section("used"),
   new: section("new"),
   commercial: section("commercial"),
+  makes: link("/makes", "Makes"),
   testDrive: link("/test-drive", "Test drive"),
   finance: link("/finance", "Finance"),
   tradeIn: link("/trade-in", "Trade-in", "Trade in your car"),
   sell: link("/sell-your-car", "Sell your car"),
+  sellOrTrade: link("/sell-your-car", "Sell or trade in"), // the header's one link for both: the sell page points to trade-in
   findACar: link("/find-a-car", "Find a car"),
   compare: link("/compare", "Compare cars"),
   saved: link("/saved", "Saved cars"),
@@ -35,18 +37,18 @@ export const PAGE = {
   terms: link("/terms", "Terms of use"),
 } as const;
 
-// From 1024px, after the three vehicle sections.
-export const HEADER_LINKS = [PAGE.finance, PAGE.tradeIn, PAGE.service, PAGE.about, PAGE.contact];
+// From 1024px, after the three vehicle sections. About shows from 1280px, where there is room (`wide`).
+export const HEADER_LINKS = [PAGE.makes, PAGE.finance, PAGE.sellOrTrade, PAGE.service, PAGE.about, PAGE.contact];
 
-// The phone menu holds every page; the footer repeats them (#57).
-export const MENU = [PAGE.home, PAGE.used, PAGE.new, PAGE.commercial, PAGE.testDrive, PAGE.finance, PAGE.tradeIn, PAGE.sell, PAGE.findACar, PAGE.compare, PAGE.service, PAGE.about, PAGE.contact];
-
-export const FOOTER_GROUPS = [
-  { title: "Cars", links: [PAGE.used, PAGE.new, PAGE.commercial, PAGE.saved] },
-  { title: "Buying", links: [PAGE.testDrive, PAGE.finance, PAGE.tradeIn, PAGE.sell, PAGE.findACar] },
-  { title: "Company", links: [PAGE.service, PAGE.warranty, PAGE.about, PAGE.contact] },
-  { title: "Legal", links: [PAGE.privacy, PAGE.terms] },
+// Every page, in groups by what a visitor came to do: the phone menu shows these, and the footer repeats them with the legal pages.
+export const MENU_GROUPS = [
+  { title: "Cars", links: [PAGE.used, PAGE.new, PAGE.commercial, PAGE.makes, PAGE.findACar, PAGE.compare, PAGE.saved] },
+  { title: "Buying", links: [PAGE.testDrive, PAGE.finance, PAGE.warranty] },
+  { title: "Selling", links: [PAGE.sell, PAGE.tradeIn] },
+  { title: "Dealership", links: [PAGE.service, PAGE.about, PAGE.contact] },
 ] as const;
+
+export const FOOTER_GROUPS = [...MENU_GROUPS, { title: "Legal", links: [PAGE.privacy, PAGE.terms] }] as const;
 
 // Where the dealer's staff go from the public site, when the demo is viewed as the dealer.
 export const DASHBOARD_LINK = link("/dashboard", "Dashboard");

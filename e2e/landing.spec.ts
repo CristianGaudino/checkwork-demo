@@ -108,7 +108,7 @@ test("a make with nothing in stock and nothing recently sold shows the empty sta
   test.skip(!expiredOnly, "the demo data has no make that is both out of stock and out of the sold window; refresh the data");
   const res = await page.goto(`/used-cars/${expiredOnly.makeSlug}`);
   expect(res?.status()).toBe(200);
-  await expect(page.getByRole("heading", { name: `No ${expiredOnly.make} in Stock Right Now` })).toBeVisible();
+  await expect(page.getByRole("heading", { name: `No ${expiredOnly.make} in stock right now` })).toBeVisible();
   await expect(page.getByText("Have a look at these instead.")).toBeVisible();
   expect((await chipHrefs(page, "Makes in stock")).length).toBeGreaterThan(0);
   await expect(page.getByRole("link", { name: "Can't find it? Ask us to find it for you." })).toHaveAttribute("href", "/find-a-car");
