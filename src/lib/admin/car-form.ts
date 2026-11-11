@@ -73,6 +73,7 @@ export function carFromForm(data: FormData, id: string, existing?: Car, today = 
     features: f.features.length ? f.features : undefined,
     photos: existing?.photos ?? [],
     soldAt: f.status === "sold" ? (existing?.soldAt ?? today) : undefined,
+    listedAt: existing?.listedAt ?? today, // set once, when the car is added; an edit never moves it
   };
   // JSON drops undefined, but a stored car with empty keys is noise: leave them out.
   return { ok: true, car: JSON.parse(JSON.stringify(car)) as Car };

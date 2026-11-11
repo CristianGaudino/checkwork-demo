@@ -13,6 +13,8 @@ const rows = cars.map((c) => `INSERT OR IGNORE INTO cars (id, slug, data) VALUES
 const photos = cars.map((c) => `UPDATE cars SET data = json_set(data, '$.photos', json(${q(JSON.stringify(c.photos))})) WHERE id = ${q(c.id)};`);
 // A car that is still sold keeps its place in the 30 day window; one the dealer put back on sale is left alone.
 const redate = cars.filter((c) => c.soldAt).map((c) => `UPDATE cars SET data = json_set(data, '$.soldAt', ${q(c.soldAt)}) WHERE id = ${q(c.id)} AND json_extract(data, '$.soldAt') IS NOT NULL;`);
+// A car already in the database before listing dates existed gets the file's date; one with its own (added in the dashboard, or synced) keeps it.
+const listed = cars.filter((c) => c.listedAt).map((c) => `UPDATE cars SET data = json_set(data, '$.listedAt', ${q(c.listedAt)}) WHERE id = ${q(c.id)} AND json_extract(data, '$.listedAt') IS NULL;`);
 mkdirSync("seed", { recursive: true });
-writeFileSync("seed/stock.sql", [...(reset ? ["DELETE FROM cars;"] : []), ...rows, ...photos, ...redate, ""].join("\n"));
+writeFileSync("seed/stock.sql", [...(reset ? ["DELETE FROM cars;"] : []), ...rows, ...photos, ...redate, ...listed, ""].join("\n"));
 console.log(`${cars.length} cars written to seed/stock.sql${reset ? " (reset: every row is replaced)" : ""}`);

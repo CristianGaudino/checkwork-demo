@@ -16,6 +16,12 @@ import { toggleSoldAction } from "./actions";
 
 export const metadata = { title: "Stock" };
 
+// "Today", "1 day", "23 days", from a YYYY-MM-DD listing date.
+const daysIn = (listedAt: string, now = Date.now()) => {
+  const d = Math.max(0, Math.floor((now - Date.parse(`${listedAt}T00:00:00Z`)) / 86_400_000));
+  return d === 0 ? "Today" : d === 1 ? "1 day" : `${d} days`;
+};
+
 // The views are the summary: each is a tile with its count, and the chosen one filters the table.
 const FEW_PHOTOS = 4;
 const VIEWS = {
@@ -79,6 +85,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
       ),
     },
     ...(costs ? [{ key: "margin", header: "Margin", align: "right" as const, hide: "md" as const, nowrap: true, cell: (c: Car) => (costs.has(c.id) ? fmtEur(marginOf(c.priceEur, costs.get(c.id)!).eur) : <span className="text-text-2">Not set</span>) }] : []),
+    // How long a car has been for sale: what a dealer watches to decide on a price drop.
+    { key: "age", header: "In stock", align: "right", hide: "lg", nowrap: true, cell: (c) => (c.listedAt && !isSold(c) ? daysIn(c.listedAt) : <span className="text-text-2">-</span>) },
     { key: "km", header: "Mileage", align: "right", hide: "md", nowrap: true, cell: (c) => (c.mileageKm !== undefined ? `${fmtNum(c.mileageKm)} km` : "") },
     { key: "photos", header: "Photos", align: "right", hide: "xl", cell: (c) => (c.photos.length < FEW_PHOTOS ? <span className="text-warn">{c.photos.length}</span> : c.photos.length) },
     // Only in the All view: the other views already say it.

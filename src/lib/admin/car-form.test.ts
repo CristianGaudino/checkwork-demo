@@ -52,3 +52,13 @@ describe("carFromForm", () => {
     expect(back.ok && back.car).not.toHaveProperty("soldAt");
   });
 });
+
+describe("listing date", () => {
+  it("is set to today when a car is added, and an edit never moves it", () => {
+    const added = carFromForm(form({}), "50", undefined, "2026-11-11");
+    expect(added.ok && added.car.listedAt).toBe("2026-11-11");
+    const existing = { ...(added.ok ? added.car : ({} as Car)), listedAt: "2026-09-01" };
+    const edited = carFromForm(form({ priceEur: "9999" }), "50", existing, "2026-11-11");
+    expect(edited.ok && edited.car.listedAt).toBe("2026-09-01");
+  });
+});

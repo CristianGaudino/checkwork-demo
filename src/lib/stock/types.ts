@@ -64,6 +64,7 @@ export interface Car {
   features?: string[]; // equipment items
   photos: Photo[]; // 0 to 6, local /stock/... paths
   soldAt?: string; // ISO date (YYYY-MM-DD). Drives the sold window and the 410 only. Never render it anywhere.
+  listedAt?: string; // ISO date (YYYY-MM-DD) the car went on the site: the Newest sort, days in stock, the sitemap date
 }
 
 export interface StockQuery {

@@ -1,7 +1,7 @@
 // Builds the stock from catalogue.mjs. Manual: never run in CI, at build time or at runtime, except `redate`, which is offline.
 //
 //   node scripts/stock/build.mjs <dataset dir>   photos to public/stock/<id>/, and src/lib/stock/demo-cars.json (used) and demo-cars-extra.json (new, vans)
-//   node scripts/stock/build.mjs redate          sale dates relative to today, so the sold cars stay inside the 30 day window
+//   node scripts/stock/build.mjs redate          sale and listing dates relative to today, so the sold cars stay inside the 30 day window
 //
 // Same input, same output: the photos are named by their content hash. Run `npm run stock:og` after it for the share images.
 import { createHash } from "node:crypto";
@@ -19,6 +19,18 @@ const H = 675;
 const slug = (s) => s.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const soldDate = (days, today) => new Date(today.getTime() - days * 86_400_000).toISOString().slice(0, 10);
 const write = (path, data) => writeFileSync(path, JSON.stringify(data, null, 2) + "\n");
+
+// When each demo car went on the site, relative to today so the demo keeps a believable spread: the newest (highest id) two days ago,
+// each older one three days before the next, and a sold car at least two weeks before it sold.
+function listDates(cars, today) {
+  const byNewest = [...cars].sort((a, b) => Number(b.id) - Number(a.id));
+  for (const [rank, c] of byNewest.entries()) {
+    let days = 2 + rank * 3;
+    if (c.soldAt) days = Math.max(days, Math.round((today.getTime() - Date.parse(c.soldAt)) / 86_400_000) + 14);
+    c.listedAt = soldDate(days, today);
+  }
+  return cars;
+}
 
 // 4:3 centre crop. A shot that is far from 4:3 (a tall rear view) is fitted whole on its own background instead of cut, so no car loses a bumper.
 async function frame(file) {
@@ -83,7 +95,8 @@ if (arg === "redate") {
   const days = Object.fromEntries(USED.filter((c) => c.sold !== undefined).map((c) => [c.id, c.sold]));
   const cars = JSON.parse(readFileSync(USED_FILE, "utf8"));
   for (const c of cars) if (c.id in days) c.soldAt = soldDate(days[c.id], today);
-  write(USED_FILE, cars);
+  write(USED_FILE, listDates(cars, today));
+  write(EXTRA_FILE, listDates(JSON.parse(readFileSync(EXTRA_FILE, "utf8")), today));
 } else if (arg) {
   const today = new Date();
   rmSync(NEXT, { recursive: true, force: true });
@@ -91,8 +104,8 @@ if (arg === "redate") {
   const extra = await Promise.all([...NEW, ...VANS].map((c) => car(arg, c, today)));
   rmSync("public/stock", { recursive: true, force: true });
   renameSync(NEXT, "public/stock");
-  write(USED_FILE, used);
-  write(EXTRA_FILE, extra);
+  write(USED_FILE, listDates(used, today));
+  write(EXTRA_FILE, listDates(extra, today));
   console.log(`${USED.length} used, ${NEW.length} new and ${VANS.length} vans written`);
 } else {
   console.error("Usage: build.mjs <dataset dir> | redate");

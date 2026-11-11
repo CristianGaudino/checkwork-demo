@@ -17,9 +17,10 @@ const partnersFirst = (q: StockQuery, makes: FacetOption[]): FacetOption[] => {
 
 
 
-// `cars` is presorted newest first and Array.prototype.sort is stable, so every key ties by id descending.
+// `cars` is presorted by id, highest first, and Array.prototype.sort is stable, so every key ties by id descending. Newest is the listing
+// date; a car without one (stock from before dates were kept) keeps its id order among the others without one.
 const SORTS: Record<SortKey, (a: Car, b: Car) => number> = {
-  newest: () => 0,
+  newest: (a, b) => (b.listedAt ?? "").localeCompare(a.listedAt ?? ""),
   "price-asc": (a, b) => a.priceEur - b.priceEur,
   "price-desc": (a, b) => b.priceEur - a.priceEur,
   "year-desc": (a, b) => b.year - a.year,
