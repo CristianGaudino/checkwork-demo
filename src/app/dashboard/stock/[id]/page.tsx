@@ -24,7 +24,7 @@ export default async function Page({ params, searchParams }: { params: Promise<{
     return (
       <>
         <PageHeader title={carName(car)} actions={view} />
-        <SyncedNotice />
+        <SyncedNotice car={car} />
         {/* DoneDeal has the car; the cost is the dealer's own, so it is still entered here. */}
         {cost && (
           <Panel title="Cost price">

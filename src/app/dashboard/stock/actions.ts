@@ -11,6 +11,7 @@ import { can } from "@/lib/permissions";
 import { adminCar, adminCars, removeCar, saveCar } from "@/lib/admin/stock-admin";
 import { nextCarId } from "@/lib/admin/stock-admin-pure";
 import { stockSource } from "@/lib/stock-source";
+import { runSync } from "@/lib/donedeal/sync";
 import type { Car } from "@/lib/stock/types";
 
 const carRef = (c: Car) => ({ kind: "car" as const, id: c.id, label: carTitleOf(c) });
@@ -73,4 +74,12 @@ export async function deleteCarAction(id: string) {
   await costsStore.remove(id); // the cost goes with the car
   if (car) await logActivity("stock", "Deleted the car", carRef(car));
   redirect("/dashboard/stock?deleted=1");
+}
+
+// Sync now, for stock from DoneDeal. `force` applies a sync that was held because DoneDeal's answer looked wrong: owners and managers only,
+// since it can mark many cars sold at once. The sync records its own changes in the activity history.
+export async function syncNowAction(force: boolean) {
+  if (!(await readOnly())) return;
+  await runSync({ force: force && (await can("settings")) });
+  redirect(`/dashboard/stock?synced=1`);
 }

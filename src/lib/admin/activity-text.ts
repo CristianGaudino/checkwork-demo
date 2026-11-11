@@ -10,7 +10,8 @@ export function carEditSummary(was: object, now: object): string {
   const [before, after] = [was as Record<string, unknown>, now as Record<string, unknown>];
   const changed = CAR_FIELDS.filter((f) => JSON.stringify(before[f.name] ?? null) !== JSON.stringify(after[f.name] ?? null));
   const price = changed.find((f) => f.name === "priceEur");
-  const rest = list(changed.filter((f) => f !== price).map((f) => name(f.label)));
+  const photos = JSON.stringify(before.photos ?? []) !== JSON.stringify(after.photos ?? []) ? ["photos"] : []; // not a form field, but synced
+  const rest = list([...changed.filter((f) => f !== price).map((f) => name(f.label)), ...photos]);
   const priceText = price ? `the price from ${fmtEur(Number(before.priceEur))} to ${fmtEur(Number(after.priceEur))}` : "";
   if (!priceText && !rest) return "Saved the car with no changes";
   return `Changed ${priceText}${priceText && rest ? ", and the " : rest ? "the " : ""}${rest}`;

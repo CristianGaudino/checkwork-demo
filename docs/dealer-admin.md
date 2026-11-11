@@ -53,6 +53,22 @@ with no D1). The actor is the signed-in person (`currentMember`), or a named one
 - **Kept 12 months** (`ACTIVITY_RETENTION_MONTHS`), then deleted by the daily job in `worker.mjs`, which logs `{"job":"purge-activity"}`.
 - **The demo** seeds a history of the made-up team on the seeded records; Reset demo data puts it back.
 
+## DoneDeal stock
+
+A dealer whose stock is on DoneDeal (`NEXT_PUBLIC_STOCK_SOURCE=donedeal`, or the demo bar's DoneDeal switch) keeps one source of truth:
+cars are added, changed and sold on DoneDeal only. The dashboard never edits them; it holds only the dealer's own figures (cost).
+- **The sync** (`src/lib/donedeal/sync.ts`, rules in `plan.ts`): every 15 minutes the Worker's cron calls `/api/donedeal/sync` with the
+  `SYNC_KEY` secret; Sync now on Stock or Overview runs the same. New ads are added, changed ones updated, and a car DoneDeal no longer
+  lists is marked sold (its page stays, as "no longer available"). Each change is in the activity history as "DoneDeal sync".
+- **It never empties the site:** an answer with no cars, or with more than half the cars for sale gone, is held and changes nothing.
+  Owners and managers can Apply anyway.
+- **When it fails** the site keeps the stock from the last good sync, Stock, Overview and Settings say so, and after an hour the owners and
+  managers get one email (not again until a sync works).
+- **The demo** cannot use a real dealer's account (DoneDeal's API is for one dealer's own site, with written consent). Its feed is the
+  stock itself, so a sync shows working and finds nothing to change.
+- **Still to write:** the adapter that reads DoneDeal's API (`src/lib/donedeal/feed.ts`), once DoneDeal sends its docs and the full usage
+  policy (what may be stored, photos, call limits).
+
 ## Cloudflare Access (owner set-up, once)
 
 1. Zero Trust, Access, Applications, Add, Self-hosted. Add the path `/dashboard*` on the demo domain. Allow only the dealer's email addresses.
@@ -68,6 +84,7 @@ Until both are set the admin answers 404 for everyone. The Worker checks Access'
 | Record store (one D1 table, `admin_docs`; memory with no D1) | `src/lib/admin/docs.ts` |
 | The dealer's collections, types and seeds | `src/lib/admin/collections.ts`, `seed-data.ts` |
 | Roles and permissions | `src/lib/permissions.ts`, `permission-rules.ts` |
+| DoneDeal sync (feed, plan, run, route) | `src/lib/donedeal/`, `src/app/api/donedeal/sync/route.ts` |
 | Activity history (write, list, purge) | `src/lib/admin/activity.ts`, `activity-refs.ts`, `activity-purge.ts` |
 | Cost prices and margin maths | `costsStore` in `collections.ts`, `src/lib/admin/margins.ts` |
 | Outside services and the settings each needs | `src/lib/integrations.ts` |

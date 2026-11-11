@@ -38,7 +38,8 @@ export function StatCard({ label, value, hint, tone, href }: { label: string; va
   const body = (
     <>
       <p className="text-meta text-text-2">{label}</p>
-      <p className="text-stat font-semibold tabular-nums [overflow-wrap:anywhere] sm:text-display">{value}</p>
+      {/* A long figure (€120,925) keeps the smaller size, so it fits a narrow tile on one line; anything longer still wraps, never spills. */}
+      <p className={`text-stat font-semibold tabular-nums [overflow-wrap:anywhere] ${value.length > 7 ? "" : "sm:text-display"}`}>{value}</p>
       {hint && <p className={`text-meta ${tone === "good" ? "text-ok" : tone === "bad" ? "text-bad" : "text-text-2"}`}>{hint}</p>}
     </>
   );

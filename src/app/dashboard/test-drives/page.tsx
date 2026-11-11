@@ -1,6 +1,6 @@
 import { DriveStatusBadge } from "@/components/admin/badges";
 import { AddDriveForm } from "@/components/admin/AddDriveForm";
-import { EmptyState, PageHeader, Pager, Panel, SummaryTabs, adminButton, paginate, rowButton } from "@/components/admin/kit";
+import { Badge, EmptyState, PageHeader, Pager, Panel, SummaryTabs, adminButton, paginate, rowButton } from "@/components/admin/kit";
 import { PlusIcon } from "@/components/stock/icons";
 import { card } from "@/components/ui";
 import { DRIVE_STATUSES, DRIVE_STATUS_LABELS, drivesStore } from "@/lib/admin/collections";
@@ -24,6 +24,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
   const sp = await searchParams;
   const status = parseDriveStatus(sp.status);
   const [all, cars] = await Promise.all([drivesStore.list(), adminCars()]);
+  const soldSlugs = new Set(cars.filter(isSold).map((c) => c.slug)); // a booking still open on a car that has since sold needs a call
   const open = (s: string) => s === "requested" || s === "confirmed";
   const rows = all.filter((d) => (status ? d.status === status : open(d.status)));
   // Done, no-show and cancelled only grow: every list is in pages, then grouped by day.
@@ -72,7 +73,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
                         <span data-name>{d.name}</span>
                         <DriveStatusBadge status={d.status} />
                       </span>
-                      <span className="text-meta text-text-2">{d.carTitle}</span>
+                      <span className="flex flex-wrap items-center gap-2 text-meta text-text-2">
+                        {d.carTitle}
+                        {open(d.status) && soldSlugs.has(d.carSlug) && <Badge tone="warn">Car sold</Badge>}
+                      </span>
                       <a href={`tel:${d.phone.replace(/\s/g, "")}`} className="inline-flex min-h-11 w-fit items-center text-meta text-text-2 underline-offset-2 hover:underline md:min-h-0">
                         {d.phone}
                       </a>

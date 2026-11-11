@@ -36,6 +36,7 @@ test("a post for a car can be scheduled, and is kept as a draft with Save draft"
 test("a time in the past is refused", async ({ page }) => {
   await page.goto("/dashboard/marketing");
   await choose(page.getByLabel("Car", { exact: true }), 1);
+  await expect(page.getByLabel("Text")).not.toHaveValue(""); // the suggested text arrives once the car loads; an empty post is refused
   await page.getByRole("button", { name: "Later" }).click();
   await page.getByLabel("Date and time").fill("2020-01-01T10:00");
   await page.getByRole("button", { name: "Schedule", exact: true }).click();

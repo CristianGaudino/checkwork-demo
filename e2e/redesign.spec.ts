@@ -99,10 +99,29 @@ test.describe("DoneDeal stock", () => {
     await expect(page.getByRole("link", { name: /Add a car/ })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Mark sold" })).toHaveCount(0);
     await expect(page.getByRole("link", { name: /^Open DoneDeal/ })).toHaveAttribute("target", "_blank");
-    await expect(page.getByRole("row").nth(1).getByRole("link", { name: /^DoneDeal/ })).toBeVisible();
+    await expect(page.getByRole("row").nth(1).getByRole("link", { name: /^Edit .+ on DoneDeal/ })).toBeVisible();
     await page.goto("/dashboard/stock/new");
     await expect(page.getByRole("heading", { name: "This stock comes from DoneDeal" })).toBeVisible();
     await expect(page.getByLabel("Make", { exact: true })).toHaveCount(0);
+  });
+
+  test("the sync shows how it is doing, and Sync now runs it", async ({ page }) => {
+    await page.goto("/dashboard/stock");
+    const panel = page.getByRole("region", { name: "DoneDeal sync" });
+    await expect(panel.getByRole("status")).toContainText(/Last synced .+\. /);
+    await panel.getByRole("button", { name: "Sync now" }).click();
+    await expect(page).toHaveURL(/\/dashboard\/stock\?synced=1$/);
+    // The demo's feed is the stock itself, so a sync finds nothing to change.
+    await expect(page.getByRole("region", { name: "DoneDeal sync" }).getByRole("status")).toContainText("Nothing had changed.");
+  });
+
+  test("the overview has no Add car, and shows the sync; Settings shows the DoneDeal connection", async ({ page }) => {
+    await page.goto("/dashboard");
+    await expect(page.getByRole("link", { name: "Add car" })).toHaveCount(0);
+    await expect(page.getByRole("region", { name: "DoneDeal sync" })).toBeVisible();
+    await page.goto("/dashboard/settings");
+    await expect(page.getByRole("region", { name: "DoneDeal" })).toContainText("Connected");
+    await expect(page.getByRole("cell", { name: "DoneDeal stock" })).toBeVisible();
   });
 
   test("on a car page the dealer edits on DoneDeal", async ({ page }) => {
@@ -110,6 +129,15 @@ test.describe("DoneDeal stock", () => {
     await page.locator("[data-demo-bar]").getByRole("link", { name: "Dealer" }).click();
     await expect(page.locator("[data-car-controls]").getByRole("link", { name: /^Edit on DoneDeal/ })).toBeVisible();
   });
+});
+
+test("our own stock has Add car, no sync and no DoneDeal service", async ({ page }) => {
+  await page.goto("/dashboard");
+  await expect(page.getByRole("link", { name: "Add car" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "DoneDeal sync" })).toHaveCount(0);
+  await page.goto("/dashboard/settings");
+  await expect(page.getByRole("cell", { name: "DoneDeal stock" })).toHaveCount(0);
+  expect((await page.request.post("/api/donedeal/sync")).status()).toBe(404); // the cron's route needs its key
 });
 
 test("the summary tiles are the filter: one press filters the table and marks the tile", async ({ page }) => {

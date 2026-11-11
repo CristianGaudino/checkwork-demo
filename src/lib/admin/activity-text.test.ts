@@ -8,6 +8,7 @@ describe("carEditSummary", () => {
     expect(carEditSummary(car, { ...car, priceEur: 16950 })).toBe("Changed the price from €17,950 to €16,950");
     expect(carEditSummary(car, { ...car, priceEur: 16950, mileageKm: 91000, colour: "Red" })).toBe("Changed the price from €17,950 to €16,950, and the mileage and colour");
     expect(carEditSummary(car, { ...car, features: ["Sat nav", "Heated seats"] })).toBe("Changed the equipment");
+    expect(carEditSummary({ ...car, photos: [] }, { ...car, photos: [{ src: "/a.jpg" }] })).toBe("Changed the photos");
   });
   it("says so when nothing changed, and treats a cleared field as a change", () => {
     expect(carEditSummary(car, { ...car })).toBe("Saved the car with no changes");

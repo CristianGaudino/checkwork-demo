@@ -5,6 +5,11 @@ import { INTEGRATIONS, isUsable, missingEnv, modeOf } from "@/lib/integrations";
 import { DEALER_ADDRESS_LINES, DEALER_EMAIL, DEALER_PHONE, OPENING_HOURS, SITE_NAME } from "@/lib/site";
 import { removeTeamAction, resetDemoAction } from "./actions";
 import { seedsDemoRecords } from "@/lib/admin/docs";
+import { syncLine } from "@/components/admin/SyncPanel";
+import { syncStatus } from "@/lib/donedeal/sync";
+import { stockSource } from "@/lib/stock-source";
+import { DONEDEAL_DEALER_URL } from "@/lib/stock-source-rules";
+import { NEW_TAB } from "@/components/ui";
 import { currentMember } from "@/lib/permissions";
 import { ROLES, roleCan, type Role } from "@/lib/permission-rules";
 
@@ -16,7 +21,11 @@ export const metadata = { title: "Settings" };
 const hours = (h: (typeof OPENING_HOURS)[number]) => (h.opens ? `${h.opens} to ${h.closes}` : "Closed");
 
 export default async function Page() {
-  const [s, me] = await Promise.all([getSettings(), currentMember()]);
+  const [s, me, source] = await Promise.all([getSettings(), currentMember(), stockSource()]);
+  const synced = source === "donedeal";
+  const sync = synced ? await syncStatus() : null;
+  // DoneDeal is a service only for a dealer whose stock comes from there.
+  const services = INTEGRATIONS.filter((i) => i.id !== "donedeal" || synced);
   const team = roleCan(me.role, "team");
   const edit = roleCan(me.role, "settings");
   const owner = me.role === "Owner";
@@ -94,6 +103,30 @@ export default async function Page() {
         {team ? <AddTeamForm owner={owner} /> : <p className="text-meta text-text-2">Only an owner or manager can change the team.</p>}
       </Panel>
 
+      {sync && (
+        <Panel title="DoneDeal">
+          <dl className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
+            <div>
+              <dt className="text-meta text-text-2">Account</dt>
+              <dd className="text-body">
+                <a href={DONEDEAL_DEALER_URL} {...NEW_TAB} className="underline-offset-2 hover:underline">
+                  {modeOf("donedeal") === "simulated" ? INTEGRATIONS.find((i) => i.id === "donedeal")!.demoAccount : "Your DoneDeal dealer page"}
+                  <span className="sr-only"> (opens in a new tab)</span>
+                </a>
+              </dd>
+            </div>
+            <div>
+              <dt className="text-meta text-text-2">Connection</dt>
+              <dd className="text-body">{isUsable("donedeal") ? "Connected" : "Not connected"}</dd>
+            </div>
+          </dl>
+          <p className="text-body">{syncLine(sync)}</p>
+          <p className="max-w-measure text-meta text-text-2">
+            Cars are added, changed and sold on DoneDeal, and the site follows every 15 minutes. DoneDeal gives the key for your own site only, with your written consent.
+          </p>
+        </Panel>
+      )}
+
       <Panel title="Lead emails">
         <Locked open={edit}>
           <LeadEmailsForm settings={s} fallback={Boolean(process.env.LEAD_TO_EMAIL)} />
@@ -115,7 +148,7 @@ export default async function Page() {
       <Panel title="Connected services">
         <DataTable
           bare
-          rows={[...INTEGRATIONS]}
+          rows={services}
           rowKey={(i) => i.id}
           columns={[
             { key: "name", header: "Service", cell: (i) => <span className="font-medium">{i.name}</span> },

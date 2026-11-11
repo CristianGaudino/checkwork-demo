@@ -11,6 +11,7 @@ import { fieldErrors } from "@/lib/admin/validation";
 import { can, currentMember } from "@/lib/permissions";
 import { ROLES, type Role } from "@/lib/permission-rules";
 import { logActivity, resetActivity } from "@/lib/admin/activity";
+import { resetSyncStatus } from "@/lib/donedeal/sync";
 
 export type SettingsState = { errors?: Record<string, string>; saved?: boolean } | undefined;
 
@@ -155,6 +156,7 @@ export async function resetDemoAction() {
   if (!seedsDemoRecords() || !(await can("settings"))) return; // a real dealer's records are never wiped from a button
   for (const c of DEALER_COLLECTIONS) await c.reset();
   await resetActivity();
+  await resetSyncStatus();
   await logActivity("settings", "Reset the demo data");
   revalidatePath("/dashboard", "layout");
 }

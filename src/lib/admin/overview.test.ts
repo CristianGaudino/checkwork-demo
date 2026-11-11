@@ -27,6 +27,14 @@ describe("overview", () => {
     expect(o.attention.map((a) => [a.key, a.count])).toEqual([["slow", 1], ["drives", 1], ["reviews", 1]]);
     expect(overview({ leads: [], drives: [], reviews: [review("s", 5, "thanks")], now }).attention).toEqual([]);
   });
+  it("flags old stock, cars with no cost, a failing sync and drives booked on a sold car", () => {
+    const car = (id: string, listedAt: string, o: object = {}) => ({ id, slug: id, listedAt, photos: [], ...o }) as unknown as import("@/lib/stock/types").Car;
+    const cars = [car("old", "2026-09-01"), car("new", "2026-11-01"), car("gone", "2026-08-01", { soldAt: "2026-11-05" })];
+    const o = overview({ leads: [], drives: [{ ...drive("d", DAY, "confirmed"), carSlug: "gone" }], reviews: [], cars, costs: new Set(["old"]), syncProblem: true, now });
+    expect(o.attention.map((a) => [a.key, a.count])).toEqual([["sync", 1], ["sold-drives", 1], ["old", 1], ["costs", 1]]);
+    // Without the margins permission there is no cost item at all, and a sold car is never old stock.
+    expect(overview({ leads: [], drives: [], reviews: [], cars: [car("gone", "2026-01-01", { soldAt: "2026-02-01" })], now }).attention).toEqual([]);
+  });
   it("averages ratings, and is 0 with no reviews", () => {
     expect(overview({ leads: [], drives: [], reviews: [review("a", 5), review("b", 4)], now }).averageRating).toBe(4.5);
     expect(overview({ leads: [], drives: [], reviews: [], now }).averageRating).toBe(0);

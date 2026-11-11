@@ -6,6 +6,8 @@ import { RegLookup } from "@/components/leads/RegLookup";
 import { Avatar, ChoiceButton, Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput, rowButton } from "@/components/admin/kit";
 import { LEAD_STATUS_LABELS, LEAD_TYPE_LABELS, getSettings, leadsStore } from "@/lib/admin/collections";
 import { fmtDateTime } from "@/lib/admin/format";
+import { adminCars } from "@/lib/admin/stock-admin";
+import { isSold } from "@/lib/stock/types";
 import { CalendarIcon, CheckIcon, CloseIcon, PhoneIcon, WhatsAppIcon } from "@/components/stock/icons";
 import type { LeadStatus } from "@/lib/admin/collections";
 import { addNoteAction, assignLeadAction, setStatusAction } from "../actions";
@@ -24,6 +26,9 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const { id } = await params;
   const [lead, settings] = await Promise.all([leadsStore.get(id), getSettings()]);
   if (!lead) notFound();
+  // The car the lead asked about has sold since (here, or on DoneDeal): the salesperson offers something like it.
+  const car = lead.carSlug ? (await adminCars()).find((c) => c.slug === lead.carSlug) : undefined;
+  const carSold = car !== undefined && isSold(car);
   const wa = lead.phone.replace(/[^\d]/g, "");
 
   return (
@@ -47,6 +52,15 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                 <Link href={`/used-cars/${lead.carSlug}`} className="inline-flex min-h-11 items-center font-medium text-text underline">
                   {lead.carTitle}
                 </Link>
+              </p>
+            )}
+            {carSold && (
+              <p className="rounded-control bg-warn-soft px-4 py-3 text-body text-warn">
+                This car has sold. Offer them something similar:{" "}
+                <Link href={`/makes/${car.makeSlug}`} className="font-medium underline">
+                  other {car.make} cars
+                </Link>
+                .
               </p>
             )}
           </Panel>

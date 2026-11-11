@@ -10,7 +10,10 @@ import { fmtEur, fmtNum } from "@/lib/admin/format";
 import { carName } from "@/lib/stock/format";
 import { isSold, type Car } from "@/lib/stock/types";
 import { stockSource } from "@/lib/stock-source";
-import { DONEDEAL_DEALER_URL } from "@/lib/stock-source-rules";
+import { DONEDEAL_DEALER_URL, listingHref } from "@/lib/stock-source-rules";
+import { SyncPanel } from "@/components/admin/SyncPanel";
+import { OLD_STOCK_DAYS, isOldStock } from "@/lib/admin/overview";
+import { syncStatus } from "@/lib/donedeal/sync";
 import { SEARCH_MAKE_MODEL } from "@/lib/copy";
 import { toggleSoldAction } from "./actions";
 
@@ -28,6 +31,7 @@ const VIEWS = {
   "for-sale": { label: "For sale", test: (c: Car) => !isSold(c) },
   reduced: { label: "Reduced", test: (c: Car) => !isSold(c) && c.wasPriceEur !== undefined && c.wasPriceEur > c.priceEur },
   photos: { label: "Need photos", test: (c: Car) => !isSold(c) && c.photos.length < FEW_PHOTOS },
+  old: { label: `${OLD_STOCK_DAYS} days or more`, test: (c: Car) => isOldStock(c, Date.now()) },
   sold: { label: "Sold", test: (c: Car) => isSold(c) },
   all: { label: "All", test: () => true },
 } as const;
@@ -40,6 +44,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
   const q = (sp.q ?? "").trim().toLowerCase().slice(0, 60);
   const [all, source] = await Promise.all([adminCars(), stockSource()]);
   const synced = source === "donedeal";
+  const sync = synced ? await syncStatus() : null;
   // The margin column is for staff with the margins permission; without it the costs are not even read.
   const costs = (await can("margins")) ? new Map((await costsStore.list()).map((c) => [c.id, c.costEur])) : null;
   const matching = all
@@ -99,10 +104,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         // Above the row's own link, so these buttons are what a press on them hits.
         synced ? (
           <div className="relative z-10 flex justify-end">
-            <a href={DONEDEAL_DEALER_URL} {...NEW_TAB} className={rowButton}>
+            <a href={listingHref(c)} {...NEW_TAB} className={rowButton} aria-label={`Edit ${carName(c)} on DoneDeal (opens in a new tab)`}>
               DoneDeal
               <ExternalIcon className="size-4" />
-              <span className="sr-only"> (opens in a new tab)</span>
             </a>
           </div>
         ) : (
@@ -141,6 +145,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
           )
         }
       />
+      {sync && <SyncPanel status={sync} canForce={await can("settings")} />}
       {saved && <p role="status" className="rounded-control bg-ok-soft px-4 py-3 text-body text-ok">Saved {carName(saved)}.</p>}
       {sp.deleted && <p role="status" className="rounded-control bg-hairline px-4 py-3 text-body">Car deleted.</p>}
       <SummaryTabs label="Stock views" items={(Object.keys(VIEWS) as View[]).map((v) => ({ label: VIEWS[v].label, count: all.filter(VIEWS[v].test).length, href: href(v), active: view === v }))} />
