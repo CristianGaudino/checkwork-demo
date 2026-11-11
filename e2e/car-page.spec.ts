@@ -138,7 +138,7 @@ test.describe("a sold car", () => {
     expect(card.y).toBeGreaterThan((await page.getByRole("heading", { level: 1 }).boundingBox())!.y);
     await expect(page.getByRole("main").getByText("Sold", { exact: true })).toHaveCount(2);
     await expect(box.getByText("This car is no longer for sale.")).toBeVisible();
-    await expect(box.getByRole("link", { name: `See more ${make}` })).toHaveAttribute("href", `/used-cars/${makeSlug}`);
+    await expect(box.getByRole("link", { name: `See more ${make}` })).toHaveAttribute("href", `/makes/${makeSlug}`);
     await expect(box.getByText("Call now")).toHaveCount(0);
     await expect(box.getByRole("button", { name: "Save this car" })).toBeVisible();
     expect(await box.innerText()).not.toMatch(/€\d/);

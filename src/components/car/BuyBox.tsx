@@ -6,8 +6,10 @@ import { SaveButton } from "@/components/saved/SaveButton";
 import { CalendarIcon, CarIcon, FuelIcon, GaugeIcon, GearIcon, ShieldCheckIcon, SwapIcon } from "@/components/stock/icons";
 import { DEALER_WHATSAPP, NEW_CAR_WARRANTY, SITE_URL, WARRANTY } from "@/lib/site";
 import { priceInfo } from "@/lib/stock/price";
+import { rareMarker } from "@/lib/stock/markers";
+import { CarMeta, FactValue } from "@/components/stock/CarMeta";
 import { PriceBlock } from "@/components/stock/PriceBlock";
-import { carMeta, carName, carSummary, keyFacts } from "@/lib/stock/format";
+import { carName, carSummary, keyFacts } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 import { accentButton, card } from "@/components/ui";
@@ -21,6 +23,7 @@ export function BuyBox({ car }: { car: Car }) {
   const sold = isSold(car);
   const price = priceInfo(car);
   const warranty = car.condition === "new" ? NEW_CAR_WARRANTY : WARRANTY;
+  const marker = rareMarker(car);
   const url = `${SITE_URL}/used-cars/${car.slug}`;
   const whatsapp = `${DEALER_WHATSAPP}?text=${encodeURIComponent(`Hi, I'm interested in the ${carName(car)}: ${url}`)}`;
   return (
@@ -43,7 +46,10 @@ export function BuyBox({ car }: { car: Car }) {
           <SaveButton id={car.id} label="Save this car" variant="page" />
         </div>
       </div>
-      <p className="-mt-3 text-body text-text-2">{carMeta(car)}</p>
+      <p className="-mt-3 text-body text-text-2">
+        <CarMeta car={car} />
+      </p>
+      {marker && <span className="-mt-2 inline-flex h-7 w-fit items-center rounded-full bg-info-soft px-3 text-meta font-medium text-info">{marker}</span>}
       {!sold && <PriceBlock car={car} size="hero" />}
       {/* Reserved in Phase 2 for the lead buttons: so adding rows moves nothing below. */}
       <div data-testid="action-area" className="flex flex-col gap-3">
@@ -51,8 +57,8 @@ export function BuyBox({ car }: { car: Car }) {
           <div className={`flex flex-col gap-2 ${card} p-4`}>
             <p className="text-heading font-semibold">Sold</p>
             <p className="text-meta text-text-2">This car is no longer for sale.</p>
-            <Link href={`/used-cars/${car.makeSlug}`} className={button}>
-              See More {car.make}
+            <Link href={`/makes/${car.makeSlug}`} className={button}>
+              See more {car.make}
             </Link>
             <StockAlertButton car={carSummary(car)} kind="back-in-stock" />
           </div>
@@ -68,7 +74,9 @@ export function BuyBox({ car }: { car: Car }) {
               <Icon className="size-6" />
               {/* Label first in the source, as a list needs; the value shows above it. */}
               <dt className="order-3 text-meta text-text-2">{f.label}</dt>
-              <dd className="order-2 break-words text-meta font-semibold [overflow-wrap:anywhere] sm:whitespace-nowrap">{f.value}</dd>
+              <dd className="order-2 break-words text-meta font-semibold [overflow-wrap:anywhere] sm:whitespace-nowrap">
+                <FactValue car={car} {...f} />
+              </dd>
             </div>
           );
         })}
