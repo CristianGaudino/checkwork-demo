@@ -14,7 +14,7 @@ import { currentMember } from "@/lib/permissions";
 import { ROLES, roleCan, type Role } from "@/lib/permission-rules";
 
 // What each role may see, in words, so the owner knows what a role change does.
-const GRANTS: Record<Role, string> = { Owner: "Everything", Manager: "Everything except changing an owner", Sales: "Everything except margins, the team, settings and activity", Finance: "Margins, and everything Sales sees" };
+const GRANTS: Record<Role, string> = { Owner: "Everything", Manager: "Everything except changing an owner", Sales: "Everything except margins, the full reports, the team, settings, activity and data requests", Finance: "Margins and the full reports, and everything Sales sees" };
 
 export const metadata = { title: "Settings" };
 
@@ -152,9 +152,9 @@ export default async function Page() {
           rowKey={(i) => i.id}
           columns={[
             { key: "name", header: "Service", cell: (i) => <span className="font-medium">{i.name}</span> },
-            { key: "purpose", header: "What it does", cell: (i) => i.purpose, className: "max-w-[20rem]" },
+            { key: "purpose", header: "What it does", hide: "md", cell: (i) => i.purpose, className: "max-w-[20rem]" },
             { key: "status", header: "Status", cell: (i) => (isUsable(i.id) ? <Badge tone="good">Connected</Badge> : <Badge tone="warn">Not connected</Badge>) },
-            { key: "missing", header: "Account or still needed", cell: (i) => <span className="break-words text-meta text-text-2">{modeOf(i.id) === "off" ? missingEnv(i).join(", ") : modeOf(i.id) === "simulated" ? i.demoAccount : "Nothing"}</span> },
+            { key: "missing", header: "Account or still needed", hide: "sm", cell: (i) => <span className="break-words text-meta text-text-2">{modeOf(i.id) === "off" ? missingEnv(i).join(", ") : modeOf(i.id) === "simulated" ? i.demoAccount : "Nothing"}</span> },
           ]}
         />
         <p className="text-meta text-text-2">Add a missing setting in the Cloudflare dashboard (Workers, Settings, Variables and secrets) and the service connects on the next request.</p>

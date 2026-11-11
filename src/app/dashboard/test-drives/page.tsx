@@ -5,6 +5,7 @@ import { PlusIcon } from "@/components/stock/icons";
 import { card } from "@/components/ui";
 import { DRIVE_STATUSES, DRIVE_STATUS_LABELS, drivesStore } from "@/lib/admin/collections";
 import { groupByDay, parseDriveStatus } from "@/lib/admin/drives";
+import { dublinDay } from "@/lib/admin/format";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { carName } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
@@ -13,6 +14,8 @@ import { setDriveStatusAction } from "./actions";
 export const metadata = { title: "Test drives" };
 
 const day = new Intl.DateTimeFormat("en-IE", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Dublin" });
+// A day in another year says which, so a booking typed a year out never reads as this year.
+const dayLabel = (t: number) => (dublinDay(t).slice(0, 4) === dublinDay().slice(0, 4) ? day.format(t) : `${day.format(t)} ${dublinDay(t).slice(0, 4)}`);
 const time = new Intl.DateTimeFormat("en-IE", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Dublin" });
 // What the dealer can do next from each status. Anything else is not offered.
 const NEXT: Record<string, [string, string][]> = {
@@ -63,7 +66,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
         <section aria-label="Bookings" className={`${card} overflow-hidden`}>
           {groups.map((g) => (
             <div key={g.day}>
-              <h2 className="border-b border-hairline bg-surface px-4 py-2 text-meta font-medium text-text-2">{day.format(g.drives[0].startsAt)}</h2>
+              <h2 className="border-b border-hairline bg-surface px-4 py-2 text-meta font-medium text-text-2">{dayLabel(g.drives[0].startsAt)}</h2>
               <ul>
                 {g.drives.map((d) => (
                   <li key={d.id} className="grid grid-cols-[4rem_minmax(0,1fr)] items-center gap-x-4 gap-y-2 px-4 py-3 even:bg-row-alt md:grid-cols-[4rem_minmax(0,1fr)_auto]">

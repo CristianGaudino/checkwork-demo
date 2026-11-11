@@ -41,6 +41,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
       <Panel title="Sales by month">
         <AreaChart
           data={r.months.map((m) => ({ label: monthLabel(m.month), value: m.value }))}
+          format={fmtEur}
           summary={`Sales each month over the last ${period} months, the most in ${monthLabel(best.month)} at ${fmtEur(best.value)}.`}
         />
         <DataTable

@@ -3,6 +3,7 @@ import { logActivity } from "@/lib/admin/activity";
 import { carEditSummary } from "@/lib/admin/activity-text";
 import { getSettings, salesStore } from "@/lib/admin/collections";
 import { defineCollection } from "@/lib/admin/docs";
+import { dublinDay } from "@/lib/admin/format";
 import { carTitleOf } from "@/lib/admin/seed-data";
 import { adminCars, saveCar } from "@/lib/admin/stock-admin";
 import { sendTo } from "@/lib/leads/mail";
@@ -54,7 +55,7 @@ export async function runSync({ force = false, now = Date.now() } = {}): Promise
   const prev = await syncStatus();
   const feed: FeedResult = await fetchListings().catch(() => ({ ok: false, reason: "failed" }) as const);
   if (!feed.ok) return failed(prev, PROBLEMS[feed.reason], false, now);
-  const today = new Date(now).toISOString().slice(0, 10);
+  const today = dublinDay(now); // the Irish day, as the rest of the dashboard dates a sale
   const plan = planSync(await adminCars(), feed.listings, today, { force });
   if (plan.held) return failed(prev, `${plan.held} The site kept its stock. Check DoneDeal, then sync again.`, true, now);
   // Car by car: one that cannot be saved (an ad whose address clashes with another car's) is skipped and counted, never stops the rest.

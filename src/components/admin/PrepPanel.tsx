@@ -24,7 +24,7 @@ export function PrepPanel({ carId, lines }: { carId: string; lines: PrepLine[] }
             <li key={l.at} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-5 py-2 even:bg-row-alt">
               <span className="flex min-w-0 flex-col">
                 <span className="font-medium">{l.kind}</span>
-                {l.note && <span className="truncate text-meta text-text-2">{l.note}</span>}
+                {l.note && <span title={l.note} className="truncate text-meta text-text-2">{l.note}</span>}
               </span>
               <span className="flex items-center gap-3">
                 <span className="tabular-nums">{eur.format(l.eur)}</span>
