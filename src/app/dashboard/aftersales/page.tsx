@@ -28,13 +28,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
       sort: (c) => c.carTitle,
       cell: (c) => (
         <span className="flex min-w-0 flex-col">
-          <Link href={`/dashboard/aftersales/${c.id}`} className="truncate font-medium text-text after:absolute after:inset-0">{c.carTitle}</Link>
+          <Link href={`/dashboard/aftersales/${c.id}`} title={c.carTitle} className="line-clamp-2 font-medium text-text after:absolute after:inset-0">{c.carTitle}</Link>
           <span className="truncate text-meta text-text-2">{(c.customerId && names.get(c.customerId)) || "Customer not on file"}</span>
         </span>
       ),
       className: "max-w-[12rem] sm:max-w-[20rem]",
     },
-    { key: "fault", header: "Fault", hide: "lg", cell: (c) => <span className="line-clamp-1 max-w-[24rem] text-text-2">{c.fault}</span> },
+    { key: "fault", header: "Fault", hide: "lg", cell: (c) => <span title={c.fault} className="line-clamp-1 max-w-[24rem] text-text-2">{c.fault}</span> },
     { key: "cover", header: "Cover", hide: "md", sort: (c) => (c.inCover ? 0 : 1), cell: (c) => <CoverBadge inCover={c.inCover} /> },
     { key: "status", header: "Status", sort: (c) => CLAIM_STATUSES.indexOf(c.status), cell: (c) => <ClaimStatusBadge status={c.status} /> },
     { key: "opened", header: "Opened", align: "right", hide: "sm", nowrap: true, sort: (c) => c.openedOn, cell: (c) => fmtDate(`${c.openedOn}T12:00:00Z`) },
@@ -74,13 +74,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
               header: "Who",
               cell: (l) => (
                 <span className="flex min-w-0 flex-col">
-                  <Link href={`/dashboard/leads/${l.id}`} className="truncate font-medium after:absolute after:inset-0">{l.name}</Link>
+                  <Link href={`/dashboard/leads/${l.id}`} title={l.name} className="line-clamp-2 font-medium after:absolute after:inset-0">{l.name}</Link>
                   <span className="truncate text-meta text-text-2">{l.carTitle ?? l.source}</span>
                 </span>
               ),
               className: "max-w-[12rem] sm:max-w-[20rem]",
             },
-            { key: "message", header: "Message", hide: "md", cell: (l) => <span className="line-clamp-1 max-w-[28rem] text-text-2">{l.message}</span> },
+            { key: "message", header: "Message", hide: "md", cell: (l) => <span title={l.message} className="line-clamp-1 max-w-[28rem] text-text-2">{l.message}</span> },
             { key: "received", header: "Received", align: "right", nowrap: true, cell: (l) => fmtAgo(l.createdAt) },
           ]}
         />

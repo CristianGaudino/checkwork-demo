@@ -101,7 +101,7 @@ export function LeadsByWeek({ weeks, starts, usual }: { weeks: number[]; starts:
       <div className="grid grid-cols-8 gap-2 text-center text-meta text-text-2" aria-hidden>
         {starts.map((t, i) => (
           // On a phone every other date, short (18/9), so none run into the next or past the screen; this week always, as Now.
-          <span key={t} className={`min-w-0 whitespace-nowrap ${i === starts.length - 1 ? "font-medium text-text" : i % 2 ? "max-sm:invisible" : ""}`}>
+          <span key={t} className={`min-w-0 whitespace-nowrap ${i === starts.length - 1 ? "font-medium text-text" : i % 2 || i === starts.length - 2 ? "max-sm:invisible" : ""}`}>
             {i === starts.length - 1 ? (
               <>
                 <span className="max-sm:hidden">This week</span>
@@ -134,9 +134,9 @@ export function AgeBar({ days, late, full = 90 }: { days: number; late: number; 
 
 // Where a record is on its way, as dots in a table row: the steps done, the one it is at (larger, in the accent), the rest to come. A list
 // of them reads down the column at a glance. A record's own page has its status buttons, which say the same, so it has none.
-export function StepDots({ steps, at }: { steps: readonly string[]; at: number }) {
+export function StepDots({ steps, at, className = "" }: { steps: readonly string[]; at: number; className?: string }) {
   return (
-    <span role="img" aria-label={`Step ${at + 1} of ${steps.length}: ${steps[at]}`} className="inline-flex items-center gap-1">
+    <span role="img" aria-label={`Step ${at + 1} of ${steps.length}: ${steps[at]}`} className={`inline-flex items-center gap-1 ${className}`}>
         {steps.map((s, i) => (
           <span key={s} className={`rounded-full ${i === at ? "size-2.5 bg-accent" : `size-2 ${i < at ? "bg-text-2" : "bg-hairline"}`}`} />
       ))}

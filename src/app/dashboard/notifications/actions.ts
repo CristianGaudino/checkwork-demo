@@ -11,7 +11,9 @@ export async function loadNotices() {
   return { unread, items: items.map(({ id, at, kind, text, href, unread: u }) => ({ id, at, kind, text, href, unread: u })) };
 }
 
-// One (by id) or all of this person's, read.
-export async function readNotices(ids?: string[]) {
+// One or more (by id) or, with nothing, all of this person's, read. A server action can be called with anything, so anything but a list
+// of ids (or nothing) is refused rather than read as "all".
+export async function readNotices(ids?: unknown) {
+  if (ids !== undefined && !(Array.isArray(ids) && ids.every((i) => typeof i === "string"))) return;
   await markRead(await currentMember(), ids?.slice(0, 50));
 }

@@ -5,7 +5,7 @@ import { DataTable, EmptyState, FilterSelect, PageHeader, Pager, Panel, StatCard
 import { carStatus } from "@/lib/admin/stock-admin-pure";
 import { salesStore } from "@/lib/admin/collections";
 import { carCosts } from "@/lib/admin/costs";
-import { fmtEur, fmtPct } from "@/lib/admin/format";
+import { fmtEur, fmtPct, plural } from "@/lib/admin/format";
 import { marginOf } from "@/lib/admin/margins";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { can } from "@/lib/permissions";
@@ -76,10 +76,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ q
     <>
       <PageHeader title="Margins" text="What each car cost, prep included, and what it makes: the price less the cost, before VAT and running costs. A sold car uses what it sold for. Only owners, managers and finance see this." />
       <StatGrid>
-        <StatCard label="Stock cost" value={fmtEur(stockCost)} hint={`${stock.length} cars for sale`} />
+        <StatCard label="Stock cost" value={fmtEur(stockCost)} hint={`${plural(stock.length, "car")} for sale`} />
         <StatCard label="Stock value" value={fmtEur(stockPrice)} hint="At the advertised prices" />
         <StatCard label="Expected margin" value={fmtEur(stockMargin.eur)} hint={`${fmtPct(stockMargin.pct)} of the value`} />
-        <StatCard label="Margin on sold cars" value={fmtEur(soldMargin)} hint={`${sold.length} sold cars, at what they sold for where recorded`} />
+        <StatCard label="Margin on sold cars" value={fmtEur(soldMargin)} hint={`${plural(sold.length, "sold car")}, at what they sold for where recorded`} />
       </StatGrid>
       <Panel title="Every car">
         <TableToolbar search={{ placeholder: "Search make or model", label: "Search cars" }}>

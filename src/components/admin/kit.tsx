@@ -2,6 +2,7 @@ import Link from "next/link";
 import { useId } from "react";
 import { card, press } from "@/components/ui";
 import { DensityToggle, LiveSearch, PagerLinks, SortHeader } from "./TableTools";
+import { fmtNum } from "@/lib/admin/format";
 export { DensityToggle, FilterSelect, LiveSearch } from "./TableTools";
 
 // The admin kit: the few pieces every admin page is made of. Same tokens as the site, denser and calmer.
@@ -183,7 +184,7 @@ export function SummaryTabs({ items, label = "Filter" }: { items: SummaryTab[]; 
           className={`flex min-w-32 shrink-0 flex-col gap-0.5 rounded-card border bg-card px-4 py-3 text-text transition-colors ${i.active ? "border-accent ring-1 ring-inset ring-accent" : "border-hairline hover:border-control"} ${press}`}
         >
           <span className="text-meta text-text-2">{i.label}</span>
-          {i.count !== undefined && <span className={`text-heading font-semibold tabular-nums ${i.active ? "text-accent-text" : ""}`}>{i.count}</span>}
+          {i.count !== undefined && <span className={`text-heading font-semibold tabular-nums ${i.active ? "text-accent-text" : ""}`}>{typeof i.count === "number" ? fmtNum(i.count) : i.count}</span>}
           {i.hint && <span className="text-meta text-text-2">{i.hint}</span>}
         </Link>
       ))}

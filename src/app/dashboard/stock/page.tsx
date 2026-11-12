@@ -15,6 +15,7 @@ import { FUEL_LABELS, FUELS, forSale, isSold, type Car } from "@/lib/stock/types
 import { stockSource } from "@/lib/stock-source";
 import { DONEDEAL_DEALER_URL, listingHref } from "@/lib/stock-source-rules";
 import { SyncPanel } from "@/components/admin/SyncPanel";
+import { CarThumb } from "@/components/admin/CarThumb";
 import { AgeBar } from "@/components/admin/charts";
 import { OLD_STOCK_DAYS } from "@/lib/admin/overview";
 import { FEW_PHOTOS, STOCK_VIEWS, parseStockList, stockList, type StockView } from "@/lib/admin/stock-views";
@@ -91,14 +92,14 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         <div className="flex min-w-0 items-center gap-3">
           {/* The photo goes in compact rows: there the row is the size of a line. */}
           <div className="hidden h-12 w-16 shrink-0 overflow-hidden rounded-control bg-photo-bg min-[25rem]:block group-data-[density=compact]/shell:hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element -- a local /stock file, sized by its box */}
-            {c.photos[0] && <img src={c.photos[0].src} alt="" width={64} height={48} loading="lazy" className="size-full object-cover" />}
+            <CarThumb src={c.photos[0]?.src} />
           </div>
+          {/* The name wraps to two lines (it is what tells the cars apart); the variant is cut short, whole on hover. */}
           <div className="min-w-0">
-            <Link href={open(c)} className="block truncate font-medium after:absolute after:inset-0">
+            <Link href={open(c)} title={`${c.make} ${c.model}`} className="line-clamp-2 font-medium after:absolute after:inset-0">
               {c.make} {c.model}
             </Link>
-            <span className="block truncate text-meta text-text-2">{[c.variant, c.year].filter(Boolean).join(" · ")}</span>
+            <span title={[c.variant, c.year].filter(Boolean).join(" · ")} className="block truncate text-meta text-text-2">{[c.variant, c.year].filter(Boolean).join(" · ")}</span>
           </div>
         </div>
       ),
@@ -142,7 +143,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
           <span className="text-text-2">-</span>
         ),
     },
-    { key: "km", header: "Mileage", align: "right", hide: "md", nowrap: true, sort: (c) => c.mileageKm, cell: (c) => (c.mileageKm !== undefined ? `${fmtNum(c.mileageKm)} km` : "") },
+    // In the All view the Status column needs the room: the mileage steps aside below the widest screens, so the actions stay in the row.
+    { key: "km", header: "Mileage", align: "right", hide: view === "all" ? "2xl" : "md", nowrap: true, sort: (c) => c.mileageKm, cell: (c) => (c.mileageKm !== undefined ? `${fmtNum(c.mileageKm)} km` : "") },
     { key: "photos", header: "Photos", align: "right", hide: "2xl", sort: (c) => c.photos.length, cell: (c) => (c.photos.length < FEW_PHOTOS ? <span className="text-warn">{c.photos.length}</span> : c.photos.length) },
     // Only in the All view: the other views already say it.
     ...(view === "all" ? [{ key: "status", header: "Status", hide: "md" as const, cell: (c: Car) => <CarStatusBadge car={c} /> }] : []),

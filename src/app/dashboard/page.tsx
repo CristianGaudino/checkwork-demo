@@ -7,7 +7,7 @@ import { carCosts } from "@/lib/admin/costs";
 import { drivesStore, getSettings, leadsStore, ordersStore, reservationsStore, reviewsStore, salesStore } from "@/lib/admin/collections";
 import { marginOf } from "@/lib/admin/margins";
 import { can } from "@/lib/permissions";
-import { fmtAgo, fmtDateTime, fmtEur, fmtNum } from "@/lib/admin/format";
+import { fmtAgo, fmtDateTime, fmtEur, fmtNum, plural } from "@/lib/admin/format";
 import { overview } from "@/lib/admin/overview";
 import { SyncPanel } from "@/components/admin/SyncPanel";
 import { adminCars } from "@/lib/admin/stock-admin";
@@ -59,7 +59,7 @@ export default async function Page() {
         <StatCard href="/dashboard/leads?status=new" label="Leads to answer" value={fmtNum(o.newLeads)} hint={o.lateLeads ? `${o.lateLeads} past your reply target` : "All within your reply target"} tone={o.lateLeads ? "bad" : "good"} />
         <StatCard href="/dashboard/stock" label="Cars for sale" value={fmtNum(cars.filter(forSale).length)} hint={o.oldStock ? `${o.oldStock} for sale 60 days or more` : undefined} tone={o.oldStock ? "warn" : undefined} />
         {costs && <StatCard href="/dashboard/margins" label="Stock margin" value={fmtEur(margin)} />}
-        <StatCard href="/dashboard/reviews" label="Review rating" value={o.reviewCount ? o.averageRating.toFixed(1) : "None"} hint={`${o.reviewCount} reviews`} />
+        <StatCard href="/dashboard/reviews" label="Review rating" value={o.reviewCount ? o.averageRating.toFixed(1) : "None"} hint={plural(o.reviewCount, "review")} />
       </StatGrid>
 
       <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">

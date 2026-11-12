@@ -35,13 +35,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
       sort: (o) => `${o.make} ${o.model}`,
       cell: (o) => (
         <span className="flex min-w-0 flex-col">
-          <Link href={`/dashboard/orders/${o.id}`} className="truncate font-medium text-text after:absolute after:inset-0">{o.regPeriod} {o.make} {o.model}</Link>
+          <Link href={`/dashboard/orders/${o.id}`} title={`${o.regPeriod} ${o.make} ${o.model}`} className="line-clamp-2 font-medium text-text after:absolute after:inset-0">{o.regPeriod} {o.make} {o.model}</Link>
           <span className="truncate text-meta text-text-2">{(o.customerId && names.get(o.customerId)) || "Customer not on file"}</span>
         </span>
       ),
-      className: "max-w-[12rem] sm:max-w-[20rem]",
+      className: "max-w-[8.5rem] min-[25rem]:max-w-[12rem] sm:max-w-[20rem]", // narrow on a small phone, so the status beside it fits
     },
-    { key: "spec", header: "Spec", hide: "lg", cell: (o) => <span className="line-clamp-1 text-text-2">{[o.spec, o.colour].filter(Boolean).join(", ")}</span> },
+    { key: "spec", header: "Spec", hide: "lg", cell: (o) => <span title={[o.spec, o.colour].filter(Boolean).join(", ")} className="line-clamp-1 text-text-2">{[o.spec, o.colour].filter(Boolean).join(", ")}</span> },
     { key: "ordered", header: "Ordered", hide: "md", nowrap: true, sort: (o) => o.orderedOn, cell: (o) => fmtDate(`${o.orderedOn}T12:00:00Z`) },
     { key: "due", header: "Due", hide: "sm", nowrap: true, sort: (o) => o.expected, cell: (o) => monthLabel(o.expected) },
     // Where it is on the way, as dots beside its status, so a list of orders reads at a glance.
@@ -53,7 +53,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
       sort: (o) => ORDER_STATUSES.indexOf(o.status),
       cell: (o) => (
         <span className="inline-flex items-center gap-3">
-          {o.status !== "cancelled" && <StepDots steps={ORDER_PATH.map((s) => ORDER_STATUS_LABELS[s])} at={ORDER_PATH.indexOf(o.status)} />}
+          {o.status !== "cancelled" && <StepDots className="max-sm:hidden" steps={ORDER_PATH.map((s) => ORDER_STATUS_LABELS[s])} at={ORDER_PATH.indexOf(o.status)} />}
           <OrderBadge status={o.status} />
         </span>
       ),

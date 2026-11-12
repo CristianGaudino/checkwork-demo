@@ -4,7 +4,7 @@ import { DataTable, FilterTabs, PageHeader, Panel, StatCard, StatGrid } from "@/
 import { getSettings, leadsStore, prepStore, salesStore } from "@/lib/admin/collections";
 import { isSalesLead } from "@/lib/admin/leads";
 import { carCosts } from "@/lib/admin/costs";
-import { fmtEur, fmtNum } from "@/lib/admin/format";
+import { fmtEur, fmtNum, plural } from "@/lib/admin/format";
 import { PERIODS, fullReport, monthLabel, personalReport, type Period } from "@/lib/admin/reports";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { can, currentMember } from "@/lib/permissions";
@@ -78,10 +78,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
           />
         </Panel>
         <Panel title="Where the won leads came from">
-          {r.sources.length ? <BarList items={r.sources.map((s) => ({ label: s.source, value: s.won, note: `of ${s.leads} leads, ${s.winRate}%` }))} /> : <p className="text-body text-text-2">No leads in this period.</p>}
+          {r.sources.length ? <BarList items={r.sources.map((s) => ({ label: s.source, value: s.won, note: `of ${plural(s.leads, "lead")}, ${s.winRate}%` }))} /> : <p className="text-body text-text-2">No leads in this period.</p>}
         </Panel>
         <Panel title="Why leads were lost">
-          {r.lost.length ? <BarList items={r.lost.map((x) => ({ label: x.reason, value: x.leads, note: x.leads === 1 ? "1 lead" : `${x.leads} leads` }))} /> : <p className="text-body text-text-2">No lost leads in this period.</p>}
+          {r.lost.length ? <BarList items={r.lost.map((x) => ({ label: x.reason, value: x.leads, note: plural(x.leads, "lead") }))} /> : <p className="text-body text-text-2">No lost leads in this period.</p>}
         </Panel>
         <Panel title="Stock by age">
           <BarList items={r.stockAge.map((b) => ({ label: b.band, value: b.cars, note: fmtEur(b.value) }))} />

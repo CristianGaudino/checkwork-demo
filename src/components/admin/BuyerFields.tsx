@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Select } from "@/components/Select";
 import { Field, adminInput } from "@/components/admin/kit";
+import { LIMITS } from "@/lib/leads/constants";
 
 // Who is buying: a customer on file, or a new one (name, and a phone or an email). On the sale and the deposit forms; the server checks it.
 export function BuyerFields({ customers, defaultId, errors }: { customers: { id: string; label: string }[]; defaultId?: string; errors: Record<string, string> }) {
@@ -15,13 +16,13 @@ export function BuyerFields({ customers, defaultId, errors }: { customers: { id:
       {customer === "" && (
         <>
           <Field label="Name" error={errors.name}>
-            <input name="name" className={adminInput} autoComplete="off" />
+            <input name="name" maxLength={80} className={adminInput} autoComplete="off" />
           </Field>
           <Field label="Phone" error={errors.phone}>
-            <input name="phone" type="tel" className={adminInput} autoComplete="off" />
+            <input name="phone" type="tel" maxLength={30} className={adminInput} autoComplete="off" />
           </Field>
           <Field label="Email (optional)" error={errors.email}>
-            <input name="email" type="email" className={adminInput} autoComplete="off" />
+            <input name="email" type="email" maxLength={LIMITS.email} className={adminInput} autoComplete="off" />
           </Field>
         </>
       )}
