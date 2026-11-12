@@ -85,13 +85,20 @@ export function BuyBox({ car }: { car: Car }) {
       {/* Under the facts, side by side like Call us and WhatsApp, so the buttons and facts stay in view on a phone. */}
       {!sold && (
         <div className="grid grid-cols-2 gap-2">
-          <CompareButton id={car.id} label={`Compare ${carName(car)}`} sizing="flex h-12 w-full px-4" />
-          <StockAlertButton car={carSummary(car)} kind="price-drop" />
-          {/* The trade-in door with this car already chosen. */}
-          <Link href={`/trade-in?car=${car.slug}`} className="inline-flex min-h-11 items-center gap-2 text-meta font-medium text-accent-text underline col-span-2">
-            <SwapIcon className="size-4" />
-            Trade in your car against this one
-          </Link>
+          {/* A reserved car can still be compared; a price alert or a trade-in against it would go nowhere (its panel offers Notify me). */}
+          <div className={car.reserved ? "col-span-2" : undefined}>
+            <CompareButton id={car.id} label={`Compare ${carName(car)}`} sizing="flex h-12 w-full px-4" />
+          </div>
+          {!car.reserved && (
+            <>
+              <StockAlertButton car={carSummary(car)} kind="price-drop" />
+              {/* The trade-in door with this car already chosen. */}
+              <Link href={`/trade-in?car=${car.slug}`} className="inline-flex min-h-11 items-center gap-2 text-meta font-medium text-accent-text underline col-span-2">
+                <SwapIcon className="size-4" />
+                Trade in your car against this one
+              </Link>
+            </>
+          )}
         </div>
       )}
       {!sold && (

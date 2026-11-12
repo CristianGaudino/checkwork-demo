@@ -59,7 +59,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             </form>
           </Panel>
         </div>
-        <div className="flex min-w-0 flex-col gap-6 max-lg:order-first">
+        <div className="flex min-w-0 flex-col gap-6">
           <Panel title="Status" action={<ClaimStatusBadge status={claim.status} />}>
             <div className="flex flex-wrap gap-2">
               {CLAIM_STATUSES.map((s) => (

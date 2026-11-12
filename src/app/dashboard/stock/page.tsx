@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { Badge, DataTable, EmptyState, PageHeader, Pager, Panel, SearchBar, SummaryTabs, adminButton, paginate, rowButton, type Column, adminButtonQuiet } from "@/components/admin/kit";
 import { ActButton } from "@/components/admin/ActButton";
-import { ExternalIcon, PencilIcon, PlusIcon, SyncIcon } from "@/components/stock/icons";
+import { RowMenu } from "@/components/admin/RowMenu";
+import { ExternalIcon, PlusIcon, SyncIcon } from "@/components/stock/icons";
 import { NEW_TAB } from "@/components/ui";
 import { carCosts } from "@/lib/admin/costs";
 import { marginOf } from "@/lib/admin/margins";
@@ -116,7 +117,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
     // How long a car has been for sale: what a dealer watches to decide on a price drop.
     { key: "age", header: "In stock", align: "right", hide: "lg", nowrap: true, cell: (c) => (c.listedAt && !isSold(c) ? daysIn(c.listedAt) : <span className="text-text-2">-</span>) },
     { key: "km", header: "Mileage", align: "right", hide: "md", nowrap: true, cell: (c) => (c.mileageKm !== undefined ? `${fmtNum(c.mileageKm)} km` : "") },
-    { key: "photos", header: "Photos", align: "right", hide: "xl", cell: (c) => (c.photos.length < FEW_PHOTOS ? <span className="text-warn">{c.photos.length}</span> : c.photos.length) },
+    { key: "photos", header: "Photos", align: "right", hide: "2xl", cell: (c) => (c.photos.length < FEW_PHOTOS ? <span className="text-warn">{c.photos.length}</span> : c.photos.length) },
     // Only in the All view: the other views already say it.
     ...(view === "all" ? [{ key: "status", header: "Status", hide: "md" as const, cell: (c: Car) => (c.listing === "draft" ? <Badge tone="info">Draft</Badge> : c.listing ? <Badge tone="warn">Hidden</Badge> : isSold(c) ? <Badge tone="neutral">Sold</Badge> : c.reserved ? <Badge tone="info">Reserved</Badge> : <Badge tone="good">For sale</Badge>) }] : []),
     {
@@ -136,29 +137,29 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
           </div>
         ) : (
           <div className="relative z-10 flex justify-end gap-2">
-            <Link href={`/dashboard/stock/${c.id}`} className={rowButton} aria-label={`Edit ${carName(c)}`}>
-              <PencilIcon className="size-4" />
-              Edit
-            </Link>
+            {/* No Edit: the row itself opens the car. */}
+            {/* The main next step, then the rest behind More, so the row fits a laptop screen. */}
             {recordSale(c)}
-            {listingButton(c)}
-            {undoSale(c)}
-            {/* Back on sale only where no sale is recorded: undoing a recorded sale keeps its record (Undo sale). */}
-            {isSold(c) && !sales.has(c.id) && (
-              <ActButton act={toggleSoldAction.bind(null, c.id)} confirm={{ title: `Put ${carName(c)} back on sale?`, text: c.listing ? "It stays off the website until you show it." : "It goes back on the website for sale.", yes: "Put back on sale" }} className={rowButton}>
-                Back on sale
-              </ActButton>
-            )}
-            {(forSale(c) || c.reserved) && !isSold(c) && (
-              <Link href={`/dashboard/stock/${c.id}/reserve`} className={rowButton}>
-                {c.reserved ? "Deposit" : "Reserve"}
-              </Link>
-            )}
             {!isSold(c) && (
               <Link href={`/dashboard/stock/${c.id}/sale`} className={rowButton}>
                 Mark sold
               </Link>
             )}
+            <RowMenu label={`More for ${carName(c)}`}>
+              {listingButton(c)}
+              {(forSale(c) || c.reserved) && !isSold(c) && (
+                <Link href={`/dashboard/stock/${c.id}/reserve`} className={rowButton}>
+                  {c.reserved ? "Deposit" : "Reserve"}
+                </Link>
+              )}
+              {undoSale(c)}
+              {/* Back on sale only where no sale is recorded: undoing a recorded sale keeps its record (Undo sale). */}
+              {isSold(c) && !sales.has(c.id) && (
+                <ActButton act={toggleSoldAction.bind(null, c.id)} confirm={{ title: `Put ${carName(c)} back on sale?`, text: c.listing ? "It stays off the website until you show it." : "It goes back on the website for sale.", yes: "Put back on sale" }} className={rowButton}>
+                  Back on sale
+                </ActButton>
+              )}
+            </RowMenu>
           </div>
         ),
     },

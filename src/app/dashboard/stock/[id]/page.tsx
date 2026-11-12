@@ -13,6 +13,7 @@ import { adminCar } from "@/lib/admin/stock-admin";
 import { can } from "@/lib/permissions";
 import { carName, carHref } from "@/lib/stock/format";
 import { stockSource } from "@/lib/stock-source";
+import { forSale } from "@/lib/stock/types";
 import { deleteCarAction, saveCostAction } from "../actions";
 
 export const metadata = { title: "Edit car" };
@@ -43,10 +44,23 @@ export default async function Page({ params, searchParams }: { params: Promise<{
       </ul>
     </Panel>
   );
-  if ((await stockSource()) === "donedeal") {
+  // The sale's next steps, in the header so a phone has them too (the stock list's row buttons are a desktop table's).
+  const synced = (await stockSource()) === "donedeal";
+  const sold = Boolean(car.soldAt);
+  const sale = sales.find((s) => s.id === id);
+  const steps = (
+    <>
+      {view}
+      {sold && !sale && <Link href={`/dashboard/stock/${id}/sale`} className={adminButton}>Record sale</Link>}
+      {sold && sale && canDelete && <Link href={`/dashboard/stock/${id}/undo-sale`} className={adminButtonQuiet}>Undo sale</Link>}
+      {!synced && !sold && (held || forSale(car)) && <Link href={`/dashboard/stock/${id}/reserve`} className={adminButtonQuiet}>{held ? "Deposit" : "Reserve"}</Link>}
+      {!synced && !sold && <Link href={`/dashboard/stock/${id}/sale`} className={adminButton}>Mark sold</Link>}
+    </>
+  );
+  if (synced) {
     return (
       <>
-        <PageHeader title={carName(car)} actions={view} />
+        <PageHeader title={carName(car)} actions={steps} />
         <SyncedNotice car={car} />
         {/* DoneDeal has the car; the cost is the dealer's own, so it is still entered here. */}
         {cost && (
@@ -67,7 +81,7 @@ export default async function Page({ params, searchParams }: { params: Promise<{
   }
   return (
     <>
-      <PageHeader title={carName(car)} actions={view} />
+      <PageHeader title={carName(car)} actions={steps} />
       <CarForm car={car} cost={cost} />
       {prep}
       {history}

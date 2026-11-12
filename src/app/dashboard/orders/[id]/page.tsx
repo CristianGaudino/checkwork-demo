@@ -66,6 +66,12 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
               <button type="submit" className={`${adminButton} self-start`}>Add note</button>
             </form>
           </Panel>
+          {/* At the end, out of the way: it cannot be taken back. Owners and managers only; the server refuses anyone else. */}
+          {open && canCancel && (
+            <Panel title="Cancel the order">
+              <CancelOrderForm id={o.id} depositEur={o.depositEur} />
+            </Panel>
+          )}
         </div>
         <div className="flex min-w-0 flex-col gap-6 max-lg:order-first">
           <Panel title="Where it is" action={<OrderBadge status={o.status} />}>
@@ -90,11 +96,6 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             )}
             {o.carId && !open && <Link href={`/dashboard/stock/${o.carId}`} className="w-fit text-meta underline">The car</Link>}
           </Panel>
-          {open && canCancel && (
-            <Panel title="Cancel the order">
-              <CancelOrderForm id={o.id} depositEur={o.depositEur} />
-            </Panel>
-          )}
         </div>
       </div>
     </>

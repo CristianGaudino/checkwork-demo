@@ -89,7 +89,7 @@ export function EmptyState({ title, text, action }: { title: string; text?: stri
 }
 
 // `hide` keeps a less important column off narrow screens: it shows from that width up. `nowrap` keeps short values (a name, a date) on one line.
-const HIDE = { sm: "hidden sm:table-cell", md: "hidden md:table-cell", lg: "hidden lg:table-cell", xl: "hidden xl:table-cell" } as const;
+const HIDE = { sm: "hidden sm:table-cell", md: "hidden md:table-cell", lg: "hidden lg:table-cell", xl: "hidden xl:table-cell", "2xl": "hidden 2xl:table-cell" } as const;
 export type Column<T> = { key: string; header: string; cell: (row: T) => React.ReactNode; align?: "right"; className?: string; hide?: keyof typeof HIDE; nowrap?: boolean };
 const colClass = (c: Column<unknown>) => `${c.hide ? HIDE[c.hide] : ""} ${c.nowrap ? "whitespace-nowrap" : ""}`;
 
@@ -137,7 +137,7 @@ export function DataTable<T>({ columns, rows, rowKey, empty, bare = false, linkR
 export type SummaryTab = { label: string; href: string; active: boolean; count?: number | string; hint?: string };
 export function SummaryTabs({ items, label = "Filter" }: { items: SummaryTab[]; label?: string }) {
   return (
-    <nav aria-label={label} className="scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-[repeat(auto-fit,minmax(9rem,1fr))] sm:overflow-visible sm:px-0">
+    <nav aria-label={label} className="scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-[repeat(auto-fit,minmax(8rem,1fr))] sm:overflow-visible sm:px-0">
       {items.map((i) => (
         <Link
           key={i.label}
