@@ -61,7 +61,7 @@ export default async function Page() {
         <StatCard href="/dashboard/reviews" label="Review rating" value={o.reviewCount ? o.averageRating.toFixed(1) : "None"} hint={`${o.reviewCount} reviews`} />
       </StatGrid>
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <Panel title="Latest leads" action={<Link href="/dashboard/leads" className="inline-flex min-h-11 items-center text-meta font-medium text-accent-text underline">All leads</Link>}>
           {o.recentLeads.length === 0 ? (
             <EmptyState title="No leads yet" />

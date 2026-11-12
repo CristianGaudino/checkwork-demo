@@ -2,20 +2,20 @@ import { expect, test } from "@playwright/test";
 
 // The activity history: owners and managers only (the demo bar's role, a cookie), every change, newest first.
 const as = (context: import("@playwright/test").BrowserContext, role: string) => context.addCookies([{ name: "checkwork-demo-role", value: role, url: "http://localhost:3000" }]);
-const menu = (page: import("@playwright/test").Page) => page.getByRole("navigation", { name: "Dealer dashboard" });
+import { sideLink } from "./admin-menu";
 
 test("sales and finance have no Activity page; owners and managers do", async ({ page, context }) => {
   await page.setViewportSize({ width: 1280, height: 900 }); // the sidebar; the phone tab bar has its own test (admin-shell)
   for (const role of ["Sales", "Finance"]) {
     await as(context, role);
     await page.goto("/dashboard");
-    await expect(menu(page).getByRole("link", { name: "Activity" })).toHaveCount(0);
+    await expect(await sideLink(page, "Activity")).toHaveCount(0);
     expect((await page.request.get("/dashboard/activity")).status()).toBe(404);
   }
   for (const role of ["Manager", "Owner"]) {
     await as(context, role);
     await page.goto("/dashboard");
-    await menu(page).getByRole("link", { name: "Activity" }).click();
+    await (await sideLink(page, "Activity")).click();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Activity");
     expect(await page.getByRole("table").getByRole("row").count()).toBeGreaterThan(10); // the demo's history, not empty
   }

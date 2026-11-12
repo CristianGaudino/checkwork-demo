@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
+import { sideLink } from "./admin-menu";
 import { choose } from "./combo";
 import { openDay } from "./days";
 
@@ -10,7 +11,7 @@ test("sales and finance have no data requests and no lead or customer exports; t
   for (const role of ["Sales", "Finance"]) {
     await as(context, role);
     await page.goto("/dashboard");
-    await expect(page.getByRole("navigation", { name: "Dealer dashboard" }).getByRole("link", { name: "Data requests" })).toHaveCount(0);
+    await expect(await sideLink(page, "Data requests")).toHaveCount(0);
     expect((await page.request.get("/dashboard/data-requests")).status()).toBe(404);
     expect((await page.request.get("/dashboard/leads/export")).status()).toBe(404);
     expect((await page.request.get("/dashboard/customers/export")).status()).toBe(404);

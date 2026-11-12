@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { sideLink } from "./admin-menu";
 
 // Margins and cost prices are behind a permission that comes with the role. In this run the demo bar is on, so its role (a cookie) is
 // what grants it: the owner by default, sales has none.
@@ -7,7 +8,7 @@ const as = (context: import("@playwright/test").BrowserContext, role: string) =>
 test("without the permission there is no Margins screen, no margin column or stat, and no cost box", async ({ page, context }) => {
   await as(context, "Sales");
   await page.goto("/dashboard");
-  await expect(page.getByRole("navigation", { name: "Dealer dashboard" }).getByRole("link", { name: "Margins" })).toHaveCount(0);
+  await expect(await sideLink(page, "Margins")).toHaveCount(0);
   await expect(page.getByText("Stock margin")).toHaveCount(0);
   expect((await page.request.get("/dashboard/margins")).status()).toBe(404);
   await page.goto("/dashboard/stock");
@@ -21,7 +22,7 @@ test("with the permission the Margins screen, the column, the stat and the cost 
   await as(context, "Finance");
   await page.goto("/dashboard");
   await expect(page.getByText("Stock margin")).toBeVisible();
-  await page.getByRole("navigation", { name: "Dealer dashboard" }).getByRole("link", { name: "Margins", exact: true }).click();
+  await (await sideLink(page, "Margins")).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Margins");
   await expect(page.getByRole("row").nth(1)).toContainText("€");
   await page.goto("/dashboard/stock");

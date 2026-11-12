@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { DEALER_NAV } from "../src/lib/admin/nav";
+import { sideLink, sideMenu } from "./admin-menu";
 
 // The dealer area: its own frame, every nav link alive, no public header or footer, nothing wider than a phone. A dealer without a
 // permission does not get the entries that need one (see admin-margins.spec.ts for those).
@@ -10,13 +11,33 @@ test("dealer admin: every nav link opens a page with one h1, and the public head
   await page.goto(nav[0].href);
   await expect(page.getByRole("banner")).toHaveCount(0);
   await expect(page.getByRole("contentinfo")).toHaveCount(0);
-  const side = page.getByRole("navigation", { name: "Dealer dashboard" });
   for (const item of nav) {
-    await side.getByRole("link", { name: item.label, exact: true }).click();
+    await (await sideLink(page, item.label)).click();
     await expect(page).toHaveURL(new RegExp(`${item.href}$`));
     await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
-    await expect(side.getByRole("link", { name: item.label, exact: true })).toHaveAttribute("aria-current", "page");
+    await expect(sideMenu(page).getByRole("link", { name: item.label, exact: true })).toHaveAttribute("aria-current", "page");
   }
+});
+
+test("the sidebar stays in place while the page scrolls, and its groups fold, remembered across pages", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto("/dashboard/settings");
+  const side = sideMenu(page);
+  // The page you are on opens its group; Sales starts open.
+  await expect(side.getByRole("button", { name: "Dealership", exact: true })).toHaveAttribute("aria-expanded", "true");
+  await expect(side.getByRole("button", { name: "Sales", exact: true })).toHaveAttribute("aria-expanded", "true");
+  await expect(side.getByRole("button", { name: "Growth", exact: true })).toHaveAttribute("aria-expanded", "false");
+  await expect(side.getByRole("link", { name: "Marketing", exact: true })).toBeHidden(); // shut: out of reach, not only out of sight
+  // Fold Sales, and it stays folded on the next page, drawn that way by the server.
+  await side.getByRole("button", { name: "Sales", exact: true }).click();
+  await expect(side.getByRole("link", { name: "Leads", exact: true })).toBeHidden();
+  await page.goto("/dashboard/reviews");
+  await expect(side.getByRole("button", { name: "Sales", exact: true })).toHaveAttribute("aria-expanded", "false");
+  // Scrolled to the foot of a long page, the menu has not moved.
+  const top = (await side.boundingBox())!.y;
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+  expect((await side.boundingBox())!.y).toBeCloseTo(top, 0); // to the pixel: the emulated phone rounds a quarter pixel
 });
 
 test("on a phone the dashboard has a tab bar: four places and More, which opens the rest; each marks the page you are on", async ({ page }) => {
