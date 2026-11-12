@@ -5,7 +5,9 @@ import { z } from "zod";
 import { logActivity } from "@/lib/admin/activity";
 import { addDays, dublinDay, fmtDate } from "@/lib/admin/format";
 import { isOpenLead } from "@/lib/admin/leads";
-import { LEAD_STATUSES, LEAD_STATUS_LABELS, LOST_REASONS, getSettings, leadsStore } from "@/lib/admin/collections";
+import { LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_TYPE_LABELS, LOST_REASONS, getSettings, leadsStore } from "@/lib/admin/collections";
+import { notify } from "@/lib/admin/notifications";
+import { currentMember } from "@/lib/permissions";
 
 const ref = (id: string) => ({ kind: "lead" as const, id });
 
@@ -45,6 +47,9 @@ export async function assignLeadAction(id: string, data: FormData) {
   if (to === lead.assignedTo) return;
   await leadsStore.put({ ...lead, assignedTo: to });
   await logActivity("leads", to ? `Gave the lead to ${to}` : `Took the lead off ${lead.assignedTo}`, ref(id));
+  // The person it was given to hears of it in their bell, unless they took it themselves.
+  const me = await currentMember();
+  if (to && to !== me.name) await notify({ kind: "assigned", for: to, text: `${me.name} gave you a lead: ${LEAD_TYPE_LABELS[lead.type]}`, href: `/dashboard/leads/${id}` });
   revalidatePath("/dashboard/leads");
   revalidatePath(`/dashboard/leads/${id}`);
 }

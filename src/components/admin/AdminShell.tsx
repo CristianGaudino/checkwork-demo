@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AdminNav } from "@/components/admin/AdminNav";
+import { NotificationBell } from "@/components/admin/NotificationBell";
 import type { NavItem } from "@/lib/admin/nav";
 
 // The frame of the dealer area (docs/mobile-navigation.md). From 1024px: the whole width of the screen, a sidebar held in place down the
@@ -9,9 +10,12 @@ export function AdminShell({ title, subtitle, nav, navLabel, openGroups, childre
   return (
     <div className="flex-1 lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]">
       <aside className="flex min-w-0 flex-col px-4 pt-4 sm:px-6 lg:sticky lg:top-0 lg:h-[calc(100dvh-var(--demo-bar-h,0px))] lg:self-start lg:border-r lg:border-hairline lg:px-0 lg:pt-0">
-        <div className="flex items-baseline justify-between gap-3 lg:flex-col lg:items-start lg:gap-0 lg:px-6 lg:pb-4 lg:pt-7">
-          <p className="text-body font-semibold lg:text-heading">{title}</p>
-          <p className="text-meta text-text-2">{subtitle}</p>
+        <div className="flex items-center justify-between gap-3 lg:px-6 lg:pb-4 lg:pt-6">
+          <div className="flex min-w-0 items-baseline gap-3 lg:flex-col lg:gap-0">
+            <p className="text-body font-semibold lg:text-heading">{title}</p>
+            <p className="text-meta text-text-2">{subtitle}</p>
+          </div>
+          <NotificationBell />
         </div>
         <AdminNav items={nav} label={navLabel} openGroups={openGroups} />
         <Link href="/" className="mx-3 hidden min-h-12 items-center border-t border-hairline px-3 text-meta text-text-2 underline lg:flex">

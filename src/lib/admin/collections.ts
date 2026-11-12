@@ -135,6 +135,8 @@ function seedLeadsWithEdges(): Lead[] {
   return [...seedLeads(), ...EDGE_LEADS(now), ...STORY_LEADS(now)];
 }
 export const leadsStore = defineCollection<Lead>("leads", seedLeadsWithEdges);
+// The seeded leads, for the notifications' own seed (notifications.ts), so the bell tells of the same requests.
+export const demoLeads = seedLeadsWithEdges;
 
 // ---- Test drives ----
 export const DRIVE_STATUSES = ["requested", "confirmed", "completed", "no-show", "cancelled"] as const;
