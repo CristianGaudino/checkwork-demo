@@ -32,13 +32,22 @@ export function LiveSearch({ name = "q", placeholder, label }: { name?: string; 
   const sp = useSearchParams();
   const router = useRouter();
   const hrefWith = useParamHref();
-  const [value, setValue] = useState(sp.get(name) ?? "");
+  const inUrl = sp.get(name) ?? "";
+  const [value, setValue] = useState(inUrl);
+  // What this box last sent. When the address says something else (a menu link, another tab, Back), the box takes it, set while rendering
+  // so it is never shown stale; what it sent itself is left alone, so a word typed while the list loads is not lost.
+  const [sent, setSent] = useState(inUrl);
+  if (inUrl !== sent) {
+    setSent(inUrl);
+    setValue(inUrl);
+  }
   const [pending, start] = useTransition();
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const input = useRef<HTMLInputElement>(null);
   useEffect(() => () => clearTimeout(timer.current), []);
   const run = (v: string) => {
     clearTimeout(timer.current);
+    setSent(v.trim());
     start(() => router.replace(hrefWith({ [name]: v.trim() || undefined }), { scroll: false }));
   };
   return (

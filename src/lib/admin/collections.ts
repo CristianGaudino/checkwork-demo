@@ -192,10 +192,13 @@ function seedDiary(): TestDrive[] {
   const forSale = (demoCars as Car[]).filter((c) => !c.soldAt && !c.reserved);
   return ([[0, 12, 30, "confirmed"], [0, 15, 0, "confirmed"], [0, 17, 0, "requested"], [1, 10, 0, "requested"], [1, 16, 30, "confirmed"]] as const).map(([day, h, m, status], i) => {
     const car = r.pick(forSale);
-    return { id: `drive-${230 + i}`, ...person(r), carSlug: car.slug, carTitle: carTitleOf(car), startsAt: irishAt(now + day * DAY, h, m), status, notes: i === 1 ? "Bringing a partner." : "", createdAt: now - (i + 1) * DAY };
+    // Booked in the last day: today's and tomorrow's diary was mostly filled lately.
+    return { id: `drive-${230 + i}`, ...person(r), carSlug: car.slug, carTitle: carTitleOf(car), startsAt: irishAt(now + day * DAY, h, m), status, notes: i === 1 ? "Bringing a partner." : "", createdAt: now - (i + 1) * 5 * HOUR };
   });
 }
-export const drivesStore = defineCollection<TestDrive>("test-drives", () => [...seedDrives(), ...seedDiary()]);
+// The seeded bookings, for the notifications' own seed (notifications.ts), so the bell tells of the same requests.
+export const demoDrives = () => [...seedDrives(), ...seedDiary()];
+export const drivesStore = defineCollection<TestDrive>("test-drives", demoDrives);
 
 // ---- Customers, stock alerts, newsletter ----
 export type Customer = { id: string; name: string; email: string; phone: string; source: string; marketingConsent: boolean; createdAt: number; lastContactAt: number };

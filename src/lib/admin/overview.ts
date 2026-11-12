@@ -23,10 +23,6 @@ export function overview(input: { leads: Lead[]; drives: TestDrive[]; reviews: A
   const now = input.now ?? Date.now();
   const slaHours = input.slaHours ?? 24;
   const { leads, drives, reviews } = input;
-  const week = leads.filter((l) => l.createdAt >= now - 7 * DAY);
-  const prevWeek = leads.filter((l) => l.createdAt >= now - 14 * DAY && l.createdAt < now - 7 * DAY);
-  const decided = leads.filter((l) => l.status === "won" || l.status === "lost");
-  const won = leads.filter((l) => l.status === "won");
   const upcoming = drives.filter((d) => d.startsAt >= now && d.startsAt < now + 7 * DAY && (d.status === "requested" || d.status === "confirmed")).sort((a, b) => a.startsAt - b.startsAt);
   const rated = reviews.filter((r) => r.rating > 0);
   const cars = input.cars ?? [];
@@ -62,10 +58,7 @@ export function overview(input: { leads: Lead[]; drives: TestDrive[]; reviews: A
     usualWeek: before[Math.floor(before.length / 2)],
     lateLeads: leads.filter((l) => pastReplyTarget(l, now, slaHours)).length,
     oldStock: cars.filter((c) => isOldStock(c, now)).length,
-    leadsThisWeek: week.length,
-    leadsChange: week.length - prevWeek.length,
     newLeads: leads.filter((l) => l.status === "new").length,
-    winRate: decided.length ? (won.length / decided.length) * 100 : 0,
     upcomingDrives: upcoming,
     averageRating: rated.length ? rated.reduce((s, r) => s + r.rating, 0) / rated.length : 0,
     reviewCount: rated.length,

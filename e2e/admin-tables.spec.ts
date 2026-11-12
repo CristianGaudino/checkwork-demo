@@ -13,6 +13,12 @@ test("the search runs as you type, the cross clears it, and a header sorts the w
   await page.getByRole("button", { name: "Clear the search" }).click();
   await expect(page).not.toHaveURL(/q=/);
   await expect(search).toHaveValue("");
+  // Left by another way (the menu): the box says what the list shows, never a search that is not applied.
+  await search.fill("ciaran");
+  await expect(page).toHaveURL(/q=ciaran/);
+  await page.getByRole("navigation", { name: "Dealer dashboard" }).getByRole("link", { name: "Leads", exact: true }).click();
+  await expect(page).not.toHaveURL(/q=/);
+  await expect(search).toHaveValue("");
   // Sorted by name: A first one way, Z first the other, and the header says which.
   await page.getByRole("link", { name: /^Who/ }).click();
   await expect(page).toHaveURL(/sort=who&dir=asc/);

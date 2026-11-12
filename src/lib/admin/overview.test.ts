@@ -18,14 +18,9 @@ describe("overview", () => {
     const busy = overview({ leads: [...at(0, 1), ...at(1, 3), ...at(2, 2), ...at(3, 2), ...at(4, 2), ...at(5, 2), ...at(6, 2)], drives: [], reviews: [], now });
     expect(busy.usualWeek).toBe(2);
   });
-  it("counts this week against the week before", () => {
+  it("counts this week's leads as the last week, and last week's before it", () => {
     const o = overview({ leads: [lead("a", 1 * DAY), lead("b", 6 * DAY), lead("c", 9 * DAY)], drives: [], reviews: [], now });
-    expect(o.leadsThisWeek).toBe(2);
-    expect(o.leadsChange).toBe(1);
-  });
-  it("works the win rate on decided leads only, and is 0 with none decided", () => {
-    expect(overview({ leads: [lead("a", DAY, "won"), lead("b", DAY, "lost"), lead("c", DAY, "new")], drives: [], reviews: [], now }).winRate).toBe(50);
-    expect(overview({ leads: [lead("a", DAY)], drives: [], reviews: [], now }).winRate).toBe(0);
+    expect(o.weeks.slice(-2)).toEqual([1, 2]);
   });
   it("lists drives in the next 7 days in date order, ignoring past, far-off and closed ones", () => {
     const o = overview({ leads: [], drives: [drive("late", 5 * DAY, "confirmed"), drive("soon", DAY, "requested"), drive("past", -DAY, "confirmed"), drive("far", 9 * DAY, "confirmed"), drive("done", DAY, "cancelled")], reviews: [], now });
