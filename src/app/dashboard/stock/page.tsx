@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CarStatusBadge } from "@/components/admin/badges";
-import { DataTable, EmptyState, PageHeader, Panel, SummaryTabs, TableFooter, TableToolbar, adminButton, pageOf, rowButton, sortRows, type Column, type FilterGroup } from "@/components/admin/kit";
+import { DataTable, EmptyState, Notice, PageHeader, Panel, SummaryTabs, TableFooter, TableToolbar, adminButton, pageOf, rowButton, sortRows, type Column, type FilterGroup } from "@/components/admin/kit";
 import { ActButton } from "@/components/admin/ActButton";
 import { RowMenu } from "@/components/admin/RowMenu";
 import { ExternalIcon, PlusIcon, SyncIcon } from "@/components/stock/icons";
@@ -9,7 +9,7 @@ import { carCosts } from "@/lib/admin/costs";
 import { marginOf } from "@/lib/admin/margins";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { can } from "@/lib/permissions";
-import { fmtDate, fmtEur, fmtNum } from "@/lib/admin/format";
+import { daysSince, fmtDate, fmtEur, fmtNum } from "@/lib/admin/format";
 import { carName, carHref } from "@/lib/stock/format";
 import { FUEL_LABELS, FUELS, GEARBOXES, GEARBOX_LABELS, forSale, isSold, type Car } from "@/lib/stock/types";
 import { stockSource } from "@/lib/stock-source";
@@ -27,7 +27,6 @@ import { setListingAction, toggleSoldAction, withdrawnAction } from "./actions";
 export const metadata = { title: "Stock" };
 
 // Whole days since a YYYY-MM-DD listing date, and the same in words: "Today", "1 day", "23 days".
-const daysSince = (listedAt: string, now = Date.now()) => Math.max(0, Math.floor((now - Date.parse(`${listedAt}T00:00:00Z`)) / 86_400_000));
 const daysIn = (listedAt: string) => {
   const d = daysSince(listedAt);
   return d === 0 ? "Today" : d === 1 ? "1 day" : `${d} days`;
@@ -227,9 +226,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         }
       />
       {sync && <SyncPanel status={sync} canForce={await can("settings")} />}
-      {saved && <p role="status" className="rounded-control bg-ok-soft px-4 py-3 text-body text-ok">Saved {carName(saved)}.</p>}
+      {saved && <Notice>Saved {carName(saved)}.</Notice>}
       {saleFor && (
-        <p role="status" className="rounded-control bg-ok-soft px-4 py-3 text-body text-ok">
+        <Notice>
           Sale recorded for {carName(saleFor)}.
           {/* The car taken in part exchange is the next car in stock: start it from its registration. Our version only. */}
           {!synced && tradeIn && (
@@ -238,11 +237,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
               <Link href={`/dashboard/stock/new?reg=${encodeURIComponent(tradeIn.reg)}`} className="font-semibold underline">Add the trade-in, {tradeIn.reg}, to stock</Link>
             </>
           )}
-        </p>
+        </Notice>
       )}
-      {sp.deleted && <p role="status" className="rounded-control bg-hairline px-4 py-3 text-body">Car deleted.</p>}
-      {reservedNow && <p role="status" className="rounded-control bg-ok-soft px-4 py-3 text-body text-ok">Deposit taken. {carName(reservedNow)} shows as Reserved on the website.</p>}
-      {undoneNow && <p role="status" className="rounded-control bg-hairline px-4 py-3 text-body">Sale undone for {carName(undoneNow)}. The record is kept.</p>}
+      {sp.deleted && <Notice tone="neutral">Car deleted.</Notice>}
+      {reservedNow && <Notice>Deposit taken. {carName(reservedNow)} shows as Reserved on the website.</Notice>}
+      {undoneNow && <Notice tone="neutral">Sale undone for {carName(undoneNow)}. The record is kept.</Notice>}
       {/* DoneDeal does not say why an ad came down, so the car is hidden until the dealer says. Above the table, so a phone has it too. */}
       {takenDown.length > 0 && (
         <Panel title="Ads taken down on DoneDeal">

@@ -261,6 +261,30 @@ export function Segmented({ items, label }: { items: { label: string; href: stri
   );
 }
 
+// A one-line result at the top of a page (saved, deleted, not connected). Only fixed text the page knows, never text from the URL.
+const NOTICE_TONES = { good: "bg-ok-soft text-ok", warn: "bg-warn-soft text-warn", neutral: "bg-hairline text-text" } as const;
+export function Notice({ tone = "good", children }: { tone?: keyof typeof NOTICE_TONES; children: React.ReactNode }) {
+  return (
+    <p role="status" className={`rounded-control px-4 py-3 text-body ${NOTICE_TONES[tone]}`}>
+      {children}
+    </p>
+  );
+}
+
+// A record's details as label and value pairs, two across from 640px: an order, a claim, a booking, a deposit.
+export function Facts({ items }: { items: (readonly [string, React.ReactNode, string?])[] }) {
+  return (
+    <dl className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
+      {items.map(([label, value, className = ""]) => (
+        <div key={label} className="flex flex-col">
+          <dt className="text-meta text-text-2">{label}</dt>
+          <dd className={`text-body ${className}`}>{value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 export const adminInput = "h-11 rounded-control border border-control bg-card px-3 text-body";
 export const adminButton = `inline-flex h-11 items-center justify-center gap-2 rounded-control bg-accent px-5 text-meta font-semibold text-on-accent ${press}`;
 export const adminButtonQuiet = `inline-flex h-11 items-center justify-center gap-2 rounded-control border border-control bg-card px-5 text-meta font-semibold ${press}`;

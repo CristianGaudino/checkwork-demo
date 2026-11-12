@@ -1,4 +1,5 @@
-import { PageHeader } from "@/components/admin/kit";
+import Link from "next/link";
+import { PageHeader, adminButtonQuiet } from "@/components/admin/kit";
 import { PostComposer } from "@/components/admin/PostComposer";
 import { carCards } from "@/lib/admin/car-cards";
 import { postsStore } from "@/lib/admin/collections";
@@ -20,7 +21,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ c
   const cards = carCards([...onSale.filter((c) => ideas.has(c.slug)), ...onSale.filter((c) => !ideas.has(c.slug))], ideas);
   return (
     <>
-      <PageHeader title="New post" text={isUsable("social") ? undefined : "Facebook and Instagram are not connected, so posts are kept as drafts."} />
+      <PageHeader title="New post" text={isUsable("social") ? undefined : "Facebook and Instagram are not connected, so posts are kept as drafts."} actions={<Link href="/dashboard/marketing" className={adminButtonQuiet}>Marketing</Link>} />
       <PostComposer cars={cards} initialSlug={sp.car ?? ""} action={composeAction} load={composerCarAction} />
     </>
   );

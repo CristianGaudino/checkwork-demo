@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ClaimStatusBadge, CoverBadge } from "@/components/admin/badges";
 import { ChoiceAct } from "@/components/admin/ActButton";
-import { Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
+import { Facts, Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
 import { ClaimCostForm } from "@/components/admin/ClaimForms";
 import { CLAIM_STATUSES, CLAIM_STATUS_LABELS, claimsStore, coverEnds, customersStore, salesStore } from "@/lib/admin/collections";
 import { TimeLeft } from "@/components/admin/charts";
@@ -31,19 +31,14 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         <div className="flex min-w-0 flex-col gap-6">
           <Panel title="The fault" action={<CoverBadge inCover={claim.inCover} />}>
             <p className="max-w-measure whitespace-pre-line text-body">{claim.fault}</p>
-            <dl className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
-              {[
+            <Facts
+              items={[
                 ["Customer", buyer ? <Link key="b" href={`/dashboard/customers/${buyer.id}`} className="underline">{buyer.name}</Link> : "Not on file"],
                 ["Sold", sale ? day(sale.soldOn) : "Not on file"],
                 ["Cover until", sale ? day(coverEnds(sale)) : "Not known"],
-                ...(claim.leadId ? [["From", <Link key="l" href={`/dashboard/aftersales/requests/${claim.leadId}`} className="underline">The website request</Link>]] : []),
-              ].map(([k, v]) => (
-                <div key={String(k)} className="flex flex-col">
-                  <dt className="text-meta text-text-2">{k}</dt>
-                  <dd className="text-body">{v}</dd>
-                </div>
-              ))}
-            </dl>
+                ...(claim.leadId ? [["From", <Link key="l" href={`/dashboard/aftersales/requests/${claim.leadId}`} className="underline">The website request</Link>] as const] : []),
+              ] as const}
+            />
           </Panel>
           <Panel title="Notes">
             {claim.notes.length === 0 ? (

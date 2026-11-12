@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PageHeader, Panel, adminButton, adminButtonQuiet } from "@/components/admin/kit";
+import { Facts, PageHeader, Panel, adminButton, adminButtonQuiet } from "@/components/admin/kit";
 import { EndReservationForm, ReserveForm } from "@/components/admin/DepositForms";
 import { customersStore, getSettings, heldFor, reservationsStore } from "@/lib/admin/collections";
 import { addMonths, dublinDay, fmtDate, fmtEur } from "@/lib/admin/format";
@@ -37,20 +37,15 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     <>
       <PageHeader title="Reserved" text={carName(car)} actions={back} />
       <Panel title="The deposit">
-        <dl className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
-          {[
+        <Facts
+          items={[
             ["Deposit", `${fmtEur(held.depositEur)}, ${held.method.toLowerCase()}`],
             ["Paid", fmtDate(`${held.paidOn}T12:00:00Z`)],
-            ["Held until", `${fmtDate(`${held.until}T12:00:00Z`)}${late ? ", now passed" : ""}`],
+            ["Held until", `${fmtDate(`${held.until}T12:00:00Z`)}${late ? ", now passed" : ""}`, late ? "text-warn" : ""],
             ["Buyer", buyer ? [buyer.name, buyer.phone].filter(Boolean).join(", ") : "Not on file"],
             ["Taken by", held.salesperson ?? "Not set"],
-          ].map(([k, v]) => (
-            <div key={k} className="flex flex-col">
-              <dt className="text-meta text-text-2">{k}</dt>
-              <dd className={`text-body ${k === "Held until" && late ? "text-warn" : ""}`}>{v}</dd>
-            </div>
-          ))}
-        </dl>
+          ] as const}
+        />
         <Link href={`/dashboard/stock/${car.id}/sale`} className={`${adminButton} w-fit`}>Mark sold</Link>
       </Panel>
       {/* Money going back, or kept: owners and managers only, and the server refuses anyone else. */}

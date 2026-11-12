@@ -7,6 +7,7 @@ import { loadNotices, readNotices } from "@/app/dashboard/notifications/actions"
 import { fmtAgo } from "@/lib/admin/format";
 import { BellIcon, CalendarIcon, CarIcon, CloseIcon, InboxIcon, SyncIcon, TruckIcon, UsersIcon, WrenchIcon } from "@/components/stock/icons";
 import { press } from "@/components/ui";
+import { placeSheet, sheetPanel } from "./sheet";
 
 type Data = Awaited<ReturnType<typeof loadNotices>>;
 const ICON = { lead: InboxIcon, drive: CalendarIcon, warranty: WrenchIcon, order: TruckIcon, "taken-down": CarIcon, sync: SyncIcon, assigned: UsersIcon } as const;
@@ -31,16 +32,7 @@ export function NotificationBell() {
     return () => clearInterval(t);
   }, [load, path]);
 
-  const place = () =>
-    requestAnimationFrame(() => {
-      const p = panel.current;
-      const b = button.current?.getBoundingClientRect();
-      if (!p || !b || !p.matches(":popover-open")) return;
-      const desk = window.matchMedia("(min-width: 640px)").matches;
-      p.style.top = desk ? `${b.bottom + 6}px` : "";
-      p.style.left = desk ? `${Math.max(8, Math.min(b.left, window.innerWidth - p.offsetWidth - 8))}px` : "";
-      load();
-    });
+  const place = () => placeSheet(panel.current, button.current, load);
   // Read as soon as it is opened from the list; the link then goes on to it.
   const read = (ids?: string[]) => {
     setData((d) => d && { unread: ids ? d.unread - d.items.filter((n) => n.unread && ids.includes(n.id)).length : 0, items: d.items.map((n) => (!ids || ids.includes(n.id) ? { ...n, unread: false } : n)) });
@@ -63,7 +55,7 @@ export function NotificationBell() {
         id={id}
         popover="auto"
         aria-label="Notifications"
-        className="fixed m-0 max-h-[85dvh] w-full flex-col overflow-hidden border border-hairline bg-card text-text shadow-lift backdrop:bg-scrim max-sm:inset-x-0 max-sm:bottom-0 max-sm:top-auto max-sm:rounded-t-card sm:inset-auto sm:w-[24rem] sm:rounded-card sm:backdrop:bg-transparent [&:popover-open]:flex"
+        className={`${sheetPanel} sm:w-[24rem]`}
       >
         <div className="flex items-center justify-between gap-3 border-b border-hairline px-4 py-3">
           <h2 className="text-body font-semibold">Notifications</h2>

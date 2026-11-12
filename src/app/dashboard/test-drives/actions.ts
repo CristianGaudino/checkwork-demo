@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { logActivity } from "@/lib/admin/activity";
 import { DRIVE_STATUS_LABELS, drivesStore, getSettings } from "@/lib/admin/collections";
-import { clashes, parseDriveStatus } from "@/lib/admin/drives";
+import { DRIVE_LIMITS, clashes, parseDriveStatus } from "@/lib/admin/drives";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { carName } from "@/lib/stock/format";
 import { HOUR, MINUTE } from "@/lib/time";
@@ -38,14 +38,14 @@ export async function assignDriveAction(id: string, name: string) {
 }
 
 const booking = z.object({
-  name: z.string().trim().min(1, NAME_REQUIRED).max(80),
-  phone: z.string().trim().min(6, "Enter a phone number").max(30),
+  name: z.string().trim().min(1, NAME_REQUIRED).max(DRIVE_LIMITS.name),
+  phone: z.string().trim().min(6, "Enter a phone number").max(DRIVE_LIMITS.phone),
   email: z.preprocess((v) => (v === "" ? undefined : v), z.string().trim().email(EMAIL_INVALID).max(LIMITS.email).optional()),
   carSlug: z.string().min(1, "Choose a car"),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Choose a day"),
   time: z.string().regex(/^\d{2}:\d{2}$/, "Choose a time"),
-  notes: z.string().trim().max(300).optional(),
-  assignedTo: z.string().max(80).optional(),
+  notes: z.string().trim().max(DRIVE_LIMITS.notes).optional(),
+  assignedTo: z.string().max(DRIVE_LIMITS.name).optional(),
 });
 
 // The rules for a booking's time, for a new one and a moved one (`ignoreId`: the booking being moved does not clash with itself).

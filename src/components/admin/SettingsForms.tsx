@@ -24,7 +24,7 @@ function Save({ pending, saved }: { pending: boolean; saved?: boolean }) {
         {pending ? "Saving" : "Save"}
       </button>
       {saved && !pending && (
-        <p role="status" className="text-meta text-better">
+        <p role="status" className="text-meta text-ok">
           Saved
         </p>
       )}
@@ -65,7 +65,7 @@ export function LeadEmailsForm({ settings, fallback }: { settings: DealerSetting
         <button type="submit" disabled={t.pending} className={adminButtonQuiet}>
           {t.pending ? "Sending" : "Send a test email"}
         </button>
-        {t.state?.saved && !t.pending && <p role="status" className="text-meta text-better">Sent</p>}
+        {t.state?.saved && !t.pending && <p role="status" className="text-meta text-ok">Sent</p>}
         {t.errors.test && !t.pending && <p role="alert" className="text-meta text-destructive">{t.errors.test}</p>}
       </form>
     </div>
@@ -163,7 +163,7 @@ export function RoleForm({ member, owner }: { member: TeamMember; owner: boolean
         </p>
       )}
       {f.state?.saved && !f.pending && (
-        <p role="status" className="text-meta text-better">
+        <p role="status" className="text-meta text-ok">
           Saved
         </p>
       )}

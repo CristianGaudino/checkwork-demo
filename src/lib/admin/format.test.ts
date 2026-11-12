@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addMonths, fmtAgo, fmtDateTime, fmtEur, fmtPct, plural } from "./format";
+import { addMonths, daysSince, fmtAgo, fmtDateTime, fmtDay, fmtEur, fmtPct, fmtTime, plural } from "./format";
 
 describe("admin format", () => {
   const now = new Date("2026-11-10T12:00:00Z").getTime();
@@ -36,5 +36,20 @@ describe("plural", () => {
     expect(plural(0, "review")).toBe("0 reviews");
     expect(plural(1284, "car")).toBe("1,284 cars");
     expect(plural(2, "sold car")).toBe("2 sold cars");
+  });
+  it("says a calendar day the same in any zone, and a time in Irish time", () => {
+    expect(fmtDay("2026-11-12")).toBe("Thursday, 12 November");
+    expect(fmtDay("2026-11-12", "weekday")).toBe("Thu");
+    expect(fmtDay("2026-11-12", "day")).toBe("12");
+    expect(fmtDay("2026-11-12", "month")).toBe("Nov");
+    expect(fmtDay("2026-11-12", "dayMonth")).toBe("12 November");
+    expect(fmtTime(Date.parse("2026-07-01T10:30:00Z"))).toBe("11:30"); // summer time
+    expect(fmtTime(Date.parse("2026-11-12T10:30:00Z"))).toBe("10:30");
+  });
+  it("counts whole days in stock, never below zero", () => {
+    const now = Date.parse("2026-11-10T12:00:00Z");
+    expect(daysSince("2026-11-01", now)).toBe(9);
+    expect(daysSince("2026-11-10", now)).toBe(0);
+    expect(daysSince("2026-12-01", now)).toBe(0);
   });
 });

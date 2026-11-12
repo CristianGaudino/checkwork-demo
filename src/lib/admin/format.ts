@@ -8,7 +8,22 @@ const dateTime = new Intl.DateTimeFormat("en-IE", { day: "numeric", month: "shor
 const num = new Intl.NumberFormat("en-IE");
 const eur = new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
 
+const time = new Intl.DateTimeFormat("en-IE", { hour: "2-digit", minute: "2-digit", timeZone });
+// A calendar day (YYYY-MM-DD) in words, read at noon UTC so no zone moves it to the day before: the diary's headings and day strips.
+const utc = (o: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat("en-IE", { ...o, timeZone: "UTC" });
+const DAY_STYLES = {
+  long: utc({ weekday: "long", day: "numeric", month: "long" }), // Thursday, 12 November
+  dayMonth: utc({ day: "numeric", month: "long" }), // 12 November
+  weekday: utc({ weekday: "short" }), // Thu
+  day: utc({ day: "numeric" }), // 12
+  month: utc({ month: "short" }), // Nov
+} as const;
+
 export const fmtDate = (t: number | string) => date.format(new Date(t));
+export const fmtTime = (t: number) => time.format(t);
+export const fmtDay = (iso: string, style: keyof typeof DAY_STYLES = "long") => DAY_STYLES[style].format(new Date(`${iso}T12:00:00Z`));
+// Whole days from a listed day (YYYY-MM-DD) to now, never below 0: how long a car has been in stock.
+export const daysSince = (day: string, now = Date.now()) => Math.max(0, Math.floor((now - Date.parse(`${day}T00:00:00Z`)) / 86_400_000));
 export const fmtDateTime = (t: number | string) => dateTime.format(new Date(t));
 export const fmtNum = (n: number) => num.format(n);
 // A count with its word, singular for one: "1 review", "12 reviews", "1,284 cars".

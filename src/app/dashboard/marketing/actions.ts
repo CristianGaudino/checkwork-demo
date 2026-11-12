@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { AD_PLATFORMS, POST_LIMITS } from "@/lib/admin/networks";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { NETWORKS, adsStore, getSettings, newslettersStore, postsStore, subscribersStore, type Ad, type SocialPost } from "@/lib/admin/collections";
@@ -29,13 +30,13 @@ const outcome = (tab: string, kind: string, r: SendResult, ok: string) => go(tab
 const compose = z.object({
   carSlug: z.string().min(1),
   network: z.enum(NETWORKS),
-  text: z.string().trim().min(1).max(1000),
+  text: z.string().trim().min(1).max(POST_LIMITS.text),
   intent: z.enum(["publish", "draft"]),
   timing: z.enum(["now", "later"]),
   when: z.string().optional(),
   ad: z.string().optional(),
-  platform: z.enum(["Meta", "Google"]).optional(),
-  budgetEur: z.coerce.number().int().min(20).max(5000).optional(),
+  platform: z.enum(AD_PLATFORMS).optional(),
+  budgetEur: z.coerce.number().int().min(POST_LIMITS.budgetMin).max(POST_LIMITS.budgetMax).optional(),
 });
 export async function composeAction(data: FormData) {
   const r = compose.safeParse(Object.fromEntries(data));
@@ -48,7 +49,7 @@ export async function composeAction(data: FormData) {
   const when = later ? dublinMs(day, time) : 0;
   if (later && (Number.isNaN(when) || when < Date.now())) return go("posts", "invalid-time");
   // Only photos of this car can go on its post.
-  const photos = data.getAll("photos").map(String).filter((src) => car.photos.some((p) => p.src === src)).slice(0, 4);
+  const photos = data.getAll("photos").map(String).filter((src) => car.photos.some((p) => p.src === src)).slice(0, POST_LIMITS.photos);
   const post: SocialPost = { id: newId("post"), network: d.network, carSlug: car.slug, carTitle: carName(car), text: d.text, ...(photos.length && { photos }), status: later ? "scheduled" : "draft", ...(later && { scheduledFor: when }), createdAt: Date.now() };
   await postsStore.put(post);
   const withAd = d.ad === "on" && !later && d.platform && d.budgetEur; // an ad starts with the post, so not for a scheduled one

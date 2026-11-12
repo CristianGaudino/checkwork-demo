@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { OrderBadge } from "@/components/admin/badges";
 import { ChoiceAct } from "@/components/admin/ActButton";
-import { Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
+import { Facts, Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
 import { CancelOrderForm } from "@/components/admin/OrderForms";
 import { ORDER_STATUS_LABELS, customersStore, orderOpen, ordersStore } from "@/lib/admin/collections";
 import { fmtDate, fmtDateTime, fmtEur } from "@/lib/admin/format";
@@ -30,21 +30,16 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="flex min-w-0 flex-col gap-6">
           <Panel title="The order">
-            <dl className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
-              {[
+            <Facts
+              items={[
                 ["Customer", buyer ? <Link key="b" href={`/dashboard/customers/${buyer.id}`} className="underline">{buyer.name}</Link> : "Not on file"],
                 ["Spec", [o.spec, o.colour].filter(Boolean).join(", ") || "Not given"],
                 ["Price", fmtEur(o.priceEur)],
                 ["Deposit", o.depositEur ? `${fmtEur(o.depositEur)}, ${o.depositMethod?.toLowerCase()}${o.refundEur ? `, ${fmtEur(o.refundEur)} refunded` : ""}` : "None"],
                 ["Due", monthLabel(o.expected)],
                 ["Taken by", o.salesperson ?? "Not set"],
-              ].map(([k, v]) => (
-                <div key={String(k)} className="flex flex-col">
-                  <dt className="text-meta text-text-2">{k}</dt>
-                  <dd className="text-body">{v}</dd>
-                </div>
-              ))}
-            </dl>
+              ] as const}
+            />
             {o.leadId && <Link href={`/dashboard/leads/${o.leadId}`} className="w-fit text-meta underline">The website request</Link>}
           </Panel>
           <Panel title="Notes">

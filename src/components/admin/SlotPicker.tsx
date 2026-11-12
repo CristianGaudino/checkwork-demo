@@ -4,13 +4,9 @@ import { useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/stock/icons";
 import { press } from "@/components/ui";
 import { driveTimes } from "@/lib/leads/constants";
+import { fmtDay } from "@/lib/admin/format";
 import { slotState } from "@/lib/admin/slots";
 
-const dow = new Intl.DateTimeFormat("en-IE", { weekday: "short", timeZone: "UTC" });
-const dom = new Intl.DateTimeFormat("en-IE", { day: "numeric", timeZone: "UTC" });
-const mon = new Intl.DateTimeFormat("en-IE", { month: "short", timeZone: "UTC" });
-const long = new Intl.DateTimeFormat("en-IE", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" });
-const at = (iso: string) => new Date(`${iso}T12:00:00Z`);
 
 // A test drive's day and time, picked rather than typed: a week of open days at a time, then that day's times. A time the car is already
 // out, or that has gone, cannot be picked. `days` are the open days the server accepts; `taken` the car's other open bookings; `now` the
@@ -44,13 +40,13 @@ export function SlotPicker({ days, taken, windowMin, now, date, time, onChange, 
                 key={d}
                 type="button"
                 aria-pressed={on}
-                aria-label={long.format(at(d))}
+                aria-label={fmtDay(d)}
                 onClick={() => onChange(d, "")}
                 className={`flex min-h-16 flex-col items-center justify-center rounded-control border text-meta ${on ? "border-accent bg-accent text-on-accent" : "border-hairline bg-card"} ${press}`}
               >
-                <span className={on ? "" : "text-text-2"}>{dow.format(at(d))}</span>
-                <span className="text-body font-semibold tabular-nums">{dom.format(at(d))}</span>
-                <span className={`text-[0.6875rem] ${on ? "" : "text-text-2"}`}>{mon.format(at(d))}</span>
+                <span className={on ? "" : "text-text-2"}>{fmtDay(d, "weekday")}</span>
+                <span className="text-body font-semibold tabular-nums">{fmtDay(d, "day")}</span>
+                <span className={`text-[0.6875rem] ${on ? "" : "text-text-2"}`}>{fmtDay(d, "month")}</span>
               </button>
             );
           })}
@@ -59,7 +55,7 @@ export function SlotPicker({ days, taken, windowMin, now, date, time, onChange, 
       </fieldset>
       {date && (
         <fieldset className="flex flex-col gap-2">
-          <legend className="mb-2 text-meta font-medium">Time on {long.format(at(date))}</legend>
+          <legend className="mb-2 text-meta font-medium">Time on {fmtDay(date)}</legend>
           {states.every(([, s]) => s !== "open") ? (
             <p className="text-body text-text-2">No time left that day. Pick another day.</p>
           ) : (

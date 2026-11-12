@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Field, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
 import { CarPicker } from "@/components/admin/CarPicker";
 import { Select } from "@/components/Select";
-import { Stepper } from "@/components/leads/Stepper";
+import { Stepper, useStepHeading } from "@/components/leads/Stepper";
 import { CheckIcon } from "@/components/stock/icons";
 import type { CarCard } from "@/lib/admin/car-cards";
-import { NETWORKS, type Network } from "@/lib/admin/networks";
+import { AD_PLATFORMS, NETWORKS, POST_LIMITS, type Network } from "@/lib/admin/networks";
 import { press } from "@/components/ui";
 
 // The page sends the cars as small cards (CarPicker); the chosen car's photos and suggested text are asked for when it is chosen (`load`), so the page
@@ -49,13 +49,7 @@ export function PostComposer({ cars, initialSlug, action, load }: { cars: CarCar
   const first = car?.photos.find((p) => p.src === photos[0]);
   const picked = cars.find((c) => c.slug === slug);
 
-  // The heading of the new step takes focus, so a screen reader hears where it is.
-  const heading = useRef<HTMLHeadingElement>(null);
-  const moved = useRef(false);
-  useEffect(() => {
-    if (moved.current) heading.current?.focus();
-    moved.current = true;
-  }, [step]);
+  const heading = useStepHeading(step);
 
   const canNext = step === 0 ? Boolean(slug) : step === 2 ? Boolean(car && text.trim()) : true;
 
@@ -97,7 +91,7 @@ export function PostComposer({ cars, initialSlug, action, load }: { cars: CarCar
 
         <section hidden={step !== 2} className="flex flex-col gap-4">
           <Field label="Text">
-            <textarea name="text" rows={7} maxLength={1000} required value={text} placeholder={car ? undefined : "Loading the suggested text"} onChange={(e) => setTyped(e.target.value)} className={`${adminInput} h-auto py-2`} />
+            <textarea name="text" rows={7} maxLength={POST_LIMITS.text} required value={text} placeholder={car ? undefined : "Loading the suggested text"} onChange={(e) => setTyped(e.target.value)} className={`${adminInput} h-auto py-2`} />
           </Field>
           {typed !== null && typed !== suggestion && suggestion && (
             <button type="button" onClick={() => setTyped(null)} className="-mt-3 min-h-11 self-start text-meta font-medium text-accent-text underline">
@@ -106,7 +100,7 @@ export function PostComposer({ cars, initialSlug, action, load }: { cars: CarCar
           )}
           {car && car.photos.length > 0 && (
             <fieldset className="flex flex-col gap-2">
-              <legend className="mb-2 text-meta font-medium">Photos, up to 4</legend>
+              <legend className="mb-2 text-meta font-medium">Photos, up to {POST_LIMITS.photos}</legend>
               <div className="flex gap-2 overflow-x-auto pb-1">
                 {car.photos.map((p) => {
                   const on = photos.includes(p.src);
@@ -116,7 +110,7 @@ export function PostComposer({ cars, initialSlug, action, load }: { cars: CarCar
                       type="button"
                       aria-pressed={on}
                       aria-label={on ? "Remove photo" : "Add photo"}
-                      onClick={() => setChosen(on ? photos.filter((x) => x !== p.src) : [...photos, p.src].slice(0, 4))}
+                      onClick={() => setChosen(on ? photos.filter((x) => x !== p.src) : [...photos, p.src].slice(0, POST_LIMITS.photos))}
                       className={`relative size-20 shrink-0 overflow-hidden rounded-control border-2 bg-photo-bg ${on ? "border-accent" : "border-transparent"} ${press}`}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element -- local static photo; images are unoptimized on this Worker */}
@@ -154,10 +148,10 @@ export function PostComposer({ cars, initialSlug, action, load }: { cars: CarCar
           {ad && !later && (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label="Ad platform">
-                <Select name="platform" label="Ad platform" defaultValue="Meta" options={[["Meta", "Meta"], ["Google", "Google"]]} />
+                <Select name="platform" label="Ad platform" defaultValue={AD_PLATFORMS[0]} options={AD_PLATFORMS.map((p) => [p, p] as const)} />
               </Field>
               <Field label="Budget (€)">
-                <input name="budgetEur" type="number" min={20} max={5000} defaultValue={100} className={adminInput} />
+                <input name="budgetEur" type="number" min={POST_LIMITS.budgetMin} max={POST_LIMITS.budgetMax} defaultValue={POST_LIMITS.budgetDefault} className={adminInput} />
               </Field>
             </div>
           )}

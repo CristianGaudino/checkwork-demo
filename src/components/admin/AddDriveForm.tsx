@@ -1,15 +1,16 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Select } from "@/components/Select";
-import { Stepper } from "@/components/leads/Stepper";
+import { Stepper, useStepHeading } from "@/components/leads/Stepper";
 import { showToast } from "@/components/toast";
 import { Field, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
 import { CarPicker } from "@/components/admin/CarPicker";
 import { SlotPicker } from "@/components/admin/SlotPicker";
 import { addDriveAction, moveDriveAction, type DriveFormState } from "@/app/dashboard/test-drives/actions";
 import type { CarCard } from "@/lib/admin/car-cards";
+import { DRIVE_LIMITS } from "@/lib/admin/drives";
 
 // What the slot picker is given (slotData on the server) and the length of a slot from Settings.
 export type Slots = { days: string[]; taken: Record<string, string[]>; now: string; windowMin: number };
@@ -40,12 +41,7 @@ export function BookDriveForm({ cars, team, me, slots, initialCar }: { cars: Car
   // The first open day is chosen to start with, so its times show at once.
   const [when, setWhen] = useState({ date: slots.days[0] ?? "", time: "" });
 
-  const heading = useRef<HTMLHeadingElement>(null);
-  const moved = useRef(false);
-  useEffect(() => {
-    if (moved.current) heading.current?.focus();
-    moved.current = true;
-  }, [step]);
+  const heading = useStepHeading(step);
 
   const picked = cars.find((c) => c.slug === car);
   return (
@@ -73,10 +69,10 @@ export function BookDriveForm({ cars, team, me, slots, initialCar }: { cars: Car
 
       <section hidden={step !== 2} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label="Name" error={e.name}>
-          <input name="name" className={adminInput} autoComplete="off" maxLength={80} />
+          <input name="name" className={adminInput} autoComplete="off" maxLength={DRIVE_LIMITS.name} />
         </Field>
         <Field label="Phone" error={e.phone}>
-          <input name="phone" type="tel" className={adminInput} autoComplete="off" maxLength={30} />
+          <input name="phone" type="tel" className={adminInput} autoComplete="off" maxLength={DRIVE_LIMITS.phone} />
         </Field>
         <Field label="Email (optional)" error={e.email}>
           <input name="email" type="email" className={adminInput} autoComplete="off" />
@@ -85,7 +81,7 @@ export function BookDriveForm({ cars, team, me, slots, initialCar }: { cars: Car
           <Select name="assignedTo" label="Who takes them out" defaultValue={team.includes(me) ? me : ""} options={[["", "Nobody yet"], ...team.map((t) => [t, t] as const)]} />
         </Field>
         <Field label="Notes (optional)" className="sm:col-span-2">
-          <input name="notes" maxLength={300} className={adminInput} />
+          <input name="notes" maxLength={DRIVE_LIMITS.notes} className={adminInput} />
         </Field>
       </section>
 

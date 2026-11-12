@@ -1,39 +1,22 @@
 import Link from "next/link";
 import { DriveStatusBadge } from "@/components/admin/badges";
-import { ActButton } from "@/components/admin/ActButton";
-import { Badge, DataTable, EmptyState, PageHeader, Panel, Segmented, TableFooter, TableToolbar, adminButton, choicePill, pageOf, rowButton, sortRows, type Column, type FilterGroup } from "@/components/admin/kit";
+import { DriveSteps } from "@/components/admin/DriveSteps";
+import { Badge, DataTable, EmptyState, PageHeader, Panel, Segmented, TableFooter, TableToolbar, adminButton, choicePill, pageOf, sortRows, type Column, type FilterGroup } from "@/components/admin/kit";
 import { CheckIcon, ChevronLeftIcon, ChevronRightIcon, PlusIcon } from "@/components/stock/icons";
 import { card } from "@/components/ui";
 import { DRIVE_STATUSES, DRIVE_STATUS_LABELS, drivesStore, getSettings, type DriveStatus, type TestDrive } from "@/lib/admin/collections";
-import { isOpenDrive } from "@/lib/admin/drives";
-import { addDays, dublinDay } from "@/lib/admin/format";
+import { filterDrives, isOpenDrive, waitingDrives } from "@/lib/admin/drives";
+import { addDays, dublinDay, fmtDate, fmtDay, fmtTime } from "@/lib/admin/format";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { driveTimes } from "@/lib/leads/constants";
-import { TIME_ZONE } from "@/lib/site";
 import { forSale } from "@/lib/stock/types";
 import { currentMember } from "@/lib/permissions";
-import { setDriveStatusAction } from "./actions";
 
 export const metadata = { title: "Test drives" };
 
-const time = new Intl.DateTimeFormat("en-IE", { hour: "2-digit", minute: "2-digit", timeZone: TIME_ZONE });
-const at = (iso: string) => new Date(`${iso}T12:00:00Z`);
-const longDay = new Intl.DateTimeFormat("en-IE", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" });
-const shortDay = new Intl.DateTimeFormat("en-IE", { weekday: "short", timeZone: "UTC" });
-const dayNum = new Intl.DateTimeFormat("en-IE", { day: "numeric", timeZone: "UTC" });
-const dayMonth = new Intl.DateTimeFormat("en-IE", { day: "numeric", month: "long", timeZone: "UTC" });
-const fullDate = new Intl.DateTimeFormat("en-IE", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: TIME_ZONE });
 // The Monday of a day's week.
-const mondayOf = (iso: string) => addDays(iso, -((at(iso).getUTCDay() + 6) % 7));
-// Whether a time is still to come. Out of the component, like the stock page's days in stock: a page rendered per request.
-const ahead = (t: number, now = Date.now()) => t >= now;
+const mondayOf = (iso: string) => addDays(iso, -((new Date(`${iso}T12:00:00Z`).getUTCDay() + 6) % 7));
 const isDay = (v?: string) => Boolean(v && /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(v)));
-
-// What the dealer can do next from each status. Anything else is not offered.
-const NEXT: Partial<Record<DriveStatus, [DriveStatus, string][]>> = {
-  requested: [["confirmed", "Confirm"], ["cancelled", "Cancel"]],
-  confirmed: [["completed", "Mark done"], ["no-show", "No show"], ["cancelled", "Cancel"]],
-};
 // A booking's colour in the week: its status's urgency, the same as its badge.
 const EDGE: Record<DriveStatus, string> = { requested: "border-l-warn", confirmed: "border-l-info", completed: "border-l-ok", "no-show": "border-l-bad", cancelled: "border-l-hairline opacity-60" };
 const VIEWS = ["today", "week", "list"] as const;
@@ -57,7 +40,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
     return `/dashboard/test-drives${q.size ? `?${q}` : ""}`;
   };
   const onDay = (iso: string) => drives.filter((d) => dublinDay(d.startsAt) === iso).sort((a, b) => a.startsAt - b.startsAt);
-  const waiting = drives.filter((d) => d.status === "requested" && ahead(d.startsAt)).sort((a, b) => a.startsAt - b.startsAt);
+  const waiting = waitingDrives(drives);
 
   return (
     <>
@@ -87,7 +70,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
 
       {view === "today" && (
         <>
-          <Panel title={`Today, ${longDay.format(at(today))}`} count={onDay(today).length}>
+          <Panel title={`Today, ${fmtDay(today)}`} count={onDay(today).length}>
             <Agenda drives={onDay(today)} gone={gone} empty={driveTimes(today).length ? "Nothing booked today." : "We're closed today."} />
           </Panel>
           {waiting.length > 0 && (
@@ -114,8 +97,8 @@ function Agenda({ drives, gone, empty = "Nothing booked.", withDay = false }: { 
       {drives.map((d) => (
         <li key={d.id} className="relative grid grid-cols-[3.5rem_minmax(0,1fr)] items-center gap-x-4 gap-y-2 px-5 py-3 even:bg-row-alt hover:bg-surface md:grid-cols-[3.5rem_minmax(0,1fr)_auto]">
           <span className="self-start font-medium tabular-nums md:self-center">
-            {time.format(d.startsAt)}
-            {withDay && <span className="block text-meta font-normal text-text-2">{shortDay.format(at(dublinDay(d.startsAt)))} {dayNum.format(at(dublinDay(d.startsAt)))}</span>}
+            {fmtTime(d.startsAt)}
+            {withDay && <span className="block text-meta font-normal text-text-2">{fmtDay(dublinDay(d.startsAt), "weekday")} {fmtDay(dublinDay(d.startsAt), "day")}</span>}
           </span>
           <span className="flex min-w-0 flex-col">
             <span className="flex flex-wrap items-center gap-2">
@@ -129,15 +112,7 @@ function Agenda({ drives, gone, empty = "Nothing booked.", withDay = false }: { 
               {d.carTitle} · {d.assignedTo ?? "Nobody yet"}
             </span>
           </span>
-          {(NEXT[d.status] ?? []).length > 0 && (
-            <span className="relative z-10 col-span-2 flex flex-wrap gap-2 md:col-span-1 md:col-start-3 md:justify-end">
-              {(NEXT[d.status] ?? []).map(([to, label]) => (
-                <ActButton key={to} act={setDriveStatusAction.bind(null, d.id, to)} undo={setDriveStatusAction.bind(null, d.id, d.status)} done={`${d.name}: ${DRIVE_STATUS_LABELS[to]}`} className={`${rowButton} ${to === "cancelled" ? "text-bad" : ""}`}>
-                  {label}
-                </ActButton>
-              ))}
-            </span>
-          )}
+          <DriveSteps drive={d} className="relative z-10 col-span-2 md:col-span-1 md:col-start-3 md:justify-end" />
         </li>
       ))}
     </ul>
@@ -149,7 +124,7 @@ function Week({ day, today, onDay, gone, link }: { day: string; today: string; o
   const monday = mondayOf(day);
   const days = Array.from({ length: 7 }, (_, i) => addDays(monday, i));
   const sunday = days[6];
-  const range = monday.slice(5, 7) === sunday.slice(5, 7) ? `${dayNum.format(at(monday))} to ${dayMonth.format(at(sunday))}` : `${dayMonth.format(at(monday))} to ${dayMonth.format(at(sunday))}`;
+  const range = monday.slice(5, 7) === sunday.slice(5, 7) ? `${fmtDay(monday, "day")} to ${fmtDay(sunday, "dayMonth")}` : `${fmtDay(monday, "dayMonth")} to ${fmtDay(sunday, "dayMonth")}`;
   const arrow = "inline-flex size-11 items-center justify-center rounded-control border border-hairline bg-card hover:border-control";
   return (
     <>
@@ -173,17 +148,17 @@ function Week({ day, today, onDay, gone, link }: { day: string; today: string; o
         <nav aria-label="Day" className="grid grid-cols-7 gap-1.5">
           {days.map((d) => {
             const n = onDay(d).filter((x) => x.status !== "cancelled").length;
-            const on = d === day || (day < monday && d === monday);
+            const on = d === day;
             return (
               <Link key={d} href={link({ day: d })} aria-current={on ? "date" : undefined} className={`flex min-h-16 flex-col items-center justify-center rounded-control border text-meta ${on ? "border-accent bg-accent text-on-accent" : `border-hairline bg-card ${d === today ? "text-accent-text" : ""}`}`}>
-                <span>{shortDay.format(at(d))}</span>
-                <span className="text-body font-semibold tabular-nums">{dayNum.format(at(d))}</span>
+                <span>{fmtDay(d, "weekday")}</span>
+                <span className="text-body font-semibold tabular-nums">{fmtDay(d, "day")}</span>
                 <span className={`text-[0.6875rem] tabular-nums ${on ? "" : "text-text-2"}`}>{n || ""}</span>
               </Link>
             );
           })}
         </nav>
-        <Panel title={longDay.format(at(day))}>
+        <Panel title={fmtDay(day)}>
           <Agenda drives={onDay(day)} gone={gone} empty={driveTimes(day).length ? "Nothing booked." : "Closed."} />
         </Panel>
       </div>
@@ -193,15 +168,15 @@ function Week({ day, today, onDay, gone, link }: { day: string; today: string; o
         {days.map((d) => {
           const list = onDay(d);
           return (
-            <section key={d} aria-label={longDay.format(at(d))} className={`${card} flex min-h-48 min-w-0 flex-col gap-1.5 p-2 ${d === today ? "ring-2 ring-inset ring-accent" : ""}`}>
+            <section key={d} aria-label={fmtDay(d)} className={`${card} flex min-h-48 min-w-0 flex-col gap-1.5 p-2 ${d === today ? "ring-2 ring-inset ring-accent" : ""}`}>
               <h3 className={`flex items-baseline gap-1.5 px-1 pb-1 text-meta ${d === today ? "font-semibold text-accent-text" : "text-text-2"}`}>
-                {shortDay.format(at(d))}
-                <span className="text-body font-semibold tabular-nums text-text">{dayNum.format(at(d))}</span>
+                {fmtDay(d, "weekday")}
+                <span className="text-body font-semibold tabular-nums text-text">{fmtDay(d, "day")}</span>
               </h3>
               {list.length === 0 && <p className="px-1 text-meta text-text-2">{driveTimes(d).length ? "" : "Closed"}</p>}
               {list.map((x) => (
                 <Link key={x.id} href={`/dashboard/test-drives/${x.id}`} className={`flex min-w-0 flex-col rounded-control border-l-4 bg-surface px-2 py-1.5 text-meta hover:bg-row-alt ${EDGE[x.status]}`}>
-                  <span className="font-semibold tabular-nums">{time.format(x.startsAt)}</span>
+                  <span className="font-semibold tabular-nums">{fmtTime(x.startsAt)}</span>
                   <span className={`truncate font-medium ${x.status === "cancelled" ? "line-through" : ""}`}>{x.name}</span>
                   <span className="truncate text-text-2">{x.carTitle}</span>
                   {isOpenDrive(x) && gone.has(x.carSlug) && <span className="text-warn">No longer for sale</span>}
@@ -212,7 +187,7 @@ function Week({ day, today, onDay, gone, link }: { day: string; today: string; o
         })}
       </div>
       <p className="hidden flex-wrap gap-x-4 gap-y-1 text-meta text-text-2 lg:flex">
-        {(["requested", "confirmed", "completed", "no-show", "cancelled"] as const).map((s) => (
+        {DRIVE_STATUSES.map((s) => (
           <span key={s} className="inline-flex items-center gap-1.5">
             <span aria-hidden className={`h-3 w-1 rounded-full border-l-4 ${EDGE[s]}`} />
             {DRIVE_STATUS_LABELS[s]}
@@ -225,16 +200,9 @@ function Week({ day, today, onDay, gone, link }: { day: string; today: string; o
 
 // Every booking as a table: searched by name, phone or car; filtered by status, who has it and whether it has happened; sorted; in pages.
 function List({ drives, sp, team }: { drives: TestDrive[]; sp: Params; team: string[] }) {
-  const q = (sp.q ?? "").trim().toLowerCase().slice(0, 60);
-  const rows = drives.filter(
-    (d) =>
-      (!q || [d.name, d.phone, d.email, d.carTitle].some((f) => f.toLowerCase().includes(q))) &&
-      (!sp.status || d.status === sp.status) &&
-      (!sp.with || (sp.with === "none" ? !d.assignedTo : d.assignedTo === sp.with)) &&
-      (!sp.when || (sp.when === "past") !== ahead(d.startsAt)),
-  );
+  const rows = filterDrives(drives, sp);
   const columns: Column<TestDrive>[] = [
-    { key: "when", header: "When", sort: (d) => d.startsAt, nowrap: true, cell: (d) => <span className="tabular-nums">{fullDate.format(d.startsAt)}, {time.format(d.startsAt)}</span> },
+    { key: "when", header: "When", sort: (d) => d.startsAt, nowrap: true, cell: (d) => <span className="tabular-nums">{fmtDate(d.startsAt)}, {fmtTime(d.startsAt)}</span> },
     {
       key: "who",
       header: "Customer",

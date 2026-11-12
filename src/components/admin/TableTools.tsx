@@ -9,6 +9,7 @@ import { CloseIcon, SearchIcon, SlidersIcon } from "@/components/stock/icons";
 import { fmtNum } from "@/lib/admin/format";
 import { PER_PAGE, PER_PAGE_DEFAULT } from "@/lib/admin/paging";
 import { press } from "@/components/ui";
+import { placeSheet, sheetPanel } from "./sheet";
 
 // The tables' controls. Everything lives in the URL, so a filtered, sorted, searched list can be shared, reloaded and gone back to; a new
 // search, filter or sort starts again at page 1. The server reads the same params (sortRows, the pages' own filters).
@@ -143,16 +144,7 @@ export function Filters({ groups }: { groups: FilterGroup[] }) {
       choose(over);
       router.replace(hrefWith(over), { scroll: false });
     });
-  // A desktop places it under the button, kept on screen; a phone leaves it to the sheet's own place at the foot.
-  const place = () =>
-    requestAnimationFrame(() => {
-      const p = panel.current;
-      const b = button.current?.getBoundingClientRect();
-      if (!p || !b || !p.matches(":popover-open")) return;
-      const desk = window.matchMedia("(min-width: 640px)").matches;
-      p.style.top = desk ? `${b.bottom + 6}px` : "";
-      p.style.left = desk ? `${Math.max(8, Math.min(b.left, window.innerWidth - p.offsetWidth - 8))}px` : "";
-    });
+  const place = () => placeSheet(panel.current, button.current);
   return (
     <>
       <button ref={button} type="button" popoverTarget={id} onClick={place} className={`inline-flex h-11 shrink-0 items-center gap-2 rounded-control border border-control bg-card px-4 text-meta font-semibold text-text ${press}`}>
@@ -170,7 +162,7 @@ export function Filters({ groups }: { groups: FilterGroup[] }) {
         id={id}
         popover="auto"
         aria-label="Filters"
-        className="fixed m-0 max-h-[85dvh] w-full flex-col overflow-hidden border border-hairline bg-card text-text shadow-lift backdrop:bg-scrim max-sm:inset-x-0 max-sm:bottom-0 max-sm:top-auto max-sm:rounded-t-card sm:inset-auto sm:max-h-[70dvh] sm:w-[22rem] sm:rounded-card sm:backdrop:bg-transparent [&:popover-open]:flex"
+        className={`${sheetPanel} sm:max-h-[70dvh] sm:w-[22rem]`}
       >
         <div className="flex items-center justify-between border-b border-hairline px-4 py-3">
           <h2 className="text-body font-semibold">Filters</h2>
@@ -260,7 +252,7 @@ export function TableFooter({ page, pageCount, total, per, exportHref }: { page:
     const [path, own = ""] = exportHref.split("?");
     const p = new URLSearchParams(own);
     for (const [k, v] of sp) if (k !== "page" && k !== "per" && !p.has(k)) p.set(k, v);
-    csv = `${path}?${p}`;
+    csv = p.size ? `${path}?${p}` : path;
   }
   const pageHref = (n: number) => hrefWith({ page: n > 1 ? String(n) : undefined }, true);
   const step = `inline-flex h-10 min-w-10 items-center justify-center rounded-control border border-hairline bg-card px-3 text-meta font-medium text-text transition-colors hover:border-control ${press}`;

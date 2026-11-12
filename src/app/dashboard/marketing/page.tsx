@@ -1,4 +1,4 @@
-import { Badge, EmptyState, Field, PageHeader, Panel, SummaryTabs, TableFooter, TableToolbar, pageOf, adminButton, adminButtonQuiet, adminInput, rowButton, type FilterGroup, type Tone } from "@/components/admin/kit";
+import { Badge, EmptyState, Field, Notice, PageHeader, Panel, SummaryTabs, TableFooter, TableToolbar, pageOf, adminButton, adminButtonQuiet, adminInput, rowButton, type FilterGroup, type Tone } from "@/components/admin/kit";
 import { PlusIcon } from "@/components/stock/icons";
 import { ActButton } from "@/components/admin/ActButton";
 import { sendDuePosts } from "@/lib/admin/scheduler";
@@ -82,9 +82,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
         }
       />
       {notice && (
-        <p role="status" className={`rounded-control px-4 py-3 text-body ${notice.tone === "good" ? "bg-ok-soft text-ok" : "bg-warn-soft text-warn"}`}>
-          {notice.text}
-        </p>
+        <Notice tone={notice.tone}>{notice.text}</Notice>
       )}
       <SummaryTabs
         label="Marketing"

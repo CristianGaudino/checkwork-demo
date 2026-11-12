@@ -30,6 +30,20 @@ test("the composer goes car, where, text, when: it suggests text for the car, sh
   await expect(page).toHaveURL(/\/dashboard\/marketing\?tab=posts/);
 });
 
+test("the car step shows the first few cars, Show all the rest, and a search finds any; the header goes back", async ({ page }) => {
+  await page.goto("/dashboard/marketing/new");
+  const cards = page.getByRole("main").locator("li > button[aria-pressed]");
+  await expect(cards).toHaveCount(8);
+  const all = page.getByRole("button", { name: /^Show all \d+ cars$/ });
+  const n = Number((await all.textContent())!.match(/\d+/)![0]);
+  await all.click();
+  await expect(cards).toHaveCount(n);
+  await page.getByRole("searchbox", { name: "Search cars" }).fill("zzzz");
+  await expect(page.getByText("No car for sale matches.")).toBeVisible();
+  await page.getByRole("main").getByRole("link", { name: "Marketing", exact: true }).click();
+  await expect(page).toHaveURL(/\/dashboard\/marketing$/);
+});
+
 test("a post for a car can be scheduled, and is kept as a draft with Save draft", async ({ page }) => {
   await startPost(page);
   await next(page);

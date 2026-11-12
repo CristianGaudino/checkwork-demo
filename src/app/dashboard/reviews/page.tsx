@@ -1,4 +1,4 @@
-import { EmptyState, PageHeader, Panel, SummaryTabs, TableFooter, adminButton, adminInput, pageOf, rowButton } from "@/components/admin/kit";
+import { EmptyState, Notice, PageHeader, Panel, SummaryTabs, TableFooter, adminButton, adminInput, pageOf, rowButton } from "@/components/admin/kit";
 import { Stars } from "@/components/admin/Stars";
 import { card } from "@/components/ui";
 import { reviewsStore } from "@/lib/admin/collections";
@@ -30,9 +30,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ f
     <>
       <PageHeader title="Reviews" text={`${s.count ? `${s.average.toFixed(1)} average from ${plural(s.count, "Google review")}. ` : ""}Replies are posted on Google as ${SITE_NAME}.`} />
       {notice && (
-        <p role="status" className={`rounded-control px-4 py-3 text-body ${notice.tone === "good" ? "bg-ok-soft text-ok" : "bg-warn-soft text-warn"}`}>
-          {notice.text}
-        </p>
+        <Notice tone={notice.tone}>{notice.text}</Notice>
       )}
       <SummaryTabs label="Reviews" items={REVIEW_FILTERS.map(([k, label]) => ({ label, href: `/dashboard/reviews?filter=${k}`, active: filter === k, count: filterReviews(all, k).length }))} />
       {paged.total === 0 ? (
