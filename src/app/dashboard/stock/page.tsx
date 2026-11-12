@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CarStatusBadge } from "@/components/admin/badges";
-import { DataTable, EmptyState, PageHeader, Pager, Panel, SearchBar, SummaryTabs, adminButton, paginate, rowButton, type Column, adminButtonQuiet } from "@/components/admin/kit";
+import { DataTable, EmptyState, FilterSelect, PageHeader, Pager, Panel, SummaryTabs, TableToolbar, adminButton, paginate, rowButton, sortRows, type Column, adminButtonQuiet } from "@/components/admin/kit";
 import { ActButton } from "@/components/admin/ActButton";
 import { RowMenu } from "@/components/admin/RowMenu";
 import { ExternalIcon, PlusIcon, SyncIcon } from "@/components/stock/icons";
@@ -11,7 +11,7 @@ import { adminCars } from "@/lib/admin/stock-admin";
 import { can } from "@/lib/permissions";
 import { fmtDate, fmtEur, fmtNum } from "@/lib/admin/format";
 import { carName, carHref } from "@/lib/stock/format";
-import { forSale, isSold, type Car } from "@/lib/stock/types";
+import { FUEL_LABELS, FUELS, forSale, isSold, type Car } from "@/lib/stock/types";
 import { stockSource } from "@/lib/stock-source";
 import { DONEDEAL_DEALER_URL, listingHref } from "@/lib/stock-source-rules";
 import { SyncPanel } from "@/components/admin/SyncPanel";
@@ -23,15 +23,16 @@ import { setListingAction, toggleSoldAction, withdrawnAction } from "./actions";
 
 export const metadata = { title: "Stock" };
 
-// "Today", "1 day", "23 days", from a YYYY-MM-DD listing date.
-const daysIn = (listedAt: string, now = Date.now()) => {
-  const d = Math.max(0, Math.floor((now - Date.parse(`${listedAt}T00:00:00Z`)) / 86_400_000));
+// Whole days since a YYYY-MM-DD listing date, and the same in words: "Today", "1 day", "23 days".
+const daysSince = (listedAt: string, now = Date.now()) => Math.max(0, Math.floor((now - Date.parse(`${listedAt}T00:00:00Z`)) / 86_400_000));
+const daysIn = (listedAt: string) => {
+  const d = daysSince(listedAt);
   return d === 0 ? "Today" : d === 1 ? "1 day" : `${d} days`;
 };
 
 // The views (src/lib/admin/stock-views.ts) are the summary: each is a tile with its count, and the chosen one filters the table.
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ view?: string; status?: string; q?: string; saved?: string; deleted?: string; sale?: string; reserved?: string; undone?: string; page?: string }> }) {
+export default async function Page({ searchParams }: { searchParams: Promise<{ view?: string; status?: string; q?: string; make?: string; fuel?: string; sort?: string; dir?: string; saved?: string; deleted?: string; sale?: string; reserved?: string; undone?: string; page?: string }> }) {
   const sp = await searchParams;
   const { view, q } = parseStockList(sp);
   const [all, source] = await Promise.all([adminCars(), stockSource()]);
@@ -51,10 +52,14 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
     ) : null;
   // The margin column is for staff with the margins permission; without it the costs are not even read.
   const costs = (await can("margins")) ? new Map([...(await carCosts())].map(([id, c]) => [id, c.total])) : null;
-  const matching = stockList(all, view, q);
-  const { rows, page, pageCount, total } = paginate(matching, sp.page);
+  // The make and fuel filters, from the URL, kept to values the stock has.
+  const makes = [...new Map(all.map((c) => [c.makeSlug, c.make])).entries()].sort((a, b) => a[1].localeCompare(b[1], "en-IE"));
+  const make = makes.some(([slug]) => slug === sp.make) ? sp.make : undefined;
+  const fuel = (FUELS as readonly string[]).includes(sp.fuel ?? "") ? sp.fuel : undefined;
+  const matching = stockList(all, view, q).filter((c) => (!make || c.makeSlug === make) && (!fuel || c.fuel === fuel));
   const saved = sp.saved ? all.find((c) => c.id === sp.saved) : undefined;
-  const href = (v: StockView) => `/dashboard/stock?view=${v}${q ? `&q=${encodeURIComponent(q)}` : ""}`;
+  // A view keeps the search and the filters; the sort and the page start again.
+  const href = (v: StockView) => `/dashboard/stock?${new URLSearchParams(Object.entries({ view: v, q, make, fuel }).filter((e): e is [string, string] => Boolean(e[1])))}`;
   // Where a row goes: the car's editor here, or, for synced stock, the car on the site (it is changed on DoneDeal).
   // A synced car off the website (its ad came down) has no page there, so it opens here.
   const open = (c: Car) => (synced && !c.listing ? carHref(c.slug) : `/dashboard/stock/${c.id}`);
@@ -81,9 +86,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
     {
       key: "car",
       header: "Car",
+      sort: (c) => `${c.make} ${c.model} ${c.variant ?? ""}`,
       cell: (c) => (
         <div className="flex min-w-0 items-center gap-3">
-          <div className="hidden h-12 w-16 shrink-0 overflow-hidden rounded-control bg-photo-bg min-[25rem]:block">
+          {/* The photo goes in compact rows: there the row is the size of a line. */}
+          <div className="hidden h-12 w-16 shrink-0 overflow-hidden rounded-control bg-photo-bg min-[25rem]:block group-data-[density=compact]/shell:hidden">
             {/* eslint-disable-next-line @next/next/no-img-element -- a local /stock file, sized by its box */}
             {c.photos[0] && <img src={c.photos[0].src} alt="" width={64} height={48} loading="lazy" className="size-full object-cover" />}
           </div>
@@ -103,6 +110,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
       header: "Price",
       align: "right",
       nowrap: true,
+      sort: (c) => c.priceEur,
       cell: (c) => (
         <span className="flex flex-col items-end">
           {fmtEur(c.priceEur)}
@@ -114,11 +122,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         </span>
       ),
     },
-    ...(costs ? [{ key: "margin", header: "Margin", align: "right" as const, hide: "md" as const, nowrap: true, cell: (c: Car) => (costs.has(c.id) ? fmtEur(marginOf(c.priceEur, costs.get(c.id)!).eur) : <span className="text-text-2">Not set</span>) }] : []),
+    ...(costs ? [{ key: "margin", header: "Margin", align: "right" as const, hide: "md" as const, nowrap: true, sort: (c: Car) => (costs.has(c.id) ? marginOf(c.priceEur, costs.get(c.id)!).eur : undefined), cell: (c: Car) => (costs.has(c.id) ? fmtEur(marginOf(c.priceEur, costs.get(c.id)!).eur) : <span className="text-text-2">Not set</span>) }] : []),
     // How long a car has been for sale: what a dealer watches to decide on a price drop.
-    { key: "age", header: "In stock", align: "right", hide: "lg", nowrap: true, cell: (c) => (c.listedAt && !isSold(c) ? daysIn(c.listedAt) : <span className="text-text-2">-</span>) },
-    { key: "km", header: "Mileage", align: "right", hide: "md", nowrap: true, cell: (c) => (c.mileageKm !== undefined ? `${fmtNum(c.mileageKm)} km` : "") },
-    { key: "photos", header: "Photos", align: "right", hide: "2xl", cell: (c) => (c.photos.length < FEW_PHOTOS ? <span className="text-warn">{c.photos.length}</span> : c.photos.length) },
+    { key: "age", header: "In stock", align: "right", hide: "lg", nowrap: true, sort: (c) => (c.listedAt && !isSold(c) ? daysSince(c.listedAt) : undefined), cell: (c) => (c.listedAt && !isSold(c) ? daysIn(c.listedAt) : <span className="text-text-2">-</span>) },
+    { key: "km", header: "Mileage", align: "right", hide: "md", nowrap: true, sort: (c) => c.mileageKm, cell: (c) => (c.mileageKm !== undefined ? `${fmtNum(c.mileageKm)} km` : "") },
+    { key: "photos", header: "Photos", align: "right", hide: "2xl", sort: (c) => c.photos.length, cell: (c) => (c.photos.length < FEW_PHOTOS ? <span className="text-warn">{c.photos.length}</span> : c.photos.length) },
     // Only in the All view: the other views already say it.
     ...(view === "all" ? [{ key: "status", header: "Status", hide: "md" as const, cell: (c: Car) => <CarStatusBadge car={c} /> }] : []),
     {
@@ -165,6 +173,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         ),
     },
   ];
+
+  // No sort chosen: the view's own order (stock-views.ts).
+  const { rows: sorted, sort } = sortRows(matching, columns, sp, { key: "", dir: "asc" });
+  const { rows, page, pageCount, total } = paginate(sorted, sp.page);
 
   return (
     <>
@@ -236,16 +248,20 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
           .map((v) => [v, all.filter(STOCK_VIEWS[v].test).length] as const)
           .filter(([v, count]) => count > 0 || view === v || !["hidden", "drafts", "reserved"].includes(v))
           .map(([v, count]) => ({ label: STOCK_VIEWS[v].label, count, href: href(v), active: view === v }))} />
-      <SearchBar action="/dashboard/stock" value={q} placeholder={SEARCH_MAKE_MODEL} label="Search stock" keep={{ view }} />
+      <TableToolbar search={{ placeholder: SEARCH_MAKE_MODEL, label: "Search stock" }}>
+        <FilterSelect name="make" label="Make" all="Every make" options={makes} />
+        <FilterSelect name="fuel" label="Fuel" all="Any fuel" options={FUELS.map((f) => [f, FUEL_LABELS[f]] as const)} />
+      </TableToolbar>
       <DataTable
         label="Stock"
         linkRows
         rows={rows}
         rowKey={(c) => c.id}
         columns={columns}
+        sort={sort}
         empty={<EmptyState title="No cars match" text={q ? "Try a different search." : undefined} action={!synced && !q ? <Link href="/dashboard/stock/new" className={adminButton}>Add a car</Link> : undefined} />}
       />
-      <Pager page={page} pageCount={pageCount} total={total} href={(n) => `${href(view)}&page=${n}`} />
+      <Pager page={page} pageCount={pageCount} total={total} />
     </>
   );
 }

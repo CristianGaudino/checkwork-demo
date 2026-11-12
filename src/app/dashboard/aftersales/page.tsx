@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { ClaimStatusBadge, CoverBadge } from "@/components/admin/badges";
-import { DataTable, EmptyState, PageHeader, Pager, SummaryTabs, adminButton, paginate } from "@/components/admin/kit";
+import { DataTable, EmptyState, FilterSelect, PageHeader, Pager, SummaryTabs, TableToolbar, adminButton, paginate, sortRows, type Column } from "@/components/admin/kit";
 import { PlusIcon } from "@/components/stock/icons";
-import { claimOpen, claimsStore, customersStore, leadsStore, type Claim } from "@/lib/admin/collections";
+import { CLAIM_STATUSES, claimOpen, claimsStore, customersStore, leadsStore, type Claim } from "@/lib/admin/collections";
 import { openWarrantyRequests } from "@/lib/admin/leads";
 import { fmtAgo, fmtDate } from "@/lib/admin/format";
 
@@ -13,14 +13,35 @@ export const metadata = { title: "Aftersales" };
 const VIEWS = { open: { label: "Open", test: (c: Claim) => claimOpen(c.status) }, closed: { label: "Closed", test: (c: Claim) => !claimOpen(c.status) }, all: { label: "All", test: () => true } } as const;
 type View = keyof typeof VIEWS | "requests";
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ view?: string; page?: string }> }) {
+export default async function Page({ searchParams }: { searchParams: Promise<{ view?: string; q?: string; cover?: string; sort?: string; dir?: string; page?: string }> }) {
   const sp = await searchParams;
   const [claims, customers, leads] = await Promise.all([claimsStore.list(), customersStore.list(), leadsStore.list()]);
   const requests = openWarrantyRequests(leads, claims);
   // Requests waiting are what to do first, so the page opens on them; with none, on the open claims.
   const view: View = sp.view === "requests" || (sp.view && Object.hasOwn(VIEWS, sp.view)) ? (sp.view as View) : requests.length ? "requests" : "open";
   const names = new Map(customers.map((c) => [c.id, c.name]));
-  const { rows, page, pageCount, total } = paginate(view === "requests" ? [] : [...claims].filter(VIEWS[view].test).sort((a, b) => b.createdAt - a.createdAt), sp.page);
+  const q = (sp.q ?? "").trim().toLowerCase().slice(0, 60);
+  const columns: Column<Claim>[] = [
+    {
+      key: "car",
+      header: "Car",
+      sort: (c) => c.carTitle,
+      cell: (c) => (
+        <span className="flex min-w-0 flex-col">
+          <Link href={`/dashboard/aftersales/${c.id}`} className="truncate font-medium text-text after:absolute after:inset-0">{c.carTitle}</Link>
+          <span className="truncate text-meta text-text-2">{(c.customerId && names.get(c.customerId)) || "Customer not on file"}</span>
+        </span>
+      ),
+      className: "max-w-[12rem] sm:max-w-[20rem]",
+    },
+    { key: "fault", header: "Fault", hide: "lg", cell: (c) => <span className="line-clamp-1 max-w-[24rem] text-text-2">{c.fault}</span> },
+    { key: "cover", header: "Cover", hide: "md", sort: (c) => (c.inCover ? 0 : 1), cell: (c) => <CoverBadge inCover={c.inCover} /> },
+    { key: "status", header: "Status", sort: (c) => CLAIM_STATUSES.indexOf(c.status), cell: (c) => <ClaimStatusBadge status={c.status} /> },
+    { key: "opened", header: "Opened", align: "right", hide: "sm", nowrap: true, sort: (c) => c.openedOn, cell: (c) => fmtDate(`${c.openedOn}T12:00:00Z`) },
+  ];
+  const matching = view === "requests" ? [] : claims.filter((c) => VIEWS[view].test(c) && (!sp.cover || String(c.inCover) === sp.cover) && (!q || `${c.carTitle} ${c.fault} ${(c.customerId && names.get(c.customerId)) || ""}`.toLowerCase().includes(q)));
+  const { rows: sorted, sort } = sortRows(matching, columns, sp, { key: "opened", dir: "desc" });
+  const { rows, page, pageCount, total } = paginate(sorted, sp.page);
   return (
     <>
       <PageHeader
@@ -64,32 +85,22 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
           ]}
         />
       ) : (
+      <>
+      <TableToolbar search={{ placeholder: "Search car, customer or fault", label: "Search claims" }}>
+        <FilterSelect name="cover" label="Cover" all="In and out of cover" options={[["true", "In cover"], ["false", "Out of cover"]]} />
+      </TableToolbar>
       <DataTable
         label="Warranty claims"
         linkRows
         rows={rows}
         rowKey={(c) => c.id}
+        sort={sort}
+        columns={columns}
         empty={<EmptyState title={view === "open" ? "No open claims" : "No claims"} text={view === "open" ? "A claim from the website comes in under Requests. Open one from there, or here." : undefined} />}
-        columns={[
-          {
-            key: "car",
-            header: "Car",
-            cell: (c) => (
-              <span className="flex min-w-0 flex-col">
-                <Link href={`/dashboard/aftersales/${c.id}`} className="truncate font-medium after:absolute after:inset-0">{c.carTitle}</Link>
-                <span className="truncate text-meta text-text-2">{(c.customerId && names.get(c.customerId)) || "Customer not on file"}</span>
-              </span>
-            ),
-            className: "max-w-[12rem] sm:max-w-[20rem]",
-          },
-          { key: "fault", header: "Fault", hide: "lg", cell: (c) => <span className="line-clamp-1 max-w-[24rem] text-text-2">{c.fault}</span> },
-          { key: "cover", header: "Cover", hide: "md", cell: (c) => <CoverBadge inCover={c.inCover} /> },
-          { key: "status", header: "Status", cell: (c) => <ClaimStatusBadge status={c.status} /> },
-          { key: "opened", header: "Opened", align: "right", hide: "sm", nowrap: true, cell: (c) => fmtDate(`${c.openedOn}T12:00:00Z`) },
-        ]}
       />
+      <Pager page={page} pageCount={pageCount} total={total} />
+      </>
       )}
-      <Pager page={page} pageCount={pageCount} total={total} href={(n) => `/dashboard/aftersales?view=${view}&page=${n}`} />
     </>
   );
 }

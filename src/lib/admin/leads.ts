@@ -1,4 +1,4 @@
-import { LEAD_STATUSES, LEAD_TYPES, type Claim, type Lead, type LeadStatus, type LeadType } from "./collections";
+import { LEAD_SOURCES, LEAD_STATUSES, LEAD_TYPES, type Claim, type Lead, type LeadStatus, type LeadType } from "./collections";
 import { followUpDue, pastReplyTarget } from "./follow-ups";
 export { followUpDue, isOpenLead } from "./follow-ups";
 
@@ -13,11 +13,13 @@ export const openWarrantyRequests = (leads: Lead[], claims: Pick<Claim, "leadId"
 };
 
 // The leads list's filters. Each one comes from the URL, so anything that is not a known value is ignored, never trusted.
-// due: follow-ups due; late: new leads past the reply target. One or the other.
-export type LeadFilter = { status?: LeadStatus; type?: LeadType; q: string; due?: boolean; late?: boolean };
+// due: follow-ups due; late: new leads past the reply target. One or the other. with: who has it (a name, or "none"); source: where it came from.
+export type LeadFilter = { status?: LeadStatus; type?: LeadType; q: string; due?: boolean; late?: boolean; with?: string; source?: (typeof LEAD_SOURCES)[number] };
 
-export function parseLeadFilter(sp: { status?: string; type?: string; q?: string; due?: string; late?: string }): LeadFilter {
+export function parseLeadFilter(sp: { status?: string; type?: string; q?: string; due?: string; late?: string; with?: string; source?: string }): LeadFilter {
   return {
+    with: sp.with?.slice(0, 80) || undefined,
+    source: (LEAD_SOURCES as readonly string[]).includes(sp.source ?? "") ? (sp.source as LeadFilter["source"]) : undefined,
     due: sp.due === "1" || undefined,
     late: (sp.due !== "1" && sp.late === "1") || undefined,
     status: (LEAD_STATUSES as readonly string[]).includes(sp.status ?? "") ? (sp.status as LeadStatus) : undefined,
@@ -37,6 +39,8 @@ export function filterLeads(leads: Lead[], f: LeadFilter, today = "", slaHours =
     .filter((l) => !f.late || pastReplyTarget(l, now, slaHours))
     .filter((l) => !f.status || l.status === f.status)
     .filter((l) => !f.type || l.type === f.type)
+    .filter((l) => !f.with || (f.with === "none" ? !l.assignedTo : l.assignedTo === f.with))
+    .filter((l) => !f.source || l.source === f.source)
     .filter((l) => !f.q || `${l.name} ${l.email} ${l.carTitle ?? ""} ${l.message}`.toLowerCase().includes(f.q) || (qDigits !== "" && digits(l.phone).includes(qDigits)))
     .sort((a, b) => b.createdAt - a.createdAt);
 }

@@ -1,16 +1,19 @@
 import Link from "next/link";
 import { useId } from "react";
-import { SearchIcon } from "@/components/stock/icons";
 import { card, press } from "@/components/ui";
+import { DensityToggle, LiveSearch, PagerLinks, SortHeader } from "./TableTools";
+export { DensityToggle, FilterSelect, LiveSearch } from "./TableTools";
 
 // The admin kit: the few pieces every admin page is made of. Same tokens as the site, denser and calmer.
 
+// The page's own bar: its title and its actions. From 1024px it stays at the top while the page scrolls, so where you are and what you can
+// do are always in view; the title is sized as a working tool's, not a headline.
 export function PageHeader({ title, text, actions }: { title: string; text?: string; actions?: React.ReactNode }) {
   return (
-    <header className="flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
+    <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 lg:sticky lg:top-0 lg:z-20 lg:-mx-10 lg:min-h-20 lg:border-b lg:border-hairline lg:bg-surface lg:px-10 lg:py-4">
       <div className="min-w-0">
-        <h1 className="text-display font-bold">{title}</h1>
-        {text && <p className="mt-1 max-w-measure text-body text-text-2">{text}</p>}
+        <h1 className="text-title font-bold">{title}</h1>
+        {text && <p className="mt-0.5 max-w-measure text-meta text-text-2">{text}</p>}
       </div>
       {/* On a phone two or more actions are one full-width row of equal buttons, each icon above its label, so three fit at 360px and
           never wrap two and one. A single action (All leads) keeps its own size. From 640px they sit beside the title as they are. */}
@@ -19,14 +22,20 @@ export function PageHeader({ title, text, actions }: { title: string; text?: str
   );
 }
 
-// A titled panel is a region named by its heading, so a screen reader can jump to it.
-export function Panel({ title, action, children, className = "" }: { title?: string; action?: React.ReactNode; children: React.ReactNode; className?: string }) {
+// A titled panel is a region named by its heading, so a screen reader can jump to it. Two kinds: the work of the page (raised, the default),
+// and `quiet` for what sits beside it (details, settings of the record): flat on a tint, so the eye goes to the work first.
+export function Panel({ title, count, action, children, className = "", quiet = false }: { title?: string; count?: number; action?: React.ReactNode; children: React.ReactNode; className?: string; quiet?: boolean }) {
   const id = useId();
   return (
-    <section aria-labelledby={title ? id : undefined} className={`${card} flex min-w-0 flex-col gap-4 p-5 ${className}`}>
+    <section aria-labelledby={title ? id : undefined} className={`${quiet ? "rounded-card border border-hairline bg-row-alt" : card} flex min-w-0 flex-col gap-4 p-5 ${className}`}>
       {(title || action) && (
         <div className="flex items-center justify-between gap-3">
-          {title && <h2 id={id} className="text-heading font-semibold">{title}</h2>}
+          {title && (
+            <h2 id={id} className="text-section font-semibold">
+              {title}
+              {count !== undefined && <span className="ml-2 font-normal text-text-2 tabular-nums">{count}</span>}
+            </h2>
+          )}
           {action}
         </div>
       )}
@@ -72,10 +81,13 @@ export function StatGrid({ children }: { children: React.ReactNode }) {
 }
 
 const TONES = { neutral: "bg-hairline text-text", good: "bg-ok-soft text-ok", warn: "bg-warn-soft text-warn", bad: "bg-bad-soft text-bad", info: "bg-info-soft text-info" } as const;
+// Urgency, filled: for what needs doing now (overdue, past its date), and only that, so a filled badge always means act.
+const STRONG = { warn: "bg-warn text-ink", bad: "bg-bad text-ink" } as const;
 export type Tone = keyof typeof TONES;
 // A short status in words, never a colour alone.
-export function Badge({ tone = "neutral", children }: { tone?: Tone; children: React.ReactNode }) {
-  return <span className={`inline-flex h-6 items-center whitespace-nowrap rounded-full px-2.5 text-meta font-medium ${TONES[tone]}`}>{children}</span>;
+export function Badge({ tone = "neutral", strong = false, children }: { tone?: Tone; strong?: boolean; children: React.ReactNode }) {
+  const look = strong && (tone === "warn" || tone === "bad") ? STRONG[tone] : TONES[tone];
+  return <span className={`inline-flex h-6 items-center whitespace-nowrap rounded-full px-2.5 text-meta font-medium ${look}`}>{children}</span>;
 }
 
 export function EmptyState({ title, text, action }: { title: string; text?: string; action?: React.ReactNode }) {
@@ -90,14 +102,33 @@ export function EmptyState({ title, text, action }: { title: string; text?: stri
 
 // `hide` keeps a less important column off narrow screens: it shows from that width up. `nowrap` keeps short values (a name, a date) on one line.
 const HIDE = { sm: "hidden sm:table-cell", md: "hidden md:table-cell", lg: "hidden lg:table-cell", xl: "hidden xl:table-cell", "2xl": "hidden 2xl:table-cell" } as const;
-export type Column<T> = { key: string; header: string; cell: (row: T) => React.ReactNode; align?: "right"; className?: string; hide?: keyof typeof HIDE; nowrap?: boolean };
+// `sort`: the value the column sorts by; with it, its header sorts the list (sortRows does it on the server, before the list is paged).
+export type Column<T> = { key: string; header: string; cell: (row: T) => React.ReactNode; align?: "right"; className?: string; hide?: keyof typeof HIDE; nowrap?: boolean; sort?: (row: T) => string | number | undefined };
+
+// The list's sort from the URL (?sort=column&dir=asc|desc): a column that sorts, else the page's own order. Empty values go last either way.
+export type Sort = { key: string; dir: "asc" | "desc" };
+export function sortRows<T>(rows: T[], columns: Column<T>[], sp: { sort?: string; dir?: string }, fallback: Sort): { rows: T[]; sort: Sort } {
+  const asked = columns.find((c) => c.key === sp.sort && c.sort);
+  const sort: Sort = asked ? { key: asked.key, dir: sp.dir === "desc" ? "desc" : "asc" } : fallback;
+  const by = (asked ?? columns.find((c) => c.key === fallback.key))?.sort;
+  if (!by) return { rows, sort };
+  const sign = sort.dir === "asc" ? 1 : -1;
+  const empty = (v: unknown) => v === undefined || v === "";
+  const sorted = [...rows].sort((a, b) => {
+    const [x, y] = [by(a), by(b)];
+    if (empty(x) || empty(y)) return empty(x) === empty(y) ? 0 : empty(x) ? 1 : -1;
+    return sign * (typeof x === "number" && typeof y === "number" ? x - y : String(x).localeCompare(String(y), "en-IE", { numeric: true, sensitivity: "base" }));
+  });
+  return { rows: sorted, sort };
+}
 const colClass = (c: Column<unknown>) => `${c.hide ? HIDE[c.hide] : ""} ${c.nowrap ? "whitespace-nowrap" : ""}`;
 
 // The dealer's tables: every other row filled, so a long list is easy to follow across; 48px rows; numbers on the right in even figures.
 // A table wider than its card scrolls sideways inside it at every width, so no column or button is ever cut off.
 // `bare` drops the table's own card, for use inside a Panel. `linkRows`: each row is one link, the one with `after:absolute after:inset-0`
 // in its first cell, so the whole row is clickable.
-export function DataTable<T>({ columns, rows, rowKey, empty, bare = false, linkRows = false, label }: { columns: Column<T>[]; rows: T[]; rowKey: (row: T) => string; empty?: React.ReactNode; bare?: boolean; linkRows?: boolean; label?: string }) {
+// `sort`: the list's sort now, so the sortable headers show it. Rows are 48px, 36px when the person chose compact tables (DensityToggle).
+export function DataTable<T>({ columns, rows, rowKey, empty, bare = false, linkRows = false, label, sort }: { columns: Column<T>[]; rows: T[]; rowKey: (row: T) => string; empty?: React.ReactNode; bare?: boolean; linkRows?: boolean; label?: string; sort?: Sort }) {
   const frame = bare ? "" : card;
   if (rows.length === 0) return <div className={frame}>{empty ?? <EmptyState title="Nothing here yet" />}</div>;
   return (
@@ -109,9 +140,14 @@ export function DataTable<T>({ columns, rows, rowKey, empty, bare = false, linkR
         <thead>
           <tr className="text-meta text-text-2">
             {columns.map((c) => (
-              <th key={c.key} scope="col" className={`relative z-10 h-11 border-b border-hairline bg-card px-4 font-medium ${c.align === "right" ? "text-right" : ""} ${colClass(c as Column<unknown>)}`}>
+              <th
+                key={c.key}
+                scope="col"
+                aria-sort={sort?.key === c.key && c.sort ? (sort.dir === "asc" ? "ascending" : "descending") : undefined}
+                className={`relative z-10 h-11 border-b border-hairline bg-card px-4 font-medium ${c.align === "right" ? "text-right" : ""} ${colClass(c as Column<unknown>)}`}
+              >
                 {/* The screen reader text is positioned inside this cell (relative above), so the scroll box clips it and it cannot widen the page. */}
-                {c.header || <span className="sr-only">Actions</span>}
+                {c.sort && sort ? <SortHeader k={c.key} label={c.header} active={sort.key === c.key} dir={sort.dir} align={c.align} /> : c.header || <span className="sr-only">Actions</span>}
               </th>
             ))}
           </tr>
@@ -120,7 +156,7 @@ export function DataTable<T>({ columns, rows, rowKey, empty, bare = false, linkR
           {rows.map((r) => (
             <tr key={rowKey(r)} className={`even:bg-row-alt ${linkRows ? "relative transition-colors hover:bg-surface" : ""}`}>
               {columns.map((c) => (
-                <td key={c.key} className={`h-12 px-4 py-2 align-middle ${c.align === "right" ? "text-right tabular-nums" : ""} ${c.className ?? ""} ${colClass(c as Column<unknown>)}`}>
+                <td key={c.key} className={`h-12 px-4 py-2 align-middle group-data-[density=compact]/shell:h-9 group-data-[density=compact]/shell:py-1 ${c.align === "right" ? "text-right tabular-nums" : ""} ${c.className ?? ""} ${colClass(c as Column<unknown>)}`}>
                   {c.cell(r)}
                 </td>
               ))}
@@ -154,14 +190,17 @@ export function SummaryTabs({ items, label = "Filter" }: { items: SummaryTab[]; 
   );
 }
 
-// A search that is its own small form: the box with an icon, Enter to search. `keep` carries the page's other filters along.
-export function SearchBar({ action, name = "q", value, placeholder, label, keep = {} }: { action: string; name?: string; value?: string; placeholder: string; label: string; keep?: Record<string, string | undefined> }) {
+// Above a table: its search, then its filters, then the density switch at the end of the row. Wraps on a phone, where the rows are a
+// list already and the switch is left out.
+export function TableToolbar({ search, children }: { search?: { placeholder: string; label: string }; children?: React.ReactNode }) {
   return (
-    <form action={action} method="get" role="search" className="relative w-full sm:max-w-sm">
-      {Object.entries(keep).map(([k, v]) => v && <input key={k} type="hidden" name={k} value={v} />)}
-      <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-text-2" />
-      <input type="search" name={name} defaultValue={value} placeholder={placeholder} aria-label={label} enterKeyHint="search" className={`${adminInput} w-full pl-10`} />
-    </form>
+    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+      {search && <LiveSearch placeholder={search.placeholder} label={search.label} />}
+      {children}
+      <div className="hidden sm:ml-auto sm:block">
+        <DensityToggle />
+      </div>
+    </div>
   );
 }
 
@@ -174,13 +213,18 @@ export function paginate<T>(rows: T[], asked: string | undefined, size = PAGE_SI
   return { rows: rows.slice((page - 1) * size, page * size), page, pageCount, total: rows.length };
 }
 
-export function Pager({ page, pageCount, total, href }: { page: number; pageCount: number; total: number; href: (page: number) => string }) {
+// Without `href`, the links keep whatever the URL holds now (search, filters, sort): the dashboard's tables. `href` is for a page that builds
+// its own (the public test drive list).
+export function Pager({ page, pageCount, total, href }: { page: number; pageCount: number; total: number; href?: (page: number) => string }) {
   if (pageCount <= 1) return null;
   return (
     <nav aria-label="Pages" className="flex flex-wrap items-center justify-between gap-3">
       <p className="text-meta text-text-2">
         Page {page} of {pageCount}, {total} in all
       </p>
+      {!href ? (
+        <PagerLinks page={page} pageCount={pageCount} />
+      ) : (
       <div className="flex gap-2">
         {page > 1 && (
           <Link href={href(page - 1)} className={rowButton}>
@@ -193,12 +237,13 @@ export function Pager({ page, pageCount, total, href }: { page: number; pageCoun
           </Link>
         )}
       </div>
+      )}
     </nav>
   );
 }
 
 // A small button in a table row: always a word, sometimes an icon before it.
-export const rowButton = `inline-flex h-10 items-center justify-center gap-1.5 whitespace-nowrap rounded-control border border-hairline bg-card px-3 text-meta font-medium text-text transition-colors hover:border-control ${press}`;
+export const rowButton = `inline-flex h-10 group-data-[density=compact]/shell:h-8 items-center justify-center gap-1.5 whitespace-nowrap rounded-control border border-hairline bg-card px-3 text-meta font-medium text-text transition-colors hover:border-control ${press}`;
 
 // Filter links as chips: for a second, smaller filter under SummaryTabs (lead type, review rating).
 export function FilterTabs({ items, label = "Filter" }: { items: { label: string; href: string; active: boolean; count?: number }[]; label?: string }) {

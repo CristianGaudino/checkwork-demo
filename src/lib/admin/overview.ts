@@ -11,7 +11,10 @@ export const SALE_NUDGE_DAYS = 90;
 export const isOldStock = (c: Car, now: number) => !isSold(c) && c.listedAt !== undefined && now - Date.parse(`${c.listedAt}T00:00:00Z`) >= OLD_STOCK_DAYS * DAY;
 
 // The numbers on the dealer's overview, worked out from the records. Pure, so the rules are tested.
-export type Attention = { key: string; label: string; count: number; href: string };
+// How soon it needs doing, which is what its colour says: now (red, filled), soon (amber), or worth knowing (grey). Most urgent first.
+export type Urgency = "now" | "soon" | "info";
+export type Attention = { key: string; label: string; count: number; href: string; urgency: Urgency };
+const RANK: Record<Urgency, number> = { now: 0, soon: 1, info: 2 };
 
 // `cars`: the whole stock, sold too. `costs`: the car ids with a cost, only for staff with the margins permission. `syncProblem`: the
 // DoneDeal sync is failing (only for stock from DoneDeal).
@@ -30,20 +33,24 @@ export function overview(input: { leads: Lead[]; drives: TestDrive[]; reviews: A
   const today = dublinDay(now);
   const offSale = new Set(cars.filter((c) => !forSale(c)).map((c) => c.slug));
 
-  const attention: Attention[] = [
-    { key: "follow", label: "Follow-ups due", count: leads.filter((l) => followUpDue(l, today)).length, href: "/dashboard/leads?due=1" },
-    { key: "slow", label: "New leads past your reply target", count: leads.filter((l) => pastReplyTarget(l, now, slaHours)).length, href: "/dashboard/leads?late=1" },
-    { key: "drives", label: "Test drives to confirm", count: drives.filter((d) => d.status === "requested" && d.startsAt >= now).length, href: "/dashboard/test-drives?status=requested" },
-    { key: "reviews", label: "Reviews without a reply", count: reviews.filter((r) => !r.reply).length, href: "/dashboard/reviews?filter=unreplied" },
-    { key: "sync", label: "DoneDeal stock is not updating", count: input.syncProblem ? 1 : 0, href: "/dashboard/stock" },
-    { key: "sold-drives", label: "Test drives booked on a car no longer for sale", count: drives.filter((d) => d.startsAt >= now && (d.status === "requested" || d.status === "confirmed") && offSale.has(d.carSlug)).length, href: "/dashboard/test-drives" },
-    { key: "deposits", label: "Reservations past their date", count: (input.reservations ?? []).filter((r) => r.status === "held" && r.until < today).length, href: "/dashboard/stock?view=reserved" },
-    { key: "orders", label: "Ordered cars arrived, to hand over", count: (input.orders ?? []).filter((o) => o.status === "arrived").length, href: "/dashboard/orders?view=arrived" },
-    { key: "taken-down", label: "DoneDeal ads taken down: did they sell?", count: cars.filter((c) => c.takenDownAt).length, href: "/dashboard/stock?view=hidden" },
-    { key: "old", label: `Cars for sale ${OLD_STOCK_DAYS} days or more`, count: cars.filter((c) => isOldStock(c, now)).length, href: "/dashboard/stock?view=old" },
-    { key: "sales", label: "Sold cars with no sale recorded", count: input.sales ? cars.filter((c) => isSold(c) && Date.parse(`${c.soldAt}T00:00:00Z`) >= now - SALE_NUDGE_DAYS * DAY && !input.sales!.has(c.id)).length : 0, href: "/dashboard/stock?view=sold" },
-    { key: "costs", label: "Cars for sale with no cost price", count: input.costs ? cars.filter((c) => !isSold(c) && !input.costs!.has(c.id)).length : 0, href: "/dashboard/margins" },
-  ].filter((a) => a.count > 0);
+  const due = leads.filter((l) => followUpDue(l, today));
+  const attention = ([
+    // Overdue follow-ups are late; ones due today are not yet.
+    { key: "follow", label: "Follow-ups due", count: due.length, href: "/dashboard/leads?due=1", urgency: due.some((l) => l.followUpOn! < today) ? "now" : "soon" },
+    { key: "slow", label: "New leads past your reply target", count: leads.filter((l) => pastReplyTarget(l, now, slaHours)).length, href: "/dashboard/leads?late=1", urgency: "now" },
+    { key: "drives", label: "Test drives to confirm", count: drives.filter((d) => d.status === "requested" && d.startsAt >= now).length, href: "/dashboard/test-drives?status=requested", urgency: "soon" },
+    { key: "reviews", label: "Reviews without a reply", count: reviews.filter((r) => !r.reply).length, href: "/dashboard/reviews?filter=unreplied", urgency: "info" },
+    { key: "sync", label: "DoneDeal stock is not updating", count: input.syncProblem ? 1 : 0, href: "/dashboard/stock", urgency: "now" },
+    { key: "sold-drives", label: "Test drives booked on a car no longer for sale", count: drives.filter((d) => d.startsAt >= now && (d.status === "requested" || d.status === "confirmed") && offSale.has(d.carSlug)).length, href: "/dashboard/test-drives", urgency: "now" },
+    { key: "deposits", label: "Reservations past their date", count: (input.reservations ?? []).filter((r) => r.status === "held" && r.until < today).length, href: "/dashboard/stock?view=reserved", urgency: "now" },
+    { key: "orders", label: "Ordered cars arrived, to hand over", count: (input.orders ?? []).filter((o) => o.status === "arrived").length, href: "/dashboard/orders?view=arrived", urgency: "soon" },
+    { key: "taken-down", label: "DoneDeal ads taken down: did they sell?", count: cars.filter((c) => c.takenDownAt).length, href: "/dashboard/stock?view=hidden", urgency: "soon" },
+    { key: "old", label: `Cars for sale ${OLD_STOCK_DAYS} days or more`, count: cars.filter((c) => isOldStock(c, now)).length, href: "/dashboard/stock?view=old", urgency: "info" },
+    { key: "sales", label: "Sold cars with no sale recorded", count: input.sales ? cars.filter((c) => isSold(c) && Date.parse(`${c.soldAt}T00:00:00Z`) >= now - SALE_NUDGE_DAYS * DAY && !input.sales!.has(c.id)).length : 0, href: "/dashboard/stock?view=sold", urgency: "soon" },
+    { key: "costs", label: "Cars for sale with no cost price", count: input.costs ? cars.filter((c) => !isSold(c) && !input.costs!.has(c.id)).length : 0, href: "/dashboard/margins", urgency: "info" },
+  ] satisfies Attention[])
+    .filter((a) => a.count > 0)
+    .sort((a, b) => RANK[a.urgency] - RANK[b.urgency]); // stable: same urgency keeps this order
 
   return {
     leadsThisWeek: week.length,

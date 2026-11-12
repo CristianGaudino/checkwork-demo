@@ -94,7 +94,9 @@ export default async function Page() {
                   <li key={a.key}>
                     <Link href={a.href} className={row}>
                       <span>{a.label}</span>
-                      <Badge tone="warn">{a.count}</Badge>
+                      <Badge tone={a.urgency === "now" ? "bad" : a.urgency === "soon" ? "warn" : "neutral"} strong={a.urgency === "now"}>
+                        {a.count}
+                      </Badge>
                     </Link>
                   </li>
                 ))}

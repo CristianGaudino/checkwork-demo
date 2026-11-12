@@ -24,6 +24,13 @@
   --text-hero-lg: 3.5rem;
   --text-hero-lg--line-height: 1.02;
   --text-hero-lg--letter-spacing: -0.04em;
+  /* The dashboard's three levels: a page title, a section, the rows (text-body). */
+  --text-title: 1.5rem;
+  --text-title--line-height: 1.2;
+  --text-title--letter-spacing: -0.015em;
+  --text-section: 1.125rem;
+  --text-section--line-height: 1.3;
+  --text-section--letter-spacing: -0.005em;
   --text-display: 2rem;
   --text-display--line-height: 1.1;
   --text-display--letter-spacing: -0.02em;
@@ -45,6 +52,7 @@
   --color-surface: #f4f6fb; /* paper */
   --color-card: #ffffff;
   --color-row-alt: #f1f3f9; /* every other table row, between card and surface */
+  --color-rail: #e9ecf5; /* the dashboard's sidebar: a step deeper than the page, so the menu and the work part at a glance */
   --color-ink: #ffffff; /* the inverse of text: for words on a bg-text pill */
   --color-band: #0b0f1f; /* Midnight: a band that stays dark in both themes (footer, demo bar, photo overlays) */
   --color-accent: #5a5deb; /* action: the fill of buttons and chips, white text on it is 5:1 */
@@ -97,6 +105,7 @@
   --color-accent-text: #a78bfa; /* lavender: accent text on Midnight */
   --color-card: #121832;
   --color-row-alt: #161d3b;
+  --color-rail: #070a17; /* a step below Midnight: the menu recedes, the cards on the page come forward */
   --color-ink: #0b0f1f;
   --color-text: #f5f6fa; /* off-white */
   --color-text-2: #aab0cc; /* 8.7:1 on Midnight */

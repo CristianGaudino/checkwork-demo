@@ -51,4 +51,8 @@ export function parseOpenGroups(v: string | undefined): string[] {
     return DEFAULT_OPEN;
   }
 }
-export const openGroupsCookie = (open: string[]) => `${NAV_COOKIE}=${encodeURIComponent(open.join("|"))}; path=/dashboard; max-age=31536000; samesite=lax`;
+// The person's other two choices for the dashboard, kept the same way: the sidebar as a rail of icons, and the tables' compact rows.
+export const RAIL_COOKIE = "checkwork-demo-rail"; // "1": the rail
+export const DENSITY_COOKIE = "checkwork-demo-density"; // "compact": compact table rows
+export const prefCookie = (name: string, value: string) => `${name}=${value}; path=/dashboard; max-age=31536000; samesite=lax`;
+export const openGroupsCookie = (open: string[]) => prefCookie(NAV_COOKIE, encodeURIComponent(open.join("|")));
