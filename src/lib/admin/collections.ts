@@ -5,7 +5,7 @@ import { defineCollection, seedsDemoRecords } from "./docs";
 import { NETWORKS, type Network } from "./networks";
 import { demoCost } from "./margins";
 import { DAY, HOUR } from "@/lib/time";
-import { dublinDay } from "./format";
+import { dublinDay, dublinMs } from "./format";
 import { newId } from "./ids";
 import { COVER_MONTHS, DEPOSIT_METHODS, type DepositMethod } from "./deposits";
 import { ALERT_KINDS } from "@/lib/leads/schema";
@@ -17,6 +17,8 @@ import { carTitleOf, livePicks, person, rng } from "./seed-data";
 
 // For the demo's stories: a day relative to today (YYYY-MM-DD, Irish), a demo car by id, a seeded customer by id.
 const ago = (daysAgo: number) => dublinDay(Date.now() - daysAgo * DAY);
+// A time on a day in Irish time, as a booking stores it (the server's clock is UTC, an hour off in summer).
+const irishAt = (dayMs: number, h: number, m: number) => dublinMs(dublinDay(dayMs), `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
 const demoCar = (id: string) => (demoCars as Car[]).find((c) => c.id === id)!;
 const storyCustomer = (id: string) => seedCustomers().find((c) => c.id === id)!;
 
@@ -147,7 +149,7 @@ function seedDrives(): TestDrive[] {
     const car = livePicks(r);
     const upcoming = i < 9;
     const day = upcoming ? r.int(0, 9) : -r.int(1, 14);
-    const startsAt = new Date(now + day * DAY).setHours(r.int(10, 17), r.pick([0, 30]), 0, 0);
+    const startsAt = irishAt(now + day * DAY, r.int(10, 17), r.pick([0, 30]));
     const status: DriveStatus = upcoming ? r.pick(["requested", "confirmed", "confirmed"] as const) : r.pick(["completed", "completed", "completed", "no-show", "cancelled"] as const);
     return { id: `drive-${200 + i}`, ...person(r), carSlug: car.slug, carTitle: carTitleOf(car), startsAt, status, notes: r.pick(["", "", "Bringing a partner.", "Wants to compare with another car."]), createdAt: now - (Math.abs(day) + 2) * DAY };
   });
@@ -159,7 +161,7 @@ function seedDiary(): TestDrive[] {
   const forSale = (demoCars as Car[]).filter((c) => !c.soldAt && !c.reserved);
   return ([[0, 12, 30, "confirmed"], [0, 15, 0, "confirmed"], [0, 17, 0, "requested"], [1, 10, 0, "requested"], [1, 16, 30, "confirmed"]] as const).map(([day, h, m, status], i) => {
     const car = r.pick(forSale);
-    return { id: `drive-${230 + i}`, ...person(r), carSlug: car.slug, carTitle: carTitleOf(car), startsAt: new Date(now + day * DAY).setHours(h, m, 0, 0), status, notes: i === 1 ? "Bringing a partner." : "", createdAt: now - (i + 1) * DAY };
+    return { id: `drive-${230 + i}`, ...person(r), carSlug: car.slug, carTitle: carTitleOf(car), startsAt: irishAt(now + day * DAY, h, m), status, notes: i === 1 ? "Bringing a partner." : "", createdAt: now - (i + 1) * DAY };
   });
 }
 export const drivesStore = defineCollection<TestDrive>("test-drives", () => [...seedDrives(), ...seedDiary()]);

@@ -75,7 +75,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         </div>
         <div className="flex min-w-0 flex-col gap-6 max-lg:order-first">
           <Panel title="Where it is" action={<OrderBadge status={o.status} />}>
-            {open && (
+            {open && o.status !== "arrived" && (
               <div className="flex flex-wrap gap-2">
                 {STEPS.map((s) => (
                   <ChoiceButton key={s} action={setOrderStatusAction.bind(null, o.id)} name="status" value={s} active={o.status === s}>

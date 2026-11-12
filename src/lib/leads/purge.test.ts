@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { adminDocs, leads } from "@/lib/db/schema";
 import { getDb, truncate } from "@/test/sqlite-db";
@@ -67,5 +68,20 @@ describe("purgeOldLeads", () => {
     await purgeOldLeads(getDb(), { delete: async () => {} }, NOW);
     const left = (await getDb().select({ id: adminDocs.id }).from(adminDocs)).map((r) => r.id).sort();
     expect(left).toEqual(["lead-1000", "real-c-returning", "real-new"]); // the customer first seen long ago but in touch lately stays
+  });
+
+  it("keeps a customer while a sale, deposit, claim or order names them, from the website or the dashboard, and deletes them after", async () => {
+    const old = monthsAgo(13).getTime();
+    const customer = (id: string) => ({ collection: "customers", id, data: { id, createdAt: old, lastContactAt: old } });
+    await getDb().insert(adminDocs).values([
+      customer("real-c-buyer"), customer("cust-buyer"), customer("cust-claim"), customer("cust-unlinked"), customer("cust-walkin"),
+      { collection: "sales", id: "4710001", data: { id: "4710001", customerId: "real-c-buyer" } },
+      { collection: "orders", id: "order-1", data: { id: "order-1", customerId: "cust-buyer" } },
+      { collection: "claims", id: "claim-1", data: { id: "claim-1", customerId: "cust-claim" } },
+      { collection: "sales", id: "past-1", data: { id: "past-1" } }, // six years on, the sales purge removed its buyer
+    ]);
+    await purgeOldLeads(getDb(), { delete: async () => {} }, NOW);
+    const left = (await getDb().select({ id: adminDocs.id }).from(adminDocs).where(eq(adminDocs.collection, "customers"))).map((r) => r.id).sort();
+    expect(left).toEqual(["cust-buyer", "cust-claim", "real-c-buyer"]);
   });
 });

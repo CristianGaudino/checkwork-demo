@@ -80,12 +80,13 @@ export async function placeOrderAction(_prev: OrderFormState, data: FormData): P
 }
 
 // Ordered, Built, On its way, Arrived: by hand, as the maker tells the dealer. Arrived adds the car to stock, hidden (it is sold), and
-// reserved for the buyer with their deposit, so Mark sold on it is the handover. Handed over is set by that sale, never here.
+// reserved for the buyer with their deposit, so Mark sold on it is the handover. Handed over is set by that sale, never here, and an arrived
+// order never steps back (its car is in stock, and the sale only hands over an arrived order).
 const steps = z.enum(["ordered", "built", "in-transit", "arrived"]);
 export async function setOrderStatusAction(id: string, data: FormData) {
   const to = steps.safeParse(data.get("status"));
   const o = await ordersStore.get(id);
-  if (!to.success || !o || !orderOpen(o.status) || o.status === to.data || !(await theirs())) return;
+  if (!to.success || !o || !orderOpen(o.status) || o.status === "arrived" || o.status === to.data || !(await theirs())) return;
   let carId = o.carId;
   if (to.data === "arrived" && !carId) {
     carId = await freeCarId();

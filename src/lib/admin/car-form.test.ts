@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { carFromForm } from "./car-form";
-import { carSlug, nextCarId, slugify } from "./stock-admin-pure";
+import { carSlug, carStatus, nextCarId, slugify } from "./stock-admin-pure";
 import type { Car } from "@/lib/stock/types";
 
 const form = (o: Record<string, string>) => {
@@ -77,5 +77,15 @@ describe("listing date", () => {
     const undated = { ...existing, listedAt: undefined };
     const editedUndated = carFromForm(form({ priceEur: "9999" }), "50", undated, "2026-11-11");
     expect(editedUndated.ok && editedUndated.car.listedAt).toBeUndefined();
+  });
+});
+
+describe("carStatus", () => {
+  it("puts off the website first, then sold, reserved, for sale", () => {
+    expect(carStatus({ listing: "draft", soldAt: "2026-01-01" })).toBe("Draft");
+    expect(carStatus({ listing: "hidden", reserved: true })).toBe("Hidden");
+    expect(carStatus({ soldAt: "2026-01-01", reserved: true })).toBe("Sold");
+    expect(carStatus({ reserved: true })).toBe("Reserved");
+    expect(carStatus({})).toBe("For sale");
   });
 });

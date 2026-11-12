@@ -1,4 +1,4 @@
-import type { Car } from "@/lib/stock/types";
+import { isSold, type Car } from "@/lib/stock/types";
 
 // The parts of stock admin that need no database, so they can be tested and shared with the form.
 export const slugify = (s: string) =>
@@ -24,3 +24,8 @@ export const listedOn = (was: Pick<Car, "listing" | "listedAt"> | undefined, liv
 // Slug is make, model, year and id, the same recipe as the feed (D-08). Keeping the id in it keeps every slug unique.
 export const carSlug = (c: Pick<Car, "make" | "model" | "year" | "id">) => `${slugify(c.make)}-${slugify(c.model)}-${c.year}-${c.id}`;
 
+// Where a car stands, the same on every page and in the export: off the website first (draft, hidden), then sold, reserved or for sale.
+export const CAR_STATUSES = ["Draft", "Hidden", "Sold", "Reserved", "For sale"] as const;
+export type CarStatus = (typeof CAR_STATUSES)[number];
+export const carStatus = (c: Pick<Car, "listing" | "soldAt" | "reserved">): CarStatus =>
+  c.listing === "draft" ? "Draft" : c.listing ? "Hidden" : isSold(c) ? "Sold" : c.reserved ? "Reserved" : "For sale";

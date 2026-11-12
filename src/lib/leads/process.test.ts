@@ -94,6 +94,12 @@ describe("snapshotCar", () => {
     expect(await snapshotCar(sold.id, deps.getCar)).toBeNull();
     expect(await snapshotCar(live.id, deps.getCar)).toEqual({ carId: live.id, carSlug: live.slug, carTitle: carTitle(live), carPriceEur: live.priceEur });
   });
+
+  it("refuses a test drive on a reserved car, and still takes an enquiry about it", async () => {
+    const getCar = async () => ({ ...live, reserved: true });
+    expect(await snapshotCar(live.id, getCar, false, true)).toBeNull();
+    expect(await snapshotCar(live.id, getCar)).toMatchObject({ carId: live.id });
+  });
 });
 
 describe("processLead rules", () => {

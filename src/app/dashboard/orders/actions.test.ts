@@ -51,6 +51,8 @@ describe("factory orders", () => {
     expect((await ordersStore.get(o.id))?.status).toBe("built");
     await setOrderStatusAction(o.id, form({ status: "arrived" }));
     const arrived = (await ordersStore.get(o.id))!;
+    await setOrderStatusAction(o.id, form({ status: "built" })); // never back once its car is in stock
+    expect((await ordersStore.get(o.id))?.status).toBe("arrived");
     const car = (await adminCar(arrived.carId!))!;
     expect(car).toMatchObject({ make: "Kia", model: "Sportage", variant: "GT-Line hybrid", condition: "new", listing: "hidden", reserved: true, year: 2000 + Number(period.slice(0, 2)) });
     expect((await reservationsStore.list()).find((r) => r.carId === car.id)).toMatchObject({ status: "held", depositEur: 1000, customerId });

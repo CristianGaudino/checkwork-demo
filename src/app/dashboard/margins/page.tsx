@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Badge, DataTable, PageHeader, Pager, Panel, StatCard, StatGrid, paginate, type Column } from "@/components/admin/kit";
+import { CarStatusBadge } from "@/components/admin/badges";
+import { DataTable, PageHeader, Pager, Panel, StatCard, StatGrid, paginate, type Column } from "@/components/admin/kit";
 import { salesStore } from "@/lib/admin/collections";
 import { carCosts } from "@/lib/admin/costs";
 import { fmtEur, fmtPct } from "@/lib/admin/format";
@@ -46,7 +47,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
         </Link>
       ),
     },
-    { key: "status", header: "Status", hide: "md", cell: (r) => (isSold(r.car) ? <Badge tone="neutral">Sold</Badge> : <Badge tone="good">For sale</Badge>) },
+    { key: "status", header: "Status", hide: "md", cell: (r) => <CarStatusBadge car={r.car} /> },
     { key: "price", header: "Price", align: "right", cell: (r) => (r.salePrice !== undefined ? <span className="flex flex-col items-end">{fmtEur(r.salePrice)}<span className="text-meta text-text-2">sold for</span></span> : fmtEur(r.car.priceEur)) },
     {
       key: "cost",

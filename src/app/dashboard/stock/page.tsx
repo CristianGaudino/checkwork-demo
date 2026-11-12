@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Badge, DataTable, EmptyState, PageHeader, Pager, Panel, SearchBar, SummaryTabs, adminButton, paginate, rowButton, type Column, adminButtonQuiet } from "@/components/admin/kit";
+import { CarStatusBadge } from "@/components/admin/badges";
+import { DataTable, EmptyState, PageHeader, Pager, Panel, SearchBar, SummaryTabs, adminButton, paginate, rowButton, type Column, adminButtonQuiet } from "@/components/admin/kit";
 import { ActButton } from "@/components/admin/ActButton";
 import { RowMenu } from "@/components/admin/RowMenu";
 import { ExternalIcon, PlusIcon, SyncIcon } from "@/components/stock/icons";
@@ -119,7 +120,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
     { key: "km", header: "Mileage", align: "right", hide: "md", nowrap: true, cell: (c) => (c.mileageKm !== undefined ? `${fmtNum(c.mileageKm)} km` : "") },
     { key: "photos", header: "Photos", align: "right", hide: "2xl", cell: (c) => (c.photos.length < FEW_PHOTOS ? <span className="text-warn">{c.photos.length}</span> : c.photos.length) },
     // Only in the All view: the other views already say it.
-    ...(view === "all" ? [{ key: "status", header: "Status", hide: "md" as const, cell: (c: Car) => (c.listing === "draft" ? <Badge tone="info">Draft</Badge> : c.listing ? <Badge tone="warn">Hidden</Badge> : isSold(c) ? <Badge tone="neutral">Sold</Badge> : c.reserved ? <Badge tone="info">Reserved</Badge> : <Badge tone="good">For sale</Badge>) }] : []),
+    ...(view === "all" ? [{ key: "status", header: "Status", hide: "md" as const, cell: (c: Car) => <CarStatusBadge car={c} /> }] : []),
     {
       key: "actions",
       header: "",

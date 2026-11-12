@@ -12,7 +12,7 @@ import { SyncPanel } from "@/components/admin/SyncPanel";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { syncStatus } from "@/lib/donedeal/sync";
 import { stockSource } from "@/lib/stock-source";
-import { isSold } from "@/lib/stock/types";
+import { forSale, isSold } from "@/lib/stock/types";
 
 export const metadata = { title: "Overview" };
 
@@ -56,7 +56,7 @@ export default async function Page() {
       <StatGrid>
         <StatCard href="/dashboard/leads?status=new" label="Leads to answer" value={fmtNum(o.newLeads)} />
         <StatCard href="/dashboard/leads" label="Leads this week" value={fmtNum(o.leadsThisWeek)} hint={`${o.leadsChange >= 0 ? "Up" : "Down"} ${Math.abs(o.leadsChange)} on last week`} tone={o.leadsChange >= 0 ? "good" : "bad"} />
-        <StatCard href="/dashboard/stock" label="Cars for sale" value={fmtNum(cars.length)} />
+        <StatCard href="/dashboard/stock" label="Cars for sale" value={fmtNum(cars.filter(forSale).length)} />
         {costs && <StatCard href="/dashboard/margins" label="Stock margin" value={fmtEur(margin)} />}
         <StatCard href="/dashboard/reviews" label="Review rating" value={o.reviewCount ? o.averageRating.toFixed(1) : "None"} hint={`${o.reviewCount} reviews`} />
       </StatGrid>
