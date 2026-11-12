@@ -60,7 +60,7 @@ export function noticeOfLead(lead: Pick<Lead, "id" | "type" | "carTitle">, drive
   if (drive) return { kind: "drive", text: `Test drive request${lead.carTitle ? `: ${lead.carTitle}` : ""}`, href: "/dashboard/test-drives" };
   const kind: NoticeKind = lead.type === "warranty" ? "warranty" : lead.type === "order" ? "order" : "lead";
   const label = lead.type === "warranty" ? "Warranty request" : lead.type === "order" ? "New car order request" : LEAD_TYPE_LABELS[lead.type];
-  return { kind, text: `${label}${lead.carTitle ? `: ${lead.carTitle}` : ""}`, href: `/dashboard/leads/${lead.id}` };
+  return { kind, text: `${label}${lead.carTitle ? `: ${lead.carTitle}` : ""}`, href: kind === "warranty" ? `/dashboard/aftersales/requests/${lead.id}` : `/dashboard/leads/${lead.id}` };
 }
 
 // The demo's bell: the seeded website requests of the last three days, the test drive requests booked today and tomorrow, and a lead given

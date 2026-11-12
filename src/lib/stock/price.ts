@@ -19,7 +19,7 @@ const withVat = (eur: number) => Math.round(eur * (1 + PRICING.vatRatePct / 100)
 export const payableEur = (car: Pick<Car, "priceEur" | "vat">) => (car.vat === "ex" ? withVat(car.priceEur) : car.priceEur);
 
 // Pure: the one place that decides what a price says. A car with a VAT status always says it.
-export function priceInfo(car: Pick<Car, "priceEur" | "wasPriceEur" | "vat" | "soldAt">): PriceInfo {
+export function priceInfo(car: Pick<Car, "priceEur" | "wasPriceEur" | "vat" | "soldAt" | "reserved">): PriceInfo {
   const L = PRICING.labels;
   if (isSold(car)) return { headline: L.sold };
   const out: PriceInfo = { headline: formatPrice(car.priceEur) };
@@ -32,9 +32,10 @@ export function priceInfo(car: Pick<Car, "priceEur" | "wasPriceEur" | "vat" | "s
     out.was = formatPrice(car.wasPriceEur);
     out.drop = `${L.reduced} ${formatPrice(car.wasPriceEur - car.priceEur)}`;
   }
-  // Finance is worked out on what the buyer pays, so an ex. VAT price is taken with VAT on.
+  // Finance is worked out on what the buyer pays, so an ex. VAT price is taken with VAT on. A reserved car has no finance offer, as on the
+  // rest of its page: a deposit is on it.
   const payable = payableEur(car);
-  if (financeable(payable)) {
+  if (financeable(payable) && !car.reserved) {
     const { defaults } = FINANCE;
     const q = quote(payable, Math.round((payable * PRICING.financeFromDepositPct) / 100), defaults.termMonths, defaults.aprPct);
     if (q) out.financeFrom = `${L.financeFrom} ${formatPrice(Math.round(q.monthlyEur))} ${L.perMonth}`;

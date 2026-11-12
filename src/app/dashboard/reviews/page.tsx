@@ -2,10 +2,10 @@ import { EmptyState, PageHeader, Panel, SummaryTabs, adminButton, adminInput, ro
 import { Stars } from "@/components/admin/Stars";
 import { card } from "@/components/ui";
 import { reviewsStore } from "@/lib/admin/collections";
-import { fmtDate } from "@/lib/admin/format";
+import { fmtDate, plural } from "@/lib/admin/format";
+import { SITE_NAME } from "@/lib/site";
 import { REVIEW_FILTERS, filterReviews, parseReviewFilter, ratingSummary } from "@/lib/admin/reviews";
 import { replyAction } from "./actions";
-import { INTEGRATIONS, modeOf } from "@/lib/integrations";
 
 // What a reply came back as (replyAction). Only these codes are ever shown.
 const NOTICES: Record<string, { tone: "good" | "warn"; text: string }> = {
@@ -27,7 +27,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ f
 
   return (
     <>
-      <PageHeader title="Reviews" text={`${s.count ? `${s.average.toFixed(1)} average from ${s.count} Google reviews. ` : ""}Replies post on Google${modeOf("gbp") === "simulated" ? `, as ${INTEGRATIONS.find((i) => i.id === "gbp")!.demoAccount}` : ""}.`} />
+      <PageHeader title="Reviews" text={`${s.count ? `${s.average.toFixed(1)} average from ${plural(s.count, "Google review")}. ` : ""}Replies are posted on Google as ${SITE_NAME}.`} />
       {notice && (
         <p role="status" className={`rounded-control px-4 py-3 text-body ${notice.tone === "good" ? "bg-ok-soft text-ok" : "bg-warn-soft text-warn"}`}>
           {notice.text}

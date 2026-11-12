@@ -33,7 +33,7 @@ export const LEAD_STATUS_LABELS: Record<LeadStatus, string> = { new: "New", cont
 // tells them apart by the page).
 export const LEAD_TYPES = ["enquiry", "test-drive", "finance", "trade-in", "sell", "find-a-car", "order", "warranty", "service", "general"] as const;
 export type LeadType = (typeof LEAD_TYPES)[number];
-export const LEAD_TYPE_LABELS: Record<LeadType, string> = { enquiry: "Car enquiry", "test-drive": "Test drive", finance: "Finance", "trade-in": "Trade-in", sell: "Selling a car", "find-a-car": "Find a car", order: "New car order", warranty: "Warranty claim", service: "Service", general: "General" };
+export const LEAD_TYPE_LABELS: Record<LeadType, string> = { enquiry: "Car enquiry", "test-drive": "Test drive", finance: "Finance", "trade-in": "Trade-in", sell: "Selling a car", "find-a-car": "Find a car", order: "New car order", warranty: "Warranty request", service: "Service", general: "General" };
 // Why a lead was lost, so the reports can say where sales go. A fixed list, so they can be counted.
 export const LOST_REASONS = ["Bought elsewhere", "Price", "Finance declined", "Stopped replying", "Car sold to someone else", "Other"] as const;
 export type LostReason = (typeof LOST_REASONS)[number];
@@ -279,7 +279,7 @@ export type DealerSettings = {
   id: "dealer";
   leadSlaHours: number; // a new lead waiting longer than this needs attention (overview)
   driveSlotMinutes: number; // one car cannot be booked twice within this many minutes (test drives)
-  notifications: { newLead: boolean; testDrive: boolean; review: boolean; weeklyReport: boolean; followUps: boolean }; // followUps: the morning email
+  notifications: { followUps: boolean }; // the morning email of follow-ups; new leads are emailed under Lead emails
   marketing: { voice: string; hashtags: string; signOff: string }; // used by the post and newsletter writers
   team: TeamMember[];
   leadEmails: string[]; // who gets the email when a visitor sends a form; empty means the LEAD_TO_EMAIL variable
@@ -289,7 +289,7 @@ export const SETTINGS_DEFAULT: DealerSettings = {
   id: "dealer",
   leadSlaHours: 24,
   driveSlotMinutes: 60,
-  notifications: { newLead: true, testDrive: true, review: true, weeklyReport: false, followUps: false },
+  notifications: { followUps: false },
   marketing: { voice: "Friendly and plain. Short sentences. No hype.", hashtags: "#usedcars #carsforsale", signOff: "Call in or message us to arrange a viewing." },
   team: TEAM_SEED.map((t) => ({ ...t })),
   leadEmails: [],

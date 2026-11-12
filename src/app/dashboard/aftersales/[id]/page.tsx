@@ -35,7 +35,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                 ["Customer", buyer ? <Link key="b" href={`/dashboard/customers/${buyer.id}`} className="underline">{buyer.name}</Link> : "Not on file"],
                 ["Sold", sale ? day(sale.soldOn) : "Not on file"],
                 ["Cover until", sale ? day(coverEnds(sale)) : "Not known"],
-                ...(claim.leadId ? [["From", <Link key="l" href={`/dashboard/leads/${claim.leadId}`} className="underline">The website request</Link>]] : []),
+                ...(claim.leadId ? [["From", <Link key="l" href={`/dashboard/aftersales/requests/${claim.leadId}`} className="underline">The website request</Link>]] : []),
               ].map(([k, v]) => (
                 <div key={String(k)} className="flex flex-col">
                   <dt className="text-meta text-text-2">{k}</dt>

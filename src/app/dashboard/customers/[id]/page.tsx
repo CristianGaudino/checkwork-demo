@@ -83,11 +83,12 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
               <ul className={list}>
                 {theirClaims.map((k) => (
                   <li key={k.id} className={item}>
-                    <Link href={`/dashboard/aftersales/${k.id}`} className="flex min-w-0 flex-col">
+                    {/* The text takes the room left (a long fault is cut short, whole on hover), so the status stays on the right. */}
+                    <Link href={`/dashboard/aftersales/${k.id}`} className="flex min-w-0 flex-1 flex-col">
                       <span className="font-medium underline-offset-2 hover:underline">{k.carTitle}</span>
-                      <span className="line-clamp-1 text-meta text-text-2">{day(k.openedOn)}: {k.fault}</span>
+                      <span title={k.fault} className="line-clamp-1 text-meta text-text-2">{day(k.openedOn)}: {k.fault}</span>
                     </Link>
-                    <ClaimStatusBadge status={k.status} />
+                    <span className="shrink-0"><ClaimStatusBadge status={k.status} /></span>
                   </li>
                 ))}
               </ul>

@@ -81,7 +81,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
           {r.sources.length ? <BarList items={r.sources.map((s) => ({ label: s.source, value: s.won, note: `of ${plural(s.leads, "lead")}, ${s.winRate}%` }))} /> : <p className="text-body text-text-2">No leads in this period.</p>}
         </Panel>
         <Panel title="Why leads were lost">
-          {r.lost.length ? <BarList items={r.lost.map((x) => ({ label: x.reason, value: x.leads, note: plural(x.leads, "lead") }))} /> : <p className="text-body text-text-2">No lost leads in this period.</p>}
+          {r.lost.length ? <BarList items={r.lost.map((x) => ({ label: x.reason, value: x.leads, note: `${Math.round((x.leads / r.lost.reduce((n, y) => n + y.leads, 0)) * 100)}% of lost leads` }))} /> : <p className="text-body text-text-2">No lost leads in this period.</p>}
         </Panel>
         <Panel title="Stock by age">
           <BarList items={r.stockAge.map((b) => ({ label: b.band, value: b.cars, note: fmtEur(b.value) }))} />

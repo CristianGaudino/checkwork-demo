@@ -74,7 +74,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
               header: "Who",
               cell: (l) => (
                 <span className="flex min-w-0 flex-col">
-                  <Link href={`/dashboard/leads/${l.id}`} title={l.name} className="line-clamp-2 font-medium after:absolute after:inset-0">{l.name}</Link>
+                  <Link href={`/dashboard/aftersales/requests/${l.id}`} title={l.name} className="line-clamp-2 font-medium after:absolute after:inset-0">{l.name}</Link>
                   <span className="truncate text-meta text-text-2">{l.carTitle ?? l.source}</span>
                 </span>
               ),

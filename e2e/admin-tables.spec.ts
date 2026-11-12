@@ -55,10 +55,11 @@ test("a filter narrows the list and stays in the link; Compact tightens the rows
 
 test("a warranty request waits in Aftersales, not in Leads", async ({ page }) => {
   await page.goto("/dashboard/leads");
-  await expect(page.getByRole("link", { name: "Warranty claim", exact: true })).toHaveCount(0); // no type chip
+  await expect(page.getByRole("link", { name: "Warranty request", exact: true })).toHaveCount(0); // no type chip
   await page.goto("/dashboard/aftersales");
   await expect(page.getByRole("link", { name: /^Requests/ })).toHaveAttribute("aria-current", "true");
   await page.getByRole("table").getByRole("link").first().click();
+  await expect(page).toHaveURL(/\/dashboard\/aftersales\/requests\//); // under Aftersales, so the menu marks it there
   await expect(page.getByRole("link", { name: "Aftersales", exact: true })).toBeVisible(); // the way back
   await expect(page.getByRole("link", { name: "Open a claim" })).toBeVisible();
 });
