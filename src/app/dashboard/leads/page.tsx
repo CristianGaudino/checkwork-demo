@@ -2,16 +2,17 @@ import Link from "next/link";
 import { LeadStatusBadge } from "@/components/admin/badges";
 import { Avatar, DataTable, EmptyState, FilterTabs, PageHeader, Pager, SearchBar, SummaryTabs, adminButtonQuiet, paginate } from "@/components/admin/kit";
 import { can } from "@/lib/permissions";
-import { LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_TYPES, LEAD_TYPE_LABELS, getSettings, leadsStore } from "@/lib/admin/collections";
+import { LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_TYPE_LABELS, getSettings, leadsStore } from "@/lib/admin/collections";
 import { dublinDay, fmtAgo, fmtDate } from "@/lib/admin/format";
-import { countByStatus, filterLeads, followUpDue, isOpenLead, parseLeadFilter } from "@/lib/admin/leads";
+import { SALES_LEAD_TYPES, countByStatus, filterLeads, followUpDue, isOpenLead, isSalesLead, parseLeadFilter } from "@/lib/admin/leads";
 
 export const metadata = { title: "Leads" };
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ status?: string; type?: string; q?: string; due?: string; late?: string; page?: string }> }) {
   const sp = await searchParams;
   const f = parseLeadFilter(sp);
-  const [all, { leadSlaHours }] = await Promise.all([leadsStore.list(), getSettings()]);
+  const [everyLead, { leadSlaHours }] = await Promise.all([leadsStore.list(), getSettings()]);
+  const all = everyLead.filter(isSalesLead);
   const counts = countByStatus(all);
   const today = dublinDay();
   const due = all.filter((l) => followUpDue(l, today)).length;
@@ -51,7 +52,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <FilterTabs
           label="Type of lead"
-          items={[{ label: "All types", href: href({ type: undefined }), active: !f.type }, ...LEAD_TYPES.map((t) => ({ label: LEAD_TYPE_LABELS[t], href: href({ type: t }), active: f.type === t }))]}
+          items={[{ label: "All types", href: href({ type: undefined }), active: !f.type }, ...SALES_LEAD_TYPES.map((t) => ({ label: LEAD_TYPE_LABELS[t], href: href({ type: t }), active: f.type === t }))]}
         />
         <SearchBar action="/dashboard/leads" value={f.q} placeholder="Search name, phone, email, car" label="Search leads" keep={{ status: f.status, type: f.type, due: f.due ? "1" : undefined, late: f.late ? "1" : undefined }} />
       </div>

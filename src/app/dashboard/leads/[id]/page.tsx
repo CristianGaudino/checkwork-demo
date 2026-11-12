@@ -48,9 +48,16 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         title={lead.name}
         text={`${LEAD_TYPE_LABELS[lead.type]} · ${lead.source} · ${fmtDateTime(lead.createdAt)}`}
         actions={
-          <Link href="/dashboard/leads" className={adminButtonQuiet}>
-            All leads
-          </Link>
+          // A warranty request is aftersales work: it is listed there, so the way back is there.
+          lead.type === "warranty" ? (
+            <Link href="/dashboard/aftersales?view=requests" className={adminButtonQuiet}>
+              Aftersales
+            </Link>
+          ) : (
+            <Link href="/dashboard/leads" className={adminButtonQuiet}>
+              All leads
+            </Link>
+          )
         }
       />
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { AreaChart, BarList } from "@/components/admin/charts";
 import { DataTable, FilterTabs, PageHeader, Panel, StatCard, StatGrid } from "@/components/admin/kit";
 import { getSettings, leadsStore, prepStore, salesStore } from "@/lib/admin/collections";
+import { isSalesLead } from "@/lib/admin/leads";
 import { carCosts } from "@/lib/admin/costs";
 import { fmtEur, fmtNum } from "@/lib/admin/format";
 import { PERIODS, fullReport, monthLabel, personalReport, type Period } from "@/lib/admin/reports";
@@ -23,7 +24,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
   );
   if (!(await can("margins"))) return <Personal period={period} tabs={tabs} />;
 
-  const [sales, cars, leads, costs, prep, { team }] = await Promise.all([salesStore.list(), adminCars(), leadsStore.list(), carCosts(), prepStore.list(), getSettings()]);
+  const [sales, cars, leads, costs, prep, { team }] = await Promise.all([salesStore.list(), adminCars(), (await leadsStore.list()).filter(isSalesLead), carCosts(), prepStore.list(), getSettings()]);
   const r = fullReport({ sales, cars, leads, team: team.map((t) => t.name), costs: new Map([...costs].map(([id, c]) => [id, c.total])), prep, period, now: now() });
   const best = r.months.reduce((a, b) => (b.value > a.value ? b : a), r.months[0]);
 
@@ -96,7 +97,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
 // A salesperson's own figures: counts only.
 async function Personal({ period, tabs }: { period: Period; tabs: React.ReactNode }) {
   const me = await currentMember();
-  const [sales, leads] = await Promise.all([salesStore.list(), leadsStore.list()]);
+  const [sales, leads] = await Promise.all([salesStore.list(), (await leadsStore.list()).filter(isSalesLead)]);
   const r = personalReport({ name: me.name, sales, leads, period, now: now() });
   return (
     <>

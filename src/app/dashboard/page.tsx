@@ -13,6 +13,7 @@ import { adminCars } from "@/lib/admin/stock-admin";
 import { syncStatus } from "@/lib/donedeal/sync";
 import { stockSource } from "@/lib/stock-source";
 import { forSale, isSold } from "@/lib/stock/types";
+import { isSalesLead } from "@/lib/admin/leads";
 
 export const metadata = { title: "Overview" };
 
@@ -25,7 +26,7 @@ export default async function Page() {
   const cars = all.filter((c) => !isSold(c));
   // Only for staff with the margins permission: the costs are not read without it.
   const costs = (await can("margins")) ? new Map([...(await carCosts())].map(([id, c]) => [id, c.total])) : null;
-  const o = overview({ leads, drives, reviews, cars: all, costs: costs ? new Set(costs.keys()) : undefined, sales: new Set(sales.map((s) => s.id)), reservations, orders, syncProblem: Boolean(sync?.problem), slaHours: settings.leadSlaHours });
+  const o = overview({ leads: leads.filter(isSalesLead), drives, reviews, cars: all, costs: costs ? new Set(costs.keys()) : undefined, sales: new Set(sales.map((s) => s.id)), reservations, orders, syncProblem: Boolean(sync?.problem), slaHours: settings.leadSlaHours });
   const margin = costs ? cars.filter((c) => costs.has(c.id)).reduce((s, c) => s + marginOf(c.priceEur, costs.get(c.id)!).eur, 0) : 0;
 
   return (
