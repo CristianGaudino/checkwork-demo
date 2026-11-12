@@ -16,12 +16,14 @@ export const openWarrantyRequests = (leads: Lead[], claims: Pick<Claim, "leadId"
 // due: follow-ups due; late: new leads past the reply target. One or the other. with: who has it (a name, or "none"); source: where it came from.
 export type LeadFilter = { status?: LeadStatus; type?: LeadType; q: string; due?: boolean; late?: boolean; with?: string; source?: (typeof LEAD_SOURCES)[number] };
 
-export function parseLeadFilter(sp: { status?: string; type?: string; q?: string; due?: string; late?: string; with?: string; source?: string }): LeadFilter {
+// `need` is the Filters panel's one choice (due or late); the older `due=1` and `late=1` links still work.
+export function parseLeadFilter(sp: { status?: string; type?: string; q?: string; due?: string; late?: string; need?: string; with?: string; source?: string }): LeadFilter {
+  const due = sp.due === "1" || sp.need === "due";
   return {
     with: sp.with?.slice(0, 80) || undefined,
     source: (LEAD_SOURCES as readonly string[]).includes(sp.source ?? "") ? (sp.source as LeadFilter["source"]) : undefined,
-    due: sp.due === "1" || undefined,
-    late: (sp.due !== "1" && sp.late === "1") || undefined,
+    due: due || undefined,
+    late: (!due && (sp.late === "1" || sp.need === "late")) || undefined,
     status: (LEAD_STATUSES as readonly string[]).includes(sp.status ?? "") ? (sp.status as LeadStatus) : undefined,
     type: (LEAD_TYPES as readonly string[]).includes(sp.type ?? "") ? (sp.type as LeadType) : undefined,
     q: (sp.q ?? "").trim().toLowerCase().slice(0, 60),

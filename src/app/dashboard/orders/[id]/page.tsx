@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { OrderBadge } from "@/components/admin/badges";
-import { ChoiceButton, Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
+import { ChoiceAct } from "@/components/admin/ActButton";
+import { Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
 import { CancelOrderForm } from "@/components/admin/OrderForms";
 import { ORDER_STATUS_LABELS, customersStore, orderOpen, ordersStore } from "@/lib/admin/collections";
 import { fmtDate, fmtDateTime, fmtEur } from "@/lib/admin/format";
@@ -78,9 +79,18 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             {open && o.status !== "arrived" && (
               <div className="flex flex-wrap gap-2">
                 {STEPS.map((s) => (
-                  <ChoiceButton key={s} action={setOrderStatusAction.bind(null, o.id)} name="status" value={s} active={o.status === s}>
+                  // Arrived puts the car in stock and never steps back, so it asks first; the other steps can be taken back.
+                  <ChoiceAct
+                    key={s}
+                    action={setOrderStatusAction.bind(null, o.id)}
+                    set={{ status: s }}
+                    back={s === "arrived" ? undefined : { status: o.status }}
+                    confirm={s === "arrived" ? { title: "Mark it arrived?", text: "The car goes into stock, held for the buyer. This cannot be stepped back.", yes: "It has arrived" } : undefined}
+                    active={o.status === s}
+                    done={`Order: ${ORDER_STATUS_LABELS[s]}`}
+                  >
                     {ORDER_STATUS_LABELS[s]}
-                  </ChoiceButton>
+                  </ChoiceAct>
                 ))}
               </div>
             )}

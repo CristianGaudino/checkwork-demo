@@ -148,7 +148,7 @@ test("the Test Drive page lists the cars, books the one chosen, and the dealer s
   await choose(d.getByLabel("Time"), 0);
   await d.getByRole("button", { name: "Book" }).click();
   await expect(d.getByRole("heading", { name: "Thanks, we have your request." })).toBeFocused();
-  await page.goto("/dashboard/test-drives?status=requested");
+  await page.goto("/dashboard/test-drives?view=list&status=requested&q=Page+booker");
   await expect(page.getByText("Page booker").first()).toBeVisible();
 });
 
@@ -169,7 +169,7 @@ test("Test drive asks for a day and a time, reaches the dealer's dashboard as a 
   await d.getByRole("button", { name: "Book" }).click();
   await expect(d.getByRole("heading", { name: "Thanks, we have your request." })).toBeFocused();
   // The booking is now on the dealer's list (the admin is open in this run).
-  await page.goto("/dashboard/test-drives?status=requested");
+  await page.goto("/dashboard/test-drives?view=list&status=requested&q=Drive+booker");
   await expect(page.getByText("Drive booker").first()).toBeVisible();
 });
 

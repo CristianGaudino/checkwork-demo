@@ -15,7 +15,8 @@ import { addMonths, dublinDay, dublinMs } from "@/lib/admin/format";
 import { isBankHoliday } from "@/lib/bank-holidays";
 import { LIMITS, TEST_DRIVE, driveTimes, inDriveHours } from "@/lib/leads/constants";
 
-export type DriveFormState = { errors?: Record<string, string>; done?: string } | undefined;
+// `day`: the booked day, so the page can open the diary on it.
+export type DriveFormState = { errors?: Record<string, string>; done?: string; day?: string } | undefined;
 
 export async function setDriveStatusAction(id: string, status: string) {
   const next = parseDriveStatus(status);
@@ -23,6 +24,16 @@ export async function setDriveStatusAction(id: string, status: string) {
   if (!next || !drive || drive.status === next) return;
   await drivesStore.put({ ...drive, status: next });
   await logActivity("test-drives", `Changed the test drive from ${DRIVE_STATUS_LABELS[drive.status]} to ${DRIVE_STATUS_LABELS[next]}`, { kind: "drive", id });
+  revalidatePath("/dashboard/test-drives");
+}
+
+// Who takes the customer out: a team member's name, or "" for nobody yet. Anything else is refused.
+export async function assignDriveAction(id: string, name: string) {
+  const drive = await drivesStore.get(id);
+  const { team } = await getSettings();
+  if (!drive || (name && !team.some((t) => t.name === name)) || (drive.assignedTo ?? "") === name) return;
+  await drivesStore.put({ ...drive, assignedTo: name || undefined });
+  await logActivity("test-drives", name ? `Gave the test drive to ${name}` : "Took the test drive off its person", { kind: "drive", id });
   revalidatePath("/dashboard/test-drives");
 }
 
@@ -34,6 +45,7 @@ const booking = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Choose a day"),
   time: z.string().regex(/^\d{2}:\d{2}$/, "Choose a time"),
   notes: z.string().trim().max(300).optional(),
+  assignedTo: z.string().max(80).optional(),
 });
 
 // The rules for a booking's time, for a new one and a moved one (`ignoreId`: the booking being moved does not clash with itself).
@@ -79,8 +91,9 @@ export async function addDriveAction(_prev: DriveFormState, data: FormData): Pro
   if ("errors" in slot) return slot;
   const startsAt = slot.startsAt;
   const id = newId("drive");
-  await drivesStore.put({ id, name: b.name, phone: b.phone, email: b.email ?? "", carSlug: car.slug, carTitle: carName(car), startsAt, status: "confirmed", notes: b.notes ?? "", createdAt: Date.now() });
+  const who = b.assignedTo && (await getSettings()).team.some((t) => t.name === b.assignedTo) ? b.assignedTo : undefined;
+  await drivesStore.put({ id, name: b.name, phone: b.phone, email: b.email ?? "", carSlug: car.slug, carTitle: carName(car), startsAt, status: "confirmed", notes: b.notes ?? "", ...(who && { assignedTo: who }), createdAt: Date.now() });
   await logActivity("test-drives", "Booked a test drive", { kind: "drive", id });
   revalidatePath("/dashboard/test-drives");
-  return { done: `Booked ${b.name} for ${carName(car)}.` };
+  return { done: `Booked ${b.name} for ${carName(car)}.`, day: b.date };
 }

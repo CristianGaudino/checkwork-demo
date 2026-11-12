@@ -77,6 +77,6 @@ export async function mirrorLead(row: LeadRow, emailed = true): Promise<void> {
     const known = await customersStore.get(id);
     const c: Customer = known ?? { id, name: row.name, email: row.email ?? "", phone: row.phone ?? "", source: "Website", marketingConsent: false, createdAt: row.consentAt.getTime(), lastContactAt: 0 };
     await customersStore.put({ ...c, lastContactAt: row.consentAt.getTime() });
-    await notify(noticeOfLead(m.lead, Boolean(m.drive)), row.consentAt.getTime());
+    await notify(noticeOfLead(m.lead, Boolean(m.drive), m.drive?.id), row.consentAt.getTime());
   }
 }

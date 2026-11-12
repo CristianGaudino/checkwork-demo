@@ -55,9 +55,9 @@ export async function markRead(r: Reader, ids?: string[]): Promise<void> {
   await readsStore.put({ id: key(r), ids: [...new Set([...read, ...add])].filter((id) => live.has(id)) });
 }
 
-// What a website request says in the bell: the kind and the car, never the person.
-export function noticeOfLead(lead: Pick<Lead, "id" | "type" | "carTitle">, drive: boolean): Omit<Notice, "id" | "at"> {
-  if (drive) return { kind: "drive", text: `Test drive request${lead.carTitle ? `: ${lead.carTitle}` : ""}`, href: "/dashboard/test-drives" };
+// What a website request says in the bell: the kind and the car, never the person. A booking links to itself when there is one (`driveId`).
+export function noticeOfLead(lead: Pick<Lead, "id" | "type" | "carTitle">, drive: boolean, driveId?: string): Omit<Notice, "id" | "at"> {
+  if (drive) return { kind: "drive", text: `Test drive request${lead.carTitle ? `: ${lead.carTitle}` : ""}`, href: driveId ? `/dashboard/test-drives/${driveId}` : "/dashboard/test-drives" };
   const kind: NoticeKind = lead.type === "warranty" ? "warranty" : lead.type === "order" ? "order" : "lead";
   const label = lead.type === "warranty" ? "Warranty request" : lead.type === "order" ? "New car order request" : LEAD_TYPE_LABELS[lead.type];
   return { kind, text: `${label}${lead.carTitle ? `: ${lead.carTitle}` : ""}`, href: kind === "warranty" ? `/dashboard/aftersales/requests/${lead.id}` : `/dashboard/leads/${lead.id}` };
@@ -70,7 +70,7 @@ function seedNotices(leads: Lead[], now = Date.now()): Notice[] {
   const drives = demoDrives().filter((d) => d.status === "requested" && d.startsAt > now && d.createdAt > now - 3 * DAY);
   return [
     ...recent.map((l) => ({ id: `note-${l.id}`, at: l.createdAt, ...noticeOfLead(l, l.type === "test-drive") })),
-    ...drives.map((d) => ({ id: `note-${d.id}`, at: d.createdAt, ...noticeOfLead({ id: d.id, type: "test-drive", carTitle: d.carTitle }, true) })),
+    ...drives.map((d) => ({ id: `note-${d.id}`, at: d.createdAt, ...noticeOfLead({ id: d.id, type: "test-drive", carTitle: d.carTitle }, true, d.id) })),
     { id: "note-assigned", at: now - 35 * MINUTE, kind: "assigned", text: "Ciara Walsh gave you a lead: Car enquiry", href: "/dashboard/leads?status=contacted", for: "Conor Doyle" },
   ];
 }

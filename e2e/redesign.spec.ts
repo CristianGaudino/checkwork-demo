@@ -45,21 +45,22 @@ test.describe("the drop-down", () => {
   test.use({ viewport: { width: 1280, height: 800 }, isMobile: false, hasTouch: false });
 
   test("closes on a second press, on a press elsewhere, and a press on its label does not reopen it", async ({ page }) => {
-    await page.goto("/dashboard/marketing");
-    const box = page.getByLabel("Car", { exact: true });
+    await page.setViewportSize({ width: 1280, height: 1400 }); // room for the list to open below the field, clear of its label
+    await page.goto("/dashboard/orders/new");
+    const box = page.getByRole("combobox", { name: /^Buyer/ });
     const list = page.getByRole("listbox");
     await box.click();
     await expect(list).toBeVisible();
     await box.click();
     await expect(list).toHaveCount(0);
     await box.click();
-    await page.getByRole("heading", { name: "New post" }).click();
+    await page.getByRole("heading", { name: "Place an order" }).click();
     await expect(list).toHaveCount(0);
     await box.click();
-    await page.getByText("Car", { exact: true }).first().click(); // the field's own label
+    await page.getByText("Buyer", { exact: true }).first().click(); // the field's own label
     await expect(list).toHaveCount(0);
     await choose(box, 1); // and it still chooses
-    await expect(page.getByLabel("Text")).toHaveValue(/Just in: /);
+    await expect(box).not.toHaveValue("A new customer");
   });
 });
 
@@ -120,7 +121,7 @@ test.describe("DoneDeal stock", () => {
     await page.goto("/dashboard");
     await expect(page.getByRole("link", { name: "Add car" })).toHaveCount(0);
     await expect(page.getByRole("region", { name: "DoneDeal sync" })).toBeVisible();
-    await page.goto("/dashboard/settings");
+    await page.goto("/dashboard/settings?section=services");
     await expect(page.getByRole("region", { name: "DoneDeal" })).toContainText("Connected");
     await expect(page.getByRole("cell", { name: "DoneDeal stock" })).toBeVisible();
   });
@@ -136,7 +137,7 @@ test("our own stock has Add car, no sync and no DoneDeal service", async ({ page
   await page.goto("/dashboard");
   await expect(page.getByRole("link", { name: "Add car" })).toBeVisible();
   await expect(page.getByRole("region", { name: "DoneDeal sync" })).toHaveCount(0);
-  await page.goto("/dashboard/settings");
+  await page.goto("/dashboard/settings?section=services");
   await expect(page.getByRole("cell", { name: "DoneDeal stock" })).toHaveCount(0);
   expect((await page.request.post("/api/donedeal/sync")).status()).toBe(404); // the cron's route needs its key
 });

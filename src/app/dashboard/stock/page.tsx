@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CarStatusBadge } from "@/components/admin/badges";
-import { DataTable, EmptyState, FilterSelect, PageHeader, Pager, Panel, SummaryTabs, TableToolbar, adminButton, paginate, rowButton, sortRows, type Column, adminButtonQuiet } from "@/components/admin/kit";
+import { DataTable, EmptyState, PageHeader, Panel, SummaryTabs, TableFooter, TableToolbar, adminButton, pageOf, rowButton, sortRows, type Column, type FilterGroup } from "@/components/admin/kit";
 import { ActButton } from "@/components/admin/ActButton";
 import { RowMenu } from "@/components/admin/RowMenu";
 import { ExternalIcon, PlusIcon, SyncIcon } from "@/components/stock/icons";
@@ -11,7 +11,7 @@ import { adminCars } from "@/lib/admin/stock-admin";
 import { can } from "@/lib/permissions";
 import { fmtDate, fmtEur, fmtNum } from "@/lib/admin/format";
 import { carName, carHref } from "@/lib/stock/format";
-import { FUEL_LABELS, FUELS, forSale, isSold, type Car } from "@/lib/stock/types";
+import { FUEL_LABELS, FUELS, GEARBOXES, GEARBOX_LABELS, forSale, isSold, type Car } from "@/lib/stock/types";
 import { stockSource } from "@/lib/stock-source";
 import { DONEDEAL_DEALER_URL, listingHref } from "@/lib/stock-source-rules";
 import { SyncPanel } from "@/components/admin/SyncPanel";
@@ -35,9 +35,9 @@ const daysIn = (listedAt: string) => {
 
 // The views (src/lib/admin/stock-views.ts) are the summary: each is a tile with its count, and the chosen one filters the table.
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ view?: string; status?: string; q?: string; make?: string; fuel?: string; sort?: string; dir?: string; saved?: string; deleted?: string; sale?: string; reserved?: string; undone?: string; page?: string }> }) {
+export default async function Page({ searchParams }: { searchParams: Promise<{ view?: string; status?: string; q?: string; make?: string; fuel?: string; gearbox?: string; sort?: string; dir?: string; per?: string; saved?: string; deleted?: string; sale?: string; reserved?: string; undone?: string; page?: string }> }) {
   const sp = await searchParams;
-  const { view, q, make, fuel } = parseStockList(sp);
+  const { view, q, make, fuel, gearbox } = parseStockList(sp);
   const [all, source] = await Promise.all([adminCars(), stockSource()]);
   const synced = source === "donedeal";
   const sync = synced ? await syncStatus() : null;
@@ -57,10 +57,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
   const costs = (await can("margins")) ? new Map([...(await carCosts())].map(([id, c]) => [id, c.total])) : null;
   // The makes in stock, for the make filter.
   const makes = [...new Map(all.map((c) => [c.makeSlug, c.make])).entries()].sort((a, b) => a[1].localeCompare(b[1], "en-IE"));
-  const matching = stockList(all, view, q, { make, fuel });
+  const matching = stockList(all, view, q, { make, fuel, gearbox });
   const saved = sp.saved ? all.find((c) => c.id === sp.saved) : undefined;
   // A view keeps the search and the filters; the sort and the page start again.
-  const href = (v: StockView) => `/dashboard/stock?${new URLSearchParams(Object.entries({ view: v, q, make, fuel }).filter((e): e is [string, string] => Boolean(e[1])))}`;
+  const href = (v: StockView) => `/dashboard/stock?${new URLSearchParams(Object.entries({ view: v, q, make, fuel, gearbox }).filter((e): e is [string, string] => Boolean(e[1])))}`;
   // Where a row goes: the car's editor here, or, for synced stock, the car on the site (it is changed on DoneDeal).
   // A synced car off the website (its ad came down) has no page there, so it opens here.
   const open = (c: Car) => (synced && !c.listing ? carHref(c.slug) : `/dashboard/stock/${c.id}`);
@@ -195,7 +195,14 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
 
   // No sort chosen: the view's own order (stock-views.ts).
   const { rows: sorted, sort } = sortRows(matching, columns, sp, { key: "", dir: "asc" });
-  const { rows, page, pageCount, total } = paginate(sorted, sp.page);
+  const paged = pageOf(sorted, sp);
+  const rows = paged.rows;
+  // Every filter in one panel: the make (those in stock), the fuel, the gearbox.
+  const filters: FilterGroup[] = [
+    { name: "make", label: "Make", any: "Every make", options: makes },
+    { name: "fuel", label: "Fuel", any: "Any fuel", options: FUELS.filter((f) => all.some((c) => c.fuel === f)).map((f) => [f, FUEL_LABELS[f]] as const) },
+    { name: "gearbox", label: "Gearbox", any: "Any gearbox", options: GEARBOXES.map((g) => [g, GEARBOX_LABELS[g]] as const) },
+  ];
 
   return (
     <>
@@ -204,10 +211,6 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         text={synced ? "Synced from DoneDeal. Add, edit and sell cars there; they update here within 15 minutes." : undefined}
         actions={
           <>
-            {/* The list as it is filtered now: cost and margin columns only for the margins roles. */}
-            <a href={`/dashboard/stock/export?${new URLSearchParams(Object.entries({ view, q, make, fuel }).filter((e): e is [string, string] => Boolean(e[1])))}`} className={adminButtonQuiet} download>
-              Export CSV
-            </a>
             {synced ? (
               <a href={DONEDEAL_DEALER_URL} {...NEW_TAB} className={adminButton}>
                 <SyncIcon className="size-4" />
@@ -267,10 +270,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
           .map((v) => [v, all.filter(STOCK_VIEWS[v].test).length] as const)
           .filter(([v, count]) => count > 0 || view === v || !["hidden", "drafts", "reserved"].includes(v))
           .map(([v, count]) => ({ label: STOCK_VIEWS[v].label, count, href: href(v), active: view === v }))} />
-      <TableToolbar search={{ placeholder: SEARCH_MAKE_MODEL, label: "Search stock" }}>
-        <FilterSelect name="make" label="Make" all="Every make" options={makes} />
-        <FilterSelect name="fuel" label="Fuel" all="Any fuel" options={FUELS.map((f) => [f, FUEL_LABELS[f]] as const)} />
-      </TableToolbar>
+      <TableToolbar search={{ placeholder: SEARCH_MAKE_MODEL, label: "Search stock" }} filters={filters} />
       <DataTable
         label="Stock"
         linkRows
@@ -280,7 +280,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         sort={sort}
         empty={<EmptyState title="No cars match" text={q ? "Try a different search." : undefined} action={!synced && !q ? <Link href="/dashboard/stock/new" className={adminButton}>Add a car</Link> : undefined} />}
       />
-      <Pager page={page} pageCount={pageCount} total={total} />
+      {/* The list as it is filtered now, as a CSV: cost and margin columns only for the margins roles. */}
+      <TableFooter page={paged.page} pageCount={paged.pageCount} total={paged.total} per={paged.per} exportHref="/dashboard/stock/export" />
     </>
   );
 }

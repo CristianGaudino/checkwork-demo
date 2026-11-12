@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { choose } from "./combo";
 
 // The dashboard's tables, its bell, and where a warranty request goes (issues #143, #144, #146).
 
@@ -38,10 +39,16 @@ test("the search runs as you type, the cross clears it, and a header sorts the w
 test("a filter narrows the list and stays in the link; Compact tightens the rows of every table", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/dashboard/leads");
-  await page.getByRole("combobox", { name: "Who has it" }).click();
-  await page.getByRole("option", { name: "Nobody" }).click();
+  // Every filter behind one button; a choice applies at once and shows as a chip that takes it off.
+  await page.getByRole("button", { name: "Filters" }).click();
+  await page.getByRole("radio", { name: "Nobody" }).check();
   await expect(page).toHaveURL(/with=none/);
+  await page.getByRole("button", { name: "Done", exact: true }).click();
   await expect(page.getByRole("table").getByRole("row").nth(1)).toContainText("Nobody");
+  const chip = page.getByRole("group", { name: "Filters on" }).getByRole("link", { name: /Who has it: Nobody/ });
+  await expect(chip).toBeVisible();
+  await chip.click();
+  await expect(page).not.toHaveURL(/with=/);
   // Compact: the rows of this table and the next, kept for the person.
   const rowHeight = async () => (await page.getByRole("table").getByRole("row").nth(1).boundingBox())!.height;
   const roomy = await rowHeight();
@@ -51,6 +58,21 @@ test("a filter narrows the list and stays in the link; Compact tightens the rows
   await page.goto("/dashboard/customers");
   await expect(page.getByRole("button", { name: "Compact" })).toHaveAttribute("aria-pressed", "true");
   await page.getByRole("button", { name: "Compact" }).click(); // back, for the tests after
+});
+
+test("every table pages at its foot, with its rows a page and its CSV of the list as filtered", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto("/dashboard/leads?per=10&type=enquiry");
+  await expect(page.getByText(/^Showing 1 to 10 of \d+$/)).toBeVisible();
+  await page.getByRole("navigation", { name: "Pages" }).getByRole("link", { name: "Next" }).click();
+  await expect(page).toHaveURL(/page=2/);
+  await expect(page).toHaveURL(/type=enquiry/); // the filter stays
+  await expect(page.getByText(/^Showing 11 to /)).toBeVisible();
+  const csv = page.getByRole("link", { name: "Export CSV" });
+  await expect(csv).toHaveAttribute("href", /^\/dashboard\/leads\/export\?.*type=enquiry/);
+  await expect(page.getByRole("banner").getByRole("link", { name: "Export CSV" })).toHaveCount(0); // not in the page header
+  await choose(page.getByLabel("Rows"), "25");
+  await expect(page).not.toHaveURL(/per=/);
 });
 
 test("a warranty request waits in Aftersales, not in Leads", async ({ page }) => {

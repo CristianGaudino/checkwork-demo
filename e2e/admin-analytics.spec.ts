@@ -6,7 +6,7 @@ test("analytics shows the totals, a chart with a text alternative, and a range t
   await expect(page.getByRole("table", { name: /Visitors each day/ })).toHaveCount(1);
   const visitors = async () => (await page.locator("main p.tabular-nums").first().textContent())!; // the first stat card's figure
   const at30 = await visitors();
-  await page.getByRole("link", { name: "Last 7 days" }).click();
+  await page.getByRole("navigation", { name: "Period" }).getByRole("link", { name: "7 days" }).click();
   await expect(page).toHaveURL(/range=7/);
   expect(await visitors()).not.toBe(at30);
   await expect(page.getByRole("img", { name: /over the last 7 days/ })).toBeVisible();
@@ -24,5 +24,5 @@ test("every section is there, and the funnel never grows", async ({ page }) => {
 
 test("a bad range falls back to 30 days", async ({ page }) => {
   await page.goto("/dashboard/analytics?range=12345");
-  await expect(page.getByRole("link", { name: "Last 30 days" })).toHaveAttribute("aria-current", "true");
+  await expect(page.getByRole("navigation", { name: "Period" }).getByRole("link", { name: "30 days" })).toHaveAttribute("aria-current", "page");
 });

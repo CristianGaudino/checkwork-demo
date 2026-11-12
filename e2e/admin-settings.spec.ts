@@ -14,7 +14,7 @@ test("a target is checked, saved, and changes what the overview calls late", asy
 
 test("a team member is added, shows in the lead owner choices, and cannot be added twice", async ({ page }) => {
   const name = `Tester ${Date.now() % 100000}`;
-  await page.goto("/dashboard/settings");
+  await page.goto("/dashboard/settings?section=team");
   const add = page.locator("form").filter({ has: page.locator('input[name="email"]') });
   await add.locator('input[name="name"]').fill(name);
   await add.locator('input[name="email"]').fill("tester@example.com");
@@ -29,12 +29,15 @@ test("a team member is added, shows in the lead owner choices, and cannot be add
   await expect(page.getByRole("region", { name: "Who has it" }).getByRole("button", { name })).toHaveCount(1);
 });
 
-test("connected services list what is still needed, and the business details are shown", async ({ page }) => {
+test("the sections are one at a time; connected services list what is still needed, and the business details are shown", async ({ page }) => {
   await page.goto("/dashboard/settings");
+  await expect(page.getByRole("main").getByText("Checkwork Motors").first()).toBeVisible(); // the business details, not the menu
+  await expect(page.getByRole("region", { name: "Team" })).toHaveCount(0); // one section at a time
+  await page.getByRole("navigation", { name: "Settings" }).getByRole("link", { name: "Connected services" }).click();
+  await expect(page).toHaveURL(/section=services/);
   const social = page.getByRole("row", { name: /Facebook and Instagram posting/ });
   // The three outward services are simulated on the demo, so they read as connected; lead email shows its true state.
   await expect(social).toContainText("Connected");
   await expect(social).toContainText("@checkworkmotors");
   await expect(page.getByRole("row", { name: /Lead email/ })).toContainText("LEAD_TO_EMAIL");
-  await expect(page.getByRole("main").getByText("Checkwork Motors").first()).toBeVisible(); // the business details, not the menu
 });

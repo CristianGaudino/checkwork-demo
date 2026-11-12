@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
-const { clashes, groupByDay, parseDriveStatus } = await import("./drives");
+const { clashes, groupByDay, parseDriveStatus, slotData } = await import("./drives");
 type D = import("./collections").TestDrive;
 
 const at = (day: number, hour: number) => new Date(2026, 10, day, hour, 0).getTime();
@@ -23,5 +23,13 @@ describe("test drive agenda", () => {
   it("accepts only known statuses", () => {
     expect(parseDriveStatus("confirmed")).toBe("confirmed");
     expect(parseDriveStatus("deleted")).toBeUndefined();
+  });
+  it("offers today's open days on, and each car's open bookings in Irish time, but the one being moved", () => {
+    const now = Date.UTC(2026, 10, 12, 10, 0); // Thursday 12 November, 10:00 in Dublin
+    const list = [drive("a", Date.UTC(2026, 10, 13, 11, 0)), drive("b", Date.UTC(2026, 10, 13, 15, 0), { status: "cancelled" }), drive("c", Date.UTC(2026, 10, 14, 12, 30))];
+    const s = slotData(list, "c", now);
+    expect(s.now).toBe("2026-11-12 10:00");
+    expect(s.days[0]).toBe("2026-11-12");
+    expect(s.taken).toEqual({ "car-1": ["2026-11-13 11:00"] });
   });
 });

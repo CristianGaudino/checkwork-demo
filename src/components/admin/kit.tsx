@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { useId } from "react";
 import { card, press } from "@/components/ui";
-import { DensityToggle, LiveSearch, PagerLinks, SortHeader } from "./TableTools";
+import { AppliedFilters, DensityToggle, Filters, LiveSearch, SortHeader, type FilterGroup } from "./TableTools";
+import { PER_PAGE_DEFAULT, perPage } from "@/lib/admin/paging";
 import { fmtNum } from "@/lib/admin/format";
-export { DensityToggle, FilterSelect, LiveSearch } from "./TableTools";
+export { DensityToggle, LiveSearch, TableFooter, type FilterGroup } from "./TableTools";
 
 // The admin kit: the few pieces every admin page is made of. Same tokens as the site, denser and calmer.
 
@@ -192,41 +193,42 @@ export function SummaryTabs({ items, label = "Filter" }: { items: SummaryTab[]; 
   );
 }
 
-// Above a table: its search, then its filters, then the density switch at the end of the row. Wraps on a phone, where the rows are a
-// list already and the switch is left out.
-export function TableToolbar({ search, children }: { search?: { placeholder: string; label: string }; children?: React.ReactNode }) {
+// Above a table: its search and one Filters button (every filter it has, in a panel), the density switch at the end of the row, and under
+// them the filters that are on, as chips to take off. On a phone the search and Filters share a row and the density switch is left out.
+export function TableToolbar({ search, filters, children }: { search?: { placeholder: string; label: string }; filters?: FilterGroup[]; children?: React.ReactNode }) {
   return (
-    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-      {search && <LiveSearch placeholder={search.placeholder} label={search.label} />}
-      {children}
-      <div className="hidden sm:ml-auto sm:block">
-        <DensityToggle />
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center gap-2">
+        {search && <LiveSearch placeholder={search.placeholder} label={search.label} />}
+        {filters && filters.length > 0 && <Filters groups={filters} />}
+        {children}
+        <div className="ml-auto hidden sm:block">
+          <DensityToggle />
+        </div>
       </div>
+      {filters && <AppliedFilters groups={filters} />}
     </div>
   );
 }
 
 // Long lists in pages, so a dealer with a big stock or a busy year of leads gets a page that loads fast and reads well. `page` is
-// 1-based and clamped, so a stale link past the end shows the last page, never an empty one.
-export const PAGE_SIZE = 50;
-export function paginate<T>(rows: T[], asked: string | undefined, size = PAGE_SIZE) {
+// 1-based and clamped, so a stale link past the end shows the last page, never an empty one. `per` is the footer's Rows (?per=).
+export function paginate<T>(rows: T[], asked: string | undefined, size = PER_PAGE_DEFAULT) {
   const pageCount = Math.max(1, Math.ceil(rows.length / size));
   const page = Math.min(pageCount, Math.max(1, Number.parseInt(asked ?? "1", 10) || 1));
-  return { rows: rows.slice((page - 1) * size, page * size), page, pageCount, total: rows.length };
+  return { rows: rows.slice((page - 1) * size, page * size), page, pageCount, total: rows.length, per: size };
 }
+// A table's page from the URL (?page=, ?per=), ready for its footer: <TableFooter {...pageOf(rows, sp)} />.
+export const pageOf = <T,>(rows: T[], sp: { page?: string; per?: string }) => paginate(rows, sp.page, perPage(sp.per));
 
-// Without `href`, the links keep whatever the URL holds now (search, filters, sort): the dashboard's tables. `href` is for a page that builds
-// its own (the public test drive list).
-export function Pager({ page, pageCount, total, href }: { page: number; pageCount: number; total: number; href?: (page: number) => string }) {
+// Previous and Next for a page that builds its own links (the public test drive list). The dashboard's tables have TableFooter.
+export function Pager({ page, pageCount, total, href }: { page: number; pageCount: number; total: number; href: (page: number) => string }) {
   if (pageCount <= 1) return null;
   return (
     <nav aria-label="Pages" className="flex flex-wrap items-center justify-between gap-3">
       <p className="text-meta text-text-2">
         Page {page} of {pageCount}, {total} in all
       </p>
-      {!href ? (
-        <PagerLinks page={page} pageCount={pageCount} />
-      ) : (
       <div className="flex gap-2">
         {page > 1 && (
           <Link href={href(page - 1)} className={rowButton}>
@@ -239,7 +241,6 @@ export function Pager({ page, pageCount, total, href }: { page: number; pageCoun
           </Link>
         )}
       </div>
-      )}
     </nav>
   );
 }
@@ -247,19 +248,13 @@ export function Pager({ page, pageCount, total, href }: { page: number; pageCoun
 // A small button in a table row: always a word, sometimes an icon before it.
 export const rowButton = `inline-flex h-10 group-data-[density=compact]/shell:h-8 items-center justify-center gap-1.5 whitespace-nowrap rounded-control border border-hairline bg-card px-3 text-meta font-medium text-text transition-colors hover:border-control ${press}`;
 
-// Filter links as chips: for a second, smaller filter under SummaryTabs (lead type, review rating).
-export function FilterTabs({ items, label = "Filter" }: { items: { label: string; href: string; active: boolean; count?: number }[]; label?: string }) {
+// A page's views, one at a time (Today, Week, List): links, so the view is in the URL. Not a filter: a view changes how the page is laid out.
+export function Segmented({ items, label }: { items: { label: string; href: string; active: boolean }[]; label: string }) {
   return (
-    <nav aria-label={label} className="scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
+    <nav aria-label={label} className="inline-flex rounded-control border border-hairline bg-card p-1">
       {items.map((i) => (
-        <Link
-          key={i.label}
-          href={i.href}
-          aria-current={i.active ? "true" : undefined}
-          className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-meta font-medium ${i.active ? "border-text bg-text text-ink" : "border-hairline bg-card hover:border-control"} ${press}`}
-        >
+        <Link key={i.label} href={i.href} aria-current={i.active ? "page" : undefined} className={`inline-flex min-h-9 items-center rounded-[calc(var(--radius-control)-4px)] px-4 text-meta font-medium ${i.active ? "bg-text text-ink" : "text-text-2 hover:text-text"} ${press}`}>
           {i.label}
-          {i.count !== undefined && <span className="tabular-nums">{i.count}</span>}
         </Link>
       ))}
     </nav>
@@ -299,17 +294,5 @@ export function Avatar({ name, className = "" }: { name: string; className?: str
 }
 
 // One choice among several, as a button that posts on its own: a server action gets the `name` and `value`. The chosen one is filled.
-export function ChoiceButton({ action, name, value, active, children }: { action: (data: FormData) => void | Promise<void>; name: string; value: string; active: boolean; children: React.ReactNode }) {
-  return (
-    <form action={action}>
-      <input type="hidden" name={name} value={value} />
-      <button
-        type="submit"
-        aria-pressed={active}
-        className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-meta font-medium ${active ? "border-text bg-text text-ink" : "border-control bg-card text-text"} ${press}`}
-      >
-        {children}
-      </button>
-    </form>
-  );
-}
+// A choice among a few (a status, who has it), filled when it is the one now. ChoiceAct (ActButton.tsx) runs it with Undo in its toast.
+export const choicePill = (active: boolean) => `inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-meta font-medium ${active ? "border-text bg-text text-ink" : "border-control bg-card text-text"} ${press}`;

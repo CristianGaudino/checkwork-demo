@@ -1,9 +1,10 @@
 import { NEW_TAB } from "@/components/ui";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ChoiceAct } from "@/components/admin/ActButton";
 import { LeadStatusBadge } from "@/components/admin/badges";
 import { RegLookup } from "@/components/leads/RegLookup";
-import { Avatar, Badge, ChoiceButton, Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput, rowButton } from "@/components/admin/kit";
+import { Avatar, Badge, Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput, rowButton } from "@/components/admin/kit";
 import { LEAD_STATUS_LABELS, LEAD_TYPE_LABELS, LOST_REASONS, getSettings, leadsStore } from "@/lib/admin/collections";
 import { fmtDateTime } from "@/lib/admin/format";
 
@@ -35,6 +36,10 @@ export async function LeadView({ id }: { id: string }) {
   const car = lead.carSlug ? (await adminCars()).find((c) => c.slug === lead.carSlug) : undefined;
   const carSold = car !== undefined && isSold(car);
   const today = dublinDay();
+  // What puts the follow-up back as it was, for Undo: none, or its day (a day that has passed cannot be set again).
+  // And the status as it was, with the follow-up day and the lost reason a move clears.
+  const statusBack = { status: lead.status, ...(lead.followUpOn && { on: lead.followUpOn }), ...(lead.lostReason && { reason: lead.lostReason }) };
+  const followUpBack: Record<string, string> | undefined = !lead.followUpOn ? { clear: "1" } : lead.followUpOn >= today ? { on: lead.followUpOn } : undefined;
   const tel = telHref(lead.phone);
   const wa = waHref(lead.phone);
   // Their car's photos, on links that last an hour: the email's links expire after 7 days, the photos are kept 12 months.
@@ -59,9 +64,10 @@ export async function LeadView({ id }: { id: string }) {
           )
         }
       />
+      {/* On a phone the two columns become one list, in the order a call goes: who, what they said, then what to do. */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-        <div className="flex min-w-0 flex-col gap-6">
-          <Panel title="Message">
+        <div className="flex min-w-0 flex-col gap-6 max-lg:contents">
+          <Panel title="Message" className="max-lg:order-2">
             <p className="max-w-measure text-body">{lead.message}</p>
             {lead.carTitle && lead.carSlug && (
               <p className="text-meta text-text-2">
@@ -82,7 +88,7 @@ export async function LeadView({ id }: { id: string }) {
             )}
           </Panel>
           {photos.length > 0 && (
-            <Panel title="Photos">
+            <Panel title="Photos" className="max-lg:order-7">
               <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
                 {photos.map((src, i) => (
                   <li key={src}>
@@ -97,7 +103,7 @@ export async function LeadView({ id }: { id: string }) {
           )}
           {/* Selling or trading in: the car's plate, and a lookup so the dealer sees what it is before calling back. */}
           {lead.reg && (
-            <Panel title="Their car">
+            <Panel title="Their car" className="max-lg:order-7">
               <p className="text-body">
                 Registration <span className="font-medium tabular-nums">{lead.reg}</span>
               </p>
@@ -106,7 +112,7 @@ export async function LeadView({ id }: { id: string }) {
               </div>
             </Panel>
           )}
-          <Panel title="Notes">
+          <Panel title="Notes" className="max-lg:order-8">
             {lead.notes.length === 0 ? (
               <p className="text-body text-text-2">No notes yet.</p>
             ) : (
@@ -130,9 +136,9 @@ export async function LeadView({ id }: { id: string }) {
           </Panel>
         </div>
 
-        <div className="flex min-w-0 flex-col gap-6 max-lg:order-first">
+        <div className="flex min-w-0 flex-col gap-6 max-lg:contents">
           {/* The first thing a lead needs is a reply: three ways, each one press. */}
-          <Panel title="Contact">
+          <Panel title="Contact" className="max-lg:order-1">
             <p className="flex flex-col text-meta text-text-2">
               <span className="break-all">{lead.email}</span>
               <span>{lead.phone}</span>
@@ -158,13 +164,13 @@ export async function LeadView({ id }: { id: string }) {
               )}
             </div>
           </Panel>
-          <Panel title="Status" action={<LeadStatusBadge status={lead.status} />}>
+          <Panel title="Status" className="max-lg:order-3" action={<LeadStatusBadge status={lead.status} />}>
             <div className="flex flex-wrap gap-2">
               {STATUS_ACTIONS.map(({ status, Icon }) => (
-                <ChoiceButton key={status} action={setStatusAction.bind(null, lead.id)} name="status" value={status} active={lead.status === status}>
+                <ChoiceAct key={status} action={setStatusAction.bind(null, lead.id)} set={{ status }} back={statusBack} active={lead.status === status} done={`${lead.name}: ${LEAD_STATUS_LABELS[status]}`}>
                   <Icon className="size-4" />
                   {LEAD_STATUS_LABELS[status]}
-                </ChoiceButton>
+                </ChoiceAct>
               ))}
             </div>
             {/* Why it was lost, for the reports. Only on a lost lead. */}
@@ -173,9 +179,9 @@ export async function LeadView({ id }: { id: string }) {
                 <legend className="mb-2 text-meta font-medium">Why was it lost?</legend>
                 <div className="flex flex-wrap gap-2">
                   {LOST_REASONS.map((r) => (
-                    <ChoiceButton key={r} action={setLostReasonAction.bind(null, lead.id)} name="reason" value={r} active={lead.lostReason === r}>
+                    <ChoiceAct key={r} action={setLostReasonAction.bind(null, lead.id)} set={{ reason: r }} back={lead.lostReason && { reason: lead.lostReason }} active={lead.lostReason === r} done={`Lost: ${r}`}>
                       {r}
-                    </ChoiceButton>
+                    </ChoiceAct>
                   ))}
                 </div>
               </fieldset>
@@ -183,24 +189,24 @@ export async function LeadView({ id }: { id: string }) {
           </Panel>
           {/* A factory order request from the website: place it, copying from what they asked for. */}
           {lead.type === "order" && (
-            <Panel title="Factory order">
+            <Panel title="Factory order" className="max-lg:order-3">
               <Link href={`/dashboard/orders/new?lead=${lead.id}`} className={`${adminButton} w-fit`}>Place the order</Link>
             </Panel>
           )}
           {/* A warranty claim from the website: open it on the sale, with the buyer found from their details. */}
           {lead.type === "warranty" && (
-            <Panel title="Warranty">
+            <Panel title="Warranty" className="max-lg:order-3">
               <Link href={`/dashboard/aftersales/new?lead=${lead.id}`} className={`${adminButton} w-fit`}>Open a claim</Link>
             </Panel>
           )}
           {/* The day to get back to them. Only while the lead is open: won and lost need none. */}
           {isOpenLead(lead) && (
-            <Panel title="Follow up" action={lead.followUpOn && <Badge tone={followUpDue(lead, today) ? "warn" : "neutral"}>{lead.followUpOn === today ? "Today" : fmtDate(`${lead.followUpOn}T12:00:00Z`)}</Badge>}>
+            <Panel title="Follow up" className="max-lg:order-4" action={lead.followUpOn && <Badge tone={followUpDue(lead, today) ? "warn" : "neutral"}>{lead.followUpOn === today ? "Today" : fmtDate(`${lead.followUpOn}T12:00:00Z`)}</Badge>}>
               <div className="flex flex-wrap gap-2">
                 {([[1, "Tomorrow"], [3, "In 3 days"], [7, "Next week"]] as const).map(([n, label]) => (
-                  <ChoiceButton key={n} action={setFollowUpAction.bind(null, lead.id)} name="in" value={String(n)} active={false}>
+                  <ChoiceAct key={n} action={setFollowUpAction.bind(null, lead.id)} set={{ in: String(n) }} back={followUpBack} active={false} done={`Follow up ${label.toLowerCase()}`}>
                     {label}
-                  </ChoiceButton>
+                  </ChoiceAct>
                 ))}
               </div>
               <form action={setFollowUpAction.bind(null, lead.id)} className="flex flex-wrap items-end gap-2">
@@ -212,25 +218,22 @@ export async function LeadView({ id }: { id: string }) {
                 </button>
               </form>
               {lead.followUpOn && (
-                <form action={setFollowUpAction.bind(null, lead.id)}>
-                  <input type="hidden" name="clear" value="1" />
-                  <button type="submit" className={`${rowButton} text-bad`}>
-                    Clear the follow-up
-                  </button>
-                </form>
+                <ChoiceAct action={setFollowUpAction.bind(null, lead.id)} set={{ clear: "1" }} back={followUpBack} active={false} done="Follow-up cleared" className={`${rowButton} w-fit text-bad`}>
+                  Clear the follow-up
+                </ChoiceAct>
               )}
             </Panel>
           )}
-          <Panel title="Who has it">
+          <Panel title="Who has it" className="max-lg:order-5">
             <div className="flex flex-wrap gap-2">
-              <ChoiceButton action={assignLeadAction.bind(null, lead.id)} name="assignedTo" value="" active={!lead.assignedTo}>
+              <ChoiceAct action={assignLeadAction.bind(null, lead.id)} set={{ assignedTo: "" }} back={{ assignedTo: lead.assignedTo ?? "" }} active={!lead.assignedTo} done="Given to nobody">
                 Nobody
-              </ChoiceButton>
+              </ChoiceAct>
               {settings.team.map((t) => (
-                <ChoiceButton key={t.id} action={assignLeadAction.bind(null, lead.id)} name="assignedTo" value={t.name} active={lead.assignedTo === t.name}>
+                <ChoiceAct key={t.id} action={assignLeadAction.bind(null, lead.id)} set={{ assignedTo: t.name }} back={{ assignedTo: lead.assignedTo ?? "" }} active={lead.assignedTo === t.name} done={`Given to ${t.name}`}>
                   <Avatar name={t.name} className="-ml-2 size-7 bg-card" />
                   {t.name}
-                </ChoiceButton>
+                </ChoiceAct>
               ))}
             </div>
           </Panel>

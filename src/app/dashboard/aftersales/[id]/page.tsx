@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ClaimStatusBadge, CoverBadge } from "@/components/admin/badges";
-import { ChoiceButton, Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
+import { ChoiceAct } from "@/components/admin/ActButton";
+import { Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
 import { ClaimCostForm } from "@/components/admin/ClaimForms";
 import { CLAIM_STATUSES, CLAIM_STATUS_LABELS, claimsStore, coverEnds, customersStore, salesStore } from "@/lib/admin/collections";
 import { TimeLeft } from "@/components/admin/charts";
@@ -69,9 +70,9 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
           <Panel title="Status" action={<ClaimStatusBadge status={claim.status} />}>
             <div className="flex flex-wrap gap-2">
               {CLAIM_STATUSES.map((s) => (
-                <ChoiceButton key={s} action={setClaimStatusAction.bind(null, claim.id)} name="status" value={s} active={claim.status === s}>
+                <ChoiceAct key={s} action={setClaimStatusAction.bind(null, claim.id)} set={{ status: s }} back={{ status: claim.status }} active={claim.status === s} done={`Claim: ${CLAIM_STATUS_LABELS[s]}`}>
                   {CLAIM_STATUS_LABELS[s]}
-                </ChoiceButton>
+                </ChoiceAct>
               ))}
             </div>
           </Panel>

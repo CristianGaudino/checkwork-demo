@@ -39,6 +39,6 @@ test("a valuation lead shows the car's plate, and the dealer can look it up", as
 });
 
 test("the settings list the registration lookup as a service", async ({ page }) => {
-  await page.goto("/dashboard/settings");
+  await page.goto("/dashboard/settings?section=services");
   await expect(page.getByRole("row", { name: /Registration lookup/ })).toContainText("Connected"); // simulated on the demo
 });

@@ -1,5 +1,5 @@
-import { Badge, EmptyState, Field, PageHeader, Pager, Panel, SummaryTabs, paginate, adminButton, adminButtonQuiet, adminInput, rowButton, type Tone } from "@/components/admin/kit";
-import { PostComposer } from "@/components/admin/PostComposer";
+import { Badge, EmptyState, Field, PageHeader, Panel, SummaryTabs, TableFooter, TableToolbar, pageOf, adminButton, adminButtonQuiet, adminInput, rowButton, type FilterGroup, type Tone } from "@/components/admin/kit";
+import { PlusIcon } from "@/components/stock/icons";
 import { ActButton } from "@/components/admin/ActButton";
 import { sendDuePosts } from "@/lib/admin/scheduler";
 import { adsStore, newslettersStore, postsStore, subscribersStore } from "@/lib/admin/collections";
@@ -10,7 +10,7 @@ import { adminCars } from "@/lib/admin/stock-admin";
 import { isUsable } from "@/lib/integrations";
 import { carName } from "@/lib/stock/format";
 import { forSale } from "@/lib/stock/types";
-import { composeAction, composerCarAction, createNewsletterAction, deleteAdAction, deleteNewsletterAction, deletePostAction, publishPostAction, sendNewsletterAction, startAdAction } from "./actions";
+import { createNewsletterAction, deleteAdAction, deleteNewsletterAction, deletePostAction, publishPostAction, sendNewsletterAction, startAdAction } from "./actions";
 
 export const metadata = { title: "Marketing" };
 
@@ -47,7 +47,7 @@ const STATUS: Record<string, { tone: Tone; label: string }> = {
   ended: { tone: "neutral", label: "Ended" },
 };
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ tab?: string; notice?: string; car?: string; page?: string }> }) {
+export default async function Page({ searchParams }: { searchParams: Promise<{ tab?: string; notice?: string; show?: string; status?: string; page?: string; per?: string }> }) {
   const sp = await searchParams;
   const tab = TABS.some(([k]) => k === sp.tab) ? sp.tab! : "posts";
   const notice = sp.notice ? NOTICES[sp.notice] : undefined;
@@ -55,17 +55,32 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
   const [posts, ads, letters, subs, cars] = await Promise.all([postsStore.list(), adsStore.list(), newslettersStore.list(), subscribersStore.list(), adminCars()]);
   const onSale = cars.filter(forSale).sort((a, b) => Number(b.id) - Number(a.id));
   const live = subs.filter((s) => s.status === "subscribed").length;
-  const composerCars = onSale.map((c) => [c.slug, carName(c)] as [string, string]);
-  const ideas = sp.car ? [] : worthPosting(onSale, posts); // not while a post for a chosen car is being written
-  // Posts and ads in one list, newest first.
-  const feed = [...posts.map((p) => ({ kind: "post" as const, at: p.createdAt, p })), ...ads.map((a) => ({ kind: "ad" as const, at: a.createdAt, a }))].sort((x, y) => y.at - x.at);
+  const ideas = worthPosting(onSale, posts);
+  // Posts and ads in one list, newest first, filtered by what it is and where it stands.
+  const feed = [...posts.map((p) => ({ kind: "post" as const, at: p.createdAt, status: p.status, p })), ...ads.map((a) => ({ kind: "ad" as const, at: a.createdAt, status: a.status, a }))]
+    .filter((i) => (!sp.show || i.kind === sp.show) && (!sp.status || i.status === sp.status))
+    .sort((x, y) => y.at - x.at);
+  const filters: FilterGroup[] = [
+    { name: "show", label: "Show", any: "Posts and ads", options: [["post", "Posts"], ["ad", "Ads"]] },
+    { name: "status", label: "Status", any: "Any status", options: Object.entries(STATUS).map(([k, v]) => [k, v.label] as const) },
+  ];
 
-  const paged = paginate(feed, sp.page);
-  const sentLetters = paginate([...letters].sort((a, b) => b.createdAt - a.createdAt), sp.page);
+  const paged = pageOf(feed, sp);
+  const sentLetters = pageOf([...letters].sort((a, b) => b.createdAt - a.createdAt), sp);
 
   return (
     <>
-      <PageHeader title="Marketing" />
+      <PageHeader
+        title="Marketing"
+        actions={
+          tab === "posts" && (
+            <Link href="/dashboard/marketing/new" className={adminButton}>
+              <PlusIcon className="size-4" />
+              New post
+            </Link>
+          )
+        }
+      />
       {notice && (
         <p role="status" className={`rounded-control px-4 py-3 text-body ${notice.tone === "good" ? "bg-ok-soft text-ok" : "bg-warn-soft text-warn"}`}>
           {notice.text}
@@ -90,7 +105,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                       <span className="font-medium">{carName(car)}</span>
                       <span className="text-meta text-text-2">{reason}</span>
                     </span>
-                    <Link href={`/dashboard/marketing?car=${encodeURIComponent(car.slug)}`} className={`${rowButton} shrink-0`}>
+                    <Link href={`/dashboard/marketing/new?car=${encodeURIComponent(car.slug)}`} className={`${rowButton} shrink-0`}>
                       Write a post
                     </Link>
                   </li>
@@ -98,13 +113,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
               </ul>
             </Panel>
           )}
-          <Panel title="New post">
-            <PostComposer cars={composerCars} initialSlug={sp.car ?? ""} action={composeAction} load={composerCarAction} />
-            {!isUsable("social") && <p className="text-meta text-text-2">Facebook and Instagram are not connected, so posts are kept as drafts.</p>}
-          </Panel>
+          <TableToolbar filters={filters} />
           <Panel title="Posts and ads">
             {paged.total === 0 ? (
-              <EmptyState title="Nothing yet" />
+              <EmptyState title={sp.show || sp.status ? "Nothing matches" : "Nothing yet"} />
             ) : (
               <ul className="-mx-5 flex flex-col">
                 {paged.rows.map((item) =>
@@ -150,7 +162,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
               </ul>
             )}
           </Panel>
-          <Pager page={paged.page} pageCount={paged.pageCount} total={paged.total} href={(n) => `/dashboard/marketing?tab=posts&page=${n}`} />
+          <TableFooter page={paged.page} pageCount={paged.pageCount} total={paged.total} per={paged.per} />
         </>
       )}
 
@@ -189,7 +201,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
               </ul>
             )}
           </Panel>
-          <Pager page={sentLetters.page} pageCount={sentLetters.pageCount} total={sentLetters.total} href={(n) => `/dashboard/marketing?tab=newsletters&page=${n}`} />
+          <TableFooter page={sentLetters.page} pageCount={sentLetters.pageCount} total={sentLetters.total} per={sentLetters.per} />
           <details className="group">
             <summary className="flex min-h-11 cursor-pointer list-none items-center text-meta font-medium text-accent-text underline [&::-webkit-details-marker]:hidden">Write your own</summary>
             <Panel className="mt-3">

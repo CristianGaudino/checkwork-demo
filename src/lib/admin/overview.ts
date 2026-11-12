@@ -32,9 +32,9 @@ export function overview(input: { leads: Lead[]; drives: TestDrive[]; reviews: A
   const due = leads.filter((l) => followUpDue(l, today));
   const attention = ([
     // Overdue follow-ups are late; ones due today are not yet.
-    { key: "follow", label: "Follow-ups due", count: due.length, href: "/dashboard/leads?due=1", urgency: due.some((l) => l.followUpOn! < today) ? "now" : "soon" },
-    { key: "slow", label: "New leads past your reply target", count: leads.filter((l) => pastReplyTarget(l, now, slaHours)).length, href: "/dashboard/leads?late=1", urgency: "now" },
-    { key: "drives", label: "Test drives to confirm", count: drives.filter((d) => d.status === "requested" && d.startsAt >= now).length, href: "/dashboard/test-drives?status=requested", urgency: "soon" },
+    { key: "follow", label: "Follow-ups due", count: due.length, href: "/dashboard/leads?need=due", urgency: due.some((l) => l.followUpOn! < today) ? "now" : "soon" },
+    { key: "slow", label: "New leads past your reply target", count: leads.filter((l) => pastReplyTarget(l, now, slaHours)).length, href: "/dashboard/leads?need=late", urgency: "now" },
+    { key: "drives", label: "Test drives to confirm", count: drives.filter((d) => d.status === "requested" && d.startsAt >= now).length, href: "/dashboard/test-drives?view=list&status=requested&when=ahead", urgency: "soon" },
     { key: "reviews", label: "Reviews without a reply", count: reviews.filter((r) => !r.reply).length, href: "/dashboard/reviews?filter=unreplied", urgency: "info" },
     { key: "sync", label: "DoneDeal stock is not updating", count: input.syncProblem ? 1 : 0, href: "/dashboard/stock", urgency: "now" },
     { key: "sold-drives", label: "Test drives booked on a car no longer for sale", count: drives.filter((d) => d.startsAt >= now && (d.status === "requested" || d.status === "confirmed") && offSale.has(d.carSlug)).length, href: "/dashboard/test-drives", urgency: "now" },

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AreaChart, BarList } from "@/components/admin/charts";
-import { DataTable, EmptyState, FilterTabs, PageHeader, Panel, StatCard, StatGrid } from "@/components/admin/kit";
+import { DataTable, EmptyState, PageHeader, Panel, Segmented, StatCard, StatGrid } from "@/components/admin/kit";
 import { RANGES, buildAnalytics, change, parseRange } from "@/lib/admin/analytics";
 import { fmtNum, fmtPct } from "@/lib/admin/format";
 import { leadsStore } from "@/lib/admin/collections";
@@ -21,7 +21,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
       <>
         <PageHeader title="Analytics" />
         <Panel>
-          <EmptyState title="No visitor numbers yet" text="Visitors, sources and the path from visit to sale show here once site analytics is connected." action={<Link href="/dashboard/settings" className="text-body font-semibold underline">Settings</Link>} />
+          <EmptyState title="No visitor numbers yet" text="Visitors, sources and the path from visit to sale show here once site analytics is connected." action={<Link href="/dashboard/settings?section=services" className="text-body font-semibold underline">Settings</Link>} />
         </Panel>
       </>
     );
@@ -38,7 +38,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
   return (
     <>
       <PageHeader title="Analytics" />
-      <FilterTabs items={RANGES.map((r) => ({ label: `Last ${r} days`, href: `/dashboard/analytics?range=${r}`, active: range === r }))} />
+      <Segmented label="Period" items={RANGES.map((r) => ({ label: `${r} days`, href: `/dashboard/analytics?range=${r}`, active: range === r }))} />
 
       <StatGrid>
         <StatCard label="Visitors" value={fmtNum(a.totals.visitors)} hint={arrow(dv)} tone={dv >= 0 ? "good" : "bad"} />

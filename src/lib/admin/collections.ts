@@ -171,7 +171,10 @@ export const demoLeads = seedLeadsWithEdges;
 export const DRIVE_STATUSES = ["requested", "confirmed", "completed", "no-show", "cancelled"] as const;
 export type DriveStatus = (typeof DRIVE_STATUSES)[number];
 export const DRIVE_STATUS_LABELS: Record<DriveStatus, string> = { requested: "Requested", confirmed: "Confirmed", completed: "Completed", "no-show": "No show", cancelled: "Cancelled" };
-export type TestDrive = { id: string; name: string; email: string; phone: string; carSlug: string; carTitle: string; startsAt: number; status: DriveStatus; notes: string; createdAt: number };
+// assignedTo: the team member taking the customer out (a name, as on a lead). A website request has nobody until someone takes it.
+export type TestDrive = { id: string; name: string; email: string; phone: string; carSlug: string; carTitle: string; startsAt: number; status: DriveStatus; notes: string; assignedTo?: string; createdAt: number };
+// Who takes the seeded bookings out, by index, so the random sequence of the seeds is unchanged.
+const DRIVERS = ["Conor Doyle", "Ciara Walsh", "Aoife Brennan"];
 
 function seedDrives(): TestDrive[] {
   const r = rng(23);
@@ -182,7 +185,8 @@ function seedDrives(): TestDrive[] {
     const day = upcoming ? r.int(0, 9) : -r.int(1, 14);
     const startsAt = irishAt(now + day * DAY, r.int(10, 17), r.pick([0, 30]));
     const status: DriveStatus = upcoming ? r.pick(["requested", "confirmed", "confirmed"] as const) : r.pick(["completed", "completed", "completed", "no-show", "cancelled"] as const);
-    return { id: `drive-${200 + i}`, ...person(r), carSlug: car.slug, carTitle: carTitleOf(car), startsAt, status, notes: r.pick(["", "", "Bringing a partner.", "Wants to compare with another car."]), createdAt: now - (Math.abs(day) + 2) * DAY };
+    const notes = r.pick(["", "", "Bringing a partner.", "Wants to compare with another car."]);
+    return { id: `drive-${200 + i}`, ...person(r), carSlug: car.slug, carTitle: carTitleOf(car), startsAt, status, notes, ...(status !== "requested" && { assignedTo: DRIVERS[i % 3] }), createdAt: now - (Math.abs(day) + 2) * DAY };
   });
 }
 // Today's and tomorrow's diary, so the demo never opens on an empty day (a random day can miss it). Not 11:00, which the tests book.
@@ -193,7 +197,7 @@ function seedDiary(): TestDrive[] {
   return ([[0, 12, 30, "confirmed"], [0, 15, 0, "confirmed"], [0, 17, 0, "requested"], [1, 10, 0, "requested"], [1, 16, 30, "confirmed"]] as const).map(([day, h, m, status], i) => {
     const car = r.pick(forSale);
     // Booked in the last day: today's and tomorrow's diary was mostly filled lately.
-    return { id: `drive-${230 + i}`, ...person(r), carSlug: car.slug, carTitle: carTitleOf(car), startsAt: irishAt(now + day * DAY, h, m), status, notes: i === 1 ? "Bringing a partner." : "", createdAt: now - (i + 1) * 5 * HOUR };
+    return { id: `drive-${230 + i}`, ...person(r), carSlug: car.slug, carTitle: carTitleOf(car), startsAt: irishAt(now + day * DAY, h, m), status, notes: i === 1 ? "Bringing a partner." : "", ...(status === "confirmed" && { assignedTo: DRIVERS[i % 2] }), createdAt: now - (i + 1) * 5 * HOUR };
   });
 }
 // The seeded bookings, for the notifications' own seed (notifications.ts), so the bell tells of the same requests.

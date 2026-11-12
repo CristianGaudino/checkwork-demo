@@ -1,120 +1,269 @@
+import Link from "next/link";
 import { DriveStatusBadge } from "@/components/admin/badges";
-import { AddDriveForm, MoveDriveForm } from "@/components/admin/AddDriveForm";
 import { ActButton } from "@/components/admin/ActButton";
-import { Badge, EmptyState, PageHeader, Pager, Panel, SummaryTabs, adminButton, paginate, rowButton } from "@/components/admin/kit";
-import { PlusIcon } from "@/components/stock/icons";
+import { Badge, DataTable, EmptyState, PageHeader, Panel, Segmented, TableFooter, TableToolbar, adminButton, choicePill, pageOf, rowButton, sortRows, type Column, type FilterGroup } from "@/components/admin/kit";
+import { CheckIcon, ChevronLeftIcon, ChevronRightIcon, PlusIcon } from "@/components/stock/icons";
 import { card } from "@/components/ui";
-import { DRIVE_STATUSES, DRIVE_STATUS_LABELS, drivesStore } from "@/lib/admin/collections";
-import { groupByDay, parseDriveStatus } from "@/lib/admin/drives";
-import { TEST_DRIVE } from "@/lib/leads/constants";
-import { TIME_ZONE } from "@/lib/site";
-import { addMonths, dublinDay } from "@/lib/admin/format";
+import { DRIVE_STATUSES, DRIVE_STATUS_LABELS, drivesStore, getSettings, type DriveStatus, type TestDrive } from "@/lib/admin/collections";
+import { isOpenDrive } from "@/lib/admin/drives";
+import { addDays, dublinDay } from "@/lib/admin/format";
 import { adminCars } from "@/lib/admin/stock-admin";
-import { carName } from "@/lib/stock/format";
+import { driveTimes } from "@/lib/leads/constants";
+import { TIME_ZONE } from "@/lib/site";
 import { forSale } from "@/lib/stock/types";
-import { telHref } from "@/lib/phone";
+import { currentMember } from "@/lib/permissions";
 import { setDriveStatusAction } from "./actions";
 
 export const metadata = { title: "Test drives" };
 
-const day = new Intl.DateTimeFormat("en-IE", { weekday: "long", day: "numeric", month: "long", timeZone: TIME_ZONE });
-// A day in another year says which, so a booking typed a year out never reads as this year.
-const dayLabel = (t: number) => (dublinDay(t).slice(0, 4) === dublinDay().slice(0, 4) ? day.format(t) : `${day.format(t)} ${dublinDay(t).slice(0, 4)}`);
 const time = new Intl.DateTimeFormat("en-IE", { hour: "2-digit", minute: "2-digit", timeZone: TIME_ZONE });
+const at = (iso: string) => new Date(`${iso}T12:00:00Z`);
+const longDay = new Intl.DateTimeFormat("en-IE", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" });
+const shortDay = new Intl.DateTimeFormat("en-IE", { weekday: "short", timeZone: "UTC" });
+const dayNum = new Intl.DateTimeFormat("en-IE", { day: "numeric", timeZone: "UTC" });
+const dayMonth = new Intl.DateTimeFormat("en-IE", { day: "numeric", month: "long", timeZone: "UTC" });
+const fullDate = new Intl.DateTimeFormat("en-IE", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: TIME_ZONE });
+// The Monday of a day's week.
+const mondayOf = (iso: string) => addDays(iso, -((at(iso).getUTCDay() + 6) % 7));
+// Whether a time is still to come. Out of the component, like the stock page's days in stock: a page rendered per request.
+const ahead = (t: number, now = Date.now()) => t >= now;
+const isDay = (v?: string) => Boolean(v && /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(v)));
+
 // What the dealer can do next from each status. Anything else is not offered.
-const NEXT: Record<string, [string, string][]> = {
+const NEXT: Partial<Record<DriveStatus, [DriveStatus, string][]>> = {
   requested: [["confirmed", "Confirm"], ["cancelled", "Cancel"]],
   confirmed: [["completed", "Mark done"], ["no-show", "No show"], ["cancelled", "Cancel"]],
 };
+// A booking's colour in the week: its status's urgency, the same as its badge.
+const EDGE: Record<DriveStatus, string> = { requested: "border-l-warn", confirmed: "border-l-info", completed: "border-l-ok", "no-show": "border-l-bad", cancelled: "border-l-hairline opacity-60" };
+const VIEWS = ["today", "week", "list"] as const;
+type View = (typeof VIEWS)[number];
+type Params = { view?: string; day?: string; mine?: string; q?: string; status?: string; with?: string; when?: string; sort?: string; dir?: string; page?: string; per?: string };
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ status?: string; page?: string }> }) {
+// The diary. Today: the day's bookings in order, and the requests still to confirm. Week: a calendar of seven days (on a phone, a strip of
+// days and the one chosen). List: every booking in a table, searched and filtered. "Only mine" keeps the bookings given to whoever is
+// looking. A booking opens on its own page, where it is moved or given to someone.
+export default async function Page({ searchParams }: { searchParams: Promise<Params> }) {
   const sp = await searchParams;
-  const status = parseDriveStatus(sp.status);
-  const [all, cars] = await Promise.all([drivesStore.list(), adminCars()]);
-  const soldSlugs = new Set(cars.filter((c) => !forSale(c)).map((c) => c.slug)); // a booking still open on a car no longer for sale (sold, hidden) needs a call
-  const open = (s: string) => s === "requested" || s === "confirmed";
-  const rows = all.filter((d) => (status ? d.status === status : open(d.status)));
-  // Done, no-show and cancelled only grow: every list is in pages, then grouped by day.
-  // Coming up: soonest first. Done, no-show and cancelled: most recent first, so page 1 is what just happened.
-  const ahead = !status || status === "requested" || status === "confirmed";
-  const paged = paginate([...rows].sort((x, y) => (ahead ? x.startsAt - y.startsAt : y.startsAt - x.startsAt)), sp.page);
-  const groups = groupByDay(paged.rows);
-  const count = (s: string) => all.filter((d) => d.status === s).length;
+  const view: View = (VIEWS as readonly string[]).includes(sp.view ?? "") ? (sp.view as View) : "today";
+  const mine = sp.mine === "1";
+  const [all, cars, me, { team }] = await Promise.all([drivesStore.list(), adminCars(), currentMember(), getSettings()]);
+  const gone = new Set(cars.filter((c) => !forSale(c)).map((c) => c.slug)); // a booking still open on a car no longer for sale needs a call
+  const drives = mine ? all.filter((d) => d.assignedTo === me.name) : all;
+  const today = dublinDay();
+  const day = isDay(sp.day) ? sp.day! : today;
+  const link = (over: Partial<Params>) => {
+    const q = new URLSearchParams(Object.entries({ view: view === "today" ? undefined : view, mine: mine ? "1" : undefined, day: sp.day, ...over }).filter((e): e is [string, string] => Boolean(e[1])));
+    return `/dashboard/test-drives${q.size ? `?${q}` : ""}`;
+  };
+  const onDay = (iso: string) => drives.filter((d) => dublinDay(d.startsAt) === iso).sort((a, b) => a.startsAt - b.startsAt);
+  const waiting = drives.filter((d) => d.status === "requested" && ahead(d.startsAt)).sort((a, b) => a.startsAt - b.startsAt);
 
   return (
     <>
-      <PageHeader title="Test drives" />
-      <SummaryTabs
-        label="Booking status"
-        items={[
-          { label: "Upcoming", href: "/dashboard/test-drives", active: !status, count: all.filter((d) => open(d.status)).length },
-          ...DRIVE_STATUSES.map((s) => ({ label: DRIVE_STATUS_LABELS[s], href: `/dashboard/test-drives?status=${s}`, active: status === s, count: count(s) })),
-        ]}
+      <PageHeader
+        title="Test drives"
+        actions={
+          <Link href="/dashboard/test-drives/new" className={adminButton}>
+            <PlusIcon className="size-4" />
+            Book a test drive
+          </Link>
+        }
       />
-      {/* Taken by phone or in person: the form opens on demand, so the list comes first. */}
-      <details className="group">
-        <summary className={`${adminButton} w-fit cursor-pointer list-none [&::-webkit-details-marker]:hidden`}>
-          <PlusIcon className="size-4" />
-          Add a booking
-        </summary>
-        <Panel className="mt-3">
-          <AddDriveForm cars={cars.filter(forSale).map((c) => ({ slug: c.slug, label: carName(c) }))} min={dublinDay()} max={addMonths(dublinDay(), TEST_DRIVE.monthsAhead)} />
-        </Panel>
-      </details>
-      {groups.length === 0 ? (
-        <Panel>
-          <EmptyState title="No bookings here" />
-        </Panel>
-      ) : (
-        // One list, a heading row per day, and every other booking filled, as in the other tables.
-        <section aria-label="Bookings" className={`${card} overflow-hidden`}>
-          {groups.map((g) => (
-            <div key={g.day}>
-              <h2 className="border-b border-hairline bg-surface px-4 py-2 text-meta font-medium text-text-2">{dayLabel(g.drives[0].startsAt)}</h2>
-              <ul>
-                {g.drives.map((d) => (
-                  <li key={d.id} className="grid grid-cols-[4rem_minmax(0,1fr)] items-center gap-x-4 gap-y-2 px-4 py-3 even:bg-row-alt md:grid-cols-[4rem_minmax(0,1fr)_auto]">
-                    <span className="self-start font-medium tabular-nums md:self-center">{time.format(d.startsAt)}</span>
-                    <div className="flex min-w-0 flex-col">
-                      <span className="flex flex-wrap items-center gap-2 font-medium">
-                        <span data-name>{d.name}</span>
-                        <DriveStatusBadge status={d.status} />
-                      </span>
-                      <span className="flex flex-wrap items-center gap-2 text-meta text-text-2">
-                        {d.carTitle}
-                        {open(d.status) && soldSlugs.has(d.carSlug) && <Badge tone="warn">No longer for sale</Badge>}
-                      </span>
-                      <a href={telHref(d.phone) ?? undefined} className="inline-flex min-h-11 w-fit items-center text-meta text-text-2 underline-offset-2 hover:underline md:min-h-0">
-                        {d.phone}
-                      </a>
-                      {d.notes && <span className="text-meta text-text-2">{d.notes}</span>}
-                      {/* A booking still to happen can move to another time, by the same rules as a new one. */}
-                      {open(d.status) && (
-                        <details className="mt-1">
-                          <summary className="inline-flex min-h-11 cursor-pointer items-center text-meta font-medium underline md:min-h-0">Change the time</summary>
-                          <div className="pt-2">
-                            <MoveDriveForm id={d.id} min={dublinDay()} max={addMonths(dublinDay(), TEST_DRIVE.monthsAhead)} />
-                          </div>
-                        </details>
-                      )}
-                    </div>
-                    {(NEXT[d.status] ?? []).length > 0 && (
-                      <div className="col-start-2 flex flex-wrap gap-2 md:col-start-3 md:justify-end">
-                        {(NEXT[d.status] ?? []).map(([to, label]) => (
-                          <ActButton key={to} act={setDriveStatusAction.bind(null, d.id, to)} undo={setDriveStatusAction.bind(null, d.id, d.status)} done={`${d.name}: ${DRIVE_STATUS_LABELS[to as keyof typeof DRIVE_STATUS_LABELS]}`} className={`${rowButton} ${to === "cancelled" ? "text-bad" : ""}`}>
-                            {label}
-                          </ActButton>
-                        ))}
-                      </div>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </section>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Segmented
+          label="View"
+          items={[
+            { label: "Today", href: link({ view: undefined, day: undefined, q: undefined }), active: view === "today" },
+            { label: "Week", href: link({ view: "week" }), active: view === "week" },
+            { label: "List", href: link({ view: "list", day: undefined }), active: view === "list" },
+          ]}
+        />
+        <Link href={link({ mine: mine ? undefined : "1", page: undefined })} aria-current={mine ? "true" : undefined} className={choicePill(mine)}>
+          {mine && <CheckIcon className="size-4" />}
+          Only mine
+        </Link>
+      </div>
+
+      {view === "today" && (
+        <>
+          <Panel title={`Today, ${longDay.format(at(today))}`} count={onDay(today).length}>
+            <Agenda drives={onDay(today)} gone={gone} empty={driveTimes(today).length ? "Nothing booked today." : "We're closed today."} />
+          </Panel>
+          {waiting.length > 0 && (
+            <Panel title="Waiting to be confirmed" count={waiting.length}>
+              <Agenda drives={waiting.slice(0, 8)} gone={gone} withDay />
+              {waiting.length > 8 && <Link href={link({ view: "list", status: "requested" })} className="w-fit text-meta font-medium underline">See all {waiting.length}</Link>}
+            </Panel>
+          )}
+        </>
       )}
-      <Pager page={paged.page} pageCount={paged.pageCount} total={paged.total} href={(n) => `/dashboard/test-drives?${status ? `status=${status}&` : ""}page=${n}`} />
+
+      {view === "week" && <Week day={day} today={today} onDay={onDay} gone={gone} link={link} />}
+
+      {view === "list" && <List drives={drives} sp={sp} team={team.map((t) => t.name)} />}
+    </>
+  );
+}
+
+// A day's bookings in time order. Each opens its booking; the next steps (confirm, done, no show, cancel) are on the row, with Undo.
+function Agenda({ drives, gone, empty = "Nothing booked.", withDay = false }: { drives: TestDrive[]; gone: Set<string>; empty?: string; withDay?: boolean }) {
+  if (drives.length === 0) return <p className="text-body text-text-2">{empty}</p>;
+  return (
+    <ul className="-mx-5 flex flex-col">
+      {drives.map((d) => (
+        <li key={d.id} className="relative grid grid-cols-[3.5rem_minmax(0,1fr)] items-center gap-x-4 gap-y-2 px-5 py-3 even:bg-row-alt hover:bg-surface md:grid-cols-[3.5rem_minmax(0,1fr)_auto]">
+          <span className="self-start font-medium tabular-nums md:self-center">
+            {time.format(d.startsAt)}
+            {withDay && <span className="block text-meta font-normal text-text-2">{shortDay.format(at(dublinDay(d.startsAt)))} {dayNum.format(at(dublinDay(d.startsAt)))}</span>}
+          </span>
+          <span className="flex min-w-0 flex-col">
+            <span className="flex flex-wrap items-center gap-2">
+              <Link href={`/dashboard/test-drives/${d.id}`} data-name className="font-medium after:absolute after:inset-0">
+                {d.name}
+              </Link>
+              <DriveStatusBadge status={d.status} />
+              {isOpenDrive(d) && gone.has(d.carSlug) && <Badge tone="warn">No longer for sale</Badge>}
+            </span>
+            <span className="truncate text-meta text-text-2">
+              {d.carTitle} · {d.assignedTo ?? "Nobody yet"}
+            </span>
+          </span>
+          {(NEXT[d.status] ?? []).length > 0 && (
+            <span className="relative z-10 col-span-2 flex flex-wrap gap-2 md:col-span-1 md:col-start-3 md:justify-end">
+              {(NEXT[d.status] ?? []).map(([to, label]) => (
+                <ActButton key={to} act={setDriveStatusAction.bind(null, d.id, to)} undo={setDriveStatusAction.bind(null, d.id, d.status)} done={`${d.name}: ${DRIVE_STATUS_LABELS[to]}`} className={`${rowButton} ${to === "cancelled" ? "text-bad" : ""}`}>
+                  {label}
+                </ActButton>
+              ))}
+            </span>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+// Seven days from Monday. From 1024px a column a day; on a phone a strip of the seven days, each with its count, and the chosen day below.
+function Week({ day, today, onDay, gone, link }: { day: string; today: string; onDay: (iso: string) => TestDrive[]; gone: Set<string>; link: (over: Partial<Params>) => string }) {
+  const monday = mondayOf(day);
+  const days = Array.from({ length: 7 }, (_, i) => addDays(monday, i));
+  const sunday = days[6];
+  const range = monday.slice(5, 7) === sunday.slice(5, 7) ? `${dayNum.format(at(monday))} to ${dayMonth.format(at(sunday))}` : `${dayMonth.format(at(monday))} to ${dayMonth.format(at(sunday))}`;
+  const arrow = "inline-flex size-11 items-center justify-center rounded-control border border-hairline bg-card hover:border-control";
+  return (
+    <>
+      <div className="flex items-center gap-2">
+        <Link href={link({ day: addDays(monday, -7) })} aria-label="Week before" className={arrow}>
+          <ChevronLeftIcon className="size-4" />
+        </Link>
+        <Link href={link({ day: addDays(monday, 7) })} aria-label="Week after" className={arrow}>
+          <ChevronRightIcon className="size-4" />
+        </Link>
+        <h2 className="ml-2 text-heading font-semibold">{range}</h2>
+        {mondayOf(today) !== monday && (
+          <Link href={link({ day: undefined })} className="ml-auto text-meta font-medium underline">
+            This week
+          </Link>
+        )}
+      </div>
+
+      {/* A phone: the days as a strip, then the chosen one. */}
+      <div className="flex flex-col gap-4 lg:hidden">
+        <nav aria-label="Day" className="grid grid-cols-7 gap-1.5">
+          {days.map((d) => {
+            const n = onDay(d).filter((x) => x.status !== "cancelled").length;
+            const on = d === day || (day < monday && d === monday);
+            return (
+              <Link key={d} href={link({ day: d })} aria-current={on ? "date" : undefined} className={`flex min-h-16 flex-col items-center justify-center rounded-control border text-meta ${on ? "border-accent bg-accent text-on-accent" : `border-hairline bg-card ${d === today ? "text-accent-text" : ""}`}`}>
+                <span>{shortDay.format(at(d))}</span>
+                <span className="text-body font-semibold tabular-nums">{dayNum.format(at(d))}</span>
+                <span className={`text-[0.6875rem] tabular-nums ${on ? "" : "text-text-2"}`}>{n || ""}</span>
+              </Link>
+            );
+          })}
+        </nav>
+        <Panel title={longDay.format(at(day))}>
+          <Agenda drives={onDay(day)} gone={gone} empty={driveTimes(day).length ? "Nothing booked." : "Closed."} />
+        </Panel>
+      </div>
+
+      {/* From 1024px: a column a day. */}
+      <div className="hidden grid-cols-7 gap-2 lg:grid">
+        {days.map((d) => {
+          const list = onDay(d);
+          return (
+            <section key={d} aria-label={longDay.format(at(d))} className={`${card} flex min-h-48 min-w-0 flex-col gap-1.5 p-2 ${d === today ? "ring-2 ring-inset ring-accent" : ""}`}>
+              <h3 className={`flex items-baseline gap-1.5 px-1 pb-1 text-meta ${d === today ? "font-semibold text-accent-text" : "text-text-2"}`}>
+                {shortDay.format(at(d))}
+                <span className="text-body font-semibold tabular-nums text-text">{dayNum.format(at(d))}</span>
+              </h3>
+              {list.length === 0 && <p className="px-1 text-meta text-text-2">{driveTimes(d).length ? "" : "Closed"}</p>}
+              {list.map((x) => (
+                <Link key={x.id} href={`/dashboard/test-drives/${x.id}`} className={`flex min-w-0 flex-col rounded-control border-l-4 bg-surface px-2 py-1.5 text-meta hover:bg-row-alt ${EDGE[x.status]}`}>
+                  <span className="font-semibold tabular-nums">{time.format(x.startsAt)}</span>
+                  <span className={`truncate font-medium ${x.status === "cancelled" ? "line-through" : ""}`}>{x.name}</span>
+                  <span className="truncate text-text-2">{x.carTitle}</span>
+                  {isOpenDrive(x) && gone.has(x.carSlug) && <span className="text-warn">No longer for sale</span>}
+                </Link>
+              ))}
+            </section>
+          );
+        })}
+      </div>
+      <p className="hidden flex-wrap gap-x-4 gap-y-1 text-meta text-text-2 lg:flex">
+        {(["requested", "confirmed", "completed", "no-show", "cancelled"] as const).map((s) => (
+          <span key={s} className="inline-flex items-center gap-1.5">
+            <span aria-hidden className={`h-3 w-1 rounded-full border-l-4 ${EDGE[s]}`} />
+            {DRIVE_STATUS_LABELS[s]}
+          </span>
+        ))}
+      </p>
+    </>
+  );
+}
+
+// Every booking as a table: searched by name, phone or car; filtered by status, who has it and whether it has happened; sorted; in pages.
+function List({ drives, sp, team }: { drives: TestDrive[]; sp: Params; team: string[] }) {
+  const q = (sp.q ?? "").trim().toLowerCase().slice(0, 60);
+  const rows = drives.filter(
+    (d) =>
+      (!q || [d.name, d.phone, d.email, d.carTitle].some((f) => f.toLowerCase().includes(q))) &&
+      (!sp.status || d.status === sp.status) &&
+      (!sp.with || (sp.with === "none" ? !d.assignedTo : d.assignedTo === sp.with)) &&
+      (!sp.when || (sp.when === "past") !== ahead(d.startsAt)),
+  );
+  const columns: Column<TestDrive>[] = [
+    { key: "when", header: "When", sort: (d) => d.startsAt, nowrap: true, cell: (d) => <span className="tabular-nums">{fullDate.format(d.startsAt)}, {time.format(d.startsAt)}</span> },
+    {
+      key: "who",
+      header: "Customer",
+      sort: (d) => d.name,
+      cell: (d) => (
+        <span className="flex min-w-0 flex-col">
+          <Link href={`/dashboard/test-drives/${d.id}`} className="font-medium after:absolute after:inset-0">
+            {d.name}
+          </Link>
+          <span className="truncate text-meta text-text-2 md:hidden">{d.carTitle}</span>
+        </span>
+      ),
+    },
+    { key: "car", header: "Car", sort: (d) => d.carTitle, cell: (d) => <span className="block max-w-[16rem] truncate">{d.carTitle}</span>, hide: "md" },
+    { key: "with", header: "Taking them out", sort: (d) => d.assignedTo, cell: (d) => d.assignedTo ?? <span className="text-text-2">Nobody yet</span>, hide: "lg" },
+    { key: "status", header: "Status", sort: (d) => DRIVE_STATUSES.indexOf(d.status), nowrap: true, cell: (d) => <DriveStatusBadge status={d.status} /> },
+  ];
+  const { rows: sorted, sort } = sortRows(rows, columns, sp, { key: "when", dir: "desc" });
+  const paged = pageOf(sorted, sp);
+  const filters: FilterGroup[] = [
+    { name: "when", label: "When", any: "Any time", options: [["ahead", "Coming up"], ["past", "Past"]] },
+    { name: "status", label: "Status", any: "Any status", options: DRIVE_STATUSES.map((s) => [s, DRIVE_STATUS_LABELS[s]] as const) },
+    { name: "with", label: "Taking them out", any: "Anyone", options: [["none", "Nobody yet"], ...team.map((t) => [t, t] as const)] },
+  ];
+  return (
+    <>
+      <TableToolbar search={{ placeholder: "Search name, phone or car", label: "Search test drives" }} filters={filters} />
+      <DataTable label="Test drives" linkRows rows={paged.rows} rowKey={(d) => d.id} columns={columns} sort={sort} empty={<EmptyState title="No bookings match" text="Try another filter or search." />} />
+      <TableFooter page={paged.page} pageCount={paged.pageCount} total={paged.total} per={paged.per} />
     </>
   );
 }

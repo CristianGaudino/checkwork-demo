@@ -43,11 +43,11 @@ export default async function Page() {
                 Add car
               </Link>
             )}
-            <Link href="/dashboard/test-drives" className={adminButtonQuiet}>
+            <Link href="/dashboard/test-drives/new" className={adminButtonQuiet}>
               <CalendarIcon className="size-4" />
               Test drive
             </Link>
-            <Link href="/dashboard/marketing" className={adminButtonQuiet}>
+            <Link href="/dashboard/marketing/new" className={adminButtonQuiet}>
               <ShareIcon className="size-4" />
               New post
             </Link>
@@ -115,14 +115,14 @@ export default async function Page() {
             )}
           </Panel>
 
-          <Panel title="Test drives this week" action={<Link href="/dashboard/test-drives" className="inline-flex min-h-11 items-center text-meta font-medium text-accent-text underline">All bookings</Link>}>
+          <Panel title="Test drives this week" action={<Link href="/dashboard/test-drives?view=week" className="inline-flex min-h-11 items-center text-meta font-medium text-accent-text underline">The week</Link>}>
             {o.upcomingDrives.length === 0 ? (
               <EmptyState title="None booked" />
             ) : (
               <ul className="-mx-1 flex flex-col divide-y divide-hairline">
                 {o.upcomingDrives.slice(0, 5).map((d) => (
                   <li key={d.id}>
-                    <Link href="/dashboard/test-drives" className={`${row} flex-col !items-start !justify-center gap-0.5`}>
+                    <Link href={`/dashboard/test-drives/${d.id}`} className={`${row} flex-col !items-start !justify-center gap-0.5`}>
                       <span className="font-medium">{d.name}</span>
                       <span className="text-meta text-text-2">{d.carTitle} · {fmtDateTime(d.startsAt)}</span>
                     </Link>

@@ -8,8 +8,8 @@ import { FUEL_LABELS, GEARBOX_LABELS, type Car } from "@/lib/stock/types";
 
 // The stock list as a CSV, with the list's view, search and filters. Every staff member; cost, prep and margin only for the margins roles.
 export async function GET(req: Request) {
-  const { view, q, make, fuel } = parseStockList(Object.fromEntries(new URL(req.url).searchParams));
-  const rows = stockList(await adminCars(), view, q, { make, fuel });
+  const { view, q, ...filters } = parseStockList(Object.fromEntries(new URL(req.url).searchParams));
+  const rows = stockList(await adminCars(), view, q, filters);
   const costs = (await can("margins")) ? await carCosts() : null;
   const columns: CsvColumn<Car>[] = [
     ["Make", (c) => c.make],

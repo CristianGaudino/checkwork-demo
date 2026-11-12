@@ -52,11 +52,13 @@ test("only an owner or manager changes the team and the settings; a manager cann
   await as(context, "Sales");
   await page.goto("/dashboard/settings");
   await expect(page.getByText("Only an owner or manager can change these settings.")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Remove" })).toHaveCount(0);
   await expect(page.getByLabel("Reply to a new lead within (hours)")).toBeDisabled();
+  await page.goto("/dashboard/settings?section=team");
+  await expect(page.getByRole("button", { name: "Remove" })).toHaveCount(0);
   await as(context, "Manager");
-  await page.reload();
+  await page.goto("/dashboard/settings");
   await expect(page.getByLabel("Reply to a new lead within (hours)")).toBeEnabled();
+  await page.goto("/dashboard/settings?section=team");
   await expect(page.getByLabel("Role for Conor Doyle")).toBeVisible();
   await expect(page.getByLabel("Role for Aoife Brennan")).toHaveCount(0); // the owner: a badge, not a picker
 });
@@ -64,7 +66,7 @@ test("only an owner or manager changes the team and the settings; a manager cann
 test("an owner changes a role as soon as it is picked, and the team cannot be left without an owner", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   const name = `Role test ${Date.now()}`; // its own person, so parallel specs never see a changed team
-  await page.goto("/dashboard/settings");
+  await page.goto("/dashboard/settings?section=team");
   const add = page.locator("form").filter({ has: page.getByLabel("Name", { exact: true }) });
   await add.getByLabel("Name", { exact: true }).fill(name);
   await add.getByLabel("Email", { exact: true }).fill(`${Date.now()}@example.com`);

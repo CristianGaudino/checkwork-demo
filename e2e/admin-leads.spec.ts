@@ -3,13 +3,13 @@ import { expect, test } from "@playwright/test";
 // The inbox shows made-up leads only (never the real lead table), filters through the URL, and a lead can be worked.
 test("filters by status and search, and keeps the filter in the link", async ({ page }) => {
   await page.goto("/dashboard/leads");
-  const rows = page.getByRole("row");
-  const all = (await rows.count()) - 1;
+  // How many the list holds, from its footer (a page shows 25 at most).
+  const total = async () => Number((await page.getByText(/^Showing 1 to /).textContent())!.match(/of ([\d,]+)$/)![1].replace(/,/g, ""));
+  const all = await total();
   expect(all).toBeGreaterThan(10);
   await page.getByRole("link", { name: /^Won/ }).click();
   await expect(page).toHaveURL(/status=won/);
-  const won = (await rows.count()) - 1;
-  expect(won).toBeLessThan(all);
+  await expect.poll(total).toBeLessThan(all);
   await page.getByLabel("Search leads").fill("zzzz-nobody");
   await page.getByLabel("Search leads").press("Enter");
   await expect(page.getByText("No leads match")).toBeVisible();

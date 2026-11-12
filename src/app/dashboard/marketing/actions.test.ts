@@ -72,6 +72,20 @@ describe("lead quick actions", () => {
     expect((await leadsStore.get(lead.id))!.status).toBe("won");
   });
 
+  it("Undo after won or lost puts back the follow-up day and the lost reason the move cleared", async () => {
+    const lead = (await leadsStore.list()).find((l) => l.status === "contacted")!;
+    await leadsStore.put({ ...lead, followUpOn: "2031-01-02", lostReason: undefined });
+    await setStatusAction(lead.id, form({ status: "lost" }));
+    await leadsStore.put({ ...(await leadsStore.get(lead.id))!, lostReason: "Price" });
+    expect((await leadsStore.get(lead.id))!.followUpOn).toBeUndefined();
+    await setStatusAction(lead.id, form({ status: "contacted", on: "2031-01-02", reason: "Price" })); // Undo
+    expect(await leadsStore.get(lead.id)).toMatchObject({ status: "contacted", followUpOn: "2031-01-02", lostReason: undefined });
+    await setStatusAction(lead.id, form({ status: "lost", reason: "Price" }));
+    expect((await leadsStore.get(lead.id))!.lostReason).toBe("Price");
+    await setStatusAction(lead.id, form({ status: "contacted", on: "not a day" }));
+    expect((await leadsStore.get(lead.id))!.followUpOn).toBeUndefined(); // only a real day comes back
+  });
+
   it("gives a lead only to someone on the team, and Nobody clears it", async () => {
     const lead = (await leadsStore.list())[0];
     await assignLeadAction(lead.id, form({ assignedTo: "Somebody Else" }));

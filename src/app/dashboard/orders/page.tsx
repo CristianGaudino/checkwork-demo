@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { DataTable, EmptyState, FilterSelect, PageHeader, Pager, SummaryTabs, TableToolbar, adminButton, paginate, sortRows, type Column } from "@/components/admin/kit";
+import { DataTable, EmptyState, PageHeader, SummaryTabs, TableFooter, TableToolbar, adminButton, pageOf, sortRows, type Column, type FilterGroup } from "@/components/admin/kit";
 import { OrderBadge } from "@/components/admin/badges";
 import { PlusIcon } from "@/components/stock/icons";
 import { ORDER_PATH, ORDER_STATUSES, ORDER_STATUS_LABELS, customersStore, orderOpen, ordersStore, type Order } from "@/lib/admin/collections";
@@ -20,7 +20,7 @@ const VIEWS = {
 } as const;
 type View = keyof typeof VIEWS;
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ view?: string; q?: string; period?: string; sort?: string; dir?: string; page?: string }> }) {
+export default async function Page({ searchParams }: { searchParams: Promise<{ view?: string; q?: string; period?: string; by?: string; sort?: string; dir?: string; page?: string; per?: string }> }) {
   if ((await stockSource()) === "donedeal") notFound();
   const sp = await searchParams;
   const view: View = sp.view && Object.hasOwn(VIEWS, sp.view) ? (sp.view as View) : "open";
@@ -59,10 +59,16 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
       ),
     },
   ];
-  const matching = orders.filter((o) => VIEWS[view].test(o) && (!sp.period || o.regPeriod === sp.period) && (!q || `${o.make} ${o.model} ${o.spec ?? ""} ${(o.customerId && names.get(o.customerId)) || ""}`.toLowerCase().includes(q)));
+  const matching = orders.filter((o) => VIEWS[view].test(o) && (!sp.period || o.regPeriod === sp.period) && (!sp.by || o.salesperson === sp.by) && (!q || `${o.make} ${o.model} ${o.spec ?? ""} ${(o.customerId && names.get(o.customerId)) || ""}`.toLowerCase().includes(q)));
   // No sort chosen: the soonest due first.
   const { rows: sorted, sort } = sortRows(matching, columns, sp, { key: "due", dir: "asc" });
-  const { rows, page, pageCount, total } = paginate(sorted, sp.page);
+  const paged = pageOf(sorted, sp);
+  const rows = paged.rows;
+  const takenBy = [...new Set(orders.map((o) => o.salesperson).filter((n): n is string => Boolean(n)))].sort();
+  const filters: FilterGroup[] = [
+    { name: "period", label: "Registration period", any: "Every period", options: periods.map((p) => [p, p] as const) },
+    { name: "by", label: "Taken by", any: "Anyone", options: takenBy.map((n) => [n, n] as const) },
+  ];
   return (
     <>
       <PageHeader
@@ -76,9 +82,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         }
       />
       <SummaryTabs label="Orders" items={(Object.keys(VIEWS) as View[]).map((v) => ({ label: VIEWS[v].label, count: orders.filter(VIEWS[v].test).length, href: `/dashboard/orders?view=${v}`, active: view === v }))} />
-      <TableToolbar search={{ placeholder: "Search customer, make or model", label: "Search orders" }}>
-        <FilterSelect name="period" label="Registration period" all="Every period" options={periods.map((p) => [p, p] as const)} />
-      </TableToolbar>
+      <TableToolbar search={{ placeholder: "Search customer, make or model", label: "Search orders" }} filters={filters} />
       <DataTable
         label="Orders"
         linkRows
@@ -88,7 +92,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         columns={columns}
         empty={<EmptyState title="No orders here" text={view === "open" && !q ? "A request from the website's order form comes in as a lead. Place the order from the lead, or here." : undefined} />}
       />
-      <Pager page={page} pageCount={pageCount} total={total} />
+      <TableFooter page={paged.page} pageCount={paged.pageCount} total={paged.total} per={paged.per} />
     </>
   );
 }

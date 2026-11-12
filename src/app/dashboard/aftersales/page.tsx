@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ClaimStatusBadge, CoverBadge } from "@/components/admin/badges";
-import { DataTable, EmptyState, FilterSelect, PageHeader, Pager, SummaryTabs, TableToolbar, adminButton, paginate, sortRows, type Column } from "@/components/admin/kit";
+import { DataTable, EmptyState, PageHeader, SummaryTabs, TableFooter, TableToolbar, adminButton, pageOf, sortRows, type Column } from "@/components/admin/kit";
 import { PlusIcon } from "@/components/stock/icons";
 import { CLAIM_STATUSES, claimOpen, claimsStore, customersStore, leadsStore, type Claim } from "@/lib/admin/collections";
 import { openWarrantyRequests } from "@/lib/admin/leads";
@@ -13,7 +13,7 @@ export const metadata = { title: "Aftersales" };
 const VIEWS = { open: { label: "Open", test: (c: Claim) => claimOpen(c.status) }, closed: { label: "Closed", test: (c: Claim) => !claimOpen(c.status) }, all: { label: "All", test: () => true } } as const;
 type View = keyof typeof VIEWS | "requests";
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ view?: string; q?: string; cover?: string; sort?: string; dir?: string; page?: string }> }) {
+export default async function Page({ searchParams }: { searchParams: Promise<{ view?: string; q?: string; cover?: string; sort?: string; dir?: string; page?: string; per?: string }> }) {
   const sp = await searchParams;
   const [claims, customers, leads] = await Promise.all([claimsStore.list(), customersStore.list(), leadsStore.list()]);
   const requests = openWarrantyRequests(leads, claims);
@@ -41,7 +41,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
   ];
   const matching = view === "requests" ? [] : claims.filter((c) => VIEWS[view].test(c) && (!sp.cover || String(c.inCover) === sp.cover) && (!q || `${c.carTitle} ${c.fault} ${(c.customerId && names.get(c.customerId)) || ""}`.toLowerCase().includes(q)));
   const { rows: sorted, sort } = sortRows(matching, columns, sp, { key: "opened", dir: "desc" });
-  const { rows, page, pageCount, total } = paginate(sorted, sp.page);
+  const paged = pageOf(sorted, sp);
+  const rows = paged.rows;
+  const waiting = pageOf(requests, sp);
   return (
     <>
       <PageHeader
@@ -62,10 +64,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         ]}
       />
       {view === "requests" ? (
+        <>
         <DataTable
           label="Warranty requests"
           linkRows
-          rows={requests}
+          rows={waiting.rows}
           rowKey={(l) => l.id}
           empty={<EmptyState title="No requests waiting" text="A warranty message sent from the website shows here, to open a claim from." />}
           columns={[
@@ -84,11 +87,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
             { key: "received", header: "Received", align: "right", nowrap: true, cell: (l) => fmtAgo(l.createdAt) },
           ]}
         />
+        <TableFooter page={waiting.page} pageCount={waiting.pageCount} total={waiting.total} per={waiting.per} />
+        </>
       ) : (
       <>
-      <TableToolbar search={{ placeholder: "Search car, customer or fault", label: "Search claims" }}>
-        <FilterSelect name="cover" label="Cover" all="In and out of cover" options={[["true", "In cover"], ["false", "Out of cover"]]} />
-      </TableToolbar>
+      <TableToolbar search={{ placeholder: "Search car, customer or fault", label: "Search claims" }} filters={[{ name: "cover", label: "Cover", any: "In or out of cover", options: [["true", "In cover"], ["false", "Out of cover"]] }]} />
       <DataTable
         label="Warranty claims"
         linkRows
@@ -98,7 +101,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         columns={columns}
         empty={<EmptyState title={view === "open" ? "No open claims" : "No claims"} text={view === "open" ? "A claim from the website comes in under Requests. Open one from there, or here." : undefined} />}
       />
-      <Pager page={page} pageCount={pageCount} total={total} />
+      <TableFooter page={paged.page} pageCount={paged.pageCount} total={paged.total} per={paged.per} />
       </>
       )}
     </>

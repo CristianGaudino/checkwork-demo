@@ -6,14 +6,14 @@ import type { ActivityEntry, RefKind } from "./activity";
 const WHERE: Record<RefKind, { noun: string; href: (id: string) => string }> = {
   car: { noun: "car", href: (id) => `/dashboard/stock/${id}` },
   lead: { noun: "lead", href: (id) => `/dashboard/leads/${id}` },
-  drive: { noun: "test drive", href: () => "/dashboard/test-drives" },
+  drive: { noun: "test drive", href: (id) => `/dashboard/test-drives/${id}` },
   alert: { noun: "stock alert", href: () => "/dashboard/customers?tab=alerts" },
   subscriber: { noun: "subscriber", href: () => "/dashboard/customers?tab=newsletter" },
   review: { noun: "review", href: () => "/dashboard/reviews" },
   post: { noun: "post", href: () => "/dashboard/marketing?tab=posts" },
   ad: { noun: "ad", href: () => "/dashboard/marketing?tab=posts" },
   newsletter: { noun: "newsletter", href: () => "/dashboard/marketing?tab=newsletters" },
-  team: { noun: "team member", href: () => "/dashboard/settings" },
+  team: { noun: "team member", href: () => "/dashboard/settings?section=team" },
 };
 
 export type RefView = { label: string; href?: string };

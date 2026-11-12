@@ -45,6 +45,7 @@ describe("the bell", () => {
     expect(noticeOfLead({ id: "l1", type: "finance", carTitle: "2019 Kia Soul" }, false)).toEqual({ kind: "lead", text: "Finance: 2019 Kia Soul", href: "/dashboard/leads/l1" });
     expect(noticeOfLead({ id: "l2", type: "warranty" }, false)).toMatchObject({ kind: "warranty", text: "Warranty request" });
     expect(noticeOfLead({ id: "l3", type: "test-drive", carTitle: "2019 Kia Soul" }, true)).toMatchObject({ kind: "drive", href: "/dashboard/test-drives" });
+    expect(noticeOfLead({ id: "l3", type: "test-drive", carTitle: "2019 Kia Soul" }, true, "drive-9")).toMatchObject({ href: "/dashboard/test-drives/drive-9" });
   });
 
   it("seeds the demo with nothing that names a day, so it stays true", async () => {
