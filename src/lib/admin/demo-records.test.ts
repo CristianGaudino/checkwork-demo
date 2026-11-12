@@ -29,6 +29,28 @@ describe("demo records", () => {
   });
 });
 
+describe("the demo's stories", () => {
+  it("agree with each other: claims are on real sales, held deposits on the cars marked reserved, linked records exist", async () => {
+    const c = await fresh();
+    const cars = (await import("@/lib/stock/demo-cars.json")).default as { id: string; reserved?: boolean }[];
+    const [sales, deposits, claims, orders, leads, customers] = await Promise.all([c.salesStore.list(), c.reservationsStore.list(), c.claimsStore.list(), c.ordersStore.list(), c.leadsStore.list(), c.customersStore.list()]);
+    const ids = (l: { id: string }[]) => new Set(l.map((x) => x.id));
+    for (const k of claims) {
+      const sale = sales.find((s) => s.id === k.saleId)!;
+      expect(sale.returnedOn).toBeUndefined();
+      expect(k.openedOn >= sale.soldOn).toBe(true);
+      expect(k.customerId).toBe(sale.customerId);
+    }
+    expect(deposits.filter((d) => d.status === "held").map((d) => d.carId).sort()).toEqual(cars.filter((x) => x.reserved).map((x) => x.id).sort());
+    const linked = [...claims, ...orders].flatMap((x) => (x.leadId ? [x.leadId] : []));
+    expect(linked.length).toBeGreaterThan(0);
+    for (const id of linked) expect(ids(leads).has(id)).toBe(true);
+    for (const x of [...deposits, ...claims, ...orders]) expect(ids(customers).has(x.customerId!)).toBe(true);
+    // Every stage but Arrived, which puts a car in stock (orders/actions.ts), so the demo would need a car made for it.
+    expect([...new Set(orders.map((o) => o.status))].sort()).toEqual(c.ORDER_STATUSES.filter((s) => s !== "arrived").sort());
+  });
+});
+
 describe("reset demo data", () => {
   afterEach(() => vi.unstubAllEnvs());
 

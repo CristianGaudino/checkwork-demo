@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { sendToDealer } from "@/lib/leads/mail";
-import { DEALER_COLLECTIONS, getSettings, leadsStore, settingsStore, type DealerSettings } from "@/lib/admin/collections";
+import { DEALER_COLLECTIONS, getSettings, leadsStore, reservationsStore, settingsStore, type DealerSettings } from "@/lib/admin/collections";
 import { EMAIL_INVALID, NAME_REQUIRED } from "@/lib/copy";
 import { newId } from "@/lib/admin/ids";
 import { seedsDemoRecords } from "@/lib/admin/docs";
@@ -156,8 +156,10 @@ export async function removeTeamAction(id: string) {
 export async function resetDemoAction() {
   if (!seedsDemoRecords() || !(await can("settings"))) return; // a real dealer's records are never wiped from a button
   for (const c of DEALER_COLLECTIONS) await c.reset();
-  // The deposits are reset, so no car may stay marked Reserved with none behind it (the mark is on the car, which the reset keeps).
-  for (const car of await adminCars()) if (car.reserved) await saveCar({ ...car, reserved: undefined });
+  // The deposits are back to the seed, so the Reserved marks follow them (the mark is on the car, which the reset keeps): on the cars with a
+  // held deposit, off every other car.
+  const held = new Set((await reservationsStore.list()).filter((r) => r.status === "held").map((r) => r.carId));
+  for (const car of await adminCars()) if (Boolean(car.reserved) !== held.has(car.id)) await saveCar({ ...car, reserved: held.has(car.id) || undefined });
   await resetActivity();
   await resetSyncStatus();
   await logActivity("settings", "Reset the demo data");

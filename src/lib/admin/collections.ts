@@ -9,9 +9,16 @@ import { dublinDay } from "./format";
 import { newId } from "./ids";
 import { COVER_MONTHS, DEPOSIT_METHODS, type DepositMethod } from "./deposits";
 import { ALERT_KINDS } from "@/lib/leads/schema";
+import { regPeriods } from "@/lib/leads/reg-periods";
+import type { Car } from "@/lib/stock/types";
 import type { Role } from "@/lib/permission-rules";
 import type { PrepLine } from "./prep";
 import { carTitleOf, livePicks, person, rng } from "./seed-data";
+
+// For the demo's stories: a day relative to today (YYYY-MM-DD, Irish), a demo car by id, a seeded customer by id.
+const ago = (daysAgo: number) => dublinDay(Date.now() - daysAgo * DAY);
+const demoCar = (id: string) => (demoCars as Car[]).find((c) => c.id === id)!;
+const storyCustomer = (id: string) => seedCustomers().find((c) => c.id === id)!;
 
 // The dealer's records. Each is a collection in the record store, with a typed shape and a seed. The dashboard is behind Cloudflare
 // Access, and what visitors send is copied in from the leads table (real-leads.ts), so these hold real personal data too.
@@ -96,6 +103,7 @@ function seedLeads(): Lead[] {
       assignedTo: status === "new" ? undefined : r.pick(TEAM_SEED).name,
       // A few open leads with a follow-up: one overdue, one today, two coming (by index, so the random sequence above is unchanged).
       ...((status === "contacted" || status === "appointment") && i % 3 === 0 && { followUpOn: dublinDay(now + ((i % 4) - 1) * DAY) }),
+      ...(status === "lost" && { lostReason: LOST_REASONS[i % LOST_REASONS.length] }), // by index, so the random sequence is unchanged
       notes: status === "contacted" || status === "appointment" ? [{ at: now - age + 2 * HOUR, text: "Called and left a message." }] : [],
       createdAt: now - age,
     };
@@ -107,8 +115,22 @@ const EDGE_LEADS = (now: number): Lead[] => [
   { id: "lead-edge-1", type: "enquiry", status: "contacted", name: "Aleksandra Wiśniewska-Kowalczyk", email: "bartholomew.fitzgerald@northwind-industries-holdings.example.com", phone: "+353 83 000 1111", source: "Website", message: "Hello, I saw the listing on your website yesterday evening and I would like to know whether the car is still available, whether it has a full service history from a main dealer, whether you would consider a part exchange against my 2016 estate, and whether it can be collected on a weekday after six because I work in the city centre until late.", carSlug: livePicks(rng(5)).slug, carTitle: carTitleOf(livePicks(rng(5))), assignedTo: "Aoife Brennan", notes: [], createdAt: now - 3 * DAY },
   { id: "lead-edge-2", type: "general", status: "new", name: "Jo", email: "j@example.com", phone: "+353 83 000 2222", source: "Phone", message: "Call me.", notes: [], createdAt: now - 5 * DAY },
 ];
+// The website requests behind the demo's stories below (a warranty claim, a factory order), from the same customers, and a few still waiting.
+const STORY_LEADS = (now: number): Lead[] => {
+  const as = (id: string) => (({ name, email, phone }: Customer) => ({ name, email, phone }))(storyCustomer(id));
+  const r = rng(131);
+  return [
+    { id: "lead-2000", type: "warranty", status: "contacted", ...as("cust-300"), source: "Website", message: "The engine warning light came on at motorway speed. The car drives fine.", carTitle: seedSales()[0].carTitle, assignedTo: "Conor Doyle", notes: [{ at: now - 2 * DAY + 3 * HOUR, text: "Opened a claim and asked them to bring it in." }], createdAt: now - 2 * DAY },
+    { id: "lead-2001", type: "order", status: "won", ...as("cust-315"), source: "Website", message: "Make: Toyota. Model: RAV4. Spec: 2.5 Hybrid Sol, white. Registration period: 271\n\nLooking to order for the new year.", assignedTo: "Conor Doyle", notes: [{ at: now - 12 * DAY + 4 * HOUR, text: "Order placed with a €1,000 deposit." }], createdAt: now - 13 * DAY },
+    { id: "lead-2002", type: "order", status: "new", ...person(r), source: "Website", message: "Make: Hyundai. Model: Tucson. Registration period: 271\n\nWhat would the wait be for the hybrid?", notes: [], createdAt: now - 7 * HOUR },
+    { id: "lead-2003", type: "warranty", status: "new", ...person(r), source: "Website", message: "The gearbox is slipping into second. Bought it here in the summer.", notes: [], createdAt: now - 4 * HOUR },
+    { id: "lead-2004", type: "service", status: "new", ...person(r), source: "Phone", message: "Due a full service next month, can you fit me in?", notes: [], createdAt: now - 26 * HOUR },
+    { id: "lead-2005", type: "service", status: "appointment", ...person(r), source: "Website", message: "Need an NCT check before the test.", assignedTo: "Ciara Walsh", followUpOn: dublinDay(now), notes: [{ at: now - 2 * DAY, text: "Booked in for Friday." }], createdAt: now - 3 * DAY },
+  ];
+};
 function seedLeadsWithEdges(): Lead[] {
-  return [...seedLeads(), ...EDGE_LEADS(Date.now())];
+  const now = Date.now();
+  return [...seedLeads(), ...EDGE_LEADS(now), ...STORY_LEADS(now)];
 }
 export const leadsStore = defineCollection<Lead>("leads", seedLeadsWithEdges);
 
@@ -130,14 +152,29 @@ function seedDrives(): TestDrive[] {
     return { id: `drive-${200 + i}`, ...person(r), carSlug: car.slug, carTitle: carTitleOf(car), startsAt, status, notes: r.pick(["", "", "Bringing a partner.", "Wants to compare with another car."]), createdAt: now - (Math.abs(day) + 2) * DAY };
   });
 }
-export const drivesStore = defineCollection<TestDrive>("test-drives", seedDrives);
+// Today's and tomorrow's diary, so the demo never opens on an empty day (a random day can miss it). Not 11:00, which the tests book.
+function seedDiary(): TestDrive[] {
+  const r = rng(137);
+  const now = Date.now();
+  const forSale = (demoCars as Car[]).filter((c) => !c.soldAt && !c.reserved);
+  return ([[0, 12, 30, "confirmed"], [0, 15, 0, "confirmed"], [0, 17, 0, "requested"], [1, 10, 0, "requested"], [1, 16, 30, "confirmed"]] as const).map(([day, h, m, status], i) => {
+    const car = r.pick(forSale);
+    return { id: `drive-${230 + i}`, ...person(r), carSlug: car.slug, carTitle: carTitleOf(car), startsAt: new Date(now + day * DAY).setHours(h, m, 0, 0), status, notes: i === 1 ? "Bringing a partner." : "", createdAt: now - (i + 1) * DAY };
+  });
+}
+export const drivesStore = defineCollection<TestDrive>("test-drives", () => [...seedDrives(), ...seedDiary()]);
 
 // ---- Customers, stock alerts, newsletter ----
 export type Customer = { id: string; name: string; email: string; phone: string; source: string; marketingConsent: boolean; createdAt: number; lastContactAt: number };
 function seedCustomers(): Customer[] {
   const r = rng(31);
   const now = Date.now();
-  return Array.from({ length: 22 }, (_, i) => ({ id: `cust-${300 + i}`, ...person(r), source: r.pick(["Website", "Walk-in", "Referral", "Facebook"]), marketingConsent: r.next() > 0.35, createdAt: now - r.int(2, 200) * DAY, lastContactAt: now - r.int(0, 40) * DAY }));
+  // A customer is on file from their first purchase at the latest, so no one bought a car before they were a customer.
+  const firstSale = (id: string) => Math.min(...PAST_SALES.filter((p) => p.sale.customerId === id).map((p) => p.sale.createdAt));
+  return Array.from({ length: 22 }, (_, i) => {
+    const id = `cust-${300 + i}`;
+    return { id, ...person(r), source: r.pick(["Website", "Walk-in", "Referral", "Facebook"]), marketingConsent: r.next() > 0.35, createdAt: Math.min(now - r.int(2, 200) * DAY, firstSale(id) - DAY), lastContactAt: now - r.int(0, 40) * DAY };
+  });
 }
 export const customersStore = defineCollection<Customer>("customers", seedCustomers);
 
@@ -223,7 +260,11 @@ export const SETTINGS_DEFAULT: DealerSettings = {
   updatedAt: 0,
 };
 // A real dealer starts with no team (the made-up one is the demo's) and adds its people in Settings.
-const seedSettings = (): DealerSettings[] => [{ ...SETTINGS_DEFAULT, team: seedsDemoRecords() ? SETTINGS_DEFAULT.team : [], updatedAt: Date.now() }];
+// The demo has the morning follow-up email on, so it can be shown (the made-up team's mail goes to the lead inbox, src/lib/leads/mail.ts).
+const seedSettings = (): DealerSettings[] => {
+  const demo = seedsDemoRecords();
+  return [{ ...SETTINGS_DEFAULT, team: demo ? SETTINGS_DEFAULT.team : [], notifications: { ...SETTINGS_DEFAULT.notifications, followUps: demo }, updatedAt: Date.now() }];
+};
 export const settingsStore = defineCollection<DealerSettings>("settings", seedSettings, { always: true });
 
 // ---- Marketing: social posts, ads, newsletters ----
@@ -326,6 +367,8 @@ function seedSales(): Sale[] {
     soldOn: c.soldAt!,
     salesperson: TEAM_SEED[i % 2 === 0 ? 1 : 0].name,
     customerId: `cust-${300 + i}`,
+    ...(i === 0 && { coverMonths: 24, tradeIn: { reg: "151-D-23817", allowanceEur: 2500 } }),
+    ...(i === 1 && { depositEur: 500 }), // its deposit is in seedReservations
     createdAt: Date.parse(`${c.soldAt}T16:00:00Z`),
   }));
 }
@@ -349,7 +392,16 @@ const PAST_SALES: { sale: Sale; costEur: number }[] = (() => {
   }
   return out;
 })();
-export const salesStore = defineCollection<Sale>("sales", () => [...seedSales(), ...PAST_SALES.map((p) => p.sale)]);
+// Two sales undone: a car brought back for a fault and refunded (back on sale now), and one that fell through before collection.
+function seedUndone(): Sale[] {
+  const now = Date.now();
+  const title = (id: string) => carTitleOf(demoCar(id));
+  return [
+    { id: "undone-s1", carId: "4710009", carTitle: title("4710009"), priceEur: 9950, soldOn: ago(21), salesperson: "Conor Doyle", customerId: "cust-313", returnedOn: ago(14), kind: "returned", refundEur: 9950, reason: "A clutch fault in the first week. Full refund.", createdAt: now - 21 * DAY },
+    { id: "undone-s2", carId: "4710020", carTitle: title("4710020"), priceEur: 10450, soldOn: ago(6), salesperson: "Aoife Brennan", customerId: "cust-314", returnedOn: ago(4), kind: "cancelled", reason: "Finance declined.", createdAt: now - 6 * DAY },
+  ];
+}
+export const salesStore = defineCollection<Sale>("sales", () => [...seedSales(), ...PAST_SALES.map((p) => p.sale), ...seedUndone()]);
 
 // ---- Reservations ----
 // A deposit on a car: the car is marked reserved on the website until the date agreed. It ends sold (the deposit is part of the price),
@@ -371,7 +423,22 @@ export type Reservation = {
   endedOn?: string;
   createdAt: number;
 };
-export const reservationsStore = defineCollection<Reservation>("reservations", () => []);
+// Two deposits held (one past its date, so the overview asks about it), one that became the sale, one refunded. The held ones are on the
+// cars marked reserved in demo-cars.json, and Reset demo data marks them again.
+function seedReservations(): Reservation[] {
+  const now = Date.now();
+  const sold = demoCar("4710004");
+  const soldDaysAgo = Math.round((now - Date.parse(`${sold.soldAt}T12:00:00Z`)) / DAY);
+  const deposit = (id: string, carId: string, customerId: string, depositEur: number, method: DepositMethod, paidDaysAgo: number, untilDaysAgo: number, salesperson: string): Reservation =>
+    ({ id, carId, carTitle: carTitleOf(demoCar(carId)), customerId, depositEur, method, paidOn: ago(paidDaysAgo), until: ago(untilDaysAgo), salesperson, status: "held", createdAt: now - paidDaysAgo * DAY });
+  return [
+    deposit("dep-s1", "4710026", "cust-310", 1000, "Card", 3, -7, "Conor Doyle"),
+    deposit("dep-s2", "4710010", "cust-311", 2000, "Bank transfer", 16, 2, "Aoife Brennan"),
+    { ...deposit("dep-s3", "4710004", "cust-301", 500, "Cash", soldDaysAgo + 4, soldDaysAgo - 3, "Aoife Brennan"), status: "sold", endedOn: sold.soldAt },
+    { ...deposit("dep-s4", "4710013", "cust-312", 500, "Card", 25, 18, "Conor Doyle"), status: "refunded", refundEur: 500, endedOn: ago(19) },
+  ];
+}
+export const reservationsStore = defineCollection<Reservation>("reservations", seedReservations);
 export const heldFor = (all: Reservation[], carId: string) => all.find((r) => r.carId === carId && r.status === "held");
 
 // ---- Warranty claims ----
@@ -396,7 +463,25 @@ export type Claim = {
   notes: { at: number; text: string }[];
   createdAt: number;
 };
-export const claimsStore = defineCollection<Claim>("claims", () => []);
+// Claims at every stage, on the demo's sales: the newest from a website request (lead-2000), the repaired ones with what they cost.
+function seedClaims(): Claim[] {
+  const now = Date.now();
+  const recent = PAST_SALES.slice(-6).map((p) => p.sale); // the last two months or so
+  const claim = (id: string, s: Sale, daysAgo: number, fault: string, status: ClaimStatus, note?: string, extra?: Partial<Claim>): Claim => {
+    const openedOn = [ago(daysAgo), s.soldOn].sort()[1]; // never before the sale
+    return { id, saleId: s.id, carId: s.id, carTitle: s.carTitle, customerId: s.customerId, openedOn, fault, inCover: openedOn <= coverEnds(s), status, notes: note ? [{ at: now - (daysAgo - 1) * DAY, text: note }] : [], createdAt: now - daysAgo * DAY, ...extra };
+  };
+  const [first, , third] = seedSales();
+  return [
+    claim("claim-s1", first, 2, "The engine warning light came on at motorway speed. The car drives fine.", "open", undefined, { leadId: "lead-2000" }),
+    claim("claim-s2", third, 5, "A rattle from the front left over bumps.", "booked", "Booked in for Thursday morning."),
+    claim("claim-s3", recent[5], 9, "The air con is blowing warm.", "approved", "A regas did not fix it. New compressor approved."),
+    claim("claim-s4", recent[3], 20, "Water coming in at the rear window seal.", "repaired", "New seal fitted. Dry after a wash.", { costEur: 180 }),
+    claim("claim-s5", recent[0], 30, "The brakes squeal when stopping.", "declined", "Worn pads, not covered. Quoted for a set."),
+    claim("claim-s6", PAST_SALES[3].sale, 60, "Flat battery two mornings in a row.", "closed", "New battery fitted.", { costEur: 140 }),
+  ];
+}
+export const claimsStore = defineCollection<Claim>("claims", seedClaims);
 // The last day of a sale's warranty.
 export const coverEnds = (s: Pick<Sale, "soldOn" | "coverMonths">) => {
   const [y, m, d] = s.soldOn.split("-").map(Number);
@@ -433,7 +518,22 @@ export type Order = {
   notes: { at: number; text: string }[];
   createdAt: number;
 };
-export const ordersStore = defineCollection<Order>("orders", () => []);
+// Orders at every stage, for this registration period and the next, so the dates always look current.
+function seedOrders(): Order[] {
+  const now = Date.now();
+  const [thisPeriod, nextPeriod] = regPeriods(dublinDay(now));
+  const order = (id: string, customerId: string, make: string, model: string, spec: string, colour: string, priceEur: number, regPeriod: string, expectedInDays: number, daysAgo: number, status: OrderStatus, salesperson: string, depositEur: number, note?: string, extra?: Partial<Order>): Order =>
+    ({ id, customerId, make, model, spec, colour, priceEur, depositEur, depositMethod: "Card", regPeriod, expected: ago(-expectedInDays).slice(0, 7), orderedOn: ago(daysAgo), status, salesperson, notes: note ? [{ at: now - (daysAgo - 2) * DAY, text: note }] : [], createdAt: now - daysAgo * DAY, ...extra });
+  return [
+    order("order-s1", "cust-315", "Toyota", "RAV4", "2.5 Hybrid Sol", "Pearl White", 47950, nextPeriod, 60, 12, "ordered", "Conor Doyle", 1000, "Confirmed with the importer. Build slot in December.", { leadId: "lead-2001" }),
+    order("order-s2", "cust-316", "Hyundai", "Tucson", "1.6 T-GDi Hybrid Executive", "Phantom Black", 44495, nextPeriod, 75, 5, "ordered", "Aoife Brennan", 500, undefined, { depositMethod: "Bank transfer" }),
+    order("order-s3", "cust-317", "Kia", "Sportage", "1.6 HEV K4", "Steel Grey", 41995, nextPeriod, 40, 40, "built", "Conor Doyle", 1000, "Built. Waiting on a ship."),
+    order("order-s4", "cust-318", "Skoda", "Octavia Combi", "2.0 TDI Style", "Moon White", 38950, thisPeriod, 10, 70, "in-transit", "Ciara Walsh", 1000, "On the boat. At the port next week."),
+    order("order-s5", "cust-319", "Volkswagen", "ID.4", "Pro", "Kings Red", 46950, thisPeriod, -60, 150, "handed-over", "Conor Doyle", 2000, "Handed over. Very happy."),
+    order("order-s6", "cust-320", "Ford", "Puma", "1.0 EcoBoost ST-Line", "Race Red", 32950, nextPeriod, 70, 30, "cancelled", "Aoife Brennan", 500, "Bought a used car from us instead. Deposit refunded.", { refundEur: 500 }),
+  ];
+}
+export const ordersStore = defineCollection<Order>("orders", seedOrders);
 
 // ---- Cost prices ----
 // What each car cost the dealer. Kept here, never in the public car data, and only shown to staff with the "margins" permission

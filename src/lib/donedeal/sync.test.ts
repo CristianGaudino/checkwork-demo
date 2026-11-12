@@ -19,8 +19,10 @@ const { runSync, syncStatus, resetSyncStatus, SYNC_ACTOR } = await import("./syn
 const { adminCars } = await import("@/lib/admin/stock-admin");
 const { listActivity } = await import("@/lib/admin/activity");
 const { HOUR } = await import("@/lib/time");
+const { forSale: isForSale } = await import("@/lib/stock/types");
 
-const forSale = async () => (await adminCars()).filter((c) => !c.soldAt && !c.listing);
+// What DoneDeal lists: the cars for sale (as the simulated feed sends, src/lib/donedeal/feed.ts).
+const forSale = async () => (await adminCars()).filter(isForSale);
 
 describe("the DoneDeal sync", () => {
   beforeEach(async () => {

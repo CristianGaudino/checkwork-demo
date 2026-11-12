@@ -120,12 +120,15 @@ describe("lead emails", () => {
 });
 
 describe("reset demo data", () => {
-  it("puts the records back, and no car stays Reserved with its deposit gone", async () => {
+  it("puts the records back, and the Reserved marks with them: only on the cars with a held deposit", async () => {
     vi.stubEnv("DEMO_RECORDS", "on");
     role = undefined; // the owner
-    const car = (await adminCars()).find((c) => !c.soldAt)!;
+    const car = (await adminCars()).find((c) => !c.soldAt && !c.reserved)!;
+    const held = (await adminCars()).find((c) => c.reserved)!;
     await saveCar({ ...car, reserved: true });
+    await saveCar({ ...held, reserved: undefined });
     await resetDemoAction();
     expect((await adminCars()).find((c) => c.id === car.id)?.reserved).toBeUndefined();
+    expect((await adminCars()).find((c) => c.id === held.id)?.reserved).toBe(true);
   });
 });
