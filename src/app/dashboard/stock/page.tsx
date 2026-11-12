@@ -36,7 +36,7 @@ const daysIn = (listedAt: string) => {
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ view?: string; status?: string; q?: string; make?: string; fuel?: string; sort?: string; dir?: string; saved?: string; deleted?: string; sale?: string; reserved?: string; undone?: string; page?: string }> }) {
   const sp = await searchParams;
-  const { view, q } = parseStockList(sp);
+  const { view, q, make, fuel } = parseStockList(sp);
   const [all, source] = await Promise.all([adminCars(), stockSource()]);
   const synced = source === "donedeal";
   const sync = synced ? await syncStatus() : null;
@@ -54,11 +54,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
     ) : null;
   // The margin column is for staff with the margins permission; without it the costs are not even read.
   const costs = (await can("margins")) ? new Map([...(await carCosts())].map(([id, c]) => [id, c.total])) : null;
-  // The make and fuel filters, from the URL, kept to values the stock has.
+  // The makes in stock, for the make filter.
   const makes = [...new Map(all.map((c) => [c.makeSlug, c.make])).entries()].sort((a, b) => a[1].localeCompare(b[1], "en-IE"));
-  const make = makes.some(([slug]) => slug === sp.make) ? sp.make : undefined;
-  const fuel = (FUELS as readonly string[]).includes(sp.fuel ?? "") ? sp.fuel : undefined;
-  const matching = stockList(all, view, q).filter((c) => (!make || c.makeSlug === make) && (!fuel || c.fuel === fuel));
+  const matching = stockList(all, view, q, { make, fuel });
   const saved = sp.saved ? all.find((c) => c.id === sp.saved) : undefined;
   // A view keeps the search and the filters; the sort and the page start again.
   const href = (v: StockView) => `/dashboard/stock?${new URLSearchParams(Object.entries({ view: v, q, make, fuel }).filter((e): e is [string, string] => Boolean(e[1])))}`;
@@ -205,7 +203,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         actions={
           <>
             {/* The list as it is filtered now: cost and margin columns only for the margins roles. */}
-            <a href={`/dashboard/stock/export?view=${view}${q ? `&q=${encodeURIComponent(q)}` : ""}`} className={adminButtonQuiet} download>
+            <a href={`/dashboard/stock/export?${new URLSearchParams(Object.entries({ view, q, make, fuel }).filter((e): e is [string, string] => Boolean(e[1])))}`} className={adminButtonQuiet} download>
               Export CSV
             </a>
             {synced ? (

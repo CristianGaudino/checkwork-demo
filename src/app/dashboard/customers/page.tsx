@@ -79,6 +79,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
   const people = sortRows(customers.filter((c) => has(q, c.name, c.email, c.phone) && (!sp.source || c.source === sp.source) && (!sp.consent || String(c.marketingConsent) === sp.consent)), customerColumns, sp, { key: "last", dir: "desc" });
   const alertList = sortRows(alerts.filter((a) => has(q, a.email, a.criteria) && (!sp.kind || a.kind === sp.kind) && (!sp.state || (sp.state === "active") === a.active)), alertColumns, sp, { key: "since", dir: "desc" });
   const subList = sortRows(subs.filter((s) => has(q, s.email) && (!sp.state || s.status === sp.state)), subColumns, sp, { key: "since", dir: "desc" });
+  // Each list's page, worked out once (slices: only the open tab's is shown).
+  const [peoplePage, alertPage, subPage] = [paginate(people.rows, sp.page), paginate(alertList.rows, sp.page), paginate(subList.rows, sp.page)];
   const pager = (p: { page: number; pageCount: number; total: number }) => <Pager page={p.page} pageCount={p.pageCount} total={p.total} />;
 
   return (
@@ -110,8 +112,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
             <FilterSelect name="source" label="Source" all="Any source" options={sources.map((s) => [s, s] as const)} />
             <FilterSelect name="consent" label="Marketing" all="Marketing: any" options={[["true", "Agreed to marketing"], ["false", "Not agreed"]]} />
           </TableToolbar>
-          <DataTable label="Customers" linkRows sort={people.sort} rows={paginate(people.rows, sp.page).rows} rowKey={(c) => c.id} columns={customerColumns} empty={<EmptyState title="No customers match" text="Try another filter or search." />} />
-          {pager(paginate(people.rows, sp.page))}
+          <DataTable label="Customers" linkRows sort={people.sort} rows={peoplePage.rows} rowKey={(c) => c.id} columns={customerColumns} empty={<EmptyState title="No customers match" text="Try another filter or search." />} />
+          {pager(peoplePage)}
         </>
       )}
 
@@ -121,8 +123,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
             <FilterSelect name="kind" label="Alert" all="Every alert" options={ALERT_KINDS.map((k) => [k, ALERT_KIND_LABELS[k]] as const)} />
             <FilterSelect name="state" label="Status" all="Active and paused" options={[["active", "Active"], ["paused", "Paused"]]} />
           </TableToolbar>
-          <DataTable label="Stock alerts" sort={alertList.sort} rows={paginate(alertList.rows, sp.page).rows} rowKey={(a) => a.id} columns={alertColumns} empty={<EmptyState title={q || sp.kind || sp.state ? "No alerts match" : "No alerts yet"} text={q || sp.kind || sp.state ? "Try another filter or search." : "Visitors can ask to be told about a car. They show here."} />} />
-          {pager(paginate(alertList.rows, sp.page))}
+          <DataTable label="Stock alerts" sort={alertList.sort} rows={alertPage.rows} rowKey={(a) => a.id} columns={alertColumns} empty={<EmptyState title={q || sp.kind || sp.state ? "No alerts match" : "No alerts yet"} text={q || sp.kind || sp.state ? "Try another filter or search." : "Visitors can ask to be told about a car. They show here."} />} />
+          {pager(alertPage)}
         </>
       )}
 
@@ -131,8 +133,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
           <TableToolbar search={{ placeholder: "Search email", label: "Search subscribers" }}>
             <FilterSelect name="state" label="Status" all="Subscribed and not" options={[["subscribed", "Subscribed"], ["unsubscribed", "Unsubscribed"]]} />
           </TableToolbar>
-          <DataTable label="Newsletter subscribers" sort={subList.sort} rows={paginate(subList.rows, sp.page).rows} rowKey={(s) => s.id} columns={subColumns} empty={<EmptyState title="No subscribers match" />} />
-          {pager(paginate(subList.rows, sp.page))}
+          <DataTable label="Newsletter subscribers" sort={subList.sort} rows={subPage.rows} rowKey={(s) => s.id} columns={subColumns} empty={<EmptyState title="No subscribers match" />} />
+          {pager(subPage)}
         </>
       )}
     </>
