@@ -6,7 +6,8 @@ import { stockSource } from "@/lib/stock-source";
 
 export const metadata = { title: "Add a car" };
 
-export default async function Page() {
+// ?reg= starts the form from a registration: the trade-in on a sale just recorded.
+export default async function Page({ searchParams }: { searchParams: Promise<{ reg?: string }> }) {
   if ((await stockSource()) === "donedeal") {
     return (
       <>
@@ -19,7 +20,7 @@ export default async function Page() {
   return (
     <>
       <PageHeader title="Add a car" />
-      <CarForm cost={cost} />
+      <CarForm cost={cost} reg={((await searchParams).reg ?? "").toUpperCase().replace(/[^A-Z0-9-]/g, "").slice(0, 12)} />
     </>
   );
 }

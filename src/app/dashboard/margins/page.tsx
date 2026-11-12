@@ -54,8 +54,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
       align: "right",
       cell: (r) => {
         if (r.cost === undefined) return "Not set";
-        const prep = costs.get(r.car.id)!.prep;
-        return prep ? <span className="flex flex-col items-end">{fmtEur(r.cost)}<span className="text-meta text-text-2">with {fmtEur(prep)} prep</span></span> : fmtEur(r.cost);
+        const { prep, claims } = costs.get(r.car.id)!;
+        const parts = [prep && `${fmtEur(prep)} prep`, claims && `${fmtEur(claims)} warranty`].filter(Boolean).join(", ");
+        return parts ? <span className="flex flex-col items-end">{fmtEur(r.cost)}<span className="text-meta text-text-2">with {parts}</span></span> : fmtEur(r.cost);
       },
     },
     { key: "margin", header: "Margin", align: "right", cell: (r) => (r.cost === undefined ? "" : fmtEur(marginOf(r.price, r.cost).eur)) },

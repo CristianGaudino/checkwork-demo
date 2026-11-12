@@ -1,5 +1,5 @@
 import { DriveStatusBadge } from "@/components/admin/badges";
-import { AddDriveForm } from "@/components/admin/AddDriveForm";
+import { AddDriveForm, MoveDriveForm } from "@/components/admin/AddDriveForm";
 import { ActButton } from "@/components/admin/ActButton";
 import { Badge, EmptyState, PageHeader, Pager, Panel, SummaryTabs, adminButton, paginate, rowButton } from "@/components/admin/kit";
 import { PlusIcon } from "@/components/stock/icons";
@@ -88,6 +88,15 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
                         {d.phone}
                       </a>
                       {d.notes && <span className="text-meta text-text-2">{d.notes}</span>}
+                      {/* A booking still to happen can move to another time, by the same rules as a new one. */}
+                      {open(d.status) && (
+                        <details className="mt-1">
+                          <summary className="inline-flex min-h-11 cursor-pointer items-center text-meta font-medium underline md:min-h-0">Change the time</summary>
+                          <div className="pt-2">
+                            <MoveDriveForm id={d.id} min={dublinDay()} max={addMonths(dublinDay(), TEST_DRIVE.monthsAhead)} />
+                          </div>
+                        </details>
+                      )}
                     </div>
                     {(NEXT[d.status] ?? []).length > 0 && (
                       <div className="col-start-2 flex flex-wrap gap-2 md:col-start-3 md:justify-end">

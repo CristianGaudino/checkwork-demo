@@ -15,7 +15,7 @@ vi.mock("next/headers", () => ({
   headers: async () => ({ get: () => null }),
 }));
 const { addPrepAction, removePrepAction, deleteCarAction, endReservationAction, recordSaleAction, reserveAction, saveCarAction, saveCostAction, setListingAction, toggleSoldAction, undoSaleAction, withdrawnAction } = await import("./actions");
-const { costsStore, customersStore, prepStore, reservationsStore, salesStore } = await import("@/lib/admin/collections");
+const { claimsStore, costsStore, customersStore, leadsStore, prepStore, reservationsStore, salesStore } = await import("@/lib/admin/collections");
 const { carCosts } = await import("@/lib/admin/costs");
 const { adminCar, adminCars, saveCar } = await import("@/lib/admin/stock-admin");
 
@@ -125,6 +125,18 @@ describe("recording a sale", () => {
     expect((await adminCar(forSale.id))?.soldAt).toBeUndefined(); // the sync marks it, from DoneDeal
   });
 
+  it("records the cover, the trade-in and the lead it came from, which is marked won", async () => {
+    stockCookie = "checkwork";
+    const car = (await adminCars()).find((c) => !c.soldAt && !c.listing && !c.reserved)!;
+    const customer = (await customersStore.list())[3];
+    await leadsStore.put({ id: "lead-sale", type: "enquiry", status: "contacted", name: "Kim", email: "k@example.com", phone: "", message: "", source: "Website", carSlug: car.slug, notes: [], createdAt: 0, followUpOn: today });
+    expect((await recordSaleAction(car.id, undefined, form({ priceEur: "9000", soldOn: today, customerId: customer.id, tradeReg: "151-D-1234" })))?.errors?.tradeEur).toMatch(/allowance/);
+    expect((await recordSaleAction(car.id, undefined, form({ priceEur: "9000", soldOn: today, customerId: customer.id, coverMonths: "18" })))?.errors?.coverMonths).toBeTruthy();
+    await expect(recordSaleAction(car.id, undefined, form({ priceEur: "9000", soldOn: today, customerId: customer.id, coverMonths: "36", tradeReg: "151-d-1234", tradeEur: "2500", leadId: "lead-sale" }))).rejects.toThrow(/redirect/);
+    expect(await salesStore.get(car.id)).toMatchObject({ coverMonths: 36, tradeIn: { reg: "151-D-1234", allowanceEur: 2500 }, leadId: "lead-sale" });
+    expect(await leadsStore.get("lead-sale")).toMatchObject({ status: "won", followUpOn: undefined });
+  });
+
   it("refuses a missing buyer, a bad price and a day to come, and saves nothing", async () => {
     const recorded = new Set((await salesStore.list()).map((x) => x.id));
     const car = (await adminCars()).find((c) => !c.soldAt && !recorded.has(c.id))!;
@@ -180,11 +192,14 @@ describe("deposits and undoing a sale", () => {
     const customer = (await customersStore.list())[2];
     await expect(recordSaleAction(car.id, undefined, form({ priceEur: "12000", soldOn: today, customerId: customer.id }))).rejects.toThrow(/redirect/);
     expect((await undoSaleAction(car.id, undefined, form({ kind: "returned", returnedOn: today, refundEur: "12000", reason: "Gearbox fault" })))?.errors?.kind).toMatch(/owners and managers/);
+    await claimsStore.put({ id: "claim-on-undone", saleId: car.id, carId: car.id, carTitle: "x", openedOn: today, fault: "x", inCover: true, status: "open", notes: [], createdAt: 0 });
     role = "Owner";
     expect((await undoSaleAction(car.id, undefined, form({ kind: "returned", returnedOn: today, refundEur: "12000" })))?.errors?.reason).toMatch(/why/);
     expect((await undoSaleAction(car.id, undefined, form({ kind: "returned", returnedOn: today, refundEur: "13000", reason: "x" })))?.errors?.refundEur).toMatch(/sold for/);
     await expect(undoSaleAction(car.id, undefined, form({ kind: "returned", returnedOn: today, refundEur: "12000", reason: "Gearbox fault" }))).rejects.toThrow(/redirect:\/dashboard\/stock\?view=hidden/);
     expect(await salesStore.get(car.id)).toBeUndefined(); // the car's id is free for the next sale
+    const undone = (await salesStore.list()).find((s) => s.carId === car.id)!;
+    expect((await claimsStore.get("claim-on-undone"))?.saleId).toBe(undone.id); // its claim moved with it
     expect((await salesStore.list()).find((s) => s.carId === car.id)).toMatchObject({ kind: "returned", refundEur: 12000, reason: "Gearbox fault", customerId: customer.id, returnedOn: today });
     expect(await adminCar(car.id)).toMatchObject({ listing: "hidden" });
     expect((await adminCar(car.id))?.soldAt).toBeUndefined();
@@ -204,7 +219,7 @@ describe("prep costs", () => {
     await costsStore.put({ id: car.id, costEur: 10000 });
     const was = (await carCosts()).get(car.id)!;
     expect((await addPrepAction(car.id, undefined, form({ kind: "Tyres", eur: "300", note: "Two fronts" })))?.added).toBeTruthy();
-    expect((await carCosts()).get(car.id)).toEqual({ purchase: 10000, prep: was.prep + 300, total: was.total + 300 });
+    expect((await carCosts()).get(car.id)).toEqual({ purchase: 10000, prep: was.prep + 300, claims: 0, total: was.total + 300 });
     const line = (await prepStore.get(car.id))!.lines.at(-1)!;
     await removePrepAction(car.id, line.at);
     expect((await carCosts()).get(car.id)!.total).toBe(was.total);

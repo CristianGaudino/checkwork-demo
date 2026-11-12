@@ -3,7 +3,7 @@
 import { Select } from "@/components/Select";
 import { useActionState } from "react";
 import { Field, adminButton, adminInput } from "@/components/admin/kit";
-import { addDriveAction, type DriveFormState } from "@/app/dashboard/test-drives/actions";
+import { addDriveAction, moveDriveAction, type DriveFormState } from "@/app/dashboard/test-drives/actions";
 
 // A booking taken by phone or at the desk. The server checks every box and refuses a clash; this only draws the boxes and the messages.
 // `min` and `max`: the days the server accepts (today to two months on), so the picker offers no other. Closed days are refused on save.
@@ -43,6 +43,23 @@ export function AddDriveForm({ cars, min, max }: { cars: { slug: string; label: 
           </p>
         )}
       </div>
+    </form>
+  );
+}
+
+// Moving a booking: a new day and time, by the same rules as a new one. Folded away on each booking until it is wanted.
+export function MoveDriveForm({ id, min, max }: { id: string; min: string; max: string }) {
+  const [state, action, pending] = useActionState<DriveFormState, FormData>(moveDriveAction.bind(null, id), undefined);
+  const e = state?.errors ?? {};
+  return (
+    <form action={action} className="flex flex-wrap items-end gap-3" noValidate>
+      <Field label="New day" error={e.date} className="w-44">
+        <input name="date" type="date" min={min} max={max} className={adminInput} />
+      </Field>
+      <Field label="New time" error={e.time} className="w-36">
+        <input name="time" type="time" step={900} className={adminInput} />
+      </Field>
+      <button type="submit" disabled={pending} className={adminButton}>{pending ? "Moving" : "Move"}</button>
     </form>
   );
 }

@@ -7,7 +7,7 @@ import { demoCost } from "./margins";
 import { DAY, HOUR } from "@/lib/time";
 import { dublinDay } from "./format";
 import { newId } from "./ids";
-import { DEPOSIT_METHODS, type DepositMethod } from "./deposits";
+import { COVER_MONTHS, DEPOSIT_METHODS, type DepositMethod } from "./deposits";
 import { ALERT_KINDS } from "@/lib/leads/schema";
 import type { Role } from "@/lib/permission-rules";
 import type { PrepLine } from "./prep";
@@ -20,9 +20,14 @@ import { carTitleOf, livePicks, person, rng } from "./seed-data";
 export const LEAD_STATUSES = ["new", "contacted", "appointment", "won", "lost"] as const;
 export type LeadStatus = (typeof LEAD_STATUSES)[number];
 export const LEAD_STATUS_LABELS: Record<LeadStatus, string> = { new: "New", contacted: "Contacted", appointment: "Appointment set", won: "Won", lost: "Lost" };
-export const LEAD_TYPES = ["enquiry", "test-drive", "finance", "trade-in", "sell", "find-a-car", "general"] as const;
+// warranty and service: a message sent from the Warranty or Service page (the website sends both as a general message; real-leads.ts
+// tells them apart by the page).
+export const LEAD_TYPES = ["enquiry", "test-drive", "finance", "trade-in", "sell", "find-a-car", "warranty", "service", "general"] as const;
 export type LeadType = (typeof LEAD_TYPES)[number];
-export const LEAD_TYPE_LABELS: Record<LeadType, string> = { enquiry: "Car enquiry", "test-drive": "Test drive", finance: "Finance", "trade-in": "Trade-in", sell: "Selling a car", "find-a-car": "Find a car", general: "General" };
+export const LEAD_TYPE_LABELS: Record<LeadType, string> = { enquiry: "Car enquiry", "test-drive": "Test drive", finance: "Finance", "trade-in": "Trade-in", sell: "Selling a car", "find-a-car": "Find a car", warranty: "Warranty claim", service: "Service", general: "General" };
+// Why a lead was lost, so the reports can say where sales go. A fixed list, so they can be counted.
+export const LOST_REASONS = ["Bought elsewhere", "Price", "Finance declined", "Stopped replying", "Car sold to someone else", "Other"] as const;
+export type LostReason = (typeof LOST_REASONS)[number];
 export const LEAD_SOURCES = ["Website", "WhatsApp", "Phone", "Facebook", "Google"] as const;
 
 export type Lead = {
@@ -40,6 +45,7 @@ export type Lead = {
   photoKeys?: string[]; // their car's photos, in the private bucket; the lead page signs short links to them
   assignedTo?: string;
   followUpOn?: string; // YYYY-MM-DD, the Irish day to get back to them; cleared once the lead is won or lost
+  lostReason?: LostReason; // only on a lost lead
   notes: { at: number; text: string }[];
   createdAt: number;
 };
@@ -59,14 +65,18 @@ const MESSAGES: Record<LeadType, string[]> = {
   "trade-in": ["I have a 2016 hatchback with 90,000 km to trade in against this.", "How much would you give me for my current car?"],
   sell: ["Selling my 2018 Golf, 110,000 km, full service history.", "Not buying right now, just want to sell my car."],
   "find-a-car": ["Looking for a diesel estate under 15k, low mileage.", "Want an automatic SUV, family car, around 20k."],
+  warranty: ["The engine warning light came on this morning. Reg 191-D-4521.", "The gearbox is slipping into second. Bought it here in the summer."],
+  service: ["Due a full service next month, can you fit me in?", "Need an NCT check before the test."],
   general: ["What time do you close on Saturday?", "Do you do servicing as well?"],
 };
+// The seed draws from the types it always has, so adding a type never changes the demo's made-up leads.
+const SEED_TYPES = ["enquiry", "test-drive", "finance", "trade-in", "sell", "find-a-car", "general"] as const;
 
 function seedLeads(): Lead[] {
   const r = rng(11);
   const now = Date.now();
   return Array.from({ length: 28 }, (_, i) => {
-    const type = r.pick(LEAD_TYPES);
+    const type = r.pick(SEED_TYPES);
     const p = person(r);
     const car = type === "find-a-car" || type === "general" || type === "sell" ? undefined : livePicks(r);
     const age = i < 6 ? r.int(1, 30) * HOUR : (i - 4) * r.int(6, 14) * HOUR + r.int(0, 5) * HOUR;
@@ -287,6 +297,9 @@ export type Sale = {
   salesperson?: string;
   customerId?: string;
   depositEur?: number; // taken earlier as a reservation, and part of the price
+  coverMonths?: number; // the warranty from the day of sale: the included cover, or longer if extended cover was bought. Absent: the included.
+  tradeIn?: { reg: string; allowanceEur: number }; // the buyer's car taken in part exchange
+  leadId?: string; // the lead the sale came from, marked won with it
   returnedOn?: string;
   kind?: "cancelled" | "returned";
   refundEur?: number;
@@ -295,8 +308,11 @@ export type Sale = {
 };
 // Undoing a sale: the record moves to an id of its own with how and when, then the car's id is freed. In that order, so nothing is lost
 // if the second write fails (the sale shows twice until it is done again).
+// Its warranty claims move with it, so a car sold again never lends the next buyer's sale to an old claim.
 export async function undoSale(sale: Sale, how: Required<Pick<Sale, "returnedOn" | "kind">> & Pick<Sale, "refundEur" | "reason">) {
-  await salesStore.put({ ...sale, ...how, id: newId("undone"), carId: sale.id });
+  const id = newId("undone");
+  await salesStore.put({ ...sale, ...how, id, carId: sale.id });
+  for (const c of await claimsStore.list()) if (c.saleId === sale.id) await claimsStore.put({ ...c, saleId: id });
   await salesStore.remove(sale.id);
 }
 function seedSales(): Sale[] {
@@ -357,6 +373,35 @@ export type Reservation = {
 export const reservationsStore = defineCollection<Reservation>("reservations", () => []);
 export const heldFor = (all: Reservation[], carId: string) => all.find((r) => r.carId === carId && r.status === "held");
 
+// ---- Warranty claims ----
+// A fault on a car the dealer sold, under its warranty or not, from the call to the repair. Tied to the sale (its id, the car's id while
+// the sale stands), so the cover is known. What the repair cost the dealer counts against that car's margin (src/lib/admin/costs.ts).
+export const CLAIM_STATUSES = ["open", "booked", "approved", "declined", "repaired", "closed"] as const;
+export type ClaimStatus = (typeof CLAIM_STATUSES)[number];
+export const CLAIM_STATUS_LABELS: Record<ClaimStatus, string> = { open: "Open", booked: "Booked in", approved: "Approved", declined: "Declined", repaired: "Repaired", closed: "Closed" };
+export const claimOpen = (s: ClaimStatus) => s !== "declined" && s !== "closed";
+export type Claim = {
+  id: string;
+  saleId: string;
+  carId: string;
+  carTitle: string;
+  customerId?: string;
+  openedOn: string; // YYYY-MM-DD
+  fault: string;
+  inCover: boolean; // under the warranty on the day it was opened
+  status: ClaimStatus;
+  costEur?: number; // what the repair cost the dealer: margins permission only
+  leadId?: string; // the website claim it came from
+  notes: { at: number; text: string }[];
+  createdAt: number;
+};
+export const claimsStore = defineCollection<Claim>("claims", () => []);
+// The last day of a sale's warranty.
+export const coverEnds = (s: Pick<Sale, "soldOn" | "coverMonths">) => {
+  const [y, m, d] = s.soldOn.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1 + (s.coverMonths ?? COVER_MONTHS), d - 1)).toISOString().slice(0, 10);
+};
+
 // ---- Cost prices ----
 // What each car cost the dealer. Kept here, never in the public car data, and only shown to staff with the "margins" permission
 // (src/lib/permissions.ts). One record per car id; a car added in the admin has none until someone enters it.
@@ -378,4 +423,4 @@ function seedPrep(): CarPrep[] {
 export const prepStore = defineCollection<CarPrep>("car-prep", seedPrep);
 
 // Every dealer collection, so "Reset demo data" puts the whole demo back to its seed.
-export const DEALER_COLLECTIONS = [leadsStore, drivesStore, customersStore, alertsStore, subscribersStore, reviewsStore, settingsStore, postsStore, adsStore, newslettersStore, costsStore, salesStore, prepStore, reservationsStore];
+export const DEALER_COLLECTIONS = [leadsStore, drivesStore, customersStore, alertsStore, subscribersStore, reviewsStore, settingsStore, postsStore, adsStore, newslettersStore, costsStore, salesStore, prepStore, reservationsStore, claimsStore];

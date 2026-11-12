@@ -10,6 +10,8 @@ import { MINUTE } from "@/lib/time";
 // after a lead is stored, this copies it into the admin's own collections so it can be worked (status, notes, who has it). The copies
 // are marked by an id starting "real-" and are deleted with the lead by the daily purge (src/lib/leads/purge.ts).
 const LEAD_TYPE: Record<Exclude<LeadRow["type"], "alert">, LeadType> = { enquiry: "enquiry", sourcing: "find-a-car", trade_in: "trade-in", finance: "finance", general: "general", test_drive: "test-drive" };
+// A general message is a warranty claim or a service request when it was sent from that page.
+const pageType = (path: string): LeadType => (path.startsWith("/warranty") ? "warranty" : path.startsWith("/service") ? "service" : "general");
 
 // The visitor's own words, or the answers they gave when the form has no free text (a trade-in, a finance application).
 function messageOf(row: LeadRow): string {
@@ -37,7 +39,7 @@ export function mirrorOf(row: LeadRow, emailed = true): Mirror {
   const drive = row.type === "test_drive" && row.carSlug && row.carTitle ? { id, name: row.name, email: row.email ?? "", phone: row.phone ?? "", carSlug: row.carSlug, carTitle: row.carTitle, startsAt: dublinMs(String(row.details.driveDate), String(row.details.driveTime)), status: "requested" as const, notes: row.message ?? "", createdAt: at } : undefined;
   const lead: Lead = {
     id,
-    type: row.type === "trade_in" && row.details.intent === "sell" ? "sell" : LEAD_TYPE[row.type],
+    type: row.type === "trade_in" && row.details.intent === "sell" ? "sell" : row.type === "general" ? pageType(row.sourcePath) : LEAD_TYPE[row.type],
     status: "new",
     name: row.name,
     email: row.email ?? "",

@@ -79,6 +79,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
         <Panel title="Where the won leads came from">
           {r.sources.length ? <BarList items={r.sources.map((s) => ({ label: s.source, value: s.won, note: `of ${s.leads} leads, ${s.winRate}%` }))} /> : <p className="text-body text-text-2">No leads in this period.</p>}
         </Panel>
+        <Panel title="Why leads were lost">
+          {r.lost.length ? <BarList items={r.lost.map((x) => ({ label: x.reason, value: x.leads, note: x.leads === 1 ? "1 lead" : `${x.leads} leads` }))} /> : <p className="text-body text-text-2">No lost leads in this period.</p>}
+        </Panel>
         <Panel title="Stock by age">
           <BarList items={r.stockAge.map((b) => ({ label: b.band, value: b.cars, note: fmtEur(b.value) }))} />
         </Panel>

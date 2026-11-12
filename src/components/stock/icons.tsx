@@ -91,6 +91,18 @@ export const SearchIcon = (p: Props) => (
     <path d="m20 20-4.2-4.2" />
   </Icon>
 );
+export const WrenchIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76Z" />
+  </Icon>
+);
+export const TruckIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M3 6h11v10H3zM14 9h4l3 3v4h-7" />
+    <circle cx="7" cy="18" r="1.8" />
+    <circle cx="17.5" cy="18" r="1.8" />
+  </Icon>
+);
 export const ShieldCheckIcon = (p: Props) => (
   <Icon {...p}>
     <path d="M12 3 5 6v5.5c0 4.2 2.8 7.6 7 9.5 4.2-1.9 7-5.3 7-9.5V6l-7-3Z" />

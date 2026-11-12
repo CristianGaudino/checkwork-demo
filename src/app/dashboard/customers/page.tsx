@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Badge, DataTable, EmptyState, PageHeader, Pager, SummaryTabs, adminButtonQuiet, paginate, rowButton } from "@/components/admin/kit";
 import { ActButton } from "@/components/admin/ActButton";
 import { can } from "@/lib/permissions";
@@ -48,6 +49,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
         <>
         <DataTable
           label="Customers"
+          linkRows
           rows={people.rows}
           rowKey={(c) => c.id}
           columns={[
@@ -56,8 +58,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
               header: "Customer",
               cell: (c) => (
                 <span className="flex min-w-0 flex-col">
-                  <span className="font-medium">{c.name}</span>
-                  <a href={`mailto:${c.email}`} className="truncate text-meta text-text-2 underline-offset-2 hover:underline">{c.email}</a>
+                  <Link href={`/dashboard/customers/${c.id}`} className="font-medium after:absolute after:inset-0">{c.name}</Link>
+                  <span className="truncate text-meta text-text-2">{c.email || c.phone}</span>
                 </span>
               ),
             },

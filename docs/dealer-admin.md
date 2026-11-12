@@ -84,9 +84,26 @@ with no D1). The actor is the signed-in person (`currentMember`), or a named one
   `returnedOn` and `kind`, and reports count it under Returns, not sales. In our version a car brought back is hidden for a look over; one
   that fell through goes back on sale. With DoneDeal stock only the record changes. The car's page lists its deposits and undone sales.
   Back on sale stays only for a sold car with no sale recorded.
+- **More on a sale:** the warranty (12 months included, or 24 or 36 with extended cover), a trade-in (its reg and allowance; Stock then
+  offers to add it, starting the car form from the reg), and the lead it came from (one on that car, marked won).
+- **A lost lead** asks why, from a fixed list, and Reports shows "Why leads were lost".
+- **Test drives** still to happen can move to another time, by the same rules as a new booking.
 - **A follow-up** (`followUpOn` on a lead): Tomorrow, In 3 days, Next week or a day, on the lead. Cleared when the lead is won or lost.
   Overview counts the ones due (today and overdue); the leads list filters by them. The morning email (Settings, Notifications, off by
   default) sends each salesperson theirs, and the unassigned ones to owners and managers, at 07:00 UTC (`/api/follow-ups/digest`).
+
+## Customers and aftersales
+
+- **A customer's page** (`/dashboard/customers/[id]`): how to reach them, what they bought with the warranty on each (in cover or not),
+  their deposits and warranty claims, and the leads and test drives that carry their email or phone.
+- **Warranty claims** (`claimsStore`, Aftersales in the menu): opened on a purchase, from the customer's page or from a warranty lead
+  (the buyer is found by the lead's email or phone). In cover or not is worked out from the sale's day and cover, never typed. Open,
+  Booked in, Approved, Declined, Repaired, Closed, with notes. What the repair cost the dealer is for the margins roles, and counts in the
+  car's cost (`src/lib/admin/costs.ts`), so margins and the reports' profit include it.
+- **From the website:** the Warranty page has a claim form (a general message from /warranty), and a message from /service is filed as
+  Service. The dashboard tells them apart by the page (`src/lib/admin/real-leads.ts`); the email to the dealer is the general one.
+- **Personal data:** claims are in data requests; erasure keeps the claim and its cost without the buyer, the fault or the notes. The
+  six-year purge removes the buyer from old claims, as from sales and deposits.
 
 ## Reports and prep costs
 

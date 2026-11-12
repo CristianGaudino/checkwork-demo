@@ -34,6 +34,7 @@ export type FullReport = {
   returns: { count: number; refundEur: number }; // sales undone in the period (by the day undone): cancelled or brought back
   people: PersonRow[];
   sources: SourceRow[];
+  lost: { reason: string; leads: number }[]; // the period's lost leads by the reason given, most first; "Not said" for none
   stockAge: AgeRow[];
   prep: PrepRow[];
 };
@@ -99,6 +100,7 @@ export function fullReport(input: { sales: Sale[]; cars: Car[]; leads: Lead[]; t
     returns: { count: undone.length, refundEur: undone.reduce((t, s) => t + (s.refundEur ?? 0), 0) },
     people,
     sources,
+    lost: [...leads.filter((l) => l.status === "lost").reduce((m, l) => m.set(l.lostReason ?? "Not said", (m.get(l.lostReason ?? "Not said") ?? 0) + 1), new Map<string, number>())].map(([reason, n]) => ({ reason, leads: n })).sort((a, b) => b.leads - a.leads),
     stockAge,
     prep,
   };

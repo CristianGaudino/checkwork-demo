@@ -37,6 +37,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
   const sync = synced ? await syncStatus() : null;
   const sales = new Map((await salesStore.list()).map((s) => [s.id, s]));
   const saleFor = sp.sale ? all.find((c) => c.id === sp.sale) : undefined;
+  const tradeIn = saleFor && sales.get(saleFor.id)?.tradeIn;
   const reservedNow = sp.reserved ? all.find((c) => c.id === sp.reserved) : undefined;
   const undoneNow = sp.undone ? all.find((c) => c.id === sp.undone) : undefined;
   // A sold car with no sale recorded gets the button: Mark sold in our version records it; after the DoneDeal sync it is asked for here.
@@ -191,7 +192,18 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
       />
       {sync && <SyncPanel status={sync} canForce={await can("settings")} />}
       {saved && <p role="status" className="rounded-control bg-ok-soft px-4 py-3 text-body text-ok">Saved {carName(saved)}.</p>}
-      {saleFor && <p role="status" className="rounded-control bg-ok-soft px-4 py-3 text-body text-ok">Sale recorded for {carName(saleFor)}.</p>}
+      {saleFor && (
+        <p role="status" className="rounded-control bg-ok-soft px-4 py-3 text-body text-ok">
+          Sale recorded for {carName(saleFor)}.
+          {/* The car taken in part exchange is the next car in stock: start it from its registration. Our version only. */}
+          {!synced && tradeIn && (
+            <>
+              {" "}
+              <Link href={`/dashboard/stock/new?reg=${encodeURIComponent(tradeIn.reg)}`} className="font-semibold underline">Add the trade-in, {tradeIn.reg}, to stock</Link>
+            </>
+          )}
+        </p>
+      )}
       {sp.deleted && <p role="status" className="rounded-control bg-hairline px-4 py-3 text-body">Car deleted.</p>}
       {reservedNow && <p role="status" className="rounded-control bg-ok-soft px-4 py-3 text-body text-ok">Deposit taken. {carName(reservedNow)} shows as Reserved on the website.</p>}
       {undoneNow && <p role="status" className="rounded-control bg-hairline px-4 py-3 text-body">Sale undone for {carName(undoneNow)}. The record is kept.</p>}

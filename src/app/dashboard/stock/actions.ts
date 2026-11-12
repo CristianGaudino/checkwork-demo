@@ -7,10 +7,11 @@ import { logActivity } from "@/lib/admin/activity";
 import { carEditSummary, costText } from "@/lib/admin/activity-text";
 import { z } from "zod";
 import { PREP_KINDS } from "@/lib/admin/prep";
-import { DEPOSIT_METHODS, costsStore, customersStore, getSettings, heldFor, prepStore, reservationsStore, salesStore, undoSale } from "@/lib/admin/collections";
+import { DEPOSIT_METHODS, costsStore, customersStore, getSettings, heldFor, leadsStore, prepStore, reservationsStore, salesStore, undoSale } from "@/lib/admin/collections";
 import { addMonths, dublinDay, fmtEur } from "@/lib/admin/format";
 import { newId } from "@/lib/admin/ids";
 import { fieldErrors } from "@/lib/admin/validation";
+import { COVER_CHOICES, COVER_MONTHS } from "@/lib/admin/deposits";
 import { EMAIL_INVALID } from "@/lib/copy";
 import { LIMITS } from "@/lib/leads/constants";
 import { carTitleOf } from "@/lib/admin/seed-data";
@@ -142,7 +143,17 @@ async function buyerOf(d: Buyer, source: string): Promise<{ customerId: string; 
   await customersStore.put({ id: customerId, name: d.name, email: d.email ?? "", phone: d.phone ?? "", source, marketingConsent: false, createdAt: at, lastContactAt: at });
   return { customerId, salesperson };
 }
-const sale = z.object({ priceEur: euros(10_000_000), soldOn: day("Choose the day it sold"), ...buyer });
+// Cover is the included months or more (extended cover bought); a trade-in is a reg with its allowance, both or neither.
+const blank = (v: unknown) => (v === "" ? undefined : v);
+const sale = z.object({
+  priceEur: euros(10_000_000),
+  soldOn: day("Choose the day it sold"),
+  coverMonths: z.preprocess(blank, z.coerce.number().refine((n) => (COVER_CHOICES as readonly number[]).includes(n), "Choose the cover").optional()),
+  tradeReg: z.preprocess(blank, z.string().trim().toUpperCase().max(12).optional()),
+  tradeEur: z.preprocess(blank, euros(1_000_000).optional()),
+  leadId: z.string().max(60).optional(),
+  ...buyer,
+});
 
 // What the car sold for, when, by whom and to whom. The buyer is a customer already on file, or a new one made here. In our version this
 // is Mark sold, so the car is marked sold on the sale's day. In the DoneDeal version the car is sold there; the sale is only recorded, and a
@@ -155,6 +166,7 @@ export async function recordSaleAction(carId: string, _prev: SaleFormState, data
   const d = r.data;
   const today = dublinDay();
   if (d.soldOn > today) return { errors: { soldOn: "Choose a day that has passed or today" } };
+  if (Boolean(d.tradeReg) !== Boolean(d.tradeEur)) return { errors: d.tradeReg ? { tradeEur: "Enter the allowance for the trade-in" } : { tradeReg: "Enter the trade-in's registration" } };
   const who = await buyerOf(d, "Sale");
   if ("errors" in who) return who;
   const was = await salesStore.get(car.id);
@@ -162,7 +174,22 @@ export async function recordSaleAction(carId: string, _prev: SaleFormState, data
   const held = heldFor(await reservationsStore.list(), car.id);
   if (held) await reservationsStore.put({ ...held, status: "sold", endedOn: d.soldOn });
   const depositEur = held?.depositEur ?? was?.depositEur;
-  await salesStore.put({ id: car.id, carTitle: carTitleOf(car), priceEur: d.priceEur, soldOn: d.soldOn, ...who, ...(depositEur && { depositEur }), createdAt: was?.createdAt ?? Date.now() });
+  // The lead it came from (one on this car, still open or already won) is marked won with it.
+  const lead = d.leadId ? await leadsStore.get(d.leadId) : undefined;
+  const leadId = lead?.carSlug === car.slug && lead.status !== "lost" ? lead.id : undefined;
+  if (lead && leadId && lead.status !== "won") await leadsStore.put({ ...lead, status: "won", followUpOn: undefined, notes: [...lead.notes, { at: Date.now(), text: "Bought the car." }] });
+  await salesStore.put({
+    id: car.id,
+    carTitle: carTitleOf(car),
+    priceEur: d.priceEur,
+    soldOn: d.soldOn,
+    ...who,
+    ...(depositEur && { depositEur }),
+    ...(d.coverMonths && d.coverMonths !== COVER_MONTHS && { coverMonths: d.coverMonths }),
+    ...(d.tradeReg && d.tradeEur && { tradeIn: { reg: d.tradeReg, allowanceEur: d.tradeEur } }),
+    ...(leadId && { leadId }),
+    createdAt: was?.createdAt ?? Date.now(),
+  });
   const markSold = !isSold(car) && (!(await readOnly()) || Boolean(car.takenDownAt));
   if (markSold) await saveCar({ ...car, soldAt: d.soldOn, reserved: undefined, ...(car.takenDownAt && { takenDownAt: undefined, listing: undefined }) });
   await logActivity("stock", `${was ? "Changed the sale to" : "Recorded the sale for"} ${fmtEur(d.priceEur)}${markSold ? " and marked it sold" : ""}`, carRef(car));

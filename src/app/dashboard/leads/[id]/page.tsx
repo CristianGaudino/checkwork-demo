@@ -4,14 +4,14 @@ import { notFound } from "next/navigation";
 import { LeadStatusBadge } from "@/components/admin/badges";
 import { RegLookup } from "@/components/leads/RegLookup";
 import { Avatar, Badge, ChoiceButton, Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput, rowButton } from "@/components/admin/kit";
-import { LEAD_STATUS_LABELS, LEAD_TYPE_LABELS, getSettings, leadsStore } from "@/lib/admin/collections";
+import { LEAD_STATUS_LABELS, LEAD_TYPE_LABELS, LOST_REASONS, getSettings, leadsStore } from "@/lib/admin/collections";
 import { fmtDateTime } from "@/lib/admin/format";
 
 import { adminCars } from "@/lib/admin/stock-admin";
 import { isSold } from "@/lib/stock/types";
 import { CalendarIcon, CheckIcon, CloseIcon, PhoneIcon, WhatsAppIcon } from "@/components/stock/icons";
 import type { LeadStatus } from "@/lib/admin/collections";
-import { addNoteAction, assignLeadAction, setFollowUpAction, setStatusAction } from "../actions";
+import { addNoteAction, assignLeadAction, setFollowUpAction, setLostReasonAction, setStatusAction } from "../actions";
 import { dublinDay, fmtDate } from "@/lib/admin/format";
 import { followUpDue, isOpenLead } from "@/lib/admin/leads";
 import { signPhotoPath } from "@/lib/leads/photos";
@@ -161,7 +161,26 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                 </ChoiceButton>
               ))}
             </div>
+            {/* Why it was lost, for the reports. Only on a lost lead. */}
+            {lead.status === "lost" && (
+              <fieldset className="flex flex-col gap-2">
+                <legend className="mb-2 text-meta font-medium">Why was it lost?</legend>
+                <div className="flex flex-wrap gap-2">
+                  {LOST_REASONS.map((r) => (
+                    <ChoiceButton key={r} action={setLostReasonAction.bind(null, lead.id)} name="reason" value={r} active={lead.lostReason === r}>
+                      {r}
+                    </ChoiceButton>
+                  ))}
+                </div>
+              </fieldset>
+            )}
           </Panel>
+          {/* A warranty claim from the website: open it on the sale, with the buyer found from their details. */}
+          {lead.type === "warranty" && (
+            <Panel title="Warranty">
+              <Link href={`/dashboard/aftersales/new?lead=${lead.id}`} className={`${adminButton} w-fit`}>Open a claim</Link>
+            </Panel>
+          )}
           {/* The day to get back to them. Only while the lead is open: won and lost need none. */}
           {isOpenLead(lead) && (
             <Panel title="Follow up" action={lead.followUpOn && <Badge tone={followUpDue(lead, today) ? "warn" : "neutral"}>{lead.followUpOn === today ? "Today" : fmtDate(`${lead.followUpOn}T12:00:00Z`)}</Badge>}>

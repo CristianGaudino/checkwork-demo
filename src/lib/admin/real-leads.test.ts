@@ -36,6 +36,11 @@ describe("mirrorOf", () => {
     expect(m.lead).toMatchObject({ photoKeys: ["trade-in/abc/1.jpg"], notes: [{ text: expect.stringMatching(/didn't reach you/) }] });
     expect(mirrorOf(row({})).lead!.notes).toEqual([]);
   });
+  it("files a message from the Warranty or Service page under that type", () => {
+    expect(mirrorOf(row({ type: "general", carId: null, sourcePath: "/warranty" })).lead?.type).toBe("warranty");
+    expect(mirrorOf(row({ type: "general", carId: null, sourcePath: "/service" })).lead?.type).toBe("service");
+    expect(mirrorOf(row({ type: "general", carId: null, sourcePath: "/contact" })).lead?.type).toBe("general");
+  });
   it("describes a form with no free text from its answers", () => {
     const m = mirrorOf(row({ type: "finance", message: null, details: { deposit: 2000, term: 48 } }));
     expect(m.lead!.message).toBe("Deposit: 2000. Term (months): 48");

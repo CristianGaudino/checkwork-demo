@@ -14,6 +14,7 @@ export const LEAD_RETENTION_MONTHS = 12;
 export const SALE_KEEP_YEARS = 6;
 // What the contact form and the service form say after a message goes.
 export const MESSAGE_SENT = { heading: "Thanks, we have your message.", body: "We'll get back to you." } as const;
+export const CLAIM_SENT = { heading: "Thanks, we have your claim.", body: "We'll call you to book the car in." } as const;
 export const LIMITS = { name: 100, phone: 30, email: 200, message: 1000 } as const;
 // D-12: shown once, under Email; ContactFields marks both fields when it is set.
 // Country codes for the phone field. Ireland first and the default; the rest are the places most buyers ring from.

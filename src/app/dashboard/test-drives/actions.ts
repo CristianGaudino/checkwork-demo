@@ -36,6 +36,38 @@ const booking = z.object({
   notes: z.string().trim().max(300).optional(),
 });
 
+// The rules for a booking's time, for a new one and a moved one (`ignoreId`: the booking being moved does not clash with itself).
+async function checkSlot(carSlug: string, carTitle: string, date: string, time: string, ignoreId?: string): Promise<{ startsAt: number } | { errors: Record<string, string> }> {
+  const startsAt = dublinMs(date, time); // typed in Irish time, like the visitors' bookings
+  if (Number.isNaN(startsAt)) return { errors: { date: "Choose a day" } };
+  // An hour of grace, so "now" on the form is not refused. A typo for last year is.
+  if (startsAt < Date.now() - HOUR) return { errors: { date: "Choose a day that has not passed" } };
+  // The website's rules (TEST_DRIVE, driveTimes): up to two months ahead (a typo for next year is refused), only on a day we are open,
+  // never a bank holiday, and inside the driving hours. Today is allowed here, for someone at the desk.
+  if (date > addMonths(dublinDay(), TEST_DRIVE.monthsAhead)) return { errors: { date: "Choose a day in the next two months" } };
+  if (isBankHoliday(date)) return { errors: { date: "That's a bank holiday. We're closed" } };
+  if (!driveTimes(date).length) return { errors: { date: "We're closed that day" } };
+  if (!inDriveHours(date, time)) return { errors: { time: `Choose a time from ${driveTimes(date)[0]} to ${driveTimes(date).at(-1)}` } };
+  const clash = clashes(await drivesStore.list(), carSlug, startsAt, ignoreId, (await getSettings()).driveSlotMinutes * MINUTE);
+  if (clash.length) return { errors: { time: `${carTitle} is already booked around then` } };
+  return { startsAt };
+}
+
+// A booking moved to another time, by the same rules. Only one still to happen (requested or confirmed).
+const moving = z.object({ date: booking.shape.date, time: booking.shape.time });
+export async function moveDriveAction(id: string, _prev: DriveFormState, data: FormData): Promise<DriveFormState> {
+  const drive = await drivesStore.get(id);
+  if (!drive || (drive.status !== "requested" && drive.status !== "confirmed")) return { errors: { date: "This booking can no longer be moved" } };
+  const parsed = moving.safeParse(Object.fromEntries(data));
+  if (!parsed.success) return { errors: fieldErrors(parsed.error) };
+  const slot = await checkSlot(drive.carSlug, drive.carTitle, parsed.data.date, parsed.data.time, id);
+  if ("errors" in slot) return slot;
+  await drivesStore.put({ ...drive, startsAt: slot.startsAt });
+  await logActivity("test-drives", "Moved the test drive to another time", { kind: "drive", id });
+  revalidatePath("/dashboard/test-drives");
+  return { done: "Moved." };
+}
+
 // A booking the dealer takes by phone or in person. It refuses a time when the same car is already out within the hour.
 export async function addDriveAction(_prev: DriveFormState, data: FormData): Promise<DriveFormState> {
   const parsed = booking.safeParse(Object.fromEntries(data));
@@ -43,18 +75,9 @@ export async function addDriveAction(_prev: DriveFormState, data: FormData): Pro
   const b = parsed.data;
   const car = (await adminCars()).find((c) => c.slug === b.carSlug);
   if (!car) return { errors: { carSlug: "That car is not in stock" } };
-  const startsAt = dublinMs(b.date, b.time); // typed in Irish time, like the visitors' bookings
-  if (Number.isNaN(startsAt)) return { errors: { date: "Choose a day" } };
-  // An hour of grace, so "now" on the form is not refused. A typo for last year is.
-  if (startsAt < Date.now() - HOUR) return { errors: { date: "Choose a day that has not passed" } };
-  // The website's rules (TEST_DRIVE, driveTimes): up to two months ahead (a typo for next year is refused), only on a day we are open,
-  // never a bank holiday, and inside the driving hours. Today is allowed here, for someone at the desk.
-  if (b.date > addMonths(dublinDay(), TEST_DRIVE.monthsAhead)) return { errors: { date: "Choose a day in the next two months" } };
-  if (isBankHoliday(b.date)) return { errors: { date: "That's a bank holiday. We're closed" } };
-  if (!driveTimes(b.date).length) return { errors: { date: "We're closed that day" } };
-  if (!inDriveHours(b.date, b.time)) return { errors: { time: `Choose a time from ${driveTimes(b.date)[0]} to ${driveTimes(b.date).at(-1)}` } };
-  const clash = clashes(await drivesStore.list(), car.slug, startsAt, undefined, (await getSettings()).driveSlotMinutes * MINUTE);
-  if (clash.length) return { errors: { time: `${carName(car)} is already booked around then` } };
+  const slot = await checkSlot(car.slug, carName(car), b.date, b.time);
+  if ("errors" in slot) return slot;
+  const startsAt = slot.startsAt;
   const id = newId("drive");
   await drivesStore.put({ id, name: b.name, phone: b.phone, email: b.email ?? "", carSlug: car.slug, carTitle: carName(car), startsAt, status: "confirmed", notes: b.notes ?? "", createdAt: Date.now() });
   await logActivity("test-drives", "Booked a test drive", { kind: "drive", id });

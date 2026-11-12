@@ -5,10 +5,10 @@ import { usePathname } from "next/navigation";
 import { useId, useRef } from "react";
 import type { NavIcon, NavItem } from "@/lib/admin/nav";
 import { useCloseAtDesktop } from "@/components/useCloseAtDesktop";
-import { CalendarIcon, CarIcon, ChartIcon, CloseIcon, CogIcon, HistoryIcon, ReportIcon, ShieldCheckIcon, HomeIcon, InboxIcon, MegaphoneIcon, MenuIcon, PercentIcon, StarIcon, UsersIcon } from "@/components/stock/icons";
+import { CalendarIcon, CarIcon, ChartIcon, CloseIcon, CogIcon, HistoryIcon, ReportIcon, ShieldCheckIcon, TruckIcon, WrenchIcon, HomeIcon, InboxIcon, MegaphoneIcon, MenuIcon, PercentIcon, StarIcon, UsersIcon } from "@/components/stock/icons";
 import { closeButton, press } from "@/components/ui";
 
-const ICONS: Record<NavIcon, typeof HomeIcon> = { home: HomeIcon, inbox: InboxIcon, car: CarIcon, calendar: CalendarIcon, users: UsersIcon, megaphone: MegaphoneIcon, chart: ChartIcon, percent: PercentIcon, star: StarIcon, cog: CogIcon, history: HistoryIcon, report: ReportIcon, shield: ShieldCheckIcon };
+const ICONS: Record<NavIcon, typeof HomeIcon> = { home: HomeIcon, inbox: InboxIcon, car: CarIcon, calendar: CalendarIcon, users: UsersIcon, megaphone: MegaphoneIcon, chart: ChartIcon, percent: PercentIcon, star: StarIcon, cog: CogIcon, history: HistoryIcon, report: ReportIcon, shield: ShieldCheckIcon, wrench: WrenchIcon, truck: TruckIcon };
 
 // The four places staff go all day: the tab bar on a phone shows these, and More opens the rest.
 const TABS = ["/dashboard", "/dashboard/leads", "/dashboard/test-drives", "/dashboard/stock"];

@@ -22,8 +22,8 @@ test("a new booking is added, and the same car at the same time is refused", asy
     await page.getByLabel("Name", { exact: true }).fill("Test booker");
     await page.getByLabel("Phone").fill("+353 83 000 1234");
     await choose(page.getByLabel("Car"), 2);
-    await page.locator('input[name="date"]').fill(day);
-    await page.locator('input[name="time"]').fill("11:00");
+    await page.locator("form", { has: page.getByRole("button", { name: "Add booking" }) }).locator(`input[name="date"]`).fill(day);
+    await page.locator("form", { has: page.getByRole("button", { name: "Add booking" }) }).locator(`input[name="time"]`).fill("11:00");
     await page.getByRole("button", { name: "Add booking" }).click();
   };
   await book();
@@ -39,8 +39,8 @@ test("a day that has passed, or more than two months ahead, is refused", async (
     await page.getByLabel("Name", { exact: true }).fill("Test booker");
     await page.getByLabel("Phone").fill("+353 83 000 1234");
     await choose(page.getByLabel("Car"), 1);
-    await page.locator('input[name="date"]').fill(day);
-    await page.locator('input[name="time"]').fill("11:00");
+    await page.locator("form", { has: page.getByRole("button", { name: "Add booking" }) }).locator(`input[name="date"]`).fill(day);
+    await page.locator("form", { has: page.getByRole("button", { name: "Add booking" }) }).locator(`input[name="time"]`).fill("11:00");
     await page.getByRole("button", { name: "Add booking" }).click();
   };
   await tryDay("2020-01-01");

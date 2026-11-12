@@ -2,8 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader, Panel, adminButtonQuiet } from "@/components/admin/kit";
 import { SaleForm } from "@/components/admin/SaleForm";
-import { customersStore, getSettings, heldFor, reservationsStore, salesStore } from "@/lib/admin/collections";
-import { dublinDay, fmtEur } from "@/lib/admin/format";
+import { LEAD_TYPE_LABELS, customersStore, getSettings, heldFor, leadsStore, reservationsStore, salesStore } from "@/lib/admin/collections";
+import { dublinDay, fmtDate, fmtEur } from "@/lib/admin/format";
 import { adminCar } from "@/lib/admin/stock-admin";
 import { currentMember } from "@/lib/permissions";
 import { stockSource } from "@/lib/stock-source";
@@ -16,7 +16,7 @@ export const metadata = { title: "Record a sale" };
 // with none, and Change the sale for one already recorded. A DoneDeal car still for sale is sold on DoneDeal first: the ad coming down is what asks.
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [car, was, customers, { team }, me, source, reservations] = await Promise.all([adminCar(id), salesStore.get(id), customersStore.list(), getSettings(), currentMember(), stockSource(), reservationsStore.list()]);
+  const [car, was, customers, { team }, me, source, reservations, leads] = await Promise.all([adminCar(id), salesStore.get(id), customersStore.list(), getSettings(), currentMember(), stockSource(), reservationsStore.list(), leadsStore.list()]);
   if (!car || (source === "donedeal" && !isSold(car) && !was && !car.takenDownAt)) notFound();
   const today = dublinDay();
   const title = was ? "Change the sale" : isSold(car) ? "Record the sale" : "Mark sold";
@@ -32,6 +32,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
           today={today}
           submit={was ? "Save the sale" : isSold(car) ? "Record sale" : "Mark sold"}
           team={team.map((t) => t.name)}
+          leads={leads.filter((l) => l.carSlug === car.slug && l.status !== "lost").sort((a, b) => b.createdAt - a.createdAt).map((l) => ({ id: l.id, label: `${l.name}, ${LEAD_TYPE_LABELS[l.type].toLowerCase()}, ${fmtDate(l.createdAt)}` }))}
           customers={[...customers].sort((a, b) => a.name.localeCompare(b.name, "en-IE")).map((c) => ({ id: c.id, label: c.phone ? `${c.name}, ${c.phone}` : c.name }))}
           defaults={was ?? { priceEur: car.priceEur, soldOn: car.soldAt ?? today, salesperson: held?.salesperson ?? (team.some((t) => t.name === me.name) ? me.name : undefined), customerId: held?.customerId }}
         />
