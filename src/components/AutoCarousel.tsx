@@ -5,7 +5,7 @@ import { REDUCED_MOTION, scrollBehavior, useMediaQuery } from "@/components/useM
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/stock/icons";
 
 // A row of cards that drifts along by itself, smoothly. A mouse over it holds it still until the mouse leaves; a finger holds it while it is down and for a
-// few seconds after, then it drifts on (a phone has no hover to hand it back, and a carousel that never restarts looks broken). It is a plain scrolling row, so a finger swipes it. At either end it turns round. Used for the featured cars,
+// few seconds after, then it drifts on (a phone has no hover to hand it back, and a carousel that never restarts looks broken). It is a plain scrolling row, so a finger swipes it. At either end it turns round. Used for
 // the reviews and the similar cars. The arrows and dots sit under the row from 768px, not over the cards; on a phone the row is just swiped.
 const SPEED = 36; // px a second: slow enough to read a card as it goes by
 const RESUME = 4000; // ms of quiet after a finger lifts before the drift starts again

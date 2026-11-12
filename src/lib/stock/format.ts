@@ -13,7 +13,7 @@ export const carName = (car: Pick<Car, "year" | "make" | "model">) => `${car.yea
 // A car's own page, whatever kind it is (used, new or commercial all live under /used-cars).
 export const carHref = (slug: string) => `/used-cars/${slug}`;
 // What a lead dialog shows of a car (CarSummary). Only these fields cross into client components, never the Car (LED-02).
-export const carSummary = (car: Car) => ({ id: car.id, name: carName(car), title: carTitle(car), price: formatPrice(car.priceEur), photo: car.photos[0]?.src });
+export const carSummary = (car: Car) => ({ id: car.id, name: carName(car), title: carTitle(car), variant: car.variant, price: formatPrice(car.priceEur), photo: car.photos[0]?.src });
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 // "2027-07" -> "Jul 2027". Fixed names, not Intl, so the Worker and Node print the same text.
