@@ -1,7 +1,7 @@
 import "server-only";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { modeOf } from "@/lib/integrations";
-import { isSold, type Car } from "@/lib/stock/types";
+import { forSale, type Car } from "@/lib/stock/types";
 
 // The dealer's ads on DoneDeal, in our car shape. DoneDeal's API is for one dealer's own site, with the dealer's written consent (its API
 // usage policy), so each site has its own key. The demo cannot use a real dealer's account: simulated, it answers with the stock as it is,
@@ -15,6 +15,6 @@ export type FeedResult = { ok: true; listings: Car[] } | { ok: false; reason: "n
 export async function fetchListings(): Promise<FeedResult> {
   const mode = modeOf("donedeal");
   if (mode === "off") return { ok: false, reason: "not-connected" };
-  if (mode === "simulated") return { ok: true, listings: (await adminCars()).filter((c) => !isSold(c)) };
+  if (mode === "simulated") return { ok: true, listings: (await adminCars()).filter(forSale) };
   return { ok: false, reason: "not-installed" };
 }

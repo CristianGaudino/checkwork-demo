@@ -53,16 +53,70 @@ with no D1). The actor is the signed-in person (`currentMember`), or a named one
 - **Kept 12 months** (`ACTIVITY_RETENTION_MONTHS`), then deleted by the daily job in `worker.mjs`, which logs `{"job":"purge-activity"}`.
 - **The demo** seeds a history of the made-up team on the seeded records; Reset demo data puts it back.
 
+## On the website or not (our version)
+
+- **Every car is Shown, Hidden or a Draft** (`listing` on the car). Hidden cars and drafts are left out by the stock engine itself
+  (`src/lib/stock/engine.ts`), so no list, count, page or sitemap has them and their link is not found. A new car can be saved as a draft;
+  its listing date (days in stock) is set when it first goes on the website. Anyone on the team can hide, show or publish, from the
+  stock list (with Undo) or the car form. Deleting is for owners and managers.
+- **"For sale"** in the dashboard (`forSale`) means on the website and not sold: posts, test drives and the overview use it. Margins and
+  stock age still count a hidden car, since it is stock the dealer owns.
+
+## Confirm and Undo
+
+- Anything that cannot be taken back asks first (`ActButton` with `confirm`): delete a car, a post, an ad or a newsletter, send a
+  newsletter, publish a post or start an ad, remove or pause a stock alert, unsubscribe, remove a team member or a prep cost, reset the demo.
+- What can be taken back runs at once and offers Undo in the toast: hide, show and publish a car, a test drive's status.
+
 ## Sales and follow-ups
 
 - **A sale** (`salesStore`, one per car): the price it sold for, the day, who sold it and the buyer, a customer on file or a new one made
-  on the form. In our version Mark sold opens the form and marks the car sold on the sale's day; Back on sale removes the sale. In the
-  DoneDeal version the sync marks the car sold, and Overview ("Sold cars with no sale recorded", the last 90 days) and the Sold view on Stock
-  (Record sale) ask for it. Margins use the sale price for a sold car. After six years the daily job removes the buyer from a sale
-  (`src/lib/admin/sales-purge.ts`, `{"job":"anonymise-sales"}`); the figures stay. /privacy says so.
+  on the form. In our version Mark sold opens the form and marks the car sold on the sale's day. In the DoneDeal version the dealer
+  answers for a car whose ad came down, and the Sold view on Stock (Record sale) asks for a sold car with none. Margins use the sale price
+  for a sold car. After six years the daily job removes the buyer from sales and deposits (`src/lib/admin/sales-purge.ts`,
+  `{"job":"anonymise-sales"}`); the figures stay. /privacy says so.
+- **A deposit** (`reservationsStore`, our version only): Reserve on a car for sale takes the amount, how it was paid, the day, the buyer
+  and the last day it is held. The car shows as Reserved on the website, listed after the cars for sale, with no enquiry or test drive
+  buttons. Mark sold turns it into the sale (the sale keeps the deposit). Owners and managers end it with the deposit refunded (all or
+  part) or kept, under the dealer's own terms. Overview flags one past its date.
+- **Undo sale** (owners and managers): the sale fell through before handover, or the buyer brought the car back (with the refund and the
+  reason; the page says when it is within the 30-day short-term right to reject). The record is kept under its own id with
+  `returnedOn` and `kind`, and reports count it under Returns, not sales. In our version a car brought back is hidden for a look over; one
+  that fell through goes back on sale. With DoneDeal stock only the record changes. The car's page lists its deposits and undone sales.
+  Back on sale stays only for a sold car with no sale recorded.
+- **More on a sale:** the warranty (12 months included, or 24 or 36 with extended cover), a trade-in (its reg and allowance; Stock then
+  offers to add it, starting the car form from the reg), and the lead it came from (one on that car, marked won).
+- **A lost lead** asks why, from a fixed list, and Reports shows "Why leads were lost".
+- **Test drives** still to happen can move to another time, by the same rules as a new booking.
 - **A follow-up** (`followUpOn` on a lead): Tomorrow, In 3 days, Next week or a day, on the lead. Cleared when the lead is won or lost.
   Overview counts the ones due (today and overdue); the leads list filters by them. The morning email (Settings, Notifications, off by
   default) sends each salesperson theirs, and the unassigned ones to owners and managers, at 07:00 UTC (`/api/follow-ups/digest`).
+
+## Customers and aftersales
+
+- **A customer's page** (`/dashboard/customers/[id]`): how to reach them, what they bought with the warranty on each (in cover or not),
+  their deposits and warranty claims, and the leads and test drives that carry their email or phone.
+- **Warranty claims** (`claimsStore`, Aftersales in the menu): opened on a purchase, from the customer's page or from a warranty lead
+  (the buyer is found by the lead's email or phone). In cover or not is worked out from the sale's day and cover, never typed. Open,
+  Booked in, Approved, Declined, Repaired, Closed, with notes. What the repair cost the dealer is for the margins roles, and counts in the
+  car's cost (`src/lib/admin/costs.ts`), so margins and the reports' profit include it.
+- **From the website:** the Warranty page has a claim form (a general message from /warranty), and a message from /service is filed as
+  Service. The dashboard tells them apart by the page (`src/lib/admin/real-leads.ts`); the email to the dealer is the general one.
+- **Personal data:** claims are in data requests; erasure keeps the claim and its cost without the buyer, the fault or the notes. The
+  six-year purge removes the buyer from old claims, as from sales and deposits.
+
+## Factory orders (our version only)
+
+- **Orders** (`ordersStore`, in the menu only for stock kept here): a new car ordered from the maker for a customer, with its spec, price,
+  deposit, the registration period it is for (271 is January to June 2027, `src/lib/leads/reg-periods.ts`) and the month it is due. No
+  maker's system is connected: the dealer moves it from Ordered to Built, On its way and Arrived as the maker says.
+- **Arrived** adds the car to stock, hidden (it is sold) and reserved for the buyer with their deposit. Hand over opens Mark sold on it,
+  which takes the deposit and the buyer, and marks the order Handed over. Overview counts cars arrived and waiting.
+- **Cancel** (owners and managers): the deposit refunded or kept. A car that already arrived stays in stock, hidden, for the dealer to
+  decide.
+- **From the website:** /new-cars/order (linked from New cars) takes the make, model, spec and period as an order request (lead type
+  `order`). The lead's "Place the order" starts the form, and marks the lead won. With DoneDeal stock the page is not there.
+- **Personal data:** orders are in data requests and the six-year purge, like sales: the figures stay without the buyer.
 
 ## Reports and prep costs
 
@@ -100,8 +154,10 @@ with no D1). The actor is the signed-in person (`currentMember`), or a named one
 A dealer whose stock is on DoneDeal (`NEXT_PUBLIC_STOCK_SOURCE=donedeal`, or the demo bar's DoneDeal switch) keeps one source of truth:
 cars are added, changed and sold on DoneDeal only. The dashboard never edits them; it holds only the dealer's own figures (cost).
 - **The sync** (`src/lib/donedeal/sync.ts`, rules in `plan.ts`): every 15 minutes the Worker's cron calls `/api/donedeal/sync` with the
-  `CRON_KEY` secret; Sync now on Stock or Overview runs the same. New ads are added, changed ones updated, and a car DoneDeal no longer
-  lists is marked sold (its page stays, as "no longer available"). Each change is in the activity history as "DoneDeal sync".
+  `CRON_KEY` secret; Sync now on Stock or Overview runs the same. New ads are added and changed ones updated. A car DoneDeal no longer
+  lists is hidden (its link is not found), because DoneDeal does not say why an ad came down: Stock and Overview ask the dealer whether it
+  sold (the sale form, which marks it sold so its page shows Sold for a while) or did not (it stays hidden). If the ad goes up again the car
+  comes back. Each change is in the activity history as "DoneDeal sync".
 - **It never empties the site:** an answer with no cars, or with more than half the cars for sale gone, is held and changes nothing.
   Owners and managers can Apply anyway.
 - **When it fails** the site keeps the stock from the last good sync, Stock, Overview and Settings say so, and after an hour the owners and

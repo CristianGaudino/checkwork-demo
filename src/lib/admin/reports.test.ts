@@ -17,7 +17,7 @@ describe("monthsOf", () => {
 
 describe("fullReport", () => {
   const input = {
-    sales: [sale("a", "2026-11-02", 12000, "Conor"), sale("b", "2026-10-20", 9000, "Aoife"), sale("c", "2026-10-01", 5000), sale("old", "2026-07-01", 7000, "Conor")],
+    sales: [sale("a", "2026-11-02", 12000, "Conor"), sale("b", "2026-10-20", 9000, "Aoife"), sale("c", "2026-10-01", 5000), sale("old", "2026-07-01", 7000, "Conor"), { ...sale("ret-1", "2026-10-02", 15000, "Conor"), carId: "z", returnedOn: "2026-10-20", kind: "returned" as const, refundEur: 15000 }],
     cars: [car("a", "2026-10-03", { soldAt: "2026-11-02" }), car("b", "2026-10-10", { soldAt: "2026-10-20" }), car("new", "2026-11-01"), car("aged", "2026-08-01", { priceEur: 8000 })],
     leads: [lead("1", "2026-11-01", { assignedTo: "Conor", status: "won", source: "Phone" }), lead("2", "2026-10-05", { assignedTo: "Conor" }), lead("3", "2026-10-06", { source: "Phone" }), lead("x", "2026-06-01", { assignedTo: "Conor", status: "won" })],
     team: ["Aoife", "Conor", "Niamh"],
@@ -32,12 +32,17 @@ describe("fullReport", () => {
     expect(r.months.map((m) => [m.month, m.sold, m.value])).toEqual([["2026-09", 0, 0], ["2026-10", 2, 14000], ["2026-11", 1, 12000]]);
     expect(r.totals).toEqual({ sold: 3, value: 26000, profit: 2000 + 500, costed: 2, avgDaysToSell: Math.round((30 + 10) / 2) });
   });
+  it("leaves a returned sale out of the sales and counts it, with its refund, as a return", () => {
+    expect(r.returns).toEqual({ count: 1, refundEur: 15000 });
+    expect(personalReport({ name: "Conor", sales: input.sales, leads: [], period: 3, now }).totals.sold).toBe(1);
+  });
   it("ranks the people who sold or had leads, and keeps someone no longer on the team", () => {
     expect(r.people.map((p) => [p.name, p.sold, p.leads, p.won, p.winRate])).toEqual([["Conor", 1, 2, 1, 50], ["Aoife", 1, 0, 0, 0]]);
     const gone = fullReport({ ...input, team: [] });
     expect(gone.people.map((p) => p.name)).toEqual(["Conor", "Aoife"]);
   });
   it("shows which lead sources win, the stock by age, and the period's prep by kind", () => {
+    expect(fullReport({ ...input, leads: [lead("l1", "2026-11-01", { status: "lost", lostReason: "Price" }), lead("l2", "2026-11-02", { status: "lost", lostReason: "Price" }), lead("l3", "2026-11-03", { status: "lost" })] }).lost).toEqual([{ reason: "Price", leads: 2 }, { reason: "Not said", leads: 1 }]);
     expect(r.sources).toEqual([{ source: "Phone", leads: 2, won: 1, winRate: 50 }, { source: "Website", leads: 1, won: 0, winRate: 0 }]);
     expect(r.stockAge.map((b) => [b.band, b.cars, b.value])).toEqual([["Under 30 days", 1, 10000], ["30 to 59 days", 0, 0], ["60 to 89 days", 0, 0], ["90 days or more", 1, 8000]]);
     expect(r.prep).toEqual([{ kind: "Tyres", eur: 300, lines: 1 }]);

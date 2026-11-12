@@ -6,6 +6,7 @@ test("customers, stock alerts and newsletter each have a table, and an alert can
   await page.getByRole("link", { name: "Stock alerts" }).click();
   const active = page.getByRole("row").filter({ hasText: "Active" }).first();
   await active.getByRole("button", { name: "Pause" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Pause" }).click();
   await expect(page.getByRole("link", { name: "Stock alerts" })).toHaveAttribute("aria-current", "true");
   const paused = page.getByRole("row").filter({ hasText: "Paused" }).first();
   await expect(paused).toBeVisible();

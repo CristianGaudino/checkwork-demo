@@ -8,13 +8,13 @@ import { simulatedAd, simulatedLetter, simulatedPost, writeNewsletter, writePost
 import { publishPost, sendNewsletter, startAd } from "@/lib/admin/publishers";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { carName } from "@/lib/stock/format";
-import { isSold } from "@/lib/stock/types";
+import { forSale } from "@/lib/stock/types";
 import { newId } from "@/lib/admin/ids";
 import { logActivity } from "@/lib/admin/activity";
 import { fmtEur } from "@/lib/admin/format";
 import { aOrAn } from "@/lib/admin/activity-text";
 import type { ComposerCar } from "@/components/admin/PostComposer";
-import { dublinMs } from "@/lib/admin/real-leads";
+import { dublinMs } from "@/lib/admin/format";
 
 const postRef = (p: SocialPost) => ({ kind: "post" as const, id: p.id, label: p.carTitle ?? "A post" });
 const adRef = (a: Ad) => ({ kind: "ad" as const, id: a.id, label: a.carTitle });
@@ -117,7 +117,7 @@ export async function deleteAdAction(id: string) {
 
 // The composer asks for a car's photos and suggested text when the dealer picks it, so the page never carries them for the whole stock.
 export async function composerCarAction(slug: string): Promise<ComposerCar | null> {
-  const car = (await adminCars()).find((c) => c.slug === slug && !isSold(c));
+  const car = (await adminCars()).find((c) => c.slug === slug && forSale(c));
   if (!car) return null;
   const { marketing } = await getSettings();
   return { slug: car.slug, title: carName(car), photos: car.photos.slice(0, 6), text: Object.fromEntries(NETWORKS.map((n) => [n, writePost(car, n, marketing)])) as ComposerCar["text"] };
@@ -129,7 +129,7 @@ export async function createNewsletterAction(data: FormData) {
   const { marketing } = await getSettings();
   let { subject, body } = { subject: "", body: "" };
   if (data.get("intent") === "write") {
-    const cars = (await adminCars()).filter((c) => !isSold(c)).sort((a, b) => Number(b.id) - Number(a.id)).slice(0, 5);
+    const cars = (await adminCars()).filter(forSale).sort((a, b) => Number(b.id) - Number(a.id)).slice(0, 5);
     ({ subject, body } = writeNewsletter(cars, marketing));
   } else {
     const r = letter.safeParse(Object.fromEntries(data));

@@ -1,7 +1,8 @@
 "use client";
 
 import { MakeLogo } from "@/components/MakeLogo";
-import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useMediaQuery } from "@/components/useMediaQuery";
 import { CheckIcon, ChevronDownIcon } from "@/components/stock/icons";
 import { fold } from "@/lib/stock/format";
 
@@ -10,11 +11,6 @@ export type ComboOption = { value: string; label: string; logo?: string }; // `l
 // Typing is for a mouse and keyboard, on a list of any length: it narrows as you type. A touch screen only picks, so no keyboard rises over the list.
 // False until read, so the server and first paint match.
 const FINE = "(hover: hover) and (pointer: fine)";
-const watchFine = (cb: () => void) => {
-  const q = window.matchMedia(FINE);
-  q.addEventListener("change", cb);
-  return () => q.removeEventListener("change", cb);
-};
 // A list is at most this tall (18rem: six options without a scrollbar). With less than LIST_ROOM_PX below the field it opens upward if there is more room above.
 const LIST_MAX_PX = 288;
 const LIST_MIN_PX = 120;
@@ -70,7 +66,7 @@ export function Combobox({
   const [place, setPlace] = useState<Place>();
   const root = useRef<HTMLDivElement>(null);
   const pressed = useRef(false);
-  const fine = useSyncExternalStore(watchFine, () => window.matchMedia(FINE).matches, () => false);
+  const fine = useMediaQuery(FINE);
   // Typed into only with a mouse and keyboard (owner decision, 2026-11-11): on a phone a list is only picked from, however long, so no
   // keyboard ever rises over it.
   const typeable = fine;

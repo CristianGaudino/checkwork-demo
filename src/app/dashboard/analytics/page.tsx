@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { AreaChart, BarList } from "@/components/admin/charts";
-import { DataTable, FilterTabs, PageHeader, Panel, StatCard, StatGrid } from "@/components/admin/kit";
+import { DataTable, EmptyState, FilterTabs, PageHeader, Panel, StatCard, StatGrid } from "@/components/admin/kit";
 import { RANGES, buildAnalytics, change, parseRange } from "@/lib/admin/analytics";
 import { fmtNum, fmtPct } from "@/lib/admin/format";
 import { leadsStore } from "@/lib/admin/collections";
 import { adminCars } from "@/lib/admin/stock-admin";
-import { isConnected } from "@/lib/integrations";
-import { carName } from "@/lib/stock/format";
-import { isSold } from "@/lib/stock/types";
+import { simulating } from "@/lib/integrations";
+import { carName, carHref } from "@/lib/stock/format";
+import { forSale } from "@/lib/stock/types";
 
 export const metadata = { title: "Analytics" };
 
@@ -15,9 +15,19 @@ const shortDate = new Intl.DateTimeFormat("en-IE", { day: "numeric", month: "sho
 const arrow = (n: number) => `${n >= 0 ? "Up" : "Down"} ${fmtPct(Math.abs(n))} on the period before`;
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ range?: string }> }) {
+  // The figures are a sample until a site analytics adapter reads real ones: shown on the demo, never on a dealer's own site.
+  if (!simulating())
+    return (
+      <>
+        <PageHeader title="Analytics" />
+        <Panel>
+          <EmptyState title="No visitor numbers yet" text="Visitors, sources and the path from visit to sale show here once site analytics is connected." action={<Link href="/dashboard/settings" className="text-body font-semibold underline">Settings</Link>} />
+        </Panel>
+      </>
+    );
   const range = parseRange((await searchParams).range);
   const [all, leads] = await Promise.all([adminCars(), leadsStore.list()]);
-  const cars = all.filter((c) => !isSold(c)).map((c) => ({ slug: c.slug, title: carName(c) }));
+  const cars = all.filter(forSale).map((c) => ({ slug: c.slug, title: carName(c) }));
   const a = buildAnalytics({ range, cars, leadTimes: leads.map((l) => l.createdAt) });
   const c = (now: number, before: number) => change(now, before);
   const dv = c(a.totals.visitors, a.previous.visitors);
@@ -72,7 +82,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
           rows={a.topCars}
           rowKey={(t) => t.slug}
           columns={[
-            { key: "car", header: "Car", cell: (t) => <Link href={`/used-cars/${t.slug}`} className="font-semibold underline-offset-2 hover:underline">{t.title}</Link> },
+            { key: "car", header: "Car", cell: (t) => <Link href={carHref(t.slug)} className="font-semibold underline-offset-2 hover:underline">{t.title}</Link> },
             { key: "views", header: "Views", align: "right", cell: (t) => fmtNum(t.views) },
             { key: "saves", header: "Saved", align: "right", cell: (t) => fmtNum(t.saves) },
             { key: "leads", header: "Leads", align: "right", cell: (t) => fmtNum(t.leads) },
@@ -80,7 +90,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
         />
       </Panel>
 
-      <p className="text-meta text-text-2">{isConnected("analytics") ? "Showing figures for the connected site." : "Figures update with real visitor numbers once site analytics is connected, under Settings, Connected services."}</p>
+      <p className="text-meta text-text-2">Figures update with real visitor numbers once site analytics is connected, under Settings, Connected services.</p>
     </>
   );
 }

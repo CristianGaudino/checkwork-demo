@@ -89,7 +89,8 @@ function ViewToggle() {
   );
 }
 
-export function StockShell({ query, summary, children }: { query: StockQuery; summary: Summary; children: React.ReactNode }) {
+// `orderable`: new cars can be ordered from the factory here (our stock only), so the New cars page links to the order form.
+export function StockShell({ query, summary, orderable, children }: { query: StockQuery; summary: Summary; orderable?: boolean; children: React.ReactNode }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const view = useView();
@@ -132,6 +133,11 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
           <div>
             <h1 className="text-display font-bold lg:text-hero">{kind.title}</h1>
             <p className="mt-2 max-w-measure text-pretty text-body text-text-2">{kind.intro}</p>
+            {orderable && kind.condition === "new" && (
+              <Link href="/new-cars/order" className="mt-2 inline-flex min-h-11 items-center text-body font-semibold text-accent-text underline">
+                Not the spec you want? Order one from the factory
+              </Link>
+            )}
             {/* Under the intro and above the count on a phone; from 1024px the search is in the filter panel. */}
             <div className="mt-4 lg:hidden">
               <SearchBox />

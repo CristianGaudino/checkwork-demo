@@ -60,6 +60,20 @@ test("on a tablet the demo bar never covers the tab bar: in the dashboard it sta
   expect(top).toBe("Dealer dashboard"); // nothing lies over the tab bar
 });
 
+test("a dashboard page that is not there keeps the dashboard's menu and leads back to the overview", async ({ page, context }) => {
+  await context.addCookies([{ name: "checkwork-demo-role", value: "Sales", url: "http://localhost:3000" }]);
+  // A page this role cannot open, a deleted record and a mistyped address all answer the same way.
+  for (const path of ["/dashboard/margins", "/dashboard/leads/lead-no-such", "/dashboard/no-such-page"]) {
+    const res = await page.goto(path);
+    expect(res!.status(), path).toBe(404);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("We couldn't find that page");
+    await expect(page.getByRole("navigation", { name: "Dealer dashboard" })).toBeVisible(); // the tab bar on a phone
+    await expect(page.getByRole("link", { name: "See all used cars" })).toHaveCount(0); // not the public page
+  }
+  await page.getByRole("link", { name: "Back to the overview" }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+});
+
 test("dealer admin: no sideways scroll at 320px", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 640 });
   for (const item of nav) {

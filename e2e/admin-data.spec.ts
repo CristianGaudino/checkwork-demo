@@ -33,7 +33,7 @@ test("an owner exports the filtered leads as a CSV, and a manager's stock export
   expect(rows.length).toBeGreaterThan(0);
   expect(rows.every((r) => r.includes(",New,"))).toBe(true);
   await as(context, "Manager");
-  expect((await (await page.request.get("/dashboard/stock/export")).text()).split("\r\n")[0]).toContain("Cost (€),Prep (€),Margin (€)");
+  expect((await (await page.request.get("/dashboard/stock/export")).text()).split("\r\n")[0]).toContain("Cost (€),Prep (€),Warranty repairs (€),Margin (€)");
 });
 
 test("a data request finds a person by email, including what they booked by phone, downloads a copy, and erases them", async ({ page }) => {
@@ -48,8 +48,8 @@ test("a data request finds a person by email, including what they booked by phon
   await page.getByLabel("Phone").fill(phone);
   await page.getByLabel("Email (optional)").fill(email);
   await choose(page.getByLabel("Car"), 3);
-  await page.locator('input[name="date"]').fill(openDay(n + 7));
-  await page.locator('input[name="time"]').fill("15:00");
+  await page.locator("form", { has: page.getByRole("button", { name: "Add booking" }) }).locator(`input[name="date"]`).fill(openDay(n + 7));
+  await page.locator("form", { has: page.getByRole("button", { name: "Add booking" }) }).locator(`input[name="time"]`).fill("15:00");
   await page.getByRole("button", { name: "Add booking" }).click();
   await expect(page.getByRole("status")).toContainText("Booked Pat Request");
 

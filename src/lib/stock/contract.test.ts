@@ -223,6 +223,20 @@ export function runContract(name: string, makeProvider: (cars: Car[], opts: Cloc
         expect(await p.lookup("never-listed-2020-1")).toBeNull();
       });
 
+      it("leaves drafts and hidden cars off the website: not listed, counted or found", async () => {
+        const off = makeProvider(structuredClone([car("401", "Kia", "Rio", 2019, 9000, { listing: "draft" }), car("402", "Kia", "Ceed", 2020, 12000, { listing: "hidden", soldAt: daysBefore(2) }), car("403", "Kia", "Picanto", 2021, 11000)]), clock);
+        expect((await off.query(q({ sold: "include" }))).cars.map((c) => c.id)).toEqual(["403"]);
+        expect(await off.lookup("kia-rio-2019-401")).toBeNull();
+        expect(await off.lookup("kia-ceed-2020-402")).toBeNull();
+        expect(await off.getById("401")).toBeNull();
+      });
+
+      it("lists a reserved car after every car for sale and before sold ones, and keeps its page", async () => {
+        const p = makeProvider(structuredClone([car("501", "Kia", "Rio", 2019, 9000, { reserved: true }), car("502", "Kia", "Ceed", 2020, 12000, { soldAt: daysBefore(2) }), car("503", "Kia", "Picanto", 2021, 11000)]), clock);
+        expect((await p.query(q({ sold: "include" }))).cars.map((c) => c.id)).toEqual(["503", "501", "502"]);
+        expect((await p.lookup("kia-rio-2019-501"))?.state).toBe("live");
+      });
+
       it("keeps a car 29 days after its sale date and drops it at 30", async () => {
         const edge = (days: number) => makeProvider(structuredClone([car("301", "Kia", "Rio", 2019, 9000, { soldAt: daysBefore(days) })]), clock);
         expect((await edge(29).lookup("kia-rio-2019-301"))?.state).toBe("live");

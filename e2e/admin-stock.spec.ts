@@ -12,8 +12,10 @@ test.afterEach(async ({ page }) => {
   await page.goto("/dashboard/stock?status=all&q=" + MAKE);
   const row = page.getByRole("row", { name: new RegExp(MAKE) });
   while ((await row.count()) > 0) {
-    await row.first().getByRole("link", { name: /^Edit / }).click();
+    await row.first().getByRole("link").first().click();
     await page.getByRole("button", { name: /^Delete / }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Delete" }).click();
+    await page.waitForURL(/deleted=1/);
     await page.goto("/dashboard/stock?status=all&q=" + MAKE);
   }
 });
@@ -46,7 +48,7 @@ test("add a car, see it on the site with its VAT line, change its price to a dro
 
   // Edit: a lower price with the old one as the earlier price.
   await page.goto("/dashboard/stock?q=" + MAKE);
-  await page.getByRole("link", { name: "Edit" }).first().click();
+  await page.getByRole("row", { name: new RegExp(MAKE) }).getByRole("link").first().click();
   await page.getByLabel("Price (€)", { exact: true }).fill("18500");
   await page.locator('[name="wasPriceEur"]').fill("19950");
   await page.getByRole("button", { name: "Save changes" }).click();
@@ -67,13 +69,106 @@ test("add a car, see it on the site with its VAT line, change its price to a dro
   await page.goto("/dashboard/stock?view=sold&q=" + MAKE);
   const sold = page.getByRole("row", { name: new RegExp(MAKE) });
   await expect(sold).toContainText("sold for €18,000");
-  await expect(sold.getByRole("button", { name: "Back on sale" })).toBeVisible();
+  await sold.getByRole("button", { name: /^More for/ }).click();
+  await expect(sold.getByRole("link", { name: "Undo sale" })).toBeVisible(); // a recorded sale is undone, never thrown away
 
-  // Delete, from the car's own page: gone from the dealer's list and from the site.
-  await page.getByRole("row", { name: new RegExp(MAKE) }).getByRole("link", { name: /^Edit / }).click();
+  // Delete, from the car's own page, asks first: Cancel keeps it; Delete takes it from the dealer's list and the site.
+  await page.getByRole("row", { name: new RegExp(MAKE) }).getByRole("link").first().click();
   await page.getByRole("button", { name: /^Delete / }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Cancel" }).click();
+  await expect(page.getByRole("dialog")).toBeHidden();
+  await page.getByRole("button", { name: /^Delete / }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Delete" }).click();
   await expect(page.getByRole("status")).toHaveText("Car deleted.");
   await expect(page.getByRole("row", { name: new RegExp(MAKE) })).toHaveCount(0);
+});
+
+test("a draft and a hidden car are off the website and their link is not found; hiding can be undone", async ({ page }) => {
+  await page.goto("/dashboard/stock/new");
+  await page.getByLabel("Make", { exact: true }).fill(MAKE);
+  await page.getByLabel("Model", { exact: true }).fill("Draft");
+  await page.getByLabel("Year", { exact: true }).fill("2020");
+  await page.getByLabel("Price (€)", { exact: true }).fill("15000");
+  await page.getByRole("button", { name: "Save draft" }).click();
+  await expect(page.getByRole("status")).toContainText("Saved 2020 Zztest Draft");
+  await page.goto(`/used-cars?q=${MAKE}`);
+  await expect(page.locator("article").filter({ hasText: "Draft" })).toHaveCount(0);
+
+  // Publish from the Drafts view: on the website, with its own page.
+  await page.goto("/dashboard/stock?view=drafts&q=" + MAKE);
+  const row = page.getByRole("row", { name: new RegExp(MAKE) });
+  await row.getByRole("button", { name: /^More for/ }).click();
+  await row.getByRole("button", { name: "Publish" }).click();
+  await expect(page.getByTestId("toast")).toContainText("Published 2020 Zztest Draft");
+  await page.goto("/dashboard/stock?q=" + MAKE);
+  await page.getByRole("row", { name: new RegExp(MAKE) }).getByRole("link").first().click();
+  const href = await page.getByRole("link", { name: "View on the site" }).getAttribute("href");
+  expect((await page.request.get(href!)).status()).toBe(200);
+
+  // Hide: not found on the website. Undo in the toast puts it back.
+  await page.goto("/dashboard/stock?q=" + MAKE);
+  await page.getByRole("row", { name: new RegExp(MAKE) }).getByRole("button", { name: /^More for/ }).click();
+  await page.getByRole("row", { name: new RegExp(MAKE) }).getByRole("button", { name: "Hide" }).click();
+  await expect(page.getByTestId("toast")).toContainText("Hid 2020 Zztest Draft");
+  expect((await page.request.get(href!)).status()).toBe(404);
+  await page.getByTestId("toast").getByRole("button", { name: "Undo" }).click();
+  await page.getByRole("row", { name: new RegExp(MAKE) }).getByRole("button", { name: /^More for/ }).click();
+  await expect(page.getByRole("row", { name: new RegExp(MAKE) }).getByRole("button", { name: "Hide" })).toBeVisible();
+  expect((await page.request.get(href!)).status()).toBe(200);
+});
+
+test("a deposit reserves a car on the website; ending it puts it back; a sale brought back is undone and kept", async ({ page }) => {
+  await page.goto("/dashboard/stock/new");
+  await page.getByLabel("Make", { exact: true }).fill(MAKE);
+  await page.getByLabel("Model", { exact: true }).fill("Deposit");
+  await page.getByLabel("Year", { exact: true }).fill("2019");
+  await page.getByLabel("Price (€)", { exact: true }).fill("14000");
+  await page.getByRole("button", { name: "Add car" }).click();
+  await expect(page.getByRole("status")).toContainText("Saved 2019 Zztest Deposit");
+
+  // Take a deposit: the car shows as Reserved on the website, after the cars for sale.
+  await page.getByRole("row", { name: new RegExp(MAKE) }).getByRole("button", { name: /^More for/ }).click();
+  await page.getByRole("row", { name: new RegExp(MAKE) }).getByRole("link", { name: "Reserve" }).click();
+  await page.getByLabel("Deposit (€)").fill("500");
+  await page.getByLabel("Held until").fill(new Date(Date.now() + 7 * 86_400_000).toISOString().slice(0, 10));
+  await page.getByLabel("Name", { exact: true }).fill("Sam Reid");
+  await page.getByLabel("Phone", { exact: true }).fill("+353 83 000 5555");
+  await page.getByRole("button", { name: "Take deposit" }).click();
+  await expect(page.getByRole("status")).toContainText("Deposit taken");
+  await page.goto(`/used-cars?q=${MAKE}`);
+  const card = page.locator("article").filter({ hasText: "Deposit" });
+  await expect(card.getByText("Reserved", { exact: true })).toBeVisible();
+  await card.getByRole("link").first().click();
+  await expect(page.getByTestId("action-area")).toContainText("A deposit has been paid on this car");
+
+  // End it, refunded: back on sale.
+  await page.goto("/dashboard/stock?view=reserved&q=" + MAKE);
+  await page.getByRole("row", { name: new RegExp(MAKE) }).getByRole("button", { name: /^More for/ }).click();
+  await page.getByRole("row", { name: new RegExp(MAKE) }).getByRole("link", { name: "Deposit", exact: true }).click();
+  await page.getByRole("button", { name: "End reservation" }).click();
+  await page.waitForURL(/\/dashboard\/stock$/);
+  await page.goto(`/used-cars?q=${MAKE}`);
+  await expect(page.locator("article").filter({ hasText: "Deposit" }).getByText("Reserved", { exact: true })).toHaveCount(0);
+
+  // Sell it, then the buyer brings it back: the sale is undone, kept on the car's page, and the car is hidden for a look over.
+  await page.goto("/dashboard/stock?q=" + MAKE);
+  await page.getByRole("row", { name: new RegExp(MAKE) }).getByRole("link", { name: "Mark sold" }).click();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Mark sold");
+  await page.getByLabel("Name", { exact: true }).fill("Sam Reid");
+  await page.getByLabel("Phone", { exact: true }).fill("+353 83 000 5555");
+  await page.getByRole("button", { name: "Mark sold" }).click();
+  await expect(page.getByRole("status")).toContainText(/Sale recorded for/);
+  await page.getByRole("row", { name: new RegExp(MAKE) }).getByRole("button", { name: /^More for/ }).click();
+  await page.getByRole("row", { name: new RegExp(MAKE) }).getByRole("link", { name: "Undo sale" }).click();
+  await expect(page.getByText(/within 30 days of the sale/)).toBeVisible();
+  await page.getByLabel("Refunded (€)").fill("14000");
+  await page.getByLabel("Why it came back").fill("Gearbox fault");
+  await page.getByRole("button", { name: "Take it back" }).click();
+  await expect(page.getByRole("status")).toContainText("Sale undone for 2019 Zztest Deposit");
+  await page.getByRole("row", { name: new RegExp(MAKE) }).getByRole("link").first().click();
+  const history = page.getByRole("region", { name: "Deposits and undone sales" });
+  await expect(history).toContainText("€14,000 refunded: Gearbox fault");
+  await expect(history).toContainText("ended, €500 refunded");
 });
 
 test("with the margins permission the cost is saved with the car and shows on the Margins screen", async ({ page }) => {

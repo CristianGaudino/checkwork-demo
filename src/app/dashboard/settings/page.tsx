@@ -1,5 +1,6 @@
 import { AddTeamForm, RoleForm, LeadEmailsForm, MarketingForm, NotificationsForm, TargetsForm } from "@/components/admin/SettingsForms";
 import { Badge, DataTable, PageHeader, Panel, adminButtonQuiet, rowButton } from "@/components/admin/kit";
+import { ActButton } from "@/components/admin/ActButton";
 import { getSettings } from "@/lib/admin/collections";
 import { INTEGRATIONS, isUsable, missingEnv, modeOf } from "@/lib/integrations";
 import { DEALER_ADDRESS_LINES, DEALER_EMAIL, DEALER_PHONE, OPENING_HOURS, SITE_NAME } from "@/lib/site";
@@ -83,11 +84,9 @@ export default async function Page() {
                   <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-start">
                     <RoleForm member={t} owner={owner} />
                     {s.team.length > 1 && (
-                      <form action={removeTeamAction.bind(null, t.id)}>
-                        <button type="submit" className={`${rowButton} text-bad`}>
-                          Remove
-                        </button>
-                      </form>
+                      <ActButton act={removeTeamAction.bind(null, t.id)} confirm={{ title: `Remove ${t.name} from the team?`, text: "Their leads go back to nobody. They can be added again later.", yes: "Remove" }} className={`${rowButton} text-bad`}>
+                        Remove
+                      </ActButton>
                     )}
                   </div>
                 ) : (
@@ -169,11 +168,9 @@ export default async function Page() {
       {seedsDemoRecords() && edit && (
       <Panel title="Demo data">
         <p className="max-w-measure text-body">Put the leads, bookings, reviews, marketing and settings back to how they started.</p>
-        <form action={resetDemoAction}>
-          <button type="submit" className={adminButtonQuiet}>
-            Reset demo data
-          </button>
-        </form>
+        <ActButton act={resetDemoAction} confirm={{ title: "Reset the demo data?", text: "Every change made in the dashboard is lost.", yes: "Reset" }} className={`${adminButtonQuiet} w-fit`}>
+          Reset demo data
+        </ActButton>
       </Panel>
       )}
     </>

@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { Select } from "@/components/Select";
 import { Field, Panel, adminButton, adminInput, rowButton } from "@/components/admin/kit";
+import { ActButton } from "@/components/admin/ActButton";
 import { addPrepAction, removePrepAction, type PrepFormState } from "@/app/dashboard/stock/actions";
 import { PREP_KINDS, type PrepLine } from "@/lib/admin/prep";
 
@@ -28,11 +29,9 @@ export function PrepPanel({ carId, lines }: { carId: string; lines: PrepLine[] }
               </span>
               <span className="flex items-center gap-3">
                 <span className="tabular-nums">{eur.format(l.eur)}</span>
-                <form action={removePrepAction.bind(null, carId, l.at)}>
-                  <button type="submit" className={`${rowButton} text-bad`} aria-label={`Remove ${l.kind}, ${eur.format(l.eur)}`}>
-                    Remove
-                  </button>
-                </form>
+                <ActButton act={removePrepAction.bind(null, carId, l.at)} label={`Remove ${l.kind}, ${eur.format(l.eur)}`} confirm={{ title: `Remove ${l.kind}, ${eur.format(l.eur)}?`, yes: "Remove" }} className={`${rowButton} text-bad`}>
+                  Remove
+                </ActButton>
               </span>
             </li>
           ))}

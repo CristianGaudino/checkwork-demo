@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { slugify, carSlug } from "./stock-admin-pure";
+import { listedOn, slugify, carSlug } from "./stock-admin-pure";
 import { CONDITIONS, FUELS, GEARBOXES, TEXT_LIMITS, VAT_STATUSES, type Car } from "@/lib/stock/types";
 import { fieldErrors } from "./validation";
 
@@ -35,7 +35,8 @@ export const carFormSchema = z.object({
     (v) => (typeof v === "string" ? v.split("\n").map((l) => l.trim()).filter(Boolean) : []),
     z.array(z.string().max(TEXT_LIMITS.feature)).max(60),
   ),
-  status: z.enum(["for-sale", "sold"]).default("for-sale"),
+  // Whether it is on the website. Selling is never here: Mark sold records the sale with it.
+  listing: z.enum(["live", "hidden", "draft"]).default("live"),
 });
 
 export type CarForm = z.infer<typeof carFormSchema>;
@@ -72,9 +73,8 @@ export function carFromForm(data: FormData, id: string, existing?: Car, today = 
     description: f.description,
     features: f.features.length ? f.features : undefined,
     photos: existing?.photos ?? [],
-    soldAt: f.status === "sold" ? (existing?.soldAt ?? today) : undefined,
-    // Set once, when the car is added. An edit never moves it, and never invents one for a car that had none (it would read as new).
-    listedAt: existing ? existing.listedAt : today,
+    listing: f.listing === "live" ? undefined : f.listing,
+    listedAt: listedOn(existing, f.listing === "live", today),
   };
   // JSON drops undefined, but a stored car with empty keys is noise: leave them out.
   return { ok: true, car: JSON.parse(JSON.stringify(car)) as Car };

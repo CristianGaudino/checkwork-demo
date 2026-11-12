@@ -3,7 +3,7 @@ import { LeadStatusBadge } from "@/components/admin/badges";
 import { Badge, EmptyState, PageHeader, Panel, StatCard, StatGrid, adminButtonQuiet } from "@/components/admin/kit";
 import { CalendarIcon, CarIcon, ShareIcon } from "@/components/stock/icons";
 import { carCosts } from "@/lib/admin/costs";
-import { drivesStore, getSettings, leadsStore, reviewsStore, salesStore } from "@/lib/admin/collections";
+import { drivesStore, getSettings, leadsStore, ordersStore, reservationsStore, reviewsStore, salesStore } from "@/lib/admin/collections";
 import { marginOf } from "@/lib/admin/margins";
 import { can } from "@/lib/permissions";
 import { fmtAgo, fmtDateTime, fmtEur, fmtNum } from "@/lib/admin/format";
@@ -12,20 +12,20 @@ import { SyncPanel } from "@/components/admin/SyncPanel";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { syncStatus } from "@/lib/donedeal/sync";
 import { stockSource } from "@/lib/stock-source";
-import { isSold } from "@/lib/stock/types";
+import { forSale, isSold } from "@/lib/stock/types";
 
 export const metadata = { title: "Overview" };
 
 const row = "flex min-h-14 items-center justify-between gap-3 px-1 py-3 transition-colors hover:bg-surface";
 
 export default async function Page() {
-  const [leads, drives, reviews, all, settings, source, sales] = await Promise.all([leadsStore.list(), drivesStore.list(), reviewsStore.list(), adminCars(), getSettings(), stockSource(), salesStore.list()]);
+  const [leads, drives, reviews, all, settings, source, sales, reservations, orders] = await Promise.all([leadsStore.list(), drivesStore.list(), reviewsStore.list(), adminCars(), getSettings(), stockSource(), salesStore.list(), reservationsStore.list(), ordersStore.list()]);
   const synced = source === "donedeal";
   const sync = synced ? await syncStatus() : null;
   const cars = all.filter((c) => !isSold(c));
   // Only for staff with the margins permission: the costs are not read without it.
   const costs = (await can("margins")) ? new Map([...(await carCosts())].map(([id, c]) => [id, c.total])) : null;
-  const o = overview({ leads, drives, reviews, cars: all, costs: costs ? new Set(costs.keys()) : undefined, sales: new Set(sales.map((s) => s.id)), syncProblem: Boolean(sync?.problem), slaHours: settings.leadSlaHours });
+  const o = overview({ leads, drives, reviews, cars: all, costs: costs ? new Set(costs.keys()) : undefined, sales: new Set(sales.map((s) => s.id)), reservations, orders, syncProblem: Boolean(sync?.problem), slaHours: settings.leadSlaHours });
   const margin = costs ? cars.filter((c) => costs.has(c.id)).reduce((s, c) => s + marginOf(c.priceEur, costs.get(c.id)!).eur, 0) : 0;
 
   return (
@@ -56,7 +56,7 @@ export default async function Page() {
       <StatGrid>
         <StatCard href="/dashboard/leads?status=new" label="Leads to answer" value={fmtNum(o.newLeads)} />
         <StatCard href="/dashboard/leads" label="Leads this week" value={fmtNum(o.leadsThisWeek)} hint={`${o.leadsChange >= 0 ? "Up" : "Down"} ${Math.abs(o.leadsChange)} on last week`} tone={o.leadsChange >= 0 ? "good" : "bad"} />
-        <StatCard href="/dashboard/stock" label="Cars for sale" value={fmtNum(cars.length)} />
+        <StatCard href="/dashboard/stock" label="Cars for sale" value={fmtNum(cars.filter(forSale).length)} />
         {costs && <StatCard href="/dashboard/margins" label="Stock margin" value={fmtEur(margin)} />}
         <StatCard href="/dashboard/reviews" label="Review rating" value={o.reviewCount ? o.averageRating.toFixed(1) : "None"} hint={`${o.reviewCount} reviews`} />
       </StatGrid>

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
-const { dublinMs, mirrorLead, mirrorOf } = await import("./real-leads");
+const { mirrorLead, mirrorOf } = await import("./real-leads");
+const { dublinMs } = await import("./format");
 const { drivesStore } = await import("./collections");
 import type { LeadRow } from "@/lib/leads/process";
 
@@ -28,7 +29,20 @@ describe("mirrorOf", () => {
   it("makes an alert, not a lead, from an alert sign-up", () => {
     const m = mirrorOf(row({ type: "alert", name: "Stock alert", details: { alertKind: "price-drop" } }));
     expect(m.lead).toBeUndefined();
-    expect(m.alert).toMatchObject({ id: "real-abc", kind: "price-drop", email: "pat@example.com", criteria: "2020 Audi A3", active: false });
+    expect(m.alert).toMatchObject({ id: "real-abc", kind: "price-drop", email: "pat@example.com", criteria: "2020 Audi A3", active: true });
+  });
+  it("keeps the photos and says so when the email to the dealer failed", () => {
+    const m = mirrorOf(row({ type: "trade_in", photoKeys: ["trade-in/abc/1.jpg"] }), false);
+    expect(m.lead).toMatchObject({ photoKeys: ["trade-in/abc/1.jpg"], notes: [{ text: expect.stringMatching(/didn't reach you/) }] });
+    expect(mirrorOf(row({})).lead!.notes).toEqual([]);
+  });
+  it("files a message from the Warranty or Service page under that type", () => {
+    expect(mirrorOf(row({ type: "general", carId: null, sourcePath: "/warranty" })).lead?.type).toBe("warranty");
+    expect(mirrorOf(row({ type: "general", carId: null, sourcePath: "/service" })).lead?.type).toBe("service");
+    expect(mirrorOf(row({ type: "general", carId: null, sourcePath: "/contact" })).lead?.type).toBe("general");
+  });
+  it("keeps the answers with the words: a factory order says the car", () => {
+    expect(mirrorOf(row({ type: "order", carId: null, message: "White please", details: { make: "Kia", model: "Sportage", regPeriod: "271" } })).lead).toMatchObject({ type: "order", message: "Make: Kia. Model: Sportage. Registration period: 271\n\nWhite please" });
   });
   it("describes a form with no free text from its answers", () => {
     const m = mirrorOf(row({ type: "finance", message: null, details: { deposit: 2000, term: 48 } }));

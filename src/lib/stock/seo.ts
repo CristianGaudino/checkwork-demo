@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { DEALER_ADDRESS, DEALER_LOCATION, DEALER_TEL, SITE_NAME, SITE_URL } from "@/lib/site";
-import { carName, carTitle, formatKm, formatPrice } from "./format";
+import { carName, carTitle, formatKm, formatPrice, carHref } from "./format";
 import { FUEL_LABELS, GEARBOX_LABELS, isSold } from "./types";
 import type { Car } from "./types";
 
@@ -16,14 +16,14 @@ export function carDescription(car: Car): string {
 export function carMetadata(car: Car): Metadata {
   const title = `${car.year} ${carTitle(car)} for sale`;
   const description = carDescription(car);
-  const path = `/used-cars/${car.slug}`;
+  const path = carHref(car.slug);
   const images = [{ url: `/og/${car.id}.jpg`, width: 1200, height: 630, alt: carName(car) }];
   return { title, description, alternates: { canonical: path }, openGraph: { type: "website", url: path, title, description, images }, twitter: { card: "summary_large_image" } };
 }
 
 // Google does not treat Car as a Product subtype, so both types. A sold car keeps a price-less SoldOut offer. Undefined values vanish in JSON.stringify.
 export function carJsonLd(car: Car): Record<string, unknown> {
-  const url = `${SITE_URL}/used-cars/${car.slug}`;
+  const url = `${SITE_URL}${carHref(car.slug)}`;
   const sold = isSold(car);
   return {
     "@context": "https://schema.org",

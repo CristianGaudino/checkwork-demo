@@ -28,4 +28,10 @@ describe("digestGroups", () => {
     );
     expect(Object.fromEntries([...g].map(([k, v]) => [k, v.map((l) => l.id)]))).toEqual({ "conor@x.ie": ["mine", "late"], "aoife@x.ie": ["nobody", "gone"], "ciara@x.ie": ["nobody", "gone"] });
   });
+  it("sends unassigned ones to the owners named on the server too, so a dealer with no team yet still gets them", () => {
+    vi.stubEnv("ADMIN_OWNER_EMAILS", " Boss@X.ie ,aoife@x.ie");
+    const g = digestGroups([lead("nobody", { followUpOn: "2026-11-10" })], [], "2026-11-11");
+    expect([...g.keys()]).toEqual(["boss@x.ie", "aoife@x.ie"]);
+    vi.unstubAllEnvs();
+  });
 });

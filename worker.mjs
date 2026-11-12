@@ -18,6 +18,7 @@ const HOST = new URL(SITE_URL).hostname;
 const APP_JOBS = {
   "*/15 * * * *": { job: "donedeal-sync", path: "/api/donedeal/sync" }, // src/lib/donedeal/sync.ts
   "0 7 * * *": { job: "follow-up-digest", path: "/api/follow-ups/digest" }, // src/lib/admin/follow-up-digest.ts, 7am or 8am Irish time
+  "30 6 * * 1": { job: "demo-reset", path: "/api/demo/reset" }, // the demo only: after the Monday 06:00 deploy moves the sold dates (deploy.yml)
 };
 
 async function runAppJob({ job, path }, env, ctx) {

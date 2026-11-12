@@ -31,8 +31,10 @@ export type PrepRow = { kind: PrepKind; eur: number; lines: number };
 export type FullReport = {
   months: MonthRow[];
   totals: { sold: number; value: number; profit: number; costed: number; avgDaysToSell: number | null };
+  returns: { count: number; refundEur: number }; // sales undone in the period (by the day undone): cancelled or brought back
   people: PersonRow[];
   sources: SourceRow[];
+  lost: { reason: string; leads: number }[]; // the period's lost leads by the reason given, most first; "Not said" for none
   stockAge: AgeRow[];
   prep: PrepRow[];
 };
@@ -43,7 +45,9 @@ export function fullReport(input: { sales: Sale[]; cars: Car[]; leads: Lead[]; t
   const today = dublinDay(input.now);
   const months = monthsOf(input.period, today);
   const inPeriod = new Set(months);
-  const sales = input.sales.filter((s) => inPeriod.has(s.soldOn.slice(0, 7)));
+  // An undone sale is not a sale: it is left out of every figure and counted under returns instead.
+  const sales = input.sales.filter((s) => !s.returnedOn && inPeriod.has(s.soldOn.slice(0, 7)));
+  const undone = input.sales.filter((s) => s.returnedOn && inPeriod.has(s.returnedOn.slice(0, 7)));
   const leads = input.leads.filter((l) => inPeriod.has(leadMonth(l)));
   const profitOf = (s: Sale) => (input.costs.has(s.id) ? s.priceEur - input.costs.get(s.id)! : undefined);
   const sum = (list: Sale[]) =>
@@ -93,8 +97,10 @@ export function fullReport(input: { sales: Sale[]; cars: Car[]; leads: Lead[]; t
   return {
     months: months.map((month) => ({ month, ...sum(sales.filter((s) => s.soldOn.startsWith(month))) })),
     totals: { ...sum(sales), avgDaysToSell: days.length ? Math.round(days.reduce((a, b) => a + b, 0) / days.length) : null },
+    returns: { count: undone.length, refundEur: undone.reduce((t, s) => t + (s.refundEur ?? 0), 0) },
     people,
     sources,
+    lost: [...leads.filter((l) => l.status === "lost").reduce((m, l) => m.set(l.lostReason ?? "Not said", (m.get(l.lostReason ?? "Not said") ?? 0) + 1), new Map<string, number>())].map(([reason, n]) => ({ reason, leads: n })).sort((a, b) => b.leads - a.leads),
     stockAge,
     prep,
   };
@@ -107,7 +113,7 @@ export function personalReport(input: { name: string; sales: Sale[]; leads: Lead
   const today = dublinDay(input.now);
   const months = monthsOf(input.period, today);
   const inPeriod = new Set(months);
-  const sales = input.sales.filter((s) => s.salesperson === input.name && inPeriod.has(s.soldOn.slice(0, 7)));
+  const sales = input.sales.filter((s) => !s.returnedOn && s.salesperson === input.name && inPeriod.has(s.soldOn.slice(0, 7)));
   const mine = input.leads.filter((l) => l.assignedTo === input.name);
   const leads = mine.filter((l) => inPeriod.has(leadMonth(l)));
   const won = leads.filter((l) => l.status === "won").length;

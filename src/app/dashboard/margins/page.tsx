@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Badge, DataTable, PageHeader, Pager, Panel, StatCard, StatGrid, paginate, type Column } from "@/components/admin/kit";
+import { CarStatusBadge } from "@/components/admin/badges";
+import { DataTable, PageHeader, Pager, Panel, StatCard, StatGrid, paginate, type Column } from "@/components/admin/kit";
 import { salesStore } from "@/lib/admin/collections";
 import { carCosts } from "@/lib/admin/costs";
 import { fmtEur, fmtPct } from "@/lib/admin/format";
@@ -21,7 +22,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
   if (!(await can("margins"))) notFound();
   const [cars, costs, sales] = await Promise.all([adminCars(), carCosts(), salesStore.list()]);
   const byId = new Map([...costs].map(([id, c]) => [id, c.total]));
-  const soldFor = new Map(sales.map((s) => [s.id, s.priceEur]));
+  const soldFor = new Map(sales.filter((s) => !s.returnedOn).map((s) => [s.id, s.priceEur]));
   const rows: Row[] = cars
     .map((car) => {
       const salePrice = isSold(car) ? soldFor.get(car.id) : undefined;
@@ -46,7 +47,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
         </Link>
       ),
     },
-    { key: "status", header: "Status", hide: "md", cell: (r) => (isSold(r.car) ? <Badge tone="neutral">Sold</Badge> : <Badge tone="good">For sale</Badge>) },
+    { key: "status", header: "Status", hide: "md", cell: (r) => <CarStatusBadge car={r.car} /> },
     { key: "price", header: "Price", align: "right", cell: (r) => (r.salePrice !== undefined ? <span className="flex flex-col items-end">{fmtEur(r.salePrice)}<span className="text-meta text-text-2">sold for</span></span> : fmtEur(r.car.priceEur)) },
     {
       key: "cost",
@@ -54,8 +55,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
       align: "right",
       cell: (r) => {
         if (r.cost === undefined) return "Not set";
-        const prep = costs.get(r.car.id)!.prep;
-        return prep ? <span className="flex flex-col items-end">{fmtEur(r.cost)}<span className="text-meta text-text-2">with {fmtEur(prep)} prep</span></span> : fmtEur(r.cost);
+        const { prep, claims } = costs.get(r.car.id)!;
+        const parts = [prep && `${fmtEur(prep)} prep`, claims && `${fmtEur(claims)} warranty`].filter(Boolean).join(", ");
+        return parts ? <span className="flex flex-col items-end">{fmtEur(r.cost)}<span className="text-meta text-text-2">with {parts}</span></span> : fmtEur(r.cost);
       },
     },
     { key: "margin", header: "Margin", align: "right", cell: (r) => (r.cost === undefined ? "" : fmtEur(marginOf(r.price, r.cost).eur)) },

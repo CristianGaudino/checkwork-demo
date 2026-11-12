@@ -1,8 +1,8 @@
-import type { AdminReview, Lead, TestDrive } from "./collections";
-import { DAY, HOUR } from "@/lib/time";
-import { isSold, type Car } from "@/lib/stock/types";
+import type { AdminReview, Lead, Order, Reservation, TestDrive } from "./collections";
+import { DAY } from "@/lib/time";
+import { forSale, isSold, type Car } from "@/lib/stock/types";
 import { dublinDay } from "./format";
-import { followUpDue } from "./follow-ups";
+import { followUpDue, pastReplyTarget } from "./follow-ups";
 
 // A car for sale this long is worth a look at its price (the stock list's "60 days or more" view).
 export const OLD_STOCK_DAYS = 60;
@@ -15,10 +15,10 @@ export type Attention = { key: string; label: string; count: number; href: strin
 
 // `cars`: the whole stock, sold too. `costs`: the car ids with a cost, only for staff with the margins permission. `syncProblem`: the
 // DoneDeal sync is failing (only for stock from DoneDeal).
-// `sales`: the car ids with a sale recorded.
-export function overview(input: { leads: Lead[]; drives: TestDrive[]; reviews: AdminReview[]; cars?: Car[]; costs?: Set<string>; sales?: Set<string>; syncProblem?: boolean; now?: number; slaHours?: number }) {
+// `sales`: the car ids with a sale recorded. `reservations`: the deposits, for the ones past their date.
+export function overview(input: { leads: Lead[]; drives: TestDrive[]; reviews: AdminReview[]; cars?: Car[]; costs?: Set<string>; sales?: Set<string>; reservations?: Reservation[]; orders?: Order[]; syncProblem?: boolean; now?: number; slaHours?: number }) {
   const now = input.now ?? Date.now();
-  const sla = (input.slaHours ?? 24) * HOUR;
+  const slaHours = input.slaHours ?? 24;
   const { leads, drives, reviews } = input;
   const week = leads.filter((l) => l.createdAt >= now - 7 * DAY);
   const prevWeek = leads.filter((l) => l.createdAt >= now - 14 * DAY && l.createdAt < now - 7 * DAY);
@@ -28,15 +28,18 @@ export function overview(input: { leads: Lead[]; drives: TestDrive[]; reviews: A
   const rated = reviews.filter((r) => r.rating > 0);
   const cars = input.cars ?? [];
   const today = dublinDay(now);
-  const soldSlugs = new Set(cars.filter(isSold).map((c) => c.slug));
+  const offSale = new Set(cars.filter((c) => !forSale(c)).map((c) => c.slug));
 
   const attention: Attention[] = [
     { key: "follow", label: "Follow-ups due", count: leads.filter((l) => followUpDue(l, today)).length, href: "/dashboard/leads?due=1" },
-    { key: "slow", label: "New leads past your reply target", count: leads.filter((l) => l.status === "new" && now - l.createdAt > sla).length, href: "/dashboard/leads?status=new" },
+    { key: "slow", label: "New leads past your reply target", count: leads.filter((l) => pastReplyTarget(l, now, slaHours)).length, href: "/dashboard/leads?late=1" },
     { key: "drives", label: "Test drives to confirm", count: drives.filter((d) => d.status === "requested" && d.startsAt >= now).length, href: "/dashboard/test-drives?status=requested" },
     { key: "reviews", label: "Reviews without a reply", count: reviews.filter((r) => !r.reply).length, href: "/dashboard/reviews?filter=unreplied" },
     { key: "sync", label: "DoneDeal stock is not updating", count: input.syncProblem ? 1 : 0, href: "/dashboard/stock" },
-    { key: "sold-drives", label: "Test drives booked on a sold car", count: drives.filter((d) => d.startsAt >= now && (d.status === "requested" || d.status === "confirmed") && soldSlugs.has(d.carSlug)).length, href: "/dashboard/test-drives" },
+    { key: "sold-drives", label: "Test drives booked on a car no longer for sale", count: drives.filter((d) => d.startsAt >= now && (d.status === "requested" || d.status === "confirmed") && offSale.has(d.carSlug)).length, href: "/dashboard/test-drives" },
+    { key: "deposits", label: "Reservations past their date", count: (input.reservations ?? []).filter((r) => r.status === "held" && r.until < today).length, href: "/dashboard/stock?view=reserved" },
+    { key: "orders", label: "Ordered cars arrived, to hand over", count: (input.orders ?? []).filter((o) => o.status === "arrived").length, href: "/dashboard/orders?view=arrived" },
+    { key: "taken-down", label: "DoneDeal ads taken down: did they sell?", count: cars.filter((c) => c.takenDownAt).length, href: "/dashboard/stock?view=hidden" },
     { key: "old", label: `Cars for sale ${OLD_STOCK_DAYS} days or more`, count: cars.filter((c) => isOldStock(c, now)).length, href: "/dashboard/stock?view=old" },
     { key: "sales", label: "Sold cars with no sale recorded", count: input.sales ? cars.filter((c) => isSold(c) && Date.parse(`${c.soldAt}T00:00:00Z`) >= now - SALE_NUDGE_DAYS * DAY && !input.sales!.has(c.id)).length : 0, href: "/dashboard/stock?view=sold" },
     { key: "costs", label: "Cars for sale with no cost price", count: input.costs ? cars.filter((c) => !isSold(c) && !input.costs!.has(c.id)).length : 0, href: "/dashboard/margins" },

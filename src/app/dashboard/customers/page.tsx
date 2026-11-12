@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { Badge, DataTable, EmptyState, PageHeader, Pager, SummaryTabs, adminButtonQuiet, paginate, rowButton } from "@/components/admin/kit";
+import { ActButton } from "@/components/admin/ActButton";
 import { can } from "@/lib/permissions";
 import { ALERT_KIND_LABELS, alertsStore, customersStore, subscribersStore } from "@/lib/admin/collections";
 import { fmtAgo, fmtDate, fmtNum } from "@/lib/admin/format";
@@ -47,6 +49,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
         <>
         <DataTable
           label="Customers"
+          linkRows
           rows={people.rows}
           rowKey={(c) => c.id}
           columns={[
@@ -55,8 +58,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
               header: "Customer",
               cell: (c) => (
                 <span className="flex min-w-0 flex-col">
-                  <span className="font-medium">{c.name}</span>
-                  <a href={`mailto:${c.email}`} className="truncate text-meta text-text-2 underline-offset-2 hover:underline">{c.email}</a>
+                  <Link href={`/dashboard/customers/${c.id}`} className="font-medium after:absolute after:inset-0">{c.name}</Link>
+                  <span className="truncate text-meta text-text-2">{c.email || c.phone}</span>
                 </span>
               ),
             },
@@ -87,13 +90,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                 <div className="flex justify-end gap-2">
                   {/* Pause only: an alert starts again only when the person signs up again (actions.ts). */}
                   {a.active && (
-                    <form action={pauseAlertAction.bind(null, a.id)}>
-                      <button type="submit" className={rowButton}>Pause</button>
-                    </form>
+                    <ActButton act={pauseAlertAction.bind(null, a.id)} confirm={{ title: "Pause this stock alert?", text: "Only the customer can start it again, by signing up on the website.", yes: "Pause" }} className={rowButton}>Pause</ActButton>
                   )}
-                  <form action={removeAlertAction.bind(null, a.id)}>
-                    <button type="submit" className={`${rowButton} text-bad`}>Remove</button>
-                  </form>
+                  <ActButton act={removeAlertAction.bind(null, a.id)} confirm={{ title: "Remove this stock alert?", text: "This cannot be undone.", yes: "Remove" }} className={`${rowButton} text-bad`}>Remove</ActButton>
                 </div>
               ),
             },
@@ -120,9 +119,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
               // Unsubscribe only: only the person can sign up again (actions.ts).
               cell: (s) =>
                 s.status === "subscribed" && (
-                  <form action={unsubscribeAction.bind(null, s.id)} className="flex justify-end">
-                    <button type="submit" className={rowButton}>Unsubscribe</button>
-                  </form>
+                  <span className="flex justify-end">
+                    <ActButton act={unsubscribeAction.bind(null, s.id)} confirm={{ title: `Unsubscribe ${s.email}?`, text: "Only they can sign up again, on the website.", yes: "Unsubscribe" }} className={rowButton}>Unsubscribe</ActButton>
+                  </span>
                 ),
             },
           ]}

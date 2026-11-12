@@ -5,7 +5,7 @@ import { z } from "zod";
 import { logActivity } from "@/lib/admin/activity";
 import { addDays, dublinDay, fmtDate } from "@/lib/admin/format";
 import { isOpenLead } from "@/lib/admin/leads";
-import { LEAD_STATUSES, LEAD_STATUS_LABELS, getSettings, leadsStore } from "@/lib/admin/collections";
+import { LEAD_STATUSES, LEAD_STATUS_LABELS, LOST_REASONS, getSettings, leadsStore } from "@/lib/admin/collections";
 
 const ref = (id: string) => ({ kind: "lead" as const, id });
 
@@ -17,9 +17,21 @@ export async function setStatusAction(id: string, data: FormData) {
   const lead = await leadsStore.get(id);
   if (!parsed.success || !lead || lead.status === parsed.data) return;
   // A won or lost lead needs no follow-up.
-  await leadsStore.put({ ...lead, status: parsed.data, followUpOn: isOpenLead({ status: parsed.data }) ? lead.followUpOn : undefined });
+  // The reason belongs to a lost lead only: moving it on clears it.
+  await leadsStore.put({ ...lead, status: parsed.data, followUpOn: isOpenLead({ status: parsed.data }) ? lead.followUpOn : undefined, lostReason: parsed.data === "lost" ? lead.lostReason : undefined });
   await logActivity("leads", `Moved the lead from ${LEAD_STATUS_LABELS[lead.status]} to ${LEAD_STATUS_LABELS[parsed.data]}`, ref(id));
   revalidatePath("/dashboard/leads");
+  revalidatePath(`/dashboard/leads/${id}`);
+}
+
+// Why a lost lead was lost, from the fixed list, so the reports can count it.
+const reason = z.enum(LOST_REASONS);
+export async function setLostReasonAction(id: string, data: FormData) {
+  const parsed = reason.safeParse(data.get("reason"));
+  const lead = await leadsStore.get(id);
+  if (!parsed.success || lead?.status !== "lost" || lead.lostReason === parsed.data) return;
+  await leadsStore.put({ ...lead, lostReason: parsed.data });
+  await logActivity("leads", `Said why the lead was lost: ${parsed.data}`, ref(id));
   revalidatePath(`/dashboard/leads/${id}`);
 }
 

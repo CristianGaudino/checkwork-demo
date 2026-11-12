@@ -1,6 +1,6 @@
-import { carName } from "@/lib/stock/format";
+import { carName, carHref } from "@/lib/stock/format";
 import { priceInfo } from "@/lib/stock/price";
-import { FUEL_LABELS, GEARBOX_LABELS, type Car } from "@/lib/stock/types";
+import { FUEL_LABELS, GEARBOX_LABELS, forSale, type Car } from "@/lib/stock/types";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { DAY } from "@/lib/time";
 import type { DealerSettings, Network, SocialPost } from "./collections";
@@ -18,7 +18,7 @@ const priceText = (c: Car) => {
 export function writePost(car: Car, network: Network, voice: Voice): string {
   const head = `Just in: ${carName(car)}${car.variant ? ` ${car.variant}` : ""}.`;
   const line = [facts(car), priceText(car)].filter(Boolean).join(". ");
-  const link = network === "Instagram" || network === "TikTok" ? "Link in bio." : `${SITE_URL}/used-cars/${car.slug}`;
+  const link = network === "Instagram" || network === "TikTok" ? "Link in bio." : `${SITE_URL}${carHref(car.slug)}`;
   const tags = voice.hashtags.trim();
   // TikTok captions stay short: no sign-off line.
   const parts = network === "TikTok" ? [head, line, tags] : [head, line, voice.signOff.trim(), link, network === "Instagram" ? tags : ""];
@@ -26,7 +26,7 @@ export function writePost(car: Car, network: Network, voice: Voice): string {
 }
 
 export function writeNewsletter(cars: Car[], voice: Voice): { subject: string; body: string } {
-  const list = cars.map((c) => `- ${carName(c)}, ${priceText(c)}. ${SITE_URL}/used-cars/${c.slug}`);
+  const list = cars.map((c) => `- ${carName(c)}, ${priceText(c)}. ${SITE_URL}${carHref(c.slug)}`);
   return {
     subject: cars.length ? `New arrivals at ${SITE_NAME}` : `News from ${SITE_NAME}`,
     body: [cars.length ? "New in this week:" : "", ...list, "", voice.signOff.trim()].filter((l, i, a) => l !== "" || (i > 0 && a[i - 1] !== "")).join("\n").trim(),
@@ -50,7 +50,7 @@ const NEW_FOR = 7 * DAY;
 export type PostIdea = { car: Car; reason: "New this week" | "Price dropped" };
 export function worthPosting(cars: Car[], posts: Pick<SocialPost, "carSlug" | "createdAt">[], now = Date.now()): PostIdea[] {
   const posted = new Set(posts.filter((p) => p.carSlug && now - p.createdAt < RECENT_POST).map((p) => p.carSlug));
-  const open = cars.filter((c) => !c.soldAt && !posted.has(c.slug));
+  const open = cars.filter((c) => forSale(c) && !posted.has(c.slug));
   const fresh = open.filter((c) => c.listedAt && now - Date.parse(`${c.listedAt}T00:00:00Z`) < NEW_FOR).sort((a, b) => b.listedAt!.localeCompare(a.listedAt!));
   const reduced = open.filter((c) => !fresh.includes(c) && c.wasPriceEur !== undefined && c.wasPriceEur > c.priceEur);
   return [...fresh.map((car) => ({ car, reason: "New this week" as const })), ...reduced.map((car) => ({ car, reason: "Price dropped" as const }))].slice(0, 3);

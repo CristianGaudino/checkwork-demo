@@ -1,4 +1,4 @@
-import { and, inArray, like, lt, sql } from "drizzle-orm";
+import { and, eq, inArray, like, lt, sql } from "drizzle-orm";
 import type { BaseSQLiteDatabase } from "drizzle-orm/sqlite-core";
 import { adminDocs, leads } from "../db/schema";
 import type * as schema from "../db/schema";
@@ -24,7 +24,10 @@ export async function purgeOldLeads(
   // The admin's copies of leads, bookings, alerts and customers (src/lib/admin/real-leads.ts) go on the same day. They are the "real-" rows.
   const copies = (collections: string[], field: string) => and(inArray(adminDocs.collection, collections), like(adminDocs.id, "real-%"), lt(sql`json_extract(${adminDocs.data}, ${field})`, cutoff.getTime()));
   await db.delete(adminDocs).where(copies(["leads", "test-drives", "alerts"], "$.createdAt"));
-  await db.delete(adminDocs).where(copies(["customers"], "$.lastContactAt")); // a customer who wrote in recently stays, whenever they first came
+  // A customer (from the website or typed in on the dashboard) goes once they have not been in touch for the same period and no sale,
+  // deposit, claim or order names them: a buyer stays while their records do, and leaves after the sales purge unlinks them (sales-purge.ts).
+  const named = sql`(SELECT json_extract(n.data, '$.customerId') FROM admin_docs n WHERE n.collection IN ('sales', 'reservations', 'claims', 'orders') AND json_extract(n.data, '$.customerId') IS NOT NULL)`;
+  await db.delete(adminDocs).where(and(eq(adminDocs.collection, "customers"), lt(sql`json_extract(${adminDocs.data}, '$.lastContactAt')`, cutoff.getTime()), sql`${adminDocs.id} NOT IN ${named}`));
   const gone = await db.delete(leads).where(lt(leads.createdAt, cutoff)).returning({ id: leads.id });
   return gone.length;
 }

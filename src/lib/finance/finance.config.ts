@@ -6,7 +6,7 @@ export const FINANCE: {
   terms: readonly number[];
   notice: string;
 } = {
-  placeholder: true, // shows the Placeholder figures badge
+  placeholder: true, // the deploy test refuses a production build while this is true
   defaults: { priceEur: 15000, depositEur: 3000, termMonths: 48, aprPct: 9.9 },
   terms: [12, 24, 36, 48, 60],
   // The dealer's required wording replaces this string.

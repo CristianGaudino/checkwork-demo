@@ -32,7 +32,7 @@ function fakeDeps(): Deps {
     demo: true,
     bucket: { put: async () => {}, delete: async () => {} }, // photos are dropped, like the mail
     photoLinkSecret: () => "e2e-photo-link-secret",
-    afterNotified: mirrorLead, // so the E2E run can see a booking arrive in the admin
+    toAdmin: mirrorLead, // so the E2E run can see a booking arrive in the admin
   };
 }
 
@@ -65,7 +65,7 @@ export function getDeps(): Deps {
     demo: !isProduction(),
     bucket,
     photoLinkSecret: () => requireEnv("PHOTO_LINK_SECRET"),
-    afterNotified: mirrorLead,
+    toAdmin: mirrorLead,
   };
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { REDUCED_MOTION, scrollBehavior, useMediaQuery } from "@/components/useMediaQuery";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/stock/icons";
 
 // A row of cards that drifts along by itself, smoothly. A mouse over it holds it still until the mouse leaves; a finger holds it while it is down and for a
@@ -23,13 +24,6 @@ function geometry(el: HTMLUListElement) {
   };
 }
 
-const REDUCED = "(prefers-reduced-motion: reduce)";
-function watchReducedMotion(onChange: () => void) {
-  const q = window.matchMedia(REDUCED);
-  q.addEventListener("change", onChange);
-  return () => q.removeEventListener("change", onChange);
-}
-
 export function AutoCarousel({
   children,
   label,
@@ -42,7 +36,7 @@ export function AutoCarousel({
   const root = useRef<HTMLDivElement>(null);
   const scroller = useRef<HTMLUListElement>(null);
   const [state, setState] = useState({ page: 0, pages: 1 });
-  const reduced = useSyncExternalStore(watchReducedMotion, () => window.matchMedia(REDUCED).matches, () => true); // true until read: no moving
+  const reduced = useMediaQuery(REDUCED_MOTION, true); // true until read: no moving
   const using = useRef({ over: false, within: false, touchedAt: -Infinity }); // touchedAt: Infinity while a finger is down, else when it lifted
 
   // Measured on scroll, and whenever the row is resized (the observer also fires once when it starts watching).
@@ -98,10 +92,10 @@ export function AutoCarousel({
     };
   }, [reduced]);
 
-  const go = (dir: 1 | -1) => scroller.current?.scrollBy({ left: dir * scroller.current.clientWidth, behavior: "smooth" });
+  const go = (dir: 1 | -1) => scroller.current?.scrollBy({ left: dir * scroller.current.clientWidth, behavior: scrollBehavior() });
   const goTo = (i: number) => {
     const el = scroller.current;
-    if (el) el.scrollTo({ left: i * geometry(el).unit, behavior: "smooth" });
+    if (el) el.scrollTo({ left: i * geometry(el).unit, behavior: scrollBehavior() });
   };
 
   return (

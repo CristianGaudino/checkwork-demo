@@ -30,7 +30,8 @@ const SORTS: Record<SortKey, (a: Car, b: Car) => number> = {
 type Pick = (c: Car) => { value: string; label: string; parent?: string } | undefined;
 
 export function createStockEngine(input: Car[], { now = () => new Date() }: { now?: () => Date } = {}): StockProvider {
-  const cars = [...input].sort((a, b) => Number(b.id) - Number(a.id));
+  // Drafts and hidden cars are not on the website at all: no list, page, count or sitemap has them, and their address is not found.
+  const cars = input.filter((c) => !c.listing).sort((a, b) => Number(b.id) - Number(a.id));
   const bySlug = new Map(cars.map((c) => [c.slug, c]));
   const byId = new Map(cars.map((c) => [c.id, c]));
   // Kept off the Car objects so nothing internal leaks to callers.
@@ -91,9 +92,11 @@ export function createStockEngine(input: Car[], { now = () => new Date() }: { no
       const kind = q.condition ?? "used";
       const pool = cars.filter((c) => (c.condition ?? "used") === kind && visible(c) && (q.sold === "only" ? isSold(c) : q.sold === "include" || !isSold(c)));
       const years = pool.length ? { min: Math.min(...pool.map((c) => c.year)), max: Math.max(...pool.map((c) => c.year)) } : null;
-      // Stable partition after the sort: each group keeps the chosen order, sold cars never ahead of buyable ones.
+      // Stable partition after the sort: each group keeps the chosen order. Cars for sale first, then reserved (a deposit is on them),
+      // then sold: a reserved or sold car is never ahead of one that can be bought.
       const sorted = pool.filter((c) => matches(c, q)).sort(SORTS[q.sort]);
-      const found = [...sorted.filter((c) => !isSold(c)), ...sorted.filter(isSold)];
+      const group = (c: Car) => (isSold(c) ? 2 : c.reserved ? 1 : 0);
+      const found = [0, 1, 2].flatMap((g) => sorted.filter((c) => group(c) === g));
       const start = (q.page - 1) * q.pageSize;
       return {
         cars: found.slice(start, start + q.pageSize),

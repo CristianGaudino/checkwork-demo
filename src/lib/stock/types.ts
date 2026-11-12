@@ -65,6 +65,9 @@ export interface Car {
   photos: Photo[]; // 0 to 6, local /stock/... paths
   soldAt?: string; // ISO date (YYYY-MM-DD). Drives the sold window and the 410 only. Never render it anywhere.
   listedAt?: string; // ISO date (YYYY-MM-DD) the car went on the site: the Newest sort, days in stock, the sitemap date
+  listing?: "draft" | "hidden"; // off the website: a draft not yet published, or hidden by the dealer. Absent: on the website. Never public.
+  reserved?: boolean; // a deposit is on it: on the website, marked Reserved and listed after the cars for sale. Our version only.
+  takenDownAt?: string; // YYYY-MM-DD the DoneDeal ad came down: hidden until the dealer says whether it sold or was withdrawn
   listingUrl?: string; // its ad on DoneDeal, for stock synced from there (src/lib/donedeal): where the dealer edits it
 }
 
@@ -112,6 +115,9 @@ export interface StockResult {
 // Days a sold car stays visible after its sale date (D-02). One setting: confirm with the dealer.
 export const SOLD_VISIBLE_DAYS = 30;
 export const isSold = (car: Pick<Car, "soldAt">) => car.soldAt !== undefined;
+// On the website and for sale: not sold, not a draft, not hidden. Where a car must be offered (posts, test drives); "not sold" alone is
+// the stock the dealer owns (margins, stock age), hidden cars included.
+export const forSale = (car: Pick<Car, "soldAt" | "listing" | "reserved">) => !isSold(car) && !car.listing && !car.reserved;
 
 // live: in stock or sold inside the period. gone: sold past the period (the URL answers 410). null: never known (404).
 export type Lookup = { state: "live"; car: Car } | { state: "gone"; make: string; makeSlug: string } | null;

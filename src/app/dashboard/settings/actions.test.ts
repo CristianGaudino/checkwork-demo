@@ -12,7 +12,8 @@ vi.mock("next/headers", () => ({
   cookies: async () => ({ get: (n: string) => (n === "checkwork-demo-role" && role ? { value: role } : undefined) }),
   headers: async () => ({ get: () => null }),
 }));
-const { addTeamAction, removeTeamAction, saveLeadEmailsAction, saveTargetsAction, setRoleAction } = await import("./actions");
+const { addTeamAction, removeTeamAction, resetDemoAction, saveLeadEmailsAction, saveTargetsAction, setRoleAction } = await import("./actions");
+const { adminCars, saveCar } = await import("@/lib/admin/stock-admin");
 const { getSettings, leadsStore, settingsStore } = await import("@/lib/admin/collections");
 const { listActivity } = await import("@/lib/admin/activity");
 
@@ -115,5 +116,19 @@ describe("lead emails", () => {
     expect((await saveLeadEmailsAction(undefined, form({ leadEmails: "ok@example.com nope" })))?.errors?.leadEmails).toMatch(/not a valid email/);
     expect((await saveLeadEmailsAction(undefined, form({ leadEmails: "1@e.com 2@e.com 3@e.com 4@e.com 5@e.com 6@e.com" })))?.errors?.leadEmails).toMatch(/5 addresses or fewer/);
     expect((await getSettings()).leadEmails).toEqual([]);
+  });
+});
+
+describe("reset demo data", () => {
+  it("puts the records back, and the Reserved marks with them: only on the cars with a held deposit", async () => {
+    vi.stubEnv("DEMO_RECORDS", "on");
+    role = undefined; // the owner
+    const car = (await adminCars()).find((c) => !c.soldAt && !c.reserved)!;
+    const held = (await adminCars()).find((c) => c.reserved)!;
+    await saveCar({ ...car, reserved: true });
+    await saveCar({ ...held, reserved: undefined });
+    await resetDemoAction();
+    expect((await adminCars()).find((c) => c.id === car.id)?.reserved).toBeUndefined();
+    expect((await adminCars()).find((c) => c.id === held.id)?.reserved).toBe(true);
   });
 });

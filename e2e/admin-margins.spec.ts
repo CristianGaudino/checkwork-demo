@@ -81,6 +81,7 @@ test("an owner changes a role as soon as it is picked, and the team cannot be le
   await expect(page.getByRole("alert").filter({ hasText: "Keep at least one owner on the team" })).toBeVisible();
   await expect(page.getByLabel("Role for Aoife Brennan")).toHaveValue("Owner");
   await page.getByRole("row").filter({ hasText: name }).getByRole("button", { name: "Remove" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Remove" }).click();
   await expect(page.getByText(name)).toHaveCount(0);
 });
 

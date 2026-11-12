@@ -12,14 +12,15 @@ import type { Car } from "@/lib/stock/types";
 // Add or edit a car. Every box comes from CAR_FIELDS; the server checks it again (car-form.ts), and a bad box comes back with its message.
 // `car` is the car being edited, or none for a new one.
 // `cost` is only given to staff with the margins permission, and the box is not in the page without it.
-export function CarForm({ car, cost }: { car?: Car; cost?: { eur?: number } }) {
+// `reg`: a registration to start a new car from (a trade-in taken on a sale).
+export function CarForm({ car, cost, reg: startReg = "" }: { car?: Car; cost?: { eur?: number }; reg?: string }) {
   const [state, action, pending] = useActionState<CarFormState, FormData>(saveCarAction.bind(null, car?.id ?? null), undefined);
   const errors = state?.errors ?? {};
   // What the registration lookup filled in. The boxes are uncontrolled, so a lookup redraws them (`drawn`) from what was typed plus what
   // was found; a box already typed in keeps its value.
   const [found, setFound] = useState<Record<string, string>>({});
   const [drawn, setDrawn] = useState(0);
-  const [reg, setReg] = useState("");
+  const [reg, setReg] = useState(startReg);
   const form = useRef<HTMLFormElement>(null);
   const value = (name: string): string => {
     if (found[name] !== undefined) return found[name];
@@ -79,17 +80,25 @@ export function CarForm({ car, cost }: { car?: Car; cost?: { eur?: number } }) {
         </Panel>
       )}
 
-      <Panel title="Status">
-        <Field label="Availability" hint="A sold car stays on the site for a while, marked Sold.">
-          <Select name="status" defaultValue={car?.soldAt ? "sold" : "for-sale"} className="sm:max-w-xs" options={[["for-sale", "For sale"], ["sold", "Sold"]]} />
-        </Field>
-        <p className="text-meta text-text-2">Photos on this car: {car?.photos.length ?? 0}</p>
-      </Panel>
+      {/* A new car is added or kept as a draft by its buttons. Selling is Mark sold on the stock list, which records the sale with it. */}
+      {car && (
+        <Panel title="Status">
+          <Field label="On the website" className="sm:max-w-md" hint={car.soldAt ? "Sold. A sold car stays on the website for a while, marked Sold." : "A hidden car or a draft is not on the website, and its link is not found."}>
+            <Select name="listing" defaultValue={car.listing ?? "live"} options={[["live", "Shown"], ["hidden", "Hidden"], ["draft", "Draft"]]} />
+          </Field>
+          <p className="text-meta text-text-2">Photos on this car: {car.photos.length}</p>
+        </Panel>
+      )}
 
       <div className="flex flex-wrap gap-3">
-        <button type="submit" disabled={pending} className={adminButton}>
+        <button type="submit" name={car ? undefined : "listing"} value={car ? undefined : "live"} disabled={pending} className={adminButton}>
           {pending ? "Saving" : car ? "Save changes" : "Add car"}
         </button>
+        {!car && (
+          <button type="submit" name="listing" value="draft" disabled={pending} className={adminButtonQuiet}>
+            Save draft
+          </button>
+        )}
         <Link href="/dashboard/stock" className={adminButtonQuiet}>
           Cancel
         </Link>

@@ -22,11 +22,13 @@ import { carJsonLd, carMetadata } from "@/lib/stock/seo";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 
-// Up to 8 cars to buy, for a row that moves along: same make first, then same body type; never the car itself.
+// Up to 8 cars to buy, for a row that moves along: same make first, then same body type; never the car itself. Of the same kind
+// (used, new or commercial), so a new car never suggests used ones.
 async function similarCars(car: Car) {
+  const kind = { ...DEFAULT_QUERY, ...(car.condition && car.condition !== "used" && { condition: car.condition }), pageSize: 8 };
   const pools = await Promise.all([
-    stock.query({ ...DEFAULT_QUERY, make: [car.makeSlug], pageSize: 8 }),
-    ...(car.bodySlug ? [stock.query({ ...DEFAULT_QUERY, body: [car.bodySlug], pageSize: 8 })] : []),
+    stock.query({ ...kind, make: [car.makeSlug] }),
+    ...(car.bodySlug ? [stock.query({ ...kind, body: [car.bodySlug] })] : []),
   ]);
   const seen = new Set([car.id]);
   return pools.flatMap((r) => r.cars).filter((c) => !seen.has(c.id) && seen.add(c.id)).slice(0, 8);
@@ -64,7 +66,7 @@ export default async function CarPage({ params }: PageProps<"/used-cars/[slug]">
       <div className="mt-6 grid grid-cols-1 gap-y-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-x-10">
         <div className="relative lg:col-start-1">
           <CarGallery photos={car.photos} name={carName(car)} />
-          {isSold(car) && <SoldBadge hidden className="pointer-events-none absolute left-4 top-4 z-20" />}
+          {(isSold(car) || car.reserved) && <SoldBadge hidden={isSold(car)} reserved={!isSold(car)} className="pointer-events-none absolute left-4 top-4 z-20" />}
         </div>
         <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:sticky lg:top-6 lg:self-start">
           <BuyBox car={car} />
@@ -74,7 +76,7 @@ export default async function CarPage({ params }: PageProps<"/used-cars/[slug]">
           <Specifications car={car} />
           <Equipment car={car} />
           {/* In stock only: a sold car offers no finance (UI-SPEC section 7). Only the summary and price reach the client. */}
-          {!isSold(car) && financeable(car.priceEur) && (
+          {!isSold(car) && !car.reserved && financeable(car.priceEur) && (
             <section className="flex flex-col gap-4">
               <h2 className={`text-heading font-semibold`}>Finance</h2>
               <FinanceCalculator car={{ ...carSummary(car), priceEur: car.priceEur }} />

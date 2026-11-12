@@ -1,19 +1,17 @@
 import { DRIVE_STATUSES, type DriveStatus, type TestDrive } from "./collections";
 import { HOUR } from "@/lib/time";
+import { dublinDay } from "./format";
 
-// Agenda helpers for the test drive bookings. Pure, so the grouping and the checks are tested.
-// How far ahead the dealer can book a test drive at the desk (the website offers three weeks, src/lib/leads/constants.ts).
-export const DRIVE_MONTHS_AHEAD = 2;
+// Agenda helpers for the test drive bookings. Pure, so the grouping and the checks are tested. How far ahead, and on which days and
+// times, is TEST_DRIVE and driveTimes (src/lib/leads/constants.ts), shared with the website's booking form.
 
 export type DriveGroup = { day: string; drives: TestDrive[] };
-
-const dayKey = (t: number) => new Date(t).toLocaleDateString("en-CA", { timeZone: "Europe/Dublin" }); // 2026-11-10, in the Irish day
 
 // Bookings grouped by day, days in order, and within a day by time.
 export function groupByDay(drives: TestDrive[]): DriveGroup[] {
   const map = new Map<string, TestDrive[]>();
   // In the order given: the page sorts soonest first for what is coming up and latest first for what is past.
-  for (const d of drives) map.set(dayKey(d.startsAt), [...(map.get(dayKey(d.startsAt)) ?? []), d]);
+  for (const d of drives) map.set(dublinDay(d.startsAt), [...(map.get(dublinDay(d.startsAt)) ?? []), d]);
   return [...map].map(([day, list]) => ({ day, drives: list }));
 }
 

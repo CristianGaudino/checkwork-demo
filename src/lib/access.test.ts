@@ -33,6 +33,13 @@ describe("verifyAccessJwt", () => {
     expect(await verifyAccessJwt(await a.sign(good, { alg: "RS256", kid: "nope" }), cfg, a.keys, 1000)).toBeNull();
     expect(await verifyAccessJwt(await a.sign(good, { alg: "none", kid: "k1" }), cfg, a.keys, 1000)).toBeNull();
   });
+  it("asks for fresh keys when a token names one it does not have, so a key rotation does not lock staff out", async () => {
+    const { jwk, sign } = await setup();
+    const asked: boolean[] = [];
+    const rotated = async (_team: string, fresh?: boolean) => (asked.push(Boolean(fresh)), fresh ? [jwk] : []);
+    expect(await verifyAccessJwt(await sign(good), cfg, rotated, 1000)).toEqual({ email: "dealer@example.com" });
+    expect(asked).toEqual([false, true]);
+  });
   it("refuses when the keys cannot be loaded", async () => {
     const { sign } = await setup();
     expect(await verifyAccessJwt(await sign(good), cfg, async () => { throw new Error("down"); }, 1000)).toBeNull();

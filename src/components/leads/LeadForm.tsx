@@ -164,10 +164,10 @@ export function LeadForm({
     if (car) fd.set("carId", car.id);
     fd.set("sourcePath", location.pathname);
     fd.set("clientRef", (clientRef.current ??= crypto.randomUUID()));
-    fd.set("cf-turnstile-response", turnstile.token);
     start(async () => {
       let r: LeadResult;
       try {
+        fd.set("cf-turnstile-response", await turnstile.ready());
         r = await submitLead(fd);
       } catch {
         r = { status: "failed", kind: "server" }; // network, a new deploy, a body the server refused
@@ -258,7 +258,7 @@ export function LeadForm({
                 <p className="font-semibold text-destructive">Too many requests. Wait a minute and try again.</p>
               ) : failure === "gone" ? (
                 <>
-                  <p className="font-semibold text-destructive">This car has just been sold.</p>
+                  <p className="font-semibold text-destructive">This car is no longer available.</p>
                   <p className="text-meta">
                     <Link href="/used-cars" className="font-semibold underline">
                       See the cars we have

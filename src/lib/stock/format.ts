@@ -10,6 +10,8 @@ export const formatCount = (n: number) => km.format(n); // 1,163, as the rest of
 
 export const carTitle = (car: Pick<Car, "make" | "model" | "variant">) => [car.make, car.model, car.variant].filter(Boolean).join(" ");
 export const carName = (car: Pick<Car, "year" | "make" | "model">) => `${car.year} ${car.make} ${car.model}`;
+// A car's own page, whatever kind it is (used, new or commercial all live under /used-cars).
+export const carHref = (slug: string) => `/used-cars/${slug}`;
 // What a lead dialog shows of a car (CarSummary). Only these fields cross into client components, never the Car (LED-02).
 export const carSummary = (car: Car) => ({ id: car.id, name: carName(car), title: carTitle(car), price: formatPrice(car.priceEur), photo: car.photos[0]?.src });
 

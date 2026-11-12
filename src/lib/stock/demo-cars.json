@@ -679,6 +679,7 @@
   },
   {
     "id": "4710010",
+    "reserved": true,
     "doors": 5,
     "seats": 7,
     "make": "Volvo",
@@ -1876,6 +1877,7 @@
   },
   {
     "id": "4710026",
+    "reserved": true,
     "doors": 5,
     "seats": 5,
     "make": "Kia",

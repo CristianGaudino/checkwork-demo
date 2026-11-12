@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { FeatureCard } from "@/components/Feature";
 import { CallButton, InfoSection } from "@/components/InfoPage";
 import { LayersIcon, ShieldCheckIcon } from "@/components/stock/icons";
-import { pageMain, subTitle } from "@/components/ui";
+import { card, pageMain, subTitle } from "@/components/ui";
+import { LeadPageForm } from "@/components/leads/LeadPageForm";
+import { CLAIM_SENT } from "@/lib/leads/constants";
 import { DEALER_LOCATION, DEALER_PHONE, SITE_NAME, WARRANTY } from "@/lib/site";
 import { PageHeading } from "@/components/PageHeading";
 
@@ -56,6 +58,15 @@ export default function WarrantyPage() {
           <p>Call us on {DEALER_PHONE} and ask for the full terms for the car you are looking at.</p>
         </InfoSection>
       </div>
+
+      {/* Step two of making a claim, written down: it reaches the dealer as a warranty claim. Unsafe to drive is still a phone call. */}
+      <section id="claim" className="mt-12 flex max-w-2xl scroll-mt-24 flex-col gap-4">
+        <h2 className={subTitle}>Make a claim</h2>
+        <p className="text-body text-text-2">If the car is unsafe to drive, call us instead.</p>
+        <div className={`${card} p-4 sm:p-5`}>
+          <LeadPageForm form="warranty" submitLabel="Send claim" success={CLAIM_SENT} />
+        </div>
+      </section>
     </main>
   );
 }

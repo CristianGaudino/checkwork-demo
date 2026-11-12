@@ -12,12 +12,13 @@ describe("anonymiseOldSales", () => {
   it("removes the buyer from sales older than six years, keeps the figures, and leaves newer sales and other records alone", async () => {
     const db = getDb();
     const sale = (id: string, soldOn: string) => ({ collection: "sales", id, data: { id, priceEur: 9000, soldOn, salesperson: "Conor Doyle", customerId: "cust-1" } });
-    await db.insert(adminDocs).values([sale("old", "2020-11-10"), sale("kept", "2020-11-12"), { collection: "leads", id: "x", data: { id: "x", soldOn: "2000-01-01", customerId: "c" } }]);
-    expect(await anonymiseOldSales(db as never, new Date("2026-11-11T03:00:00Z"))).toBe(1);
+    await db.insert(adminDocs).values([sale("old", "2020-11-10"), sale("kept", "2020-11-12"), { collection: "leads", id: "x", data: { id: "x", soldOn: "2000-01-01", customerId: "c" } }, { collection: "reservations", id: "dep", data: { id: "dep", paidOn: "2020-01-01", depositEur: 500, customerId: "cust-1" } }]);
+    expect(await anonymiseOldSales(db as never, new Date("2026-11-11T03:00:00Z"))).toBe(2);
     const rows = Object.fromEntries((await db.select().from(adminDocs)).map((r) => [r.id, r.data]));
     expect(rows.old).toEqual({ id: "old", priceEur: 9000, soldOn: "2020-11-10", salesperson: "Conor Doyle" });
     expect(rows.kept).toMatchObject({ customerId: "cust-1" });
     expect(rows.x).toMatchObject({ customerId: "c" });
+    expect(rows.dep).toEqual({ id: "dep", paidOn: "2020-01-01", depositEur: 500 }); // a deposit as old goes the same way
     expect(await anonymiseOldSales(db as never, new Date("2026-11-11T03:00:00Z"))).toBe(0); // done once
   });
 });

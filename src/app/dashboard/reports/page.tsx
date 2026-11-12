@@ -36,6 +36,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
         <StatCard label="Sales" value={fmtEur(r.totals.value)} />
         <StatCard label="Profit" value={fmtEur(r.totals.profit)} hint={r.totals.costed < r.totals.sold ? `On ${r.totals.costed} of ${r.totals.sold} sales with a cost` : undefined} />
         <StatCard label="Days to sell" value={r.totals.avgDaysToSell === null ? "None" : fmtNum(r.totals.avgDaysToSell)} hint="On average, from listing to sale" />
+        {r.returns.count > 0 && <StatCard label="Returns" value={fmtNum(r.returns.count)} hint={`${fmtEur(r.returns.refundEur)} refunded, not counted in sales`} />}
       </StatGrid>
 
       <Panel title="Sales by month">
@@ -77,6 +78,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
         </Panel>
         <Panel title="Where the won leads came from">
           {r.sources.length ? <BarList items={r.sources.map((s) => ({ label: s.source, value: s.won, note: `of ${s.leads} leads, ${s.winRate}%` }))} /> : <p className="text-body text-text-2">No leads in this period.</p>}
+        </Panel>
+        <Panel title="Why leads were lost">
+          {r.lost.length ? <BarList items={r.lost.map((x) => ({ label: x.reason, value: x.leads, note: x.leads === 1 ? "1 lead" : `${x.leads} leads` }))} /> : <p className="text-body text-text-2">No lost leads in this period.</p>}
         </Panel>
         <Panel title="Stock by age">
           <BarList items={r.stockAge.map((b) => ({ label: b.band, value: b.cars, note: fmtEur(b.value) }))} />

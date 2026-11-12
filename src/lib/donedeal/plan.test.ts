@@ -28,9 +28,17 @@ describe("planSync", () => {
     expect(p.changed[0].after.soldAt).toBeUndefined();
   });
 
-  it("marks a car sold when DoneDeal stops listing it", () => {
+  it("hides a car when DoneDeal stops listing it, to ask the dealer whether it sold", () => {
     const p = planSync([car("1"), car("2"), car("3"), car("4")], [car("1"), car("2"), car("3")], TODAY);
-    expect(p.gone.map((c) => [c.id, c.soldAt])).toEqual([["4", TODAY]]);
+    expect(p.gone.map((c) => [c.id, c.listing, c.takenDownAt, c.soldAt])).toEqual([["4", "hidden", TODAY, undefined]]);
+    // Once hidden it is not taken down again, and it counts for nothing in the hold rule.
+    expect(planSync([car("1"), car("4", { listing: "hidden", takenDownAt: TODAY })], [car("1")], TODAY)).toEqual({ added: [], changed: [], gone: [] });
+  });
+
+  it("puts a hidden car back when its ad goes up again", () => {
+    const p = planSync([car("1", { listing: "hidden", takenDownAt: "2026-11-05" })], [car("1")], TODAY);
+    expect(p.changed[0].after).not.toHaveProperty("listing", "hidden");
+    expect(p.changed[0].after.takenDownAt).toBeUndefined();
   });
 
   it("holds, changing nothing, when DoneDeal's answer looks broken", () => {

@@ -1,9 +1,10 @@
 import { carCosts } from "@/lib/admin/costs";
 import { csvResponse, toCsv, type CsvColumn } from "@/lib/admin/csv";
 import { adminCars } from "@/lib/admin/stock-admin";
+import { carStatus } from "@/lib/admin/stock-admin-pure";
 import { parseStockList, stockList } from "@/lib/admin/stock-views";
 import { can } from "@/lib/permissions";
-import { FUEL_LABELS, GEARBOX_LABELS, isSold, type Car } from "@/lib/stock/types";
+import { FUEL_LABELS, GEARBOX_LABELS, type Car } from "@/lib/stock/types";
 
 // The stock list as a CSV, with the list's view and search. Every staff member; cost, prep and margin only for the margins roles.
 export async function GET(req: Request) {
@@ -20,13 +21,14 @@ export async function GET(req: Request) {
     ["Mileage (km)", (c) => c.mileageKm],
     ["Fuel", (c) => (c.fuel ? FUEL_LABELS[c.fuel] : "")],
     ["Gearbox", (c) => (c.gearbox ? GEARBOX_LABELS[c.gearbox] : "")],
-    ["Status", (c) => (isSold(c) ? "Sold" : "For sale")],
+    ["Status", carStatus],
     ["Listed", (c) => c.listedAt],
     ["Photos", (c) => c.photos.length],
     ...(costs
       ? ([
           ["Cost (€)", (c) => costs.get(c.id)?.purchase],
           ["Prep (€)", (c) => costs.get(c.id)?.prep],
+          ["Warranty repairs (€)", (c) => costs.get(c.id)?.claims],
           ["Margin (€)", (c) => (costs.has(c.id) ? c.priceEur - costs.get(c.id)!.total : "")],
         ] as CsvColumn<Car>[])
       : []),

@@ -1,14 +1,14 @@
 import "server-only";
 import { logActivity } from "@/lib/admin/activity";
 import { carEditSummary } from "@/lib/admin/activity-text";
-import { getSettings, salesStore } from "@/lib/admin/collections";
+import { getSettings, leaderEmails, salesStore, undoSale } from "@/lib/admin/collections";
 import { defineCollection } from "@/lib/admin/docs";
 import { dublinDay } from "@/lib/admin/format";
 import { carTitleOf } from "@/lib/admin/seed-data";
 import { adminCars, saveCar } from "@/lib/admin/stock-admin";
 import { sendTo } from "@/lib/leads/mail";
 import { DEMO_BAR_ENABLED } from "@/lib/demo";
-import { SITE_NAME } from "@/lib/site";
+import { SITE_NAME, TIME_ZONE } from "@/lib/site";
 import type { Car } from "@/lib/stock/types";
 import { HOUR, MINUTE } from "@/lib/time";
 import { fetchListings, type FeedResult } from "./feed";
@@ -27,7 +27,7 @@ export type SyncStatus = {
   id: "status";
   lastRunAt?: number;
   lastOkAt?: number;
-  result?: { added: number; changed: number; sold: number };
+  result?: { added: number; changed: number; takenDown: number };
   problem?: string; // why the last run changed nothing, in the dealer's words; absent when it worked
   held?: boolean; // the problem is DoneDeal's answer looking wrong; Apply anyway runs it with force
   failingSince?: number; // the first failed run of this outage
@@ -35,7 +35,7 @@ export type SyncStatus = {
 };
 
 // The demo's last sync, a few minutes ago with nothing to change (its feed is the stock itself). A real site starts with none.
-const statusStore = defineCollection<SyncStatus>("donedeal-sync", () => [{ id: "status", lastRunAt: Date.now() - 6 * MINUTE, lastOkAt: Date.now() - 6 * MINUTE, result: { added: 0, changed: 0, sold: 0 } }]);
+const statusStore = defineCollection<SyncStatus>("donedeal-sync", () => [{ id: "status", lastRunAt: Date.now() - 6 * MINUTE, lastOkAt: Date.now() - 6 * MINUTE, result: { added: 0, changed: 0, takenDown: 0 } }]);
 
 export const resetSyncStatus = () => statusStore.reset(); // "Reset demo data"
 
@@ -72,14 +72,16 @@ export async function runSync({ force = false, now = Date.now() } = {}): Promise
       return false;
     }
   };
-  const result = { added: 0, changed: 0, sold: 0 };
+  const result = { added: 0, changed: 0, takenDown: 0 };
   for (const c of plan.added) if (await apply(c, "Added from DoneDeal")) result.added++;
   for (const { before, after } of plan.changed) {
-    if (!(await apply(after, before.soldAt ? "Back on sale on DoneDeal" : carEditSummary(before, after)))) continue;
+    if (!(await apply(after, before.soldAt ? "Back on sale on DoneDeal" : before.listing ? "Back on DoneDeal" : carEditSummary(before, after)))) continue;
     result.changed++;
-    if (before.soldAt) await salesStore.remove(after.id); // back on sale: the sale fell through, as Back on sale does in our version
+    // Back on sale: the sale fell through. Kept as a cancelled sale, as in our version, so the history still has it.
+    const sale = before.soldAt ? await salesStore.get(after.id) : undefined;
+    if (sale) await undoSale(sale, { returnedOn: today, kind: "cancelled", reason: "Listed again on DoneDeal" });
   }
-  for (const c of plan.gone) if (await apply(c, "Marked sold: no longer on DoneDeal")) result.sold++;
+  for (const c of plan.gone) if (await apply(c, "Hidden: the ad came down on DoneDeal")) result.takenDown++;
   const status: SyncStatus = { id: "status", lastRunAt: now, lastOkAt: now, result, ...(skipped && { problem: `${skipped === 1 ? "1 car" : `${skipped} cars`} from DoneDeal could not be saved. The rest are up to date.` }) };
   await statusStore.put(status);
   return status;
@@ -95,11 +97,9 @@ async function failed(prev: SyncStatus, problem: string, held: boolean, now: num
   return status;
 }
 
-// The owners and managers on the team, and the owners named in ADMIN_OWNER_EMAILS. Never a customer address.
 async function alertOwners(problem: string, lastOkAt?: number): Promise<boolean> {
-  const { team } = await getSettings();
-  const to = [...new Set([...team.filter((t) => t.role === "Owner" || t.role === "Manager").map((t) => t.email), ...(process.env.ADMIN_OWNER_EMAILS ?? "").split(",")].map((e) => e.trim().toLowerCase()).filter(Boolean))];
-  const since = lastOkAt ? `since ${new Date(lastOkAt).toLocaleString("en-IE", { timeZone: "Europe/Dublin", dateStyle: "medium", timeStyle: "short" })}` : "yet";
+  const to = leaderEmails((await getSettings()).team);
+  const since = lastOkAt ? `since ${new Date(lastOkAt).toLocaleString("en-IE", { timeZone: TIME_ZONE, dateStyle: "medium", timeStyle: "short" })}` : "yet";
   try {
     await sendTo(to, {
       subject: `${SITE_NAME}: the DoneDeal stock has not updated ${since}`,

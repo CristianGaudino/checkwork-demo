@@ -1,5 +1,5 @@
 import { logActivity } from "@/lib/admin/activity";
-import { LEAD_STATUS_LABELS, LEAD_TYPE_LABELS, leadsStore } from "@/lib/admin/collections";
+import { LEAD_STATUS_LABELS, LEAD_TYPE_LABELS, getSettings, leadsStore } from "@/lib/admin/collections";
 import { csvResponse, toCsv } from "@/lib/admin/csv";
 import { dublinDateTime, dublinDay } from "@/lib/admin/format";
 import { filterLeads, parseLeadFilter } from "@/lib/admin/leads";
@@ -10,7 +10,7 @@ export async function GET(req: Request) {
   if (!(await can("data"))) return new Response(null, { status: 404 });
   const sp = Object.fromEntries(new URL(req.url).searchParams);
   const today = dublinDay();
-  const rows = filterLeads(await leadsStore.list(), parseLeadFilter(sp), today);
+  const rows = filterLeads(await leadsStore.list(), parseLeadFilter(sp), today, (await getSettings()).leadSlaHours);
   await logActivity("leads", `Exported the leads list (${rows.length === 1 ? "1 lead" : `${rows.length} leads`})`);
   return csvResponse(
     "leads",

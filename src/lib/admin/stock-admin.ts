@@ -6,6 +6,8 @@ import { getBindings } from "@/lib/leads/bindings";
 import { memoryCars, refreshMemoryStock } from "@/lib/stock";
 import type { Car } from "@/lib/stock/types";
 import { devFixtureCars } from "@/lib/dev-data";
+import { reservationsStore, salesStore } from "./collections";
+import { nextCarId } from "./stock-admin-pure";
 
 // The dealer's view of the stock: every car, sold ones too, and the writes. On the Worker this is the `cars` table the public site reads
 // (so a change shows on the site within seconds). With no D1 binding it edits the in-memory list the site reads (dev and E2E).
@@ -24,6 +26,12 @@ export async function adminCars(): Promise<Car[]> {
   }
   const rows = await getDb().select({ data: cars.data }).from(cars);
   return rows.map((r) => r.data as Car);
+}
+
+// The id for a new car: above every id still in use, by a car or by a record that names one (a sale, a deposit), so none is given twice.
+export async function freeCarId(): Promise<string> {
+  const [cars, sales, deposits] = await Promise.all([adminCars(), salesStore.list(), reservationsStore.list()]);
+  return nextCarId([...cars, ...sales.map((s) => ({ id: s.carId ?? s.id })), ...deposits.map((r) => ({ id: r.carId }))]);
 }
 
 export async function adminCar(id: string): Promise<Car | undefined> {

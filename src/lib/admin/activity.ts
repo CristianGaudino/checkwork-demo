@@ -72,7 +72,17 @@ function seedActivity(now = Date.now()): ActivityEntry[] {
   ];
   const sold = cars.filter((c) => c.soldAt).map((c) => row(new Date(`${c.soldAt}T15:00:00Z`).getTime(), "Conor Doyle", "stock", "Marked sold", car(c)));
   const rows = Array.from({ length: 70 }, (_, i) => make[r.int(0, make.length - 1)](now - i * 14 * HOUR - r.int(5, 50) * MINUTE));
-  rows.push(row(now - 20 * DAY, "Aoife Brennan", "settings", "Changed the lead reply target from 24 to 12 hours"), row(now - 33 * DAY, "Aoife Brennan", "settings", "Added Ciara Walsh to the team as Manager", { kind: "team", id: "u4", label: "Ciara Walsh" }));
+  // The stories seeded in collections.ts: the deposits, the car brought back, the newest claim and order.
+  const byId = (id: string) => car(cars.find((c) => c.id === id)!);
+  rows.push(
+    row(now - 3 * DAY, "Conor Doyle", "stock", "Took a deposit of €1,000", byId("4710026")),
+    row(now - 16 * DAY, "Aoife Brennan", "stock", "Took a deposit of €2,000", byId("4710010")),
+    row(now - 14 * DAY, "Ciara Walsh", "stock", "Took the car back and refunded €9,950", byId("4710009")),
+    row(now - 4 * DAY, "Aoife Brennan", "stock", "Cancelled the sale", byId("4710020")),
+    row(now - 2 * DAY + HOUR, "Conor Doyle", "customers", "Opened a warranty claim", byId(cars.filter((c) => c.soldAt)[0].id)),
+    row(now - 12 * DAY, "Conor Doyle", "stock", "Placed a factory order: Toyota RAV4, €1,000 deposit"),
+  );
+  rows.push(row(now - 20 * DAY, "Aoife Brennan", "settings", "Changed the lead reply target from 24 to 12 hours"),row(now - 33 * DAY, "Aoife Brennan", "settings", "Added Ciara Walsh to the team as Manager", { kind: "team", id: "u4", label: "Ciara Walsh" }));
   // Fixed ids, so two first visits at once insert the history once (the second insert is ignored), like the other seeds.
   return [...rows, ...sold.filter((s) => s.at > now - 45 * DAY)].map((e, i) => ({ ...e, id: `seed-${i}` }));
 }

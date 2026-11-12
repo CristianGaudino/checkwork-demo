@@ -61,6 +61,7 @@ test("write a newsletter from the newest cars, and sending sends it", async ({ p
   await expect(page.getByRole("status")).toContainText("Newsletter draft saved");
   await expect(page.getByText("New in this week:").first()).toBeVisible();
   await page.getByRole("button", { name: /^Send to/ }).first().click();
+  await page.getByRole("dialog").getByRole("button", { name: "Send" }).click();
   await expect(page.getByRole("status")).toContainText("Newsletter sent");
 });
 
