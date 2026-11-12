@@ -71,3 +71,49 @@ export function BarList({ items, of, format = fmtNum }: { items: { label: string
     </ul>
   );
 }
+
+// Leads each week, oldest first, this week last and in the accent: whether this week is a normal one. The numbers are read aloud.
+export function WeekBars({ weeks }: { weeks: number[] }) {
+  const max = Math.max(1, ...weeks);
+  return (
+    <span role="img" aria-label={`Leads each week, the last ${weeks.length} weeks: ${weeks.join(", ")}`} className="mt-2 flex h-8 items-end gap-1">
+      {weeks.map((n, i) => (
+        <span key={i} className={`w-full rounded-sm ${i === weeks.length - 1 ? "bg-accent" : "bg-hairline dark:bg-control"}`} style={{ height: `${Math.max(8, (n / max) * 100)}%` }} />
+      ))}
+    </span>
+  );
+}
+
+// How long a car has been for sale, on a scale to `full` days: amber from `late`, when it is worth a price check. The days are written beside.
+export function AgeBar({ days, late, full = 90 }: { days: number; late: number; full?: number }) {
+  return (
+    <span aria-hidden className="block h-1.5 w-16 overflow-hidden rounded-full bg-hairline">
+      <span className={`block h-full rounded-full ${days >= late ? "bg-warn" : "bg-control"}`} style={{ width: `${Math.min(100, (days / full) * 100)}%` }} />
+    </span>
+  );
+}
+
+// Where a record is on its way, as dots in a table row: the steps done, the one it is at (larger, in the accent), the rest to come. A list
+// of them reads down the column at a glance. A record's own page has its status buttons, which say the same, so it has none.
+export function StepDots({ steps, at }: { steps: readonly string[]; at: number }) {
+  return (
+    <span role="img" aria-label={`Step ${at + 1} of ${steps.length}: ${steps[at]}`} className="inline-flex items-center gap-1">
+        {steps.map((s, i) => (
+          <span key={s} className={`rounded-full ${i === at ? "size-2.5 bg-accent" : `size-2 ${i < at ? "bg-text-2" : "bg-hairline"}`}`} />
+      ))}
+    </span>
+  );
+}
+
+// Time used of a span (a warranty, from the sale to its end): how much is left at a glance, the words saying it exactly.
+export function TimeLeft({ from, to, now, text }: { from: number; to: number; now: number; text: string }) {
+  const used = to > from ? Math.min(1, Math.max(0, (now - from) / (to - from))) : 1;
+  return (
+    <span className="flex flex-col gap-1.5">
+      <span aria-hidden className="block h-2 overflow-hidden rounded-full bg-hairline">
+        <span className={`block h-full rounded-full ${used >= 1 ? "bg-control" : used > 0.85 ? "bg-warn" : "bg-ok"}`} style={{ width: `${used * 100}%` }} />
+      </span>
+      <span className="text-meta text-text-2">{text}</span>
+    </span>
+  );
+}

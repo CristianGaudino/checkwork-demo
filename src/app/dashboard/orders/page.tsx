@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import { DataTable, EmptyState, FilterSelect, PageHeader, Pager, SummaryTabs, TableToolbar, adminButton, paginate, sortRows, type Column } from "@/components/admin/kit";
 import { OrderBadge } from "@/components/admin/badges";
 import { PlusIcon } from "@/components/stock/icons";
-import { ORDER_STATUSES, customersStore, orderOpen, ordersStore, type Order } from "@/lib/admin/collections";
+import { ORDER_PATH, ORDER_STATUSES, ORDER_STATUS_LABELS, customersStore, orderOpen, ordersStore, type Order } from "@/lib/admin/collections";
+import { StepDots } from "@/components/admin/charts";
 import { fmtDate } from "@/lib/admin/format";
 import { monthLabel } from "@/lib/admin/reports";
 import { stockSource } from "@/lib/stock-source";
@@ -43,7 +44,20 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
     { key: "spec", header: "Spec", hide: "lg", cell: (o) => <span className="line-clamp-1 text-text-2">{[o.spec, o.colour].filter(Boolean).join(", ")}</span> },
     { key: "ordered", header: "Ordered", hide: "md", nowrap: true, sort: (o) => o.orderedOn, cell: (o) => fmtDate(`${o.orderedOn}T12:00:00Z`) },
     { key: "due", header: "Due", hide: "sm", nowrap: true, sort: (o) => o.expected, cell: (o) => monthLabel(o.expected) },
-    { key: "status", header: "Status", align: "right", sort: (o) => ORDER_STATUSES.indexOf(o.status), cell: (o) => <OrderBadge status={o.status} /> },
+    // Where it is on the way, as dots beside its status, so a list of orders reads at a glance.
+    {
+      key: "status",
+      header: "Status",
+      align: "right",
+      nowrap: true,
+      sort: (o) => ORDER_STATUSES.indexOf(o.status),
+      cell: (o) => (
+        <span className="inline-flex items-center gap-3">
+          {o.status !== "cancelled" && <StepDots steps={ORDER_PATH.map((s) => ORDER_STATUS_LABELS[s])} at={ORDER_PATH.indexOf(o.status)} />}
+          <OrderBadge status={o.status} />
+        </span>
+      ),
+    },
   ];
   const matching = orders.filter((o) => VIEWS[view].test(o) && (!sp.period || o.regPeriod === sp.period) && (!q || `${o.make} ${o.model} ${o.spec ?? ""} ${(o.customerId && names.get(o.customerId)) || ""}`.toLowerCase().includes(q)));
   // No sort chosen: the soonest due first.

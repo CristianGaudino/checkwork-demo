@@ -130,9 +130,38 @@ const STORY_LEADS = (now: number): Lead[] => {
     { id: "lead-2005", type: "service", status: "appointment", ...person(r), source: "Website", message: "Need an NCT check before the test.", assignedTo: "Ciara Walsh", followUpOn: dublinDay(now), notes: [{ at: now - 2 * DAY, text: "Booked in for Friday." }], createdAt: now - 3 * DAY },
   ];
 };
+// Six weeks of leads before the demo's last fortnight, mostly decided (won, or lost with a reason) and a few still being worked: so this
+// week has weeks to compare with on the overview, and the reports have a past. A random sequence of their own, so the rest are unchanged.
+const PAST_LEADS = (now: number): Lead[] => {
+  const r = rng(149);
+  const out: Lead[] = [];
+  for (let week = 2; week < 8; week++) {
+    for (let n = r.int(8, 14); n > 0; n--) {
+      const type = r.pick(SEED_TYPES);
+      const car = type === "find-a-car" || type === "general" || type === "sell" ? undefined : livePicks(r);
+      const status = r.pick(["won", "won", "lost", "lost", "contacted"] as const);
+      const lostReason = r.pick(LOST_REASONS);
+      out.push({
+        id: `lead-${3000 + out.length}`,
+        type,
+        status,
+        ...person(r),
+        message: r.pick(MESSAGES[type]),
+        source: r.pick(LEAD_SOURCES),
+        carSlug: car?.slug,
+        carTitle: car && carTitleOf(car),
+        assignedTo: r.pick(TEAM_SEED).name,
+        ...(status === "lost" && { lostReason }),
+        notes: [],
+        createdAt: now - (week * 7 + r.int(0, 6)) * DAY - r.int(1, 10) * HOUR,
+      });
+    }
+  }
+  return out;
+};
 function seedLeadsWithEdges(): Lead[] {
   const now = Date.now();
-  return [...seedLeads(), ...EDGE_LEADS(now), ...STORY_LEADS(now)];
+  return [...seedLeads(), ...EDGE_LEADS(now), ...STORY_LEADS(now), ...PAST_LEADS(now)];
 }
 export const leadsStore = defineCollection<Lead>("leads", seedLeadsWithEdges);
 // The seeded leads, for the notifications' own seed (notifications.ts), so the bell tells of the same requests.
@@ -501,6 +530,8 @@ export const ORDER_STATUSES = ["ordered", "built", "in-transit", "arrived", "han
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = { ordered: "Ordered", built: "Built", "in-transit": "On its way", arrived: "Arrived", "handed-over": "Handed over", cancelled: "Cancelled" };
 export const orderOpen = (s: OrderStatus) => s !== "handed-over" && s !== "cancelled";
+// The way an order goes, start to end, for its progress tracker (a cancelled one left the way, so it has none).
+export const ORDER_PATH = ORDER_STATUSES.filter((s) => s !== "cancelled");
 export type Order = {
   id: string;
   customerId?: string;

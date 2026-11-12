@@ -15,6 +15,8 @@ import { FUEL_LABELS, FUELS, forSale, isSold, type Car } from "@/lib/stock/types
 import { stockSource } from "@/lib/stock-source";
 import { DONEDEAL_DEALER_URL, listingHref } from "@/lib/stock-source-rules";
 import { SyncPanel } from "@/components/admin/SyncPanel";
+import { AgeBar } from "@/components/admin/charts";
+import { OLD_STOCK_DAYS } from "@/lib/admin/overview";
 import { FEW_PHOTOS, STOCK_VIEWS, parseStockList, stockList, type StockView } from "@/lib/admin/stock-views";
 import { salesStore } from "@/lib/admin/collections";
 import { syncStatus } from "@/lib/donedeal/sync";
@@ -124,7 +126,24 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
     },
     ...(costs ? [{ key: "margin", header: "Margin", align: "right" as const, hide: "md" as const, nowrap: true, sort: (c: Car) => (costs.has(c.id) ? marginOf(c.priceEur, costs.get(c.id)!).eur : undefined), cell: (c: Car) => (costs.has(c.id) ? fmtEur(marginOf(c.priceEur, costs.get(c.id)!).eur) : <span className="text-text-2">Not set</span>) }] : []),
     // How long a car has been for sale: what a dealer watches to decide on a price drop.
-    { key: "age", header: "In stock", align: "right", hide: "lg", nowrap: true, sort: (c) => (c.listedAt && !isSold(c) ? daysSince(c.listedAt) : undefined), cell: (c) => (c.listedAt && !isSold(c) ? daysIn(c.listedAt) : <span className="text-text-2">-</span>) },
+    // The days, and a bar to 90 days that turns amber at 60 (the 60 days or more view): which cars are ageing, down the column at a glance.
+    {
+      key: "age",
+      header: "In stock",
+      align: "right",
+      hide: "lg",
+      nowrap: true,
+      sort: (c) => (c.listedAt && !isSold(c) ? daysSince(c.listedAt) : undefined),
+      cell: (c) =>
+        c.listedAt && !isSold(c) ? (
+          <span className="inline-flex items-center gap-2">
+            <AgeBar days={daysSince(c.listedAt)} late={OLD_STOCK_DAYS} />
+            <span className={daysSince(c.listedAt) >= OLD_STOCK_DAYS ? "font-medium text-warn" : ""}>{daysIn(c.listedAt)}</span>
+          </span>
+        ) : (
+          <span className="text-text-2">-</span>
+        ),
+    },
     { key: "km", header: "Mileage", align: "right", hide: "md", nowrap: true, sort: (c) => c.mileageKm, cell: (c) => (c.mileageKm !== undefined ? `${fmtNum(c.mileageKm)} km` : "") },
     { key: "photos", header: "Photos", align: "right", hide: "2xl", sort: (c) => c.photos.length, cell: (c) => (c.photos.length < FEW_PHOTOS ? <span className="text-warn">{c.photos.length}</span> : c.photos.length) },
     // Only in the All view: the other views already say it.

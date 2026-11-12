@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LeadStatusBadge } from "@/components/admin/badges";
 import { Badge, EmptyState, PageHeader, Panel, StatCard, StatGrid, adminButtonQuiet } from "@/components/admin/kit";
+import { WeekBars } from "@/components/admin/charts";
 import { CalendarIcon, CarIcon, ShareIcon } from "@/components/stock/icons";
 import { carCosts } from "@/lib/admin/costs";
 import { drivesStore, getSettings, leadsStore, ordersStore, reservationsStore, reviewsStore, salesStore } from "@/lib/admin/collections";
@@ -55,9 +56,10 @@ export default async function Page() {
       />
 
       <StatGrid>
-        <StatCard href="/dashboard/leads?status=new" label="Leads to answer" value={fmtNum(o.newLeads)} />
-        <StatCard href="/dashboard/leads" label="Leads this week" value={fmtNum(o.leadsThisWeek)} hint={`${o.leadsChange >= 0 ? "Up" : "Down"} ${Math.abs(o.leadsChange)} on last week`} tone={o.leadsChange >= 0 ? "good" : "bad"} />
-        <StatCard href="/dashboard/stock" label="Cars for sale" value={fmtNum(cars.filter(forSale).length)} />
+        <StatCard href="/dashboard/leads?status=new" label="Leads to answer" value={fmtNum(o.newLeads)} hint={o.lateLeads ? `${o.lateLeads} past your reply target` : "All within your reply target"} tone={o.lateLeads ? "bad" : "good"} />
+        {/* Is this week a normal one: eight weeks of leads, this one last, against a usual week. */}
+        <StatCard href="/dashboard/leads" label="Leads this week" value={fmtNum(o.leadsThisWeek)} hint={`A usual week: ${o.usualWeek}`} tone={o.leadsThisWeek >= o.usualWeek ? "good" : "bad"} chart={<WeekBars weeks={o.weeks} />} />
+        <StatCard href="/dashboard/stock" label="Cars for sale" value={fmtNum(cars.filter(forSale).length)} hint={o.oldStock ? `${o.oldStock} for sale 60 days or more` : undefined} tone={o.oldStock ? "warn" : undefined} />
         {costs && <StatCard href="/dashboard/margins" label="Stock margin" value={fmtEur(margin)} />}
         <StatCard href="/dashboard/reviews" label="Review rating" value={o.reviewCount ? o.averageRating.toFixed(1) : "None"} hint={`${o.reviewCount} reviews`} />
       </StatGrid>

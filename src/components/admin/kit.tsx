@@ -44,8 +44,9 @@ export function Panel({ title, count, action, children, className = "", quiet = 
   );
 }
 
-// With `href` the whole tile is a link to the page behind the number.
-export function StatCard({ label, value, hint, tone, href }: { label: string; value: string; hint?: string; tone?: "good" | "bad"; href?: string }) {
+// With `href` the whole tile is a link to the page behind the number. `tone` colours the hint only when it says something good or to act on;
+// `chart` is a small picture under it that answers a question the number alone cannot (is this week a normal one?).
+export function StatCard({ label, value, hint, tone, href, chart }: { label: string; value: string; hint?: string; tone?: "good" | "bad" | "warn"; href?: string; chart?: React.ReactNode }) {
   const body = (
     <>
       <p className="text-meta text-text-2">{label}</p>
@@ -53,7 +54,8 @@ export function StatCard({ label, value, hint, tone, href }: { label: string; va
           half-width tile on a 360px phone still fits €117,565 on one line. A year's sales (€5,864,950) take a smaller share. Anything
           longer still wraps, never spills. */}
       <p className={`font-display font-semibold leading-[1.1] tracking-[-0.02em] tabular-nums [overflow-wrap:anywhere] ${value.length > 8 ? "text-[min(2rem,15cqi)]" : "text-[min(2rem,20cqi)]"}`}>{value}</p>
-      {hint && <p className={`text-meta ${tone === "good" ? "text-ok" : tone === "bad" ? "text-bad" : "text-text-2"}`}>{hint}</p>}
+      {hint && <p className={`text-meta ${tone === "good" ? "text-ok" : tone === "bad" ? "text-bad" : tone === "warn" ? "text-warn" : "text-text-2"}`}>{hint}</p>}
+      {chart}
     </>
   );
   const frame = `${card} @container flex min-w-0 flex-col gap-1 p-4`; // @container: the figure is sized from the tile

@@ -9,6 +9,15 @@ const drive = (id: string, inMs: number, status: TestDrive["status"]): TestDrive
 const review = (id: string, rating: AdminReview["rating"], reply?: string): AdminReview => ({ id, author: id, rating, text: "", createdAt: now, reply });
 
 describe("overview", () => {
+  it("counts eight weeks of leads, this one last, and a usual week from the seven before it", () => {
+    // Weeks back: 0 (this one) has 1, 1 has 3, 2 has 2, 3 has 2; the rest none. Usual: the middle of 3, 2, 2, 0, 0, 0, 0.
+    const at = (week: number, n: number) => Array.from({ length: n }, (_, i) => lead(`w${week}-${i}`, week * 7 * DAY + (i + 1) * HOUR));
+    const o = overview({ leads: [...at(0, 1), ...at(1, 3), ...at(2, 2), ...at(3, 2)], drives: [], reviews: [], now });
+    expect(o.weeks).toEqual([0, 0, 0, 0, 2, 2, 3, 1]);
+    expect(o.usualWeek).toBe(0);
+    const busy = overview({ leads: [...at(0, 1), ...at(1, 3), ...at(2, 2), ...at(3, 2), ...at(4, 2), ...at(5, 2), ...at(6, 2)], drives: [], reviews: [], now });
+    expect(busy.usualWeek).toBe(2);
+  });
   it("counts this week against the week before", () => {
     const o = overview({ leads: [lead("a", 1 * DAY), lead("b", 6 * DAY), lead("c", 9 * DAY)], drives: [], reviews: [], now });
     expect(o.leadsThisWeek).toBe(2);
