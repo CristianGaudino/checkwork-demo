@@ -54,9 +54,11 @@ export function overview(input: { leads: Lead[]; drives: TestDrive[]; reviews: A
 
   // Leads in each of the last 8 weeks (7-day windows ending now), oldest first, and a usual week: the middle of the 7 before this one.
   const weeks = Array.from({ length: 8 }, (_, i) => leads.filter((l) => l.createdAt > now - (8 - i) * 7 * DAY && l.createdAt <= now - (7 - i) * 7 * DAY).length);
+  const weekStarts = Array.from({ length: 8 }, (_, i) => now - (8 - i) * 7 * DAY + DAY);
   const before = weeks.slice(0, -1).sort((a, b) => a - b);
   return {
     weeks,
+    weekStarts,
     usualWeek: before[Math.floor(before.length / 2)],
     lateLeads: leads.filter((l) => pastReplyTarget(l, now, slaHours)).length,
     oldStock: cars.filter((c) => isOldStock(c, now)).length,

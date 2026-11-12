@@ -52,6 +52,7 @@
   --color-surface: #f4f6fb; /* paper */
   --color-card: #ffffff;
   --color-row-alt: #f1f3f9; /* every other table row, between card and surface */
+  --color-chart-muted: #c9cede; /* the bars that are not the one that matters: a neutral step, visible on a card */
   --color-rail: #e9ecf5; /* the dashboard's sidebar: a step deeper than the page, so the menu and the work part at a glance */
   --color-ink: #ffffff; /* the inverse of text: for words on a bg-text pill */
   --color-band: #0b0f1f; /* Midnight: a band that stays dark in both themes (footer, demo bar, photo overlays) */
@@ -105,6 +106,7 @@
   --color-accent-text: #a78bfa; /* lavender: accent text on Midnight */
   --color-card: #121832;
   --color-row-alt: #161d3b;
+  --color-chart-muted: #353d61;
   --color-rail: #070a17; /* a step below Midnight: the menu recedes, the cards on the page come forward */
   --color-ink: #0b0f1f;
   --color-text: #f5f6fa; /* off-white */

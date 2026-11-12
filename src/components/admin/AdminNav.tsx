@@ -85,9 +85,9 @@ function NavLink({ item, on, iconOnly = false }: { item: NavItem; on: boolean; i
       aria-current={on ? "page" : undefined}
       aria-label={iconOnly ? item.label : undefined}
       title={iconOnly ? item.label : undefined}
-      className={`flex min-h-11 items-center gap-3 whitespace-nowrap rounded-control text-body font-medium transition-colors ${iconOnly ? "size-11 justify-center" : "px-3"} ${on ? "bg-accent text-on-accent" : "text-text-2 hover:bg-card hover:text-text"} ${press}`}
+      className={`flex min-h-10 items-center gap-3 whitespace-nowrap rounded-control text-body font-medium transition-colors ${iconOnly ? "size-10 justify-center" : "px-3"} ${on ? "bg-card text-text ring-1 ring-inset ring-hairline" : "text-text-2 hover:bg-card hover:text-text"} ${press}`}
     >
-      <Icon className="size-5 shrink-0" />
+      <Icon className={`size-5 shrink-0 ${on ? "text-accent-text" : ""}`} />
       {!iconOnly && item.label}
     </Link>
   );

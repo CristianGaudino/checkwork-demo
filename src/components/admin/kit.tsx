@@ -44,9 +44,9 @@ export function Panel({ title, count, action, children, className = "", quiet = 
   );
 }
 
-// With `href` the whole tile is a link to the page behind the number. `tone` colours the hint only when it says something good or to act on;
-// `chart` is a small picture under it that answers a question the number alone cannot (is this week a normal one?).
-export function StatCard({ label, value, hint, tone, href, chart }: { label: string; value: string; hint?: string; tone?: "good" | "bad" | "warn"; href?: string; chart?: React.ReactNode }) {
+// With `href` the whole tile is a link to the page behind the number. `tone` colours the hint only when it says something good or to act on.
+// A tile is a number: a chart belongs in its own panel (the overview's LeadsByWeek).
+export function StatCard({ label, value, hint, tone, href }: { label: string; value: string; hint?: string; tone?: "good" | "bad" | "warn"; href?: string }) {
   const body = (
     <>
       <p className="text-meta text-text-2">{label}</p>
@@ -55,7 +55,6 @@ export function StatCard({ label, value, hint, tone, href, chart }: { label: str
           longer still wraps, never spills. */}
       <p className={`font-display font-semibold leading-[1.1] tracking-[-0.02em] tabular-nums [overflow-wrap:anywhere] ${value.length > 8 ? "text-[min(2rem,15cqi)]" : "text-[min(2rem,20cqi)]"}`}>{value}</p>
       {hint && <p className={`text-meta ${tone === "good" ? "text-ok" : tone === "bad" ? "text-bad" : tone === "warn" ? "text-warn" : "text-text-2"}`}>{hint}</p>}
-      {chart}
     </>
   );
   const frame = `${card} @container flex min-w-0 flex-col gap-1 p-4`; // @container: the figure is sized from the tile
@@ -181,11 +180,11 @@ export function SummaryTabs({ items, label = "Filter" }: { items: SummaryTab[]; 
           key={i.label}
           href={i.href}
           aria-current={i.active ? "true" : undefined}
-          className={`flex min-w-32 shrink-0 flex-col gap-0.5 rounded-card border px-4 py-3 transition-colors ${i.active ? "border-accent bg-accent text-on-accent" : "border-hairline bg-card text-text hover:border-control"} ${press}`}
+          className={`flex min-w-32 shrink-0 flex-col gap-0.5 rounded-card border bg-card px-4 py-3 text-text transition-colors ${i.active ? "border-accent ring-1 ring-inset ring-accent" : "border-hairline hover:border-control"} ${press}`}
         >
-          <span className={`text-meta ${i.active ? "" : "text-text-2"}`}>{i.label}</span>
-          {i.count !== undefined && <span className="text-heading font-semibold tabular-nums">{i.count}</span>}
-          {i.hint && <span className={`text-meta ${i.active ? "" : "text-text-2"}`}>{i.hint}</span>}
+          <span className="text-meta text-text-2">{i.label}</span>
+          {i.count !== undefined && <span className={`text-heading font-semibold tabular-nums ${i.active ? "text-accent-text" : ""}`}>{i.count}</span>}
+          {i.hint && <span className="text-meta text-text-2">{i.hint}</span>}
         </Link>
       ))}
     </nav>
@@ -306,7 +305,7 @@ export function ChoiceButton({ action, name, value, active, children }: { action
       <button
         type="submit"
         aria-pressed={active}
-        className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-meta font-medium ${active ? "border-accent bg-accent text-on-accent" : "border-control bg-card text-text"} ${press}`}
+        className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-meta font-medium ${active ? "border-text bg-text text-ink" : "border-control bg-card text-text"} ${press}`}
       >
         {children}
       </button>

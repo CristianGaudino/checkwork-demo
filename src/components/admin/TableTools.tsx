@@ -116,7 +116,7 @@ export function DensityToggle() {
   const { compact, setCompact } = useDensity();
   return (
     <button type="button" aria-pressed={compact} onClick={() => setCompact(!compact)} className={`inline-flex h-11 shrink-0 items-center gap-2 rounded-control border px-3 text-meta font-medium ${compact ? "border-text bg-text text-ink" : "border-hairline bg-card text-text hover:border-control"} ${press}`}>
-      <span aria-hidden className="flex flex-col gap-[3px]">
+      <span aria-hidden className="flex flex-col gap-1">
         {[0, 1, 2].map((i) => (
           <span key={i} className="block h-[2px] w-3.5 rounded-full bg-current" />
         ))}

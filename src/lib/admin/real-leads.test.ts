@@ -42,7 +42,7 @@ describe("mirrorOf", () => {
     expect(mirrorOf(row({ type: "general", carId: null, sourcePath: "/contact" })).lead?.type).toBe("general");
   });
   it("keeps the answers with the words: a factory order says the car", () => {
-    expect(mirrorOf(row({ type: "order", carId: null, message: "White please", details: { make: "Kia", model: "Sportage", regPeriod: "271" } })).lead).toMatchObject({ type: "order", message: "Make: Kia. Model: Sportage. Registration period: 271\n\nWhite please" });
+    expect(mirrorOf(row({ type: "order", carId: null, message: "White please", details: { make: "Kia", model: "Sportage", regPeriod: "271" } })).lead).toMatchObject({ type: "order", message: "Kia Sportage, 271\n\nWhite please" });
   });
   it("describes a form with no free text from its answers", () => {
     const m = mirrorOf(row({ type: "finance", message: null, details: { deposit: 2000, term: 48 } }));

@@ -15,9 +15,14 @@ const LEAD_TYPE: Record<Exclude<LeadRow["type"], "alert">, LeadType> = { enquiry
 const pageType = (path: string): LeadType => (path.startsWith("/warranty") ? "warranty" : path.startsWith("/service") ? "service" : "general");
 
 // The answers they gave (a make and model, a trade-in's reg), then their own words: both, so a find-a-car or a factory order keeps the car.
+// A factory order reads as the car it is ("Hyundai Tucson, 1.6 Hybrid, 271"), not as a list of form fields.
 function messageOf(row: LeadRow): string {
-  const given = Object.entries(DETAIL_LABELS).filter(([k]) => row.details[k] !== undefined).map(([k, label]) => `${label}: ${row.details[k]}`);
-  return [given.join(". "), row.message].filter(Boolean).join("\n\n");
+  const d = row.details;
+  const given =
+    row.type === "order"
+      ? [[d.make, d.model].filter(Boolean).join(" "), d.spec, d.regPeriod].filter(Boolean).map(String)
+      : Object.entries(DETAIL_LABELS).filter(([k]) => d[k] !== undefined).map(([k, label]) => `${label}: ${d[k]}`);
+  return [given.join(row.type === "order" ? ", " : ". "), row.message].filter(Boolean).join("\n\n");
 }
 
 async function customerId(row: LeadRow): Promise<string> {
