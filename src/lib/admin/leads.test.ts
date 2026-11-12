@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 import type { Lead } from "./collections";
-import { countByStatus, filterLeads, parseLeadFilter } from "./leads";
+import { SALES_LEAD_TYPES, countByStatus, filterLeads, isSalesLead, openWarrantyRequests, parseLeadFilter } from "./leads";
 
 const lead = (id: string, o: Partial<Lead> = {}): Lead => ({ id, type: "enquiry", status: "new", name: id, email: `${id}@example.com`, phone: "", message: "", source: "Website", notes: [], createdAt: Number(id.replace(/\D/g, "")) || 0, ...o });
 
@@ -29,5 +29,15 @@ describe("lead filters", () => {
   });
   it("counts every status, including those with none", () => {
     expect(countByStatus([lead("a1"), lead("a2", { status: "lost" })])).toEqual({ new: 1, contacted: 0, appointment: 0, won: 0, lost: 1 });
+  });
+});
+
+describe("warranty requests", () => {
+  it("are not sales leads, and wait in Aftersales until a claim is opened from them or they are set aside", () => {
+    const w = (id: string, o: Partial<Lead> = {}) => lead(id, { type: "warranty", ...o });
+    const leads = [lead("l1"), w("w2"), w("w3"), w("w4", { status: "lost" }), w("w5")];
+    expect(leads.filter(isSalesLead).map((l) => l.id)).toEqual(["l1"]);
+    expect(SALES_LEAD_TYPES).not.toContain("warranty");
+    expect(openWarrantyRequests(leads, [{ leadId: "w3" }, { leadId: undefined }]).map((l) => l.id)).toEqual(["w5", "w2"]); // newest first
   });
 });

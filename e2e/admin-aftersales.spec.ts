@@ -15,7 +15,7 @@ test("a claim opens from a customer's purchase, in cover, and moves to Booked in
   await expect(page.getByText("In cover", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Booked in" }).click();
   await expect(page.getByRole("region", { name: "Status" }).getByText("Booked in", { exact: true }).first()).toBeVisible();
-  await page.goto("/dashboard/aftersales");
+  await page.goto("/dashboard/aftersales?view=open");
   await expect(page.getByRole("row").filter({ hasText: "Booked in" }).first()).toBeVisible();
   // The customer's page lists the claim.
   await page.goto("/dashboard/customers/cust-300");

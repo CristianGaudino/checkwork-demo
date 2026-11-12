@@ -11,6 +11,8 @@ const eur = new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR",
 export const fmtDate = (t: number | string) => date.format(new Date(t));
 export const fmtDateTime = (t: number | string) => dateTime.format(new Date(t));
 export const fmtNum = (n: number) => num.format(n);
+// A count with its word, singular for one: "1 review", "12 reviews", "1,284 cars".
+export const plural = (n: number, one: string, many = `${one}s`) => `${fmtNum(n)} ${n === 1 ? one : many}`;
 // The Irish calendar day of a moment, as YYYY-MM-DD ("today" for follow-ups and sales), and a day n days on.
 export const dublinDay = (t: number = Date.now()) => new Date(t).toLocaleDateString("en-CA", { timeZone });
 export const dublinDateTime = (t: number) => new Date(t).toLocaleString("sv-SE", { timeZone }).slice(0, 16); // "2026-11-11 14:30", as spreadsheets read it

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addMonths, fmtAgo, fmtDateTime, fmtEur, fmtPct } from "./format";
+import { addMonths, fmtAgo, fmtDateTime, fmtEur, fmtPct, plural } from "./format";
 
 describe("admin format", () => {
   const now = new Date("2026-11-10T12:00:00Z").getTime();
@@ -27,5 +27,14 @@ describe("addMonths", () => {
     expect(addMonths("2026-11-11", 2)).toBe("2027-01-11");
     expect(addMonths("2026-12-31", 2)).toBe("2027-02-28");
     expect(addMonths("2027-12-31", 2)).toBe("2028-02-29");
+  });
+});
+
+describe("plural", () => {
+  it("says one, many and none as written, with the number formatted", () => {
+    expect(plural(1, "review")).toBe("1 review");
+    expect(plural(0, "review")).toBe("0 reviews");
+    expect(plural(1284, "car")).toBe("1,284 cars");
+    expect(plural(2, "sold car")).toBe("2 sold cars");
   });
 });

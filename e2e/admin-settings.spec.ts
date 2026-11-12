@@ -36,5 +36,5 @@ test("connected services list what is still needed, and the business details are
   await expect(social).toContainText("Connected");
   await expect(social).toContainText("@checkworkmotors");
   await expect(page.getByRole("row", { name: /Lead email/ })).toContainText("LEAD_TO_EMAIL");
-  await expect(page.getByText("Checkwork Motors").first()).toBeVisible();
+  await expect(page.getByRole("main").getByText("Checkwork Motors").first()).toBeVisible(); // the business details, not the menu
 });

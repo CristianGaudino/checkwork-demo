@@ -1,5 +1,8 @@
 export const SITE_URL = "https://www.demo.checkwork.ie"; // the demo domain (wrangler.jsonc routes)
 export const SITE_NAME = "Checkwork Motors"; // a made-up dealer
+// The dealer's square mark (a crest or monogram, about 40px), for the dashboard's collapsed menu: /brand/mark.svg when they have one.
+// Without it the menu shows their initials. The wide logo is public/brand/logo.svg and logo-on-light.svg (docs/new-site-checklist.md).
+export const BRAND_MARK: string | undefined = undefined;
 // Prefix for this site's keys in the visitor's browser storage (saved cars, compare, view). A clone sets its own, so two sites on one browser never share them.
 export const SITE_SLUG = "checkwork-demo";
 // The dealer's time zone: every day and time on the site and in the dashboard is said in it, whatever zone the server runs in.

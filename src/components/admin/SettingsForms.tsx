@@ -72,7 +72,8 @@ export function LeadEmailsForm({ settings, fallback }: { settings: DealerSetting
   );
 }
 
-const NOTES: [keyof DealerSettings["notifications"], string][] = [["newLead", "A new lead arrives"], ["testDrive", "A test drive is requested"], ["review", "A new review is posted"], ["weeklyReport", "A weekly summary, every Monday"], ["followUps", "Follow-ups are due: each salesperson gets theirs each morning"]];
+// Only what is sent: the morning follow-up email. A new lead's email is set under Lead emails; the dashboard's own bell needs no setting.
+const NOTES: [keyof DealerSettings["notifications"], string][] = [["followUps", "Each morning, each salesperson's follow-ups that are due"]];
 
 export function NotificationsForm({ settings, emailConnected }: { settings: DealerSettings; emailConnected: boolean }) {
   const f = useSave(saveNotificationsAction);

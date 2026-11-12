@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CarStatusBadge } from "@/components/admin/badges";
-import { DataTable, EmptyState, PageHeader, Pager, Panel, SearchBar, SummaryTabs, adminButton, paginate, rowButton, type Column, adminButtonQuiet } from "@/components/admin/kit";
+import { DataTable, EmptyState, FilterSelect, PageHeader, Pager, Panel, SummaryTabs, TableToolbar, adminButton, paginate, rowButton, sortRows, type Column, adminButtonQuiet } from "@/components/admin/kit";
 import { ActButton } from "@/components/admin/ActButton";
 import { RowMenu } from "@/components/admin/RowMenu";
 import { ExternalIcon, PlusIcon, SyncIcon } from "@/components/stock/icons";
@@ -11,10 +11,13 @@ import { adminCars } from "@/lib/admin/stock-admin";
 import { can } from "@/lib/permissions";
 import { fmtDate, fmtEur, fmtNum } from "@/lib/admin/format";
 import { carName, carHref } from "@/lib/stock/format";
-import { forSale, isSold, type Car } from "@/lib/stock/types";
+import { FUEL_LABELS, FUELS, forSale, isSold, type Car } from "@/lib/stock/types";
 import { stockSource } from "@/lib/stock-source";
 import { DONEDEAL_DEALER_URL, listingHref } from "@/lib/stock-source-rules";
 import { SyncPanel } from "@/components/admin/SyncPanel";
+import { CarThumb } from "@/components/admin/CarThumb";
+import { AgeBar } from "@/components/admin/charts";
+import { OLD_STOCK_DAYS } from "@/lib/admin/overview";
 import { FEW_PHOTOS, STOCK_VIEWS, parseStockList, stockList, type StockView } from "@/lib/admin/stock-views";
 import { salesStore } from "@/lib/admin/collections";
 import { syncStatus } from "@/lib/donedeal/sync";
@@ -23,17 +26,18 @@ import { setListingAction, toggleSoldAction, withdrawnAction } from "./actions";
 
 export const metadata = { title: "Stock" };
 
-// "Today", "1 day", "23 days", from a YYYY-MM-DD listing date.
-const daysIn = (listedAt: string, now = Date.now()) => {
-  const d = Math.max(0, Math.floor((now - Date.parse(`${listedAt}T00:00:00Z`)) / 86_400_000));
+// Whole days since a YYYY-MM-DD listing date, and the same in words: "Today", "1 day", "23 days".
+const daysSince = (listedAt: string, now = Date.now()) => Math.max(0, Math.floor((now - Date.parse(`${listedAt}T00:00:00Z`)) / 86_400_000));
+const daysIn = (listedAt: string) => {
+  const d = daysSince(listedAt);
   return d === 0 ? "Today" : d === 1 ? "1 day" : `${d} days`;
 };
 
 // The views (src/lib/admin/stock-views.ts) are the summary: each is a tile with its count, and the chosen one filters the table.
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ view?: string; status?: string; q?: string; saved?: string; deleted?: string; sale?: string; reserved?: string; undone?: string; page?: string }> }) {
+export default async function Page({ searchParams }: { searchParams: Promise<{ view?: string; status?: string; q?: string; make?: string; fuel?: string; sort?: string; dir?: string; saved?: string; deleted?: string; sale?: string; reserved?: string; undone?: string; page?: string }> }) {
   const sp = await searchParams;
-  const { view, q } = parseStockList(sp);
+  const { view, q, make, fuel } = parseStockList(sp);
   const [all, source] = await Promise.all([adminCars(), stockSource()]);
   const synced = source === "donedeal";
   const sync = synced ? await syncStatus() : null;
@@ -51,10 +55,12 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
     ) : null;
   // The margin column is for staff with the margins permission; without it the costs are not even read.
   const costs = (await can("margins")) ? new Map([...(await carCosts())].map(([id, c]) => [id, c.total])) : null;
-  const matching = stockList(all, view, q);
-  const { rows, page, pageCount, total } = paginate(matching, sp.page);
+  // The makes in stock, for the make filter.
+  const makes = [...new Map(all.map((c) => [c.makeSlug, c.make])).entries()].sort((a, b) => a[1].localeCompare(b[1], "en-IE"));
+  const matching = stockList(all, view, q, { make, fuel });
   const saved = sp.saved ? all.find((c) => c.id === sp.saved) : undefined;
-  const href = (v: StockView) => `/dashboard/stock?view=${v}${q ? `&q=${encodeURIComponent(q)}` : ""}`;
+  // A view keeps the search and the filters; the sort and the page start again.
+  const href = (v: StockView) => `/dashboard/stock?${new URLSearchParams(Object.entries({ view: v, q, make, fuel }).filter((e): e is [string, string] => Boolean(e[1])))}`;
   // Where a row goes: the car's editor here, or, for synced stock, the car on the site (it is changed on DoneDeal).
   // A synced car off the website (its ad came down) has no page there, so it opens here.
   const open = (c: Car) => (synced && !c.listing ? carHref(c.slug) : `/dashboard/stock/${c.id}`);
@@ -81,17 +87,19 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
     {
       key: "car",
       header: "Car",
+      sort: (c) => `${c.make} ${c.model} ${c.variant ?? ""}`,
       cell: (c) => (
         <div className="flex min-w-0 items-center gap-3">
-          <div className="hidden h-12 w-16 shrink-0 overflow-hidden rounded-control bg-photo-bg min-[25rem]:block">
-            {/* eslint-disable-next-line @next/next/no-img-element -- a local /stock file, sized by its box */}
-            {c.photos[0] && <img src={c.photos[0].src} alt="" width={64} height={48} loading="lazy" className="size-full object-cover" />}
+          {/* The photo goes in compact rows: there the row is the size of a line. */}
+          <div className="hidden h-12 w-16 shrink-0 overflow-hidden rounded-control bg-photo-bg min-[25rem]:block group-data-[density=compact]/shell:hidden">
+            <CarThumb src={c.photos[0]?.src} />
           </div>
+          {/* The name wraps to two lines (it is what tells the cars apart); the variant is cut short, whole on hover. */}
           <div className="min-w-0">
-            <Link href={open(c)} className="block truncate font-medium after:absolute after:inset-0">
+            <Link href={open(c)} title={`${c.make} ${c.model}`} className="line-clamp-2 font-medium after:absolute after:inset-0">
               {c.make} {c.model}
             </Link>
-            <span className="block truncate text-meta text-text-2">{[c.variant, c.year].filter(Boolean).join(" · ")}</span>
+            <span title={[c.variant, c.year].filter(Boolean).join(" · ")} className="block truncate text-meta text-text-2">{[c.variant, c.year].filter(Boolean).join(" · ")}</span>
           </div>
         </div>
       ),
@@ -103,6 +111,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
       header: "Price",
       align: "right",
       nowrap: true,
+      sort: (c) => c.priceEur,
       cell: (c) => (
         <span className="flex flex-col items-end">
           {fmtEur(c.priceEur)}
@@ -114,11 +123,29 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         </span>
       ),
     },
-    ...(costs ? [{ key: "margin", header: "Margin", align: "right" as const, hide: "md" as const, nowrap: true, cell: (c: Car) => (costs.has(c.id) ? fmtEur(marginOf(c.priceEur, costs.get(c.id)!).eur) : <span className="text-text-2">Not set</span>) }] : []),
+    ...(costs ? [{ key: "margin", header: "Margin", align: "right" as const, hide: "md" as const, nowrap: true, sort: (c: Car) => (costs.has(c.id) ? marginOf(c.priceEur, costs.get(c.id)!).eur : undefined), cell: (c: Car) => (costs.has(c.id) ? fmtEur(marginOf(c.priceEur, costs.get(c.id)!).eur) : <span className="text-text-2">Not set</span>) }] : []),
     // How long a car has been for sale: what a dealer watches to decide on a price drop.
-    { key: "age", header: "In stock", align: "right", hide: "lg", nowrap: true, cell: (c) => (c.listedAt && !isSold(c) ? daysIn(c.listedAt) : <span className="text-text-2">-</span>) },
-    { key: "km", header: "Mileage", align: "right", hide: "md", nowrap: true, cell: (c) => (c.mileageKm !== undefined ? `${fmtNum(c.mileageKm)} km` : "") },
-    { key: "photos", header: "Photos", align: "right", hide: "2xl", cell: (c) => (c.photos.length < FEW_PHOTOS ? <span className="text-warn">{c.photos.length}</span> : c.photos.length) },
+    // The days, and a bar to 90 days that turns amber at 60 (the 60 days or more view): which cars are ageing, down the column at a glance.
+    {
+      key: "age",
+      header: "In stock",
+      align: "right",
+      hide: "lg",
+      nowrap: true,
+      sort: (c) => (c.listedAt && !isSold(c) ? daysSince(c.listedAt) : undefined),
+      cell: (c) =>
+        c.listedAt && !isSold(c) ? (
+          <span className="inline-flex items-center gap-2">
+            <AgeBar days={daysSince(c.listedAt)} late={OLD_STOCK_DAYS} />
+            <span className={daysSince(c.listedAt) >= OLD_STOCK_DAYS ? "font-medium text-warn" : ""}>{daysIn(c.listedAt)}</span>
+          </span>
+        ) : (
+          <span className="text-text-2">-</span>
+        ),
+    },
+    // In the All view the Status column needs the room: the mileage steps aside below the widest screens, so the actions stay in the row.
+    { key: "km", header: "Mileage", align: "right", hide: view === "all" ? "2xl" : "md", nowrap: true, sort: (c) => c.mileageKm, cell: (c) => (c.mileageKm !== undefined ? `${fmtNum(c.mileageKm)} km` : "") },
+    { key: "photos", header: "Photos", align: "right", hide: "2xl", sort: (c) => c.photos.length, cell: (c) => (c.photos.length < FEW_PHOTOS ? <span className="text-warn">{c.photos.length}</span> : c.photos.length) },
     // Only in the All view: the other views already say it.
     ...(view === "all" ? [{ key: "status", header: "Status", hide: "md" as const, cell: (c: Car) => <CarStatusBadge car={c} /> }] : []),
     {
@@ -166,6 +193,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
     },
   ];
 
+  // No sort chosen: the view's own order (stock-views.ts).
+  const { rows: sorted, sort } = sortRows(matching, columns, sp, { key: "", dir: "asc" });
+  const { rows, page, pageCount, total } = paginate(sorted, sp.page);
+
   return (
     <>
       <PageHeader
@@ -174,7 +205,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         actions={
           <>
             {/* The list as it is filtered now: cost and margin columns only for the margins roles. */}
-            <a href={`/dashboard/stock/export?view=${view}${q ? `&q=${encodeURIComponent(q)}` : ""}`} className={adminButtonQuiet} download>
+            <a href={`/dashboard/stock/export?${new URLSearchParams(Object.entries({ view, q, make, fuel }).filter((e): e is [string, string] => Boolean(e[1])))}`} className={adminButtonQuiet} download>
               Export CSV
             </a>
             {synced ? (
@@ -236,16 +267,20 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
           .map((v) => [v, all.filter(STOCK_VIEWS[v].test).length] as const)
           .filter(([v, count]) => count > 0 || view === v || !["hidden", "drafts", "reserved"].includes(v))
           .map(([v, count]) => ({ label: STOCK_VIEWS[v].label, count, href: href(v), active: view === v }))} />
-      <SearchBar action="/dashboard/stock" value={q} placeholder={SEARCH_MAKE_MODEL} label="Search stock" keep={{ view }} />
+      <TableToolbar search={{ placeholder: SEARCH_MAKE_MODEL, label: "Search stock" }}>
+        <FilterSelect name="make" label="Make" all="Every make" options={makes} />
+        <FilterSelect name="fuel" label="Fuel" all="Any fuel" options={FUELS.map((f) => [f, FUEL_LABELS[f]] as const)} />
+      </TableToolbar>
       <DataTable
         label="Stock"
         linkRows
         rows={rows}
         rowKey={(c) => c.id}
         columns={columns}
+        sort={sort}
         empty={<EmptyState title="No cars match" text={q ? "Try a different search." : undefined} action={!synced && !q ? <Link href="/dashboard/stock/new" className={adminButton}>Add a car</Link> : undefined} />}
       />
-      <Pager page={page} pageCount={pageCount} total={total} href={(n) => `${href(view)}&page=${n}`} />
+      <Pager page={page} pageCount={pageCount} total={total} />
     </>
   );
 }

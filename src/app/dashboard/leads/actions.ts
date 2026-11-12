@@ -5,7 +5,9 @@ import { z } from "zod";
 import { logActivity } from "@/lib/admin/activity";
 import { addDays, dublinDay, fmtDate } from "@/lib/admin/format";
 import { isOpenLead } from "@/lib/admin/leads";
-import { LEAD_STATUSES, LEAD_STATUS_LABELS, LOST_REASONS, getSettings, leadsStore } from "@/lib/admin/collections";
+import { LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_TYPE_LABELS, LOST_REASONS, getSettings, leadsStore } from "@/lib/admin/collections";
+import { notify } from "@/lib/admin/notifications";
+import { currentMember } from "@/lib/permissions";
 
 const ref = (id: string) => ({ kind: "lead" as const, id });
 
@@ -22,6 +24,7 @@ export async function setStatusAction(id: string, data: FormData) {
   await logActivity("leads", `Moved the lead from ${LEAD_STATUS_LABELS[lead.status]} to ${LEAD_STATUS_LABELS[parsed.data]}`, ref(id));
   revalidatePath("/dashboard/leads");
   revalidatePath(`/dashboard/leads/${id}`);
+  revalidatePath(`/dashboard/aftersales/requests/${id}`);
 }
 
 // Why a lost lead was lost, from the fixed list, so the reports can count it.
@@ -33,6 +36,7 @@ export async function setLostReasonAction(id: string, data: FormData) {
   await leadsStore.put({ ...lead, lostReason: parsed.data });
   await logActivity("leads", `Said why the lead was lost: ${parsed.data}`, ref(id));
   revalidatePath(`/dashboard/leads/${id}`);
+  revalidatePath(`/dashboard/aftersales/requests/${id}`);
 }
 
 // Only someone on the team can have a lead; an empty choice means nobody.
@@ -45,8 +49,12 @@ export async function assignLeadAction(id: string, data: FormData) {
   if (to === lead.assignedTo) return;
   await leadsStore.put({ ...lead, assignedTo: to });
   await logActivity("leads", to ? `Gave the lead to ${to}` : `Took the lead off ${lead.assignedTo}`, ref(id));
+  // The person it was given to hears of it in their bell, unless they took it themselves.
+  const me = await currentMember();
+  if (to && to !== me.name) await notify({ kind: "assigned", for: to, text: `${me.name} gave you a lead: ${LEAD_TYPE_LABELS[lead.type]}`, href: `/dashboard/leads/${id}` });
   revalidatePath("/dashboard/leads");
   revalidatePath(`/dashboard/leads/${id}`);
+  revalidatePath(`/dashboard/aftersales/requests/${id}`);
 }
 
 export async function addNoteAction(id: string, data: FormData) {
@@ -56,6 +64,7 @@ export async function addNoteAction(id: string, data: FormData) {
   await leadsStore.put({ ...lead, notes: [...lead.notes, { at: Date.now(), text }] });
   await logActivity("leads", "Added a note", ref(id)); // never the note itself
   revalidatePath(`/dashboard/leads/${id}`);
+  revalidatePath(`/dashboard/aftersales/requests/${id}`);
 }
 
 // The day to get back to them: a quick choice (1, 3 or 7 days from today, Irish time), a date typed in, or nothing to clear it. A day that
@@ -72,4 +81,5 @@ export async function setFollowUpAction(id: string, data: FormData) {
   await logActivity("leads", on ? `Set a follow-up for ${fmtDate(`${on}T12:00:00Z`)}` : "Cleared the follow-up", ref(id));
   revalidatePath("/dashboard/leads");
   revalidatePath(`/dashboard/leads/${id}`);
+  revalidatePath(`/dashboard/aftersales/requests/${id}`);
 }

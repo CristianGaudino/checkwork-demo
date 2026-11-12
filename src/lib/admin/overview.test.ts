@@ -9,14 +9,18 @@ const drive = (id: string, inMs: number, status: TestDrive["status"]): TestDrive
 const review = (id: string, rating: AdminReview["rating"], reply?: string): AdminReview => ({ id, author: id, rating, text: "", createdAt: now, reply });
 
 describe("overview", () => {
-  it("counts this week against the week before", () => {
-    const o = overview({ leads: [lead("a", 1 * DAY), lead("b", 6 * DAY), lead("c", 9 * DAY)], drives: [], reviews: [], now });
-    expect(o.leadsThisWeek).toBe(2);
-    expect(o.leadsChange).toBe(1);
+  it("counts eight weeks of leads, this one last, and a usual week from the seven before it", () => {
+    // Weeks back: 0 (this one) has 1, 1 has 3, 2 has 2, 3 has 2; the rest none. Usual: the middle of 3, 2, 2, 0, 0, 0, 0.
+    const at = (week: number, n: number) => Array.from({ length: n }, (_, i) => lead(`w${week}-${i}`, week * 7 * DAY + (i + 1) * HOUR));
+    const o = overview({ leads: [...at(0, 1), ...at(1, 3), ...at(2, 2), ...at(3, 2)], drives: [], reviews: [], now });
+    expect(o.weeks).toEqual([0, 0, 0, 0, 2, 2, 3, 1]);
+    expect(o.usualWeek).toBe(0);
+    const busy = overview({ leads: [...at(0, 1), ...at(1, 3), ...at(2, 2), ...at(3, 2), ...at(4, 2), ...at(5, 2), ...at(6, 2)], drives: [], reviews: [], now });
+    expect(busy.usualWeek).toBe(2);
   });
-  it("works the win rate on decided leads only, and is 0 with none decided", () => {
-    expect(overview({ leads: [lead("a", DAY, "won"), lead("b", DAY, "lost"), lead("c", DAY, "new")], drives: [], reviews: [], now }).winRate).toBe(50);
-    expect(overview({ leads: [lead("a", DAY)], drives: [], reviews: [], now }).winRate).toBe(0);
+  it("counts this week's leads as the last week, and last week's before it", () => {
+    const o = overview({ leads: [lead("a", 1 * DAY), lead("b", 6 * DAY), lead("c", 9 * DAY)], drives: [], reviews: [], now });
+    expect(o.weeks.slice(-2)).toEqual([1, 2]);
   });
   it("lists drives in the next 7 days in date order, ignoring past, far-off and closed ones", () => {
     const o = overview({ leads: [], drives: [drive("late", 5 * DAY, "confirmed"), drive("soon", DAY, "requested"), drive("past", -DAY, "confirmed"), drive("far", 9 * DAY, "confirmed"), drive("done", DAY, "cancelled")], reviews: [], now });

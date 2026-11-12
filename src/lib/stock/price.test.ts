@@ -37,4 +37,8 @@ describe("priceInfo", () => {
     expect(priceInfo({ priceEur: 500 }).financeFrom).toBeUndefined();
     expect(priceInfo({ priceEur: 300000 }).financeFrom).toBeUndefined();
   });
+  it("offers no finance on a reserved car, as the rest of its page does not", () => {
+    expect(priceInfo({ priceEur: 20000, reserved: true }).financeFrom).toBeUndefined();
+    expect(priceInfo({ priceEur: 20000, reserved: true }).headline).toBe("€20,000");
+  });
 });

@@ -37,6 +37,9 @@ Who the person is:
 - **Posting, ads and newsletters are simulated on the demo, and send nothing outside.** They go through `src/lib/admin/publishers.ts`. With no keys, and simulation on (the default everywhere except a production site, `APP_ENV=production`; set `SIMULATE_INTEGRATIONS` to `on` or `off` to override), each reports success marked `simulated`, and the admin records made-up figures so the flow can be shown. With `SIMULATE_INTEGRATIONS=off` and no keys they say "not connected". With keys they say "not switched on" until the real adapter replaces the marked line. Lead email, the bot check, reviews and analytics are never simulated: Settings shows their true state. A unit test pins all three modes.
 - **What visitors send reaches the admin.** A test drive booking and a stock alert are lead types in the one lead pipeline (consent, bot check, rate limit, retention). After a lead is stored, `src/lib/admin/real-leads.ts` copies it into the admin's collections (ids start `real-`) so the dealer can work it. The daily purge deletes the copies with the lead.
 - **Lead emails are a setting.** Settings, Lead emails: up to five addresses, a test button, and the `LEAD_TO_EMAIL` variable as the fallback.
+- **The bell is in the app only** (`src/lib/admin/notifications.ts`). A new website request, test drive booking, warranty or order request,
+  a DoneDeal ad taken down, a sync outage (once, as it starts), a lead given to you by someone else. Never a customer's name, so they are not
+  personal data. Read per person; kept 60 days. No email: the lead emails above are the email.
 - **No demo, draft or placeholder labels on the public site.** The demo bar and the dev-only data toggle are the only chrome that says "demo".
 - All names, emails, numbers and figures in the admin are made up. Emails use `example.com`.
 
@@ -93,6 +96,10 @@ with no D1). The actor is the signed-in person (`currentMember`), or a named one
   default) sends each salesperson theirs, and the unassigned ones to owners and managers, at 07:00 UTC (`/api/follow-ups/digest`).
 
 ## Customers and aftersales
+
+A warranty message sent from the website is aftersales work, not a sale: it waits in Aftersales under Requests (left out of Leads, its counts,
+the overview and the reports) until a claim is opened from it or it is set aside. Aftersales opens on Requests while any wait.
+
 
 - **A customer's page** (`/dashboard/customers/[id]`): how to reach them, what they bought with the warranty on each (in cover or not),
   their deposits and warranty claims, and the leads and test drives that carry their email or phone.

@@ -3,7 +3,7 @@ import { PostComposer } from "@/components/admin/PostComposer";
 import { ActButton } from "@/components/admin/ActButton";
 import { sendDuePosts } from "@/lib/admin/scheduler";
 import { adsStore, newslettersStore, postsStore, subscribersStore } from "@/lib/admin/collections";
-import { fmtDate, fmtDateTime, fmtEur, fmtNum, fmtPct } from "@/lib/admin/format";
+import { fmtDate, fmtDateTime, fmtEur, fmtNum, fmtPct, plural } from "@/lib/admin/format";
 import Link from "next/link";
 import { worthPosting } from "@/lib/admin/marketing";
 import { adminCars } from "@/lib/admin/stock-admin";
@@ -180,7 +180,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                     <p className="line-clamp-2 max-w-measure whitespace-pre-line text-body text-text-2">{n.body}</p>
                     {n.status === "draft" && (
                       <div className="flex flex-wrap items-center gap-2">
-                        <ActButton act={sendNewsletterAction.bind(null, n.id)} confirm={{ title: `Send "${n.subject}"?`, text: `It goes to ${fmtNum(live)} subscribers and cannot be taken back.`, yes: "Send" }} className={rowButton}>Send to {fmtNum(live)}</ActButton>
+                        <ActButton act={sendNewsletterAction.bind(null, n.id)} confirm={{ title: `Send "${n.subject}"?`, text: `It goes to ${plural(live, "subscriber")} and cannot be taken back.`, yes: "Send" }} className={rowButton}>Send to {fmtNum(live)}</ActButton>
                         <ActButton act={deleteNewsletterAction.bind(null, n.id)} confirm={{ title: `Delete this newsletter?`, text: "This cannot be undone.", yes: "Delete" }} className={`${rowButton} text-bad`}>Delete</ActButton>
                       </div>
                     )}

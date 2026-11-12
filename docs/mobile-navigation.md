@@ -44,6 +44,10 @@ section 7). The rules in `docs/dashboard-polish.md` still hold: quiet chrome, on
 - **The whole width of the screen,** no cap: the page beside a 16rem sidebar.
 - **The sidebar stays put** down the left, the height of the screen above the demo bar. The dealership's name on top and View the public site
   at the foot are always in view; the menu between them scrolls on its own if it ever has to, and keeps the page you are on in view.
+- **It folds to a rail of icons** and back (the arrow at its foot), kept per person in a cookie. The rail shows every place, the groups parted
+  by a line; each icon is named on hover and to screen readers. The dealership shows as its initials, and the bell stays.
+- **The tables** (`kit.tsx`, `TableTools.tsx`): headers sort the whole list (before it is paged), the search runs as you type with a clear
+  button, each table has the filters that fit it, all in the URL. Compact, on the tables only, tightens their rows for the person.
 - **The groups fold** (Sales, Customers, Growth, Dealership) under their headings, Overview above them. Sales is open until closed; the group
   holding the page you are on opens when you arrive; a folded group holding it shows a dot. What you leave open is kept in a cookie, so the
   server draws the menu that way (no jump after the page loads). Every item names its group, so a role that cannot see a group's first

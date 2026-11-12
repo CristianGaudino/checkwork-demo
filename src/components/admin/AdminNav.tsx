@@ -22,7 +22,7 @@ const saveOpenGroups = (open: string[]) => {
 
 // The dealer area's navigation (docs/mobile-navigation.md). From 1024px a sidebar: Overview, then the groups, each folding open and shut
 // under its heading. Under 1024px a tab bar at the foot of the screen. The current section is marked in both.
-export function AdminNav({ items, label, openGroups }: { items: NavItem[]; label: string; openGroups: string[] }) {
+export function AdminNav({ items, label, openGroups, rail = false }: { items: NavItem[]; label: string; openGroups: string[]; rail?: boolean }) {
   const path = usePathname();
   // The first item is the area's home, so it matches only itself; the others match their whole branch.
   const current = (href: string) => (href === items[0]?.href ? path === href : path === href || path.startsWith(href + "/"));
@@ -51,29 +51,44 @@ export function AdminNav({ items, label, openGroups }: { items: NavItem[]; label
   }, [path]);
   return (
     <>
-      <nav ref={nav} aria-label={label} className="hidden min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto overscroll-contain px-3 pb-4 lg:flex">
-        {top.map((it) => (
-          <NavLink key={it.href} item={it} on={current(it.href)} />
-        ))}
-        {groups.map((g) => (
-          <NavSection key={g.name} group={g} open={open.has(g.name)} holdsCurrent={g.name === here} onToggle={() => toggle(g.name)} current={current} />
-        ))}
+      <nav ref={nav} aria-label={label} className={`hidden min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto overscroll-contain pb-4 lg:flex ${rail ? "items-center px-2" : "px-3"}`}>
+        {rail ? (
+          // The rail: every place as its icon, the groups parted by a line (nothing to fold), each named on hover and to screen readers.
+          [top, ...groups.map((g) => g.items)].map((list, i) => (
+            <div key={i} className={`flex flex-col items-center gap-0.5 ${i ? "mt-2 border-t border-hairline pt-2" : ""}`}>
+              {list.map((it) => (
+                <NavLink key={it.href} item={it} on={current(it.href)} iconOnly />
+              ))}
+            </div>
+          ))
+        ) : (
+          <>
+            {top.map((it) => (
+              <NavLink key={it.href} item={it} on={current(it.href)} />
+            ))}
+            {groups.map((g) => (
+              <NavSection key={g.name} group={g} open={open.has(g.name)} holdsCurrent={g.name === here} onToggle={() => toggle(g.name)} current={current} />
+            ))}
+          </>
+        )}
       </nav>
       <TabBar items={items} label={label} current={current} />
     </>
   );
 }
 
-function NavLink({ item, on }: { item: NavItem; on: boolean }) {
+function NavLink({ item, on, iconOnly = false }: { item: NavItem; on: boolean; iconOnly?: boolean }) {
   const Icon = ICONS[item.icon];
   return (
     <Link
       href={item.href}
       aria-current={on ? "page" : undefined}
-      className={`flex min-h-11 items-center gap-3 whitespace-nowrap rounded-control px-3 text-body font-medium transition-colors ${on ? "bg-accent text-on-accent" : "text-text-2 hover:bg-card hover:text-text"} ${press}`}
+      aria-label={iconOnly ? item.label : undefined}
+      title={iconOnly ? item.label : undefined}
+      className={`flex min-h-10 items-center gap-3 whitespace-nowrap rounded-control text-body font-medium transition-colors ${iconOnly ? "size-10 justify-center" : "px-3"} ${on ? "bg-card text-text ring-1 ring-inset ring-hairline" : "text-text-2 hover:bg-card hover:text-text"} ${press}`}
     >
-      <Icon className="size-5 shrink-0" />
-      {item.label}
+      <Icon className={`size-5 shrink-0 ${on ? "text-accent-text" : ""}`} />
+      {!iconOnly && item.label}
     </Link>
   );
 }

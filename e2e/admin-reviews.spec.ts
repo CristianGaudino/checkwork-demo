@@ -18,7 +18,7 @@ test("reviews show a rating summary, and a reply can be posted, then the review 
 
 test("a reply goes to Google first and says so; flags are gone, since Google cannot take them", async ({ page }) => {
   await page.goto("/dashboard/reviews?filter=low");
-  await expect(page.getByText(/Replies post on Google/)).toBeVisible();
+  await expect(page.getByText(/Replies are posted on Google as/)).toBeVisible();
   await expect(page.getByRole("button", { name: "Flag for review" })).toHaveCount(0);
   const first = page.locator("[data-review]").first();
   await first.getByText(/^(Reply|Edit reply)$/).click();

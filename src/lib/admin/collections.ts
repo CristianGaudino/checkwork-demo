@@ -33,7 +33,7 @@ export const LEAD_STATUS_LABELS: Record<LeadStatus, string> = { new: "New", cont
 // tells them apart by the page).
 export const LEAD_TYPES = ["enquiry", "test-drive", "finance", "trade-in", "sell", "find-a-car", "order", "warranty", "service", "general"] as const;
 export type LeadType = (typeof LEAD_TYPES)[number];
-export const LEAD_TYPE_LABELS: Record<LeadType, string> = { enquiry: "Car enquiry", "test-drive": "Test drive", finance: "Finance", "trade-in": "Trade-in", sell: "Selling a car", "find-a-car": "Find a car", order: "New car order", warranty: "Warranty claim", service: "Service", general: "General" };
+export const LEAD_TYPE_LABELS: Record<LeadType, string> = { enquiry: "Car enquiry", "test-drive": "Test drive", finance: "Finance", "trade-in": "Trade-in", sell: "Selling a car", "find-a-car": "Find a car", order: "New car order", warranty: "Warranty request", service: "Service", general: "General" };
 // Why a lead was lost, so the reports can say where sales go. A fixed list, so they can be counted.
 export const LOST_REASONS = ["Bought elsewhere", "Price", "Finance declined", "Stopped replying", "Car sold to someone else", "Other"] as const;
 export type LostReason = (typeof LOST_REASONS)[number];
@@ -123,18 +123,49 @@ const STORY_LEADS = (now: number): Lead[] => {
   const r = rng(131);
   return [
     { id: "lead-2000", type: "warranty", status: "contacted", ...as("cust-300"), source: "Website", message: "The engine warning light came on at motorway speed. The car drives fine.", carTitle: seedSales()[0].carTitle, assignedTo: "Conor Doyle", notes: [{ at: now - 2 * DAY + 3 * HOUR, text: "Opened a claim and asked them to bring it in." }], createdAt: now - 2 * DAY },
-    { id: "lead-2001", type: "order", status: "won", ...as("cust-315"), source: "Website", message: "Make: Toyota. Model: RAV4. Spec: 2.5 Hybrid Sol, white. Registration period: 271\n\nLooking to order for the new year.", assignedTo: "Conor Doyle", notes: [{ at: now - 12 * DAY + 4 * HOUR, text: "Order placed with a €1,000 deposit." }], createdAt: now - 13 * DAY },
-    { id: "lead-2002", type: "order", status: "new", ...person(r), source: "Website", message: "Make: Hyundai. Model: Tucson. Registration period: 271\n\nWhat would the wait be for the hybrid?", notes: [], createdAt: now - 7 * HOUR },
+    { id: "lead-2001", type: "order", status: "won", ...as("cust-315"), source: "Website", message: "Toyota RAV4, 2.5 Hybrid Sol, white, 271\n\nLooking to order for the new year.", assignedTo: "Conor Doyle", notes: [{ at: now - 12 * DAY + 4 * HOUR, text: "Order placed with a €1,000 deposit." }], createdAt: now - 13 * DAY },
+    { id: "lead-2002", type: "order", status: "new", ...person(r), source: "Website", message: "Hyundai Tucson, 271\n\nWhat would the wait be for the hybrid?", notes: [], createdAt: now - 7 * HOUR },
     { id: "lead-2003", type: "warranty", status: "new", ...person(r), source: "Website", message: "The gearbox is slipping into second. Bought it here in the summer.", notes: [], createdAt: now - 4 * HOUR },
     { id: "lead-2004", type: "service", status: "new", ...person(r), source: "Phone", message: "Due a full service next month, can you fit me in?", notes: [], createdAt: now - 26 * HOUR },
     { id: "lead-2005", type: "service", status: "appointment", ...person(r), source: "Website", message: "Need an NCT check before the test.", assignedTo: "Ciara Walsh", followUpOn: dublinDay(now), notes: [{ at: now - 2 * DAY, text: "Booked in for Friday." }], createdAt: now - 3 * DAY },
   ];
 };
+// Six weeks of leads before the demo's last fortnight, mostly decided (won, or lost with a reason) and a few still being worked: so this
+// week has weeks to compare with on the overview, and the reports have a past. A random sequence of their own, so the rest are unchanged.
+const PAST_LEADS = (now: number): Lead[] => {
+  const r = rng(149);
+  const out: Lead[] = [];
+  for (let week = 2; week < 8; week++) {
+    for (let n = r.int(8, 14); n > 0; n--) {
+      const type = r.pick(SEED_TYPES);
+      const car = type === "find-a-car" || type === "general" || type === "sell" ? undefined : livePicks(r);
+      const status = r.pick(["won", "won", "lost", "lost", "contacted"] as const);
+      const lostReason = r.pick(LOST_REASONS);
+      out.push({
+        id: `lead-${3000 + out.length}`,
+        type,
+        status,
+        ...person(r),
+        message: r.pick(MESSAGES[type]),
+        source: r.pick(LEAD_SOURCES),
+        carSlug: car?.slug,
+        carTitle: car && carTitleOf(car),
+        assignedTo: r.pick(TEAM_SEED).name,
+        ...(status === "lost" && { lostReason }),
+        notes: [],
+        createdAt: now - (week * 7 + r.int(0, 6)) * DAY - r.int(1, 10) * HOUR,
+      });
+    }
+  }
+  return out;
+};
 function seedLeadsWithEdges(): Lead[] {
   const now = Date.now();
-  return [...seedLeads(), ...EDGE_LEADS(now), ...STORY_LEADS(now)];
+  return [...seedLeads(), ...EDGE_LEADS(now), ...STORY_LEADS(now), ...PAST_LEADS(now)];
 }
 export const leadsStore = defineCollection<Lead>("leads", seedLeadsWithEdges);
+// The seeded leads, for the notifications' own seed (notifications.ts), so the bell tells of the same requests.
+export const demoLeads = seedLeadsWithEdges;
 
 // ---- Test drives ----
 export const DRIVE_STATUSES = ["requested", "confirmed", "completed", "no-show", "cancelled"] as const;
@@ -161,10 +192,13 @@ function seedDiary(): TestDrive[] {
   const forSale = (demoCars as Car[]).filter((c) => !c.soldAt && !c.reserved);
   return ([[0, 12, 30, "confirmed"], [0, 15, 0, "confirmed"], [0, 17, 0, "requested"], [1, 10, 0, "requested"], [1, 16, 30, "confirmed"]] as const).map(([day, h, m, status], i) => {
     const car = r.pick(forSale);
-    return { id: `drive-${230 + i}`, ...person(r), carSlug: car.slug, carTitle: carTitleOf(car), startsAt: irishAt(now + day * DAY, h, m), status, notes: i === 1 ? "Bringing a partner." : "", createdAt: now - (i + 1) * DAY };
+    // Booked in the last day: today's and tomorrow's diary was mostly filled lately.
+    return { id: `drive-${230 + i}`, ...person(r), carSlug: car.slug, carTitle: carTitleOf(car), startsAt: irishAt(now + day * DAY, h, m), status, notes: i === 1 ? "Bringing a partner." : "", createdAt: now - (i + 1) * 5 * HOUR };
   });
 }
-export const drivesStore = defineCollection<TestDrive>("test-drives", () => [...seedDrives(), ...seedDiary()]);
+// The seeded bookings, for the notifications' own seed (notifications.ts), so the bell tells of the same requests.
+export const demoDrives = () => [...seedDrives(), ...seedDiary()];
+export const drivesStore = defineCollection<TestDrive>("test-drives", demoDrives);
 
 // ---- Customers, stock alerts, newsletter ----
 export type Customer = { id: string; name: string; email: string; phone: string; source: string; marketingConsent: boolean; createdAt: number; lastContactAt: number };
@@ -245,7 +279,7 @@ export type DealerSettings = {
   id: "dealer";
   leadSlaHours: number; // a new lead waiting longer than this needs attention (overview)
   driveSlotMinutes: number; // one car cannot be booked twice within this many minutes (test drives)
-  notifications: { newLead: boolean; testDrive: boolean; review: boolean; weeklyReport: boolean; followUps: boolean }; // followUps: the morning email
+  notifications: { followUps: boolean }; // the morning email of follow-ups; new leads are emailed under Lead emails
   marketing: { voice: string; hashtags: string; signOff: string }; // used by the post and newsletter writers
   team: TeamMember[];
   leadEmails: string[]; // who gets the email when a visitor sends a form; empty means the LEAD_TO_EMAIL variable
@@ -255,7 +289,7 @@ export const SETTINGS_DEFAULT: DealerSettings = {
   id: "dealer",
   leadSlaHours: 24,
   driveSlotMinutes: 60,
-  notifications: { newLead: true, testDrive: true, review: true, weeklyReport: false, followUps: false },
+  notifications: { followUps: false },
   marketing: { voice: "Friendly and plain. Short sentences. No hype.", hashtags: "#usedcars #carsforsale", signOff: "Call in or message us to arrange a viewing." },
   team: TEAM_SEED.map((t) => ({ ...t })),
   leadEmails: [],
@@ -499,6 +533,8 @@ export const ORDER_STATUSES = ["ordered", "built", "in-transit", "arrived", "han
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = { ordered: "Ordered", built: "Built", "in-transit": "On its way", arrived: "Arrived", "handed-over": "Handed over", cancelled: "Cancelled" };
 export const orderOpen = (s: OrderStatus) => s !== "handed-over" && s !== "cancelled";
+// The way an order goes, start to end, for its progress tracker (a cancelled one left the way, so it has none).
+export const ORDER_PATH = ORDER_STATUSES.filter((s) => s !== "cancelled");
 export type Order = {
   id: string;
   customerId?: string;

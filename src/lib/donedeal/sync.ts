@@ -7,6 +7,7 @@ import { dublinDay } from "@/lib/admin/format";
 import { carTitleOf } from "@/lib/admin/seed-data";
 import { adminCars, saveCar } from "@/lib/admin/stock-admin";
 import { sendTo } from "@/lib/leads/mail";
+import { notify } from "@/lib/admin/notifications";
 import { DEMO_BAR_ENABLED } from "@/lib/demo";
 import { SITE_NAME, TIME_ZONE } from "@/lib/site";
 import type { Car } from "@/lib/stock/types";
@@ -81,7 +82,11 @@ export async function runSync({ force = false, now = Date.now() } = {}): Promise
     const sale = before.soldAt ? await salesStore.get(after.id) : undefined;
     if (sale) await undoSale(sale, { returnedOn: today, kind: "cancelled", reason: "Listed again on DoneDeal" });
   }
-  for (const c of plan.gone) if (await apply(c, "Hidden: the ad came down on DoneDeal")) result.takenDown++;
+  for (const c of plan.gone) {
+    if (!(await apply(c, "Hidden: the ad came down on DoneDeal"))) continue;
+    result.takenDown++;
+    await notify({ kind: "taken-down", text: `Ad taken down on DoneDeal: ${carTitleOf(c)}`, href: "/dashboard/stock" }, now);
+  }
   const status: SyncStatus = { id: "status", lastRunAt: now, lastOkAt: now, result, ...(skipped && { problem: `${skipped === 1 ? "1 car" : `${skipped} cars`} from DoneDeal could not be saved. The rest are up to date.` }) };
   await statusStore.put(status);
   return status;
@@ -91,6 +96,8 @@ async function failed(prev: SyncStatus, problem: string, held: boolean, now: num
   // An outage starts at its first failed run (a site that has never synced too), and gets one email an hour in, none after it.
   const failingSince = prev.problem && prev.failingSince !== undefined ? prev.failingSince : now;
   const status: SyncStatus = { ...prev, lastRunAt: now, problem, held, failingSince };
+  // In the bell once an outage starts, not every 15 minutes it lasts.
+  if (failingSince === now) await notify({ kind: "sync", text: "The DoneDeal stock did not update", href: "/dashboard/stock" }, now);
   const due = now - failingSince >= ALERT_AFTER && !(prev.alertedAt !== undefined && prev.alertedAt >= failingSince);
   if (due && (await alertOwners(problem, prev.lastOkAt))) status.alertedAt = now;
   await statusStore.put(status);

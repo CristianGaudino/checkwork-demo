@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { AdminShell } from "@/components/admin/AdminShell";
-import { DEALER_NAV, NAV_COOKIE, parseOpenGroups } from "@/lib/admin/nav";
+import { DEALER_NAV, DENSITY_COOKIE, NAV_COOKIE, RAIL_COOKIE, parseOpenGroups } from "@/lib/admin/nav";
 import { currentMember } from "@/lib/permissions";
 import { roleCan } from "@/lib/permission-rules";
 import { SITE_NAME } from "@/lib/site";
@@ -19,7 +19,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
   // here, for a dealer whose stock is on DoneDeal.
   const nav = DEALER_NAV.filter((i) => (!i.permission || roleCan(role, i.permission)) && !(i.ours && source === "donedeal"));
   return (
-    <AdminShell title={SITE_NAME} subtitle="Dealer dashboard" nav={nav} navLabel="Dealer dashboard" openGroups={parseOpenGroups(jar.get(NAV_COOKIE)?.value)}>
+    <AdminShell title={SITE_NAME} subtitle="Dealer dashboard" nav={nav} navLabel="Dealer dashboard" openGroups={parseOpenGroups(jar.get(NAV_COOKIE)?.value)} rail={jar.get(RAIL_COOKIE)?.value === "1"} compact={jar.get(DENSITY_COOKIE)?.value === "compact"}>
       {children}
     </AdminShell>
   );

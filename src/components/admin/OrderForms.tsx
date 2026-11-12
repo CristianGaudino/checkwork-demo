@@ -19,13 +19,13 @@ export function PlaceOrderForm({ periods, month, lastMonth, team, me, customers,
     <form action={action} className={grid} noValidate>
       {leadId && <input type="hidden" name="leadId" value={leadId} />}
       <Field label="Make" error={e.make}>
-        <input name="make" className={adminInput} autoComplete="off" />
+        <input name="make" maxLength={40} className={adminInput} autoComplete="off" />
       </Field>
       <Field label="Model" error={e.model}>
-        <input name="model" className={adminInput} autoComplete="off" />
+        <input name="model" maxLength={60} className={adminInput} autoComplete="off" />
       </Field>
       <Field label="Colour (optional)" error={e.colour}>
-        <input name="colour" className={adminInput} autoComplete="off" />
+        <input name="colour" maxLength={40} className={adminInput} autoComplete="off" />
       </Field>
       <Field label="Trim, engine and options (optional)" error={e.spec} className={full}>
         <input name="spec" maxLength={120} className={adminInput} autoComplete="off" />

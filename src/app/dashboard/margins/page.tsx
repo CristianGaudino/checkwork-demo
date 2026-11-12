@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CarStatusBadge } from "@/components/admin/badges";
-import { DataTable, PageHeader, Pager, Panel, StatCard, StatGrid, paginate, type Column } from "@/components/admin/kit";
+import { DataTable, EmptyState, FilterSelect, PageHeader, Pager, Panel, StatCard, StatGrid, TableToolbar, paginate, sortRows, type Column } from "@/components/admin/kit";
+import { carStatus } from "@/lib/admin/stock-admin-pure";
 import { salesStore } from "@/lib/admin/collections";
 import { carCosts } from "@/lib/admin/costs";
-import { fmtEur, fmtPct } from "@/lib/admin/format";
+import { fmtEur, fmtPct, plural } from "@/lib/admin/format";
 import { marginOf } from "@/lib/admin/margins";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { can } from "@/lib/permissions";
@@ -18,7 +19,8 @@ export const metadata = { title: "Margins" };
 type Row = { car: Car; cost?: number; price: number; salePrice?: number };
 
 // Needs the "margins" permission. Without it the page is not there: a hidden link is never the only protection.
-export default async function Page({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+export default async function Page({ searchParams }: { searchParams: Promise<{ q?: string; state?: string; sort?: string; dir?: string; page?: string }> }) {
+  const sp = await searchParams;
   if (!(await can("margins"))) notFound();
   const [cars, costs, sales] = await Promise.all([adminCars(), carCosts(), salesStore.list()]);
   const byId = new Map([...costs].map(([id, c]) => [id, c.total]));
@@ -35,24 +37,25 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
   const sold = known.filter((r) => isSold(r.car));
   const soldMargin = sold.reduce((s, r) => s + marginOf(r.price, r.cost).eur, 0);
   const stockMargin = marginOf(stockPrice, stockCost);
-  const paged = paginate(rows, (await searchParams).page); // the figures above are over every car; the table is in pages
 
   const columns: Column<Row>[] = [
     {
       key: "car",
       header: "Car",
+      sort: (r) => carName(r.car),
       cell: (r) => (
         <Link href={`/dashboard/stock/${r.car.id}`} className="font-semibold underline-offset-2 hover:underline">
           {carName(r.car)}
         </Link>
       ),
     },
-    { key: "status", header: "Status", hide: "md", cell: (r) => <CarStatusBadge car={r.car} /> },
-    { key: "price", header: "Price", align: "right", cell: (r) => (r.salePrice !== undefined ? <span className="flex flex-col items-end">{fmtEur(r.salePrice)}<span className="text-meta text-text-2">sold for</span></span> : fmtEur(r.car.priceEur)) },
+    { key: "status", header: "Status", hide: "md", sort: (r) => carStatus(r.car), cell: (r) => <CarStatusBadge car={r.car} /> },
+    { key: "price", header: "Price", align: "right", sort: (r) => r.price, cell: (r) => (r.salePrice !== undefined ? <span className="flex flex-col items-end">{fmtEur(r.salePrice)}<span className="text-meta text-text-2">sold for</span></span> : fmtEur(r.car.priceEur)) },
     {
       key: "cost",
       header: "Cost",
       align: "right",
+      sort: (r) => r.cost,
       cell: (r) => {
         if (r.cost === undefined) return "Not set";
         const { prep, claims } = costs.get(r.car.id)!;
@@ -60,22 +63,30 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
         return parts ? <span className="flex flex-col items-end">{fmtEur(r.cost)}<span className="text-meta text-text-2">with {parts}</span></span> : fmtEur(r.cost);
       },
     },
-    { key: "margin", header: "Margin", align: "right", cell: (r) => (r.cost === undefined ? "" : fmtEur(marginOf(r.price, r.cost).eur)) },
-    { key: "pct", header: "Margin %", align: "right", hide: "md", cell: (r) => (r.cost === undefined ? "" : fmtPct(marginOf(r.price, r.cost).pct)) },
+    { key: "margin", header: "Margin", align: "right", sort: (r) => (r.cost === undefined ? undefined : marginOf(r.price, r.cost).eur), cell: (r) => (r.cost === undefined ? "" : fmtEur(marginOf(r.price, r.cost).eur)) },
+    { key: "pct", header: "Margin %", align: "right", hide: "md", sort: (r) => (r.cost === undefined ? undefined : marginOf(r.price, r.cost).pct), cell: (r) => (r.cost === undefined ? "" : fmtPct(marginOf(r.price, r.cost).pct)) },
   ];
+  // The figures above are over every car; the table is searched, filtered, sorted and in pages.
+  const q = (sp.q ?? "").trim().toLowerCase().slice(0, 60);
+  const shown = rows.filter((r) => (!q || carName(r.car).toLowerCase().includes(q)) && (!sp.state || (sp.state === "sold") === isSold(r.car)) && (sp.state !== "no-cost" || r.cost === undefined));
+  const { rows: sorted, sort } = sortRows(shown, columns, sp, { key: "", dir: "asc" });
+  const paged = paginate(sorted, sp.page);
 
   return (
     <>
       <PageHeader title="Margins" text="What each car cost, prep included, and what it makes: the price less the cost, before VAT and running costs. A sold car uses what it sold for. Only owners, managers and finance see this." />
       <StatGrid>
-        <StatCard label="Stock cost" value={fmtEur(stockCost)} hint={`${stock.length} cars for sale`} />
+        <StatCard label="Stock cost" value={fmtEur(stockCost)} hint={`${plural(stock.length, "car")} for sale`} />
         <StatCard label="Stock value" value={fmtEur(stockPrice)} hint="At the advertised prices" />
         <StatCard label="Expected margin" value={fmtEur(stockMargin.eur)} hint={`${fmtPct(stockMargin.pct)} of the value`} />
-        <StatCard label="Margin on sold cars" value={fmtEur(soldMargin)} hint={`${sold.length} sold cars, at what they sold for where recorded`} />
+        <StatCard label="Margin on sold cars" value={fmtEur(soldMargin)} hint={`${plural(sold.length, "sold car")}, at what they sold for where recorded`} />
       </StatGrid>
       <Panel title="Every car">
-        <DataTable bare columns={columns} rows={paged.rows} rowKey={(r) => r.car.id} />
-        <Pager page={paged.page} pageCount={paged.pageCount} total={paged.total} href={(n) => `/dashboard/margins?page=${n}`} />
+        <TableToolbar search={{ placeholder: "Search make or model", label: "Search cars" }}>
+          <FilterSelect name="state" label="Which cars" all="Every car" options={[["stock", "In stock"], ["sold", "Sold"], ["no-cost", "No cost price yet"]]} />
+        </TableToolbar>
+        <DataTable bare columns={columns} rows={paged.rows} rowKey={(r) => r.car.id} sort={sort} empty={<EmptyState title="No cars match" />} />
+        <Pager page={paged.page} pageCount={paged.pageCount} total={paged.total} />
       </Panel>
     </>
   );

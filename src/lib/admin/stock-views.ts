@@ -18,14 +18,17 @@ export const STOCK_VIEWS = {
 export type StockView = keyof typeof STOCK_VIEWS;
 
 // `status` is the old name for the view, kept so old links still work. Anything unknown is the For sale view.
-export function parseStockList(sp: { view?: string; status?: string; q?: string }) {
+// The list's view and search, and its make and fuel filters (a make's slug, a fuel; anything else matches no car). The page and the CSV
+// export read the same, so the export is the list as it is filtered now.
+export function parseStockList(sp: { view?: string; status?: string; q?: string; make?: string; fuel?: string }) {
   const asked = sp.view ?? sp.status;
   const view: StockView = asked && Object.hasOwn(STOCK_VIEWS, asked) ? (asked as StockView) : "for-sale";
-  return { view, q: (sp.q ?? "").trim().toLowerCase().slice(0, 60) };
+  return { view, q: (sp.q ?? "").trim().toLowerCase().slice(0, 60), make: sp.make?.slice(0, 40) || undefined, fuel: sp.fuel?.slice(0, 20) || undefined };
 }
 
-export const stockList = (all: Car[], view: StockView, q: string) =>
+export const stockList = (all: Car[], view: StockView, q: string, { make, fuel }: { make?: string; fuel?: string } = {}) =>
   all
     .filter(STOCK_VIEWS[view].test)
     .filter((c) => !q || `${c.make} ${c.model} ${c.variant ?? ""} ${c.year}`.toLowerCase().includes(q))
+    .filter((c) => (!make || c.makeSlug === make) && (!fuel || c.fuel === fuel))
     .sort((a, b) => Number(b.id) - Number(a.id));

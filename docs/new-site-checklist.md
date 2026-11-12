@@ -6,7 +6,9 @@ For a dealer who has signed, or a custom demo before a pitch. The dealer's facts
 ## A custom demo in under an hour
 Keep the demo stock and records; change what the dealer will recognise.
 1. `src/lib/site.ts`: name, domain, slug, phone, email, address, opening hours, social links, warranty, services.
-2. `public/brand/`: the dealer's logo (`logo.svg` for dark, `logo-on-light.svg` for light), `og-default.png` (1200x630), `hero.webp`
+2. `public/brand/`: the dealer's logo (`logo.svg` for dark, `logo-on-light.svg` for light; the dashboard's menu shows it too, in a box up
+   to 168 x 32px, so a wide wordmark or a square crest both fit), optionally a square mark `mark.svg` for the collapsed menu (set
+   `BRAND_MARK` in `site.ts`; without it the initials show), `og-default.png` (1200x630), `hero.webp`
    (1920x819) and `hero-sm.webp` (a car-centred crop of it, 960 wide), `about.webp`.
 3. `src/lib/home.config.ts`: the hero title and line, and how many featured cars, type tiles and make chips the home page shows.
 4. `src/lib/partners.ts`: the makes the dealer sells new (New cars shows them first). Empty if they sell used only.
