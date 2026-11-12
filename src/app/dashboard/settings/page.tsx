@@ -51,6 +51,11 @@ export default async function Page() {
               <span className="tabular-nums text-text-2">{hours(h)}</span>
             </li>
           ))}
+          {/* As on the public site: no test drive is offered on one (src/lib/bank-holidays.ts). */}
+          <li className="flex justify-between gap-4 border-b border-hairline py-1.5">
+            <span>Bank holidays</span>
+            <span className="text-text-2">Closed</span>
+          </li>
         </ul>
         <p className="text-meta text-text-2">These appear across the public site. They change with a site update, so ask us to change them.</p>
       </Panel>

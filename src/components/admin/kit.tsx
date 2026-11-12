@@ -12,7 +12,9 @@ export function PageHeader({ title, text, actions }: { title: string; text?: str
         <h1 className="text-display font-bold">{title}</h1>
         {text && <p className="mt-1 max-w-measure text-body text-text-2">{text}</p>}
       </div>
-      {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
+      {/* On a phone two or more actions are one full-width row of equal buttons, each icon above its label, so three fit at 360px and
+          never wrap two and one. A single action (All leads) keeps its own size. From 640px they sit beside the title as they are. */}
+      {actions && <div className="flex flex-wrap gap-2 max-sm:has-[>:nth-child(2)]:w-full max-sm:has-[>:nth-child(2)]:flex-nowrap max-sm:has-[>:nth-child(2)]:[&>*]:h-auto max-sm:has-[>:nth-child(2)]:[&>*]:min-h-11 max-sm:has-[>:nth-child(2)]:[&>*]:flex-1 max-sm:has-[>:nth-child(2)]:[&>*]:flex-col max-sm:has-[>:nth-child(2)]:[&>*]:gap-1 max-sm:has-[>:nth-child(2)]:[&>*]:px-2 max-sm:has-[>:nth-child(2)]:[&>*]:py-2">{actions}</div>}
     </header>
   );
 }
@@ -38,13 +40,14 @@ export function StatCard({ label, value, hint, tone, href }: { label: string; va
   const body = (
     <>
       <p className="text-meta text-text-2">{label}</p>
-      {/* The longer the figure, the smaller, so a half-width tile on a phone keeps it on one line: €120,925 at the stat size, a year's
-          sales (€5,864,950) a step down. Anything longer still wraps, never spills. */}
-      <p className={`font-semibold tabular-nums [overflow-wrap:anywhere] ${value.length > 8 ? "text-heading sm:text-stat" : value.length > 7 ? "text-stat" : "text-stat sm:text-display"}`}>{value}</p>
+      {/* Sized from the tile's own width (a container query), so tiles side by side show their figures at the same size, and a
+          half-width tile on a 360px phone still fits €117,565 on one line. A year's sales (€5,864,950) take a smaller share. Anything
+          longer still wraps, never spills. */}
+      <p className={`font-display font-semibold leading-[1.1] tracking-[-0.02em] tabular-nums [overflow-wrap:anywhere] ${value.length > 8 ? "text-[min(2rem,15cqi)]" : "text-[min(2rem,20cqi)]"}`}>{value}</p>
       {hint && <p className={`text-meta ${tone === "good" ? "text-ok" : tone === "bad" ? "text-bad" : "text-text-2"}`}>{hint}</p>}
     </>
   );
-  const frame = `${card} flex min-w-0 flex-col gap-1 p-4`;
+  const frame = `${card} @container flex min-w-0 flex-col gap-1 p-4`; // @container: the figure is sized from the tile
   return href ? (
     <Link href={href} className={`${frame} transition-colors hover:border-control ${press}`}>
       {body}
@@ -65,8 +68,7 @@ export function Meter({ value, max, tone = "accent", className = "" }: { value: 
 }
 
 export function StatGrid({ children }: { children: React.ReactNode }) {
-  // One column under 360px: two tiles there are too narrow for a euro figure on one line.
-  return <div className="grid grid-cols-1 gap-3 min-[22.5rem]:grid-cols-2 sm:grid-cols-[repeat(auto-fit,minmax(11rem,1fr))]">{children}</div>;
+  return <div className="grid grid-cols-2 gap-3 sm:grid-cols-[repeat(auto-fit,minmax(11rem,1fr))]">{children}</div>;
 }
 
 const TONES = { neutral: "bg-hairline text-text", good: "bg-ok-soft text-ok", warn: "bg-warn-soft text-warn", bad: "bg-bad-soft text-bad", info: "bg-info-soft text-info" } as const;
@@ -101,7 +103,9 @@ export function DataTable<T>({ columns, rows, rowKey, empty, bare = false, linkR
   return (
     // Focusable, so a keyboard user can scroll it sideways on a phone.
     <div tabIndex={0} aria-label={label} className={`${frame} overflow-x-auto`}>
-      <table className="w-full min-w-[22rem] border-collapse text-left text-body">
+      {/* 18rem at least, so a column is never squeezed to a word a line, and a two-column table (stock, leads, team) still fits a 320px
+          phone. A table whose columns need more scrolls inside its card. */}
+      <table className="w-full min-w-[18rem] border-collapse text-left text-body">
         <thead>
           <tr className="text-meta text-text-2">
             {columns.map((c) => (

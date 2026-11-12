@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { demoBar } from "./open";
 
 test("viewing as Dealer adds a Dashboard link to the public header and stays on the page; there is no Superuser", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 }); // the header links are from 1024px; the phone menu has its own check below
@@ -24,7 +25,7 @@ test("a dealer sees stock and social controls on a car page, a customer sees non
   await expect(page.getByTestId("buy-box")).toBeVisible();
   const id = new URL(page.url()).pathname.match(/-(\d+)$/)![1];
   await expect(page.locator("[data-car-controls]")).toHaveCount(0);
-  await page.locator("[data-demo-bar]").getByRole("link", { name: "Dealer" }).click();
+  await (await demoBar(page)).getByRole("link", { name: "Dealer" }).click();
   const controls = page.locator("[data-car-controls]");
   await expect(controls.getByRole("link", { name: "Edit car" })).toHaveAttribute("href", `/dashboard/stock/${id}`);
   const post = await controls.getByRole("link", { name: "Post to social" }).getAttribute("href");
@@ -35,9 +36,20 @@ test("a dealer sees stock and social controls on a car page, a customer sees non
 
 test("on a phone the Dashboard link is in the menu when viewing as the dealer", async ({ page }) => {
   await page.goto("/");
-  await page.locator("[data-demo-bar]").getByRole("link", { name: "Dealer" }).click();
+  await (await demoBar(page)).getByRole("link", { name: "Dealer" }).click();
+  await page.keyboard.press("Escape"); // fold the demo pill again
   await page.getByRole("banner").getByRole("button", { name: "Menu" }).click();
   await expect(page.getByRole("dialog", { name: "Menu" }).getByRole("link", { name: "Dashboard" })).toHaveAttribute("href", "/dashboard");
+});
+
+test("on a phone the demo bar folds into a small pill that opens its controls and closes again", async ({ page }) => {
+  await page.goto("/");
+  const dealer = page.locator("[data-demo-bar]").getByRole("link", { name: "Dealer" });
+  await expect(dealer).toBeHidden();
+  await demoBar(page);
+  await expect(dealer).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(dealer).toBeHidden();
 });
 
 test("light is the default, dark is a choice that sticks and does not flash", async ({ page }) => {
@@ -45,11 +57,11 @@ test("light is the default, dark is a choice that sticks and does not flash", as
   const html = page.locator("html");
   await expect(html).not.toHaveAttribute("data-theme", "dark");
   await expect(html).toHaveCSS("background-color", "rgb(244, 246, 251)");
-  await page.getByRole("button", { name: "Light" }).click();
+  await (await demoBar(page)).getByRole("button", { name: "Light" }).click();
   await expect(html).toHaveAttribute("data-theme", "dark");
   await expect(html).toHaveCSS("background-color", "rgb(11, 15, 31)");
   await page.reload();
   await expect(html).toHaveAttribute("data-theme", "dark");
-  await page.getByRole("button", { name: "Dark" }).click();
+  await (await demoBar(page)).getByRole("button", { name: "Dark" }).click();
   await expect(html).not.toHaveAttribute("data-theme", "dark");
 });

@@ -54,10 +54,17 @@ test("the Find me a car tab fits inside the Search Stock box and the page does n
 const desktop = async (browser: import("@playwright/test").Browser, baseURL: string | undefined) =>
   (await browser.newContext({ baseURL, viewport: { width: 1280, height: 800 }, isMobile: false, hasTouch: false })).newPage();
 
-test("on a phone the drop-downs only pick: the field cannot be typed into", async ({ page }) => {
+test("on a phone the drop-downs only pick: the field cannot be typed into, however long the list", async ({ page }) => {
   await page.goto("/");
   await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
   await expect(page.getByLabel("Make", { exact: true })).toHaveAttribute("readonly", "");
+  // A long list (every car in stock, in the post composer) only picks too, and every option is there to scroll to.
+  await page.goto("/dashboard/marketing");
+  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+  const car = page.getByLabel("Car").first();
+  await expect(car).toHaveAttribute("readonly", "");
+  await car.click();
+  expect(await page.getByRole("listbox").getByRole("option").count()).toBeGreaterThan(30);
 });
 
 test("the drop-downs are the site's own: typing narrows the list, Enter picks, Escape puts it back", async ({ browser, baseURL }) => {
@@ -251,13 +258,19 @@ test("browse by make comes before browse by type, and both link into the stock",
 
 test("browse by make: the makes in stock first with their counts, then the popular makes always", async ({ page }) => {
   await page.goto("/");
-  const chips = page.getByRole("region", { name: "Browse by make" }).getByRole("listitem");
-  const labels = (await chips.allTextContents()).map((t) => t.trim());
-  const counted = labels.map((l) => /\d+$/.test(l));
-  expect(counted[0]).toBe(true);
-  expect(counted.indexOf(false)).toBeGreaterThan(0);
-  expect(counted.slice(counted.indexOf(false)).every((c) => !c)).toBe(true); // no make in stock after the first one without
-  expect(labels.some((l) => l.startsWith("Audi"))).toBe(true); // popular, never stocked in the demo
+  // Two rows that scroll together, the makes alternating between them: each row runs busiest first, then the makes we do not have.
+  const rows = page.getByRole("region", { name: "Browse by make" }).getByRole("list");
+  await expect(rows).toHaveCount(2);
+  const all: string[] = [];
+  for (const row of await rows.all()) {
+    const labels = (await row.getByRole("listitem").allTextContents()).map((t) => t.trim());
+    const counted = labels.map((l) => /\d+$/.test(l));
+    expect(counted[0]).toBe(true);
+    expect(counted.indexOf(false)).toBeGreaterThan(0);
+    expect(counted.slice(counted.indexOf(false)).every((c) => !c)).toBe(true); // no make in stock after the first one without
+    all.push(...labels);
+  }
+  expect(all.some((l) => l.startsWith("Audi"))).toBe(true); // popular, never stocked in the demo
 });
 
 test("visit us has the address, the hours and the way there", async ({ page }) => {

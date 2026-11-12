@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { unfold } from "./open";
 
 test("the Reviews page shows Google's reviews as Google gives them, the rating, and the way to all of them", async ({ page }) => {
   await page.goto("/reviews");
@@ -22,7 +23,7 @@ test("the Questions page answers from what the site says, one press opens an ans
 
 test("both pages are in the menu and the footer, and hold at 320px", async ({ page }) => {
   await page.goto("/");
-  const footer = page.locator("footer");
+  const footer = await unfold(page.locator("footer"));
   await expect(footer.getByRole("link", { name: "Reviews" })).toHaveAttribute("href", "/reviews");
   await expect(footer.getByRole("link", { name: "Questions" })).toHaveAttribute("href", "/faq");
   await page.setViewportSize({ width: 320, height: 700 });

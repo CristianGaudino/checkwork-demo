@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { unfold } from "./open";
 import type { Page } from "@playwright/test";
 import { PRICE_STOPS } from "../src/lib/stock/types";
 import { choose } from "./combo";
@@ -68,7 +69,7 @@ test("on a phone the form pages are in the footer, not the header, and the heade
     ["Find a car", "/find-a-car"],
   ]) {
     await expect(page.getByRole("banner").getByRole("link", { name, exact: true })).toBeHidden();
-    await expect(page.getByRole("contentinfo").getByRole("link", { name })).toHaveAttribute("href", href);
+    await expect((await unfold(page.getByRole("contentinfo"))).getByRole("link", { name })).toHaveAttribute("href", href);
   }
   await page.setViewportSize({ width: 320, height: 640 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);

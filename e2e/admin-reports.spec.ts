@@ -18,6 +18,7 @@ test("owners, managers and finance see the full report with profit; the period f
 });
 
 test("a salesperson sees only their own counts: no money, no one else", async ({ page, context }) => {
+  await page.setViewportSize({ width: 1280, height: 900 }); // the sidebar; the phone tab bar has its own test (admin-shell)
   await as(context, "Sales");
   await page.goto("/dashboard");
   await page.getByRole("navigation", { name: "Dealer dashboard" }).getByRole("link", { name: "Reports" }).click();

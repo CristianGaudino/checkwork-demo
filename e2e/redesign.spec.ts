@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
+import { unfold } from "./open";
 import { choose } from "./combo";
 
 // The owner's 2026-11-11 list (#85 to #88): two doors to the valuation, DoneDeal stock, the drop-down that stayed open, the Follow us
@@ -34,7 +35,7 @@ test.describe("sell your car and trade-in", () => {
 
   test("both doors are in the footer", async ({ page }) => {
     await page.goto("/");
-    const footer = page.getByRole("contentinfo");
+    const footer = await unfold(page.getByRole("contentinfo"));
     await expect(footer.getByRole("link", { name: "Trade in your car" })).toHaveAttribute("href", "/trade-in");
     await expect(footer.getByRole("link", { name: "Sell your car" })).toHaveAttribute("href", "/sell-your-car");
   });

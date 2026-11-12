@@ -81,13 +81,13 @@ export function BuyBox({ car }: { car: Car }) {
           );
         })}
       </dl>
-      {/* Under the facts, full width, so the buttons and facts stay in view on a phone. */}
+      {/* Under the facts, side by side like Call us and WhatsApp, so the buttons and facts stay in view on a phone. */}
       {!sold && (
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <div className="grid grid-cols-2 gap-2">
           <CompareButton id={car.id} label={`Compare ${carName(car)}`} sizing="flex h-12 w-full px-4" />
           <StockAlertButton car={carSummary(car)} kind="price-drop" />
           {/* The trade-in door with this car already chosen. */}
-          <Link href={`/trade-in?car=${car.slug}`} className="inline-flex min-h-11 items-center gap-2 text-meta font-medium text-accent-text underline sm:col-span-2">
+          <Link href={`/trade-in?car=${car.slug}`} className="inline-flex min-h-11 items-center gap-2 text-meta font-medium text-accent-text underline col-span-2">
             <SwapIcon className="size-4" />
             Trade in your car against this one
           </Link>

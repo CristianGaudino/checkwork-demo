@@ -58,7 +58,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
       header: "Car",
       cell: (c) => (
         <div className="flex min-w-0 items-center gap-3">
-          <div className="h-12 w-16 shrink-0 overflow-hidden rounded-control bg-photo-bg">
+          <div className="hidden h-12 w-16 shrink-0 overflow-hidden rounded-control bg-photo-bg min-[25rem]:block">
             {/* eslint-disable-next-line @next/next/no-img-element -- a local /stock file, sized by its box */}
             {c.photos[0] && <img src={c.photos[0].src} alt="" width={64} height={48} loading="lazy" className="size-full object-cover" />}
           </div>
@@ -70,7 +70,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
           </div>
         </div>
       ),
-      className: "max-w-[15rem] sm:max-w-[20rem]",
+      // A truncated name still asks for its whole width in a table: the cap lets the car and its price fit a 360px phone.
+      className: "max-w-[10rem] min-[25rem]:max-w-[15rem] sm:max-w-[20rem]",
     },
     {
       key: "price",

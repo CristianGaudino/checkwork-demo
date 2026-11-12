@@ -57,7 +57,7 @@ test("the phone menu marks the current page and nothing moves", async ({ page })
   const menu = page.getByRole("dialog", { name: "Menu" });
   await expect(menu.getByRole("link", { name: "Finance", exact: true })).toHaveAttribute("aria-current", "page");
   await expect(menu.locator("[aria-current]")).toHaveCount(1);
-  const [a, b] = await Promise.all([menu.getByRole("link", { name: "Trade-in" }).boundingBox(), menu.getByRole("link", { name: "Finance", exact: true }).boundingBox()]);
+  const [a, b] = await Promise.all([menu.getByRole("link", { name: "Warranty" }).boundingBox(), menu.getByRole("link", { name: "Finance", exact: true }).boundingBox()]);
   expect(a!.x).toBe(b!.x); // same left edge: the mark is in the gutter
 });
 
@@ -65,6 +65,7 @@ test("tapping a menu item closes the menu at once, with no slide-out, and opens 
   await page.goto("/");
   await page.getByRole("banner").getByRole("button", { name: "Menu" }).click();
   const menu = page.getByRole("dialog", { name: "Menu" });
+  await menu.getByText("Buying", { exact: true }).click(); // Finance is in a group that folds
   await menu.getByRole("link", { name: "Finance", exact: true }).click();
   await expect(menu).toBeHidden({ timeout: 100 });
   await expect(page).toHaveURL(/\/finance$/);

@@ -175,7 +175,7 @@ test("the 404 page centres its message and the footer reaches the bottom of the 
   expect(res!.status()).toBe(404);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("We couldn't find that page");
   // The demo bar is fixed at the foot of the window, so the footer ends just above it.
-  const bar = await page.locator("[data-demo-bar]").evaluate((el) => el.getBoundingClientRect().height).catch(() => 0);
+  const bar = await page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--demo-bar-h")) || 0);
   const bottom = await page.locator("footer").evaluate((el) => el.getBoundingClientRect().bottom);
   expect(Math.round(bottom + bar)).toBe(1000);
   expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBe(1000);

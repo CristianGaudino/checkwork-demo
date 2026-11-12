@@ -20,7 +20,6 @@ const LIST_MAX_PX = 288;
 const LIST_MIN_PX = 120;
 const LIST_ROOM_PX = 300;
 const LIST_GAP_PX = 4;
-const LONG_LIST = 30;
 const SHOWN_MAX = 100;
 
 // Where the open list sits, in viewport coordinates: it is in the top layer (a popover), so no scrolling or clipping ancestor
@@ -72,11 +71,13 @@ export function Combobox({
   const root = useRef<HTMLDivElement>(null);
   const pressed = useRef(false);
   const fine = useSyncExternalStore(watchFine, () => window.matchMedia(FINE).matches, () => false);
-  // A long list (a dealer's whole stock) can be typed into on a phone too: scrolling 1,000 options is worse than a keyboard over the list.
-  const typeable = fine || options.length > LONG_LIST;
+  // Typed into only with a mouse and keyboard (owner decision, 2026-11-11): on a phone a list is only picked from, however long, so no
+  // keyboard ever rises over it.
+  const typeable = fine;
   const matching = useMemo(() => (typed ? options.filter((o) => fold(o.label).includes(fold(typed))) : options), [options, typed]);
-  // At most SHOWN_MAX options are drawn at once; the rest are reached by typing.
-  const shown = matching.length > SHOWN_MAX ? matching.slice(0, SHOWN_MAX) : matching;
+  // Where typing narrows the list, at most SHOWN_MAX options are drawn at once and the rest are reached by typing. On a phone every option
+  // is drawn, since there is no typing to reach the rest.
+  const shown = typeable && matching.length > SHOWN_MAX ? matching.slice(0, SHOWN_MAX) : matching;
 
   const measure = useCallback(() => {
     const r = root.current?.getBoundingClientRect();
