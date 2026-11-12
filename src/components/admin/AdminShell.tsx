@@ -7,6 +7,8 @@ import { NotificationBell } from "@/components/admin/NotificationBell";
 import { Density } from "@/components/admin/density";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/stock/icons";
 import { press } from "@/components/ui";
+import { Logo } from "@/components/Logo";
+import { BRAND_MARK } from "@/lib/site";
 import { DENSITY_COOKIE, RAIL_COOKIE, prefCookie, type NavItem } from "@/lib/admin/nav";
 
 
@@ -35,14 +37,22 @@ export function AdminShell({ title, subtitle, nav, navLabel, openGroups, rail: r
       <div data-density={compact ? "compact" : "comfortable"} className={`group/shell flex-1 lg:grid lg:transition-[grid-template-columns] lg:duration-200 lg:ease-out motion-reduce:transition-none ${rail ? "lg:grid-cols-[4.5rem_minmax(0,1fr)]" : "lg:grid-cols-[16rem_minmax(0,1fr)]"}`}>
         <aside className="flex min-w-0 flex-col px-4 pt-4 sm:px-6 lg:sticky lg:top-0 lg:h-[calc(100dvh-var(--demo-bar-h,0px))] lg:self-start lg:overflow-hidden lg:border-r lg:border-hairline lg:bg-rail lg:px-0 lg:pt-0">
           <div className={`flex items-center justify-between gap-2 lg:pb-3 lg:pt-5 ${rail ? "lg:flex-col lg:px-0" : "lg:pl-6 lg:pr-3"}`}>
-            <div className={`flex min-w-0 flex-1 items-baseline gap-3 lg:flex-col lg:gap-0 ${rail ? "lg:hidden" : ""}`}>
-              <p className="max-w-full truncate text-body font-semibold lg:text-section">{title}</p>
-              <p className="text-meta text-text-2">{subtitle}</p>
+            {/* The dealer's own logo (the public site's, light and dark), in a box that keeps its shape: a wide wordmark or a square crest.
+                Its name is the logo's text for screen readers and shows on hover, so a long name is never cut short. */}
+            <div title={title} className={`flex min-w-0 flex-1 flex-col items-start gap-1 ${rail ? "lg:hidden" : ""}`}>
+              <Logo className="h-7 w-auto max-w-[10.5rem] object-contain object-left lg:h-8" eager />
+              <p className="text-meta text-text-2 max-lg:sr-only">{subtitle}</p>
             </div>
-            {/* The rail keeps the dealership as its initials, so the frame still says whose it is. */}
-            <span aria-hidden className={`hidden size-10 items-center justify-center rounded-control bg-text font-display text-meta font-semibold text-ink ${rail ? "lg:inline-flex" : ""}`}>
-              {initials}
-            </span>
+            {/* The rail: the dealer's square mark when they have one (site.ts), else their initials, so the frame still says whose it is. */}
+            {BRAND_MARK ? (
+              // eslint-disable-next-line @next/next/no-img-element -- a small local SVG, sized by its box
+              <img src={BRAND_MARK} alt={title} title={title} width={40} height={40} className={`hidden size-10 object-contain ${rail ? "lg:block" : ""}`} />
+            ) : (
+              <span title={title} className={`hidden size-10 items-center justify-center rounded-control bg-text font-display text-meta font-semibold text-ink ${rail ? "lg:inline-flex" : ""}`}>
+                <span aria-hidden>{initials}</span>
+                <span className="sr-only">{title}</span>
+              </span>
+            )}
             <NotificationBell />
           </div>
           <AdminNav items={nav} label={navLabel} openGroups={openGroups} rail={rail} />
