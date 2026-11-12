@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/stock/icons";
+import { scrollBehavior } from "@/components/useMediaQuery";
 
 // Two rows of make pills that scroll sideways together (docs/mobile-navigation.md). A finger swipes them; with a mouse, the arrows under
 // them move most of a screen at a time (on a desktop only: from 1024px with a fine pointer, and only when the rows are wider
@@ -18,7 +19,7 @@ export function MakeRows({ rows, label }: { rows: React.ReactNode[]; label: stri
     o.observe(node);
     return () => o.disconnect();
   }, []);
-  const by = (dir: 1 | -1) => el?.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  const by = (dir: 1 | -1) => el?.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: scrollBehavior() });
   return (
     <div className="flex flex-col gap-3">
       <div

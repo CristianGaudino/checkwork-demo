@@ -3,6 +3,7 @@ import { FINANCE } from "@/lib/finance/finance.config";
 import { PRICE_STOPS } from "@/lib/stock/types";
 import { BAD_DRIVE_DAY, BAD_DRIVE_TIME, BAD_KM, driveDays, driveTimes, phoneError, BAD_REG, CONTACT_ERROR, EMPLOYMENT, KM_PATTERN, LIMITS, REG_PATTERN, SOURCING_BODIES, SOURCING_CAR_ERROR } from "./constants";
 import { DAY } from "../time";
+import { dublinMs } from "../admin/format";
 
 // The lead validation, run on the server. Client components import ./constants, never this file (it brings zod).
 
@@ -102,10 +103,11 @@ const finance = {
 };
 
 // A booking: the car, a day and a time that are really open (from the opening hours), then contact details.
-// Checked from a day earlier, so a form opened before midnight Irish time still sends its "tomorrow" after midnight.
+// Checked from a day earlier, so a form opened before midnight Irish time still sends its "tomorrow" after midnight; the time must not
+// have passed, so that day's grace never books a slot that is already over.
 const testDrive = {
   carId,
-  driveDate: given(z.string({ error: BAD_DRIVE_DAY }).refine((v) => driveDays(new Date(Date.now() - DAY)).includes(v), BAD_DRIVE_DAY)),
+  driveDate: given(z.string({ error: BAD_DRIVE_DAY }).refine((v) => driveDays().includes(v) || driveDays(new Date(Date.now() - DAY)).includes(v), BAD_DRIVE_DAY)),
   driveTime: given(z.string({ error: BAD_DRIVE_TIME })),
 };
 
@@ -128,7 +130,7 @@ export const leadSchema = z
     z.object({ type: z.literal("general"), ...contact, ...general }),
     z.object({ type: z.literal("trade_in"), ...contact, ...tradeIn }),
     z.object({ type: z.literal("finance"), ...contact, ...finance }),
-    z.object({ type: z.literal("test_drive"), ...contact, ...testDrive }).refine((d) => driveTimes(d.driveDate ?? "").includes(d.driveTime ?? ""), { path: ["driveTime"], message: BAD_DRIVE_TIME, when: (p) => typeof p.value === "object" && p.value !== null }),
+    z.object({ type: z.literal("test_drive"), ...contact, ...testDrive }).refine((d) => driveTimes(d.driveDate ?? "").includes(d.driveTime ?? "") && dublinMs(d.driveDate ?? "", d.driveTime ?? "") > Date.now(), { path: ["driveTime"], message: BAD_DRIVE_TIME, when: (p) => typeof p.value === "object" && p.value !== null }),
     z.object({ type: z.literal("alert"), ...contact, ...alert }),
   ])
   // D-12. `when` runs it even if another field failed, so a blank form shows every error at once.

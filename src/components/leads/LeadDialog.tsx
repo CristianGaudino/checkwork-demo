@@ -97,7 +97,7 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
 export function TestDriveForm({ car }: { car: CarSummary }) {
   return (
     <LeadForm type="test_drive" car={car} variant="dialog" submitLabel="Book" success={{ heading: "Thanks, we have your request.", body: `We'll confirm your test drive in the ${car.name} by phone or email.` }}>
-      {({ bind }) => <DriveFields bind={bind} />}
+      {({ bind }) => <DriveFields bind={bind} carId={car.id} />}
     </LeadForm>
   );
 }

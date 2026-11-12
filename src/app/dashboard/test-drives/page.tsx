@@ -4,19 +4,22 @@ import { Badge, EmptyState, PageHeader, Pager, Panel, SummaryTabs, adminButton, 
 import { PlusIcon } from "@/components/stock/icons";
 import { card } from "@/components/ui";
 import { DRIVE_STATUSES, DRIVE_STATUS_LABELS, drivesStore } from "@/lib/admin/collections";
-import { DRIVE_MONTHS_AHEAD, groupByDay, parseDriveStatus } from "@/lib/admin/drives";
+import { groupByDay, parseDriveStatus } from "@/lib/admin/drives";
+import { TEST_DRIVE } from "@/lib/leads/constants";
+import { TIME_ZONE } from "@/lib/site";
 import { addMonths, dublinDay } from "@/lib/admin/format";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { carName } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
+import { telHref } from "@/lib/phone";
 import { setDriveStatusAction } from "./actions";
 
 export const metadata = { title: "Test drives" };
 
-const day = new Intl.DateTimeFormat("en-IE", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Dublin" });
+const day = new Intl.DateTimeFormat("en-IE", { weekday: "long", day: "numeric", month: "long", timeZone: TIME_ZONE });
 // A day in another year says which, so a booking typed a year out never reads as this year.
 const dayLabel = (t: number) => (dublinDay(t).slice(0, 4) === dublinDay().slice(0, 4) ? day.format(t) : `${day.format(t)} ${dublinDay(t).slice(0, 4)}`);
-const time = new Intl.DateTimeFormat("en-IE", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Dublin" });
+const time = new Intl.DateTimeFormat("en-IE", { hour: "2-digit", minute: "2-digit", timeZone: TIME_ZONE });
 // What the dealer can do next from each status. Anything else is not offered.
 const NEXT: Record<string, [string, string][]> = {
   requested: [["confirmed", "Confirm"], ["cancelled", "Cancel"]],
@@ -54,7 +57,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
           Add a booking
         </summary>
         <Panel className="mt-3">
-          <AddDriveForm cars={cars.filter((c) => !isSold(c)).map((c) => ({ slug: c.slug, label: carName(c) }))} min={dublinDay()} max={addMonths(dublinDay(), DRIVE_MONTHS_AHEAD)} />
+          <AddDriveForm cars={cars.filter((c) => !isSold(c)).map((c) => ({ slug: c.slug, label: carName(c) }))} min={dublinDay()} max={addMonths(dublinDay(), TEST_DRIVE.monthsAhead)} />
         </Panel>
       </details>
       {groups.length === 0 ? (
@@ -80,7 +83,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
                         {d.carTitle}
                         {open(d.status) && soldSlugs.has(d.carSlug) && <Badge tone="warn">Car sold</Badge>}
                       </span>
-                      <a href={`tel:${d.phone.replace(/\s/g, "")}`} className="inline-flex min-h-11 w-fit items-center text-meta text-text-2 underline-offset-2 hover:underline md:min-h-0">
+                      <a href={telHref(d.phone) ?? undefined} className="inline-flex min-h-11 w-fit items-center text-meta text-text-2 underline-offset-2 hover:underline md:min-h-0">
                         {d.phone}
                       </a>
                       {d.notes && <span className="text-meta text-text-2">{d.notes}</span>}

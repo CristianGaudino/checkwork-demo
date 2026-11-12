@@ -1,8 +1,8 @@
 import type { AdminReview, Lead, TestDrive } from "./collections";
-import { DAY, HOUR } from "@/lib/time";
+import { DAY } from "@/lib/time";
 import { isSold, type Car } from "@/lib/stock/types";
 import { dublinDay } from "./format";
-import { followUpDue } from "./follow-ups";
+import { followUpDue, pastReplyTarget } from "./follow-ups";
 
 // A car for sale this long is worth a look at its price (the stock list's "60 days or more" view).
 export const OLD_STOCK_DAYS = 60;
@@ -18,7 +18,7 @@ export type Attention = { key: string; label: string; count: number; href: strin
 // `sales`: the car ids with a sale recorded.
 export function overview(input: { leads: Lead[]; drives: TestDrive[]; reviews: AdminReview[]; cars?: Car[]; costs?: Set<string>; sales?: Set<string>; syncProblem?: boolean; now?: number; slaHours?: number }) {
   const now = input.now ?? Date.now();
-  const sla = (input.slaHours ?? 24) * HOUR;
+  const slaHours = input.slaHours ?? 24;
   const { leads, drives, reviews } = input;
   const week = leads.filter((l) => l.createdAt >= now - 7 * DAY);
   const prevWeek = leads.filter((l) => l.createdAt >= now - 14 * DAY && l.createdAt < now - 7 * DAY);
@@ -32,7 +32,7 @@ export function overview(input: { leads: Lead[]; drives: TestDrive[]; reviews: A
 
   const attention: Attention[] = [
     { key: "follow", label: "Follow-ups due", count: leads.filter((l) => followUpDue(l, today)).length, href: "/dashboard/leads?due=1" },
-    { key: "slow", label: "New leads past your reply target", count: leads.filter((l) => l.status === "new" && now - l.createdAt > sla).length, href: "/dashboard/leads?status=new" },
+    { key: "slow", label: "New leads past your reply target", count: leads.filter((l) => pastReplyTarget(l, now, slaHours)).length, href: "/dashboard/leads?late=1" },
     { key: "drives", label: "Test drives to confirm", count: drives.filter((d) => d.status === "requested" && d.startsAt >= now).length, href: "/dashboard/test-drives?status=requested" },
     { key: "reviews", label: "Reviews without a reply", count: reviews.filter((r) => !r.reply).length, href: "/dashboard/reviews?filter=unreplied" },
     { key: "sync", label: "DoneDeal stock is not updating", count: input.syncProblem ? 1 : 0, href: "/dashboard/stock" },

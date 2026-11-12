@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { driveDays, driveTimes } from "./constants";
+import { describe, expect, it, vi } from "vitest";
+import { driveDays, driveTimes, inDriveHours } from "./constants";
 import { leadSchema } from "./schema";
 
 describe("driveTimes", () => {
@@ -12,15 +12,20 @@ describe("driveTimes", () => {
     expect(sat.at(-1)).toBe("15:00");
   });
   it("is empty on a day we are closed", () => expect(driveTimes("2026-11-15")).toEqual([])); // a Sunday
+  it("lets the desk type any minute inside the hours, never outside", () => {
+    expect(inDriveHours("2026-11-10", "09:45")).toBe(true);
+    expect(inDriveHours("2026-11-10", "17:30")).toBe(false); // the last start is an hour before closing
+    expect(inDriveHours("2026-11-15", "11:00")).toBe(false);
+  });
 });
 
 describe("driveDays", () => {
   const days = driveDays(new Date("2026-11-13T10:00:00Z")); // a Friday
-  it("starts tomorrow, skips closed days and stops at three weeks", () => {
+  it("starts tomorrow, skips closed days and stops at two months, the dashboard's limit too", () => {
     expect(days[0]).toBe("2026-11-14");
     expect(days).not.toContain("2026-11-15");
     expect(days[1]).toBe("2026-11-16");
-    expect(days.at(-1)! <= "2026-12-04").toBe(true);
+    expect(days.at(-1)).toBe("2027-01-13"); // a Wednesday, the 13th two months on
   });
   it("skips bank holidays: no Christmas, St Stephen's Day or its Monday", () => {
     const xmas = driveDays(new Date("2026-12-20T10:00:00Z"));
@@ -44,6 +49,15 @@ describe("leadSchema for a test drive and an alert", () => {
     expect(leadSchema.safeParse({ ...base, type: "test_drive", carId: "1", driveDate: day, driveTime: "03:00" }).success).toBe(false);
     expect(leadSchema.safeParse({ ...base, type: "test_drive", carId: "1", driveDate: "2020-01-01", driveTime: time }).success).toBe(false);
     expect(leadSchema.safeParse({ ...base, type: "test_drive", carId: "1" }).success).toBe(false);
+  });
+  it("takes today from a form opened yesterday, but never a time that has passed", () => {
+    vi.useFakeTimers({ now: new Date("2026-11-10T14:00:00Z") }); // a Tuesday, 14:00 in Ireland
+    const drive = (driveTime: string) => leadSchema.safeParse({ ...base, type: "test_drive", carId: "1", driveDate: "2026-11-10", driveTime }).success;
+    expect(drive("15:00")).toBe(true);
+    expect(drive("10:00")).toBe(false);
+    const last = driveDays().at(-1)!; // the last day the form offers, which yesterday's list does not have
+    expect(leadSchema.safeParse({ ...base, type: "test_drive", carId: "1", driveDate: last, driveTime: driveTimes(last)[0] }).success).toBe(true);
+    vi.useRealTimers();
   });
   it("takes an alert with just an email, and refuses an unknown kind or no email", () => {
     expect(leadSchema.safeParse({ clientRef: base.clientRef, sourcePath: "/", email: "a@example.com", consent: "yes", type: "alert", alertKind: "price-drop", carId: "1" }).success).toBe(true);

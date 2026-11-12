@@ -7,7 +7,7 @@ import { marginOf } from "@/lib/admin/margins";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { can } from "@/lib/permissions";
 import { fmtEur, fmtNum } from "@/lib/admin/format";
-import { carName } from "@/lib/stock/format";
+import { carName, carHref } from "@/lib/stock/format";
 import { isSold, type Car } from "@/lib/stock/types";
 import { stockSource } from "@/lib/stock-source";
 import { DONEDEAL_DEALER_URL, listingHref } from "@/lib/stock-source-rules";
@@ -50,7 +50,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
   const saved = sp.saved ? all.find((c) => c.id === sp.saved) : undefined;
   const href = (v: StockView) => `/dashboard/stock?view=${v}${q ? `&q=${encodeURIComponent(q)}` : ""}`;
   // Where a row goes: the car's editor here, or, for synced stock, the car on the site (it is changed on DoneDeal).
-  const open = (c: Car) => (synced ? `/used-cars/${c.slug}` : `/dashboard/stock/${c.id}`);
+  const open = (c: Car) => (synced ? carHref(c.slug) : `/dashboard/stock/${c.id}`);
 
   const columns: Column<Car>[] = [
     {

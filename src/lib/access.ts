@@ -14,8 +14,10 @@ let cache: { team: string; at: number; keys: Jwk[] } | null = null;
 let failedAt = 0; // a failed fetch is remembered briefly, so an outage does not make every admin request call out
 const KEY_TTL_MS = 60 * 60 * 1000;
 
-async function fetchKeys(team: string): Promise<Jwk[]> {
-  if (cache && cache.team === team && Date.now() - cache.at < KEY_TTL_MS) return cache.keys;
+// `fresh`: a token named a key we do not have, so Cloudflare may have rotated its keys: fetch again, at most once a minute, so tokens with
+// made-up key ids cannot make every request call out.
+async function fetchKeys(team: string, fresh = false): Promise<Jwk[]> {
+  if (cache && cache.team === team && Date.now() - cache.at < (fresh ? 60_000 : KEY_TTL_MS)) return cache.keys;
   if (Date.now() - failedAt < 30_000) throw new Error("access keys unavailable");
   const res = await fetch(`https://${team}/cdn-cgi/access/certs`).catch(() => null);
   if (!res?.ok) {
@@ -30,13 +32,14 @@ async function fetchKeys(team: string): Promise<Jwk[]> {
 const part = (s: string) => JSON.parse(Buffer.from(s, "base64url").toString("utf8"));
 
 // Returns the signed-in email, or null for anything wrong: no token, bad shape, wrong key, wrong audience or issuer, expired.
-export async function verifyAccessJwt(token: string | null | undefined, cfg: AccessConfig, getKeys: (team: string) => Promise<Jwk[]> = fetchKeys, nowSec = Math.floor(Date.now() / 1000)): Promise<{ email: string } | null> {
+export async function verifyAccessJwt(token: string | null | undefined, cfg: AccessConfig, getKeys: (team: string, fresh?: boolean) => Promise<Jwk[]> = fetchKeys, nowSec = Math.floor(Date.now() / 1000)): Promise<{ email: string } | null> {
   try {
     const [h, p, s, extra] = (token ?? "").split(".");
     if (!h || !p || !s || extra !== undefined) return null;
     const header = part(h);
     if (header.alg !== "RS256") return null;
-    const jwk = (await getKeys(cfg.team)).find((k) => k.kid === header.kid);
+    const find = async (fresh: boolean) => (await getKeys(cfg.team, fresh)).find((k) => k.kid === header.kid);
+    const jwk = (await find(false)) ?? (await find(true));
     if (!jwk) return null;
     const key = await crypto.subtle.importKey("jwk", jwk, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["verify"]);
     const ok = await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, Buffer.from(s, "base64url"), new TextEncoder().encode(`${h}.${p}`));

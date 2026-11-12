@@ -12,6 +12,7 @@ import { dublinDay, fmtEur } from "@/lib/admin/format";
 import { newId } from "@/lib/admin/ids";
 import { fieldErrors } from "@/lib/admin/validation";
 import { EMAIL_INVALID } from "@/lib/copy";
+import { LIMITS } from "@/lib/leads/constants";
 import { carTitleOf } from "@/lib/admin/seed-data";
 import { BAD_COST, parseCost } from "@/lib/admin/margins";
 import { can } from "@/lib/permissions";
@@ -75,8 +76,9 @@ export async function toggleSoldAction(id: string) {
   redirect("/dashboard/stock");
 }
 
+// Deleting is for owners and managers (the settings permission, as for a forced sync): it cannot be undone. Everyone else marks it sold.
 export async function deleteCarAction(id: string) {
-  if (await readOnly()) return;
+  if ((await readOnly()) || !(await can("settings"))) return;
   const car = await adminCar(id);
   await removeCar(id);
   await costsStore.remove(id); // the cost and the prep go with the car
@@ -100,7 +102,7 @@ const sale = z.object({
   salesperson: z.string().max(80).optional(),
   customerId: z.string().max(40).optional(),
   name: z.string().trim().max(80).optional(),
-  email: z.preprocess((v) => (v === "" ? undefined : v), z.string().trim().toLowerCase().email(EMAIL_INVALID).max(120).optional()),
+  email: z.preprocess((v) => (v === "" ? undefined : v), z.string().trim().toLowerCase().email(EMAIL_INVALID).max(LIMITS.email).optional()),
   phone: z.string().trim().max(30).optional(),
 });
 

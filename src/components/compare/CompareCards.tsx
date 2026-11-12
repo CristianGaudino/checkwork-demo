@@ -13,7 +13,7 @@ import { MAX_COMPARE, clearCompare, removeCompare, restoreCompare, useCompareIds
 import { rank } from "@/lib/compare/rank";
 import type { Mark } from "@/lib/compare/rank";
 import { payableEur, priceInfo } from "@/lib/stock/price";
-import { carTitle, specRows } from "@/lib/stock/format";
+import { carTitle, specRows, carHref } from "@/lib/stock/format";
 import { Mileage } from "@/components/Mileage";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
@@ -114,7 +114,7 @@ export function CompareCards() {
           <article key={car.id} data-testid="compare-card" aria-label={carTitle(car)} className={`group flex flex-col overflow-hidden ${card} md:row-span-3 md:grid md:grid-rows-subgrid`}>
             <div className="relative aspect-photo bg-photo-bg">
               {/* The same swipeable photos as a stock card, so cars compare by look as well as by figures. */}
-              <PhotoCarousel photos={car.photos} href={`/used-cars/${car.slug}`} label={carTitle(car)} priority={false} />
+              <PhotoCarousel photos={car.photos} href={carHref(car.slug)} label={carTitle(car)} priority={false} />
               <button
                 type="button"
                 aria-label={`Remove ${carTitle(car)}`}
@@ -130,7 +130,7 @@ export function CompareCards() {
             <div className="flex flex-col gap-0.5 p-4 pb-2">
               <p className="text-meta text-text-2">{car.make}</p>
               <h2 className="text-body font-semibold">
-                <Link href={`/used-cars/${car.slug}`} className="hover:underline">
+                <Link href={carHref(car.slug)} className="hover:underline">
                   {[car.model, car.variant].filter(Boolean).join(" ")}
                 </Link>
               </h2>

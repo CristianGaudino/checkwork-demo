@@ -9,13 +9,19 @@ import type { Car, StockProvider } from "./types";
 // shortcut: every call works on a snapshot of the whole table, kept for 30 seconds per Worker instance and filtered in memory by the engine.
 // Fine for a few hundred cars. With more, query D1 by filter and page it instead of loading it all.
 const TTL_MS = 30_000;
-let snapshot: { at: number; engine: StockProvider } | undefined;
+// The promise is kept, not the result, so requests that arrive together while it loads share one read of the table.
+let snapshot: { at: number; engine: Promise<StockProvider> } | undefined;
 
-async function engine(): Promise<StockProvider> {
+function engine(): Promise<StockProvider> {
   if (snapshot && Date.now() - snapshot.at < TTL_MS) return snapshot.engine;
-  const rows = await getDb().select({ data: cars.data }).from(cars);
-  snapshot = { at: Date.now(), engine: createStockEngine(rows.map((r) => r.data as Car)) };
-  return snapshot.engine;
+  const load = getDb()
+    .select({ data: cars.data })
+    .from(cars)
+    .then((rows) => createStockEngine(rows.map((r) => r.data as Car)));
+  const mine = { at: Date.now(), engine: load };
+  snapshot = mine;
+  load.catch(() => void (snapshot === mine && (snapshot = undefined))); // a failed read is not kept: the next request tries again
+  return load;
 }
 
 // The admin changed a car: the next read rebuilds the snapshot instead of waiting out the 30 seconds.

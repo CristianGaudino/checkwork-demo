@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { REDUCED_MOTION, useMediaQuery } from "@/components/useMediaQuery";
 import { LeadPageForm } from "@/components/leads/LeadPageForm";
 import { MESSAGE_SENT } from "@/lib/leads/constants";
 import { CheckIcon } from "@/components/stock/icons";
@@ -12,11 +13,6 @@ export type Service = { readonly name: string; readonly blurb: string; readonly 
 // From 640px the cards sit in a row with one panel under it; on a phone each card opens its own panel right under itself. Only one of the
 // two is ever mounted, so there is never a second form on the page.
 const WIDE = "(min-width: 640px)";
-const watchWide = (cb: () => void) => {
-  const q = window.matchMedia(WIDE);
-  q.addEventListener("change", cb);
-  return () => q.removeEventListener("change", cb);
-};
 
 // What a service covers, as ruled rows with a call prompt under them, and the message form beside them.
 function Panel({ service }: { service: Service }) {
@@ -59,7 +55,7 @@ function Slide({ id, open, onClosed, children }: { id: string; open: boolean; on
 export function ServiceMenu({ services }: { services: readonly Service[] }) {
   const [open, setOpen] = useState<string>();
   const [last, setLast] = useState<string>(); // the panel that is still sliding shut keeps its content until it has shut
-  const wide = useSyncExternalStore(watchWide, () => window.matchMedia(WIDE).matches, () => false);
+  const wide = useMediaQuery(WIDE);
   const toggle = (name: string) => {
     if (open) setLast(open);
     setOpen(open === name ? undefined : name);
@@ -68,7 +64,7 @@ export function ServiceMenu({ services }: { services: readonly Service[] }) {
   // shut (which moves the page), and only moves the page when the card is low down or has gone under the header.
   useEffect(() => {
     if (wide || !open) return;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = window.matchMedia(REDUCED_MOTION).matches;
     const t = setTimeout(() => {
       const card = document.getElementById(`service-card-${services.findIndex((s) => s.name === open)}`);
       const top = card?.getBoundingClientRect().top ?? 0;

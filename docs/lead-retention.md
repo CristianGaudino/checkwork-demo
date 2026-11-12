@@ -90,9 +90,11 @@ The admin inbox (#20) replaces this with fresh links.
 
 ## Leads that were not emailed
 
-The lead row is the record; the email to the dealer is a notification. If that email fails, the buyer still sees success, the row keeps `notified_at` empty, and the Worker writes one error-level `notify_failed` log line with only the lead id, type and outcome. No contact details are ever logged.
+The lead row is the record; the email to the dealer is a notification. If that email fails, the buyer is asked to call or try again, the row keeps `notified_at` empty, and the Worker writes one error-level `notify_failed` log line with only the lead id, type and outcome. No contact details are ever logged.
 
-When Workers Logs show a `notify_failed` line, or every morning until #20 ships (an outage of the email service shows up nowhere else), run:
+The lead still reaches the dashboard, with a note on it that the email didn't go, so the team sees it without this query. If the buyer tries again, it arrives a second time.
+
+To find them from the database, when Workers Logs show a `notify_failed` line, run:
 
 ```sql
 SELECT id, type, created_at FROM leads WHERE notified_at IS NULL ORDER BY created_at DESC;

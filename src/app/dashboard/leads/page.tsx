@@ -2,28 +2,30 @@ import Link from "next/link";
 import { LeadStatusBadge } from "@/components/admin/badges";
 import { Avatar, DataTable, EmptyState, FilterTabs, PageHeader, Pager, SearchBar, SummaryTabs, adminButtonQuiet, paginate } from "@/components/admin/kit";
 import { can } from "@/lib/permissions";
-import { LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_TYPES, LEAD_TYPE_LABELS, leadsStore } from "@/lib/admin/collections";
+import { LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_TYPES, LEAD_TYPE_LABELS, getSettings, leadsStore } from "@/lib/admin/collections";
 import { dublinDay, fmtAgo, fmtDate } from "@/lib/admin/format";
 import { countByStatus, filterLeads, followUpDue, isOpenLead, parseLeadFilter } from "@/lib/admin/leads";
 
 export const metadata = { title: "Leads" };
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ status?: string; type?: string; q?: string; due?: string; page?: string }> }) {
+export default async function Page({ searchParams }: { searchParams: Promise<{ status?: string; type?: string; q?: string; due?: string; late?: string; page?: string }> }) {
   const sp = await searchParams;
   const f = parseLeadFilter(sp);
-  const all = await leadsStore.list();
+  const [all, { leadSlaHours }] = await Promise.all([leadsStore.list(), getSettings()]);
   const counts = countByStatus(all);
   const today = dublinDay();
   const due = all.filter((l) => followUpDue(l, today)).length;
-  const { rows, page, pageCount, total } = paginate(filterLeads(all, f, today), sp.page);
+  const late = filterLeads(all, { q: "", late: true }, today, leadSlaHours).length;
+  const { rows, page, pageCount, total } = paginate(filterLeads(all, f, today, leadSlaHours), sp.page);
   // Links keep the other filters, so picking a status does not forget the type or the search.
-  const href = (over: { status?: string; type?: string; due?: boolean }) => {
+  const href = (over: { status?: string; type?: string; due?: boolean; late?: boolean }) => {
     const p = new URLSearchParams();
     const status = "status" in over ? over.status : f.status;
     const type = "type" in over ? over.type : f.type;
     if (status) p.set("status", status);
     if (type) p.set("type", type);
     if ("due" in over ? over.due : f.due) p.set("due", "1");
+    if ("late" in over ? over.late : f.late) p.set("late", "1");
     if (f.q) p.set("q", f.q);
     const qs = p.toString();
     return `/dashboard/leads${qs ? `?${qs}` : ""}`;
@@ -51,13 +53,14 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
           label="Type of lead"
           items={[{ label: "All types", href: href({ type: undefined }), active: !f.type }, ...LEAD_TYPES.map((t) => ({ label: LEAD_TYPE_LABELS[t], href: href({ type: t }), active: f.type === t }))]}
         />
-        <SearchBar action="/dashboard/leads" value={f.q} placeholder="Search name, email, car" label="Search leads" keep={{ status: f.status, type: f.type, due: f.due ? "1" : undefined }} />
+        <SearchBar action="/dashboard/leads" value={f.q} placeholder="Search name, phone, email, car" label="Search leads" keep={{ status: f.status, type: f.type, due: f.due ? "1" : undefined, late: f.late ? "1" : undefined }} />
       </div>
       <FilterTabs
-        label="Follow-ups"
+        label="Needs a reply"
         items={[
-          { label: "Any follow-up", href: href({ due: false }), active: !f.due },
-          { label: "Follow-ups due", href: href({ due: true }), active: Boolean(f.due), count: due },
+          { label: "Any", href: href({ due: false, late: false }), active: !f.due && !f.late },
+          { label: "Follow-ups due", href: href({ due: true, late: false }), active: Boolean(f.due), count: due },
+          { label: "Past reply target", href: href({ late: true, due: false }), active: Boolean(f.late), count: late },
         ]}
       />
       <DataTable

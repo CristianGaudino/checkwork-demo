@@ -1,5 +1,5 @@
 import { SITE_URL } from "@/lib/site";
-import { formatPrice } from "@/lib/stock/format";
+import { formatPrice, carHref } from "@/lib/stock/format";
 import type { LeadRow } from "./process";
 import { EMPLOYMENT } from "./constants";
 import { DETAIL_LABELS, TYPE_LABELS } from "./schema";
@@ -28,7 +28,7 @@ export function buildLeadEmail(row: LeadRow, opts: { demo: boolean; photoPaths?:
     row.message && `Message:\n${row.message}`,
     row.carTitle && `Car: ${row.carTitle}`,
     row.carPriceEur !== null && `Price: ${formatPrice(row.carPriceEur)}`,
-    row.carSlug && `Car page: ${SITE_URL}/used-cars/${row.carSlug}`,
+    row.carSlug && `Car page: ${SITE_URL}${carHref(row.carSlug)}`,
     ...(opts.photoPaths ?? []).map((p, i) => `Photo ${i + 1}: ${SITE_URL}${p}`),
     `Sent from: ${SITE_URL}${row.sourcePath}`,
     `Consent: ${row.consentAt.toISOString()}, version ${row.consentVersion}`,

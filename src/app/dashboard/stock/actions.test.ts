@@ -51,6 +51,16 @@ describe("stock synced from DoneDeal", () => {
     expect(r?.errors?.make).toMatch(/DoneDeal/);
   });
 
+  it("lets only owners and managers delete a car of our own: sales can still mark it sold", async () => {
+    stockCookie = "checkwork";
+    const car = (await adminCars()).find((c) => !c.soldAt)!;
+    await deleteCarAction(car.id);
+    expect(await adminCar(car.id)).toBeDefined(); // Sales: refused
+    role = "Manager";
+    await expect(deleteCarAction(car.id)).rejects.toThrow(/redirect/);
+    expect(await adminCar(car.id)).toBeUndefined();
+  });
+
   it("with our own stock the same press does mark the car sold", async () => {
     stockCookie = "checkwork";
     const car = (await adminCars()).find((c) => !c.soldAt)!;

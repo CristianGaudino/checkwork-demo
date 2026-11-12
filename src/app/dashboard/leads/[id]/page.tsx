@@ -14,6 +14,9 @@ import type { LeadStatus } from "@/lib/admin/collections";
 import { addNoteAction, assignLeadAction, setFollowUpAction, setStatusAction } from "../actions";
 import { dublinDay, fmtDate } from "@/lib/admin/format";
 import { followUpDue, isOpenLead } from "@/lib/admin/leads";
+import { signPhotoPath } from "@/lib/leads/photos";
+import { telHref, waHref } from "@/lib/phone";
+import { carHref } from "@/lib/stock/format";
 
 // The quick actions on a lead: the steps it moves through. New is where it starts, so it has no button.
 const STATUS_ACTIONS: { status: LeadStatus; Icon: typeof PhoneIcon }[] = [
@@ -33,7 +36,11 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const car = lead.carSlug ? (await adminCars()).find((c) => c.slug === lead.carSlug) : undefined;
   const carSold = car !== undefined && isSold(car);
   const today = dublinDay();
-  const wa = lead.phone.replace(/[^\d]/g, "");
+  const tel = telHref(lead.phone);
+  const wa = waHref(lead.phone);
+  // Their car's photos, on links that last an hour: the email's links expire after 7 days, the photos are kept 12 months.
+  const secret = process.env.PHOTO_LINK_SECRET;
+  const photos = secret ? await Promise.all((lead.photoKeys ?? []).map((k) => signPhotoPath(k, secret, 3600))) : [];
 
   return (
     <>
@@ -53,7 +60,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             {lead.carTitle && lead.carSlug && (
               <p className="text-meta text-text-2">
                 About{" "}
-                <Link href={`/used-cars/${lead.carSlug}`} className="inline-flex min-h-11 items-center font-medium text-text underline">
+                <Link href={carHref(lead.carSlug)} className="inline-flex min-h-11 items-center font-medium text-text underline">
                   {lead.carTitle}
                 </Link>
               </p>
@@ -68,6 +75,20 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
               </p>
             )}
           </Panel>
+          {photos.length > 0 && (
+            <Panel title="Photos">
+              <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                {photos.map((src, i) => (
+                  <li key={src}>
+                    <a href={src} {...NEW_TAB} className="block overflow-hidden rounded-control">
+                      {/* eslint-disable-next-line @next/next/no-img-element -- a private, signed link: not for the image optimiser */}
+                      <img src={src} alt={`Photo ${i + 1} of their car (opens in a new tab)`} className="aspect-square w-full object-cover" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </Panel>
+          )}
           {/* Selling or trading in: the car's plate, and a lookup so the dealer sees what it is before calling back. */}
           {lead.reg && (
             <Panel title="Their car">
@@ -110,18 +131,25 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
               <span className="break-all">{lead.email}</span>
               <span>{lead.phone}</span>
             </p>
+            {/* Only the ways this person can be reached: a website lead may give a phone or an email, not both. */}
             <div className="grid grid-cols-3 gap-2">
-              <a href={`tel:${wa}`} className={rowButton}>
-                <PhoneIcon className="size-4" />
-                Call
-              </a>
-              <a href={`mailto:${lead.email}`} className={rowButton}>
-                Email
-              </a>
-              <a href={`https://wa.me/${wa}`} {...NEW_TAB} className={rowButton}>
-                <WhatsAppIcon className="size-4 text-whatsapp" />
-                WhatsApp<span className="sr-only"> (opens in a new tab)</span>
-              </a>
+              {tel && (
+                <a href={tel} className={rowButton}>
+                  <PhoneIcon className="size-4" />
+                  Call
+                </a>
+              )}
+              {lead.email && (
+                <a href={`mailto:${lead.email}`} className={rowButton}>
+                  Email
+                </a>
+              )}
+              {wa && (
+                <a href={wa} {...NEW_TAB} className={rowButton}>
+                  <WhatsAppIcon className="size-4 text-whatsapp" />
+                  WhatsApp<span className="sr-only"> (opens in a new tab)</span>
+                </a>
+              )}
             </div>
           </Panel>
           <Panel title="Status" action={<LeadStatusBadge status={lead.status} />}>

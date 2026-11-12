@@ -1,14 +1,14 @@
 import "server-only";
 import { logActivity } from "@/lib/admin/activity";
 import { carEditSummary } from "@/lib/admin/activity-text";
-import { getSettings, salesStore } from "@/lib/admin/collections";
+import { getSettings, leaderEmails, salesStore } from "@/lib/admin/collections";
 import { defineCollection } from "@/lib/admin/docs";
 import { dublinDay } from "@/lib/admin/format";
 import { carTitleOf } from "@/lib/admin/seed-data";
 import { adminCars, saveCar } from "@/lib/admin/stock-admin";
 import { sendTo } from "@/lib/leads/mail";
 import { DEMO_BAR_ENABLED } from "@/lib/demo";
-import { SITE_NAME } from "@/lib/site";
+import { SITE_NAME, TIME_ZONE } from "@/lib/site";
 import type { Car } from "@/lib/stock/types";
 import { HOUR, MINUTE } from "@/lib/time";
 import { fetchListings, type FeedResult } from "./feed";
@@ -95,11 +95,9 @@ async function failed(prev: SyncStatus, problem: string, held: boolean, now: num
   return status;
 }
 
-// The owners and managers on the team, and the owners named in ADMIN_OWNER_EMAILS. Never a customer address.
 async function alertOwners(problem: string, lastOkAt?: number): Promise<boolean> {
-  const { team } = await getSettings();
-  const to = [...new Set([...team.filter((t) => t.role === "Owner" || t.role === "Manager").map((t) => t.email), ...(process.env.ADMIN_OWNER_EMAILS ?? "").split(",")].map((e) => e.trim().toLowerCase()).filter(Boolean))];
-  const since = lastOkAt ? `since ${new Date(lastOkAt).toLocaleString("en-IE", { timeZone: "Europe/Dublin", dateStyle: "medium", timeStyle: "short" })}` : "yet";
+  const to = leaderEmails((await getSettings()).team);
+  const since = lastOkAt ? `since ${new Date(lastOkAt).toLocaleString("en-IE", { timeZone: TIME_ZONE, dateStyle: "medium", timeStyle: "short" })}` : "yet";
   try {
     await sendTo(to, {
       subject: `${SITE_NAME}: the DoneDeal stock has not updated ${since}`,

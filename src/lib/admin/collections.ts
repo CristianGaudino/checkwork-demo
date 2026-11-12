@@ -5,12 +5,14 @@ import { defineCollection, seedsDemoRecords } from "./docs";
 import { NETWORKS, type Network } from "./networks";
 import { demoCost } from "./margins";
 import { DAY, HOUR } from "@/lib/time";
+import { dublinDay } from "./format";
+import { ALERT_KINDS } from "@/lib/leads/schema";
 import type { Role } from "@/lib/permission-rules";
 import type { PrepLine } from "./prep";
 import { carTitleOf, livePicks, person, rng } from "./seed-data";
 
-// The dealer's records. Each is a collection in the record store, with a typed shape and a seed. Never the real leads table: the admin
-// is open on the public demo, so it only ever shows made-up records (see the audit note in docs/v2-plan.md).
+// The dealer's records. Each is a collection in the record store, with a typed shape and a seed. The dashboard is behind Cloudflare
+// Access, and what visitors send is copied in from the leads table (real-leads.ts), so these hold real personal data too.
 
 // ---- Leads ----
 export const LEAD_STATUSES = ["new", "contacted", "appointment", "won", "lost"] as const;
@@ -33,6 +35,7 @@ export type Lead = {
   carSlug?: string;
   carTitle?: string;
   reg?: string; // the registration of the car a person wants to sell or trade in
+  photoKeys?: string[]; // their car's photos, in the private bucket; the lead page signs short links to them
   assignedTo?: string;
   followUpOn?: string; // YYYY-MM-DD, the Irish day to get back to them; cleared once the lead is won or lost
   notes: { at: number; text: string }[];
@@ -79,7 +82,7 @@ function seedLeads(): Lead[] {
       ...((type === "trade-in" || type === "sell") && { reg: `${15 + (i % 9)}${1 + (i % 2)}-${["D", "C", "KY", "G", "L", "WX"][i % 6]}-${1000 + i * 37}` }),
       assignedTo: status === "new" ? undefined : r.pick(TEAM_SEED).name,
       // A few open leads with a follow-up: one overdue, one today, two coming (by index, so the random sequence above is unchanged).
-      ...((status === "contacted" || status === "appointment") && i % 3 === 0 && { followUpOn: new Date(now + ((i % 4) - 1) * DAY).toLocaleDateString("en-CA", { timeZone: "Europe/Dublin" }) }),
+      ...((status === "contacted" || status === "appointment") && i % 3 === 0 && { followUpOn: dublinDay(now + ((i % 4) - 1) * DAY) }),
       notes: status === "contacted" || status === "appointment" ? [{ at: now - age + 2 * HOUR, text: "Called and left a message." }] : [],
       createdAt: now - age,
     };
@@ -125,7 +128,7 @@ function seedCustomers(): Customer[] {
 }
 export const customersStore = defineCollection<Customer>("customers", seedCustomers);
 
-export const ALERT_KINDS = ["back-in-stock", "price-drop", "new-arrival"] as const;
+export { ALERT_KINDS }; // the kinds the website's form takes (src/lib/leads/schema.ts), so the two never differ
 export type AlertKind = (typeof ALERT_KINDS)[number];
 export const ALERT_KIND_LABELS: Record<AlertKind, string> = { "back-in-stock": "Back in stock", "price-drop": "Price drop", "new-arrival": "New arrival" };
 export type StockAlert = { id: string; email: string; kind: AlertKind; criteria: string; active: boolean; createdAt: number; lastSentAt?: number };
@@ -181,6 +184,11 @@ export const reviewsStore = defineCollection<AdminReview>("reviews", seedReviews
 // ---- Settings: one record ----
 // Only what the admin itself uses. The business details (name, phone, hours) live in the site configuration and change with a deploy.
 export type TeamMember = { id: string; name: string; email: string; role: Role }; // matched to the signed-in Access email (src/lib/permissions.ts)
+// Who the dealer's own warnings go to: the owners and managers on the team, and the owners named in ADMIN_OWNER_EMAILS (a new dealer may
+// have no team yet). Lower case, each once. Never a customer address.
+export const leaderEmails = (team: TeamMember[]): string[] => [
+  ...new Set([...team.filter((t) => t.role === "Owner" || t.role === "Manager").map((t) => t.email), ...(process.env.ADMIN_OWNER_EMAILS ?? "").split(",")].map((e) => e.trim().toLowerCase()).filter(Boolean)),
+];
 export type DealerSettings = {
   id: "dealer";
   leadSlaHours: number; // a new lead waiting longer than this needs attention (overview)

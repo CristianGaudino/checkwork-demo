@@ -5,7 +5,7 @@ import { SoldBadge } from "@/components/stock/SoldBadge";
 import Link from "next/link";
 import { ArrowRightIcon } from "@/components/stock/icons";
 import { PriceBlock } from "@/components/stock/PriceBlock";
-import { carName, keyFacts } from "@/lib/stock/format";
+import { carName, keyFacts, carHref } from "@/lib/stock/format";
 import { CarMeta, FactValue } from "@/components/stock/CarMeta";
 import { rareMarker } from "@/lib/stock/markers";
 import { priceInfo } from "@/lib/stock/price";
@@ -15,7 +15,7 @@ import type { Car } from "@/lib/stock/types";
 // `oneLine`: the name on one line, cut with an ellipsis (the full name shows on hover and a tap opens the car). For rows of cards, such as
 // the featured cars, where a two line name would make the cards uneven.
 export function ListingCard({ car, priority, oneLine = false }: { car: Car; priority: boolean; oneLine?: boolean }) {
-  const href = `/used-cars/${car.slug}`;
+  const href = carHref(car.slug);
   const drop = priceInfo(car).drop;
   const marker = rareMarker(car);
   return (

@@ -19,6 +19,14 @@ describe("lead filters", () => {
     expect(filterLeads(leads, { type: "finance", q: "" }).map((l) => l.id)).toEqual(["a2"]);
     expect(filterLeads(leads, { q: "ford" }).map((l) => l.id)).toEqual(["a3", "a2"]);
   });
+  it("finds a phone number however it was typed, and lists new leads past the reply target", () => {
+    const H = 3_600_000;
+    const leads = [lead("a1", { phone: "+353 87 123 4567", createdAt: 0 }), lead("a2", { createdAt: 30 * H }), lead("a3", { status: "contacted", createdAt: 0 })];
+    expect(filterLeads(leads, { q: "087 123" }).map((l) => l.id)).toEqual(["a1"]);
+    expect(filterLeads(leads, { q: "87 1234" }).map((l) => l.id)).toEqual(["a1"]);
+    expect(filterLeads(leads, { q: "", late: true }, "", 24, 31 * H).map((l) => l.id)).toEqual(["a1"]);
+    expect(parseLeadFilter({ due: "1", late: "1" })).toMatchObject({ due: true, late: undefined });
+  });
   it("counts every status, including those with none", () => {
     expect(countByStatus([lead("a1"), lead("a2", { status: "lost" })])).toEqual({ new: 1, contacted: 0, appointment: 0, won: 0, lost: 1 });
   });

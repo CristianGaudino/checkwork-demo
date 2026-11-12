@@ -4,17 +4,16 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { logActivity } from "@/lib/admin/activity";
 import { DRIVE_STATUS_LABELS, drivesStore, getSettings } from "@/lib/admin/collections";
-import { DRIVE_MONTHS_AHEAD, clashes, parseDriveStatus } from "@/lib/admin/drives";
+import { clashes, parseDriveStatus } from "@/lib/admin/drives";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { carName } from "@/lib/stock/format";
 import { HOUR, MINUTE } from "@/lib/time";
 import { EMAIL_INVALID, NAME_REQUIRED } from "@/lib/copy";
 import { newId } from "@/lib/admin/ids";
-import { dublinMs } from "@/lib/admin/real-leads";
 import { fieldErrors } from "@/lib/admin/validation";
-import { addMonths, dublinDay } from "@/lib/admin/format";
+import { addMonths, dublinDay, dublinMs } from "@/lib/admin/format";
 import { isBankHoliday } from "@/lib/bank-holidays";
-import { driveTimes } from "@/lib/leads/constants";
+import { LIMITS, TEST_DRIVE, driveTimes, inDriveHours } from "@/lib/leads/constants";
 
 export type DriveFormState = { errors?: Record<string, string>; done?: string } | undefined;
 
@@ -30,7 +29,7 @@ export async function setDriveStatusAction(id: string, status: string) {
 const booking = z.object({
   name: z.string().trim().min(1, NAME_REQUIRED).max(80),
   phone: z.string().trim().min(6, "Enter a phone number").max(30),
-  email: z.preprocess((v) => (v === "" ? undefined : v), z.string().trim().email(EMAIL_INVALID).max(120).optional()),
+  email: z.preprocess((v) => (v === "" ? undefined : v), z.string().trim().email(EMAIL_INVALID).max(LIMITS.email).optional()),
   carSlug: z.string().min(1, "Choose a car"),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Choose a day"),
   time: z.string().regex(/^\d{2}:\d{2}$/, "Choose a time"),
@@ -48,10 +47,12 @@ export async function addDriveAction(_prev: DriveFormState, data: FormData): Pro
   if (Number.isNaN(startsAt)) return { errors: { date: "Choose a day" } };
   // An hour of grace, so "now" on the form is not refused. A typo for last year is.
   if (startsAt < Date.now() - HOUR) return { errors: { date: "Choose a day that has not passed" } };
-  // Up to two months ahead (a typo for next year is refused), and only on a day we are open: never a bank holiday or a closed day.
-  if (b.date > addMonths(dublinDay(), DRIVE_MONTHS_AHEAD)) return { errors: { date: "Choose a day in the next two months" } };
+  // The website's rules (TEST_DRIVE, driveTimes): up to two months ahead (a typo for next year is refused), only on a day we are open,
+  // never a bank holiday, and inside the driving hours. Today is allowed here, for someone at the desk.
+  if (b.date > addMonths(dublinDay(), TEST_DRIVE.monthsAhead)) return { errors: { date: "Choose a day in the next two months" } };
   if (isBankHoliday(b.date)) return { errors: { date: "That's a bank holiday. We're closed" } };
   if (!driveTimes(b.date).length) return { errors: { date: "We're closed that day" } };
+  if (!inDriveHours(b.date, b.time)) return { errors: { time: `Choose a time from ${driveTimes(b.date)[0]} to ${driveTimes(b.date).at(-1)}` } };
   const clash = clashes(await drivesStore.list(), car.slug, startsAt, undefined, (await getSettings()).driveSlotMinutes * MINUTE);
   if (clash.length) return { errors: { time: `${carName(car)} is already booked around then` } };
   const id = newId("drive");

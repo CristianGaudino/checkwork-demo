@@ -55,7 +55,7 @@ export interface Deps {
   demo: boolean;
   bucket: Pick<PhotoBucket, "put" | "delete">; // LEAD_PHOTOS, private EU R2 (D-13); only the signed route reads it
   photoLinkSecret(): string; // read only when a lead has photos, so other leads never need it
-  afterNotified?(row: LeadRow): Promise<void>; // best effort, after the dealer was emailed: the admin's copy of the lead
+  toAdmin?(row: LeadRow, emailed: boolean): Promise<void>; // best effort, once the email was tried: the admin's copy of the lead
 }
 
 const OK: LeadResult = { status: "ok" };
@@ -195,14 +195,14 @@ export async function processLead(fd: FormData, ctx: { ip: string }, deps: Deps)
       const photoPaths = await Promise.all(keys.map(async (k) => signPhotoPath(k, deps.photoLinkSecret())));
       await deps.mailer.send({ ...buildLeadEmail(row, { demo: deps.demo, photoPaths }), replyTo: row.email ?? undefined });
     } catch {
-      // The dealer was not told, so the buyer is not told "thanks": they see "we could not send this, call us" and their details
-      // stay in the form. The row stays (notified_at empty, for the owner to find, 03-06 runbook); the form sends a fresh
-      // clientRef on the retry, so it is stored and emailed again rather than answered as a duplicate.
+      // The dealer was not emailed, so the buyer is not told "thanks": they see "we could not send this, call us" and their details
+      // stay in the form. The lead still reaches the dashboard, marked as not emailed, so it is not lost if they never retry or call.
+      // A retry sends a fresh clientRef, so it is stored again: the dealer may see it twice, never not at all.
+      await deps.toAdmin?.(row, false).catch(() => {});
       logLead({ leadId, type: input.type, outcome: "notify_failed" });
       return SERVER;
     }
-    // The email went, so the lead is real: copy it to the admin. Never before, so a lead whose email failed is not mirrored twice on a retry.
-    await deps.afterNotified?.(row).catch(() => {});
+    await deps.toAdmin?.(row, true).catch(() => {});
     // If only this bookkeeping fails the buyer still gets ok, and the row reads as not notified.
     await deps.store.markNotified(row.id).catch(() => logLead({ leadId, type: input.type, outcome: "notify_failed" }));
     logLead({ leadId, type: input.type, outcome: "stored" });

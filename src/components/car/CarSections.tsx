@@ -6,7 +6,8 @@ import { ListingCard } from "@/components/stock/ListingCard";
 import { featureLabel, plainText, specRows } from "@/lib/stock/format";
 import { FactValue } from "@/components/stock/CarMeta";
 import { UnitToggle } from "@/components/UnitToggle";
-import type { Car } from "@/lib/stock/types";
+import { DEFAULT_QUERY, stockHref } from "@/lib/stock/query";
+import type { Car, StockQuery } from "@/lib/stock/types";
 
 const VISIBLE_FEATURES = 12;
 const LONG_DESCRIPTION = 700; // characters; the demo's longest is 978
@@ -99,6 +100,10 @@ export function Equipment({ car }: { car: Car }) {
   );
 }
 
+// A used car links to the body and make pages; a new car or a van to its own list, filtered the same way.
+const seeAll = (car: Car, filter: Pick<StockQuery, "body"> | Pick<StockQuery, "make">) =>
+  !car.condition || car.condition === "used" ? `/used-cars/${"body" in filter ? filter.body[0] : filter.make[0]}` : stockHref({ ...DEFAULT_QUERY, ...filter, condition: car.condition });
+
 export function SimilarCars({ car, cars }: { car: Car; cars: Car[] }) {
   if (!cars.length) return null;
   return (
@@ -108,11 +113,11 @@ export function SimilarCars({ car, cars }: { car: Car; cars: Car[] }) {
         {/* More of the same kind of car, and more of the same make. */}
         <div className="flex flex-wrap gap-x-6">
           {car.bodySlug && car.bodyType && (
-            <Link href={`/used-cars/${car.bodySlug}`} className="inline-flex min-h-11 items-center font-semibold underline">
+            <Link href={seeAll(car, { body: [car.bodySlug] })} className="inline-flex min-h-11 items-center font-semibold underline">
               See all {car.bodyType}s
             </Link>
           )}
-          <Link href={`/used-cars/${car.makeSlug}`} className="inline-flex min-h-11 items-center font-semibold underline">
+          <Link href={seeAll(car, { make: [car.makeSlug] })} className="inline-flex min-h-11 items-center font-semibold underline">
             See all {car.make}
           </Link>
         </div>

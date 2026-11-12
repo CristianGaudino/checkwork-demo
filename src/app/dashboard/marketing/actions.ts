@@ -14,7 +14,7 @@ import { logActivity } from "@/lib/admin/activity";
 import { fmtEur } from "@/lib/admin/format";
 import { aOrAn } from "@/lib/admin/activity-text";
 import type { ComposerCar } from "@/components/admin/PostComposer";
-import { dublinMs } from "@/lib/admin/real-leads";
+import { dublinMs } from "@/lib/admin/format";
 
 const postRef = (p: SocialPost) => ({ kind: "post" as const, id: p.id, label: p.carTitle ?? "A post" });
 const adRef = (a: Ad) => ({ kind: "ad" as const, id: a.id, label: a.carTitle });

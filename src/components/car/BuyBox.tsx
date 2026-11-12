@@ -9,7 +9,7 @@ import { priceInfo } from "@/lib/stock/price";
 import { rareMarker } from "@/lib/stock/markers";
 import { CarMeta, FactValue } from "@/components/stock/CarMeta";
 import { PriceBlock } from "@/components/stock/PriceBlock";
-import { carName, carSummary, keyFacts } from "@/lib/stock/format";
+import { carName, carSummary, keyFacts, carHref } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 import { accentButton, card } from "@/components/ui";
@@ -24,7 +24,7 @@ export function BuyBox({ car }: { car: Car }) {
   const price = priceInfo(car);
   const warranty = car.condition === "new" ? NEW_CAR_WARRANTY : WARRANTY;
   const marker = rareMarker(car);
-  const url = `${SITE_URL}/used-cars/${car.slug}`;
+  const url = `${SITE_URL}${carHref(car.slug)}`;
   const whatsapp = `${DEALER_WHATSAPP}?text=${encodeURIComponent(`Hi, I'm interested in the ${carName(car)}: ${url}`)}`;
   return (
     <div data-testid="buy-box" className="flex flex-col gap-5">

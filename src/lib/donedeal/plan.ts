@@ -37,4 +37,3 @@ export function planSync(current: Car[], listings: Car[], today: string, { force
   return { added, changed, gone: gone.map((c) => ({ ...c, soldAt: today })) };
 }
 
-export const planSize = (p: Plan) => p.added.length + p.changed.length + p.gone.length;

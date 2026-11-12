@@ -1,7 +1,7 @@
 import "server-only";
 import { sendTo } from "@/lib/leads/mail";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
-import { getSettings, leadsStore, LEAD_TYPE_LABELS, type Lead, type TeamMember } from "./collections";
+import { getSettings, leaderEmails, leadsStore, LEAD_TYPE_LABELS, type Lead, type TeamMember } from "./collections";
 import { followUpDue } from "./follow-ups";
 import { dublinDay, fmtDate } from "./format";
 
@@ -10,7 +10,7 @@ import { dublinDay, fmtDate } from "./format";
 // Staff email to staff about the dealer's own leads, like the new-lead email: a name, the kind of lead and a link, never the message.
 export function digestGroups(leads: Lead[], team: TeamMember[], today: string): Map<string, Lead[]> {
   const byName = new Map(team.map((t) => [t.name, t.email]));
-  const leaders = team.filter((t) => t.role === "Owner" || t.role === "Manager").map((t) => t.email);
+  const leaders = leaderEmails(team);
   const out = new Map<string, Lead[]>();
   for (const l of leads.filter((x) => followUpDue(x, today))) {
     const to = l.assignedTo && byName.has(l.assignedTo) ? [byName.get(l.assignedTo)!] : leaders;

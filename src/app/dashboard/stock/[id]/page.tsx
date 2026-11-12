@@ -8,7 +8,7 @@ import { costsStore, prepStore } from "@/lib/admin/collections";
 import { PrepPanel } from "@/components/admin/PrepPanel";
 import { adminCar } from "@/lib/admin/stock-admin";
 import { can } from "@/lib/permissions";
-import { carName } from "@/lib/stock/format";
+import { carName, carHref } from "@/lib/stock/format";
 import { stockSource } from "@/lib/stock-source";
 import { deleteCarAction, saveCostAction } from "../actions";
 
@@ -19,8 +19,8 @@ export default async function Page({ params, searchParams }: { params: Promise<{
   const costSaved = (await searchParams).cost === "saved";
   const car = await adminCar(id);
   if (!car) notFound();
-  const view = <Link href={`/used-cars/${car.slug}`} className={adminButtonQuiet}>View on the site</Link>;
-  const margins = await can("margins");
+  const view = <Link href={carHref(car.slug)} className={adminButtonQuiet}>View on the site</Link>;
+  const [margins, canDelete] = await Promise.all([can("margins"), can("settings")]);
   const cost = margins ? { eur: (await costsStore.get(id))?.costEur } : undefined;
   // Prep, for staff who see margins: in both versions, since it is the dealer's own spend.
   const prep = margins ? <PrepPanel carId={car.id} lines={(await prepStore.get(id))?.lines ?? []} /> : null;
@@ -50,16 +50,19 @@ export default async function Page({ params, searchParams }: { params: Promise<{
       <PageHeader title={carName(car)} actions={view} />
       <CarForm car={car} cost={cost} />
       {prep}
-      {/* Out of the way, at the end: marking a car sold is nearly always what is wanted, and it keeps the car's page as Sold for a while. */}
-      <Panel title="Delete this car">
-        <p className="max-w-measure text-body text-text-2">It leaves the site at once and its link stops working. To keep it on the site as sold, use Mark sold instead.</p>
-        <form action={deleteCarAction.bind(null, car.id)}>
-          <button type="submit" className="inline-flex h-11 items-center gap-2 rounded-control border border-bad px-4 text-meta font-medium text-bad">
-            <TrashIcon className="size-4" />
-            Delete {carName(car)}
-          </button>
-        </form>
-      </Panel>
+      {/* Out of the way, at the end: marking a car sold is nearly always what is wanted, and it keeps the car's page as Sold for a while.
+          Owners and managers only; the server refuses anyone else. */}
+      {canDelete && (
+        <Panel title="Delete this car">
+          <p className="max-w-measure text-body text-text-2">It leaves the site at once and its link stops working. To keep it on the site as sold, use Mark sold instead.</p>
+          <form action={deleteCarAction.bind(null, car.id)}>
+            <button type="submit" className="inline-flex h-11 items-center gap-2 rounded-control border border-bad px-4 text-meta font-medium text-bad">
+              <TrashIcon className="size-4" />
+              Delete {carName(car)}
+            </button>
+          </form>
+        </Panel>
+      )}
     </>
   );
 }

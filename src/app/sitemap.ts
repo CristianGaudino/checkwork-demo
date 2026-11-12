@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { SITE_URL, indexable } from "@/lib/site";
 import { queryAll } from "@/lib/stock";
 import { isSold } from "@/lib/stock/types";
+import { carHref } from "@/lib/stock/format";
 
 // Cars leave the sold window without a deploy, so this must not be cached at build (RESEARCH Pitfall 5).
 export const dynamic = "force-dynamic";
@@ -36,6 +37,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // A make page, and its new and van lists, while a car of that make is in stock (the empty ones are noindex).
     ...[...new Set([...cars.filter((c) => !isSold(c)), ...others].map((c) => c.makeSlug))].map((m) => ({ url: `${SITE_URL}/makes/${m}` })),
     ...[...new Set(others.map((c) => `${c.condition === "new" ? "new-cars" : "commercial"}/${c.makeSlug}`))].map((p) => ({ url: `${SITE_URL}/${p}` })),
-    ...[...cars, ...others].map((c) => ({ url: `${SITE_URL}/used-cars/${c.slug}`, ...(c.listedAt && { lastModified: c.listedAt }) })),
+    ...[...cars, ...others].map((c) => ({ url: `${SITE_URL}${carHref(c.slug)}`, ...(c.listedAt && { lastModified: c.listedAt }) })),
   ];
 }

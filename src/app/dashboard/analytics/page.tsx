@@ -6,7 +6,7 @@ import { fmtNum, fmtPct } from "@/lib/admin/format";
 import { leadsStore } from "@/lib/admin/collections";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { isConnected } from "@/lib/integrations";
-import { carName } from "@/lib/stock/format";
+import { carName, carHref } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
 
 export const metadata = { title: "Analytics" };
@@ -72,7 +72,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
           rows={a.topCars}
           rowKey={(t) => t.slug}
           columns={[
-            { key: "car", header: "Car", cell: (t) => <Link href={`/used-cars/${t.slug}`} className="font-semibold underline-offset-2 hover:underline">{t.title}</Link> },
+            { key: "car", header: "Car", cell: (t) => <Link href={carHref(t.slug)} className="font-semibold underline-offset-2 hover:underline">{t.title}</Link> },
             { key: "views", header: "Views", align: "right", cell: (t) => fmtNum(t.views) },
             { key: "saves", header: "Saved", align: "right", cell: (t) => fmtNum(t.saves) },
             { key: "leads", header: "Leads", align: "right", cell: (t) => fmtNum(t.leads) },
