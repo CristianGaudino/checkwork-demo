@@ -4,7 +4,7 @@ import { card, press } from "@/components/ui";
 import { AppliedFilters, DensityToggle, Filters, LiveSearch, SortHeader, type FilterGroup } from "./TableTools";
 import { PER_PAGE_DEFAULT, perPage } from "@/lib/admin/paging";
 import { fmtNum } from "@/lib/admin/format";
-export { DensityToggle, LiveSearch, TableFooter, type FilterGroup } from "./TableTools";
+export { TableFooter, type FilterGroup } from "./TableTools";
 
 // The admin kit: the few pieces every admin page is made of. Same tokens as the site, denser and calmer.
 
@@ -195,13 +195,12 @@ export function SummaryTabs({ items, label = "Filter" }: { items: SummaryTab[]; 
 
 // Above a table: its search and one Filters button (every filter it has, in a panel), the density switch at the end of the row, and under
 // them the filters that are on, as chips to take off. On a phone the search and Filters share a row and the density switch is left out.
-export function TableToolbar({ search, filters, children }: { search?: { placeholder: string; label: string }; filters?: FilterGroup[]; children?: React.ReactNode }) {
+export function TableToolbar({ search, filters }: { search?: { placeholder: string; label: string }; filters?: FilterGroup[] }) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2">
         {search && <LiveSearch placeholder={search.placeholder} label={search.label} />}
         {filters && filters.length > 0 && <Filters groups={filters} />}
-        {children}
         <div className="ml-auto hidden sm:block">
           <DensityToggle />
         </div>

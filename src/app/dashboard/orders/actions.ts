@@ -10,7 +10,7 @@ import { addDays, addMonths, dublinDay, fmtEur } from "@/lib/admin/format";
 import { newId } from "@/lib/admin/ids";
 import { adminCar, freeCarId, saveCar } from "@/lib/admin/stock-admin";
 import { carSlug, slugify } from "@/lib/admin/stock-admin-pure";
-import { fieldErrors } from "@/lib/admin/validation";
+import { fieldErrors, isoMonth } from "@/lib/admin/validation";
 import { regPeriods } from "@/lib/leads/reg-periods";
 import { can } from "@/lib/permissions";
 import { stockSource } from "@/lib/stock-source";
@@ -37,7 +37,7 @@ const placing = z.object({
   depositEur: z.preprocess(blank, euros(1_000_000).optional()),
   depositMethod: z.preprocess(blank, z.enum(DEPOSIT_METHODS).optional()),
   regPeriod: z.string().max(3),
-  expected: z.string().regex(/^\d{4}-\d{2}$/, "Choose the month it is due"),
+  expected: isoMonth("Choose the month it is due"),
   leadId: z.string().max(60).optional(),
   ...buyerFields,
 });

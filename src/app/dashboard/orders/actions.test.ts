@@ -38,6 +38,7 @@ describe("factory orders", () => {
     expect((await placeOrderAction(undefined, order({ customerId, depositEur: "50000" })))?.errors?.depositEur).toMatch(/more than the price/);
     expect((await placeOrderAction(undefined, order({ customerId, depositMethod: "" })))?.errors?.depositMethod).toMatch(/how the deposit/);
     expect((await placeOrderAction(undefined, order({ customerId, expected: "2020-01" })))?.errors?.expected).toBeTruthy();
+    expect((await placeOrderAction(undefined, order({ customerId, expected: `${today.slice(0, 4)}-13` })))?.errors?.expected).toBe("Choose the month it is due"); // not a month
     stockCookie = "donedeal";
     expect((await placeOrderAction(undefined, order({ customerId })))?.errors?.make).toMatch(/DoneDeal/);
   });

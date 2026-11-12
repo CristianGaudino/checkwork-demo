@@ -119,7 +119,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
                       <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-start">
                         <RoleForm member={t} owner={owner} />
                         {s.team.length > 1 && (
-                          <ActButton act={removeTeamAction.bind(null, t.id)} confirm={{ title: `Remove ${t.name} from the team?`, text: "Their leads go back to nobody. They can be added again later.", yes: "Remove" }} className={`${rowButton} text-bad`}>
+                          <ActButton act={removeTeamAction.bind(null, t.id)} confirm={{ title: `Remove ${t.name} from the team?`, text: "Their leads and test drives go back to nobody. They can be added again later.", yes: "Remove" }} className={`${rowButton} text-bad`}>
                             Remove
                           </ActButton>
                         )}

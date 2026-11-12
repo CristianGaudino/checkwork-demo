@@ -40,6 +40,7 @@ describe("warranty claims", () => {
     await leadsStore.put({ id: "lead-w", type: "warranty", status: "new", name: "Pat", email: "p@example.com", phone: "", message: "Gearbox noise", source: "Website", notes: [], createdAt: 0 });
     expect((await openClaimAction(undefined, form({ saleId: "", fault: "x", openedOn: today })))?.errors?.saleId).toBeTruthy();
     expect((await openClaimAction(undefined, form({ saleId: "900002", fault: "x", openedOn: "2019-01-01" })))?.errors?.openedOn).toMatch(/from the sale/);
+    expect((await openClaimAction(undefined, form({ saleId: "900002", fault: "x", openedOn: "2026-13-45" })))?.errors?.openedOn).toBe("Choose the day"); // not a day
     await expect(openClaimAction(undefined, form({ saleId: "900001", fault: "Gearbox noise", openedOn: today, leadId: "lead-w" }))).rejects.toThrow(/redirect:\/dashboard\/aftersales\/claim-/);
     await expect(openClaimAction(undefined, form({ saleId: "900002", fault: "Rust", openedOn: today }))).rejects.toThrow(/redirect/);
     const [inCover, out] = ["900001", "900002"].map(async (id) => (await claimsStore.list()).find((c) => c.saleId === id)!);

@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { Lead, TeamMember } from "./collections";
 
 vi.mock("server-only", () => ({}));
-const sendTo = vi.fn(async (_to: string[], _m: { subject: string; text: string }) => {});
+const sendTo = vi.fn<(to: string[], mail: { subject: string; text: string }) => Promise<void>>(async () => {});
 vi.mock("@/lib/leads/mail", () => ({ sendTo }));
 const { digestGroups, sendFollowUpDigest } = await import("./follow-up-digest");
 const { leadsStore, settingsStore, getSettings } = await import("./collections");

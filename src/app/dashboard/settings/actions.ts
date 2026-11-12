@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { sendToDealer } from "@/lib/leads/mail";
-import { getSettings, leadsStore, settingsStore, type DealerSettings } from "@/lib/admin/collections";
+import { getSettings, leadsStore, settingsStore, type DealerSettings, drivesStore } from "@/lib/admin/collections";
 import { resetDemoRecords } from "@/lib/admin/demo-reset";
 import { EMAIL_INVALID, NAME_REQUIRED } from "@/lib/copy";
 import { newId } from "@/lib/admin/ids";
@@ -141,7 +141,7 @@ export async function setRoleAction(id: string, _p: SettingsState, data: FormDat
 }
 
 // The last person cannot be removed: leads are assigned to the team, so it is never empty.
-// Their leads go back to nobody, so no lead points at someone the picker no longer lists.
+// Their leads and test drives go back to nobody, so none points at someone the picker no longer lists.
 export async function removeTeamAction(id: string) {
   const { team } = await getSettings();
   const gone = team.length > 1 ? team.find((t) => t.id === id) : undefined;
@@ -149,6 +149,7 @@ export async function removeTeamAction(id: string) {
   if (hasOwner(team) && !hasOwner(team.filter((t) => t.id !== id))) return;
   await change((s) => ({ ...s, team: s.team.filter((t) => t.id !== id) }));
   for (const l of await leadsStore.list()) if (l.assignedTo === gone.name) await leadsStore.put({ ...l, assignedTo: undefined });
+  for (const d of await drivesStore.list()) if (d.assignedTo === gone.name) await drivesStore.put({ ...d, assignedTo: undefined });
   await logActivity("settings", `Removed ${gone.name} from the team`, { kind: "team", id, label: gone.name });
 }
 

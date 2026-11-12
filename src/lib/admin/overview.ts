@@ -38,7 +38,7 @@ export function overview(input: { leads: Lead[]; drives: TestDrive[]; reviews: A
     { key: "drives", label: "Test drives to confirm", count: drives.filter((d) => d.status === "requested" && d.startsAt >= now).length, href: "/dashboard/test-drives?view=list&status=requested&when=ahead", urgency: "soon" },
     { key: "reviews", label: "Reviews without a reply", count: reviews.filter((r) => !r.reply).length, href: "/dashboard/reviews?filter=unreplied", urgency: "info" },
     { key: "sync", label: "DoneDeal stock is not updating", count: input.syncProblem ? 1 : 0, href: "/dashboard/stock", urgency: "now" },
-    { key: "sold-drives", label: "Test drives booked on a car no longer for sale", count: drives.filter((d) => d.startsAt >= now && isOpenDrive(d) && offSale.has(d.carSlug)).length, href: "/dashboard/test-drives", urgency: "now" },
+    { key: "sold-drives", label: "Test drives booked on a car no longer for sale", count: drives.filter((d) => d.startsAt >= now && isOpenDrive(d) && offSale.has(d.carSlug)).length, href: "/dashboard/test-drives?view=list&car=gone&when=ahead", urgency: "now" },
     { key: "deposits", label: "Reservations past their date", count: (input.reservations ?? []).filter((r) => r.status === "held" && r.until < today).length, href: "/dashboard/stock?view=reserved", urgency: "now" },
     { key: "orders", label: "Ordered cars arrived, to hand over", count: (input.orders ?? []).filter((o) => o.status === "arrived").length, href: "/dashboard/orders?view=arrived", urgency: "soon" },
     { key: "taken-down", label: "DoneDeal ads taken down: did they sell?", count: cars.filter((c) => c.takenDownAt).length, href: "/dashboard/stock?view=hidden", urgency: "soon" },

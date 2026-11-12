@@ -5,6 +5,7 @@ vi.mock("next/cache", () => ({ revalidatePath: () => {} }));
 vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => undefined }), headers: async () => ({ get: () => null }) }));
 const { addDriveAction, assignDriveAction, setDriveStatusAction } = await import("./actions");
 const { drivesStore, getSettings } = await import("@/lib/admin/collections");
+const { noticesStore } = await import("@/lib/admin/notifications");
 const { adminCars } = await import("@/lib/admin/stock-admin");
 const { addDays, dublinDay } = await import("@/lib/admin/format");
 const { driveTimes } = await import("@/lib/leads/constants");
@@ -62,5 +63,17 @@ describe("a booking's status and who takes it out", () => {
     expect((await drivesStore.get(drive.id))!.assignedTo).toBe(name);
     await assignDriveAction(drive.id, "");
     expect((await drivesStore.get(drive.id))!.assignedTo).toBeUndefined();
+  });
+});
+
+describe("giving a test drive to someone", () => {
+  it("tells them in their bell", async () => {
+    const drive = (await drivesStore.list())[1];
+    const name = (await getSettings()).team[2].name;
+    await assignDriveAction(drive.id, "");
+    const count = async () => (await noticesStore.list()).filter((n) => n.for === name && n.href === `/dashboard/test-drives/${drive.id}`).length;
+    const before = await count();
+    await assignDriveAction(drive.id, name);
+    expect(await count()).toBe(before + 1);
   });
 });

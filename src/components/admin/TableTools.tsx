@@ -31,11 +31,11 @@ function useParamHref() {
 }
 
 // The search: it runs as you type (a moment after the last key), Enter runs it at once, and the cross clears it. No button to find.
-export function LiveSearch({ name = "q", placeholder, label }: { name?: string; placeholder: string; label: string }) {
+export function LiveSearch({ placeholder, label }: { placeholder: string; label: string }) {
   const sp = useSearchParams();
   const router = useRouter();
   const hrefWith = useParamHref();
-  const inUrl = sp.get(name) ?? "";
+  const inUrl = sp.get("q") ?? "";
   const [value, setValue] = useState(inUrl);
   // When the address changes, the box takes its search, unless it is what the box sent itself (so a word typed while the list loads is not
   // lost). Only a change of the address is looked at, never the box's own sending, so the box is not cleared while the address catches up.
@@ -56,7 +56,7 @@ export function LiveSearch({ name = "q", placeholder, label }: { name?: string; 
   const run = (v: string) => {
     clearTimeout(timer.current);
     setSent(v.trim());
-    start(() => router.replace(hrefWith({ [name]: v.trim() || undefined }), { scroll: false }));
+    start(() => router.replace(hrefWith({ q: v.trim() || undefined }), { scroll: false }));
   };
   return (
     <form role="search" aria-busy={pending} onSubmit={(e) => (e.preventDefault(), run(value))} className="relative w-full sm:max-w-sm">

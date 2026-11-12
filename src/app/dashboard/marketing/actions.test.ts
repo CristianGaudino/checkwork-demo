@@ -222,4 +222,15 @@ describe("lead quick actions", () => {
     await addNoteAction(lead.id, form({ note: "Rang back, coming Saturday" }));
     expect((await leadsStore.get(lead.id))!.notes.at(-1)!.text).toBe("Rang back, coming Saturday");
   });
+
+  it("never saves a follow-up day that is not a real day, typed or put back by Undo", async () => {
+    const lead = (await leadsStore.list()).find((l) => l.status === "contacted" && !l.followUpOn)!;
+    for (const on of ["2026-13-45", "2026-02-31"]) {
+      await setFollowUpAction(lead.id, form({ on }));
+      expect((await leadsStore.get(lead.id))!.followUpOn).toBeUndefined();
+    }
+    await setStatusAction(lead.id, form({ status: "won" }));
+    await setStatusAction(lead.id, form({ status: "contacted", on: "2026-13-45" }));
+    expect((await leadsStore.get(lead.id))!.followUpOn).toBeUndefined();
+  });
 });

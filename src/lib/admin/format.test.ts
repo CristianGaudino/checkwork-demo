@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addMonths, daysSince, fmtAgo, fmtDateTime, fmtDay, fmtEur, fmtPct, fmtTime, plural } from "./format";
+import { addMonths, daysSince, isIsoDay, isIsoMonth, fmtAgo, fmtDateTime, fmtDay, fmtEur, fmtPct, fmtTime, plural } from "./format";
 
 describe("admin format", () => {
   const now = new Date("2026-11-10T12:00:00Z").getTime();
@@ -51,5 +51,12 @@ describe("plural", () => {
     expect(daysSince("2026-11-01", now)).toBe(9);
     expect(daysSince("2026-11-10", now)).toBe(0);
     expect(daysSince("2026-12-01", now)).toBe(0);
+  });
+  it("takes only real days and months", () => {
+    expect(isIsoDay("2026-11-12")).toBe(true);
+    expect(isIsoDay("2028-02-29")).toBe(true);
+    for (const bad of ["2026-13-45", "2026-02-31", "2026-02-29", "2026-1-5", "12/11/2026", ""]) expect(isIsoDay(bad)).toBe(false);
+    expect(isIsoMonth("2026-12")).toBe(true);
+    for (const bad of ["2026-13", "2026-00", "2026-1"]) expect(isIsoMonth(bad)).toBe(false);
   });
 });

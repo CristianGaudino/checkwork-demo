@@ -95,8 +95,9 @@ test("the bell shows what came in, unread first, and Mark all as read clears its
   const panel = page.getByRole("region", { name: "Notifications" }).or(page.locator("[popover]").filter({ hasText: "Notifications" }));
   await expect(panel.getByText("Warranty request").first()).toBeVisible();
   await expect(panel.getByRole("region", { name: "New" })).toBeVisible(); // unread first, under New
-  await panel.getByRole("button", { name: "Mark all as read" }).click();
+  // The read is saved before the test ends (a server action is a POST), so the next test never loads the bell mid-save.
+  await Promise.all([page.waitForResponse((r) => r.request().method() === "POST"), panel.getByRole("button", { name: "Mark all as read" }).click()]);
   await expect(page.getByRole("button", { name: "Notifications", exact: true })).toBeVisible();
-  await expect(panel.getByRole("region", { name: "New" })).toHaveCount(0);
-  await expect(panel.getByRole("region", { name: "Earlier" })).toBeVisible();
+  // What was unread moves to Earlier (other tests may send a new request meanwhile, so New is not checked to be empty).
+  await expect(panel.getByRole("region", { name: "Earlier" }).getByText("New car order request").first()).toBeVisible();
 });

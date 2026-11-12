@@ -6,7 +6,7 @@ import { CheckIcon, ChevronLeftIcon, ChevronRightIcon, PlusIcon } from "@/compon
 import { card } from "@/components/ui";
 import { DRIVE_STATUSES, DRIVE_STATUS_LABELS, drivesStore, getSettings, type DriveStatus, type TestDrive } from "@/lib/admin/collections";
 import { filterDrives, isOpenDrive, waitingDrives } from "@/lib/admin/drives";
-import { addDays, dublinDay, fmtDate, fmtDay, fmtTime } from "@/lib/admin/format";
+import { addDays, dublinDay, fmtDate, fmtDay, fmtTime, isIsoDay } from "@/lib/admin/format";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { driveTimes } from "@/lib/leads/constants";
 import { forSale } from "@/lib/stock/types";
@@ -16,12 +16,11 @@ export const metadata = { title: "Test drives" };
 
 // The Monday of a day's week.
 const mondayOf = (iso: string) => addDays(iso, -((new Date(`${iso}T12:00:00Z`).getUTCDay() + 6) % 7));
-const isDay = (v?: string) => Boolean(v && /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(v)));
 // A booking's colour in the week: its status's urgency, the same as its badge.
 const EDGE: Record<DriveStatus, string> = { requested: "border-l-warn", confirmed: "border-l-info", completed: "border-l-ok", "no-show": "border-l-bad", cancelled: "border-l-hairline opacity-60" };
 const VIEWS = ["today", "week", "list"] as const;
 type View = (typeof VIEWS)[number];
-type Params = { view?: string; day?: string; mine?: string; q?: string; status?: string; with?: string; when?: string; sort?: string; dir?: string; page?: string; per?: string };
+type Params = { view?: string; day?: string; mine?: string; q?: string; status?: string; with?: string; when?: string; car?: string; sort?: string; dir?: string; page?: string; per?: string };
 
 // The diary. Today: the day's bookings in order, and the requests still to confirm. Week: a calendar of seven days (on a phone, a strip of
 // days and the one chosen). List: every booking in a table, searched and filtered. "Only mine" keeps the bookings given to whoever is
@@ -34,9 +33,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
   const gone = new Set(cars.filter((c) => !forSale(c)).map((c) => c.slug)); // a booking still open on a car no longer for sale needs a call
   const drives = mine ? all.filter((d) => d.assignedTo === me.name) : all;
   const today = dublinDay();
-  const day = isDay(sp.day) ? sp.day! : today;
+  const day = sp.day && isIsoDay(sp.day) ? sp.day : today;
   const link = (over: Partial<Params>) => {
-    const q = new URLSearchParams(Object.entries({ view: view === "today" ? undefined : view, mine: mine ? "1" : undefined, day: sp.day, ...over }).filter((e): e is [string, string] => Boolean(e[1])));
+    const q = new URLSearchParams(Object.entries({ view: view === "today" ? undefined : view, mine: mine ? "1" : undefined, day: sp.day && isIsoDay(sp.day) ? sp.day : undefined, ...over }).filter((e): e is [string, string] => Boolean(e[1])));
     return `/dashboard/test-drives${q.size ? `?${q}` : ""}`;
   };
   const onDay = (iso: string) => drives.filter((d) => dublinDay(d.startsAt) === iso).sort((a, b) => a.startsAt - b.startsAt);
@@ -76,7 +75,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
           {waiting.length > 0 && (
             <Panel title="Waiting to be confirmed" count={waiting.length}>
               <Agenda drives={waiting.slice(0, 8)} gone={gone} withDay />
-              {waiting.length > 8 && <Link href={link({ view: "list", status: "requested" })} className="w-fit text-meta font-medium underline">See all {waiting.length}</Link>}
+              {waiting.length > 8 && <Link href={link({ view: "list", status: "requested", when: "ahead", day: undefined })} className="w-fit text-meta font-medium underline">See all {waiting.length}</Link>}
             </Panel>
           )}
         </>
@@ -84,7 +83,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
 
       {view === "week" && <Week day={day} today={today} onDay={onDay} gone={gone} link={link} />}
 
-      {view === "list" && <List drives={drives} sp={sp} team={team.map((t) => t.name)} />}
+      {view === "list" && <List drives={drives} sp={sp} team={team.map((t) => t.name)} gone={gone} />}
     </>
   );
 }
@@ -199,8 +198,8 @@ function Week({ day, today, onDay, gone, link }: { day: string; today: string; o
 }
 
 // Every booking as a table: searched by name, phone or car; filtered by status, who has it and whether it has happened; sorted; in pages.
-function List({ drives, sp, team }: { drives: TestDrive[]; sp: Params; team: string[] }) {
-  const rows = filterDrives(drives, sp);
+function List({ drives, sp, team, gone }: { drives: TestDrive[]; sp: Params; team: string[]; gone: Set<string> }) {
+  const rows = filterDrives(drives, sp, undefined, gone);
   const columns: Column<TestDrive>[] = [
     { key: "when", header: "When", sort: (d) => d.startsAt, nowrap: true, cell: (d) => <span className="tabular-nums">{fmtDate(d.startsAt)}, {fmtTime(d.startsAt)}</span> },
     {
@@ -226,6 +225,7 @@ function List({ drives, sp, team }: { drives: TestDrive[]; sp: Params; team: str
     { name: "when", label: "When", any: "Any time", options: [["ahead", "Coming up"], ["past", "Past"]] },
     { name: "status", label: "Status", any: "Any status", options: DRIVE_STATUSES.map((s) => [s, DRIVE_STATUS_LABELS[s]] as const) },
     { name: "with", label: "Taking them out", any: "Anyone", options: [["none", "Nobody yet"], ...team.map((t) => [t, t] as const)] },
+    { name: "car", label: "Car", any: "Any car", options: [["gone", "No longer for sale"]] },
   ];
   return (
     <>

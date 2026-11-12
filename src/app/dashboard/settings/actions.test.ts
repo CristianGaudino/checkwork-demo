@@ -174,3 +174,16 @@ describe("the other settings", () => {
     for (const r of [await saveNotificationsAction(undefined, form({})), await saveMarketingAction(undefined, form({ voice: "x", hashtags: "", signOff: "" })), await sendTestEmailAction()]) expect(r?.saved).toBeFalsy();
   });
 });
+
+describe("removing a person", () => {
+  it("gives their leads and test drives back to nobody", async () => {
+    role = undefined;
+    await settingsStore.reset();
+    const { drivesStore } = await import("@/lib/admin/collections");
+    const person = (await getSettings()).team.find((t) => t.role === "Sales")!;
+    const drive = (await drivesStore.list())[0];
+    await drivesStore.put({ ...drive, assignedTo: person.name });
+    await removeTeamAction(person.id);
+    expect((await drivesStore.get(drive.id))!.assignedTo).toBeUndefined();
+  });
+});

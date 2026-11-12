@@ -23,8 +23,12 @@ export function NotificationBell() {
   const id = useId();
   const button = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLDivElement>(null);
+  // Each read counts up, and a load that began before the latest read is dropped: an answer still on its way when "Mark all as read" is
+  // pressed would otherwise put the old unread ones back. Once the read is saved, the list is loaded again.
+  const reads = useRef(0);
   const load = useCallback(() => {
-    loadNotices().then(setData, () => {}); // a missed poll is tried again on the next one
+    const at = reads.current;
+    loadNotices().then((d) => at === reads.current && setData(d), () => {}); // a missed poll is tried again on the next one
   }, []);
   useEffect(() => {
     load();
@@ -36,7 +40,8 @@ export function NotificationBell() {
   // Read as soon as it is opened from the list; the link then goes on to it.
   const read = (ids?: string[]) => {
     setData((d) => d && { unread: ids ? d.unread - d.items.filter((n) => n.unread && ids.includes(n.id)).length : 0, items: d.items.map((n) => (!ids || ids.includes(n.id) ? { ...n, unread: false } : n)) });
-    readNotices(ids).catch(() => {});
+    reads.current++;
+    readNotices(ids).then(load, () => {});
   };
   const unread = data?.unread ?? 0;
   const groups = [

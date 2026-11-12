@@ -13,16 +13,6 @@ export const DRIVE_STATUS_LABELS: Record<DriveStatus, string> = { requested: "Re
 // The desk booking's limits: the form shows them and the server checks the same numbers.
 export const DRIVE_LIMITS = { name: 80, phone: 30, notes: 300 } as const;
 
-export type DriveGroup = { day: string; drives: TestDrive[] };
-
-// Bookings grouped by day, days in order, and within a day by time.
-export function groupByDay(drives: TestDrive[]): DriveGroup[] {
-  const map = new Map<string, TestDrive[]>();
-  // In the order given: the page sorts soonest first for what is coming up and latest first for what is past.
-  for (const d of drives) map.set(dublinDay(d.startsAt), [...(map.get(dublinDay(d.startsAt)) ?? []), d]);
-  return [...map].map(([day, list]) => ({ day, drives: list }));
-}
-
 // Two bookings for the same car within the slot (an hour by default) of each other clash: one car cannot be out twice.
 export function clashes(drives: TestDrive[], carSlug: string, startsAt: number, ignoreId?: string, windowMs = HOUR): TestDrive[] {
   return drives.filter((d) => d.id !== ignoreId && d.carSlug === carSlug && isOpenDrive(d) && Math.abs(d.startsAt - startsAt) < windowMs);
@@ -51,16 +41,18 @@ export const DRIVE_NEXT: Partial<Record<DriveStatus, [DriveStatus, string][]>> =
 // The requests still to confirm that have not happened yet, soonest first: Today's "Waiting to be confirmed".
 export const waitingDrives = (drives: TestDrive[], now = Date.now()) => drives.filter((d) => d.status === "requested" && d.startsAt > now).sort((a, b) => a.startsAt - b.startsAt);
 
-// The List view: a search on name, phone, email or car, then the status, who has it ("none" for nobody) and whether it is still to come.
-export type DriveFilter = { q?: string; status?: string; with?: string; when?: string };
-export function filterDrives(drives: TestDrive[], f: DriveFilter, now = Date.now()): TestDrive[] {
+// The List view: a search on name, phone, email or car, then the status, who has it ("none" for nobody), whether it is still to come, and
+// (car=gone) an open booking on a car no longer for sale, from `gone`, the slugs of those cars.
+export type DriveFilter = { q?: string; status?: string; with?: string; when?: string; car?: string };
+export function filterDrives(drives: TestDrive[], f: DriveFilter, now = Date.now(), gone: Set<string> = new Set()): TestDrive[] {
   const q = (f.q ?? "").trim().toLowerCase().slice(0, 60);
   return drives.filter(
     (d) =>
       (!q || [d.name, d.phone, d.email, d.carTitle].some((x) => x.toLowerCase().includes(q))) &&
       (!f.status || d.status === f.status) &&
       (!f.with || (f.with === "none" ? !d.assignedTo : d.assignedTo === f.with)) &&
-      (!f.when || (f.when === "past" ? d.startsAt < now : d.startsAt >= now)),
+      (!f.when || (f.when === "past" ? d.startsAt < now : d.startsAt >= now)) &&
+      (f.car !== "gone" || (isOpenDrive(d) && gone.has(d.carSlug))),
   );
 }
 

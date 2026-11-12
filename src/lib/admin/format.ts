@@ -31,6 +31,10 @@ export const plural = (n: number, one: string, many = `${one}s`) => `${fmtNum(n)
 // The Irish calendar day of a moment, as YYYY-MM-DD ("today" for follow-ups and sales), and a day n days on.
 export const dublinDay = (t: number = Date.now()) => new Date(t).toLocaleDateString("en-CA", { timeZone });
 export const dublinDateTime = (t: number) => new Date(t).toLocaleString("sv-SE", { timeZone }).slice(0, 16); // "2026-11-11 14:30", as spreadsheets read it
+// A real calendar day as YYYY-MM-DD. The shape alone lets "2026-13-45" through (and the page that shows it then fails), and JavaScript reads
+// "2026-02-31" as 3 March, so the day must read back as itself.
+export const isIsoDay = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(`${s}T12:00:00Z`)) && new Date(`${s}T12:00:00Z`).toISOString().slice(0, 10) === s;
+export const isIsoMonth = (s: string) => /^\d{4}-\d{2}$/.test(s) && isIsoDay(`${s}-01`);
 export const addDays = (day: string, n: number) => new Date(Date.parse(`${day}T12:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10);
 // A day and a time said in Irish time, as the moment they mean. Tries the offset twice so the hour that clocks change on still lands right.
 export function dublinMs(date: string, time: string): number {

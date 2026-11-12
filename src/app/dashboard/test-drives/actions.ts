@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { logActivity } from "@/lib/admin/activity";
+import { notify } from "@/lib/admin/notifications";
+import { currentMember } from "@/lib/permissions";
 import { DRIVE_STATUS_LABELS, drivesStore, getSettings } from "@/lib/admin/collections";
 import { DRIVE_LIMITS, clashes, parseDriveStatus } from "@/lib/admin/drives";
 import { adminCars } from "@/lib/admin/stock-admin";
@@ -10,7 +12,7 @@ import { carName } from "@/lib/stock/format";
 import { HOUR, MINUTE } from "@/lib/time";
 import { EMAIL_INVALID, NAME_REQUIRED } from "@/lib/copy";
 import { newId } from "@/lib/admin/ids";
-import { fieldErrors } from "@/lib/admin/validation";
+import { fieldErrors, isoDay } from "@/lib/admin/validation";
 import { addMonths, dublinDay, dublinMs } from "@/lib/admin/format";
 import { isBankHoliday } from "@/lib/bank-holidays";
 import { LIMITS, TEST_DRIVE, driveTimes, inDriveHours } from "@/lib/leads/constants";
@@ -34,6 +36,8 @@ export async function assignDriveAction(id: string, name: string) {
   if (!drive || (name && !team.some((t) => t.name === name)) || (drive.assignedTo ?? "") === name) return;
   await drivesStore.put({ ...drive, assignedTo: name || undefined });
   await logActivity("test-drives", name ? `Gave the test drive to ${name}` : "Took the test drive off its person", { kind: "drive", id });
+  const me = await currentMember();
+  if (name && name !== me.name) await notify({ kind: "assigned", for: name, text: `${me.name} gave you a test drive: ${drive.carTitle}`, href: `/dashboard/test-drives/${id}` });
   revalidatePath("/dashboard/test-drives");
 }
 
@@ -42,7 +46,7 @@ const booking = z.object({
   phone: z.string().trim().min(6, "Enter a phone number").max(DRIVE_LIMITS.phone),
   email: z.preprocess((v) => (v === "" ? undefined : v), z.string().trim().email(EMAIL_INVALID).max(LIMITS.email).optional()),
   carSlug: z.string().min(1, "Choose a car"),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Choose a day"),
+  date: isoDay("Choose a day"),
   time: z.string().regex(/^\d{2}:\d{2}$/, "Choose a time"),
   notes: z.string().trim().max(DRIVE_LIMITS.notes).optional(),
   assignedTo: z.string().max(DRIVE_LIMITS.name).optional(),
