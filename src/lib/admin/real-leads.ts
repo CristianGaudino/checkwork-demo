@@ -9,15 +9,14 @@ import { MINUTE } from "@/lib/time";
 // What visitors send reaches the dealer's admin as records. The lead pipeline (consent, bot check, retention) stays the one way in:
 // after a lead is stored, this copies it into the admin's own collections so it can be worked (status, notes, who has it). The copies
 // are marked by an id starting "real-" and are deleted with the lead by the daily purge (src/lib/leads/purge.ts).
-const LEAD_TYPE: Record<Exclude<LeadRow["type"], "alert">, LeadType> = { enquiry: "enquiry", sourcing: "find-a-car", trade_in: "trade-in", finance: "finance", general: "general", test_drive: "test-drive" };
+const LEAD_TYPE: Record<Exclude<LeadRow["type"], "alert">, LeadType> = { enquiry: "enquiry", sourcing: "find-a-car", trade_in: "trade-in", finance: "finance", general: "general", test_drive: "test-drive", order: "order" };
 // A general message is a warranty claim or a service request when it was sent from that page.
 const pageType = (path: string): LeadType => (path.startsWith("/warranty") ? "warranty" : path.startsWith("/service") ? "service" : "general");
 
-// The visitor's own words, or the answers they gave when the form has no free text (a trade-in, a finance application).
+// The answers they gave (a make and model, a trade-in's reg), then their own words: both, so a find-a-car or a factory order keeps the car.
 function messageOf(row: LeadRow): string {
-  if (row.message) return row.message;
   const given = Object.entries(DETAIL_LABELS).filter(([k]) => row.details[k] !== undefined).map(([k, label]) => `${label}: ${row.details[k]}`);
-  return given.join(". ");
+  return [given.join(". "), row.message].filter(Boolean).join("\n\n");
 }
 
 async function customerId(row: LeadRow): Promise<string> {

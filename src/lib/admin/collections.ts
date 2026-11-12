@@ -22,9 +22,9 @@ export type LeadStatus = (typeof LEAD_STATUSES)[number];
 export const LEAD_STATUS_LABELS: Record<LeadStatus, string> = { new: "New", contacted: "Contacted", appointment: "Appointment set", won: "Won", lost: "Lost" };
 // warranty and service: a message sent from the Warranty or Service page (the website sends both as a general message; real-leads.ts
 // tells them apart by the page).
-export const LEAD_TYPES = ["enquiry", "test-drive", "finance", "trade-in", "sell", "find-a-car", "warranty", "service", "general"] as const;
+export const LEAD_TYPES = ["enquiry", "test-drive", "finance", "trade-in", "sell", "find-a-car", "order", "warranty", "service", "general"] as const;
 export type LeadType = (typeof LEAD_TYPES)[number];
-export const LEAD_TYPE_LABELS: Record<LeadType, string> = { enquiry: "Car enquiry", "test-drive": "Test drive", finance: "Finance", "trade-in": "Trade-in", sell: "Selling a car", "find-a-car": "Find a car", warranty: "Warranty claim", service: "Service", general: "General" };
+export const LEAD_TYPE_LABELS: Record<LeadType, string> = { enquiry: "Car enquiry", "test-drive": "Test drive", finance: "Finance", "trade-in": "Trade-in", sell: "Selling a car", "find-a-car": "Find a car", order: "New car order", warranty: "Warranty claim", service: "Service", general: "General" };
 // Why a lead was lost, so the reports can say where sales go. A fixed list, so they can be counted.
 export const LOST_REASONS = ["Bought elsewhere", "Price", "Finance declined", "Stopped replying", "Car sold to someone else", "Other"] as const;
 export type LostReason = (typeof LOST_REASONS)[number];
@@ -65,6 +65,7 @@ const MESSAGES: Record<LeadType, string[]> = {
   "trade-in": ["I have a 2016 hatchback with 90,000 km to trade in against this.", "How much would you give me for my current car?"],
   sell: ["Selling my 2018 Golf, 110,000 km, full service history.", "Not buying right now, just want to sell my car."],
   "find-a-car": ["Looking for a diesel estate under 15k, low mileage.", "Want an automatic SUV, family car, around 20k."],
+  order: ["Looking at a new hybrid SUV for 271, mid spec, white.", "Want to order the estate in grey for July."],
   warranty: ["The engine warning light came on this morning. Reg 191-D-4521.", "The gearbox is slipping into second. Bought it here in the summer."],
   service: ["Due a full service next month, can you fit me in?", "Need an NCT check before the test."],
   general: ["What time do you close on Saturday?", "Do you do servicing as well?"],
@@ -402,6 +403,38 @@ export const coverEnds = (s: Pick<Sale, "soldOn" | "coverMonths">) => {
   return new Date(Date.UTC(y, m - 1 + (s.coverMonths ?? COVER_MONTHS), d - 1)).toISOString().slice(0, 10);
 };
 
+// ---- Factory orders ----
+// A new car ordered from the maker for a customer (our version only; no maker's system is connected). It moves from Ordered to Arrived by
+// hand. On arrival the car is added to stock, hidden and reserved for the buyer with their deposit, so Mark sold hands it over and the
+// order is done. Cancelled (owners and managers) with the deposit refunded or kept. Personal data like a sale: erasure and the purge keep
+// the figures without the buyer.
+export const ORDER_STATUSES = ["ordered", "built", "in-transit", "arrived", "handed-over", "cancelled"] as const;
+export type OrderStatus = (typeof ORDER_STATUSES)[number];
+export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = { ordered: "Ordered", built: "Built", "in-transit": "On its way", arrived: "Arrived", "handed-over": "Handed over", cancelled: "Cancelled" };
+export const orderOpen = (s: OrderStatus) => s !== "handed-over" && s !== "cancelled";
+export type Order = {
+  id: string;
+  customerId?: string;
+  make: string;
+  model: string;
+  spec?: string;
+  colour?: string;
+  priceEur: number;
+  depositEur?: number;
+  depositMethod?: DepositMethod;
+  regPeriod: string; // e.g. "271"
+  expected: string; // YYYY-MM, the month the maker gave
+  orderedOn: string; // YYYY-MM-DD
+  status: OrderStatus;
+  carId?: string; // the car in stock, once it arrived
+  salesperson?: string;
+  leadId?: string; // the website request it came from
+  refundEur?: number; // on a cancelled order: the deposit given back
+  notes: { at: number; text: string }[];
+  createdAt: number;
+};
+export const ordersStore = defineCollection<Order>("orders", () => []);
+
 // ---- Cost prices ----
 // What each car cost the dealer. Kept here, never in the public car data, and only shown to staff with the "margins" permission
 // (src/lib/permissions.ts). One record per car id; a car added in the admin has none until someone enters it.
@@ -423,4 +456,4 @@ function seedPrep(): CarPrep[] {
 export const prepStore = defineCollection<CarPrep>("car-prep", seedPrep);
 
 // Every dealer collection, so "Reset demo data" puts the whole demo back to its seed.
-export const DEALER_COLLECTIONS = [leadsStore, drivesStore, customersStore, alertsStore, subscribersStore, reviewsStore, settingsStore, postsStore, adsStore, newslettersStore, costsStore, salesStore, prepStore, reservationsStore, claimsStore];
+export const DEALER_COLLECTIONS = [leadsStore, drivesStore, customersStore, alertsStore, subscribersStore, reviewsStore, settingsStore, postsStore, adsStore, newslettersStore, costsStore, salesStore, prepStore, reservationsStore, claimsStore, ordersStore];

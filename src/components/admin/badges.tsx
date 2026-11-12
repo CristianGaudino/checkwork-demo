@@ -1,5 +1,5 @@
 import { Badge, type Tone } from "@/components/admin/kit";
-import { CLAIM_STATUS_LABELS, DRIVE_STATUS_LABELS, LEAD_STATUS_LABELS, type ClaimStatus, type DriveStatus, type LeadStatus } from "@/lib/admin/collections";
+import { CLAIM_STATUS_LABELS, DRIVE_STATUS_LABELS, LEAD_STATUS_LABELS, ORDER_STATUS_LABELS, type ClaimStatus, type DriveStatus, type LeadStatus, type OrderStatus } from "@/lib/admin/collections";
 
 const LEAD_TONE: Record<LeadStatus, Tone> = { new: "info", contacted: "neutral", appointment: "warn", won: "good", lost: "bad" };
 const DRIVE_TONE: Record<DriveStatus, Tone> = { requested: "warn", confirmed: "info", completed: "good", "no-show": "bad", cancelled: "neutral" };
@@ -10,3 +10,5 @@ const CLAIM_TONE: Record<ClaimStatus, Tone> = { open: "warn", booked: "info", ap
 export const ClaimStatusBadge = ({ status }: { status: ClaimStatus }) => <Badge tone={CLAIM_TONE[status]}>{CLAIM_STATUS_LABELS[status]}</Badge>;
 // Whether the fault was under the warranty when it was reported.
 export const CoverBadge = ({ inCover }: { inCover: boolean }) => <Badge tone={inCover ? "good" : "neutral"}>{inCover ? "In cover" : "Out of cover"}</Badge>;
+const ORDER_TONE: Record<OrderStatus, Tone> = { ordered: "neutral", built: "info", "in-transit": "info", arrived: "warn", "handed-over": "good", cancelled: "neutral" };
+export const OrderBadge = ({ status }: { status: OrderStatus }) => <Badge tone={ORDER_TONE[status]}>{ORDER_STATUS_LABELS[status]}</Badge>;

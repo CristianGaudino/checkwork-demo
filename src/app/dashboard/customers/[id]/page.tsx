@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ClaimStatusBadge, CoverBadge, DriveStatusBadge, LeadStatusBadge } from "@/components/admin/badges";
+import { ClaimStatusBadge, CoverBadge, DriveStatusBadge, LeadStatusBadge, OrderBadge } from "@/components/admin/badges";
 import { Badge, PageHeader, Panel, adminButtonQuiet, rowButton } from "@/components/admin/kit";
 import { PhoneIcon } from "@/components/stock/icons";
-import { LEAD_TYPE_LABELS, claimsStore, coverEnds, customersStore, drivesStore, leadsStore, reservationsStore, salesStore } from "@/lib/admin/collections";
+import { LEAD_TYPE_LABELS, claimsStore, coverEnds, customersStore, drivesStore, leadsStore, ordersStore, reservationsStore, salesStore } from "@/lib/admin/collections";
+import { monthLabel } from "@/lib/admin/reports";
 import { dublinDay, fmtDate, fmtEur } from "@/lib/admin/format";
 import { matchesAny, parsePersonQuery, type PersonQuery } from "@/lib/admin/person-match";
 import { telHref } from "@/lib/phone";
@@ -19,12 +20,13 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const { id } = await params;
   const c = await customersStore.get(id);
   if (!c) notFound();
-  const [sales, reservations, claims, leads, drives] = await Promise.all([salesStore.list(), reservationsStore.list(), claimsStore.list(), leadsStore.list(), drivesStore.list()]);
+  const [sales, reservations, claims, leads, drives, orders] = await Promise.all([salesStore.list(), reservationsStore.list(), claimsStore.list(), leadsStore.list(), drivesStore.list(), ordersStore.list()]);
   const today = dublinDay();
   const day = (d: string) => fmtDate(`${d}T12:00:00Z`);
   const qs = [c.email, c.phone].map((v) => (v ? parsePersonQuery(v) : null)).filter((q): q is PersonQuery => q !== null);
   const bought = sales.filter((s) => s.customerId === id).sort((a, b) => b.soldOn.localeCompare(a.soldOn));
   const deposits = reservations.filter((r) => r.customerId === id).sort((a, b) => b.paidOn.localeCompare(a.paidOn));
+  const theirOrders = orders.filter((o) => o.customerId === id).sort((a, b) => b.createdAt - a.createdAt);
   const theirClaims = claims.filter((k) => k.customerId === id).sort((a, b) => b.createdAt - a.createdAt);
   const theirLeads = qs.length ? leads.filter((l) => matchesAny(l, qs)).sort((a, b) => b.createdAt - a.createdAt) : [];
   const theirDrives = qs.length ? drives.filter((d) => matchesAny(d, qs)).sort((a, b) => b.startsAt - a.startsAt) : [];
@@ -61,6 +63,21 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                 </ul>
               )}
           </Panel>
+          {theirOrders.length > 0 && (
+            <Panel title="Factory orders">
+              <ul className={list}>
+                {theirOrders.map((o) => (
+                  <li key={o.id} className={item}>
+                    <Link href={`/dashboard/orders/${o.id}`} className="flex min-w-0 flex-col">
+                      <span className="font-medium underline-offset-2 hover:underline">{o.regPeriod} {o.make} {o.model}</span>
+                      <span className="text-meta text-text-2">Due {monthLabel(o.expected)}</span>
+                    </Link>
+                    <OrderBadge status={o.status} />
+                  </li>
+                ))}
+              </ul>
+            </Panel>
+          )}
           {theirClaims.length > 0 && (
             <Panel title="Warranty claims">
               <ul className={list}>

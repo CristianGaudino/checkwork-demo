@@ -105,6 +105,19 @@ with no D1). The actor is the signed-in person (`currentMember`), or a named one
 - **Personal data:** claims are in data requests; erasure keeps the claim and its cost without the buyer, the fault or the notes. The
   six-year purge removes the buyer from old claims, as from sales and deposits.
 
+## Factory orders (our version only)
+
+- **Orders** (`ordersStore`, in the menu only for stock kept here): a new car ordered from the maker for a customer, with its spec, price,
+  deposit, the registration period it is for (271 is January to June 2027, `src/lib/leads/reg-periods.ts`) and the month it is due. No
+  maker's system is connected: the dealer moves it from Ordered to Built, On its way and Arrived as the maker says.
+- **Arrived** adds the car to stock, hidden (it is sold) and reserved for the buyer with their deposit. Hand over opens Mark sold on it,
+  which takes the deposit and the buyer, and marks the order Handed over. Overview counts cars arrived and waiting.
+- **Cancel** (owners and managers): the deposit refunded or kept. A car that already arrived stays in stock, hidden, for the dealer to
+  decide.
+- **From the website:** /new-cars/order (linked from New cars) takes the make, model, spec and period as an order request (lead type
+  `order`). The lead's "Place the order" starts the form, and marks the lead won. With DoneDeal stock the page is not there.
+- **Personal data:** orders are in data requests and the six-year purge, like sales: the figures stay without the buyer.
+
 ## Reports and prep costs
 
 - **Reports** (`/dashboard/reports`, figures in `src/lib/admin/reports.ts`): the last 3, 6 or 12 months by month. Owners, managers and

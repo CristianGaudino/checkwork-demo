@@ -175,6 +175,12 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
               </fieldset>
             )}
           </Panel>
+          {/* A factory order request from the website: place it, copying from what they asked for. */}
+          {lead.type === "order" && (
+            <Panel title="Factory order">
+              <Link href={`/dashboard/orders/new?lead=${lead.id}`} className={`${adminButton} w-fit`}>Place the order</Link>
+            </Panel>
+          )}
           {/* A warranty claim from the website: open it on the sale, with the buyer found from their details. */}
           {lead.type === "warranty" && (
             <Panel title="Warranty">

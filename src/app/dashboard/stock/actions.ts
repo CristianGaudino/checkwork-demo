@@ -7,18 +7,17 @@ import { logActivity } from "@/lib/admin/activity";
 import { carEditSummary, costText } from "@/lib/admin/activity-text";
 import { z } from "zod";
 import { PREP_KINDS } from "@/lib/admin/prep";
-import { DEPOSIT_METHODS, costsStore, customersStore, getSettings, heldFor, leadsStore, prepStore, reservationsStore, salesStore, undoSale } from "@/lib/admin/collections";
+import { DEPOSIT_METHODS, costsStore, heldFor, leadsStore, ordersStore, prepStore, reservationsStore, salesStore, undoSale } from "@/lib/admin/collections";
 import { addMonths, dublinDay, fmtEur } from "@/lib/admin/format";
 import { newId } from "@/lib/admin/ids";
 import { fieldErrors } from "@/lib/admin/validation";
+import { buyerFields, buyerOf } from "@/lib/admin/buyer";
 import { COVER_CHOICES, COVER_MONTHS } from "@/lib/admin/deposits";
-import { EMAIL_INVALID } from "@/lib/copy";
-import { LIMITS } from "@/lib/leads/constants";
 import { carTitleOf } from "@/lib/admin/seed-data";
 import { BAD_COST, parseCost } from "@/lib/admin/margins";
 import { can } from "@/lib/permissions";
-import { adminCar, adminCars, removeCar, saveCar } from "@/lib/admin/stock-admin";
-import { listedOn, nextCarId } from "@/lib/admin/stock-admin-pure";
+import { adminCar, freeCarId, removeCar, saveCar } from "@/lib/admin/stock-admin";
+import { listedOn } from "@/lib/admin/stock-admin-pure";
 import { stockSource } from "@/lib/stock-source";
 import { runSync } from "@/lib/donedeal/sync";
 import { forSale, isSold, type Car } from "@/lib/stock/types";
@@ -36,8 +35,7 @@ export async function saveCarAction(id: string | null, _prev: CarFormState, data
   if (await readOnly()) return { errors: { make: "This stock comes from DoneDeal. Change it there." } };
   const existing = id ? await adminCar(id) : undefined;
   if (id && !existing) return { errors: { make: "This car no longer exists" } };
-  const used = async () => [...(await adminCars()), ...(await salesStore.list()).map((s) => ({ id: s.carId ?? s.id })), ...(await reservationsStore.list()).map((r) => ({ id: r.carId }))];
-  const result = carFromForm(data, id ?? nextCarId(await used()), existing);
+  const result = carFromForm(data, id ?? (await freeCarId()), existing);
   if (!result.ok) return { errors: result.errors };
   // The cost belongs to staff with the margins permission: without it the box never came, and a forged one is ignored. A bad figure stops the
   // save, so the car is never saved with a cost the dealer did not mean.
@@ -123,26 +121,6 @@ export async function syncNowAction(force: boolean) {
 export type SaleFormState = { errors?: Record<string, string> } | undefined;
 const day = (message: string) => z.string().regex(/^\d{4}-\d{2}-\d{2}$/, message);
 const euros = (max: number, min = 1) => z.coerce.number({ message: "Enter the amount in whole euros" }).int("Enter the amount in whole euros").min(min, "Enter the amount in whole euros").max(max, "That amount looks too high");
-// The buyer, on a sale or a deposit: a customer already on file, or a new one made from a name and a phone or an email.
-const buyer = {
-  salesperson: z.string().max(80).optional(),
-  customerId: z.string().max(40).optional(),
-  name: z.string().trim().max(80).optional(),
-  email: z.preprocess((v) => (v === "" ? undefined : v), z.string().trim().toLowerCase().email(EMAIL_INVALID).max(LIMITS.email).optional()),
-  phone: z.string().trim().max(30).optional(),
-};
-type Buyer = { salesperson?: string; customerId?: string; name?: string; email?: string; phone?: string };
-async function buyerOf(d: Buyer, source: string): Promise<{ customerId: string; salesperson?: string } | { errors: Record<string, string> }> {
-  const { team } = await getSettings();
-  const salesperson = team.some((t) => t.name === d.salesperson) ? d.salesperson : undefined;
-  if (d.customerId && (await customersStore.get(d.customerId))) return { customerId: d.customerId, salesperson };
-  if (!d.name) return { errors: { name: "Choose a customer, or enter the new customer's name" } };
-  if (!d.email && !d.phone) return { errors: { phone: "Enter a phone number or an email" } };
-  const customerId = newId("cust");
-  const at = Date.now();
-  await customersStore.put({ id: customerId, name: d.name, email: d.email ?? "", phone: d.phone ?? "", source, marketingConsent: false, createdAt: at, lastContactAt: at });
-  return { customerId, salesperson };
-}
 // Cover is the included months or more (extended cover bought); a trade-in is a reg with its allowance, both or neither.
 const blank = (v: unknown) => (v === "" ? undefined : v);
 const sale = z.object({
@@ -152,7 +130,7 @@ const sale = z.object({
   tradeReg: z.preprocess(blank, z.string().trim().toUpperCase().max(12).optional()),
   tradeEur: z.preprocess(blank, euros(1_000_000).optional()),
   leadId: z.string().max(60).optional(),
-  ...buyer,
+  ...buyerFields,
 });
 
 // What the car sold for, when, by whom and to whom. The buyer is a customer already on file, or a new one made here. In our version this
@@ -192,6 +170,9 @@ export async function recordSaleAction(carId: string, _prev: SaleFormState, data
   });
   const markSold = !isSold(car) && (!(await readOnly()) || Boolean(car.takenDownAt));
   if (markSold) await saveCar({ ...car, soldAt: d.soldOn, reserved: undefined, ...(car.takenDownAt && { takenDownAt: undefined, listing: undefined }) });
+  // A factory order that arrived as this car is handed over with its sale.
+  const order = (await ordersStore.list()).find((o) => o.carId === car.id && o.status === "arrived");
+  if (order) await ordersStore.put({ ...order, status: "handed-over" });
   await logActivity("stock", `${was ? "Changed the sale to" : "Recorded the sale for"} ${fmtEur(d.priceEur)}${markSold ? " and marked it sold" : ""}`, carRef(car));
   redirect(`/dashboard/stock?view=sold&sale=${car.id}`);
 }
@@ -203,7 +184,7 @@ const deposit = z.object({
   method: z.enum(DEPOSIT_METHODS, { message: "Choose how it was paid" }),
   paidOn: day("Choose the day it was paid"),
   until: day("Choose the last day it is held"),
-  ...buyer,
+  ...buyerFields,
 });
 // shortcut: two people taking a deposit on one car in the same second could both pass the for-sale check; only the first can then be
 // ended. Fine for one dealer's team; check again inside a transaction if it ever shows up.

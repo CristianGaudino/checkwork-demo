@@ -5,6 +5,7 @@ import { StockResults } from "@/components/stock/StockResults";
 import { StockShell } from "@/components/stock/StockShell";
 import { DEALER_LOCATION, SITE_NAME, indexable } from "@/lib/site";
 import { stock } from "@/lib/stock";
+import { stockSource } from "@/lib/stock-source";
 import { LIST_PATHS, parseStockQuery, stockHref } from "@/lib/stock/query";
 import type { Condition } from "@/lib/stock/types";
 
@@ -35,7 +36,7 @@ export async function StockListPage({ condition, searchParams }: { condition: Co
   // Constant list path plus serialised params, never a user URL (T-01-14).
   if (result && result.pageCount > 0 && query.page > result.pageCount) redirect(stockHref({ ...query, page: result.pageCount }));
   return (
-    <StockShell query={query} summary={result && { total: result.total, facets: result.facets }}>
+    <StockShell query={query} summary={result && { total: result.total, facets: result.facets }} orderable={condition === "new" && (await stockSource()) !== "donedeal"}>
       {result ? <StockResults result={result} query={query} /> : <StockError />}
     </StockShell>
   );

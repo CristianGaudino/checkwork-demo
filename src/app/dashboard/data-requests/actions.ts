@@ -39,6 +39,7 @@ export async function findAction(_prev: FindState, data: FormData): Promise<Find
     { label: "Customer record", items: h.customers.map((c) => `${c.name}, since ${day(c.createdAt)}`) },
     { label: "Purchases (kept for the books, without them, if erased)", items: h.sales.map((s) => `${s.carTitle}, ${day(s.soldOn)}${s.returnedOn ? `, undone ${day(s.returnedOn)}` : ""}`) },
     { label: "Deposits (kept for the books, without them, if erased)", items: h.deposits.map((r) => `${r.carTitle}, ${day(r.paidOn)}`) },
+    { label: "Factory orders (kept for the books, without them, if erased)", items: h.orders.map((o) => `${o.regPeriod} ${o.make} ${o.model}, ${day(o.orderedOn)}`) },
     { label: "Warranty claims (kept for the books, without them or the fault, if erased)", items: h.claims.map((k) => `${k.carTitle}, ${day(k.openedOn)}`) },
   ].filter((g) => g.items.length);
   return { q: raw, groups, total: heldCount(h) };
