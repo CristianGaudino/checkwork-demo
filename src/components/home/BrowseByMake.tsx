@@ -2,9 +2,10 @@ import Link from "next/link";
 import { MakeLogo } from "@/components/MakeLogo";
 import { press, sectionTitle } from "@/components/ui";
 import type { MakeEntry } from "@/lib/stock/makes";
+import { MakeRows } from "./MakeRows";
 
 // The makes we have first, with how many, then the makes people look for most, always: each opens its make page, which says what we have
-// or offers to find one. "All makes" opens the full list. Two rows that scroll sideways together, by swipe or trackpad: the makes alternate
+// or offers to find one. "All makes" opens the full list. Two rows that scroll sideways together (MakeRows): the makes alternate
 // between them (first, third, fifth on top), so the busiest lead both, and the pills' own widths stagger the rows. The edges fade.
 export function BrowseByMake({ makes }: { makes: MakeEntry[] }) {
   if (makes.length === 0) return null;
@@ -26,15 +27,15 @@ export function BrowseByMake({ makes }: { makes: MakeEntry[] }) {
           All makes
         </Link>
       </div>
-      {/* Bleeds to the screen's edges, so the rows scroll under the fade instead of stopping at the page's padding. */}
-      <div className="scrollbar-none -mx-4 flex flex-col gap-2 overflow-x-auto px-4 [mask-image:linear-gradient(to_right,transparent,black_1rem,black_calc(100%-2rem),transparent)] sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-        {rows.map((r, i) => (
+      <MakeRows
+        label="Makes"
+        rows={rows.map((r, i) => (
           // w-max: each row is as wide as its pills, so both scroll together as one.
           <ul key={i} className="flex w-max gap-2">
             {r.map(pill)}
           </ul>
         ))}
-      </div>
+      />
     </section>
   );
 }

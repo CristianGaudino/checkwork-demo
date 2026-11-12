@@ -79,7 +79,7 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
   const controls = (
     <>
       <nav aria-label="View the demo as" className="flex items-center">
-        <span className="pr-1 text-text-2 max-sm:pl-2">View as</span>
+        <span className="pl-2 pr-1 text-text-2">View as</span>
         {DEMO_ROLES.filter((r) => showAreas || r.id === "customer").map((r) => (
           <Link
             key={r.id}
@@ -135,7 +135,7 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
           </button>
         </div>
       )}
-      <button type="button" aria-pressed={theme === "dark"} onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className={`flex h-11 items-center px-2 text-text-2 sm:ml-auto ${press}`}>
+      <button type="button" aria-pressed={theme === "dark"} onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className={`flex h-11 items-center px-2 text-text-2 ${press}`}>
         {theme === "dark" ? "Dark" : "Light"}
       </button>
     </>
@@ -143,8 +143,9 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
 
   return (
     <div ref={root} data-demo-bar className="theme-dark text-meta text-text">
-      {/* A phone: the pill, and the controls above it when open. Above the dashboard's tab bar in the dealer area. */}
-      <div className={`fixed right-3 z-40 flex flex-col items-end gap-2 sm:hidden ${inApp ? "bottom-[calc(4rem+env(safe-area-inset-bottom))]" : "bottom-[calc(0.75rem+env(safe-area-inset-bottom))]"}`}>
+      {/* A phone: the pill, and the controls above it when open. In the dashboard it stays a pill until 1024px, above the tab bar that
+          shows until then, so the two are never stacked at the foot of a tablet. */}
+      <div className={`fixed right-3 z-40 flex flex-col items-end gap-2 ${inApp ? "bottom-[calc(4rem+env(safe-area-inset-bottom))] lg:hidden" : "bottom-[calc(0.75rem+env(safe-area-inset-bottom))] sm:hidden"}`}>
         {open && (
           <div id={panelId} className="flex w-[min(20rem,calc(100vw-1.5rem))] flex-col items-start gap-1 rounded-card border border-hairline bg-band p-2 shadow-panel">
             {controls}
@@ -163,9 +164,9 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
           <ChevronDownIcon className={`size-4 text-text-2 transition-transform motion-reduce:transition-none ${open ? "" : "rotate-180"}`} />
         </button>
       </div>
-      {/* From 640px: one slim line at the foot of the screen. */}
-      <div ref={barRoom} className="fixed inset-x-0 bottom-0 z-40 hidden border-t border-hairline bg-band pb-[env(safe-area-inset-bottom)] sm:block">
-        <div className="mx-auto flex min-h-11 max-w-page items-center gap-x-3 px-6 lg:px-8">{controls}</div>
+      {/* From 640px (1024px in the dashboard): one slim line at the foot of the screen, the theme at its right end. */}
+      <div ref={barRoom} className={`fixed inset-x-0 bottom-0 z-40 hidden border-t border-hairline bg-band pb-[env(safe-area-inset-bottom)] ${inApp ? "lg:block" : "sm:block"}`}>
+        <div className="mx-auto flex min-h-11 max-w-page items-center gap-x-3 px-6 lg:px-8 [&>:last-child]:ml-auto">{controls}</div>
       </div>
     </div>
   );

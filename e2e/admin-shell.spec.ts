@@ -46,6 +46,20 @@ test("on a phone the dashboard has a tab bar: four places and More, which opens 
   expect(last.y + last.height).toBeLessThanOrEqual(bar.y + 1);
 });
 
+test("on a tablet the demo bar never covers the tab bar: in the dashboard it stays a pill until 1024px", async ({ page }) => {
+  await page.setViewportSize({ width: 800, height: 900 });
+  await page.goto("/dashboard");
+  const tabs = page.getByRole("navigation", { name: "Dealer dashboard" });
+  const pill = page.locator("[data-demo-bar]").getByRole("button", { name: /^Demo/ });
+  await expect(tabs.getByRole("link", { name: "Leads" })).toBeVisible();
+  await expect(pill).toBeVisible();
+  const bar = (await tabs.boundingBox())!;
+  const p = (await pill.boundingBox())!;
+  expect(p.y + p.height).toBeLessThanOrEqual(bar.y); // the pill sits above the tab bar
+  const top = await page.evaluate(({ x, y }) => document.elementFromPoint(x, y)?.closest("nav")?.getAttribute("aria-label"), { x: bar.x + bar.width / 2, y: bar.y + bar.height / 2 });
+  expect(top).toBe("Dealer dashboard"); // nothing lies over the tab bar
+});
+
 test("dealer admin: no sideways scroll at 320px", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 640 });
   for (const item of nav) {

@@ -31,7 +31,7 @@ section 7). The rules in `docs/dashboard-polish.md` still hold: quiet chrome, on
   as, role, DoneDeal, theme); a tap outside, Escape or the pill again closes them. It starts closed on each visit and stays as it is
   while you move between pages. The page keeps room for the pill only, so nothing sits under it.
 - **From 640px:** the one-line bar, as now.
-- In the dashboard on a phone, the pill sits above the tab bar.
+- In the dashboard the pill stays until 1024px, above the tab bar that shows until then, so the two never stack at the foot of a tablet.
 
 ## 4. Dashboard on a phone
 - **A tab bar at the foot** (under 1024px): Overview, Leads, Test drives, Stock, More. Icons with labels, the current one in the accent.
@@ -44,7 +44,8 @@ section 7). The rules in `docs/dashboard-polish.md` still hold: quiet chrome, on
 ## 5. Home: browse by make
 - **Two rows that scroll sideways together**, at every width, by swipe or trackpad. The makes alternate between the rows (first,
   third, fifth on the top; second, fourth on the bottom), so the busiest makes lead both. Both rows start at the left edge; the pills' own
-  widths stagger them (owner, 2026-11-11: no forced indent, no arrows).
+  widths stagger them (owner, 2026-11-11: no forced indent).
+- Arrows under them on a desktop only (from 1024px, with a mouse), and only when the rows are wider than the screen.
 - The rows fade at the edges. All makes stays above, on the right.
 
 ## 6. The pass after
