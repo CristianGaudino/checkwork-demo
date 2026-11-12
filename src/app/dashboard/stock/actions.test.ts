@@ -14,8 +14,8 @@ vi.mock("next/headers", () => ({
   cookies: async () => ({ get: (n: string) => (n === "checkwork-demo-stock" ? { value: stockCookie } : n === "checkwork-demo-role" ? { value: role } : undefined) }),
   headers: async () => ({ get: () => null }),
 }));
-const { addPrepAction, removePrepAction, deleteCarAction, recordSaleAction, saveCarAction, saveCostAction, setListingAction, toggleSoldAction, withdrawnAction } = await import("./actions");
-const { costsStore, customersStore, prepStore, salesStore } = await import("@/lib/admin/collections");
+const { addPrepAction, removePrepAction, deleteCarAction, endReservationAction, recordSaleAction, reserveAction, saveCarAction, saveCostAction, setListingAction, toggleSoldAction, undoSaleAction, withdrawnAction } = await import("./actions");
+const { costsStore, customersStore, prepStore, reservationsStore, salesStore } = await import("@/lib/admin/collections");
 const { carCosts } = await import("@/lib/admin/costs");
 const { adminCar, adminCars, saveCar } = await import("@/lib/admin/stock-admin");
 
@@ -109,9 +109,9 @@ describe("recording a sale", () => {
     expect(sale).toMatchObject({ priceEur: 15000, soldOn: today, salesperson: "Conor Doyle" });
     expect((await customersStore.get(sale.customerId!))?.name).toBe("Pat Byrne");
     expect((await adminCar(car.id))?.soldAt).toBe(today);
-    // Back on sale: the sale fell through, so it goes.
-    await expect(toggleSoldAction(car.id)).rejects.toThrow(/redirect/);
-    expect(await salesStore.get(car.id)).toBeUndefined();
+    // Back on sale no longer throws a recorded sale away: it is refused, and the sale is undone on its own page instead.
+    await toggleSoldAction(car.id);
+    expect((await adminCar(car.id))?.soldAt).toBe(today);
   });
 
   it("with DoneDeal stock, records the sale of a car the sync marked sold, and never marks one sold itself", async () => {
@@ -134,6 +134,60 @@ describe("recording a sale", () => {
     expect((await recordSaleAction(car.id, undefined, form({ priceEur: "-1", soldOn: today, customerId: "" })))?.errors?.priceEur).toBeTruthy();
     expect((await recordSaleAction(car.id, undefined, form({ priceEur: "9000", soldOn: tomorrow, customerId: "", name: "Pat", phone: "1" })))?.errors?.soldOn).toMatch(/passed or today/);
     expect(await salesStore.get(car.id)).toBeUndefined();
+  });
+});
+
+describe("deposits and undoing a sale", () => {
+  const form = (o: Record<string, string>) => Object.entries(o).reduce((f, [k, v]) => (f.set(k, v), f), new FormData());
+  const today = new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Dublin" });
+  const inDays = (n: number) => new Date(Date.now() + n * 86_400_000).toLocaleDateString("en-CA", { timeZone: "Europe/Dublin" });
+  beforeEach(() => {
+    stockCookie = "checkwork";
+    role = "Sales";
+  });
+
+  it("takes a deposit: the car is reserved, and the sale that follows takes its buyer and ends it as sold", async () => {
+    const car = (await adminCars()).find((c) => !c.soldAt && !c.listing && !c.reserved)!;
+    const customer = (await customersStore.list())[1];
+    expect((await reserveAction(car.id, undefined, form({ depositEur: String(car.priceEur + 1), method: "Card", paidOn: today, until: inDays(7), customerId: customer.id })))?.errors?.depositEur).toMatch(/more than the price/);
+    expect((await reserveAction(car.id, undefined, form({ depositEur: "500", method: "Card", paidOn: today, until: inDays(200), customerId: customer.id })))?.errors?.until).toMatch(/three months/);
+    await expect(reserveAction(car.id, undefined, form({ depositEur: "500", method: "Cash", paidOn: today, until: inDays(7), customerId: customer.id }))).rejects.toThrow(/redirect:\/dashboard\/stock\?view=reserved/);
+    expect((await adminCar(car.id))?.reserved).toBe(true);
+    // A reserved car is not for sale: a second deposit is refused.
+    expect((await reserveAction(car.id, undefined, form({ depositEur: "500", method: "Cash", paidOn: today, until: inDays(7), customerId: customer.id })))?.errors?.depositEur).toMatch(/not for sale/);
+    await expect(recordSaleAction(car.id, undefined, form({ priceEur: String(car.priceEur), soldOn: today, customerId: customer.id }))).rejects.toThrow(/redirect/);
+    expect(await salesStore.get(car.id)).toMatchObject({ depositEur: 500 });
+    expect((await reservationsStore.list()).find((r) => r.carId === car.id)).toMatchObject({ status: "sold", endedOn: today });
+    expect(await adminCar(car.id)).toMatchObject({ soldAt: today });
+    expect((await adminCar(car.id))?.reserved).toBeUndefined();
+  });
+
+  it("lets only owners and managers end a reservation, with the deposit refunded or kept", async () => {
+    const car = (await adminCars()).find((c) => !c.soldAt && !c.listing && !c.reserved)!;
+    await expect(reserveAction(car.id, undefined, form({ depositEur: "1000", method: "Card", paidOn: today, until: inDays(3), name: "Sam Reid", phone: "+353 83 000 9999" }))).rejects.toThrow(/redirect/);
+    expect((await endReservationAction(car.id, undefined, form({ outcome: "refunded", refundEur: "1000" })))?.errors?.outcome).toMatch(/owners and managers/);
+    role = "Manager";
+    await deleteCarAction(car.id);
+    expect(await adminCar(car.id)).toBeDefined(); // not while a deposit is held on it
+    expect((await endReservationAction(car.id, undefined, form({ outcome: "refunded", refundEur: "1500" })))?.errors?.refundEur).toMatch(/deposit was/);
+    await expect(endReservationAction(car.id, undefined, form({ outcome: "refunded", refundEur: "800" }))).rejects.toThrow(/redirect/);
+    expect((await reservationsStore.list()).find((r) => r.carId === car.id)).toMatchObject({ status: "refunded", refundEur: 800 });
+    expect((await adminCar(car.id))?.reserved).toBeUndefined();
+  });
+
+  it("undoes a sale and keeps its record: a car brought back comes back hidden, and the reports leave the sale out", async () => {
+    const car = (await adminCars()).find((c) => !c.soldAt && !c.listing && !c.reserved)!;
+    const customer = (await customersStore.list())[2];
+    await expect(recordSaleAction(car.id, undefined, form({ priceEur: "12000", soldOn: today, customerId: customer.id }))).rejects.toThrow(/redirect/);
+    expect((await undoSaleAction(car.id, undefined, form({ kind: "returned", returnedOn: today, refundEur: "12000", reason: "Gearbox fault" })))?.errors?.kind).toMatch(/owners and managers/);
+    role = "Owner";
+    expect((await undoSaleAction(car.id, undefined, form({ kind: "returned", returnedOn: today, refundEur: "12000" })))?.errors?.reason).toMatch(/why/);
+    expect((await undoSaleAction(car.id, undefined, form({ kind: "returned", returnedOn: today, refundEur: "13000", reason: "x" })))?.errors?.refundEur).toMatch(/sold for/);
+    await expect(undoSaleAction(car.id, undefined, form({ kind: "returned", returnedOn: today, refundEur: "12000", reason: "Gearbox fault" }))).rejects.toThrow(/redirect:\/dashboard\/stock\?view=hidden/);
+    expect(await salesStore.get(car.id)).toBeUndefined(); // the car's id is free for the next sale
+    expect((await salesStore.list()).find((s) => s.carId === car.id)).toMatchObject({ kind: "returned", refundEur: 12000, reason: "Gearbox fault", customerId: customer.id, returnedOn: today });
+    expect(await adminCar(car.id)).toMatchObject({ listing: "hidden" });
+    expect((await adminCar(car.id))?.soldAt).toBeUndefined();
   });
 });
 

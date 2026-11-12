@@ -21,7 +21,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
   if (!(await can("margins"))) notFound();
   const [cars, costs, sales] = await Promise.all([adminCars(), carCosts(), salesStore.list()]);
   const byId = new Map([...costs].map(([id, c]) => [id, c.total]));
-  const soldFor = new Map(sales.map((s) => [s.id, s.priceEur]));
+  const soldFor = new Map(sales.filter((s) => !s.returnedOn).map((s) => [s.id, s.priceEur]));
   const rows: Row[] = cars
     .map((car) => {
       const salePrice = isSold(car) ? soldFor.get(car.id) : undefined;

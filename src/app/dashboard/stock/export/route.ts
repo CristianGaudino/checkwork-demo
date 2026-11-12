@@ -20,7 +20,7 @@ export async function GET(req: Request) {
     ["Mileage (km)", (c) => c.mileageKm],
     ["Fuel", (c) => (c.fuel ? FUEL_LABELS[c.fuel] : "")],
     ["Gearbox", (c) => (c.gearbox ? GEARBOX_LABELS[c.gearbox] : "")],
-    ["Status", (c) => (c.listing === "draft" ? "Draft" : c.listing ? "Hidden" : isSold(c) ? "Sold" : "For sale")],
+    ["Status", (c) => (c.listing === "draft" ? "Draft" : c.listing ? "Hidden" : isSold(c) ? "Sold" : c.reserved ? "Reserved" : "For sale")],
     ["Listed", (c) => c.listedAt],
     ["Photos", (c) => c.photos.length],
     ...(costs

@@ -71,10 +71,19 @@ with no D1). The actor is the signed-in person (`currentMember`), or a named one
 ## Sales and follow-ups
 
 - **A sale** (`salesStore`, one per car): the price it sold for, the day, who sold it and the buyer, a customer on file or a new one made
-  on the form. In our version Mark sold opens the form and marks the car sold on the sale's day; Back on sale removes the sale. In the
-  DoneDeal version the sync marks the car sold, and Overview ("Sold cars with no sale recorded", the last 90 days) and the Sold view on Stock
-  (Record sale) ask for it. Margins use the sale price for a sold car. After six years the daily job removes the buyer from a sale
-  (`src/lib/admin/sales-purge.ts`, `{"job":"anonymise-sales"}`); the figures stay. /privacy says so.
+  on the form. In our version Mark sold opens the form and marks the car sold on the sale's day. In the DoneDeal version the dealer
+  answers for a car whose ad came down, and the Sold view on Stock (Record sale) asks for a sold car with none. Margins use the sale price
+  for a sold car. After six years the daily job removes the buyer from sales and deposits (`src/lib/admin/sales-purge.ts`,
+  `{"job":"anonymise-sales"}`); the figures stay. /privacy says so.
+- **A deposit** (`reservationsStore`, our version only): Reserve on a car for sale takes the amount, how it was paid, the day, the buyer
+  and the last day it is held. The car shows as Reserved on the website, listed after the cars for sale, with no enquiry or test drive
+  buttons. Mark sold turns it into the sale (the sale keeps the deposit). Owners and managers end it with the deposit refunded (all or
+  part) or kept, under the dealer's own terms. Overview flags one past its date.
+- **Undo sale** (owners and managers): the sale fell through before handover, or the buyer brought the car back (with the refund and the
+  reason; the page says when it is within the 30-day short-term right to reject). The record is kept under its own id with
+  `returnedOn` and `kind`, and reports count it under Returns, not sales. In our version a car brought back is hidden for a look over; one
+  that fell through goes back on sale. With DoneDeal stock only the record changes. The car's page lists its deposits and undone sales.
+  Back on sale stays only for a sold car with no sale recorded.
 - **A follow-up** (`followUpOn` on a lead): Tomorrow, In 3 days, Next week or a day, on the lead. Cleared when the lead is won or lost.
   Overview counts the ones due (today and overdue); the leads list filters by them. The morning email (Settings, Notifications, off by
   default) sends each salesperson theirs, and the unassigned ones to owners and managers, at 07:00 UTC (`/api/follow-ups/digest`).

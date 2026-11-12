@@ -66,7 +66,7 @@ export default async function CarPage({ params }: PageProps<"/used-cars/[slug]">
       <div className="mt-6 grid grid-cols-1 gap-y-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-x-10">
         <div className="relative lg:col-start-1">
           <CarGallery photos={car.photos} name={carName(car)} />
-          {isSold(car) && <SoldBadge hidden className="pointer-events-none absolute left-4 top-4 z-20" />}
+          {(isSold(car) || car.reserved) && <SoldBadge hidden={isSold(car)} reserved={!isSold(car)} className="pointer-events-none absolute left-4 top-4 z-20" />}
         </div>
         <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:sticky lg:top-6 lg:self-start">
           <BuyBox car={car} />
@@ -76,7 +76,7 @@ export default async function CarPage({ params }: PageProps<"/used-cars/[slug]">
           <Specifications car={car} />
           <Equipment car={car} />
           {/* In stock only: a sold car offers no finance (UI-SPEC section 7). Only the summary and price reach the client. */}
-          {!isSold(car) && financeable(car.priceEur) && (
+          {!isSold(car) && !car.reserved && financeable(car.priceEur) && (
             <section className="flex flex-col gap-4">
               <h2 className={`text-heading font-semibold`}>Finance</h2>
               <FinanceCalculator car={{ ...carSummary(car), priceEur: car.priceEur }} />

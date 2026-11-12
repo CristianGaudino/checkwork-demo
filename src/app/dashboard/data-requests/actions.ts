@@ -37,7 +37,8 @@ export async function findAction(_prev: FindState, data: FormData): Promise<Find
     { label: "Stock alerts", items: h.alerts.map((a) => `${a.criteria}${a.active ? "" : ", paused"}`) },
     { label: "Newsletter", items: h.subscribers.map((s) => (s.status === "subscribed" ? "Subscribed" : "Unsubscribed")) },
     { label: "Customer record", items: h.customers.map((c) => `${c.name}, since ${day(c.createdAt)}`) },
-    { label: "Purchases (kept for the books, without them, if erased)", items: h.sales.map((s) => `${s.carTitle}, ${day(s.soldOn)}`) },
+    { label: "Purchases (kept for the books, without them, if erased)", items: h.sales.map((s) => `${s.carTitle}, ${day(s.soldOn)}${s.returnedOn ? `, undone ${day(s.returnedOn)}` : ""}`) },
+    { label: "Deposits (kept for the books, without them, if erased)", items: h.deposits.map((r) => `${r.carTitle}, ${day(r.paidOn)}`) },
   ].filter((g) => g.items.length);
   return { q: raw, groups, total: heldCount(h) };
 }

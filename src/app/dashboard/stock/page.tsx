@@ -9,7 +9,7 @@ import { adminCars } from "@/lib/admin/stock-admin";
 import { can } from "@/lib/permissions";
 import { fmtDate, fmtEur, fmtNum } from "@/lib/admin/format";
 import { carName, carHref } from "@/lib/stock/format";
-import { isSold, type Car } from "@/lib/stock/types";
+import { forSale, isSold, type Car } from "@/lib/stock/types";
 import { stockSource } from "@/lib/stock-source";
 import { DONEDEAL_DEALER_URL, listingHref } from "@/lib/stock-source-rules";
 import { SyncPanel } from "@/components/admin/SyncPanel";
@@ -29,7 +29,7 @@ const daysIn = (listedAt: string, now = Date.now()) => {
 
 // The views (src/lib/admin/stock-views.ts) are the summary: each is a tile with its count, and the chosen one filters the table.
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ view?: string; status?: string; q?: string; saved?: string; deleted?: string; sale?: string; page?: string }> }) {
+export default async function Page({ searchParams }: { searchParams: Promise<{ view?: string; status?: string; q?: string; saved?: string; deleted?: string; sale?: string; reserved?: string; undone?: string; page?: string }> }) {
   const sp = await searchParams;
   const { view, q } = parseStockList(sp);
   const [all, source] = await Promise.all([adminCars(), stockSource()]);
@@ -37,6 +37,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
   const sync = synced ? await syncStatus() : null;
   const sales = new Map((await salesStore.list()).map((s) => [s.id, s]));
   const saleFor = sp.sale ? all.find((c) => c.id === sp.sale) : undefined;
+  const reservedNow = sp.reserved ? all.find((c) => c.id === sp.reserved) : undefined;
+  const undoneNow = sp.undone ? all.find((c) => c.id === sp.undone) : undefined;
   // A sold car with no sale recorded gets the button: Mark sold in our version records it; after the DoneDeal sync it is asked for here.
   const recordSale = (c: Car) =>
     isSold(c) && !sales.has(c.id) ? (
@@ -54,6 +56,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
   // A synced car off the website (its ad came down) has no page there, so it opens here.
   const open = (c: Car) => (synced && !c.listing ? carHref(c.slug) : `/dashboard/stock/${c.id}`);
   const takenDown = synced ? all.filter((c) => c.takenDownAt) : [];
+  const canUndo = await can("settings"); // undoing a sale is money going back: owners and managers
+  const undoSale = (c: Car) =>
+    canUndo && isSold(c) && sales.has(c.id) ? (
+      <Link href={`/dashboard/stock/${c.id}/undo-sale`} className={rowButton}>
+        Undo sale
+      </Link>
+    ) : null;
   // Hide, show or publish, with Undo in the toast. Our version only: DoneDeal stock is shown and hidden there.
   const listingButton = (c: Car) => {
     const name = carName(c);
@@ -108,7 +117,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
     { key: "km", header: "Mileage", align: "right", hide: "md", nowrap: true, cell: (c) => (c.mileageKm !== undefined ? `${fmtNum(c.mileageKm)} km` : "") },
     { key: "photos", header: "Photos", align: "right", hide: "xl", cell: (c) => (c.photos.length < FEW_PHOTOS ? <span className="text-warn">{c.photos.length}</span> : c.photos.length) },
     // Only in the All view: the other views already say it.
-    ...(view === "all" ? [{ key: "status", header: "Status", hide: "md" as const, cell: (c: Car) => (c.listing === "draft" ? <Badge tone="info">Draft</Badge> : c.listing ? <Badge tone="warn">Hidden</Badge> : isSold(c) ? <Badge tone="neutral">Sold</Badge> : <Badge tone="good">For sale</Badge>) }] : []),
+    ...(view === "all" ? [{ key: "status", header: "Status", hide: "md" as const, cell: (c: Car) => (c.listing === "draft" ? <Badge tone="info">Draft</Badge> : c.listing ? <Badge tone="warn">Hidden</Badge> : isSold(c) ? <Badge tone="neutral">Sold</Badge> : c.reserved ? <Badge tone="info">Reserved</Badge> : <Badge tone="good">For sale</Badge>) }] : []),
     {
       key: "actions",
       header: "",
@@ -118,6 +127,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         synced ? (
           <div className="relative z-10 flex justify-end gap-2">
             {recordSale(c)}
+            {undoSale(c)}
             <a href={listingHref(c)} {...NEW_TAB} className={rowButton} aria-label={`Edit ${carName(c)} on DoneDeal (opens in a new tab)`}>
               DoneDeal
               <ExternalIcon className="size-4" />
@@ -131,11 +141,19 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
             </Link>
             {recordSale(c)}
             {listingButton(c)}
-            {isSold(c) ? (
-              <ActButton act={toggleSoldAction.bind(null, c.id)} confirm={{ title: `Put ${carName(c)} back on sale?`, text: `${sales.has(c.id) ? "Its sale record is removed. " : ""}${c.listing ? "It stays off the website until you show it." : "It goes back on the website for sale."}`, yes: "Put back on sale" }} className={rowButton}>
+            {undoSale(c)}
+            {/* Back on sale only where no sale is recorded: undoing a recorded sale keeps its record (Undo sale). */}
+            {isSold(c) && !sales.has(c.id) && (
+              <ActButton act={toggleSoldAction.bind(null, c.id)} confirm={{ title: `Put ${carName(c)} back on sale?`, text: c.listing ? "It stays off the website until you show it." : "It goes back on the website for sale.", yes: "Put back on sale" }} className={rowButton}>
                 Back on sale
               </ActButton>
-            ) : (
+            )}
+            {(forSale(c) || c.reserved) && !isSold(c) && (
+              <Link href={`/dashboard/stock/${c.id}/reserve`} className={rowButton}>
+                {c.reserved ? "Deposit" : "Reserve"}
+              </Link>
+            )}
+            {!isSold(c) && (
               <Link href={`/dashboard/stock/${c.id}/sale`} className={rowButton}>
                 Mark sold
               </Link>
@@ -175,6 +193,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
       {saved && <p role="status" className="rounded-control bg-ok-soft px-4 py-3 text-body text-ok">Saved {carName(saved)}.</p>}
       {saleFor && <p role="status" className="rounded-control bg-ok-soft px-4 py-3 text-body text-ok">Sale recorded for {carName(saleFor)}.</p>}
       {sp.deleted && <p role="status" className="rounded-control bg-hairline px-4 py-3 text-body">Car deleted.</p>}
+      {reservedNow && <p role="status" className="rounded-control bg-ok-soft px-4 py-3 text-body text-ok">Deposit taken. {carName(reservedNow)} shows as Reserved on the website.</p>}
+      {undoneNow && <p role="status" className="rounded-control bg-hairline px-4 py-3 text-body">Sale undone for {carName(undoneNow)}. The record is kept.</p>}
       {/* DoneDeal does not say why an ad came down, so the car is hidden until the dealer says. Above the table, so a phone has it too. */}
       {takenDown.length > 0 && (
         <Panel title="Ads taken down on DoneDeal">
@@ -200,7 +220,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
       {/* Hidden and Drafts only show when they hold a car (or are open), so a dealer who never uses them never sees them. */}
       <SummaryTabs label="Stock views" items={(Object.keys(STOCK_VIEWS) as StockView[])
           .map((v) => [v, all.filter(STOCK_VIEWS[v].test).length] as const)
-          .filter(([v, count]) => count > 0 || view === v || (v !== "hidden" && v !== "drafts"))
+          .filter(([v, count]) => count > 0 || view === v || !["hidden", "drafts", "reserved"].includes(v))
           .map(([v, count]) => ({ label: STOCK_VIEWS[v].label, count, href: href(v), active: view === v }))} />
       <SearchBar action="/dashboard/stock" value={q} placeholder={SEARCH_MAKE_MODEL} label="Search stock" keep={{ view }} />
       <DataTable

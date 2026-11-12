@@ -36,6 +36,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
         <StatCard label="Sales" value={fmtEur(r.totals.value)} />
         <StatCard label="Profit" value={fmtEur(r.totals.profit)} hint={r.totals.costed < r.totals.sold ? `On ${r.totals.costed} of ${r.totals.sold} sales with a cost` : undefined} />
         <StatCard label="Days to sell" value={r.totals.avgDaysToSell === null ? "None" : fmtNum(r.totals.avgDaysToSell)} hint="On average, from listing to sale" />
+        {r.returns.count > 0 && <StatCard label="Returns" value={fmtNum(r.returns.count)} hint={`${fmtEur(r.returns.refundEur)} refunded, not counted in sales`} />}
       </StatGrid>
 
       <Panel title="Sales by month">

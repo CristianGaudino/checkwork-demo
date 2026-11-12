@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 const { exportOf, erasePerson, findPerson, heldCount } = await import("./data-requests");
-const { alertsStore, customersStore, drivesStore, leadsStore, salesStore, subscribersStore } = await import("./collections");
+const { alertsStore, customersStore, drivesStore, leadsStore, reservationsStore, salesStore, subscribersStore } = await import("./collections");
 const { parsePersonQuery } = await import("./person-match");
 
 // The memory path (no D1): the dashboard's records. The D1 form submissions are the same match, read from the table.
@@ -15,17 +15,20 @@ describe("a data request", () => {
     await alertsStore.put({ id: "alert-x", email: "pat@example.com", kind: "price-drop", criteria: "Ford Focus", active: true, createdAt: now });
     await subscribersStore.put({ id: "sub-x", email: "pat@example.com", status: "subscribed", createdAt: now });
     await salesStore.put({ id: "car-x", carTitle: "2016 Ford Focus", priceEur: 9000, soldOn: "2026-11-01", customerId: "cust-x", createdAt: now });
+    await reservationsStore.put({ id: "res-x", carId: "car-y", carTitle: "2018 Kia Rio", customerId: "cust-x", depositEur: 500, method: "Card", paidOn: "2026-10-01", until: "2026-10-10", status: "refunded", refundEur: 500, createdAt: now });
     const others = (await leadsStore.list()).length - 1;
 
     const byEmail = await findPerson(parsePersonQuery("pat@example.com")!);
-    expect([byEmail.customers, byEmail.leads, byEmail.alerts, byEmail.subscribers, byEmail.sales, byEmail.drives].map((x) => x.length)).toEqual([1, 1, 1, 1, 1, 1]);
+    expect([byEmail.customers, byEmail.leads, byEmail.alerts, byEmail.subscribers, byEmail.sales, byEmail.drives, byEmail.deposits].map((x) => x.length)).toEqual([1, 1, 1, 1, 1, 1, 1]);
     // The booking gave only a phone: found through the phone on their customer record. And the other way round.
     const byPhone = await findPerson(parsePersonQuery("0871234567")!);
     expect(heldCount(byPhone)).toBe(heldCount(byEmail));
-    expect(heldCount(byEmail)).toBe(6);
+    expect(heldCount(byEmail)).toBe(7);
     expect(JSON.stringify(exportOf(byEmail).purchases)).not.toContain("cust-x");
+    expect(exportOf(byEmail).deposits).toEqual([{ car: "2018 Kia Rio", depositEur: 500, paidOn: "2026-10-01", until: "2026-10-10", status: "refunded", refundEur: 500 }]);
 
-    expect(await erasePerson(parsePersonQuery("pat@example.com")!)).toBe(5); // the sale is kept, so not counted
+    expect(await erasePerson(parsePersonQuery("pat@example.com")!)).toBe(5); // the sale and the deposit are kept, so not counted
+    expect(await reservationsStore.get("res-x")).toMatchObject({ depositEur: 500, customerId: undefined });
     expect(await customersStore.get("cust-x")).toBeUndefined();
     expect(await leadsStore.get("lead-x")).toBeUndefined();
     expect(await alertsStore.get("alert-x")).toBeUndefined();

@@ -18,6 +18,8 @@ describe("slugs and ids", () => {
     expect(carSlug({ make: "Škoda", model: "Octavia estate", year: 2019, id: "7" })).toBe("skoda-octavia-estate-2019-7");
     expect(nextCarId([{ id: "4359693" }, { id: "12" }] as Car[])).toBe("4359694");
     expect(nextCarId([])).toBe("1");
+    // An id a sale still names is not given out again, even with its car deleted.
+    expect(nextCarId([{ id: "12" }, { id: "13" }])).toBe("14");
   });
 });
 

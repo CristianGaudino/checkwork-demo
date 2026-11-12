@@ -9,8 +9,10 @@ export const slugify = (s: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 
-// Ids are digits only (the slug ends in one, and the proxy tells a car URL by that), so a new car takes the next number up.
-export function nextCarId(existing: Car[]) {
+// Ids are digits only (the slug ends in one, and the proxy tells a car URL by that), so a new car takes the next number up. `existing` is
+// every id still in use, by a car or by a record that names one (a sale, a deposit): an id is never given out twice, so a new car can never
+// take over a deleted car's sale.
+export function nextCarId(existing: { id: string }[]) {
   return String(Math.max(0, ...existing.map((c) => Number(c.id) || 0)) + 1);
 }
 

@@ -8,6 +8,7 @@ export const STOCK_VIEWS = {
   reduced: { label: "Reduced", test: (c: Car) => forSale(c) && c.wasPriceEur !== undefined && c.wasPriceEur > c.priceEur },
   photos: { label: "Need photos", test: (c: Car) => !isSold(c) && c.photos.length < FEW_PHOTOS },
   old: { label: `${OLD_STOCK_DAYS} days or more`, test: (c: Car) => isOldStock(c, Date.now()) },
+  reserved: { label: "Reserved", test: (c: Car) => Boolean(c.reserved) && !isSold(c) },
   sold: { label: "Sold", test: (c: Car) => isSold(c) },
   // Off the website. A car whose DoneDeal ad came down is here, waiting for the dealer to say what happened.
   hidden: { label: "Hidden", test: (c: Car) => c.listing === "hidden" },

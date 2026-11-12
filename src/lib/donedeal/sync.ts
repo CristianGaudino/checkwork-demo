@@ -1,7 +1,7 @@
 import "server-only";
 import { logActivity } from "@/lib/admin/activity";
 import { carEditSummary } from "@/lib/admin/activity-text";
-import { getSettings, leaderEmails, salesStore } from "@/lib/admin/collections";
+import { getSettings, leaderEmails, salesStore, undoSale } from "@/lib/admin/collections";
 import { defineCollection } from "@/lib/admin/docs";
 import { dublinDay } from "@/lib/admin/format";
 import { carTitleOf } from "@/lib/admin/seed-data";
@@ -77,7 +77,9 @@ export async function runSync({ force = false, now = Date.now() } = {}): Promise
   for (const { before, after } of plan.changed) {
     if (!(await apply(after, before.soldAt ? "Back on sale on DoneDeal" : before.listing ? "Back on DoneDeal" : carEditSummary(before, after)))) continue;
     result.changed++;
-    if (before.soldAt) await salesStore.remove(after.id); // back on sale: the sale fell through, as Back on sale does in our version
+    // Back on sale: the sale fell through. Kept as a cancelled sale, as in our version, so the history still has it.
+    const sale = before.soldAt ? await salesStore.get(after.id) : undefined;
+    if (sale) await undoSale(sale, { returnedOn: today, kind: "cancelled", reason: "Listed again on DoneDeal" });
   }
   for (const c of plan.gone) if (await apply(c, "Hidden: the ad came down on DoneDeal")) result.takenDown++;
   const status: SyncStatus = { id: "status", lastRunAt: now, lastOkAt: now, result, ...(skipped && { problem: `${skipped === 1 ? "1 car" : `${skipped} cars`} from DoneDeal could not be saved. The rest are up to date.` }) };

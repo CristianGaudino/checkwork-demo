@@ -26,7 +26,7 @@ export default async function TestDrivePage({ searchParams }: PageProps<"/test-d
   const q = typeof sp.q === "string" ? sp.q.trim().slice(0, 80) : "";
   // Used, new and commercial: a test drive is as likely on a new car or a van. Searched and paged here, so the page carries 24 cars
   // whatever the size of the stock.
-  const all = ((await everyKindOrNull()) ?? []).sort((a, b) => Number(b.id) - Number(a.id)).map(carSummary); // newest first, whatever the kind
+  const all = ((await everyKindOrNull()) ?? []).filter((c) => !c.reserved).sort((a, b) => Number(b.id) - Number(a.id)).map(carSummary); // newest first, whatever the kind; not a reserved car
   const found = q ? all.filter((c) => fold(`${c.name} ${c.title}`).includes(fold(q))) : all;
   const { rows, page, pageCount, total } = paginate(found, typeof sp.page === "string" ? sp.page : undefined, PER_PAGE);
   const href = (n: number) => `/test-drive?${q ? `q=${encodeURIComponent(q)}&` : ""}page=${n}`;

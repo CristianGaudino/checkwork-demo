@@ -6,6 +6,8 @@ import { NETWORKS, type Network } from "./networks";
 import { demoCost } from "./margins";
 import { DAY, HOUR } from "@/lib/time";
 import { dublinDay } from "./format";
+import { newId } from "./ids";
+import { DEPOSIT_METHODS, type DepositMethod } from "./deposits";
 import { ALERT_KINDS } from "@/lib/leads/schema";
 import type { Role } from "@/lib/permission-rules";
 import type { PrepLine } from "./prep";
@@ -274,7 +276,29 @@ export async function getSettings(): Promise<DealerSettings> {
 // What a car sold for, when, by whom and to whom: one record per car (its id). The buyer is a customer record, by id, so their details live
 // in one place. Recorded from Mark sold in our version, and after the sync marks a car sold in the DoneDeal version. Personal data: after
 // SALE_KEEP_YEARS the link to the buyer is removed (src/lib/admin/sales-purge.ts) and the figures stay for the reports.
-export type Sale = { id: string; carTitle: string; priceEur: number; soldOn: string; salesperson?: string; customerId?: string; createdAt: number };
+// A sale that was undone keeps its record, under an id of its own (the car's id is free for the next sale): `returnedOn` says when, and
+// `kind` whether it fell through before the buyer took the car (cancelled) or the buyer brought it back (returned). Reports leave those out.
+export type Sale = {
+  id: string;
+  carId?: string; // only on an undone sale: the car it was for (a live sale's id is the car's)
+  carTitle: string;
+  priceEur: number;
+  soldOn: string;
+  salesperson?: string;
+  customerId?: string;
+  depositEur?: number; // taken earlier as a reservation, and part of the price
+  returnedOn?: string;
+  kind?: "cancelled" | "returned";
+  refundEur?: number;
+  reason?: string;
+  createdAt: number;
+};
+// Undoing a sale: the record moves to an id of its own with how and when, then the car's id is freed. In that order, so nothing is lost
+// if the second write fails (the sale shows twice until it is done again).
+export async function undoSale(sale: Sale, how: Required<Pick<Sale, "returnedOn" | "kind">> & Pick<Sale, "refundEur" | "reason">) {
+  await salesStore.put({ ...sale, ...how, id: newId("undone"), carId: sale.id });
+  await salesStore.remove(sale.id);
+}
 function seedSales(): Sale[] {
   // Most of the demo's sold cars have their sale recorded; the rest show as "no sale recorded" on the overview.
   const sold = (demoCars as { id: string; year: number; make: string; model: string; priceEur: number; soldAt?: string }[]).filter((c) => c.soldAt);
@@ -310,6 +334,29 @@ const PAST_SALES: { sale: Sale; costEur: number }[] = (() => {
 })();
 export const salesStore = defineCollection<Sale>("sales", () => [...seedSales(), ...PAST_SALES.map((p) => p.sale)]);
 
+// ---- Reservations ----
+// A deposit on a car: the car is marked reserved on the website until the date agreed. It ends sold (the deposit is part of the price),
+// or with the deposit refunded or kept, by a manager or owner, under the dealer's own terms. Personal data like a sale: erasure and the
+// six-year purge remove the buyer and keep the figures. Our version only: DoneDeal stock is not reserved here.
+export { DEPOSIT_METHODS };
+export type Reservation = {
+  id: string;
+  carId: string;
+  carTitle: string;
+  customerId?: string;
+  depositEur: number;
+  method: DepositMethod;
+  paidOn: string; // YYYY-MM-DD
+  until: string; // YYYY-MM-DD, the last day it is held
+  salesperson?: string;
+  status: "held" | "sold" | "refunded" | "kept";
+  refundEur?: number;
+  endedOn?: string;
+  createdAt: number;
+};
+export const reservationsStore = defineCollection<Reservation>("reservations", () => []);
+export const heldFor = (all: Reservation[], carId: string) => all.find((r) => r.carId === carId && r.status === "held");
+
 // ---- Cost prices ----
 // What each car cost the dealer. Kept here, never in the public car data, and only shown to staff with the "margins" permission
 // (src/lib/permissions.ts). One record per car id; a car added in the admin has none until someone enters it.
@@ -331,4 +378,4 @@ function seedPrep(): CarPrep[] {
 export const prepStore = defineCollection<CarPrep>("car-prep", seedPrep);
 
 // Every dealer collection, so "Reset demo data" puts the whole demo back to its seed.
-export const DEALER_COLLECTIONS = [leadsStore, drivesStore, customersStore, alertsStore, subscribersStore, reviewsStore, settingsStore, postsStore, adsStore, newslettersStore, costsStore, salesStore, prepStore];
+export const DEALER_COLLECTIONS = [leadsStore, drivesStore, customersStore, alertsStore, subscribersStore, reviewsStore, settingsStore, postsStore, adsStore, newslettersStore, costsStore, salesStore, prepStore, reservationsStore];
