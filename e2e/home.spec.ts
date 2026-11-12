@@ -58,13 +58,13 @@ test("on a phone the drop-downs only pick: the field cannot be typed into, howev
   await page.goto("/");
   await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
   await expect(page.getByLabel("Make", { exact: true })).toHaveAttribute("readonly", "");
-  // A long list (every car in stock, in the post composer) only picks too, and every option is there to scroll to.
-  await page.goto("/dashboard/marketing");
+  // A long list (every customer on file, on a new order) only picks too, and every option is there to scroll to.
+  await page.goto("/dashboard/orders/new");
   await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
-  const car = page.getByLabel("Car").first();
+  const car = page.getByLabel("Buyer").first();
   await expect(car).toHaveAttribute("readonly", "");
   await car.click();
-  expect(await page.getByRole("listbox").getByRole("option").count()).toBeGreaterThan(30);
+  expect(await page.getByRole("listbox").getByRole("option").count()).toBeGreaterThan(20);
 });
 
 test("the drop-downs are the site's own: typing narrows the list, Enter picks, Escape puts it back", async ({ browser, baseURL }) => {

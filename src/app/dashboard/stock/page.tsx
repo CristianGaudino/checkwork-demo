@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CarStatusBadge } from "@/components/admin/badges";
-import { DataTable, EmptyState, FilterSelect, PageHeader, Pager, Panel, SummaryTabs, TableToolbar, adminButton, paginate, rowButton, sortRows, type Column, adminButtonQuiet } from "@/components/admin/kit";
+import { DataTable, EmptyState, Notice, PageHeader, Panel, SummaryTabs, TableFooter, TableToolbar, adminButton, pageOf, rowButton, sortRows, type Column, type FilterGroup } from "@/components/admin/kit";
 import { ActButton } from "@/components/admin/ActButton";
 import { RowMenu } from "@/components/admin/RowMenu";
 import { ExternalIcon, PlusIcon, SyncIcon } from "@/components/stock/icons";
@@ -9,9 +9,9 @@ import { carCosts } from "@/lib/admin/costs";
 import { marginOf } from "@/lib/admin/margins";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { can } from "@/lib/permissions";
-import { fmtDate, fmtEur, fmtNum } from "@/lib/admin/format";
+import { daysSince, fmtDate, fmtEur, fmtNum } from "@/lib/admin/format";
 import { carName, carHref } from "@/lib/stock/format";
-import { FUEL_LABELS, FUELS, forSale, isSold, type Car } from "@/lib/stock/types";
+import { FUEL_LABELS, FUELS, GEARBOXES, GEARBOX_LABELS, forSale, isSold, type Car } from "@/lib/stock/types";
 import { stockSource } from "@/lib/stock-source";
 import { DONEDEAL_DEALER_URL, listingHref } from "@/lib/stock-source-rules";
 import { SyncPanel } from "@/components/admin/SyncPanel";
@@ -27,7 +27,6 @@ import { setListingAction, toggleSoldAction, withdrawnAction } from "./actions";
 export const metadata = { title: "Stock" };
 
 // Whole days since a YYYY-MM-DD listing date, and the same in words: "Today", "1 day", "23 days".
-const daysSince = (listedAt: string, now = Date.now()) => Math.max(0, Math.floor((now - Date.parse(`${listedAt}T00:00:00Z`)) / 86_400_000));
 const daysIn = (listedAt: string) => {
   const d = daysSince(listedAt);
   return d === 0 ? "Today" : d === 1 ? "1 day" : `${d} days`;
@@ -35,9 +34,9 @@ const daysIn = (listedAt: string) => {
 
 // The views (src/lib/admin/stock-views.ts) are the summary: each is a tile with its count, and the chosen one filters the table.
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ view?: string; status?: string; q?: string; make?: string; fuel?: string; sort?: string; dir?: string; saved?: string; deleted?: string; sale?: string; reserved?: string; undone?: string; page?: string }> }) {
+export default async function Page({ searchParams }: { searchParams: Promise<{ view?: string; status?: string; q?: string; make?: string; fuel?: string; gearbox?: string; sort?: string; dir?: string; per?: string; saved?: string; deleted?: string; sale?: string; reserved?: string; undone?: string; page?: string }> }) {
   const sp = await searchParams;
-  const { view, q, make, fuel } = parseStockList(sp);
+  const { view, q, make, fuel, gearbox } = parseStockList(sp);
   const [all, source] = await Promise.all([adminCars(), stockSource()]);
   const synced = source === "donedeal";
   const sync = synced ? await syncStatus() : null;
@@ -57,10 +56,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
   const costs = (await can("margins")) ? new Map([...(await carCosts())].map(([id, c]) => [id, c.total])) : null;
   // The makes in stock, for the make filter.
   const makes = [...new Map(all.map((c) => [c.makeSlug, c.make])).entries()].sort((a, b) => a[1].localeCompare(b[1], "en-IE"));
-  const matching = stockList(all, view, q, { make, fuel });
+  const matching = stockList(all, view, q, { make, fuel, gearbox });
   const saved = sp.saved ? all.find((c) => c.id === sp.saved) : undefined;
   // A view keeps the search and the filters; the sort and the page start again.
-  const href = (v: StockView) => `/dashboard/stock?${new URLSearchParams(Object.entries({ view: v, q, make, fuel }).filter((e): e is [string, string] => Boolean(e[1])))}`;
+  const href = (v: StockView) => `/dashboard/stock?${new URLSearchParams(Object.entries({ view: v, q, make, fuel, gearbox }).filter((e): e is [string, string] => Boolean(e[1])))}`;
   // Where a row goes: the car's editor here, or, for synced stock, the car on the site (it is changed on DoneDeal).
   // A synced car off the website (its ad came down) has no page there, so it opens here.
   const open = (c: Car) => (synced && !c.listing ? carHref(c.slug) : `/dashboard/stock/${c.id}`);
@@ -195,7 +194,14 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
 
   // No sort chosen: the view's own order (stock-views.ts).
   const { rows: sorted, sort } = sortRows(matching, columns, sp, { key: "", dir: "asc" });
-  const { rows, page, pageCount, total } = paginate(sorted, sp.page);
+  const paged = pageOf(sorted, sp);
+  const rows = paged.rows;
+  // Every filter in one panel: the make (those in stock), the fuel, the gearbox.
+  const filters: FilterGroup[] = [
+    { name: "make", label: "Make", any: "Every make", options: makes },
+    { name: "fuel", label: "Fuel", any: "Any fuel", options: FUELS.filter((f) => all.some((c) => c.fuel === f)).map((f) => [f, FUEL_LABELS[f]] as const) },
+    { name: "gearbox", label: "Gearbox", any: "Any gearbox", options: GEARBOXES.map((g) => [g, GEARBOX_LABELS[g]] as const) },
+  ];
 
   return (
     <>
@@ -204,10 +210,6 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         text={synced ? "Synced from DoneDeal. Add, edit and sell cars there; they update here within 15 minutes." : undefined}
         actions={
           <>
-            {/* The list as it is filtered now: cost and margin columns only for the margins roles. */}
-            <a href={`/dashboard/stock/export?${new URLSearchParams(Object.entries({ view, q, make, fuel }).filter((e): e is [string, string] => Boolean(e[1])))}`} className={adminButtonQuiet} download>
-              Export CSV
-            </a>
             {synced ? (
               <a href={DONEDEAL_DEALER_URL} {...NEW_TAB} className={adminButton}>
                 <SyncIcon className="size-4" />
@@ -224,9 +226,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         }
       />
       {sync && <SyncPanel status={sync} canForce={await can("settings")} />}
-      {saved && <p role="status" className="rounded-control bg-ok-soft px-4 py-3 text-body text-ok">Saved {carName(saved)}.</p>}
+      {saved && <Notice>Saved {carName(saved)}.</Notice>}
       {saleFor && (
-        <p role="status" className="rounded-control bg-ok-soft px-4 py-3 text-body text-ok">
+        <Notice>
           Sale recorded for {carName(saleFor)}.
           {/* The car taken in part exchange is the next car in stock: start it from its registration. Our version only. */}
           {!synced && tradeIn && (
@@ -235,11 +237,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
               <Link href={`/dashboard/stock/new?reg=${encodeURIComponent(tradeIn.reg)}`} className="font-semibold underline">Add the trade-in, {tradeIn.reg}, to stock</Link>
             </>
           )}
-        </p>
+        </Notice>
       )}
-      {sp.deleted && <p role="status" className="rounded-control bg-hairline px-4 py-3 text-body">Car deleted.</p>}
-      {reservedNow && <p role="status" className="rounded-control bg-ok-soft px-4 py-3 text-body text-ok">Deposit taken. {carName(reservedNow)} shows as Reserved on the website.</p>}
-      {undoneNow && <p role="status" className="rounded-control bg-hairline px-4 py-3 text-body">Sale undone for {carName(undoneNow)}. The record is kept.</p>}
+      {sp.deleted && <Notice tone="neutral">Car deleted.</Notice>}
+      {reservedNow && <Notice>Deposit taken. {carName(reservedNow)} shows as Reserved on the website.</Notice>}
+      {undoneNow && <Notice tone="neutral">Sale undone for {carName(undoneNow)}. The record is kept.</Notice>}
       {/* DoneDeal does not say why an ad came down, so the car is hidden until the dealer says. Above the table, so a phone has it too. */}
       {takenDown.length > 0 && (
         <Panel title="Ads taken down on DoneDeal">
@@ -267,10 +269,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
           .map((v) => [v, all.filter(STOCK_VIEWS[v].test).length] as const)
           .filter(([v, count]) => count > 0 || view === v || !["hidden", "drafts", "reserved"].includes(v))
           .map(([v, count]) => ({ label: STOCK_VIEWS[v].label, count, href: href(v), active: view === v }))} />
-      <TableToolbar search={{ placeholder: SEARCH_MAKE_MODEL, label: "Search stock" }}>
-        <FilterSelect name="make" label="Make" all="Every make" options={makes} />
-        <FilterSelect name="fuel" label="Fuel" all="Any fuel" options={FUELS.map((f) => [f, FUEL_LABELS[f]] as const)} />
-      </TableToolbar>
+      <TableToolbar search={{ placeholder: SEARCH_MAKE_MODEL, label: "Search stock" }} filters={filters} />
       <DataTable
         label="Stock"
         linkRows
@@ -280,7 +279,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         sort={sort}
         empty={<EmptyState title="No cars match" text={q ? "Try a different search." : undefined} action={!synced && !q ? <Link href="/dashboard/stock/new" className={adminButton}>Add a car</Link> : undefined} />}
       />
-      <Pager page={page} pageCount={pageCount} total={total} />
+      {/* The list as it is filtered now, as a CSV: cost and margin columns only for the margins roles. */}
+      <TableFooter page={paged.page} pageCount={paged.pageCount} total={paged.total} per={paged.per} exportHref="/dashboard/stock/export" />
     </>
   );
 }

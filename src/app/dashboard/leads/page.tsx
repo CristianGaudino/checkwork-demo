@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { LeadStatusBadge } from "@/components/admin/badges";
-import { Avatar, Badge, DataTable, EmptyState, FilterSelect, FilterTabs, PageHeader, Pager, SummaryTabs, TableToolbar, adminButtonQuiet, paginate, sortRows, type Column } from "@/components/admin/kit";
+import { Avatar, Badge, DataTable, EmptyState, PageHeader, SummaryTabs, TableFooter, TableToolbar, pageOf, sortRows, type Column, type FilterGroup } from "@/components/admin/kit";
 import { can } from "@/lib/permissions";
 import { LEAD_SOURCES, LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_TYPE_LABELS, getSettings, leadsStore, type Lead } from "@/lib/admin/collections";
 import { dublinDay, fmtAgo, fmtDate } from "@/lib/admin/format";
@@ -8,7 +8,7 @@ import { SALES_LEAD_TYPES, countByStatus, filterLeads, followUpDue, isOpenLead, 
 
 export const metadata = { title: "Leads" };
 
-type Params = { status?: string; type?: string; q?: string; due?: string; late?: string; with?: string; source?: string; sort?: string; dir?: string; page?: string };
+type Params = { status?: string; type?: string; q?: string; due?: string; late?: string; need?: string; with?: string; source?: string; sort?: string; dir?: string; page?: string; per?: string };
 
 export default async function Page({ searchParams }: { searchParams: Promise<Params> }) {
   const sp = await searchParams;
@@ -73,56 +73,36 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
     { key: "when", header: "Received", sort: (l) => l.createdAt, cell: (l) => fmtAgo(l.createdAt), align: "right", nowrap: true },
   ];
   const { rows: sorted, sort } = sortRows(filterLeads(all, f, today, leadSlaHours), columns, sp, { key: "when", dir: "desc" });
-  const { rows, page, pageCount, total } = paginate(sorted, sp.page);
-  // Links keep everything else in the URL (search, the other filters, the sort), so picking a status does not forget the rest.
-  const href = (over: { status?: string; type?: string; due?: boolean; late?: boolean }) => {
+  const paged = pageOf(sorted, sp);
+  const rows = paged.rows;
+  // Every filter in one panel: what kind of lead, whether it needs a reply, who has it, where it came from.
+  const filters: FilterGroup[] = [
+    { name: "type", label: "Type", any: "Every type", options: SALES_LEAD_TYPES.map((t) => [t, LEAD_TYPE_LABELS[t]] as const) },
+    { name: "need", label: "Needs a reply", any: "Any", options: [["due", `Follow-ups due (${due})`], ["late", `Past reply target (${late})`]] },
+    { name: "with", label: "Who has it", any: "Anyone", options: [["none", "Nobody"], ...team.map((t) => [t.name, t.name] as const)] },
+    { name: "source", label: "Where it came from", any: "Any source", options: LEAD_SOURCES.map((s) => [s, s] as const) },
+  ];
+  const canExport = await can("data");
+  // A status tile keeps everything else in the URL (search, filters, sort), so picking a status does not forget the rest.
+  const href = ({ status }: { status?: string }) => {
     const p = new URLSearchParams(Object.entries(sp).filter((e): e is [string, string] => typeof e[1] === "string" && e[0] !== "page"));
-    const set = (k: string, v: string | undefined) => (v ? p.set(k, v) : p.delete(k));
-    if ("status" in over) set("status", over.status);
-    if ("type" in over) set("type", over.type);
-    if ("due" in over) set("due", over.due ? "1" : undefined);
-    if ("late" in over) set("late", over.late ? "1" : undefined);
+    if (status) p.set("status", status);
+    else p.delete("status");
     const qs = p.toString();
     return `/dashboard/leads${qs ? `?${qs}` : ""}`;
   };
 
   return (
     <>
-      <PageHeader
-        title="Leads"
-        actions={
-          (await can("data")) && (
-            // The list as it is filtered now. Owners and managers only.
-            <a href={`/dashboard/leads/export${href({}).replace("/dashboard/leads", "")}`} className={adminButtonQuiet} download>
-              Export CSV
-            </a>
-          )
-        }
-      />
+      <PageHeader title="Leads" />
       <SummaryTabs
         label="Lead status"
         items={[{ label: "All", href: href({ status: undefined }), active: !f.status, count: all.length }, ...LEAD_STATUSES.map((s) => ({ label: LEAD_STATUS_LABELS[s], href: href({ status: s }), active: f.status === s, count: counts[s] }))]}
       />
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <FilterTabs
-          label="Type of lead"
-          items={[{ label: "All types", href: href({ type: undefined }), active: !f.type }, ...SALES_LEAD_TYPES.map((t) => ({ label: LEAD_TYPE_LABELS[t], href: href({ type: t }), active: f.type === t }))]}
-        />
-      </div>
-      <TableToolbar search={{ placeholder: "Search name, phone, email, car", label: "Search leads" }}>
-        <FilterSelect name="with" label="Who has it" all="Anyone" options={[["none", "Nobody"], ...team.map((t) => [t.name, t.name] as const)]} />
-        <FilterSelect name="source" label="Where it came from" all="Any source" options={LEAD_SOURCES.map((s) => [s, s] as const)} />
-      </TableToolbar>
-      <FilterTabs
-        label="Needs a reply"
-        items={[
-          { label: "Any", href: href({ due: false, late: false }), active: !f.due && !f.late },
-          { label: "Follow-ups due", href: href({ due: true, late: false }), active: Boolean(f.due), count: due },
-          { label: "Past reply target", href: href({ late: true, due: false }), active: Boolean(f.late), count: late },
-        ]}
-      />
+      <TableToolbar search={{ placeholder: "Search name, phone, email, car", label: "Search leads" }} filters={filters} />
       <DataTable label="Leads" linkRows rows={rows} rowKey={(l) => l.id} columns={columns} sort={sort} empty={<EmptyState title="No leads match" text="Try another filter or search." />} />
-      <Pager page={page} pageCount={pageCount} total={total} />
+      {/* The list as it is filtered now, as a CSV: owners and managers only. */}
+      <TableFooter page={paged.page} pageCount={paged.pageCount} total={paged.total} per={paged.per} exportHref={canExport ? "/dashboard/leads/export" : undefined} />
     </>
   );
 }

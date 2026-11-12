@@ -10,7 +10,7 @@ import { PREP_KINDS } from "@/lib/admin/prep";
 import { DEPOSIT_METHODS, costsStore, heldFor, leadsStore, ordersStore, prepStore, reservationsStore, salesStore, undoSale } from "@/lib/admin/collections";
 import { addMonths, dublinDay, fmtEur } from "@/lib/admin/format";
 import { newId } from "@/lib/admin/ids";
-import { fieldErrors } from "@/lib/admin/validation";
+import { fieldErrors, isoDay } from "@/lib/admin/validation";
 import { buyerFields, buyerOf } from "@/lib/admin/buyer";
 import { COVER_CHOICES, COVER_MONTHS } from "@/lib/admin/deposits";
 import { carTitleOf } from "@/lib/admin/seed-data";
@@ -119,13 +119,12 @@ export async function syncNowAction(force: boolean) {
 }
 
 export type SaleFormState = { errors?: Record<string, string> } | undefined;
-const day = (message: string) => z.string().regex(/^\d{4}-\d{2}-\d{2}$/, message);
 const euros = (max: number, min = 1) => z.coerce.number({ message: "Enter the amount in whole euros" }).int("Enter the amount in whole euros").min(min, "Enter the amount in whole euros").max(max, "That amount looks too high");
 // Cover is the included months or more (extended cover bought); a trade-in is a reg with its allowance, both or neither.
 const blank = (v: unknown) => (v === "" ? undefined : v);
 const sale = z.object({
   priceEur: euros(10_000_000),
-  soldOn: day("Choose the day it sold"),
+  soldOn: isoDay("Choose the day it sold"),
   coverMonths: z.preprocess(blank, z.coerce.number().refine((n) => (COVER_CHOICES as readonly number[]).includes(n), "Choose the cover").optional()),
   tradeReg: z.preprocess(blank, z.string().trim().toUpperCase().max(12).optional()),
   tradeEur: z.preprocess(blank, euros(1_000_000).optional()),
@@ -182,8 +181,8 @@ export type DepositFormState = { errors?: Record<string, string> } | undefined;
 const deposit = z.object({
   depositEur: euros(1_000_000),
   method: z.enum(DEPOSIT_METHODS, { message: "Choose how it was paid" }),
-  paidOn: day("Choose the day it was paid"),
-  until: day("Choose the last day it is held"),
+  paidOn: isoDay("Choose the day it was paid"),
+  until: isoDay("Choose the last day it is held"),
   ...buyerFields,
 });
 // shortcut: two people taking a deposit on one car in the same second could both pass the for-sale check; only the first can then be
@@ -229,7 +228,7 @@ export async function endReservationAction(carId: string, _prev: DepositFormStat
 // over before it goes on the website again; a cancelled one goes straight back on sale. With DoneDeal stock only the record changes.
 const undoing = z.object({
   kind: z.enum(["cancelled", "returned"], { message: "Choose what happened" }),
-  returnedOn: day("Choose the day"),
+  returnedOn: isoDay("Choose the day"),
   refundEur: z.preprocess((v) => (v === "" ? undefined : v), euros(10_000_000, 0).optional()),
   reason: z.string().trim().max(300).optional(),
 });

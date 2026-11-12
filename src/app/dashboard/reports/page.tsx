@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { AreaChart, BarList } from "@/components/admin/charts";
-import { DataTable, FilterTabs, PageHeader, Panel, StatCard, StatGrid } from "@/components/admin/kit";
+import { DataTable, PageHeader, Panel, Segmented, StatCard, StatGrid } from "@/components/admin/kit";
 import { getSettings, leadsStore, prepStore, salesStore } from "@/lib/admin/collections";
 import { isSalesLead } from "@/lib/admin/leads";
 import { carCosts } from "@/lib/admin/costs";
@@ -20,7 +20,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
   const asked = Number((await searchParams).period);
   const period: Period = (PERIODS as readonly number[]).includes(asked) ? (asked as Period) : 12;
   const tabs = (
-    <FilterTabs label="Period" items={PERIODS.map((p) => ({ label: `${p} months`, href: p === 12 ? "/dashboard/reports" : `/dashboard/reports?period=${p}`, active: p === period }))} />
+    <Segmented label="Period" items={PERIODS.map((p) => ({ label: `${p} months`, href: p === 12 ? "/dashboard/reports" : `/dashboard/reports?period=${p}`, active: p === period }))} />
   );
   if (!(await can("margins"))) return <Personal period={period} tabs={tabs} />;
 

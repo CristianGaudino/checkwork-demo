@@ -29,9 +29,9 @@ test("a dealer sees stock and social controls on a car page, a customer sees non
   const controls = page.locator("[data-car-controls]");
   await expect(controls.getByRole("link", { name: "Edit car" })).toHaveAttribute("href", `/dashboard/stock/${id}`);
   const post = await controls.getByRole("link", { name: "Post to social" }).getAttribute("href");
-  expect(post).toMatch(/^\/dashboard\/marketing\?car=.+-\d+$/);
+  expect(post).toMatch(/^\/dashboard\/marketing\/new\?car=.+-\d+$/);
   await page.goto(post!);
-  await expect(page.getByLabel("Car").first()).not.toHaveValue(""); // the car is already chosen
+  await expect(page.getByRole("heading", { name: /Step 2 of 4/ })).toBeVisible(); // the car is already chosen
 });
 
 test("on a phone the Dashboard link is in the menu when viewing as the dealer", async ({ page }) => {

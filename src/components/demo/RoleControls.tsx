@@ -29,7 +29,7 @@ export function CarControls({ id, slug, sold = false, listingUrl }: { id: string
         </Link>
       )}
       {!sold && (
-        <Link href={`/dashboard/marketing?car=${encodeURIComponent(slug)}`} className={pill}>
+        <Link href={`/dashboard/marketing/new?car=${encodeURIComponent(slug)}`} className={pill}>
           <ShareIcon className="size-4" />
           Post to social
         </Link>

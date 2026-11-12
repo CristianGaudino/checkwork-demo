@@ -3,19 +3,22 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { logActivity } from "@/lib/admin/activity";
+import { notify } from "@/lib/admin/notifications";
+import { currentMember } from "@/lib/permissions";
 import { DRIVE_STATUS_LABELS, drivesStore, getSettings } from "@/lib/admin/collections";
-import { clashes, parseDriveStatus } from "@/lib/admin/drives";
+import { DRIVE_LIMITS, clashes, parseDriveStatus } from "@/lib/admin/drives";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { carName } from "@/lib/stock/format";
 import { HOUR, MINUTE } from "@/lib/time";
 import { EMAIL_INVALID, NAME_REQUIRED } from "@/lib/copy";
 import { newId } from "@/lib/admin/ids";
-import { fieldErrors } from "@/lib/admin/validation";
+import { fieldErrors, isoDay } from "@/lib/admin/validation";
 import { addMonths, dublinDay, dublinMs } from "@/lib/admin/format";
 import { isBankHoliday } from "@/lib/bank-holidays";
 import { LIMITS, TEST_DRIVE, driveTimes, inDriveHours } from "@/lib/leads/constants";
 
-export type DriveFormState = { errors?: Record<string, string>; done?: string } | undefined;
+// `day`: the booked day, so the page can open the diary on it.
+export type DriveFormState = { errors?: Record<string, string>; done?: string; day?: string } | undefined;
 
 export async function setDriveStatusAction(id: string, status: string) {
   const next = parseDriveStatus(status);
@@ -26,14 +29,27 @@ export async function setDriveStatusAction(id: string, status: string) {
   revalidatePath("/dashboard/test-drives");
 }
 
+// Who takes the customer out: a team member's name, or "" for nobody yet. Anything else is refused.
+export async function assignDriveAction(id: string, name: string) {
+  const drive = await drivesStore.get(id);
+  const { team } = await getSettings();
+  if (!drive || (name && !team.some((t) => t.name === name)) || (drive.assignedTo ?? "") === name) return;
+  await drivesStore.put({ ...drive, assignedTo: name || undefined });
+  await logActivity("test-drives", name ? `Gave the test drive to ${name}` : "Took the test drive off its person", { kind: "drive", id });
+  const me = await currentMember();
+  if (name && name !== me.name) await notify({ kind: "assigned", for: name, text: `${me.name} gave you a test drive: ${drive.carTitle}`, href: `/dashboard/test-drives/${id}` });
+  revalidatePath("/dashboard/test-drives");
+}
+
 const booking = z.object({
-  name: z.string().trim().min(1, NAME_REQUIRED).max(80),
-  phone: z.string().trim().min(6, "Enter a phone number").max(30),
+  name: z.string().trim().min(1, NAME_REQUIRED).max(DRIVE_LIMITS.name),
+  phone: z.string().trim().min(6, "Enter a phone number").max(DRIVE_LIMITS.phone),
   email: z.preprocess((v) => (v === "" ? undefined : v), z.string().trim().email(EMAIL_INVALID).max(LIMITS.email).optional()),
   carSlug: z.string().min(1, "Choose a car"),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Choose a day"),
+  date: isoDay("Choose a day"),
   time: z.string().regex(/^\d{2}:\d{2}$/, "Choose a time"),
-  notes: z.string().trim().max(300).optional(),
+  notes: z.string().trim().max(DRIVE_LIMITS.notes).optional(),
+  assignedTo: z.string().max(DRIVE_LIMITS.name).optional(),
 });
 
 // The rules for a booking's time, for a new one and a moved one (`ignoreId`: the booking being moved does not clash with itself).
@@ -79,8 +95,9 @@ export async function addDriveAction(_prev: DriveFormState, data: FormData): Pro
   if ("errors" in slot) return slot;
   const startsAt = slot.startsAt;
   const id = newId("drive");
-  await drivesStore.put({ id, name: b.name, phone: b.phone, email: b.email ?? "", carSlug: car.slug, carTitle: carName(car), startsAt, status: "confirmed", notes: b.notes ?? "", createdAt: Date.now() });
+  const who = b.assignedTo && (await getSettings()).team.some((t) => t.name === b.assignedTo) ? b.assignedTo : undefined;
+  await drivesStore.put({ id, name: b.name, phone: b.phone, email: b.email ?? "", carSlug: car.slug, carTitle: carName(car), startsAt, status: "confirmed", notes: b.notes ?? "", ...(who && { assignedTo: who }), createdAt: Date.now() });
   await logActivity("test-drives", "Booked a test drive", { kind: "drive", id });
   revalidatePath("/dashboard/test-drives");
-  return { done: `Booked ${b.name} for ${carName(car)}.` };
+  return { done: `Booked ${b.name} for ${carName(car)}.`, day: b.date };
 }

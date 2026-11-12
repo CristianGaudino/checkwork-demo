@@ -1,4 +1,4 @@
-import { EmptyState, PageHeader, Panel, SummaryTabs, adminButton, adminInput, rowButton } from "@/components/admin/kit";
+import { EmptyState, Notice, PageHeader, Panel, SummaryTabs, TableFooter, adminButton, adminInput, pageOf, rowButton } from "@/components/admin/kit";
 import { Stars } from "@/components/admin/Stars";
 import { card } from "@/components/ui";
 import { reviewsStore } from "@/lib/admin/collections";
@@ -17,24 +17,23 @@ const NOTICES: Record<string, { tone: "good" | "warn"; text: string }> = {
 
 export const metadata = { title: "Reviews" };
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ filter?: string; notice?: string }> }) {
+export default async function Page({ searchParams }: { searchParams: Promise<{ filter?: string; notice?: string; page?: string; per?: string }> }) {
   const sp = await searchParams;
   const filter = parseReviewFilter(sp.filter);
   const notice = sp.notice ? NOTICES[sp.notice] : undefined;
   const all = await reviewsStore.list();
   const s = ratingSummary(all);
-  const rows = filterReviews(all, filter);
+  const paged = pageOf(filterReviews(all, filter), sp);
+  const rows = paged.rows;
 
   return (
     <>
       <PageHeader title="Reviews" text={`${s.count ? `${s.average.toFixed(1)} average from ${plural(s.count, "Google review")}. ` : ""}Replies are posted on Google as ${SITE_NAME}.`} />
       {notice && (
-        <p role="status" className={`rounded-control px-4 py-3 text-body ${notice.tone === "good" ? "bg-ok-soft text-ok" : "bg-warn-soft text-warn"}`}>
-          {notice.text}
-        </p>
+        <Notice tone={notice.tone}>{notice.text}</Notice>
       )}
       <SummaryTabs label="Reviews" items={REVIEW_FILTERS.map(([k, label]) => ({ label, href: `/dashboard/reviews?filter=${k}`, active: filter === k, count: filterReviews(all, k).length }))} />
-      {rows.length === 0 ? (
+      {paged.total === 0 ? (
         <Panel>
           <EmptyState title="No reviews here" />
         </Panel>
@@ -69,6 +68,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ f
           ))}
         </ul>
       )}
+      <TableFooter page={paged.page} pageCount={paged.pageCount} total={paged.total} per={paged.per} />
     </>
   );
 }

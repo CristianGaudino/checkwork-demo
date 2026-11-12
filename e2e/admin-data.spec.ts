@@ -1,8 +1,7 @@
 import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import { sideLink } from "./admin-menu";
-import { choose } from "./combo";
-import { openDay } from "./days";
+import { bookDrive, openDay } from "./days";
 
 // Data requests and the list exports: personal data, owners and managers only.
 const as = (context: import("@playwright/test").BrowserContext, role: string) => context.addCookies([{ name: "checkwork-demo-role", value: role, url: "http://localhost:3000" }]);
@@ -43,16 +42,8 @@ test("a data request finds a person by email, including what they booked by phon
   const email = `pat.${n}@example.com`;
   const phone = `+353 83 ${String(n).slice(-7, -4)} ${String(n).slice(-4)}`;
   // A booking with a phone and an email, as staff take one at the desk.
-  await page.goto("/dashboard/test-drives");
-  await page.getByText("Add a booking", { exact: true }).click();
-  await page.getByLabel("Name", { exact: true }).fill("Pat Request");
-  await page.getByLabel("Phone").fill(phone);
-  await page.getByLabel("Email (optional)").fill(email);
-  await choose(page.getByLabel("Car"), 3);
-  await page.locator("form", { has: page.getByRole("button", { name: "Add booking" }) }).locator(`input[name="date"]`).fill(openDay(n + 7));
-  await page.locator("form", { has: page.getByRole("button", { name: "Add booking" }) }).locator(`input[name="time"]`).fill("15:00");
-  await page.getByRole("button", { name: "Add booking" }).click();
-  await expect(page.getByRole("status")).toContainText("Booked Pat Request");
+  await bookDrive(page, { car: 3, day: openDay(n + 7), time: "15:00", name: "Pat Request", phone, email });
+  await expect(page.getByText("Booked Pat Request for")).toBeVisible();
 
   await page.goto("/dashboard/data-requests");
   await page.getByLabel("Their email or phone number").fill(email.toUpperCase());

@@ -2,7 +2,7 @@ import type { Lead, Sale } from "./collections";
 import type { PrepKind, PrepLine } from "./prep";
 import { isSold, type Car } from "@/lib/stock/types";
 import { DAY } from "@/lib/time";
-import { dublinDay } from "./format";
+import { daysSince, dublinDay } from "./format";
 import { followUpDue } from "./follow-ups";
 
 // The Reports page's figures, worked out from the records. Pure, so every figure is tested.
@@ -80,7 +80,7 @@ export function fullReport(input: { sales: Sale[]; cars: Car[]; leads: Lead[]; t
 
   // Cars for sale now, by how long they have been listed.
   const BANDS: [string, number, number][] = [["Under 30 days", 0, 30], ["30 to 59 days", 30, 60], ["60 to 89 days", 60, 90], ["90 days or more", 90, Infinity]];
-  const ageOf = (c: Car) => Math.max(0, Math.floor((input.now - Date.parse(`${c.listedAt}T00:00:00Z`)) / DAY));
+  const ageOf = (c: Car) => daysSince(c.listedAt!, input.now);
   const forSale = input.cars.filter((c) => !isSold(c) && c.listedAt);
   const stockAge = BANDS.map(([band, from, to]) => {
     const cars = forSale.filter((c) => ageOf(c) >= from && ageOf(c) < to);

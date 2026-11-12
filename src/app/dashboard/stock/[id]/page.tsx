@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CarForm } from "@/components/admin/CarForm";
-import { Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput, dangerButton } from "@/components/admin/kit";
+import { Field, Notice, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput, dangerButton } from "@/components/admin/kit";
 import { ActButton } from "@/components/admin/ActButton";
 import { SyncedNotice } from "@/components/admin/SyncedNotice";
 import { TrashIcon } from "@/components/stock/icons";
@@ -65,7 +65,7 @@ export default async function Page({ params, searchParams }: { params: Promise<{
         {/* DoneDeal has the car; the cost is the dealer's own, so it is still entered here. */}
         {cost && (
           <Panel title="Cost price">
-            {costSaved && <p role="status" className="rounded-control bg-ok-soft px-4 py-3 text-body text-ok">Cost saved.</p>}
+            {costSaved && <Notice>Cost saved.</Notice>}
             <form action={saveCostAction.bind(null, car.id)} className="flex flex-wrap items-end gap-3">
               <Field label="Cost price (€)" hint="Leave empty to clear it" className="sm:max-w-xs">
                 <input name="costEur" inputMode="numeric" defaultValue={cost.eur ?? ""} className={adminInput} />

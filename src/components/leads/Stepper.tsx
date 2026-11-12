@@ -1,4 +1,17 @@
+import { useEffect, useRef } from "react";
 import { CheckIcon } from "@/components/stock/icons";
+
+// The heading of a stepped form takes focus when the step changes (not on the first render), so a screen reader hears where it is. For the
+// dashboard's steps; the website's forms do it in useSteps, which also waits for a field being typed in.
+export function useStepHeading(step: number) {
+  const heading = useRef<HTMLHeadingElement>(null);
+  const moved = useRef(false);
+  useEffect(() => {
+    if (moved.current) heading.current?.focus();
+    moved.current = true;
+  }, [step]);
+  return heading;
+}
 
 // The progress of a stepped form. In a dialog and on a phone it is a row: a numbered dot per step joined by a line. On a form page from 1024px
 // (`rail`) it is a column down the left, each step with its title. The current step's heading follows (it takes focus when the step changes,

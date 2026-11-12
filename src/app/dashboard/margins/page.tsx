@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CarStatusBadge } from "@/components/admin/badges";
-import { DataTable, EmptyState, FilterSelect, PageHeader, Pager, Panel, StatCard, StatGrid, TableToolbar, paginate, sortRows, type Column } from "@/components/admin/kit";
+import { DataTable, EmptyState, PageHeader, Panel, StatCard, StatGrid, TableFooter, TableToolbar, pageOf, sortRows, type Column } from "@/components/admin/kit";
 import { carStatus } from "@/lib/admin/stock-admin-pure";
 import { salesStore } from "@/lib/admin/collections";
 import { carCosts } from "@/lib/admin/costs";
@@ -19,7 +19,7 @@ export const metadata = { title: "Margins" };
 type Row = { car: Car; cost?: number; price: number; salePrice?: number };
 
 // Needs the "margins" permission. Without it the page is not there: a hidden link is never the only protection.
-export default async function Page({ searchParams }: { searchParams: Promise<{ q?: string; state?: string; sort?: string; dir?: string; page?: string }> }) {
+export default async function Page({ searchParams }: { searchParams: Promise<{ q?: string; state?: string; sort?: string; dir?: string; page?: string; per?: string }> }) {
   const sp = await searchParams;
   if (!(await can("margins"))) notFound();
   const [cars, costs, sales] = await Promise.all([adminCars(), carCosts(), salesStore.list()]);
@@ -70,7 +70,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ q
   const q = (sp.q ?? "").trim().toLowerCase().slice(0, 60);
   const shown = rows.filter((r) => (!q || carName(r.car).toLowerCase().includes(q)) && (!sp.state || (sp.state === "sold") === isSold(r.car)) && (sp.state !== "no-cost" || r.cost === undefined));
   const { rows: sorted, sort } = sortRows(shown, columns, sp, { key: "", dir: "asc" });
-  const paged = paginate(sorted, sp.page);
+  const paged = pageOf(sorted, sp);
 
   return (
     <>
@@ -82,11 +82,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ q
         <StatCard label="Margin on sold cars" value={fmtEur(soldMargin)} hint={`${plural(sold.length, "sold car")}, at what they sold for where recorded`} />
       </StatGrid>
       <Panel title="Every car">
-        <TableToolbar search={{ placeholder: "Search make or model", label: "Search cars" }}>
-          <FilterSelect name="state" label="Which cars" all="Every car" options={[["stock", "In stock"], ["sold", "Sold"], ["no-cost", "No cost price yet"]]} />
-        </TableToolbar>
+        <TableToolbar search={{ placeholder: "Search make or model", label: "Search cars" }} filters={[{ name: "state", label: "Which cars", any: "Every car", options: [["stock", "In stock"], ["sold", "Sold"], ["no-cost", "No cost price yet"]] }]} />
         <DataTable bare columns={columns} rows={paged.rows} rowKey={(r) => r.car.id} sort={sort} empty={<EmptyState title="No cars match" />} />
-        <Pager page={paged.page} pageCount={paged.pageCount} total={paged.total} />
+        <TableFooter page={paged.page} pageCount={paged.pageCount} total={paged.total} per={paged.per} />
       </Panel>
     </>
   );

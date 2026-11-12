@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Badge, DataTable, EmptyState, FilterSelect, PageHeader, Pager, SummaryTabs, TableToolbar, adminButtonQuiet, paginate, rowButton, sortRows, type Column } from "@/components/admin/kit";
+import { Badge, DataTable, EmptyState, PageHeader, SummaryTabs, TableFooter, TableToolbar, pageOf, rowButton, sortRows, type Column, type FilterGroup } from "@/components/admin/kit";
+import { filterAlerts, filterCustomers, filterSubscribers } from "@/lib/admin/customer-lists";
 import { ActButton } from "@/components/admin/ActButton";
 import { can } from "@/lib/permissions";
 import { ALERT_KINDS, ALERT_KIND_LABELS, alertsStore, customersStore, subscribersStore, type Customer, type StockAlert, type Subscriber } from "@/lib/admin/collections";
@@ -9,10 +10,7 @@ import { pauseAlertAction, removeAlertAction, unsubscribeAction } from "./action
 export const metadata = { title: "Customers" };
 
 const TABS = [["customers", "Customers"], ["alerts", "Stock alerts"], ["newsletter", "Newsletter"]] as const;
-type Params = { tab?: string; q?: string; source?: string; consent?: string; kind?: string; state?: string; sort?: string; dir?: string; page?: string };
-
-// What the search matches: a name, an email, a phone or a car that contains what was typed (in lower case).
-const has = (q: string, ...fields: (string | undefined)[]) => !q || fields.some((f) => f?.toLowerCase().includes(q));
+type Params = { tab?: string; q?: string; source?: string; consent?: string; kind?: string; state?: string; sort?: string; dir?: string; page?: string; per?: string };
 
 export default async function Page({ searchParams }: { searchParams: Promise<Params> }) {
   const sp = await searchParams;
@@ -76,26 +74,29 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
   ];
 
   // Each list searched, filtered and sorted from the URL, then in pages of 50: a dealer's customers and subscribers only grow.
-  const people = sortRows(customers.filter((c) => has(q, c.name, c.email, c.phone) && (!sp.source || c.source === sp.source) && (!sp.consent || String(c.marketingConsent) === sp.consent)), customerColumns, sp, { key: "last", dir: "desc" });
-  const alertList = sortRows(alerts.filter((a) => has(q, a.email, a.criteria) && (!sp.kind || a.kind === sp.kind) && (!sp.state || (sp.state === "active") === a.active)), alertColumns, sp, { key: "since", dir: "desc" });
-  const subList = sortRows(subs.filter((s) => has(q, s.email) && (!sp.state || s.status === sp.state)), subColumns, sp, { key: "since", dir: "desc" });
+  const people = sortRows(filterCustomers(customers, sp), customerColumns, sp, { key: "last", dir: "desc" });
+  const alertList = sortRows(filterAlerts(alerts, sp), alertColumns, sp, { key: "since", dir: "desc" });
+  const subList = sortRows(filterSubscribers(subs, sp), subColumns, sp, { key: "since", dir: "desc" });
   // Each list's page, worked out once (slices: only the open tab's is shown).
-  const [peoplePage, alertPage, subPage] = [paginate(people.rows, sp.page), paginate(alertList.rows, sp.page), paginate(subList.rows, sp.page)];
-  const pager = (p: { page: number; pageCount: number; total: number }) => <Pager page={p.page} pageCount={p.pageCount} total={p.total} />;
+  const [peoplePage, alertPage, subPage] = [pageOf(people.rows, sp), pageOf(alertList.rows, sp), pageOf(subList.rows, sp)];
+  // Each tab's footer, with its own CSV (the list as it is filtered now): owners and managers only.
+  const canExport = await can("data");
+  const footer = (p: { page: number; pageCount: number; total: number; per: number }) => <TableFooter {...p} exportHref={canExport ? `/dashboard/customers/export?tab=${tab}` : undefined} />;
+  const filters: Record<string, FilterGroup[]> = {
+    customers: [
+      { name: "source", label: "Where they came from", any: "Any source", options: sources.map((s) => [s, s] as const) },
+      { name: "consent", label: "Marketing", any: "Either", options: [["true", "Agreed to marketing"], ["false", "Not agreed"]] },
+    ],
+    alerts: [
+      { name: "kind", label: "Alert", any: "Every alert", options: ALERT_KINDS.map((k) => [k, ALERT_KIND_LABELS[k]] as const) },
+      { name: "state", label: "Status", any: "Active and paused", options: [["active", "Active"], ["paused", "Paused"]] },
+    ],
+    newsletter: [{ name: "state", label: "Status", any: "Subscribed or not", options: [["subscribed", "Subscribed"], ["unsubscribed", "Unsubscribed"]] }],
+  };
 
   return (
     <>
-      <PageHeader
-        title="Customers"
-        actions={
-          (await can("data")) && (
-            // This tab's list. Owners and managers only.
-            <a href={`/dashboard/customers/export?tab=${tab}`} className={adminButtonQuiet} download>
-              Export CSV
-            </a>
-          )
-        }
-      />
+      <PageHeader title="Customers" />
       {/* The three lists are the summary: each tile is its count and opens its list. */}
       <SummaryTabs
         label="Customer lists"
@@ -108,33 +109,25 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
 
       {tab === "customers" && (
         <>
-          <TableToolbar search={{ placeholder: "Search name, email, phone", label: "Search customers" }}>
-            <FilterSelect name="source" label="Source" all="Any source" options={sources.map((s) => [s, s] as const)} />
-            <FilterSelect name="consent" label="Marketing" all="Marketing: any" options={[["true", "Agreed to marketing"], ["false", "Not agreed"]]} />
-          </TableToolbar>
+          <TableToolbar search={{ placeholder: "Search name, email, phone", label: "Search customers" }} filters={filters.customers} />
           <DataTable label="Customers" linkRows sort={people.sort} rows={peoplePage.rows} rowKey={(c) => c.id} columns={customerColumns} empty={<EmptyState title="No customers match" text="Try another filter or search." />} />
-          {pager(peoplePage)}
+          {footer(peoplePage)}
         </>
       )}
 
       {tab === "alerts" && (
         <>
-          <TableToolbar search={{ placeholder: "Search email or car", label: "Search stock alerts" }}>
-            <FilterSelect name="kind" label="Alert" all="Every alert" options={ALERT_KINDS.map((k) => [k, ALERT_KIND_LABELS[k]] as const)} />
-            <FilterSelect name="state" label="Status" all="Active and paused" options={[["active", "Active"], ["paused", "Paused"]]} />
-          </TableToolbar>
+          <TableToolbar search={{ placeholder: "Search email or car", label: "Search stock alerts" }} filters={filters.alerts} />
           <DataTable label="Stock alerts" sort={alertList.sort} rows={alertPage.rows} rowKey={(a) => a.id} columns={alertColumns} empty={<EmptyState title={q || sp.kind || sp.state ? "No alerts match" : "No alerts yet"} text={q || sp.kind || sp.state ? "Try another filter or search." : "Visitors can ask to be told about a car. They show here."} />} />
-          {pager(alertPage)}
+          {footer(alertPage)}
         </>
       )}
 
       {tab === "newsletter" && (
         <>
-          <TableToolbar search={{ placeholder: "Search email", label: "Search subscribers" }}>
-            <FilterSelect name="state" label="Status" all="Subscribed and not" options={[["subscribed", "Subscribed"], ["unsubscribed", "Unsubscribed"]]} />
-          </TableToolbar>
+          <TableToolbar search={{ placeholder: "Search email", label: "Search subscribers" }} filters={filters.newsletter} />
           <DataTable label="Newsletter subscribers" sort={subList.sort} rows={subPage.rows} rowKey={(s) => s.id} columns={subColumns} empty={<EmptyState title="No subscribers match" />} />
-          {pager(subPage)}
+          {footer(subPage)}
         </>
       )}
     </>

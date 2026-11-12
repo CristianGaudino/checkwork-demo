@@ -12,7 +12,7 @@ vi.mock("next/headers", () => ({
   cookies: async () => ({ get: (n: string) => (n === "checkwork-demo-role" && role ? { value: role } : undefined) }),
   headers: async () => ({ get: () => null }),
 }));
-const { addTeamAction, removeTeamAction, resetDemoAction, saveLeadEmailsAction, saveTargetsAction, setRoleAction } = await import("./actions");
+const { addTeamAction, removeTeamAction, resetDemoAction, saveLeadEmailsAction, saveMarketingAction, saveNotificationsAction, saveTargetsAction, sendTestEmailAction, setRoleAction } = await import("./actions");
 const { adminCars, saveCar } = await import("@/lib/admin/stock-admin");
 const { getSettings, leadsStore, settingsStore } = await import("@/lib/admin/collections");
 const { listActivity } = await import("@/lib/admin/activity");
@@ -130,5 +130,60 @@ describe("reset demo data", () => {
     await resetDemoAction();
     expect((await adminCars()).find((c) => c.id === car.id)?.reserved).toBeUndefined();
     expect((await adminCars()).find((c) => c.id === held.id)?.reserved).toBe(true);
+  });
+});
+
+describe("the other settings", () => {
+  beforeEach(async () => {
+    role = undefined;
+    await settingsStore.reset();
+  });
+
+  it("saves the slot length within its limits", async () => {
+    expect((await saveTargetsAction(undefined, form({ leadSlaHours: "24", driveSlotMinutes: "10" })))?.errors?.driveSlotMinutes).toBe("At least 15 minutes");
+    expect((await saveTargetsAction(undefined, form({ leadSlaHours: "24", driveSlotMinutes: "90" })))?.saved).toBe(true);
+    expect((await getSettings()).driveSlotMinutes).toBe(90);
+  });
+
+  it("switches the morning follow-up email on and off", async () => {
+    await saveNotificationsAction(undefined, form({}));
+    expect((await getSettings()).notifications.followUps).toBe(false);
+    await saveNotificationsAction(undefined, form({ followUps: "on" }));
+    expect((await getSettings()).notifications.followUps).toBe(true);
+  });
+
+  it("keeps the marketing voice within its lengths", async () => {
+    expect((await saveMarketingAction(undefined, form({ voice: "x".repeat(201), hashtags: "", signOff: "" })))?.errors).toBeDefined();
+    expect((await saveMarketingAction(undefined, form({ voice: "Friendly", hashtags: "#cars", signOff: "See you soon" })))?.saved).toBe(true);
+    expect((await getSettings()).marketing).toEqual({ voice: "Friendly", hashtags: "#cars", signOff: "See you soon" });
+  });
+
+  it("takes up to five lead email addresses, each once, and refuses a bad one", async () => {
+    expect((await saveLeadEmailsAction(undefined, form({ leadEmails: "a@x.ie, A@x.ie\nb@x.ie" })))?.saved).toBe(true);
+    expect((await getSettings()).leadEmails).toEqual(["a@x.ie", "b@x.ie"]);
+    expect((await saveLeadEmailsAction(undefined, form({ leadEmails: "a@x.ie b@x.ie c@x.ie d@x.ie e@x.ie f@x.ie" })))?.errors?.leadEmails).toBe("Use 5 addresses or fewer");
+    expect((await saveLeadEmailsAction(undefined, form({ leadEmails: "not-an-email" })))?.errors?.leadEmails).toMatch(/is not a valid email$/);
+  });
+
+  it("says when the test email cannot go (no email set up here)", async () => {
+    expect((await sendTestEmailAction())?.errors?.test).toMatch(/^The test email did not go/);
+  });
+
+  it("refuses all of them for Sales", async () => {
+    role = "Sales";
+    for (const r of [await saveNotificationsAction(undefined, form({})), await saveMarketingAction(undefined, form({ voice: "x", hashtags: "", signOff: "" })), await sendTestEmailAction()]) expect(r?.saved).toBeFalsy();
+  });
+});
+
+describe("removing a person", () => {
+  it("gives their leads and test drives back to nobody", async () => {
+    role = undefined;
+    await settingsStore.reset();
+    const { drivesStore } = await import("@/lib/admin/collections");
+    const person = (await getSettings()).team.find((t) => t.role === "Sales")!;
+    const drive = (await drivesStore.list())[0];
+    await drivesStore.put({ ...drive, assignedTo: person.name });
+    await removeTeamAction(person.id);
+    expect((await drivesStore.get(drive.id))!.assignedTo).toBeUndefined();
   });
 });

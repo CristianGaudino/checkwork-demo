@@ -2,7 +2,7 @@ import "server-only";
 import demoCars from "@/lib/stock/demo-cars.json";
 import extraCars from "@/lib/stock/demo-cars-extra.json";
 import { defineCollection, seedsDemoRecords } from "./docs";
-import { NETWORKS, type Network } from "./networks";
+import { AD_PLATFORMS, NETWORKS, type AdPlatform, type Network } from "./networks";
 import { demoCost } from "./margins";
 import { DAY, HOUR } from "@/lib/time";
 import { dublinDay, dublinMs } from "./format";
@@ -168,10 +168,13 @@ export const leadsStore = defineCollection<Lead>("leads", seedLeadsWithEdges);
 export const demoLeads = seedLeadsWithEdges;
 
 // ---- Test drives ----
-export const DRIVE_STATUSES = ["requested", "confirmed", "completed", "no-show", "cancelled"] as const;
-export type DriveStatus = (typeof DRIVE_STATUSES)[number];
-export const DRIVE_STATUS_LABELS: Record<DriveStatus, string> = { requested: "Requested", confirmed: "Confirmed", completed: "Completed", "no-show": "No show", cancelled: "Cancelled" };
-export type TestDrive = { id: string; name: string; email: string; phone: string; carSlug: string; carTitle: string; startsAt: number; status: DriveStatus; notes: string; createdAt: number };
+// The statuses live with the pure drive rules (drives.ts), so the overview and the pages share them without the stores.
+import { DRIVE_STATUSES, DRIVE_STATUS_LABELS, type DriveStatus } from "./drives";
+export { DRIVE_STATUSES, DRIVE_STATUS_LABELS, type DriveStatus };
+// assignedTo: the team member taking the customer out (a name, as on a lead). A website request has nobody until someone takes it.
+export type TestDrive = { id: string; name: string; email: string; phone: string; carSlug: string; carTitle: string; startsAt: number; status: DriveStatus; notes: string; assignedTo?: string; createdAt: number };
+// Who takes the seeded bookings out, by index, so the random sequence of the seeds is unchanged.
+const DRIVERS = ["Conor Doyle", "Ciara Walsh", "Aoife Brennan"];
 
 function seedDrives(): TestDrive[] {
   const r = rng(23);
@@ -182,7 +185,8 @@ function seedDrives(): TestDrive[] {
     const day = upcoming ? r.int(0, 9) : -r.int(1, 14);
     const startsAt = irishAt(now + day * DAY, r.int(10, 17), r.pick([0, 30]));
     const status: DriveStatus = upcoming ? r.pick(["requested", "confirmed", "confirmed"] as const) : r.pick(["completed", "completed", "completed", "no-show", "cancelled"] as const);
-    return { id: `drive-${200 + i}`, ...person(r), carSlug: car.slug, carTitle: carTitleOf(car), startsAt, status, notes: r.pick(["", "", "Bringing a partner.", "Wants to compare with another car."]), createdAt: now - (Math.abs(day) + 2) * DAY };
+    const notes = r.pick(["", "", "Bringing a partner.", "Wants to compare with another car."]);
+    return { id: `drive-${200 + i}`, ...person(r), carSlug: car.slug, carTitle: carTitleOf(car), startsAt, status, notes, ...(status !== "requested" && { assignedTo: DRIVERS[i % 3] }), createdAt: now - (Math.abs(day) + 2) * DAY };
   });
 }
 // Today's and tomorrow's diary, so the demo never opens on an empty day (a random day can miss it). Not 11:00, which the tests book.
@@ -193,7 +197,7 @@ function seedDiary(): TestDrive[] {
   return ([[0, 12, 30, "confirmed"], [0, 15, 0, "confirmed"], [0, 17, 0, "requested"], [1, 10, 0, "requested"], [1, 16, 30, "confirmed"]] as const).map(([day, h, m, status], i) => {
     const car = r.pick(forSale);
     // Booked in the last day: today's and tomorrow's diary was mostly filled lately.
-    return { id: `drive-${230 + i}`, ...person(r), carSlug: car.slug, carTitle: carTitleOf(car), startsAt: irishAt(now + day * DAY, h, m), status, notes: i === 1 ? "Bringing a partner." : "", createdAt: now - (i + 1) * 5 * HOUR };
+    return { id: `drive-${230 + i}`, ...person(r), carSlug: car.slug, carTitle: carTitleOf(car), startsAt: irishAt(now + day * DAY, h, m), status, notes: i === 1 ? "Bringing a partner." : "", ...(status === "confirmed" && { assignedTo: DRIVERS[i % 2] }), createdAt: now - (i + 1) * 5 * HOUR };
   });
 }
 // The seeded bookings, for the notifications' own seed (notifications.ts), so the bell tells of the same requests.
@@ -306,7 +310,7 @@ export const settingsStore = defineCollection<DealerSettings>("settings", seedSe
 // ---- Marketing: social posts, ads, newsletters ----
 export { NETWORKS, type Network };
 export type SocialPost = { id: string; network: Network; carSlug?: string; carTitle?: string; text: string; photos?: string[]; status: "draft" | "scheduled" | "posted"; scheduledFor?: number; postedAt?: number; simulated?: boolean; claimedAt?: number; reach?: number; clicks?: number; createdAt: number };
-export type Ad = { id: string; platform: "Meta" | "Google"; name: string; carTitle: string; budgetEur: number; status: "draft" | "running" | "paused" | "ended"; impressions: number; clicks: number; leads: number; createdAt: number };
+export type Ad = { id: string; platform: AdPlatform; name: string; carTitle: string; budgetEur: number; status: "draft" | "running" | "paused" | "ended"; impressions: number; clicks: number; leads: number; createdAt: number };
 export type Newsletter = { id: string; subject: string; body: string; status: "draft" | "sent"; sentAt?: number; recipients?: number; opens?: number; clicks?: number; createdAt: number };
 
 function seedPosts(): SocialPost[] {
@@ -340,7 +344,7 @@ function seedAds(): Ad[] {
     const status = (["running", "running", "paused", "ended", "draft"] as const)[i];
     const impressions = status === "draft" ? 0 : r.int(4000, 60000);
     const clicks = Math.round(impressions * (r.int(8, 30) / 1000));
-    return { id: `ad-${800 + i}`, platform: r.pick(["Meta", "Google"] as const), name: `${car.make} ${car.model} spring push`, carTitle: carTitleOf(car), budgetEur: r.pick([100, 150, 250, 400]), status, impressions, clicks, leads: Math.round(clicks * 0.06), createdAt: now - (i + 1) * 5 * DAY };
+    return { id: `ad-${800 + i}`, platform: r.pick(AD_PLATFORMS), name: `${car.make} ${car.model} spring push`, carTitle: carTitleOf(car), budgetEur: r.pick([100, 150, 250, 400]), status, impressions, clicks, leads: Math.round(clicks * 0.06), createdAt: now - (i + 1) * 5 * DAY };
   });
 }
 export const adsStore = defineCollection<Ad>("ads", seedAds);

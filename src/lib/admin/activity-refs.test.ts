@@ -20,3 +20,18 @@ describe("refView", () => {
     expect(refView({ refKind: null, refId: null, refLabel: null }, people, exists)).toBeNull();
   });
 });
+
+describe("where each record links", () => {
+  it("goes to the page that shows it", () => {
+    const live = () => true;
+    const href = (refKind: Parameters<typeof refView>[0]["refKind"]) => refView({ refKind, refId: "x", refLabel: "Label" }, people, live)?.href;
+    expect(href("drive")).toBe("/dashboard/test-drives/x");
+    expect(href("alert")).toBe("/dashboard/customers?tab=alerts");
+    expect(href("subscriber")).toBe("/dashboard/customers?tab=newsletter");
+    expect(href("review")).toBe("/dashboard/reviews");
+    expect(href("post")).toBe("/dashboard/marketing?tab=posts");
+    expect(href("ad")).toBe("/dashboard/marketing?tab=posts");
+    expect(href("newsletter")).toBe("/dashboard/marketing?tab=newsletters");
+    expect(href("team")).toBe("/dashboard/settings?section=team");
+  });
+});

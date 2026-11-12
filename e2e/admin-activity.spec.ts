@@ -24,7 +24,7 @@ test("sales and finance have no Activity page; owners and managers do", async ({
 test("a change shows at the top, by the person who made it, and the filters narrow the list", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   const name = `Activity test ${Date.now()}`; // its own record, so parallel specs never move it
-  await page.goto("/dashboard/settings");
+  await page.goto("/dashboard/settings?section=team");
   const add = page.locator("form").filter({ has: page.getByLabel("Name", { exact: true }) });
   await add.getByLabel("Name", { exact: true }).fill(name);
   await add.getByLabel("Email", { exact: true }).fill(`${Date.now()}@example.com`);
@@ -34,15 +34,18 @@ test("a change shows at the top, by the person who made it, and the filters narr
   await page.goto("/dashboard/activity?area=settings");
   const row = page.getByRole("row").filter({ hasText: `Added ${name} to the team as Sales` });
   await expect(row).toContainText("Aoife Brennan");
-  await expect(row.getByRole("link", { name })).toHaveAttribute("href", "/dashboard/settings");
+  await expect(row.getByRole("link", { name })).toHaveAttribute("href", "/dashboard/settings?section=team");
   await expect(page.getByRole("navigation", { name: "Area" }).getByRole("link", { name: /Settings/ })).toHaveAttribute("aria-current", "true");
   // Every row in the Settings view is a settings change.
-  await page.getByRole("navigation", { name: "Person" }).getByRole("link", { name: "Conor Doyle" }).click();
+  await page.getByRole("button", { name: "Filters" }).click();
+  await page.getByRole("radio", { name: "Conor Doyle" }).check();
+  await expect(page).toHaveURL(/who=Conor/);
+  await page.getByRole("button", { name: "Done", exact: true }).click();
   await expect(page.getByRole("row").filter({ hasText: name })).toHaveCount(0);
   // A bad filter is ignored, not an error.
   expect((await page.request.get("/dashboard/activity?area=nope&who=nobody&period=x&page=999")).status()).toBe(200);
 
-  await page.goto("/dashboard/settings");
+  await page.goto("/dashboard/settings?section=team");
   await page.getByRole("row").filter({ hasText: name }).getByRole("button", { name: "Remove" }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Remove" }).click();
   await expect(page.getByText(name)).toHaveCount(0);

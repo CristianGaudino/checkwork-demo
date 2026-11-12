@@ -1,6 +1,7 @@
 import type { AdminReview, Lead, Order, Reservation, TestDrive } from "./collections";
 import { DAY } from "@/lib/time";
 import { forSale, isSold, type Car } from "@/lib/stock/types";
+import { isOpenDrive } from "./drives";
 import { dublinDay } from "./format";
 import { followUpDue, pastReplyTarget } from "./follow-ups";
 
@@ -23,7 +24,7 @@ export function overview(input: { leads: Lead[]; drives: TestDrive[]; reviews: A
   const now = input.now ?? Date.now();
   const slaHours = input.slaHours ?? 24;
   const { leads, drives, reviews } = input;
-  const upcoming = drives.filter((d) => d.startsAt >= now && d.startsAt < now + 7 * DAY && (d.status === "requested" || d.status === "confirmed")).sort((a, b) => a.startsAt - b.startsAt);
+  const upcoming = drives.filter((d) => d.startsAt >= now && d.startsAt < now + 7 * DAY && isOpenDrive(d)).sort((a, b) => a.startsAt - b.startsAt);
   const rated = reviews.filter((r) => r.rating > 0);
   const cars = input.cars ?? [];
   const today = dublinDay(now);
@@ -32,12 +33,12 @@ export function overview(input: { leads: Lead[]; drives: TestDrive[]; reviews: A
   const due = leads.filter((l) => followUpDue(l, today));
   const attention = ([
     // Overdue follow-ups are late; ones due today are not yet.
-    { key: "follow", label: "Follow-ups due", count: due.length, href: "/dashboard/leads?due=1", urgency: due.some((l) => l.followUpOn! < today) ? "now" : "soon" },
-    { key: "slow", label: "New leads past your reply target", count: leads.filter((l) => pastReplyTarget(l, now, slaHours)).length, href: "/dashboard/leads?late=1", urgency: "now" },
-    { key: "drives", label: "Test drives to confirm", count: drives.filter((d) => d.status === "requested" && d.startsAt >= now).length, href: "/dashboard/test-drives?status=requested", urgency: "soon" },
+    { key: "follow", label: "Follow-ups due", count: due.length, href: "/dashboard/leads?need=due", urgency: due.some((l) => l.followUpOn! < today) ? "now" : "soon" },
+    { key: "slow", label: "New leads past your reply target", count: leads.filter((l) => pastReplyTarget(l, now, slaHours)).length, href: "/dashboard/leads?need=late", urgency: "now" },
+    { key: "drives", label: "Test drives to confirm", count: drives.filter((d) => d.status === "requested" && d.startsAt >= now).length, href: "/dashboard/test-drives?view=list&status=requested&when=ahead", urgency: "soon" },
     { key: "reviews", label: "Reviews without a reply", count: reviews.filter((r) => !r.reply).length, href: "/dashboard/reviews?filter=unreplied", urgency: "info" },
     { key: "sync", label: "DoneDeal stock is not updating", count: input.syncProblem ? 1 : 0, href: "/dashboard/stock", urgency: "now" },
-    { key: "sold-drives", label: "Test drives booked on a car no longer for sale", count: drives.filter((d) => d.startsAt >= now && (d.status === "requested" || d.status === "confirmed") && offSale.has(d.carSlug)).length, href: "/dashboard/test-drives", urgency: "now" },
+    { key: "sold-drives", label: "Test drives booked on a car no longer for sale", count: drives.filter((d) => d.startsAt >= now && isOpenDrive(d) && offSale.has(d.carSlug)).length, href: "/dashboard/test-drives?view=list&car=gone&when=ahead", urgency: "now" },
     { key: "deposits", label: "Reservations past their date", count: (input.reservations ?? []).filter((r) => r.status === "held" && r.until < today).length, href: "/dashboard/stock?view=reserved", urgency: "now" },
     { key: "orders", label: "Ordered cars arrived, to hand over", count: (input.orders ?? []).filter((o) => o.status === "arrived").length, href: "/dashboard/orders?view=arrived", urgency: "soon" },
     { key: "taken-down", label: "DoneDeal ads taken down: did they sell?", count: cars.filter((c) => c.takenDownAt).length, href: "/dashboard/stock?view=hidden", urgency: "soon" },

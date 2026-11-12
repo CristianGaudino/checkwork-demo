@@ -8,7 +8,7 @@ import { CLAIM_STATUSES, CLAIM_STATUS_LABELS, claimsStore, coverEnds, leadsStore
 import { dublinDay, fmtEur } from "@/lib/admin/format";
 import { newId } from "@/lib/admin/ids";
 import { BAD_COST, parseCost } from "@/lib/admin/margins";
-import { fieldErrors } from "@/lib/admin/validation";
+import { fieldErrors, isoDay } from "@/lib/admin/validation";
 import { can } from "@/lib/permissions";
 
 // Warranty claims: anyone on the team opens one and moves it along; what the repair cost is for staff who see margins, since it counts
@@ -23,7 +23,7 @@ export type ClaimFormState = { errors?: Record<string, string> } | undefined;
 const opening = z.object({
   saleId: z.string().min(1, "Choose the car they bought").max(60),
   fault: z.string().trim().min(1, "Say what the fault is").max(1000),
-  openedOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Choose the day"),
+  openedOn: isoDay("Choose the day"),
   leadId: z.string().max(60).optional(),
 });
 

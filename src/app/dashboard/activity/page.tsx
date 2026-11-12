@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Avatar, DataTable, EmptyState, FilterTabs, PageHeader, Pager, SummaryTabs } from "@/components/admin/kit";
+import { Avatar, DataTable, EmptyState, PageHeader, SummaryTabs, TableFooter, TableToolbar, type FilterGroup } from "@/components/admin/kit";
+import { perPage } from "@/lib/admin/paging";
 import { ACTIVITY_AREAS, AREA_LABELS, PERSONAL_KINDS, listActivity, type ActivityArea, type ActivityEntry } from "@/lib/admin/activity";
 import { refView } from "@/lib/admin/activity-refs";
 import { alertsStore, drivesStore, leadsStore, reviewsStore, subscribersStore } from "@/lib/admin/collections";
@@ -11,14 +12,13 @@ import { DAY } from "@/lib/time";
 
 export const metadata = { title: "Activity" };
 
-const PAGE_SIZE = 50;
 const PERIODS = [
   ["today", "Today", DAY],
   ["7d", "7 days", 7 * DAY],
   ["30d", "30 days", 30 * DAY],
   ["all", "12 months", 0],
 ] as const;
-type Params = { area?: string; who?: string; period?: string; page?: string };
+type Params = { area?: string; who?: string; period?: string; page?: string; per?: string };
 // The start of a period, from now. Out of the component, like the stock page's days in stock: a page rendered per request.
 const sinceOf = (span: number, now = Date.now()) => (span ? now - span : undefined);
 
@@ -29,16 +29,22 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
   const area = (ACTIVITY_AREAS as readonly string[]).includes(sp.area ?? "") ? (sp.area as ActivityArea) : undefined;
   const period = PERIODS.find(([k]) => k === sp.period) ?? PERIODS[3];
   const askedPage = Math.max(1, Number.parseInt(sp.page ?? "1", 10) || 1);
+  const size = perPage(sp.per);
   const since = sinceOf(period[2]);
-  const first = await listActivity({ area, actor: sp.who || undefined, since }, askedPage, PAGE_SIZE);
+  const first = await listActivity({ area, actor: sp.who || undefined, since }, askedPage, size);
   const actor = first.actors.includes(sp.who ?? "") ? sp.who : undefined; // an unknown name is dropped, like a bad filter elsewhere
-  const pageCount = Math.max(1, Math.ceil(first.total / PAGE_SIZE));
+  const pageCount = Math.max(1, Math.ceil(first.total / size));
   const page = Math.min(askedPage, pageCount);
-  const result = page === askedPage && actor === sp.who ? first : await listActivity({ area, actor, since }, page, PAGE_SIZE);
+  const result = page === askedPage && actor === sp.who ? first : await listActivity({ area, actor, since }, page, size);
   const href = (p: Partial<Params>) => {
-    const q = new URLSearchParams(Object.entries({ area, who: actor, period: period[0] === "all" ? undefined : period[0], ...p }).filter((e): e is [string, string] => Boolean(e[1])));
+    const q = new URLSearchParams(Object.entries({ area, who: actor, period: period[0] === "all" ? undefined : period[0], per: sp.per, ...p }).filter((e): e is [string, string] => Boolean(e[1])));
     return `/dashboard/activity${q.size ? `?${q}` : ""}`;
   };
+  // The period and the person in one Filters panel; the area stays as the tiles above.
+  const filters: FilterGroup[] = [
+    { name: "period", label: "When", any: "Last 12 months", options: PERIODS.filter(([k]) => k !== "all").map(([k, label]) => [k, label === "Today" ? label : `Last ${label}`] as const) },
+    ...(result.actors.length > 1 ? [{ name: "who", label: "Who", any: "Everyone", options: result.actors.map((a) => [a, a] as const) }] : []),
+  ];
   const view = await refViews(result.rows);
   const total = Object.values(result.byArea).reduce((s, n) => s + (n ?? 0), 0);
 
@@ -52,15 +58,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
           ...ACTIVITY_AREAS.map((a) => ({ label: AREA_LABELS[a], count: fmtNum(result.byArea[a] ?? 0), href: href({ area: a, page: undefined }), active: area === a })),
         ]}
       />
-      <div className="flex flex-col gap-3">
-        <FilterTabs label="Period" items={PERIODS.map(([k, label]) => ({ label, href: href({ period: k === "all" ? undefined : k, page: undefined }), active: period[0] === k }))} />
-        {result.actors.length > 1 && (
-          <FilterTabs
-            label="Person"
-            items={[{ label: "Everyone", href: href({ who: undefined, page: undefined }), active: !actor }, ...result.actors.map((a) => ({ label: a, href: href({ who: a, page: undefined }), active: actor === a }))]}
-          />
-        )}
-      </div>
+      <TableToolbar filters={filters} />
       <DataTable
         label="Activity"
         rows={result.rows}
@@ -112,7 +110,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
           { key: "area", header: "Area", cell: (e) => AREA_LABELS[e.area], hide: "lg" },
         ]}
       />
-      <Pager page={page} pageCount={pageCount} total={result.total} href={(n) => href({ page: n > 1 ? String(n) : undefined })} />
+      <TableFooter page={page} pageCount={pageCount} total={result.total} per={size} />
     </>
   );
 }

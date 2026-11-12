@@ -2,7 +2,10 @@ import { describe, expect, it, vi } from "vitest";
 import type { Lead, TeamMember } from "./collections";
 
 vi.mock("server-only", () => ({}));
-const { digestGroups } = await import("./follow-up-digest");
+const sendTo = vi.fn<(to: string[], mail: { subject: string; text: string }) => Promise<void>>(async () => {});
+vi.mock("@/lib/leads/mail", () => ({ sendTo }));
+const { digestGroups, sendFollowUpDigest } = await import("./follow-up-digest");
+const { leadsStore, settingsStore, getSettings } = await import("./collections");
 
 const team: TeamMember[] = [
   { id: "1", name: "Aoife", email: "aoife@x.ie", role: "Owner" },
@@ -33,5 +36,26 @@ describe("digestGroups", () => {
     const g = digestGroups([lead("nobody", { followUpOn: "2026-11-10" })], [], "2026-11-11");
     expect([...g.keys()]).toEqual(["boss@x.ie", "aoife@x.ie"]);
     vi.unstubAllEnvs();
+  });
+});
+
+describe("sendFollowUpDigest", () => {
+  it("sends nothing when it is switched off, one email per person when on, and counts only what went", async () => {
+    await settingsStore.reset();
+    await settingsStore.put({ ...(await getSettings()), notifications: { followUps: false } });
+    expect(await sendFollowUpDigest()).toEqual({ sent: 0 });
+    await settingsStore.put({ ...(await getSettings()), notifications: { followUps: true } });
+    const lead = (await leadsStore.list()).find((l) => l.status === "contacted")!;
+    await leadsStore.put({ ...lead, followUpOn: "2020-01-01", assignedTo: undefined });
+    sendTo.mockClear();
+    const { sent } = await sendFollowUpDigest();
+    expect(sent).toBe(sendTo.mock.calls.length);
+    expect(sent).toBeGreaterThan(0);
+    const [, mail] = sendTo.mock.calls[0];
+    expect(mail.subject).toMatch(/follow-ups? today$/);
+    expect(mail.text).toContain(`/dashboard/leads/`);
+    sendTo.mockRejectedValueOnce(new Error("down"));
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    expect((await sendFollowUpDigest()).sent).toBe(sent - 1);
   });
 });

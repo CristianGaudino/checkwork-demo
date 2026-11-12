@@ -29,6 +29,7 @@ test("an order is placed, arrives into stock held for the buyer, and is handed o
   await page.getByRole("button", { name: "On its way" }).click();
   await expect(page.getByRole("button", { name: "On its way" })).toHaveAttribute("aria-pressed", "true");
   await page.getByRole("button", { name: "Arrived" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "It has arrived" }).click(); // it cannot be stepped back, so it asks
   await page.getByRole("link", { name: "Hand over" }).click();
   await expect(page.getByText(/A deposit of €1,500 was paid on this car/)).toBeVisible();
   await page.getByRole("button", { name: "Mark sold" }).click();
