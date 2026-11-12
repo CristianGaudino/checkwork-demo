@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CarForm } from "@/components/admin/CarForm";
-import { Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
+import { Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput, dangerButton } from "@/components/admin/kit";
+import { ActButton } from "@/components/admin/ActButton";
 import { SyncedNotice } from "@/components/admin/SyncedNotice";
 import { TrashIcon } from "@/components/stock/icons";
 import { costsStore, prepStore } from "@/lib/admin/collections";
@@ -19,7 +20,8 @@ export default async function Page({ params, searchParams }: { params: Promise<{
   const costSaved = (await searchParams).cost === "saved";
   const car = await adminCar(id);
   if (!car) notFound();
-  const view = <Link href={carHref(car.slug)} className={adminButtonQuiet}>View on the site</Link>;
+  // A hidden car or a draft has no page on the website to view.
+  const view = car.listing ? undefined : <Link href={carHref(car.slug)} className={adminButtonQuiet}>View on the site</Link>;
   const [margins, canDelete] = await Promise.all([can("margins"), can("settings")]);
   const cost = margins ? { eur: (await costsStore.get(id))?.costEur } : undefined;
   // Prep, for staff who see margins: in both versions, since it is the dealer's own spend.
@@ -54,13 +56,11 @@ export default async function Page({ params, searchParams }: { params: Promise<{
           Owners and managers only; the server refuses anyone else. */}
       {canDelete && (
         <Panel title="Delete this car">
-          <p className="max-w-measure text-body text-text-2">It leaves the site at once and its link stops working. To keep it on the site as sold, use Mark sold instead.</p>
-          <form action={deleteCarAction.bind(null, car.id)}>
-            <button type="submit" className="inline-flex h-11 items-center gap-2 rounded-control border border-bad px-4 text-meta font-medium text-bad">
-              <TrashIcon className="size-4" />
-              Delete {carName(car)}
-            </button>
-          </form>
+          <p className="max-w-measure text-body text-text-2">It leaves the site at once and its link stops working. To take it off the website for now, hide it instead.</p>
+          <ActButton act={deleteCarAction.bind(null, car.id)} confirm={{ title: `Delete ${carName(car)}?`, text: "This cannot be undone. Its cost and prep go with it.", yes: "Delete" }} className={`${dangerButton} w-fit`}>
+            <TrashIcon className="size-4" />
+            Delete {carName(car)}
+          </ActButton>
         </Panel>
       )}
     </>

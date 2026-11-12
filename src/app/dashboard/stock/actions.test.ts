@@ -14,10 +14,10 @@ vi.mock("next/headers", () => ({
   cookies: async () => ({ get: (n: string) => (n === "checkwork-demo-stock" ? { value: stockCookie } : n === "checkwork-demo-role" ? { value: role } : undefined) }),
   headers: async () => ({ get: () => null }),
 }));
-const { addPrepAction, removePrepAction, deleteCarAction, recordSaleAction, saveCarAction, saveCostAction, toggleSoldAction } = await import("./actions");
+const { addPrepAction, removePrepAction, deleteCarAction, recordSaleAction, saveCarAction, saveCostAction, setListingAction, toggleSoldAction, withdrawnAction } = await import("./actions");
 const { costsStore, customersStore, prepStore, salesStore } = await import("@/lib/admin/collections");
 const { carCosts } = await import("@/lib/admin/costs");
-const { adminCar, adminCars } = await import("@/lib/admin/stock-admin");
+const { adminCar, adminCars, saveCar } = await import("@/lib/admin/stock-admin");
 
 describe("stock synced from DoneDeal", () => {
   beforeEach(() => {
@@ -59,6 +59,33 @@ describe("stock synced from DoneDeal", () => {
     role = "Manager";
     await expect(deleteCarAction(car.id)).rejects.toThrow(/redirect/);
     expect(await adminCar(car.id)).toBeUndefined();
+  });
+
+  it("lets sales hide, show and publish a car of our own, never one from DoneDeal", async () => {
+    const car = (await adminCars()).find((c) => !c.soldAt && !c.listing)!;
+    await setListingAction(car.id, "hidden");
+    expect((await adminCar(car.id))?.listing).toBeUndefined(); // DoneDeal: refused
+    stockCookie = "checkwork";
+    await setListingAction(car.id, "hidden");
+    expect((await adminCar(car.id))?.listing).toBe("hidden");
+    await setListingAction(car.id, "nonsense");
+    expect((await adminCar(car.id))?.listing).toBe("hidden");
+    await setListingAction(car.id, "live");
+    expect(await adminCar(car.id)).toMatchObject({ listedAt: car.listedAt });
+    expect((await adminCar(car.id))?.listing).toBeUndefined();
+  });
+
+  it("asks about a car whose DoneDeal ad came down: sold records the sale and shows it as sold, did not sell keeps it hidden", async () => {
+    const [a, b] = (await adminCars()).filter((c) => !c.soldAt && !c.listing);
+    const today = new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Dublin" });
+    for (const c of [a, b]) await saveCar({ ...c, listing: "hidden", takenDownAt: today });
+    const sale = Object.entries({ priceEur: "9000", soldOn: today, customerId: (await customersStore.list())[0].id }).reduce((f, [k, v]) => (f.set(k, v), f), new FormData());
+    await expect(recordSaleAction(a.id, undefined, sale)).rejects.toThrow(/redirect/);
+    expect(await adminCar(a.id)).toMatchObject({ soldAt: today });
+    expect((await adminCar(a.id))?.listing).toBeUndefined();
+    await withdrawnAction(b.id);
+    expect(await adminCar(b.id)).toMatchObject({ listing: "hidden" });
+    expect((await adminCar(b.id))?.takenDownAt).toBeUndefined();
   });
 
   it("with our own stock the same press does mark the car sold", async () => {

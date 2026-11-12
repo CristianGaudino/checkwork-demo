@@ -20,7 +20,7 @@ const { adminCars } = await import("@/lib/admin/stock-admin");
 const { listActivity } = await import("@/lib/admin/activity");
 const { HOUR } = await import("@/lib/time");
 
-const forSale = async () => (await adminCars()).filter((c) => !c.soldAt);
+const forSale = async () => (await adminCars()).filter((c) => !c.soldAt && !c.listing);
 
 describe("the DoneDeal sync", () => {
   beforeEach(async () => {
@@ -32,7 +32,7 @@ describe("the DoneDeal sync", () => {
     const cars = await forSale();
     feed = async () => ({ ok: true, listings: cars });
     const s = await runSync({ now: 1_000 });
-    expect(s).toMatchObject({ lastOkAt: 1_000, result: { added: 0, changed: 0, sold: 0 } });
+    expect(s).toMatchObject({ lastOkAt: 1_000, result: { added: 0, changed: 0, takenDown: 0 } });
     expect(s.problem).toBeUndefined();
   });
 
@@ -41,13 +41,13 @@ describe("the DoneDeal sync", () => {
     const fresh: Car = { ...a, id: "dd-1", slug: "ford-focus-dd-1" };
     feed = async () => ({ ok: true, listings: [{ ...a, priceEur: a.priceEur - 500 }, ...rest, fresh] });
     const s = await runSync();
-    expect(s.result).toEqual({ added: 1, changed: 1, sold: 1 });
+    expect(s.result).toEqual({ added: 1, changed: 1, takenDown: 1 });
     const now = await adminCars();
     expect(now.find((c) => c.id === a.id)?.priceEur).toBe(a.priceEur - 500);
-    expect(now.find((c) => c.id === b.id)?.soldAt).toBeTruthy();
+    expect(now.find((c) => c.id === b.id)).toMatchObject({ listing: "hidden", takenDownAt: expect.any(String) });
     expect(now.find((c) => c.id === "dd-1")?.listedAt).toBeTruthy();
     const log = (await listActivity({ actor: SYNC_ACTOR }, 1, 3)).rows.map((r) => r.summary);
-    expect(log).toEqual(expect.arrayContaining(["Added from DoneDeal", "Marked sold: no longer on DoneDeal", expect.stringMatching(/^Changed the price from/)]));
+    expect(log).toEqual(expect.arrayContaining(["Added from DoneDeal", "Hidden: the ad came down on DoneDeal", expect.stringMatching(/^Changed the price from/)]));
   });
 
   it("a sold car DoneDeal lists again goes back on sale, and its sale goes with it", async () => {
@@ -72,7 +72,7 @@ describe("the DoneDeal sync", () => {
     const cars = await forSale();
     feed = async () => ({ ok: true, listings: [...cars, { ...cars[0], id: "bad", slug: "clash" }, { ...cars[0], id: "dd-ok", slug: "fine" }] });
     const s = await runSync();
-    expect(s.result).toEqual({ added: 1, changed: 0, sold: 0 });
+    expect(s.result).toEqual({ added: 1, changed: 0, takenDown: 0 });
     expect(s.problem).toBe("1 car from DoneDeal could not be saved. The rest are up to date.");
     expect((await adminCars()).some((c) => c.id === "dd-ok")).toBe(true);
   });

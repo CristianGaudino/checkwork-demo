@@ -1,5 +1,6 @@
 import { DriveStatusBadge } from "@/components/admin/badges";
 import { AddDriveForm } from "@/components/admin/AddDriveForm";
+import { ActButton } from "@/components/admin/ActButton";
 import { Badge, EmptyState, PageHeader, Pager, Panel, SummaryTabs, adminButton, paginate, rowButton } from "@/components/admin/kit";
 import { PlusIcon } from "@/components/stock/icons";
 import { card } from "@/components/ui";
@@ -10,7 +11,7 @@ import { TIME_ZONE } from "@/lib/site";
 import { addMonths, dublinDay } from "@/lib/admin/format";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { carName } from "@/lib/stock/format";
-import { isSold } from "@/lib/stock/types";
+import { forSale } from "@/lib/stock/types";
 import { telHref } from "@/lib/phone";
 import { setDriveStatusAction } from "./actions";
 
@@ -30,7 +31,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
   const sp = await searchParams;
   const status = parseDriveStatus(sp.status);
   const [all, cars] = await Promise.all([drivesStore.list(), adminCars()]);
-  const soldSlugs = new Set(cars.filter(isSold).map((c) => c.slug)); // a booking still open on a car that has since sold needs a call
+  const soldSlugs = new Set(cars.filter((c) => !forSale(c)).map((c) => c.slug)); // a booking still open on a car no longer for sale (sold, hidden) needs a call
   const open = (s: string) => s === "requested" || s === "confirmed";
   const rows = all.filter((d) => (status ? d.status === status : open(d.status)));
   // Done, no-show and cancelled only grow: every list is in pages, then grouped by day.
@@ -57,7 +58,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
           Add a booking
         </summary>
         <Panel className="mt-3">
-          <AddDriveForm cars={cars.filter((c) => !isSold(c)).map((c) => ({ slug: c.slug, label: carName(c) }))} min={dublinDay()} max={addMonths(dublinDay(), TEST_DRIVE.monthsAhead)} />
+          <AddDriveForm cars={cars.filter(forSale).map((c) => ({ slug: c.slug, label: carName(c) }))} min={dublinDay()} max={addMonths(dublinDay(), TEST_DRIVE.monthsAhead)} />
         </Panel>
       </details>
       {groups.length === 0 ? (
@@ -81,7 +82,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
                       </span>
                       <span className="flex flex-wrap items-center gap-2 text-meta text-text-2">
                         {d.carTitle}
-                        {open(d.status) && soldSlugs.has(d.carSlug) && <Badge tone="warn">Car sold</Badge>}
+                        {open(d.status) && soldSlugs.has(d.carSlug) && <Badge tone="warn">No longer for sale</Badge>}
                       </span>
                       <a href={telHref(d.phone) ?? undefined} className="inline-flex min-h-11 w-fit items-center text-meta text-text-2 underline-offset-2 hover:underline md:min-h-0">
                         {d.phone}
@@ -91,11 +92,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
                     {(NEXT[d.status] ?? []).length > 0 && (
                       <div className="col-start-2 flex flex-wrap gap-2 md:col-start-3 md:justify-end">
                         {(NEXT[d.status] ?? []).map(([to, label]) => (
-                          <form key={to} action={setDriveStatusAction.bind(null, d.id, to)}>
-                            <button type="submit" className={`${rowButton} ${to === "cancelled" ? "text-bad" : ""}`}>
-                              {label}
-                            </button>
-                          </form>
+                          <ActButton key={to} act={setDriveStatusAction.bind(null, d.id, to)} undo={setDriveStatusAction.bind(null, d.id, d.status)} done={`${d.name}: ${DRIVE_STATUS_LABELS[to as keyof typeof DRIVE_STATUS_LABELS]}`} className={`${rowButton} ${to === "cancelled" ? "text-bad" : ""}`}>
+                            {label}
+                          </ActButton>
                         ))}
                       </div>
                     )}

@@ -29,9 +29,9 @@ describe("overview", () => {
   });
   it("flags old stock, cars with no cost, a failing sync and drives booked on a sold car", () => {
     const car = (id: string, listedAt: string, o: object = {}) => ({ id, slug: id, listedAt, photos: [], ...o }) as unknown as import("@/lib/stock/types").Car;
-    const cars = [car("old", "2026-09-01"), car("new", "2026-11-01"), car("gone", "2026-08-01", { soldAt: "2026-11-05" })];
-    const o = overview({ leads: [], drives: [{ ...drive("d", DAY, "confirmed"), carSlug: "gone" }], reviews: [], cars, costs: new Set(["old"]), syncProblem: true, now });
-    expect(o.attention.map((a) => [a.key, a.count])).toEqual([["sync", 1], ["sold-drives", 1], ["old", 1], ["costs", 1]]);
+    const cars = [car("old", "2026-09-01"), car("new", "2026-11-01"), car("gone", "2026-08-01", { soldAt: "2026-11-05" }), car("down", "2026-11-01", { listing: "hidden", takenDownAt: "2026-11-10" })];
+    const o = overview({ leads: [], drives: [{ ...drive("d", DAY, "confirmed"), carSlug: "gone" }, { ...drive("e", DAY, "confirmed"), carSlug: "down" }], reviews: [], cars, costs: new Set(["old", "down"]), syncProblem: true, now });
+    expect(o.attention.map((a) => [a.key, a.count])).toEqual([["sync", 1], ["sold-drives", 2], ["taken-down", 1], ["old", 1], ["costs", 1]]);
     // Without the margins permission there is no cost item at all, and a sold car is never old stock.
     expect(overview({ leads: [], drives: [], reviews: [], cars: [car("gone", "2026-01-01", { soldAt: "2026-02-01" })], now }).attention).toEqual([]);
   });

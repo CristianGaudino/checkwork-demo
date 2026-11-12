@@ -14,6 +14,8 @@ test.afterEach(async ({ page }) => {
   while ((await row.count()) > 0) {
     await row.first().getByRole("link", { name: /^Edit / }).click();
     await page.getByRole("button", { name: /^Delete / }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Delete" }).click();
+    await page.waitForURL(/deleted=1/);
     await page.goto("/dashboard/stock?status=all&q=" + MAKE);
   }
 });
@@ -69,11 +71,46 @@ test("add a car, see it on the site with its VAT line, change its price to a dro
   await expect(sold).toContainText("sold for €18,000");
   await expect(sold.getByRole("button", { name: "Back on sale" })).toBeVisible();
 
-  // Delete, from the car's own page: gone from the dealer's list and from the site.
+  // Delete, from the car's own page, asks first: Cancel keeps it; Delete takes it from the dealer's list and the site.
   await page.getByRole("row", { name: new RegExp(MAKE) }).getByRole("link", { name: /^Edit / }).click();
   await page.getByRole("button", { name: /^Delete / }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Cancel" }).click();
+  await expect(page.getByRole("dialog")).toBeHidden();
+  await page.getByRole("button", { name: /^Delete / }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Delete" }).click();
   await expect(page.getByRole("status")).toHaveText("Car deleted.");
   await expect(page.getByRole("row", { name: new RegExp(MAKE) })).toHaveCount(0);
+});
+
+test("a draft and a hidden car are off the website and their link is not found; hiding can be undone", async ({ page }) => {
+  await page.goto("/dashboard/stock/new");
+  await page.getByLabel("Make", { exact: true }).fill(MAKE);
+  await page.getByLabel("Model", { exact: true }).fill("Draft");
+  await page.getByLabel("Year", { exact: true }).fill("2020");
+  await page.getByLabel("Price (€)", { exact: true }).fill("15000");
+  await page.getByRole("button", { name: "Save draft" }).click();
+  await expect(page.getByRole("status")).toContainText("Saved 2020 Zztest Draft");
+  await page.goto(`/used-cars?q=${MAKE}`);
+  await expect(page.locator("article").filter({ hasText: "Draft" })).toHaveCount(0);
+
+  // Publish from the Drafts view: on the website, with its own page.
+  await page.goto("/dashboard/stock?view=drafts&q=" + MAKE);
+  const row = page.getByRole("row", { name: new RegExp(MAKE) });
+  await row.getByRole("button", { name: "Publish" }).click();
+  await expect(page.getByTestId("toast")).toContainText("Published 2020 Zztest Draft");
+  await page.goto("/dashboard/stock?q=" + MAKE);
+  await page.getByRole("row", { name: new RegExp(MAKE) }).getByRole("link", { name: /^Edit / }).click();
+  const href = await page.getByRole("link", { name: "View on the site" }).getAttribute("href");
+  expect((await page.request.get(href!)).status()).toBe(200);
+
+  // Hide: not found on the website. Undo in the toast puts it back.
+  await page.goto("/dashboard/stock?q=" + MAKE);
+  await page.getByRole("row", { name: new RegExp(MAKE) }).getByRole("button", { name: "Hide" }).click();
+  await expect(page.getByTestId("toast")).toContainText("Hid 2020 Zztest Draft");
+  expect((await page.request.get(href!)).status()).toBe(404);
+  await page.getByTestId("toast").getByRole("button", { name: "Undo" }).click();
+  await expect(page.getByRole("row", { name: new RegExp(MAKE) }).getByRole("button", { name: "Hide" })).toBeVisible();
+  expect((await page.request.get(href!)).status()).toBe(200);
 });
 
 test("with the margins permission the cost is saved with the car and shows on the Margins screen", async ({ page }) => {

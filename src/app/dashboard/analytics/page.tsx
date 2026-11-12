@@ -7,7 +7,7 @@ import { leadsStore } from "@/lib/admin/collections";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { isConnected } from "@/lib/integrations";
 import { carName, carHref } from "@/lib/stock/format";
-import { isSold } from "@/lib/stock/types";
+import { forSale } from "@/lib/stock/types";
 
 export const metadata = { title: "Analytics" };
 
@@ -17,7 +17,7 @@ const arrow = (n: number) => `${n >= 0 ? "Up" : "Down"} ${fmtPct(Math.abs(n))} o
 export default async function Page({ searchParams }: { searchParams: Promise<{ range?: string }> }) {
   const range = parseRange((await searchParams).range);
   const [all, leads] = await Promise.all([adminCars(), leadsStore.list()]);
-  const cars = all.filter((c) => !isSold(c)).map((c) => ({ slug: c.slug, title: carName(c) }));
+  const cars = all.filter(forSale).map((c) => ({ slug: c.slug, title: carName(c) }));
   const a = buildAnalytics({ range, cars, leadTimes: leads.map((l) => l.createdAt) });
   const c = (now: number, before: number) => change(now, before);
   const dv = c(a.totals.visitors, a.previous.visitors);

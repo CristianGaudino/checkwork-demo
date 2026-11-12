@@ -44,6 +44,7 @@ test("prep costs: margins roles add and remove a line on a car, and it counts in
   const line = panel.getByRole("listitem").filter({ hasText: "Bodywork" }).filter({ hasText: "€275" }).last();
   await expect(line).toBeVisible();
   await line.getByRole("button", { name: /^Remove Bodywork/ }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Remove" }).click();
   await expect(panel.getByRole("listitem").filter({ hasText: "Bodywork" }).filter({ hasText: "€275" })).toHaveCount(0);
   await as(context, "Sales");
   await page.reload();

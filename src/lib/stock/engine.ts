@@ -30,7 +30,8 @@ const SORTS: Record<SortKey, (a: Car, b: Car) => number> = {
 type Pick = (c: Car) => { value: string; label: string; parent?: string } | undefined;
 
 export function createStockEngine(input: Car[], { now = () => new Date() }: { now?: () => Date } = {}): StockProvider {
-  const cars = [...input].sort((a, b) => Number(b.id) - Number(a.id));
+  // Drafts and hidden cars are not on the website at all: no list, page, count or sitemap has them, and their address is not found.
+  const cars = input.filter((c) => !c.listing).sort((a, b) => Number(b.id) - Number(a.id));
   const bySlug = new Map(cars.map((c) => [c.slug, c]));
   const byId = new Map(cars.map((c) => [c.id, c]));
   // Kept off the Car objects so nothing internal leaks to callers.

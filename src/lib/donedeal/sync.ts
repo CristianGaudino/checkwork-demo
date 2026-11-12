@@ -27,7 +27,7 @@ export type SyncStatus = {
   id: "status";
   lastRunAt?: number;
   lastOkAt?: number;
-  result?: { added: number; changed: number; sold: number };
+  result?: { added: number; changed: number; takenDown: number };
   problem?: string; // why the last run changed nothing, in the dealer's words; absent when it worked
   held?: boolean; // the problem is DoneDeal's answer looking wrong; Apply anyway runs it with force
   failingSince?: number; // the first failed run of this outage
@@ -35,7 +35,7 @@ export type SyncStatus = {
 };
 
 // The demo's last sync, a few minutes ago with nothing to change (its feed is the stock itself). A real site starts with none.
-const statusStore = defineCollection<SyncStatus>("donedeal-sync", () => [{ id: "status", lastRunAt: Date.now() - 6 * MINUTE, lastOkAt: Date.now() - 6 * MINUTE, result: { added: 0, changed: 0, sold: 0 } }]);
+const statusStore = defineCollection<SyncStatus>("donedeal-sync", () => [{ id: "status", lastRunAt: Date.now() - 6 * MINUTE, lastOkAt: Date.now() - 6 * MINUTE, result: { added: 0, changed: 0, takenDown: 0 } }]);
 
 export const resetSyncStatus = () => statusStore.reset(); // "Reset demo data"
 
@@ -72,14 +72,14 @@ export async function runSync({ force = false, now = Date.now() } = {}): Promise
       return false;
     }
   };
-  const result = { added: 0, changed: 0, sold: 0 };
+  const result = { added: 0, changed: 0, takenDown: 0 };
   for (const c of plan.added) if (await apply(c, "Added from DoneDeal")) result.added++;
   for (const { before, after } of plan.changed) {
-    if (!(await apply(after, before.soldAt ? "Back on sale on DoneDeal" : carEditSummary(before, after)))) continue;
+    if (!(await apply(after, before.soldAt ? "Back on sale on DoneDeal" : before.listing ? "Back on DoneDeal" : carEditSummary(before, after)))) continue;
     result.changed++;
     if (before.soldAt) await salesStore.remove(after.id); // back on sale: the sale fell through, as Back on sale does in our version
   }
-  for (const c of plan.gone) if (await apply(c, "Marked sold: no longer on DoneDeal")) result.sold++;
+  for (const c of plan.gone) if (await apply(c, "Hidden: the ad came down on DoneDeal")) result.takenDown++;
   const status: SyncStatus = { id: "status", lastRunAt: now, lastOkAt: now, result, ...(skipped && { problem: `${skipped === 1 ? "1 car" : `${skipped} cars`} from DoneDeal could not be saved. The rest are up to date.` }) };
   await statusStore.put(status);
   return status;

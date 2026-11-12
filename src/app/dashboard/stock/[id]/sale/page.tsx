@@ -12,12 +12,12 @@ import { isSold } from "@/lib/stock/types";
 
 export const metadata = { title: "Record a sale" };
 
-// Mark sold in our version (the car is marked sold on the sale's day), Record sale after the DoneDeal sync marked it sold, and Change the
-// sale for one already recorded. A DoneDeal car still for sale is sold on DoneDeal first: the sync is what marks it.
+// Mark sold in our version (the car is marked sold on the sale's day) and for a DoneDeal car whose ad came down, Record sale for a sold car
+// with none, and Change the sale for one already recorded. A DoneDeal car still for sale is sold on DoneDeal first: the ad coming down is what asks.
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const [car, was, customers, { team }, me, source] = await Promise.all([adminCar(id), salesStore.get(id), customersStore.list(), getSettings(), currentMember(), stockSource()]);
-  if (!car || (source === "donedeal" && !isSold(car) && !was)) notFound();
+  if (!car || (source === "donedeal" && !isSold(car) && !was && !car.takenDownAt)) notFound();
   const today = dublinDay();
   const title = was ? "Change the sale" : isSold(car) ? "Record the sale" : "Mark sold";
   return (

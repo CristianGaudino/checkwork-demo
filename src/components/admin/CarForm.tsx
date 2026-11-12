@@ -79,17 +79,25 @@ export function CarForm({ car, cost }: { car?: Car; cost?: { eur?: number } }) {
         </Panel>
       )}
 
-      <Panel title="Status">
-        <Field label="Availability" hint="A sold car stays on the site for a while, marked Sold.">
-          <Select name="status" defaultValue={car?.soldAt ? "sold" : "for-sale"} className="sm:max-w-xs" options={[["for-sale", "For sale"], ["sold", "Sold"]]} />
-        </Field>
-        <p className="text-meta text-text-2">Photos on this car: {car?.photos.length ?? 0}</p>
-      </Panel>
+      {/* A new car is added or kept as a draft by its buttons. Selling is Mark sold on the stock list, which records the sale with it. */}
+      {car && (
+        <Panel title="Status">
+          <Field label="On the website" hint={car.soldAt ? "Sold. A sold car stays on the website for a while, marked Sold." : "A hidden car or a draft is not on the website, and its link is not found."}>
+            <Select name="listing" defaultValue={car.listing ?? "live"} className="sm:max-w-xs" options={[["live", "Shown"], ["hidden", "Hidden"], ["draft", "Draft"]]} />
+          </Field>
+          <p className="text-meta text-text-2">Photos on this car: {car.photos.length}</p>
+        </Panel>
+      )}
 
       <div className="flex flex-wrap gap-3">
-        <button type="submit" disabled={pending} className={adminButton}>
+        <button type="submit" name={car ? undefined : "listing"} value={car ? undefined : "live"} disabled={pending} className={adminButton}>
           {pending ? "Saving" : car ? "Save changes" : "Add car"}
         </button>
+        {!car && (
+          <button type="submit" name="listing" value="draft" disabled={pending} className={adminButtonQuiet}>
+            Save draft
+          </button>
+        )}
         <Link href="/dashboard/stock" className={adminButtonQuiet}>
           Cancel
         </Link>

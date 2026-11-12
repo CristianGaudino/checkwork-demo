@@ -1,6 +1,6 @@
 import type { AdminReview, Lead, TestDrive } from "./collections";
 import { DAY } from "@/lib/time";
-import { isSold, type Car } from "@/lib/stock/types";
+import { forSale, isSold, type Car } from "@/lib/stock/types";
 import { dublinDay } from "./format";
 import { followUpDue, pastReplyTarget } from "./follow-ups";
 
@@ -28,7 +28,7 @@ export function overview(input: { leads: Lead[]; drives: TestDrive[]; reviews: A
   const rated = reviews.filter((r) => r.rating > 0);
   const cars = input.cars ?? [];
   const today = dublinDay(now);
-  const soldSlugs = new Set(cars.filter(isSold).map((c) => c.slug));
+  const offSale = new Set(cars.filter((c) => !forSale(c)).map((c) => c.slug));
 
   const attention: Attention[] = [
     { key: "follow", label: "Follow-ups due", count: leads.filter((l) => followUpDue(l, today)).length, href: "/dashboard/leads?due=1" },
@@ -36,7 +36,8 @@ export function overview(input: { leads: Lead[]; drives: TestDrive[]; reviews: A
     { key: "drives", label: "Test drives to confirm", count: drives.filter((d) => d.status === "requested" && d.startsAt >= now).length, href: "/dashboard/test-drives?status=requested" },
     { key: "reviews", label: "Reviews without a reply", count: reviews.filter((r) => !r.reply).length, href: "/dashboard/reviews?filter=unreplied" },
     { key: "sync", label: "DoneDeal stock is not updating", count: input.syncProblem ? 1 : 0, href: "/dashboard/stock" },
-    { key: "sold-drives", label: "Test drives booked on a sold car", count: drives.filter((d) => d.startsAt >= now && (d.status === "requested" || d.status === "confirmed") && soldSlugs.has(d.carSlug)).length, href: "/dashboard/test-drives" },
+    { key: "sold-drives", label: "Test drives booked on a car no longer for sale", count: drives.filter((d) => d.startsAt >= now && (d.status === "requested" || d.status === "confirmed") && offSale.has(d.carSlug)).length, href: "/dashboard/test-drives" },
+    { key: "taken-down", label: "DoneDeal ads taken down: did they sell?", count: cars.filter((c) => c.takenDownAt).length, href: "/dashboard/stock?view=hidden" },
     { key: "old", label: `Cars for sale ${OLD_STOCK_DAYS} days or more`, count: cars.filter((c) => isOldStock(c, now)).length, href: "/dashboard/stock?view=old" },
     { key: "sales", label: "Sold cars with no sale recorded", count: input.sales ? cars.filter((c) => isSold(c) && Date.parse(`${c.soldAt}T00:00:00Z`) >= now - SALE_NUDGE_DAYS * DAY && !input.sales!.has(c.id)).length : 0, href: "/dashboard/stock?view=sold" },
     { key: "costs", label: "Cars for sale with no cost price", count: input.costs ? cars.filter((c) => !isSold(c) && !input.costs!.has(c.id)).length : 0, href: "/dashboard/margins" },

@@ -5,7 +5,7 @@ import type { Car } from "@/lib/stock/types";
 
 const form = (o: Record<string, string>) => {
   const f = new FormData();
-  for (const [k, v] of Object.entries({ make: "Škoda", model: "Octavia estate", year: "2019", priceEur: "14950", status: "for-sale", ...o })) f.set(k, v);
+  for (const [k, v] of Object.entries({ make: "Škoda", model: "Octavia estate", year: "2019", priceEur: "14950", listing: "live", ...o })) f.set(k, v);
   return f;
 };
 
@@ -41,15 +41,26 @@ describe("carFromForm", () => {
     if (r.ok) return;
     expect(Object.keys(r.errors).sort()).toEqual(["make", "nctExpiry", "priceEur", "year"]);
   });
-  it("keeps the photos of the car being edited, and stamps sold once", () => {
+  it("keeps the photos and the sale of the car being edited: the form never sells or unsells a car", () => {
     const existing = { photos: [{ src: "/stock/a.webp", width: 1, height: 1 }], soldAt: "2026-01-02" } as Car;
-    const r = carFromForm(form({ status: "sold" }), "1", existing, "2026-11-10");
+    const r = carFromForm(form({ status: "for-sale" }), "1", existing, "2026-11-10");
     expect(r.ok && r.car.photos).toHaveLength(1);
     expect(r.ok && r.car.soldAt).toBe("2026-01-02");
-    const fresh = carFromForm(form({ status: "sold" }), "1", undefined, "2026-11-10");
-    expect(fresh.ok && fresh.car.soldAt).toBe("2026-11-10");
-    const back = carFromForm(form({ status: "for-sale" }), "1", existing);
-    expect(back.ok && back.car).not.toHaveProperty("soldAt");
+    expect(carFromForm(form({ status: "sold" }), "1", undefined, "2026-11-10")).toMatchObject({ ok: true, car: { listedAt: "2026-11-10" } });
+    expect(carFromForm(form({ status: "sold" }), "1")).not.toHaveProperty("car.soldAt");
+  });
+  it("hides a car or keeps it as a draft, and a draft gets its listing date when it is published", () => {
+    const draft = carFromForm(form({ listing: "draft" }), "7", undefined, "2026-11-01");
+    expect(draft.ok && draft.car).toMatchObject({ listing: "draft" });
+    expect(draft.ok && draft.car).not.toHaveProperty("listedAt");
+    const published = carFromForm(form({}), "7", draft.ok ? draft.car : undefined, "2026-11-12");
+    expect(published.ok && published.car).toMatchObject({ listedAt: "2026-11-12" });
+    expect(published.ok && published.car).not.toHaveProperty("listing");
+    const hidden = carFromForm(form({ listing: "hidden" }), "7", published.ok ? published.car : undefined, "2026-11-20");
+    expect(hidden.ok && hidden.car).toMatchObject({ listing: "hidden", listedAt: "2026-11-12" });
+    const shownAgain = carFromForm(form({}), "7", hidden.ok ? hidden.car : undefined, "2026-11-25");
+    expect(shownAgain.ok && shownAgain.car.listedAt).toBe("2026-11-12");
+    expect(carFromForm(form({ listing: "public" }), "7").ok).toBe(false);
   });
 });
 

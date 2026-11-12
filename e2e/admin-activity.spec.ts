@@ -44,6 +44,7 @@ test("a change shows at the top, by the person who made it, and the filters narr
 
   await page.goto("/dashboard/settings");
   await page.getByRole("row").filter({ hasText: name }).getByRole("button", { name: "Remove" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Remove" }).click();
   await expect(page.getByText(name)).toHaveCount(0);
 });
 

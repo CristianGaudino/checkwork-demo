@@ -5,13 +5,13 @@ import { fmtAgo } from "@/lib/admin/format";
 import type { SyncStatus } from "@/lib/donedeal/sync";
 
 // How the DoneDeal sync is doing, and Sync now. On Stock, Overview and Settings for a dealer whose stock comes from DoneDeal.
-// `canForce`: owners and managers may apply a sync that was held because DoneDeal's answer looked wrong (it can mark many cars sold).
+// `canForce`: owners and managers may apply a sync that was held because DoneDeal's answer looked wrong (it can take many cars off the site).
 const counts = (r: NonNullable<SyncStatus["result"]>) =>
-  [r.added && `${r.added} added`, r.changed && `${r.changed} changed`, r.sold && `${r.sold} sold`].filter(Boolean).join(", ") || "Nothing had changed";
+  [r.added && `${r.added} added`, r.changed && `${r.changed} changed`, r.takenDown && `${r.takenDown} taken down`].filter(Boolean).join(", ") || "Nothing had changed";
 
 export function syncLine(s: SyncStatus) {
   if (!s.lastRunAt) return "Not synced yet.";
-  if (!s.problem) return `Last synced ${fmtAgo(s.lastOkAt!)}. ${counts(s.result ?? { added: 0, changed: 0, sold: 0 })}.`;
+  if (!s.problem) return `Last synced ${fmtAgo(s.lastOkAt!)}. ${counts(s.result ?? { added: 0, changed: 0, takenDown: 0 })}.`;
   return `${s.problem} ${s.lastOkAt ? `The site shows the stock from the last good sync, ${fmtAgo(s.lastOkAt)}.` : "Nothing has synced yet."}`;
 }
 

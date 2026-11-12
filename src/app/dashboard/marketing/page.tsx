@@ -1,5 +1,6 @@
 import { Badge, EmptyState, Field, PageHeader, Pager, Panel, SummaryTabs, paginate, adminButton, adminButtonQuiet, adminInput, rowButton, type Tone } from "@/components/admin/kit";
 import { PostComposer } from "@/components/admin/PostComposer";
+import { ActButton } from "@/components/admin/ActButton";
 import { sendDuePosts } from "@/lib/admin/scheduler";
 import { adsStore, newslettersStore, postsStore, subscribersStore } from "@/lib/admin/collections";
 import { fmtDate, fmtDateTime, fmtEur, fmtNum, fmtPct } from "@/lib/admin/format";
@@ -8,7 +9,7 @@ import { worthPosting } from "@/lib/admin/marketing";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { isUsable } from "@/lib/integrations";
 import { carName } from "@/lib/stock/format";
-import { isSold } from "@/lib/stock/types";
+import { forSale } from "@/lib/stock/types";
 import { composeAction, composerCarAction, createNewsletterAction, deleteAdAction, deleteNewsletterAction, deletePostAction, publishPostAction, sendNewsletterAction, startAdAction } from "./actions";
 
 export const metadata = { title: "Marketing" };
@@ -52,10 +53,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
   const notice = sp.notice ? NOTICES[sp.notice] : undefined;
   await sendDuePosts(); // posts whose time has come go out before the list is read
   const [posts, ads, letters, subs, cars] = await Promise.all([postsStore.list(), adsStore.list(), newslettersStore.list(), subscribersStore.list(), adminCars()]);
-  const forSale = cars.filter((c) => !isSold(c)).sort((a, b) => Number(b.id) - Number(a.id));
+  const onSale = cars.filter(forSale).sort((a, b) => Number(b.id) - Number(a.id));
   const live = subs.filter((s) => s.status === "subscribed").length;
-  const composerCars = forSale.map((c) => [c.slug, carName(c)] as [string, string]);
-  const ideas = sp.car ? [] : worthPosting(forSale, posts); // not while a post for a chosen car is being written
+  const composerCars = onSale.map((c) => [c.slug, carName(c)] as [string, string]);
+  const ideas = sp.car ? [] : worthPosting(onSale, posts); // not while a post for a chosen car is being written
   // Posts and ads in one list, newest first.
   const feed = [...posts.map((p) => ({ kind: "post" as const, at: p.createdAt, p })), ...ads.map((a) => ({ kind: "ad" as const, at: a.createdAt, a }))].sort((x, y) => y.at - x.at);
 
@@ -120,8 +121,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                       <p className="line-clamp-2 max-w-measure whitespace-pre-line text-body text-text-2">{item.p.text}</p>
                       {item.p.status !== "posted" && (
                         <div className="flex flex-wrap items-center gap-2">
-                          <form action={publishPostAction.bind(null, item.p.id)}><button type="submit" className={rowButton}>Publish now</button></form>
-                          <form action={deletePostAction.bind(null, item.p.id)}><button type="submit" className={`${rowButton} text-bad`}>Delete</button></form>
+                          <ActButton act={publishPostAction.bind(null, item.p.id)} confirm={{ title: "Publish this post now?", text: `It goes out on ${item.p.network} at once.`, yes: "Publish now" }} className={rowButton}>Publish now</ActButton>
+                          <ActButton act={deletePostAction.bind(null, item.p.id)} confirm={{ title: `Delete this post?`, text: "This cannot be undone.", yes: "Delete" }} className={`${rowButton} text-bad`}>Delete</ActButton>
                         </div>
                       )}
                     </li>
@@ -139,8 +140,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                       </div>
                       {item.a.status === "draft" && (
                         <div className="flex flex-wrap items-center gap-2">
-                          <form action={startAdAction.bind(null, item.a.id)}><button type="submit" className={rowButton}>Start ad</button></form>
-                          <form action={deleteAdAction.bind(null, item.a.id)}><button type="submit" className={`${rowButton} text-bad`}>Delete</button></form>
+                          <ActButton act={startAdAction.bind(null, item.a.id)} confirm={{ title: "Start this ad?", text: `It runs on ${item.a.platform} with a budget of ${fmtEur(item.a.budgetEur)}.`, yes: "Start ad" }} className={rowButton}>Start ad</ActButton>
+                          <ActButton act={deleteAdAction.bind(null, item.a.id)} confirm={{ title: `Delete this ad?`, text: "This cannot be undone.", yes: "Delete" }} className={`${rowButton} text-bad`}>Delete</ActButton>
                         </div>
                       )}
                     </li>
@@ -179,8 +180,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                     <p className="line-clamp-2 max-w-measure whitespace-pre-line text-body text-text-2">{n.body}</p>
                     {n.status === "draft" && (
                       <div className="flex flex-wrap items-center gap-2">
-                        <form action={sendNewsletterAction.bind(null, n.id)}><button type="submit" className={rowButton}>Send to {fmtNum(live)}</button></form>
-                        <form action={deleteNewsletterAction.bind(null, n.id)}><button type="submit" className={`${rowButton} text-bad`}>Delete</button></form>
+                        <ActButton act={sendNewsletterAction.bind(null, n.id)} confirm={{ title: `Send "${n.subject}"?`, text: `It goes to ${fmtNum(live)} subscribers and cannot be taken back.`, yes: "Send" }} className={rowButton}>Send to {fmtNum(live)}</ActButton>
+                        <ActButton act={deleteNewsletterAction.bind(null, n.id)} confirm={{ title: `Delete this newsletter?`, text: "This cannot be undone.", yes: "Delete" }} className={`${rowButton} text-bad`}>Delete</ActButton>
                       </div>
                     )}
                   </li>

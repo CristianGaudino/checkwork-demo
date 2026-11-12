@@ -53,6 +53,21 @@ with no D1). The actor is the signed-in person (`currentMember`), or a named one
 - **Kept 12 months** (`ACTIVITY_RETENTION_MONTHS`), then deleted by the daily job in `worker.mjs`, which logs `{"job":"purge-activity"}`.
 - **The demo** seeds a history of the made-up team on the seeded records; Reset demo data puts it back.
 
+## On the website or not (our version)
+
+- **Every car is Shown, Hidden or a Draft** (`listing` on the car). Hidden cars and drafts are left out by the stock engine itself
+  (`src/lib/stock/engine.ts`), so no list, count, page or sitemap has them and their link is not found. A new car can be saved as a draft;
+  its listing date (days in stock) is set when it first goes on the website. Anyone on the team can hide, show or publish, from the
+  stock list (with Undo) or the car form. Deleting is for owners and managers.
+- **"For sale"** in the dashboard (`forSale`) means on the website and not sold: posts, test drives and the overview use it. Margins and
+  stock age still count a hidden car, since it is stock the dealer owns.
+
+## Confirm and Undo
+
+- Anything that cannot be taken back asks first (`ActButton` with `confirm`): delete a car, a post, an ad or a newsletter, send a
+  newsletter, publish a post or start an ad, remove or pause a stock alert, unsubscribe, remove a team member or a prep cost, reset the demo.
+- What can be taken back runs at once and offers Undo in the toast: hide, show and publish a car, a test drive's status.
+
 ## Sales and follow-ups
 
 - **A sale** (`salesStore`, one per car): the price it sold for, the day, who sold it and the buyer, a customer on file or a new one made
@@ -100,8 +115,10 @@ with no D1). The actor is the signed-in person (`currentMember`), or a named one
 A dealer whose stock is on DoneDeal (`NEXT_PUBLIC_STOCK_SOURCE=donedeal`, or the demo bar's DoneDeal switch) keeps one source of truth:
 cars are added, changed and sold on DoneDeal only. The dashboard never edits them; it holds only the dealer's own figures (cost).
 - **The sync** (`src/lib/donedeal/sync.ts`, rules in `plan.ts`): every 15 minutes the Worker's cron calls `/api/donedeal/sync` with the
-  `CRON_KEY` secret; Sync now on Stock or Overview runs the same. New ads are added, changed ones updated, and a car DoneDeal no longer
-  lists is marked sold (its page stays, as "no longer available"). Each change is in the activity history as "DoneDeal sync".
+  `CRON_KEY` secret; Sync now on Stock or Overview runs the same. New ads are added and changed ones updated. A car DoneDeal no longer
+  lists is hidden (its link is not found), because DoneDeal does not say why an ad came down: Stock and Overview ask the dealer whether it
+  sold (the sale form, which marks it sold so its page shows Sold for a while) or did not (it stays hidden). If the ad goes up again the car
+  comes back. Each change is in the activity history as "DoneDeal sync".
 - **It never empties the site:** an answer with no cars, or with more than half the cars for sale gone, is held and changes nothing.
   Owners and managers can Apply anyway.
 - **When it fails** the site keeps the stock from the last good sync, Stock, Overview and Settings say so, and after an hour the owners and

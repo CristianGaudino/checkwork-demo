@@ -222,6 +222,8 @@ export function FilterTabs({ items, label = "Filter" }: { items: { label: string
 export const adminInput = "h-11 rounded-control border border-control bg-card px-3 text-body";
 export const adminButton = `inline-flex h-11 items-center justify-center gap-2 rounded-control bg-accent px-5 text-meta font-semibold text-on-accent ${press}`;
 export const adminButtonQuiet = `inline-flex h-11 items-center justify-center gap-2 rounded-control border border-control bg-card px-5 text-meta font-semibold ${press}`;
+// For what cannot be taken back: outlined in red, never filled, so it never reads as the main action.
+export const dangerButton = `inline-flex h-11 items-center justify-center gap-2 rounded-control border border-bad bg-card px-5 text-meta font-semibold text-bad ${press}`;
 
 // A labelled form control. `children` is the control itself, so selects, textareas and inputs share one frame.
 export function Field({ label, hint, error, children, className = "" }: { label: string; hint?: string; error?: string; children: React.ReactNode; className?: string }) {

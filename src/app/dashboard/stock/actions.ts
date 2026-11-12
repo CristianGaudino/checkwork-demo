@@ -17,7 +17,7 @@ import { carTitleOf } from "@/lib/admin/seed-data";
 import { BAD_COST, parseCost } from "@/lib/admin/margins";
 import { can } from "@/lib/permissions";
 import { adminCar, adminCars, removeCar, saveCar } from "@/lib/admin/stock-admin";
-import { nextCarId } from "@/lib/admin/stock-admin-pure";
+import { listedOn, nextCarId } from "@/lib/admin/stock-admin-pure";
 import { stockSource } from "@/lib/stock-source";
 import { runSync } from "@/lib/donedeal/sync";
 import { isSold, type Car } from "@/lib/stock/types";
@@ -76,6 +76,28 @@ export async function toggleSoldAction(id: string) {
   redirect("/dashboard/stock");
 }
 
+// On or off the website: publish a draft, hide a car, show it again. Anyone on the team (deleting is for managers). Our version only:
+// DoneDeal stock is shown or hidden there. Undone from the toast by calling it again with the old state.
+const LISTINGS = { live: "Put it on the website", hidden: "Hid it from the website", draft: "Made it a draft" } as const;
+export async function setListingAction(id: string, to: string) {
+  if (!Object.hasOwn(LISTINGS, to) || (await readOnly())) return;
+  const car = await adminCar(id);
+  const listing = to === "live" ? undefined : (to as "hidden" | "draft");
+  if (!car || car.listing === listing) return;
+  await saveCar({ ...car, listing, listedAt: listedOn(car, !listing, dublinDay()) });
+  await logActivity("stock", LISTINGS[to as keyof typeof LISTINGS], carRef(car));
+  revalidatePath("/dashboard/stock");
+}
+
+// DoneDeal took the ad down and the dealer says it was not sold: it stays hidden, and stops asking. (Sold goes through the sale form.)
+export async function withdrawnAction(id: string) {
+  const car = await adminCar(id);
+  if (!car?.takenDownAt) return;
+  await saveCar({ ...car, takenDownAt: undefined });
+  await logActivity("stock", "Withdrawn: the DoneDeal ad came down and it did not sell", carRef(car));
+  revalidatePath("/dashboard/stock");
+}
+
 // Deleting is for owners and managers (the settings permission, as for a forced sync): it cannot be undone. Everyone else marks it sold.
 export async function deleteCarAction(id: string) {
   if ((await readOnly()) || !(await can("settings"))) return;
@@ -88,7 +110,7 @@ export async function deleteCarAction(id: string) {
 }
 
 // Sync now, for stock from DoneDeal. `force` applies a sync that was held because DoneDeal's answer looked wrong: owners and managers only,
-// since it can mark many cars sold at once. The sync records its own changes in the activity history.
+// since it can take many cars off the site at once. The sync records its own changes in the activity history.
 export async function syncNowAction(force: boolean) {
   if (!(await readOnly())) return;
   await runSync({ force: force && (await can("settings")) });
@@ -107,7 +129,8 @@ const sale = z.object({
 });
 
 // What the car sold for, when, by whom and to whom. The buyer is a customer already on file, or a new one made here. In our version this
-// is Mark sold, so the car is marked sold on the sale's day. In the DoneDeal version the car is sold there; the sale is only recorded.
+// is Mark sold, so the car is marked sold on the sale's day. In the DoneDeal version the car is sold there; the sale is only recorded, and a
+// car hidden because its ad came down is marked sold here (the dealer's answer), so its page shows it as sold for a while.
 export async function recordSaleAction(carId: string, _prev: SaleFormState, data: FormData): Promise<SaleFormState> {
   const car = await adminCar(carId);
   if (!car) return { errors: { priceEur: "This car no longer exists" } };
@@ -128,8 +151,8 @@ export async function recordSaleAction(carId: string, _prev: SaleFormState, data
   }
   const was = await salesStore.get(car.id);
   await salesStore.put({ id: car.id, carTitle: carTitleOf(car), priceEur: d.priceEur, soldOn: d.soldOn, salesperson, customerId, createdAt: was?.createdAt ?? Date.now() });
-  const markSold = !isSold(car) && !(await readOnly());
-  if (markSold) await saveCar({ ...car, soldAt: d.soldOn });
+  const markSold = !isSold(car) && (!(await readOnly()) || Boolean(car.takenDownAt));
+  if (markSold) await saveCar({ ...car, soldAt: d.soldOn, ...(car.takenDownAt && { takenDownAt: undefined, listing: undefined }) });
   await logActivity("stock", `${was ? "Changed the sale to" : "Recorded the sale for"} ${fmtEur(d.priceEur)}${markSold ? " and marked it sold" : ""}`, carRef(car));
   redirect(`/dashboard/stock?view=sold&sale=${car.id}`);
 }

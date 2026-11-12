@@ -1,12 +1,13 @@
 import Link from "next/link";
-import { Badge, DataTable, EmptyState, PageHeader, Pager, SearchBar, SummaryTabs, adminButton, paginate, rowButton, type Column, adminButtonQuiet } from "@/components/admin/kit";
+import { Badge, DataTable, EmptyState, PageHeader, Pager, Panel, SearchBar, SummaryTabs, adminButton, paginate, rowButton, type Column, adminButtonQuiet } from "@/components/admin/kit";
+import { ActButton } from "@/components/admin/ActButton";
 import { ExternalIcon, PencilIcon, PlusIcon, SyncIcon } from "@/components/stock/icons";
 import { NEW_TAB } from "@/components/ui";
 import { carCosts } from "@/lib/admin/costs";
 import { marginOf } from "@/lib/admin/margins";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { can } from "@/lib/permissions";
-import { fmtEur, fmtNum } from "@/lib/admin/format";
+import { fmtDate, fmtEur, fmtNum } from "@/lib/admin/format";
 import { carName, carHref } from "@/lib/stock/format";
 import { isSold, type Car } from "@/lib/stock/types";
 import { stockSource } from "@/lib/stock-source";
@@ -16,7 +17,7 @@ import { FEW_PHOTOS, STOCK_VIEWS, parseStockList, stockList, type StockView } fr
 import { salesStore } from "@/lib/admin/collections";
 import { syncStatus } from "@/lib/donedeal/sync";
 import { SEARCH_MAKE_MODEL } from "@/lib/copy";
-import { toggleSoldAction } from "./actions";
+import { setListingAction, toggleSoldAction, withdrawnAction } from "./actions";
 
 export const metadata = { title: "Stock" };
 
@@ -50,7 +51,19 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
   const saved = sp.saved ? all.find((c) => c.id === sp.saved) : undefined;
   const href = (v: StockView) => `/dashboard/stock?view=${v}${q ? `&q=${encodeURIComponent(q)}` : ""}`;
   // Where a row goes: the car's editor here, or, for synced stock, the car on the site (it is changed on DoneDeal).
-  const open = (c: Car) => (synced ? carHref(c.slug) : `/dashboard/stock/${c.id}`);
+  // A synced car off the website (its ad came down) has no page there, so it opens here.
+  const open = (c: Car) => (synced && !c.listing ? carHref(c.slug) : `/dashboard/stock/${c.id}`);
+  const takenDown = synced ? all.filter((c) => c.takenDownAt) : [];
+  // Hide, show or publish, with Undo in the toast. Our version only: DoneDeal stock is shown and hidden there.
+  const listingButton = (c: Car) => {
+    const name = carName(c);
+    const [to, label, done] = c.listing === "draft" ? ["live", "Publish", `Published ${name}`] : c.listing ? ["live", "Show", `${name} is on the website again`] : ["hidden", "Hide", `Hid ${name} from the website`];
+    return (
+      <ActButton act={setListingAction.bind(null, c.id, to)} undo={setListingAction.bind(null, c.id, c.listing ?? "live")} done={done} className={rowButton}>
+        {label}
+      </ActButton>
+    );
+  };
 
   const columns: Column<Car>[] = [
     {
@@ -95,7 +108,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
     { key: "km", header: "Mileage", align: "right", hide: "md", nowrap: true, cell: (c) => (c.mileageKm !== undefined ? `${fmtNum(c.mileageKm)} km` : "") },
     { key: "photos", header: "Photos", align: "right", hide: "xl", cell: (c) => (c.photos.length < FEW_PHOTOS ? <span className="text-warn">{c.photos.length}</span> : c.photos.length) },
     // Only in the All view: the other views already say it.
-    ...(view === "all" ? [{ key: "status", header: "Status", hide: "md" as const, cell: (c: Car) => (isSold(c) ? <Badge tone="neutral">Sold</Badge> : <Badge tone="good">For sale</Badge>) }] : []),
+    ...(view === "all" ? [{ key: "status", header: "Status", hide: "md" as const, cell: (c: Car) => (c.listing === "draft" ? <Badge tone="info">Draft</Badge> : c.listing ? <Badge tone="warn">Hidden</Badge> : isSold(c) ? <Badge tone="neutral">Sold</Badge> : <Badge tone="good">For sale</Badge>) }] : []),
     {
       key: "actions",
       header: "",
@@ -117,12 +130,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
               Edit
             </Link>
             {recordSale(c)}
+            {listingButton(c)}
             {isSold(c) ? (
-              <form action={toggleSoldAction.bind(null, c.id)}>
-                <button type="submit" className={rowButton}>
-                  Back on sale
-                </button>
-              </form>
+              <ActButton act={toggleSoldAction.bind(null, c.id)} confirm={{ title: `Put ${carName(c)} back on sale?`, text: `${sales.has(c.id) ? "Its sale record is removed. " : ""}${c.listing ? "It stays off the website until you show it." : "It goes back on the website for sale."}`, yes: "Put back on sale" }} className={rowButton}>
+                Back on sale
+              </ActButton>
             ) : (
               <Link href={`/dashboard/stock/${c.id}/sale`} className={rowButton}>
                 Mark sold
@@ -163,7 +175,33 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
       {saved && <p role="status" className="rounded-control bg-ok-soft px-4 py-3 text-body text-ok">Saved {carName(saved)}.</p>}
       {saleFor && <p role="status" className="rounded-control bg-ok-soft px-4 py-3 text-body text-ok">Sale recorded for {carName(saleFor)}.</p>}
       {sp.deleted && <p role="status" className="rounded-control bg-hairline px-4 py-3 text-body">Car deleted.</p>}
-      <SummaryTabs label="Stock views" items={(Object.keys(STOCK_VIEWS) as StockView[]).map((v) => ({ label: STOCK_VIEWS[v].label, count: all.filter(STOCK_VIEWS[v].test).length, href: href(v), active: view === v }))} />
+      {/* DoneDeal does not say why an ad came down, so the car is hidden until the dealer says. Above the table, so a phone has it too. */}
+      {takenDown.length > 0 && (
+        <Panel title="Ads taken down on DoneDeal">
+          <p className="max-w-measure text-body text-text-2">These cars are off the website. Did they sell?</p>
+          <ul className="divide-y divide-hairline">
+            {takenDown.map((c) => (
+              <li key={c.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+                <span className="flex min-w-0 flex-col">
+                  <span className="font-medium">{carName(c)}</span>
+                  <span className="text-meta text-text-2">Ad came down {fmtDate(Date.parse(`${c.takenDownAt}T12:00:00Z`))}</span>
+                </span>
+                <span className="flex flex-wrap gap-2">
+                  <Link href={`/dashboard/stock/${c.id}/sale`} className={rowButton}>It sold</Link>
+                  <ActButton act={withdrawnAction.bind(null, c.id)} confirm={{ title: `${carName(c)} did not sell?`, text: "It stays off the website. If the ad goes back up on DoneDeal, the car comes back too.", yes: "It did not sell" }} className={rowButton}>
+                    It did not sell
+                  </ActButton>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </Panel>
+      )}
+      {/* Hidden and Drafts only show when they hold a car (or are open), so a dealer who never uses them never sees them. */}
+      <SummaryTabs label="Stock views" items={(Object.keys(STOCK_VIEWS) as StockView[])
+          .map((v) => [v, all.filter(STOCK_VIEWS[v].test).length] as const)
+          .filter(([v, count]) => count > 0 || view === v || (v !== "hidden" && v !== "drafts"))
+          .map(([v, count]) => ({ label: STOCK_VIEWS[v].label, count, href: href(v), active: view === v }))} />
       <SearchBar action="/dashboard/stock" value={q} placeholder={SEARCH_MAKE_MODEL} label="Search stock" keep={{ view }} />
       <DataTable
         label="Stock"
