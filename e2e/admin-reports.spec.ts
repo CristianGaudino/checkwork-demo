@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { sideLink } from "./admin-menu";
 
 // Reports: the whole dealership's for the margins roles, a salesperson's own (counts only) for sales. Prep costs on a car, margins only.
 const as = (context: import("@playwright/test").BrowserContext, role: string) => context.addCookies([{ name: "checkwork-demo-role", value: role, url: "http://localhost:3000" }]);
@@ -21,7 +22,7 @@ test("a salesperson sees only their own counts: no money, no one else", async ({
   await page.setViewportSize({ width: 1280, height: 900 }); // the sidebar; the phone tab bar has its own test (admin-shell)
   await as(context, "Sales");
   await page.goto("/dashboard");
-  await page.getByRole("navigation", { name: "Dealer dashboard" }).getByRole("link", { name: "Reports" }).click();
+  await (await sideLink(page, "Reports")).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Your report");
   await expect(page.getByText("Conor Doyle, the last 12 months")).toBeVisible();
   const main = page.locator("main");

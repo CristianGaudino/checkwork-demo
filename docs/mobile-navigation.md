@@ -38,7 +38,16 @@ section 7). The rules in `docs/dashboard-polish.md` still hold: quiet chrome, on
 - **More** opens a sheet with the rest, in the sidebar's groups, filtered by the role's permissions, and View the public site. When the page
   you are on is in More, More is marked current.
 - The top line stays: the dealership name, and the page title below it. The swipe row of links goes.
-- From 1024px nothing changes: the sidebar.
+- From 1024px the sidebar (owner feedback, 2026-11-12, below).
+
+## 4a. Dashboard from 1024px
+- **The whole width of the screen,** no cap: the page beside a 16rem sidebar.
+- **The sidebar stays put** down the left, the height of the screen above the demo bar. The dealership's name on top and View the public site
+  at the foot are always in view; the menu between them scrolls on its own if it ever has to, and keeps the page you are on in view.
+- **The groups fold** (Sales, Customers, Growth, Dealership) under their headings, Overview above them. Sales is open until closed; the group
+  holding the page you are on opens when you arrive; a folded group holding it shows a dot. What you leave open is kept in a cookie, so the
+  server draws the menu that way (no jump after the page loads). Every item names its group, so a role that cannot see a group's first
+  item still sees the rest under the right heading.
 - Settings gets a real gear icon (it was drawn as a sun).
 
 ## 5. Home: browse by make
