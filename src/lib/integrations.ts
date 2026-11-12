@@ -50,7 +50,8 @@ export const isConnected = (id: IntegrationId) => {
 };
 
 export type Mode = "live" | "simulated" | "off";
-// Only the outward services (and the registration lookup, DoneDeal stock and review replies) are simulated. Lead email, the bot check, reviews and analytics always show their true state.
+// Only the outward services (and the registration lookup, DoneDeal stock and review replies) are simulated. Lead email, the bot check and reviews
+// always show their true state, and analytics shows its sample figures only while simulating (src/app/dashboard/analytics/page.tsx).
 const SIMULATABLE: readonly IntegrationId[] = ["social", "ads", "newsletter", "reglookup", "donedeal", "gbp"];
 export const modeOf = (id: IntegrationId): Mode => (isConnected(id) ? "live" : simulating() && SIMULATABLE.includes(id) ? "simulated" : "off");
 export const isUsable = (id: IntegrationId) => modeOf(id) !== "off";

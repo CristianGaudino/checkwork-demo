@@ -3,16 +3,15 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { sendToDealer } from "@/lib/leads/mail";
-import { DEALER_COLLECTIONS, getSettings, leadsStore, reservationsStore, settingsStore, type DealerSettings } from "@/lib/admin/collections";
+import { getSettings, leadsStore, settingsStore, type DealerSettings } from "@/lib/admin/collections";
+import { resetDemoRecords } from "@/lib/admin/demo-reset";
 import { EMAIL_INVALID, NAME_REQUIRED } from "@/lib/copy";
 import { newId } from "@/lib/admin/ids";
 import { seedsDemoRecords } from "@/lib/admin/docs";
 import { fieldErrors } from "@/lib/admin/validation";
 import { can, currentMember } from "@/lib/permissions";
 import { ROLES, type Role } from "@/lib/permission-rules";
-import { logActivity, resetActivity } from "@/lib/admin/activity";
-import { resetSyncStatus } from "@/lib/donedeal/sync";
-import { adminCars, saveCar } from "@/lib/admin/stock-admin";
+import { logActivity } from "@/lib/admin/activity";
 
 export type SettingsState = { errors?: Record<string, string>; saved?: boolean } | undefined;
 
@@ -155,13 +154,7 @@ export async function removeTeamAction(id: string) {
 
 export async function resetDemoAction() {
   if (!seedsDemoRecords() || !(await can("settings"))) return; // a real dealer's records are never wiped from a button
-  for (const c of DEALER_COLLECTIONS) await c.reset();
-  // The deposits are back to the seed, so the Reserved marks follow them (the mark is on the car, which the reset keeps): on the cars with a
-  // held deposit, off every other car.
-  const held = new Set((await reservationsStore.list()).filter((r) => r.status === "held").map((r) => r.carId));
-  for (const car of await adminCars()) if (Boolean(car.reserved) !== held.has(car.id)) await saveCar({ ...car, reserved: held.has(car.id) || undefined });
-  await resetActivity();
-  await resetSyncStatus();
+  await resetDemoRecords();
   await logActivity("settings", "Reset the demo data");
   revalidatePath("/dashboard", "layout");
 }

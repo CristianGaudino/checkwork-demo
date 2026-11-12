@@ -7,7 +7,7 @@ on:
     branches: [main]
     paths-ignore: ['**.md']
   schedule:
-    - cron: '0 6 * * 1' # weekly, so the demo's sold cars keep their dates (npm run stock:redate)
+    - cron: '0 6 * * 1' # weekly, so the demo's sold cars keep their dates (npm run stock:redate); the Worker resets the demo's records at 06:30 to match
   workflow_dispatch:
     inputs:
       ref:
