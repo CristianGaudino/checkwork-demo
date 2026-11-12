@@ -35,12 +35,26 @@ const worker = {
     return to ? Response.redirect(to, 308) : handler.fetch(request, env, ctx);
   },
   // wrangler.jsonc "triggers". A failure throws, so Cloudflare marks the run failed and Workers Logs shows it.
+  // The nightly jobs each run whatever the others do (photo storage being down must not stop the sales being anonymised), then the run
+  // fails if any did, so it shows as failed and the next night tries again.
   async scheduled(controller, env, ctx) {
     if (APP_JOBS[controller.cron]) return runAppJob(APP_JOBS[controller.cron], env, ctx);
-    const deleted = await purgeOldLeads(drizzle(env.DB), env.LEAD_PHOTOS);
-    console.log(JSON.stringify({ job: "purge-leads", deleted })); // a count only, never a lead (D-08)
-    console.log(JSON.stringify({ job: "purge-activity", deleted: await purgeOldActivity(drizzle(env.DB)) }));
-    console.log(JSON.stringify({ job: "anonymise-sales", done: await anonymiseOldSales(drizzle(env.DB)) }));
+    const db = drizzle(env.DB);
+    const jobs = [
+      ["purge-leads", "deleted", () => purgeOldLeads(db, env.LEAD_PHOTOS)], // a count only, never a lead (D-08)
+      ["purge-activity", "deleted", () => purgeOldActivity(db)],
+      ["anonymise-sales", "done", () => anonymiseOldSales(db)],
+    ];
+    let failed = 0;
+    for (const [job, key, run] of jobs) {
+      try {
+        console.log(JSON.stringify({ job, [key]: await run() }));
+      } catch {
+        failed++;
+        console.error(JSON.stringify({ job, error: "failed" })); // never the error itself: a database error carries the values
+      }
+    }
+    if (failed) throw new Error(`${failed} nightly job(s) failed`);
   },
 };
 export default worker;

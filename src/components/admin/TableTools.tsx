@@ -34,12 +34,17 @@ export function LiveSearch({ name = "q", placeholder, label }: { name?: string; 
   const hrefWith = useParamHref();
   const inUrl = sp.get(name) ?? "";
   const [value, setValue] = useState(inUrl);
-  // What this box last sent. When the address says something else (a menu link, another tab, Back), the box takes it, set while rendering
-  // so it is never shown stale; what it sent itself is left alone, so a word typed while the list loads is not lost.
+  // When the address changes, the box takes its search, unless it is what the box sent itself (so a word typed while the list loads is not
+  // lost). Only a change of the address is looked at, never the box's own sending, so the box is not cleared while the address catches up.
+  // A menu link, another tab or Back sets it; set while rendering, so it is never shown stale.
+  const [seen, setSeen] = useState(inUrl);
   const [sent, setSent] = useState(inUrl);
-  if (inUrl !== sent) {
-    setSent(inUrl);
-    setValue(inUrl);
+  if (inUrl !== seen) {
+    setSeen(inUrl);
+    if (inUrl !== sent) {
+      setSent(inUrl);
+      setValue(inUrl);
+    }
   }
   const [pending, start] = useTransition();
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);

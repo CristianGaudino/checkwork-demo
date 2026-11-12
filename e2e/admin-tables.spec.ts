@@ -13,6 +13,12 @@ test("the search runs as you type, the cross clears it, and a header sorts the w
   await page.getByRole("button", { name: "Clear the search" }).click();
   await expect(page).not.toHaveURL(/q=/);
   await expect(search).toHaveValue("");
+  // Typed slowly, so the list reloads between keys: no key is lost and the box never empties while it catches up.
+  await search.pressSequentially("orla", { delay: 350 });
+  await expect(page).toHaveURL(/q=orla/);
+  await expect(search).toHaveValue("orla");
+  await page.getByRole("button", { name: "Clear the search" }).click();
+  await expect(page).not.toHaveURL(/q=/);
   // Left by another way (the menu): the box says what the list shows, never a search that is not applied.
   await search.fill("ciaran");
   await expect(page).toHaveURL(/q=ciaran/);
