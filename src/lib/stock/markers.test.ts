@@ -18,7 +18,7 @@ describe("rare markers", () => {
   });
 
   it("one owner from new, only on a car ten years old or more", () => {
-    expect(rareMarker(used({ year: 2014, owners: 1 }), now)).toBe("One owner from new");
+    expect(rareMarker(used({ year: 2014, owners: 1 }), now)).toBe("One owner");
     expect(rareMarker(used({ year: 2020, owners: 1 }), now)).toBeUndefined();
   });
 

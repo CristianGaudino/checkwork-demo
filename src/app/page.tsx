@@ -99,9 +99,10 @@ export default async function Home() {
                   <ArrowRightIcon className="size-5" />
                 </Link>
               </div>
-              <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+              {/* A grid from 640px; on a phone a row to swipe, the next card peeking, so six cars do not make the page six screens long. */}
+              <ul aria-label="Featured stock" className="scrollbar-none -mx-4 flex snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto px-4 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-3 lg:gap-6">
                 {featured.map((car, i) => (
-                  <li key={car.id} className="min-w-0">
+                  <li key={car.id} className="w-[85%] min-w-0 shrink-0 snap-start sm:w-auto">
                     <ListingCard car={car} priority={i < 2} oneLine />
                   </li>
                 ))}

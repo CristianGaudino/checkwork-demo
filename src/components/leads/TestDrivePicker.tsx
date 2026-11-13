@@ -22,7 +22,8 @@ export function TestDrivePicker({ cars }: { cars: CarSummary[] }) {
             )}
             <div className="min-w-0 flex-1">
               <p className="line-clamp-2 font-semibold">{c.name}</p>
-              <p className="truncate text-meta text-text-2">{c.title}</p>
+              {/* The name already says the make and model: the line under it is what tells two of them apart. */}
+              {c.variant && <p className="truncate text-meta text-text-2">{c.variant}</p>}
               <p className="text-meta font-semibold whitespace-nowrap">{c.price}</p>
             </div>
             <button

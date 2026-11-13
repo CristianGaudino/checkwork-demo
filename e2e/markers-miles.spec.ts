@@ -4,16 +4,16 @@ import { expect, test } from "@playwright/test";
 
 type Demo = { slug: string; year: number; mileageKm?: number; owners?: number; soldAt?: string; condition?: string };
 const cars: Demo[] = JSON.parse(readFileSync(join(process.cwd(), "src/lib/stock/demo-cars.json"), "utf8"));
-// The demo's one rare car: ten years or more and one owner from new.
+// The demo's one rare car: ten years or more and one owner.
 const rare = cars.find((c) => !c.soldAt && (c.condition ?? "used") === "used" && c.owners === 1 && new Date().getUTCFullYear() - c.year >= 10);
 const plain = cars.find((c) => !c.soldAt && c.mileageKm && c !== rare)!;
 
 test("a rare car carries its marker on the card and the car page; an ordinary one carries none", async ({ page }) => {
   test.skip(!rare, "no rare car in the demo stock");
   await page.goto(`/used-cars/${rare!.slug}`);
-  await expect(page.getByTestId("buy-box").getByText("One owner from new")).toBeVisible();
+  await expect(page.getByTestId("buy-box").getByText("One owner", { exact: true })).toBeVisible();
   await page.goto(`/used-cars/${plain.slug}`);
-  await expect(page.getByTestId("buy-box").getByText(/One owner from new|Very low mileage/)).toHaveCount(0);
+  await expect(page.getByTestId("buy-box").getByText(/^(One owner|Very low mileage)$/)).toHaveCount(0);
 });
 
 test.describe("on a desktop", () => {

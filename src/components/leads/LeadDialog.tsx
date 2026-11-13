@@ -12,7 +12,7 @@ import { LeadForm } from "./LeadForm";
 import { closeButton, press, secondaryButton } from "@/components/ui";
 
 // What the client needs to show a car. Never the Car object: the server reads the car again by id (LED-02).
-export type CarSummary = { id: string; name: string; title: string; price: string; photo?: string };
+export type CarSummary = { id: string; name: string; title: string; variant?: string; price: string; photo?: string };
 
 // A native modal dialog on the Phase 1 sheet rules (D-09). It stays in the DOM while closed, so the form inside keeps its
 // text (research Pattern 2). The Close button is the first focusable element, so showModal() focuses it, not a field.

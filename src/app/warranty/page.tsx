@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { FeatureCard } from "@/components/Feature";
 import { CallButton, InfoSection } from "@/components/InfoPage";
 import { LayersIcon, ShieldCheckIcon } from "@/components/stock/icons";
-import { card, pageMain, subTitle } from "@/components/ui";
+import { card, pageMain, secondaryButton, subTitle } from "@/components/ui";
 import { LeadPageForm } from "@/components/leads/LeadPageForm";
 import { CLAIM_SENT } from "@/lib/leads/constants";
 import { DEALER_LOCATION, DEALER_PHONE, SITE_NAME, WARRANTY } from "@/lib/site";
@@ -15,7 +15,16 @@ export default function WarrantyPage() {
   return (
     <main className={pageMain}>
       {/* Laid out like the Service page: from 1024px the call button sits on the right, level with the title. */}
-      <PageHeading title="Warranty" intro="Every car comes with cover, and you can add more." actions={<CallButton>Call {DEALER_PHONE}</CallButton>} />
+      <PageHeading title="Warranty" intro="Every car comes with cover, and you can add more." actions={
+          <>
+            <CallButton>Call {DEALER_PHONE}</CallButton>
+            {/* The claim form is at the foot of a long page: on a phone this is the way to it. */}
+            <a href="#claim" className={`flex h-12 w-full items-center justify-center px-5 sm:w-auto sm:min-w-60 ${secondaryButton}`}>
+              Make a claim
+            </a>
+          </>
+        }
+      />
 
       <section className="mt-12 flex flex-col gap-4">
         <h2 className={subTitle}>What you get</h2>

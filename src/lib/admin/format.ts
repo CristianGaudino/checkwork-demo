@@ -1,12 +1,15 @@
 import { TIME_ZONE as timeZone } from "@/lib/site";
 import { HOUR } from "@/lib/time";
+import { formatCount, formatPrice } from "@/lib/stock/format";
+
+// The dashboard's names for the site's own money and number formats (src/lib/stock/format.ts): one way of writing them everywhere.
+export const fmtNum = formatCount;
+export const fmtEur = formatPrice;
 
 // Irish time, whatever zone the server runs in (a Worker runs in UTC): a 11:00 test drive reads 11:00 in summer too. No server-only
 // imports: the lead forms use these in the browser.
 const date = new Intl.DateTimeFormat("en-IE", { day: "numeric", month: "short", year: "numeric", timeZone });
 const dateTime = new Intl.DateTimeFormat("en-IE", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone });
-const num = new Intl.NumberFormat("en-IE");
-const eur = new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
 
 const time = new Intl.DateTimeFormat("en-IE", { hour: "2-digit", minute: "2-digit", timeZone });
 // A calendar day (YYYY-MM-DD) in words, read at noon UTC so no zone moves it to the day before: the diary's headings and day strips.
@@ -25,7 +28,6 @@ export const fmtDay = (iso: string, style: keyof typeof DAY_STYLES = "long") => 
 // Whole days from a listed day (YYYY-MM-DD) to now, never below 0: how long a car has been in stock.
 export const daysSince = (day: string, now = Date.now()) => Math.max(0, Math.floor((now - Date.parse(`${day}T00:00:00Z`)) / 86_400_000));
 export const fmtDateTime = (t: number | string) => dateTime.format(new Date(t));
-export const fmtNum = (n: number) => num.format(n);
 // A count with its word, singular for one: "1 review", "12 reviews", "1,284 cars".
 export const plural = (n: number, one: string, many = `${one}s`) => `${fmtNum(n)} ${n === 1 ? one : many}`;
 // The Irish calendar day of a moment, as YYYY-MM-DD ("today" for follow-ups and sales), and a day n days on.
@@ -51,7 +53,6 @@ export function addMonths(day: string, n: number) {
   const last = new Date(Date.UTC(y, m - 1 + n + 1, 0));
   return new Date(Date.UTC(last.getUTCFullYear(), last.getUTCMonth(), Math.min(d, last.getUTCDate()))).toISOString().slice(0, 10);
 }
-export const fmtEur = (n: number) => eur.format(n);
 export const fmtPct = (n: number) => `${(Math.round(n * 10) / 10).toString()}%`;
 
 const rtf = new Intl.RelativeTimeFormat("en-IE", { numeric: "auto" });
