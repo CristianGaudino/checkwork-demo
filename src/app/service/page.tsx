@@ -6,7 +6,7 @@ import { ShieldCheckIcon, SwapIcon, CheckIcon } from "@/components/stock/icons";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { pageMain, subTitle } from "@/components/ui";
 import { DEALER_LOCATION, DEALER_PHONE, SERVICES, SITE_NAME } from "@/lib/site";
-import { PageHeading } from "@/components/PageHeading";
+import { PageHeading, PagePhoto } from "@/components/PageHeading";
 
 export const metadata: Metadata = { title: "Service", description: `Servicing, repairs and tyres at ${SITE_NAME} in ${DEALER_LOCATION}. Call us to book your car in.` };
 
@@ -20,10 +20,11 @@ const WHY = [
 export default function ServicePage() {
   return (
     <main className={pageMain}>
-      {/* From 1024px the call and WhatsApp buttons sit on the right, level with the title, like the stock page's controls. */}
+      {/* The dealership beside the title from 1024px, with the call and WhatsApp buttons under the words. */}
       <PageHeading
         title="Service"
         intro="Keep your car running well. Call us to book it in, or choose a service to find out more."
+        picture={<PagePhoto src="/brand/hero.webp" width={1920} height={819} />}
         actions={
           <>
             <CallButton>Call {DEALER_PHONE}</CallButton>

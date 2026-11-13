@@ -6,6 +6,7 @@ import { RegLookup } from "@/components/leads/RegLookup";
 import { Select } from "@/components/Select";
 import { Field, Panel, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
 import { saveCarAction, type CarFormState } from "@/app/dashboard/stock/actions";
+import { lookupRegStaffAction } from "@/app/dashboard/reg-action";
 import { CAR_FIELDS, FIELD_GROUPS } from "@/lib/admin/car-fields";
 import type { Car } from "@/lib/stock/types";
 
@@ -46,6 +47,7 @@ export function CarForm({ car, cost, reg: startReg = "" }: { car?: Car; cost?: {
             </Field>
             <RegLookup
               reg={reg}
+              lookup={lookupRegStaffAction}
               className="h-11 sm:mt-6 sm:w-44"
               onFound={({ year, car: c }) => fill({ year, make: c?.make, model: c?.model, fuel: c?.fuel, engineLitres: c?.engineLitres, colour: c?.colour, bodyType: c?.bodyType })}
             />
@@ -86,7 +88,6 @@ export function CarForm({ car, cost, reg: startReg = "" }: { car?: Car; cost?: {
           <Field label="On the website" className="sm:max-w-md" hint={car.soldAt ? "Sold. A sold car stays on the website for a while, marked Sold." : "A hidden car or a draft is not on the website, and its link is not found."}>
             <Select name="listing" defaultValue={car.listing ?? "live"} options={[["live", "Shown"], ["hidden", "Hidden"], ["draft", "Draft"]]} />
           </Field>
-          <p className="text-meta text-text-2">Photos on this car: {car.photos.length}</p>
         </Panel>
       )}
 

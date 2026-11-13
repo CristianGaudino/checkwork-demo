@@ -56,6 +56,9 @@ deploy fails its tests while it is false.
 Each is optional and listed in the dashboard (Settings, Connected services) with the variables still missing: lead email, bot check,
 Google reviews, registration lookup (Cartell), Facebook and Instagram, ads, newsletters, analytics. Lead email and the bot check are
 the two a real site needs before it takes a lead.
+Newsletters and stock alerts also need `UNSUBSCRIBE_SECRET` (a random secret, made like `PHOTO_LINK_SECRET` in
+`docs/lead-retention.md`): each email carries a signed link to `/unsubscribe` and the `List-Unsubscribe` headers (`src/lib/unsubscribe.ts`).
+Each subscription has one link that never changes. Changing the secret stops every link already sent, so set it once.
 
 ### Infrastructure names
 - `wrangler.jsonc`: `name`, the self-reference service, `routes`, the R2 bucket, the D1 database name and id

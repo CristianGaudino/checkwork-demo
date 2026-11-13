@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { FeatureCard, IconBadge, TitleText } from "@/components/Feature";
 import { CheckIcon, ShieldCheckIcon, SwapIcon } from "@/components/stock/icons";
 import { DirectionsButton } from "@/components/DirectionsButton";
@@ -7,7 +6,7 @@ import { OpeningHours } from "@/components/OpeningHours";
 import { pageMain, subTitle } from "@/components/ui";
 import { dealerDirectionsUrl } from "@/lib/dealer";
 import { DEALER_ADDRESS, DEALER_LOCATION, SITE_NAME } from "@/lib/site";
-import { PageHeading } from "@/components/PageHeading";
+import { PageHeading, PagePhoto } from "@/components/PageHeading";
 
 export const metadata: Metadata = { title: "About us", description: `${SITE_NAME} is a used car dealer in ${DEALER_LOCATION}: a carefully selected range of used cars, finance help and trade-ins.` };
 
@@ -26,18 +25,17 @@ const EXPECT = [
 export default function AboutPage() {
   return (
     <main className={pageMain}>
-      <PageHeading title="About us" intro={`${SITE_NAME} is a used car dealer in ${DEALER_LOCATION}. Call in, look around and ask us anything.`} />
-      <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_minmax(0,26rem)] lg:gap-12">
-        {/* On a phone the photo comes first; from 1024px it sits on the right with the hours under it. */}
+      <PageHeading title="About us" intro={`${SITE_NAME} is a used car dealer in ${DEALER_LOCATION}. Call in, look around and ask us anything.`} picture={<PagePhoto src="/brand/about.webp" width={1200} height={900} />} />
+      <div className="mt-12 grid grid-cols-1 gap-10 lg:grid-cols-[1fr_minmax(0,26rem)] lg:gap-12">
+        {/* From 1024px the hours sit on the right; on a phone they come after the reasons. */}
         <div className="flex flex-col gap-6 lg:order-2">
-          <Image src="/brand/about.webp" width={1200} height={900} alt="" className="aspect-photo w-full rounded-card object-cover" />
           <OpeningHours />
           <DirectionsButton href={dealerDirectionsUrl()} />
         </div>
         <div className="flex flex-col gap-10 lg:order-1">
           <section className="flex flex-col gap-4">
             <h2 className={subTitle}>Why choose us</h2>
-            <ul className="grid grid-cols-1 gap-3">
+            <ul className="grid grid-cols-1 gap-6">
               {WHY.map(({ Icon, ...f }) => (
                 <FeatureCard key={f.title} badge={<Icon className="size-6" />} {...f} />
               ))}

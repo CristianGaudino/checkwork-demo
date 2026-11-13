@@ -1,3 +1,5 @@
+import { signText, verifyText } from "@/lib/signing";
+
 // Trade-in photo checks and dealer links (D-13). Pure: the secret is a parameter, so nothing here reads env.
 
 // The type comes from the bytes, never from the file name or the browser's type (T-03-30).
@@ -9,20 +11,14 @@ export function sniffImage(b: Uint8Array): { ext: "jpg" | "png" | "webp"; conten
   return null;
 }
 
-const enc = new TextEncoder();
-const hmacKey = (secret: string, usage: KeyUsage) => crypto.subtle.importKey("raw", enc.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, [usage]);
-const b64url = (bytes: Uint8Array) => btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-
 // A capability link for the dealer email: HMAC-SHA256 over "{key}.{exp}", 7 days by default (research A10).
 export async function signPhotoPath(key: string, secret: string, ttlSec = 7 * 86400): Promise<string> {
   const exp = Math.floor(Date.now() / 1000) + ttlSec;
-  const sig = new Uint8Array(await crypto.subtle.sign("HMAC", await hmacKey(secret, "sign"), enc.encode(`${key}.${exp}`)));
-  return `/lead-photos/${key}?exp=${exp}&sig=${b64url(sig)}`;
+  return `/lead-photos/${key}?exp=${exp}&sig=${await signText(`${key}.${exp}`, secret)}`;
 }
 
-// crypto.subtle.verify compares in constant time. An expired, malformed or tampered link is false.
+// An expired, malformed or tampered link is false.
 export async function verifyPhotoSig(key: string, exp: string, sig: string, secret: string): Promise<boolean> {
-  if (!/^\d{1,12}$/.test(exp) || Number(exp) < Date.now() / 1000 || !/^[A-Za-z0-9_-]{43}$/.test(sig)) return false;
-  const bytes = Uint8Array.from(atob(sig.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
-  return crypto.subtle.verify("HMAC", await hmacKey(secret, "verify"), bytes, enc.encode(`${key}.${exp}`));
+  if (!/^\d{1,12}$/.test(exp) || Number(exp) < Date.now() / 1000) return false;
+  return verifyText(`${key}.${exp}`, sig, secret);
 }

@@ -15,6 +15,7 @@ import { FUEL_LABELS, FUELS, GEARBOXES, GEARBOX_LABELS, forSale, isSold, type Ca
 import { stockSource } from "@/lib/stock-source";
 import { DONEDEAL_DEALER_URL, listingHref } from "@/lib/stock-source-rules";
 import { SyncPanel } from "@/components/admin/SyncPanel";
+import { StockBulk, StockPick } from "@/components/admin/StockBulk";
 import { CarThumb } from "@/components/admin/CarThumb";
 import { AgeBar } from "@/components/admin/charts";
 import { OLD_STOCK_DAYS } from "@/lib/admin/overview";
@@ -83,6 +84,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
   };
 
   const columns: Column<Car>[] = [
+    // Tick several cars to change them at once (#104). Our version only: DoneDeal stock is changed on DoneDeal.
+    ...(synced ? [] : [{ key: "pick", header: "Select", quietHeader: true, className: "w-10 !pr-0", cell: (c: Car) => <StockPick id={c.id} name={carName(c)} /> }]),
     {
       key: "car",
       header: "Car",
@@ -226,7 +229,17 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         }
       />
       {sync && <SyncPanel status={sync} canForce={await can("settings")} />}
-      {saved && <Notice>Saved {carName(saved)}.</Notice>}
+      {saved && (
+        <Notice>
+          Saved {carName(saved)}.
+          {!synced && saved.photos.length === 0 && (
+            <>
+              {" "}
+              <Link href={`/dashboard/stock/${saved.id}#photos`} className="font-semibold underline">Add its photos</Link>
+            </>
+          )}
+        </Notice>
+      )}
       {saleFor && (
         <Notice>
           Sale recorded for {carName(saleFor)}.
@@ -270,6 +283,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
           .filter(([v, count]) => count > 0 || view === v || !["hidden", "drafts", "reserved"].includes(v))
           .map(([v, count]) => ({ label: STOCK_VIEWS[v].label, count, href: href(v), active: view === v }))} />
       <TableToolbar search={{ placeholder: SEARCH_MAKE_MODEL, label: "Search stock" }} filters={filters} />
+      {/* Keyed by the list's address: a new search or filter starts the bar again, counting the boxes that are really ticked. */}
+      {!synced && <StockBulk key={new URLSearchParams(sp as Record<string, string>).toString()} canDelete={canUndo} />}
       <DataTable
         label="Stock"
         linkRows

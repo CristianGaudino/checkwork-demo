@@ -114,3 +114,6 @@ export function driveDays(now = new Date()): string[] {
   for (let d = addDays(today, 1); d <= last; d = addDays(d, 1)) if (driveTimes(d).length > 0) out.push(d);
   return out;
 }
+
+// How long a registration lookup is cached (src/lib/reg-lookup.ts); the daily purge clears older rows (purge.ts).
+export const REG_CACHE_DAYS = 30;
