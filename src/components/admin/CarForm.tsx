@@ -6,6 +6,7 @@ import { RegLookup } from "@/components/leads/RegLookup";
 import { Select } from "@/components/Select";
 import { Field, Panel, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
 import { saveCarAction, type CarFormState } from "@/app/dashboard/stock/actions";
+import { lookupRegStaffAction } from "@/app/dashboard/reg-action";
 import { CAR_FIELDS, FIELD_GROUPS } from "@/lib/admin/car-fields";
 import type { Car } from "@/lib/stock/types";
 
@@ -46,6 +47,7 @@ export function CarForm({ car, cost, reg: startReg = "" }: { car?: Car; cost?: {
             </Field>
             <RegLookup
               reg={reg}
+              lookup={lookupRegStaffAction}
               className="h-11 sm:mt-6 sm:w-44"
               onFound={({ year, car: c }) => fill({ year, make: c?.make, model: c?.model, fuel: c?.fuel, engineLitres: c?.engineLitres, colour: c?.colour, bodyType: c?.bodyType })}
             />

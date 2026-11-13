@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ChoiceAct } from "@/components/admin/ActButton";
 import { LeadStatusBadge } from "@/components/admin/badges";
 import { RegLookup } from "@/components/leads/RegLookup";
+import { lookupRegStaffAction } from "@/app/dashboard/reg-action";
 import { Avatar, Badge, Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput, rowButton } from "@/components/admin/kit";
 import { LEAD_STATUS_LABELS, LEAD_TYPE_LABELS, LOST_REASONS, getSettings, leadsStore } from "@/lib/admin/collections";
 import { fmtDateTime } from "@/lib/admin/format";
@@ -108,7 +109,7 @@ export async function LeadView({ id }: { id: string }) {
                 Registration <span className="font-medium tabular-nums">{lead.reg}</span>
               </p>
               <div className="flex flex-wrap gap-2">
-                <RegLookup reg={lead.reg} className="sm:w-44" />
+                <RegLookup reg={lead.reg} lookup={lookupRegStaffAction} className="sm:w-44" />
               </div>
             </Panel>
           )}

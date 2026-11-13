@@ -78,9 +78,11 @@ describe("purgeOldLeads", () => {
       { collection: "reg-cache", id: "191-KY-2", data: { id: "191-KY-2", car: null, at: at(29) } },
       { collection: "reg-counts", id: "day-2026-11-08", data: { id: "day-2026-11-08", n: 3 } },
       { collection: "reg-counts", id: "day-2026-11-09", data: { id: "day-2026-11-09", n: 1 } },
+      { collection: "reg-counts", id: "day-2026-11-08-v-0a1b2c", data: { id: "day-2026-11-08-v-0a1b2c", n: 4 } }, // a visitor's, yesterday
+      { collection: "reg-counts", id: "day-2026-11-09-v-0a1b2c", data: { id: "day-2026-11-09-v-0a1b2c", n: 2 } },
     ]);
     await purgeOldLeads(getDb(), { delete: async () => {} }, NOW);
-    expect((await getDb().select({ id: adminDocs.id }).from(adminDocs)).map((r) => r.id).sort()).toEqual(["191-KY-2", "day-2026-11-09"]);
+    expect((await getDb().select({ id: adminDocs.id }).from(adminDocs)).map((r) => r.id).sort()).toEqual(["191-KY-2", "day-2026-11-09", "day-2026-11-09-v-0a1b2c"]);
   });
 
   it("keeps a customer while a sale, deposit, claim or order names them, from the website or the dashboard, and deletes them after", async () => {
