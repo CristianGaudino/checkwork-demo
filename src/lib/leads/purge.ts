@@ -21,9 +21,11 @@ export async function purgeOldLeads(
   const keys = old.flatMap((r) => r.photoKeys);
   for (let i = 0; i < keys.length; i += R2_DELETE_MAX) await bucket.delete(keys.slice(i, i + R2_DELETE_MAX));
   // Rows only get newer than the cutoff, so this deletes exactly the rows whose photos were just deleted.
-  // The admin's copies of leads, bookings, alerts and customers (src/lib/admin/real-leads.ts) go on the same day. They are the "real-" rows.
-  const copies = (collections: string[], field: string) => and(inArray(adminDocs.collection, collections), like(adminDocs.id, "real-%"), lt(sql`json_extract(${adminDocs.data}, ${field})`, cutoff.getTime()));
-  await db.delete(adminDocs).where(copies(["leads", "test-drives", "alerts"], "$.createdAt"));
+  // The admin's copies of website leads and alerts (src/lib/admin/real-leads.ts, the "real-" rows) go on the same day.
+  const older = lt(sql`json_extract(${adminDocs.data}, '$.createdAt')`, cutoff.getTime());
+  await db.delete(adminDocs).where(and(inArray(adminDocs.collection, ["leads", "alerts"]), like(adminDocs.id, "real-%"), older));
+  // Every test drive, not only the website's: one staff book on the dashboard (a phone booking, "drive-...") holds the same name and contact.
+  await db.delete(adminDocs).where(and(eq(adminDocs.collection, "test-drives"), older));
   // A customer (from the website or typed in on the dashboard) goes once they have not been in touch for the same period and no sale,
   // deposit, claim or order names them: a buyer stays while their records do, and leaves after the sales purge unlinks them (sales-purge.ts).
   const named = sql`(SELECT json_extract(n.data, '$.customerId') FROM admin_docs n WHERE n.collection IN ('sales', 'reservations', 'claims', 'orders') AND json_extract(n.data, '$.customerId') IS NOT NULL)`;
