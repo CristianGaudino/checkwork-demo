@@ -39,7 +39,7 @@ describe("the mail app's one-click unsubscribe", () => {
 
   it("refuses a forged token, one signed with another secret, and a record that has gone", async () => {
     const s = (await subscribersStore.list()).find((x) => x.status === "subscribed")!;
-    expect((await post("n.sub-500.99999999999.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")).status).toBe(400);
+    expect((await post("n.sub-500.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")).status).toBe(400);
     expect((await post(await unsubscribeToken({ kind: "newsletter", id: s.id }, "other-secret"))).status).toBe(400);
     expect((await subscribersStore.get(s.id))!.status).toBe("subscribed");
     expect((await post(await unsubscribeToken({ kind: "newsletter", id: "sub-999" }, "test-secret"))).status).toBe(404);

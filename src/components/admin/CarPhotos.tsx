@@ -4,6 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { addCarPhotoAction, carPhotoAction } from "@/app/dashboard/stock/actions";
 import { downscale } from "@/components/leads/downscale";
+import { PHOTO_TYPES } from "@/lib/leads/constants";
 import type { Photo } from "@/lib/stock/types";
 import { ActButton } from "./ActButton";
 import { CarThumb } from "./CarThumb";
@@ -11,6 +12,7 @@ import { Panel, adminButtonQuiet, rowButton } from "./kit";
 
 // A car's photos (#21): add several at once, choose the main one, remove one. Each photo is shrunk on the device to a 1,600px JPEG (which
 // also drops its location data) and sent on its own, so a slow connection loses at most one. Our version only: DoneDeal has the photos.
+// The same types as the trade-in form: with HEIC left out, an iPhone hands over a JPEG itself.
 export function CarPhotos({ carId, photos, max }: { carId: string; photos: Photo[]; max: number }) {
   const router = useRouter();
   const input = useRef<HTMLInputElement>(null);
@@ -82,7 +84,7 @@ export function CarPhotos({ carId, photos, max }: { carId: string; photos: Photo
       <div className="flex flex-wrap items-center gap-3">
         <label className={`${adminButtonQuiet} cursor-pointer ${pending || photos.length >= max ? "pointer-events-none opacity-60" : ""}`}>
           {pending ? "Adding photos" : "Add photos"}
-          <input ref={input} type="file" accept="image/jpeg,image/png,image/webp,image/heic" multiple disabled={pending || photos.length >= max} onChange={(e) => add([...(e.target.files ?? [])])} className="sr-only" />
+          <input ref={input} type="file" accept={PHOTO_TYPES.join(",")} multiple disabled={pending || photos.length >= max} onChange={(e) => add([...(e.target.files ?? [])])} className="sr-only" />
         </label>
         <span aria-live="polite" className="text-meta text-text-2">
           {said || `${photos.length} of ${max}`}
