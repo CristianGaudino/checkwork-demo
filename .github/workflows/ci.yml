@@ -1,11 +1,9 @@
 name: CI
 
-# Pushes to main only (owner, 2026-11-11): Actions minutes are limited and shared, so pull requests are checked locally before they are
-# opened (.claude/CLAUDE.md), and CI checks what was merged. Run it by hand on any branch from the Actions tab.
+# Run by hand only (owner, 2026-11-13), as in vintage: each merge already deploys (deploy.yml runs lint and the tests first),
+# and CI on every push added about 11 more minutes per merge when the shared 2,000 a month were nearly gone. Pull requests are
+# checked locally before they are opened (.claude/CLAUDE.md). Run it from the Actions tab when a second opinion is worth the minutes.
 on:
-  push:
-    branches: [main]
-    paths-ignore: ['**.md']
   workflow_dispatch:
 
 concurrency:
