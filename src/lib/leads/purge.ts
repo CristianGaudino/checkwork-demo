@@ -2,7 +2,7 @@ import { and, eq, inArray, like, lt, sql } from "drizzle-orm";
 import type { BaseSQLiteDatabase } from "drizzle-orm/sqlite-core";
 import { adminDocs, leads } from "../db/schema";
 import type * as schema from "../db/schema";
-import { LEAD_RETENTION_MONTHS } from "./constants";
+import { LEAD_RETENTION_MONTHS, REG_CACHE_DAYS } from "./constants";
 
 // The retention promise on /privacy (docs/lead-retention.md): leads, and the trade-in photos they point at, go after LEAD_RETENTION_MONTHS.
 // Run daily by worker.mjs. Relative imports only: wrangler bundles this outside Next's "@/" alias.
@@ -30,6 +30,10 @@ export async function purgeOldLeads(
   // deposit, claim or order names them: a buyer stays while their records do, and leaves after the sales purge unlinks them (sales-purge.ts).
   const named = sql`(SELECT json_extract(n.data, '$.customerId') FROM admin_docs n WHERE n.collection IN ('sales', 'reservations', 'claims', 'orders') AND json_extract(n.data, '$.customerId') IS NOT NULL)`;
   await db.delete(adminDocs).where(and(eq(adminDocs.collection, "customers"), lt(sql`json_extract(${adminDocs.data}, '$.lastContactAt')`, cutoff.getTime()), sql`${adminDocs.id} NOT IN ${named}`));
+  // The registration lookup's cache (src/lib/reg-lookup.ts) and its past day counts: no plate kept longer than needed.
+  const regCutoff = now.getTime() - REG_CACHE_DAYS * 86_400_000;
+  await db.delete(adminDocs).where(and(eq(adminDocs.collection, "reg-cache"), lt(sql`json_extract(${adminDocs.data}, '$.at')`, regCutoff)));
+  await db.delete(adminDocs).where(and(eq(adminDocs.collection, "reg-counts"), lt(adminDocs.id, `day-${now.toISOString().slice(0, 10)}`)));
   const gone = await db.delete(leads).where(lt(leads.createdAt, cutoff)).returning({ id: leads.id });
   return gone.length;
 }

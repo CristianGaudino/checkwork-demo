@@ -8,6 +8,7 @@ import type { Car } from "@/lib/stock/types";
 import { devFixtureCars } from "@/lib/dev-data";
 import { reservationsStore, salesStore } from "./collections";
 import { nextCarId } from "./stock-admin-pure";
+import { dropCarPhotos } from "./car-photos";
 
 // The dealer's view of the stock: every car, sold ones too, and the writes. On the Worker this is the `cars` table the public site reads
 // (so a change shows on the site within seconds). With no D1 binding it edits the in-memory list the site reads (dev and E2E).
@@ -49,11 +50,14 @@ export async function saveCar(car: Car): Promise<void> {
   await afterWrite();
 }
 
+// Its photos added in the dashboard go with it, after the row: a photo left behind is only space, a car without its photos is broken.
 export async function removeCar(id: string): Promise<void> {
+  const car = await adminCar(id);
   if (hasDb()) await getDb().delete(cars).where(eq(cars.id, id));
   else {
     const i = memoryCars.findIndex((c) => c.id === id);
     if (i >= 0) memoryCars.splice(i, 1);
   }
   await afterWrite();
+  if (car) await dropCarPhotos(car.photos);
 }

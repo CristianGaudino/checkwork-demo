@@ -16,8 +16,10 @@ import { COVER_CHOICES, COVER_MONTHS } from "@/lib/admin/deposits";
 import { carTitleOf } from "@/lib/admin/seed-data";
 import { BAD_COST, parseCost } from "@/lib/admin/margins";
 import { can } from "@/lib/permissions";
-import { adminCar, freeCarId, removeCar, saveCar } from "@/lib/admin/stock-admin";
-import { listedOn } from "@/lib/admin/stock-admin-pure";
+import { adminCar, adminCars, freeCarId, removeCar, saveCar } from "@/lib/admin/stock-admin";
+import { droppedPrice, listedOn } from "@/lib/admin/stock-admin-pure";
+import { CAR_PHOTOS_MAX, CAR_PHOTO_MAX_BYTES, dropCarPhotos, storeCarPhoto } from "@/lib/admin/car-photos";
+import { sniffImage } from "@/lib/leads/photos";
 import { stockSource } from "@/lib/stock-source";
 import { runSync } from "@/lib/donedeal/sync";
 import { forSale, isSold, type Car } from "@/lib/stock/types";
@@ -108,6 +110,84 @@ export async function deleteCarAction(id: string) {
   await prepStore.remove(id);
   if (car) await logActivity("stock", "Deleted the car", carRef(car));
   redirect("/dashboard/stock?deleted=1");
+}
+
+// Several cars at once (#104): drop the price, mark sold, or delete, each car recorded in Activity as if done on its own. The same rules
+// as one car: our version only, deleting for owners and managers, and a car with a deposit held is neither sold nor deleted here (its
+// deposit is ended first). Sold cars take no price drop. Returns how many changed and how many were left as they were.
+const bulk = z.object({
+  ids: z.array(z.string().regex(/^\d{1,12}$/)).min(1).max(500),
+  op: z.enum(["price", "sold", "delete"]),
+  amount: z.coerce.number().int().optional(),
+  unit: z.enum(["eur", "pct"]).optional(),
+});
+export type BulkResult = { changed: number; skipped: number } | { error: string };
+export async function bulkStockAction(data: FormData): Promise<BulkResult> {
+  const parsed = bulk.safeParse({ ids: [...new Set(data.getAll("ids"))], op: data.get("op"), amount: data.get("amount") || undefined, unit: data.get("unit") || undefined });
+  if (!parsed.success || (await readOnly())) return { error: "Nothing was changed. Try again." };
+  const { ids, op, amount, unit } = parsed.data;
+  if (op === "delete" && !(await can("settings"))) return { error: "Only owners and managers can delete cars." };
+  if (op === "price" && !droppedPrice({ priceEur: 1_000_000 }, amount ?? 0, unit ?? "eur")) return { error: "Enter the drop in whole euros, or a percentage up to 50." };
+  const [cars, deposits] = await Promise.all([adminCars(), reservationsStore.list()]);
+  const byId = new Map(cars.map((c) => [c.id, c]));
+  let changed = 0;
+  for (const id of ids) {
+    const car = byId.get(id);
+    if (!car) continue;
+    if (op === "price") {
+      const p = isSold(car) ? null : droppedPrice(car, amount!, unit!);
+      if (!p) continue;
+      const next = { ...car, ...p };
+      await saveCar(next);
+      await logActivity("stock", carEditSummary(car, next), carRef(car));
+    } else if (op === "sold") {
+      if (isSold(car) || heldFor(deposits, id)) continue;
+      await saveCar({ ...car, soldAt: dublinDay() });
+      await logActivity("stock", "Marked sold", carRef(car));
+    } else {
+      if (heldFor(deposits, id)) continue;
+      await removeCar(id);
+      await costsStore.remove(id);
+      await prepStore.remove(id);
+      await logActivity("stock", "Deleted the car", carRef(car));
+    }
+    changed++;
+  }
+  revalidatePath("/dashboard/stock");
+  return { changed, skipped: ids.length - changed };
+}
+
+// A car's photos (#21), our version only. The browser has already shrunk each one to a JPEG (CarPhotos); the bytes are checked again here.
+// One photo per call, so a slow phone connection loses at most one. The first photo is the one on the card and at the top of the page.
+const photoSize = z.coerce.number().int().min(1).max(4000);
+export async function addCarPhotoAction(carId: string, data: FormData): Promise<{ error?: string }> {
+  const car = (await readOnly()) ? undefined : await adminCar(carId);
+  if (!car) return { error: "This car can no longer be changed here." };
+  if (car.photos.length >= CAR_PHOTOS_MAX) return { error: `A car can have ${CAR_PHOTOS_MAX} photos.` };
+  const file = data.get("photo");
+  const size = z.object({ width: photoSize, height: photoSize }).safeParse({ width: data.get("width"), height: data.get("height") });
+  if (!(file instanceof Blob) || file.size > CAR_PHOTO_MAX_BYTES || !size.success) return { error: "That photo could not be added. Try another." };
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  if (sniffImage(bytes)?.ext !== "jpg") return { error: "That photo could not be added. Try another." };
+  const photo = await storeCarPhoto(car.id, bytes, size.data.width, size.data.height);
+  // Read again just before writing. Not a lock: CarPhotos sends one photo at a time, which is what keeps two uploads from clashing.
+  const now = (await adminCar(carId)) ?? car;
+  await saveCar({ ...now, photos: [...now.photos, photo] });
+  await logActivity("stock", "Added a photo", carRef(car));
+  revalidatePath(`/dashboard/stock/${carId}`);
+  return {};
+}
+
+// `to`: "first" makes it the main photo, "remove" takes it off the car (and out of storage).
+export async function carPhotoAction(carId: string, src: string, to: "first" | "remove") {
+  const car = (await readOnly()) ? undefined : await adminCar(carId);
+  const photo = car?.photos.find((p) => p.src === src);
+  if (!car || !photo || !["first", "remove"].includes(to)) return;
+  const rest = car.photos.filter((p) => p !== photo);
+  await saveCar({ ...car, photos: to === "first" ? [photo, ...rest] : rest });
+  if (to === "remove") await dropCarPhotos([photo]);
+  await logActivity("stock", to === "first" ? "Changed the main photo" : "Removed a photo", carRef(car));
+  revalidatePath(`/dashboard/stock/${carId}`);
 }
 
 // Sync now, for stock from DoneDeal. `force` applies a sync that was held because DoneDeal's answer looked wrong: owners and managers only,

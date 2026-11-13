@@ -1,4 +1,4 @@
-import { card, subTitle } from "@/components/ui";
+import { subTitle } from "@/components/ui";
 
 // The round red-tinted badge that holds an icon or a step number. One look for every "reason" and "step" on the site.
 export function IconBadge({ children, size = "md" }: { children: React.ReactNode; size?: "sm" | "md" }) {
@@ -7,22 +7,23 @@ export function IconBadge({ children, size = "md" }: { children: React.ReactNode
   );
 }
 
-// One reason or fact in a list: a badge, a short title and a line of text, in a bordered card. Renders an <li>, so it goes in a <ul>.
+// One reason or fact in a list: a badge, a short title and a line of text, open on the page (no card: the cards are for things to press and
+// for forms, as on home). Renders an <li>, so it goes in a <ul>.
 export function FeatureCard({ badge, title, text }: { badge: React.ReactNode; title: string; text: string }) {
   return (
-    <li className={`reveal flex items-start gap-4 ${card} p-5`}>
+    <li className="reveal flex items-start gap-4">
       <IconBadge>{badge}</IconBadge>
       <TitleText title={title} text={text} />
     </li>
   );
 }
 
-// A titled group of cards.
+// A titled group of reasons, in columns from 768px.
 export function FeatureSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="flex flex-col gap-4">
       <h2 className={subTitle}>{title}</h2>
-      <ul className="grid grid-cols-1 gap-3 md:grid-cols-3">{children}</ul>
+      <ul className="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8">{children}</ul>
     </section>
   );
 }

@@ -106,7 +106,8 @@ export function EmptyState({ title, text, action }: { title: string; text?: stri
 // `hide` keeps a less important column off narrow screens: it shows from that width up. `nowrap` keeps short values (a name, a date) on one line.
 const HIDE = { sm: "hidden sm:table-cell", md: "hidden md:table-cell", lg: "hidden lg:table-cell", xl: "hidden xl:table-cell", "2xl": "hidden 2xl:table-cell" } as const;
 // `sort`: the value the column sorts by; with it, its header sorts the list (sortRows does it on the server, before the list is paged).
-export type Column<T> = { key: string; header: string; cell: (row: T) => React.ReactNode; align?: "right"; className?: string; hide?: keyof typeof HIDE; nowrap?: boolean; sort?: (row: T) => string | number | undefined };
+// `quietHeader`: the header is for screen readers only (a column of tick boxes).
+export type Column<T> = { key: string; header: string; quietHeader?: boolean; cell: (row: T) => React.ReactNode; align?: "right"; className?: string; hide?: keyof typeof HIDE; nowrap?: boolean; sort?: (row: T) => string | number | undefined };
 
 // The list's sort from the URL (?sort=column&dir=asc|desc): a column that sorts, else the page's own order. Empty values go last either way.
 export type Sort = { key: string; dir: "asc" | "desc" };
@@ -150,7 +151,7 @@ export function DataTable<T>({ columns, rows, rowKey, empty, bare = false, linkR
                 className={`relative z-10 h-11 border-b border-hairline bg-card px-4 font-medium ${c.align === "right" ? "text-right" : ""} ${colClass(c as Column<unknown>)}`}
               >
                 {/* The screen reader text is positioned inside this cell (relative above), so the scroll box clips it and it cannot widen the page. */}
-                {c.sort && sort ? <SortHeader k={c.key} label={c.header} active={sort.key === c.key} dir={sort.dir} align={c.align} /> : c.header || <span className="sr-only">Actions</span>}
+                {c.quietHeader ? <span className="sr-only">{c.header}</span> : c.sort && sort ? <SortHeader k={c.key} label={c.header} active={sort.key === c.key} dir={sort.dir} align={c.align} /> : c.header || <span className="sr-only">Actions</span>}
               </th>
             ))}
           </tr>

@@ -86,7 +86,6 @@ export function CarForm({ car, cost, reg: startReg = "" }: { car?: Car; cost?: {
           <Field label="On the website" className="sm:max-w-md" hint={car.soldAt ? "Sold. A sold car stays on the website for a while, marked Sold." : "A hidden car or a draft is not on the website, and its link is not found."}>
             <Select name="listing" defaultValue={car.listing ?? "live"} options={[["live", "Shown"], ["hidden", "Hidden"], ["draft", "Draft"]]} />
           </Field>
-          <p className="text-meta text-text-2">Photos on this car: {car.photos.length}</p>
         </Panel>
       )}
 

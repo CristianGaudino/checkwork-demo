@@ -16,3 +16,11 @@ describe("initialsOf", () => {
     expect(initialsOf("")).toBe("");
   });
 });
+
+describe("BRAND_LOGOS", () => {
+  it("has a file in public/brands for every make it lists", async () => {
+    const { existsSync } = await import("node:fs");
+    const { BRAND_LOGOS } = await import("@/lib/brand-logos");
+    expect([...BRAND_LOGOS].filter((s) => !existsSync(`public/brands/${s}.svg`))).toEqual([]);
+  });
+});

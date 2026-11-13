@@ -3,6 +3,8 @@ import Link from "next/link";
 import { DEALER_LOCATION, SITE_NAME } from "@/lib/site";
 import { LeadPage } from "@/components/leads/LeadPage";
 import { LeadPageForm } from "@/components/leads/LeadPageForm";
+import { PageCar } from "@/components/PageHeading";
+import { showroomPhoto } from "@/lib/stock/showroom";
 import { PHOTO_MIN_COUNT, PHOTO_SLOTS } from "@/lib/leads/constants";
 import { stock } from "@/lib/stock";
 import { carChoices } from "@/lib/stock/options";
@@ -20,10 +22,12 @@ export default async function TradeInPage({ searchParams }: PageProps<"/trade-in
   const cars = await carChoices();
   // Arriving from a car page (?car=its-slug): that car is already chosen.
   const hit = typeof car === "string" && car.length < 120 ? await stock.lookup(car).catch(() => null) : null;
+  const photo = await showroomPhoto(hit?.state === "live" ? hit.car : undefined);
   const chosen = hit?.state === "live" && cars.some(([id]) => id === hit.car.id) ? hit.car.id : undefined;
   return (
     <LeadPage
       title="Trade in your car"
+      picture={<PageCar photo={photo} />}
       intro={
         <>
           Changing car? We value yours and take it off the price of one of ours. Just selling? <Link href="/sell-your-car" className="font-medium underline">Sell your car</Link>

@@ -29,3 +29,13 @@ export const CAR_STATUSES = ["Draft", "Hidden", "Sold", "Reserved", "For sale"] 
 export type CarStatus = (typeof CAR_STATUSES)[number];
 export const carStatus = (c: Pick<Car, "listing" | "soldAt" | "reserved">): CarStatus =>
   c.listing === "draft" ? "Draft" : c.listing ? "Hidden" : isSold(c) ? "Sold" : c.reserved ? "Reserved" : "For sale";
+
+// A price drop on several cars at once (Stock, tick the cars): by euros or by a percentage, to whole euros. The earlier price keeps the
+// highest it was, so the site shows the whole drop since then. Null when it is no drop, or leaves nothing.
+export const PRICE_DROP_MAX_PCT = 50;
+export function droppedPrice(car: Pick<Car, "priceEur" | "wasPriceEur">, amount: number, unit: "eur" | "pct"): { priceEur: number; wasPriceEur: number } | null {
+  if (!Number.isInteger(amount) || amount < 1 || (unit === "pct" && amount > PRICE_DROP_MAX_PCT)) return null;
+  const priceEur = unit === "eur" ? car.priceEur - amount : Math.round(car.priceEur * (1 - amount / 100));
+  if (priceEur < 1 || priceEur >= car.priceEur) return null;
+  return { priceEur, wasPriceEur: Math.max(car.wasPriceEur ?? 0, car.priceEur) };
+}

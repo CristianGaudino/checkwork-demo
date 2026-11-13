@@ -71,6 +71,18 @@ describe("purgeOldLeads", () => {
     expect(left).toEqual(["drive-5b2e7d10", "lead-1000", "real-c-returning", "real-new"]); // the customer first seen long ago but in touch lately stays
   });
 
+  it("clears the registration lookup's cache after 30 days, and the past days' counts", async () => {
+    const at = (days: number) => NOW.getTime() - days * 86_400_000;
+    await getDb().insert(adminDocs).values([
+      { collection: "reg-cache", id: "191-KY-1", data: { id: "191-KY-1", car: null, at: at(31) } },
+      { collection: "reg-cache", id: "191-KY-2", data: { id: "191-KY-2", car: null, at: at(29) } },
+      { collection: "reg-counts", id: "day-2026-11-08", data: { id: "day-2026-11-08", n: 3 } },
+      { collection: "reg-counts", id: "day-2026-11-09", data: { id: "day-2026-11-09", n: 1 } },
+    ]);
+    await purgeOldLeads(getDb(), { delete: async () => {} }, NOW);
+    expect((await getDb().select({ id: adminDocs.id }).from(adminDocs)).map((r) => r.id).sort()).toEqual(["191-KY-2", "day-2026-11-09"]);
+  });
+
   it("keeps a customer while a sale, deposit, claim or order names them, from the website or the dashboard, and deletes them after", async () => {
     const old = monthsAgo(13).getTime();
     const customer = (id: string) => ({ collection: "customers", id, data: { id, createdAt: old, lastContactAt: old } });

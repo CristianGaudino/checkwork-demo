@@ -187,3 +187,56 @@ test("with the margins permission the cost is saved with the car and shows on th
   await expect(row).toContainText("€3,500"); // 20,000 less 16,500
 });
 
+
+// Add a made-up car and come back to the list (the afterEach deletes it).
+async function addCar(page: import("@playwright/test").Page, model: string, price: string) {
+  await page.goto("/dashboard/stock/new");
+  await page.getByLabel("Make", { exact: true }).fill(MAKE);
+  await page.getByLabel("Model", { exact: true }).fill(model);
+  await page.getByLabel("Year", { exact: true }).fill("2021");
+  await page.getByLabel("Price (€)", { exact: true }).fill(price);
+  await page.getByRole("button", { name: "Add car" }).click();
+  await expect(page.getByRole("status")).toContainText(`Saved 2021 ${MAKE} ${model}`);
+}
+
+test("tick several cars: drop their price at once, then delete them", async ({ page }) => {
+  await addCar(page, "Alpha", "10000");
+  await addCar(page, "Beta", "20000");
+  await page.goto("/dashboard/stock?q=" + MAKE);
+  await page.getByLabel(`Select 2021 ${MAKE} Alpha`).check();
+  await page.getByLabel(`Select 2021 ${MAKE} Beta`).check();
+  await expect(page.getByText("2 cars selected")).toBeVisible();
+  await page.getByRole("button", { name: "Drop the price" }).first().click();
+  await page.getByLabel("Drop by").fill("10");
+  await page.getByRole("button", { name: "%", exact: true }).click();
+  await page.locator("#stock-bulk").getByRole("button", { name: "Drop the price" }).last().click();
+  await expect(page.getByRole("dialog")).toContainText("Drop the price of 2 cars by 10%?");
+  await page.getByRole("dialog").getByRole("button", { name: "Drop the price" }).click();
+  await expect(page.getByText("Price dropped on 2 cars")).toBeVisible();
+  await expect(page.getByRole("row", { name: /Alpha/ })).toContainText("€9,000");
+  await expect(page.getByRole("row", { name: /Beta/ })).toContainText("was €20,000");
+
+  await page.getByLabel(`Select 2021 ${MAKE} Alpha`).check();
+  await page.getByLabel(`Select 2021 ${MAKE} Beta`).check();
+  await page.getByRole("button", { name: "Delete", exact: true }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Delete" }).click();
+  await expect(page.getByText("Deleted 2 cars")).toBeVisible();
+  await expect(page.getByRole("row", { name: new RegExp(MAKE) })).toHaveCount(0);
+});
+
+test("a car's photos: add one, it shows on the site, remove it", async ({ page }) => {
+  await addCar(page, "Photo", "15000");
+  await page.getByRole("link", { name: "Add its photos" }).click();
+  await page.locator('#photos input[type="file"]').setInputFiles("public/stock/4710001/1-b1b37b33.webp");
+  await expect(page.getByText("Photo added")).toBeVisible();
+  await expect(page.locator("#photos").getByText("Main photo")).toBeVisible();
+
+  await page.goto(`/used-cars?q=${MAKE}`);
+  await expect(page.locator("article").filter({ hasText: "Photo" }).locator('img[src^="data:image/jpeg"]').first()).toBeAttached();
+
+  await page.goto("/dashboard/stock?q=" + MAKE);
+  await page.getByRole("row", { name: new RegExp(MAKE) }).getByRole("link").first().click();
+  await page.getByRole("button", { name: "Remove photo 1" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Remove" }).click();
+  await expect(page.locator("#photos").getByText("Main photo")).toHaveCount(0);
+});

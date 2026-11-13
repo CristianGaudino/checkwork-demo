@@ -85,4 +85,9 @@ The look was redone so the demo reads as its own site. Direction: a lit showroom
 - **Type:** Sora (one family), heavy tight headlines, no all-caps labels.
 - **Panels:** `card` carries the floor shadow (`--shadow-panel`); radius 1.5rem for panels, 28px for photo tiles.
 - **Home:** a full-width hero (the dealership photo) with the headline on the left and the search on frosted glass.
+- **Inner pages (#52):** Finance, Trade-in, Service and About open like home, with their picture beside the title (`PageHeading`
+  `picture`): the dealership photo (`PagePhoto`) on Service and About, a car from the stock on its plinth (`PageCar`) on Finance and
+  Trade-in. On a phone the dealership photo sits short under the words, and the car is left out so the form starts high. Reasons
+  (`FeatureCard`) sit open on the page, not in cards: cards are for things to press and for forms. Contact keeps its map as its picture.
+  The owner's own photography (service bay, showroom, team) replaces these pictures when it comes.
 - **Make logos:** shown beside the make in the filter, the search drop-down, the chips, the cards and the make page heading (`MakeLogo`).

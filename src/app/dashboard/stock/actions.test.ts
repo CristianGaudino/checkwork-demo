@@ -14,7 +14,7 @@ vi.mock("next/headers", () => ({
   cookies: async () => ({ get: (n: string) => (n === "checkwork-demo-stock" ? { value: stockCookie } : n === "checkwork-demo-role" ? { value: role } : undefined) }),
   headers: async () => ({ get: () => null }),
 }));
-const { addPrepAction, removePrepAction, deleteCarAction, endReservationAction, recordSaleAction, reserveAction, saveCarAction, saveCostAction, setListingAction, toggleSoldAction, undoSaleAction, withdrawnAction } = await import("./actions");
+const { addCarPhotoAction, carPhotoAction, addPrepAction, removePrepAction, bulkStockAction, deleteCarAction, endReservationAction, recordSaleAction, reserveAction, saveCarAction, saveCostAction, setListingAction, toggleSoldAction, undoSaleAction, withdrawnAction } = await import("./actions");
 const { claimsStore, costsStore, customersStore, leadsStore, prepStore, reservationsStore, salesStore } = await import("@/lib/admin/collections");
 const { carCosts } = await import("@/lib/admin/costs");
 const { adminCar, adminCars, saveCar } = await import("@/lib/admin/stock-admin");
@@ -223,5 +223,97 @@ describe("prep costs", () => {
     const line = (await prepStore.get(car.id))!.lines.at(-1)!;
     await removePrepAction(car.id, line.at);
     expect((await carCosts()).get(car.id)!.total).toBe(was.total);
+  });
+});
+
+describe("several cars at once", () => {
+  const form = (ids: string[], op: string, more: Record<string, string> = {}) => {
+    const f = new FormData();
+    for (const id of ids) f.append("ids", id);
+    f.set("op", op);
+    for (const [k, v] of Object.entries(more)) f.set(k, v);
+    return f;
+  };
+  beforeEach(() => {
+    stockCookie = "checkwork";
+    role = "Sales";
+  });
+
+  it("drops the price of each car for sale, keeps the earlier price, and leaves sold cars as they were", async () => {
+    const [a, b] = (await adminCars()).filter((c) => !c.soldAt && !c.reserved);
+    const sold = (await adminCars()).find((c) => c.soldAt)!;
+    expect(await bulkStockAction(form([a.id, b.id, sold.id, "999999"], "price", { amount: "500", unit: "eur" }))).toEqual({ changed: 2, skipped: 2 });
+    expect((await adminCar(a.id))!.priceEur).toBe(a.priceEur - 500);
+    expect((await adminCar(a.id))!.wasPriceEur).toBe(Math.max(a.wasPriceEur ?? 0, a.priceEur));
+    expect((await adminCar(sold.id))!.priceEur).toBe(sold.priceEur);
+    expect(await bulkStockAction(form([a.id], "price", { amount: "80", unit: "pct" }))).toEqual({ error: expect.any(String) });
+  });
+
+  it("marks cars sold, but not one with a deposit held", async () => {
+    const [a, b] = (await adminCars()).filter((c) => !c.soldAt && !c.reserved);
+    await reservationsStore.put({ id: "res-bulk", carId: b.id, status: "held" } as never);
+    expect(await bulkStockAction(form([a.id, b.id], "sold"))).toEqual({ changed: 1, skipped: 1 });
+    expect((await adminCar(a.id))!.soldAt).toBeTruthy();
+    expect((await adminCar(b.id))!.soldAt).toBeUndefined();
+    await reservationsStore.remove("res-bulk");
+  });
+
+  it("deletes for owners and managers only, and never on DoneDeal stock", async () => {
+    const [a] = (await adminCars()).filter((c) => !c.soldAt && !c.reserved);
+    expect(await bulkStockAction(form([a.id], "delete"))).toEqual({ error: expect.any(String) });
+    expect(await adminCar(a.id)).toBeDefined();
+    stockCookie = "donedeal";
+    role = "Owner";
+    expect(await bulkStockAction(form([a.id], "delete"))).toEqual({ error: expect.any(String) });
+    stockCookie = "checkwork";
+    expect(await bulkStockAction(form([a.id], "delete"))).toEqual({ changed: 1, skipped: 0 });
+    expect(await adminCar(a.id)).toBeUndefined();
+  });
+
+  it("refuses ids that are not car ids and an unknown change", async () => {
+    expect(await bulkStockAction(form(["../x"], "sold"))).toEqual({ error: expect.any(String) });
+    expect(await bulkStockAction(form(["4710001"], "paint"))).toEqual({ error: expect.any(String) });
+    expect(await bulkStockAction(form([], "sold"))).toEqual({ error: expect.any(String) });
+  });
+});
+
+describe("a car's photos", () => {
+  const JPEG = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 1, 2, 3, 4]);
+  const photo = (bytes: Uint8Array = JPEG, width = "1600", height = "1200") => {
+    const f = new FormData();
+    f.set("photo", new Blob([bytes as BlobPart], { type: "image/jpeg" }));
+    f.set("width", width);
+    f.set("height", height);
+    return f;
+  };
+  beforeEach(() => {
+    stockCookie = "checkwork";
+    role = "Sales";
+  });
+
+  it("adds a JPEG to the end, makes it the main photo, and removes it", async () => {
+    const car = (await adminCars()).find((c) => !c.soldAt && c.photos.length > 0)!;
+    expect(await addCarPhotoAction(car.id, photo())).toEqual({});
+    const added = (await adminCar(car.id))!.photos.at(-1)!;
+    expect(added).toMatchObject({ width: 1600, height: 1200 });
+    expect(added.src.startsWith("data:image/jpeg;base64,")).toBe(true); // no bucket in tests
+    await carPhotoAction(car.id, added.src, "first");
+    expect((await adminCar(car.id))!.photos[0].src).toBe(added.src);
+    await carPhotoAction(car.id, added.src, "remove");
+    expect((await adminCar(car.id))!.photos).toEqual(car.photos);
+  });
+
+  it("refuses what is not a JPEG, a silly size, too many photos, and DoneDeal stock", async () => {
+    const car = (await adminCars()).find((c) => !c.soldAt)!;
+    expect((await addCarPhotoAction(car.id, photo(new TextEncoder().encode("<svg onload=x>")))).error).toBeTruthy();
+    expect((await addCarPhotoAction(car.id, photo(JPEG, "0"))).error).toBeTruthy();
+    expect((await addCarPhotoAction("999999", photo())).error).toBeTruthy();
+    await saveCar({ ...car, photos: Array.from({ length: 20 }, (_, i) => ({ src: `/stock/x/${i}.jpg`, width: 1, height: 1 })) });
+    expect((await addCarPhotoAction(car.id, photo())).error).toMatch(/20 photos/);
+    await saveCar(car);
+    stockCookie = "donedeal";
+    expect((await addCarPhotoAction(car.id, photo())).error).toBeTruthy();
+    await carPhotoAction(car.id, car.photos[0]?.src ?? "", "remove");
+    expect((await adminCar(car.id))!.photos).toEqual(car.photos);
   });
 });

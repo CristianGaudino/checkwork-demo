@@ -9,6 +9,8 @@ import { costsStore, heldFor, prepStore, reservationsStore, salesStore } from "@
 import { RETURN_WINDOW_DAYS, withinReturnWindow } from "@/lib/admin/deposits";
 import { fmtDate, fmtEur } from "@/lib/admin/format";
 import { PrepPanel } from "@/components/admin/PrepPanel";
+import { CarPhotos } from "@/components/admin/CarPhotos";
+import { CAR_PHOTOS_MAX } from "@/lib/admin/car-photos";
 import { adminCar } from "@/lib/admin/stock-admin";
 import { can } from "@/lib/permissions";
 import { carName, carHref } from "@/lib/stock/format";
@@ -83,6 +85,7 @@ export default async function Page({ params, searchParams }: { params: Promise<{
     <>
       <PageHeader title={carName(car)} actions={steps} />
       <CarForm car={car} cost={cost} />
+      <CarPhotos carId={car.id} photos={car.photos} max={CAR_PHOTOS_MAX} />
       {prep}
       {history}
       {/* Out of the way, at the end: marking a car sold is nearly always what is wanted, and it keeps the car's page as Sold for a while.

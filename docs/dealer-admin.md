@@ -64,6 +64,15 @@ with no D1). The actor is the signed-in person (`currentMember`), or a named one
   stock list (with Undo) or the car form. Deleting is for owners and managers.
 - **"For sale"** in the dashboard (`forSale`) means on the website and not sold: posts, test drives and the overview use it. Margins and
   stock age still count a hidden car, since it is stock the dealer owns.
+- **Several cars at once** (#104): tick cars on Stock, then drop their price (euros or up to 50%), mark them sold, or delete them
+  (owners and managers). One confirm for the lot; each car is recorded in Activity as if changed on its own. Sold cars keep their
+  price, and a car with a deposit held is neither sold nor deleted until its reservation is ended. Marked sold this way, each car keeps
+  its Record sale button.
+- **Photos** (#21): on the car's page, add several at once, choose the main one, remove one. The browser shrinks each to a 1,600px
+  JPEG (dropping its location data) and the server checks the bytes. On the Worker they are stored in R2 under `cars/{id}/` in the
+  `LEAD_PHOTOS` bucket (its lifecycle rule only touches `trade-in/`) and served by `/car-photos`, which serves that prefix only. With no
+  bucket (dev, E2E) a photo stays in the car as a `data:` URL, in memory. Deleting a car deletes its stored photos. The demo's deploy
+  still reseeds the stock, so photos added on the demo go at the next deploy.
 
 ## Confirm and Undo
 
