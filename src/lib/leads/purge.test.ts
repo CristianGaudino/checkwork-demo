@@ -64,10 +64,11 @@ describe("purgeOldLeads", () => {
     await getDb().insert(adminDocs).values([
       doc("leads", "real-old", old), doc("test-drives", "real-old", old), doc("alerts", "real-old", old), { collection: "customers", id: "real-c-old", data: { id: "real-c-old", createdAt: old, lastContactAt: old } }, { collection: "customers", id: "real-c-returning", data: { id: "real-c-returning", createdAt: old, lastContactAt: fresh } },
       doc("leads", "real-new", fresh), doc("leads", "lead-1000", old), // a seed record is not personal data and keeps its place
+      doc("test-drives", "drive-3f9a1c2e", old), doc("test-drives", "drive-5b2e7d10", fresh), // booked on the dashboard: the same name and contact
     ]);
     await purgeOldLeads(getDb(), { delete: async () => {} }, NOW);
     const left = (await getDb().select({ id: adminDocs.id }).from(adminDocs)).map((r) => r.id).sort();
-    expect(left).toEqual(["lead-1000", "real-c-returning", "real-new"]); // the customer first seen long ago but in touch lately stays
+    expect(left).toEqual(["drive-5b2e7d10", "lead-1000", "real-c-returning", "real-new"]); // the customer first seen long ago but in touch lately stays
   });
 
   it("keeps a customer while a sale, deposit, claim or order names them, from the website or the dashboard, and deletes them after", async () => {
