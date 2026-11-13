@@ -28,4 +28,9 @@ test("a test drive car shows its name and, under it, only what tells it apart", 
   expect(lines[0]).toMatch(/^\d{4} /); // the name: year, make, model
   const [, make] = lines[0].split(" ");
   if (lines.length === 3) expect(lines[1].startsWith(make)).toBe(false); // the variant, not the make and model again
+  // Book sits under the text, bottom right, so the name and variant are never cut short beside it.
+  const text = await row.locator("p").nth(lines.length - 2).boundingBox();
+  const book = await row.getByRole("button", { name: "Book" }).boundingBox();
+  expect(book!.y).toBeGreaterThanOrEqual(text!.y + text!.height - 1);
+  for (const p of await row.locator("p").all()) expect(await p.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
 });

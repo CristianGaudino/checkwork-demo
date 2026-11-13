@@ -93,12 +93,12 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
           <div className="hidden h-12 w-16 shrink-0 overflow-hidden rounded-control bg-photo-bg min-[25rem]:block group-data-[density=compact]/shell:hidden">
             <CarThumb src={c.photos[0]?.src} />
           </div>
-          {/* The name wraps to two lines (it is what tells the cars apart); the variant is cut short, whole on hover. */}
+          {/* The name and the variant wrap to two lines; the year goes first so a long variant never cuts it off. */}
           <div className="min-w-0">
             <Link href={open(c)} title={`${c.make} ${c.model}`} className="line-clamp-2 font-medium after:absolute after:inset-0">
               {c.make} {c.model}
             </Link>
-            <span title={[c.variant, c.year].filter(Boolean).join(" · ")} className="block truncate text-meta text-text-2">{[c.variant, c.year].filter(Boolean).join(" · ")}</span>
+            <span title={[c.year, c.variant].filter(Boolean).join(" · ")} className="line-clamp-2 text-meta text-text-2">{[c.year, c.variant].filter(Boolean).join(" · ")}</span>
           </div>
         </div>
       ),

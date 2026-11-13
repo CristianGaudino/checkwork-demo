@@ -107,7 +107,7 @@ function Agenda({ drives, gone, empty = "Nothing booked.", withDay = false }: { 
               <DriveStatusBadge status={d.status} />
               {isOpenDrive(d) && gone.has(d.carSlug) && <Badge tone="warn">No longer for sale</Badge>}
             </span>
-            <span className="truncate text-meta text-text-2">
+            <span className="text-meta text-text-2">
               {d.carTitle} · {d.assignedTo ?? "Nobody yet"}
             </span>
           </span>
@@ -177,7 +177,7 @@ function Week({ day, today, onDay, gone, link }: { day: string; today: string; o
                 <Link key={x.id} href={`/dashboard/test-drives/${x.id}`} className={`flex min-w-0 flex-col rounded-control border-l-4 bg-surface px-2 py-1.5 text-meta hover:bg-row-alt ${EDGE[x.status]}`}>
                   <span className="font-semibold tabular-nums">{fmtTime(x.startsAt)}</span>
                   <span className={`truncate font-medium ${x.status === "cancelled" ? "line-through" : ""}`}>{x.name}</span>
-                  <span className="truncate text-text-2">{x.carTitle}</span>
+                  <span title={x.carTitle} className="truncate text-text-2">{x.carTitle}</span>
                   {isOpenDrive(x) && gone.has(x.carSlug) && <span className="text-warn">No longer for sale</span>}
                 </Link>
               ))}
@@ -211,11 +211,11 @@ function List({ drives, sp, team, gone }: { drives: TestDrive[]; sp: Params; tea
           <Link href={`/dashboard/test-drives/${d.id}`} className="font-medium after:absolute after:inset-0">
             {d.name}
           </Link>
-          <span className="truncate text-meta text-text-2 md:hidden">{d.carTitle}</span>
+          <span className="text-meta text-text-2 md:hidden">{d.carTitle}</span>
         </span>
       ),
     },
-    { key: "car", header: "Car", sort: (d) => d.carTitle, cell: (d) => <span className="block max-w-[16rem] truncate">{d.carTitle}</span>, hide: "md" },
+    { key: "car", header: "Car", sort: (d) => d.carTitle, cell: (d) => <span className="line-clamp-2 max-w-[16rem]">{d.carTitle}</span>, hide: "md" },
     { key: "with", header: "Taking them out", sort: (d) => d.assignedTo, cell: (d) => d.assignedTo ?? <span className="text-text-2">Nobody yet</span>, hide: "lg" },
     { key: "status", header: "Status", sort: (d) => DRIVE_STATUSES.indexOf(d.status), nowrap: true, cell: (d) => <DriveStatusBadge status={d.status} /> },
   ];

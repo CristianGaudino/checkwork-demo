@@ -78,7 +78,10 @@ export default async function Page() {
                   <Link href={`/dashboard/leads/${l.id}`} className={row}>
                     <span className="flex min-w-0 flex-col">
                       <span className="truncate font-medium">{l.name}</span>
-                      <span className="truncate text-meta text-text-2">{l.carTitle ?? l.message.split("\n")[0]} · {fmtAgo(l.createdAt)}</span>
+                      <span className="flex min-w-0 gap-1 text-meta text-text-2">
+                        <span className="truncate">{l.carTitle ?? l.message.split("\n")[0]}</span>
+                        <span className="shrink-0">· {fmtAgo(l.createdAt)}</span>
+                      </span>
                     </span>
                     <LeadStatusBadge status={l.status} />
                   </Link>
@@ -122,7 +125,7 @@ export default async function Page() {
               <ul className="-mx-1 flex flex-col divide-y divide-hairline">
                 {o.upcomingDrives.slice(0, 5).map((d) => (
                   <li key={d.id}>
-                    <Link href={`/dashboard/test-drives/${d.id}`} className={`${row} flex-col !items-start !justify-center gap-0.5`}>
+                    <Link href={`/dashboard/test-drives/${d.id}`} className={`${row} flex-col !items-start !justify-center !gap-0.5`}>
                       <span className="font-medium">{d.name}</span>
                       <span className="text-meta text-text-2">{d.carTitle} · {fmtDateTime(d.startsAt)}</span>
                     </Link>

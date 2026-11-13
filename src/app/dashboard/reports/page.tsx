@@ -53,7 +53,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
           rowKey={(m) => m.month}
           columns={[
             { key: "month", header: "Month", cell: (m) => monthLabel(m.month), nowrap: true },
-            { key: "sold", header: "Cars sold", align: "right", cell: (m) => fmtNum(m.sold) },
+            { key: "sold", header: "Cars sold", align: "right", hide: "sm", cell: (m) => fmtNum(m.sold) },
             { key: "value", header: "Sales", align: "right", cell: (m) => fmtEur(m.value) },
             { key: "profit", header: "Profit", align: "right", cell: (m) => (m.costed ? fmtEur(m.profit) : <span className="text-text-2">-</span>) },
           ]}
