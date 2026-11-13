@@ -29,7 +29,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
       sort: (l) => l.name,
       cell: (l) => (
         <span className="flex min-w-0 flex-col">
-          <Link href={`/dashboard/leads/${l.id}`} title={l.name} className="line-clamp-2 font-medium text-text after:absolute after:inset-0">
+          <Link href={`/dashboard/leads/${l.id}`} className="font-medium text-text [overflow-wrap:anywhere] after:absolute after:inset-0">
             {l.name}
           </Link>
           <span className="truncate text-meta text-text-2">
@@ -39,7 +39,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
       ),
       className: "max-w-[14rem]",
     },
-    { key: "about", header: "About", sort: (l) => l.carTitle, cell: (l) => <span title={l.carTitle ?? l.message} className="block truncate">{l.carTitle ?? <span className="text-text-2">{l.message.split("\n")[0]}</span>}</span>, className: "max-w-[16rem]", hide: "sm" },
+    { key: "about", header: "About", sort: (l) => l.carTitle, cell: (l) => <span title={l.carTitle ?? l.message} className="line-clamp-2">{l.carTitle ?? <span className="text-text-2">{l.message.split("\n")[0]}</span>}</span>, className: "max-w-[16rem]", hide: "sm" },
     {
       key: "status",
       header: "Status",

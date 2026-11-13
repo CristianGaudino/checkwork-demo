@@ -59,7 +59,7 @@ export function BarList({ items, of, format = fmtNum }: { items: { label: string
       {items.map((i) => (
         <li key={i.label} className="flex flex-col gap-1">
           <div className="flex items-baseline justify-between gap-3 text-body">
-            <span className="min-w-0 truncate">{i.label}</span>
+            <span className="min-w-0">{i.label}</span>
             <span className="shrink-0 font-semibold tabular-nums">
               {format(i.value)}
               {i.note && <span className="ml-2 text-meta font-normal text-text-2">{i.note}</span>}

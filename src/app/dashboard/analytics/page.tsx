@@ -63,7 +63,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
             columns={[
               { key: "name", header: "Source", cell: (s) => <span className="font-medium">{s.name}</span> },
               { key: "v", header: "Visitors", align: "right", cell: (s) => fmtNum(s.visitors) },
-              { key: "l", header: "Leads", align: "right", cell: (s) => fmtNum(s.leads) },
+              { key: "l", header: "Leads", align: "right", cell: (s) => fmtNum(s.leads), hide: "sm" },
               { key: "c", header: "Rate", align: "right", cell: (s) => fmtPct(s.visitors ? (s.leads / s.visitors) * 100 : 0) },
             ]}
           />
@@ -84,7 +84,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
           columns={[
             { key: "car", header: "Car", cell: (t) => <Link href={carHref(t.slug)} className="font-semibold underline-offset-2 hover:underline">{t.title}</Link> },
             { key: "views", header: "Views", align: "right", cell: (t) => fmtNum(t.views) },
-            { key: "saves", header: "Saved", align: "right", cell: (t) => fmtNum(t.saves) },
+            { key: "saves", header: "Saved", align: "right", cell: (t) => fmtNum(t.saves), hide: "sm" },
             { key: "leads", header: "Leads", align: "right", cell: (t) => fmtNum(t.leads) },
           ]}
         />

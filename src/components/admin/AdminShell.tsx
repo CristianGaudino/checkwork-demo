@@ -58,7 +58,7 @@ export function AdminShell({ title, subtitle, nav, navLabel, openGroups, rail: r
           <AdminNav items={nav} label={navLabel} openGroups={openGroups} rail={rail} />
           <div className={`hidden items-center border-t border-hairline lg:mx-3 lg:flex lg:min-h-14 ${rail ? "lg:justify-center" : "lg:justify-between lg:gap-2 lg:pl-3"}`}>
             {!rail && (
-              <Link href="/" className="truncate text-meta text-text-2 underline">
+              <Link href="/" className="truncate py-3 text-meta text-text-2 underline">
                 View the public site
               </Link>
             )}

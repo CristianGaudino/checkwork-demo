@@ -31,6 +31,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
           <span className="truncate text-meta text-text-2">{c.email || c.phone}</span>
         </span>
       ),
+      // A long email still asks for its whole width: the cap keeps Last contact on a phone screen.
+      className: "max-w-[12rem] sm:max-w-none",
     },
     { key: "source", header: "Source", sort: (c) => c.source, cell: (c) => c.source, hide: "sm" },
     { key: "consent", header: "Marketing", hide: "sm", sort: (c) => (c.marketingConsent ? 0 : 1), cell: (c) => (c.marketingConsent ? <Badge tone="good">Agreed</Badge> : <Badge>No</Badge>) },

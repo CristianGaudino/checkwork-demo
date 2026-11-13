@@ -15,29 +15,32 @@ export function TestDrivePicker({ cars }: { cars: CarSummary[] }) {
     <>
       <ul className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
         {cars.map((c) => (
-          <li key={c.id} className={`flex items-center gap-3 p-3 ${card}`}>
+          <li key={c.id} className={`flex gap-3 p-3 ${card}`}>
             {c.photo && (
               // eslint-disable-next-line @next/next/no-img-element -- a local /stock file at a fixed small size
               <img src={c.photo} alt="" width={96} height={72} loading="lazy" className="hidden h-[72px] w-24 shrink-0 min-[380px]:block rounded-control bg-photo-bg object-cover" />
             )}
-            <div className="min-w-0 flex-1">
-              <p className="line-clamp-2 font-semibold">{c.name}</p>
+            {/* Book sits at the bottom right, under the text, so the name and variant get the row's full width on a phone. */}
+            <div className="flex min-w-0 flex-1 flex-col">
+              <p className="font-semibold">{c.name}</p>
               {/* The name already says the make and model: the line under it is what tells two of them apart. */}
-              {c.variant && <p className="truncate text-meta text-text-2">{c.variant}</p>}
-              <p className="text-meta font-semibold whitespace-nowrap">{c.price}</p>
+              {c.variant && <p className="text-meta text-text-2">{c.variant}</p>}
+              <div className="mt-auto flex items-end justify-between gap-2 pt-2">
+                <p className="text-meta font-semibold whitespace-nowrap">{c.price}</p>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    opener.current = e.currentTarget;
+                    setCar(c);
+                    setOpen(true);
+                  }}
+                  className={`flex h-11 shrink-0 items-center gap-2 px-3 ${secondaryButton} ${press}`}
+                >
+                  <CalendarIcon className="size-5 text-accent-text" />
+                  Book
+                </button>
+              </div>
             </div>
-            <button
-              type="button"
-              onClick={(e) => {
-                opener.current = e.currentTarget;
-                setCar(c);
-                setOpen(true);
-              }}
-              className={`flex h-11 shrink-0 items-center gap-2 px-3 ${secondaryButton} ${press}`}
-            >
-              <CalendarIcon className="size-5 text-accent-text" />
-              Book
-            </button>
           </li>
         ))}
       </ul>
