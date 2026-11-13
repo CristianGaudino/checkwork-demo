@@ -34,7 +34,7 @@ export default function TermsPage() {
       </InfoSection>
       <InfoSection title="Finance figures">
         <p>
-          Finance figures on this site are estimates only, worked out at an example rate. They are not an approval or an offer of credit. Finance is provided through a lender, subject to status. The rate and
+          Finance figures on this site are estimates only, worked out at an example rate. They are not an approval or an offer of credit. Finance is provided through a lender, subject to status. We act as a credit intermediary, not a lender. The rate and
           amount you are offered depend on your circumstances, and the lender confirms them. Nothing on this site is financial advice.
         </p>
       </InfoSection>

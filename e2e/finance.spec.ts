@@ -31,7 +31,7 @@ test("/finance estimates a monthly payment at the dealer's fixed rate as the buy
   await expect(result(page).locator("xpath=..").getByText("This is an estimate only")).toBeVisible();
   await expect(result(page)).toContainText(/About €[\d,]+ a month/);
   await expect(calc(page).getByLabel("APR")).toHaveCount(0); // the rate is the dealer's, never typed
-  await expect(calc(page).getByText(`${FINANCE.defaults.aprPct}% APR`)).toBeVisible();
+  await expect(calc(page).getByText(`an example rate of ${FINANCE.defaults.aprPct}% APR`)).toBeVisible();
 
   await calc(page).getByLabel("Price").fill("15000");
   await calc(page).getByLabel("Deposit").fill("3000");
