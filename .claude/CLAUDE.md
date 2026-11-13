@@ -22,7 +22,7 @@ The `vintage` repo (`~/Developer/vintage`, GitHub `CristianGaudino/vintage`) is 
 ## Working in git
 - Never develop or commit on `main`, ever. Check `git branch --show-current` before the first edit. Branch first (`git switch -c <type>/<name>`), including for planning docs. The only exception was the initial repo setup push.
 - Open every PR against `main`, never against another feature branch (GitHub closes a PR whose base branch is merged and deleted).
-- Open PRs ready for review, not as drafts. CI runs on pushes to `main` only (Actions minutes), not on PRs, so the local checks below are the gate. Never merge a PR yourself, under any instruction or circumstance: open it and stop. The owner merges.
+- Open PRs ready for review, not as drafts. CI runs only by hand (Actions minutes): merges deploy, and the deploy runs lint and the tests first, so the local checks below are the gate. Never merge a PR yourself, under any instruction or circumstance: open it and stop. The owner merges.
 - Link the issue in the PR (`Closes #n`) and move it on the project board.
 - Stage named files, not `git add -A`. Never push `.env*`, `test-results/` or `playwright-report/`.
 - GitHub Actions minutes are limited and shared. Push fewer, finished commits.
