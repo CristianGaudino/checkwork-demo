@@ -211,7 +211,15 @@ test("the hero uses the dealer's photo, and the header logo is the vector one, i
   await page.goto("/");
   await expect(page.locator("main section").first().locator("img").first()).toHaveAttribute("src", "/brand/hero.webp");
   await expect(page.getByRole("banner").getByRole("img", { name: SITE_NAME })).toHaveAttribute("src", "/brand/logo-on-light.svg");
-  for (const path of ["/brand/hero.webp", "/brand/about.webp", "/brand/logo.svg", "/brand/logo-on-light.svg"]) expect((await request.get(path)).status(), path).toBe(200);
+  for (const path of ["/brand/hero.webp", "/brand/hero-dusk.webp", "/brand/service.webp", "/brand/about.webp", "/brand/logo.svg", "/brand/logo-on-light.svg"]) expect((await request.get(path)).status(), path).toBe(200);
+});
+
+test("the dark theme shows the dusk hero instead of the day one", async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() => { document.documentElement.dataset.theme = "dark"; });
+  const hero = page.locator("main section").first();
+  await expect(hero.locator('img[src="/brand/hero-dusk.webp"]')).toBeVisible();
+  await expect(hero.locator('img[src="/brand/hero.webp"]')).toBeHidden();
 });
 
 test("every item in the trust strip is a link with the same padding, so the row lines up", async ({ page }) => {
