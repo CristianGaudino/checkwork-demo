@@ -9,7 +9,10 @@ Keep the demo stock and records; change what the dealer will recognise.
 2. `public/brand/`: the dealer's logo (`logo.svg` for dark, `logo-on-light.svg` for light; the dashboard's menu shows it too, in a box up
    to 168 x 32px, so a wide wordmark or a square crest both fit), optionally a square mark `mark.svg` for the collapsed menu (set
    `BRAND_MARK` in `site.ts`; without it the initials show), `og-default.png` (1200x630), `hero.webp`
-   (1920x819) and `hero-sm.webp` (a car-centred crop of it, 960 wide), `about.webp`.
+   (1448x1086, 4:3; the page crops it, see `HeroMosaic.tsx`) and `hero-sm.webp` (the same photo at 960 wide), `hero-dusk.webp` and
+   `hero-dusk-sm.webp` (the same scene at dusk, for the dark theme, same sizes), `about.webp` (the showroom, 1200x900) and
+   `service.webp` (the workshop, 1200x900). Every photo here shows the Checkwork sign, so replace them all. Another size works if
+   you change the `width`/`height` and the `srcSet` widths where it is used.
 3. `src/lib/home.config.ts`: the hero title and line, and how many featured cars, type tiles and make chips the home page shows.
 4. `src/lib/partners.ts`: the makes the dealer sells new (New cars shows them first). Empty if they sell used only.
 5. Colours, only if the dealer has its own: `--color-accent` and `--color-accent-text` in both theme blocks of `src/app/globals.css`.
