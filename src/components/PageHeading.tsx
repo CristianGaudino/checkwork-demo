@@ -36,7 +36,7 @@ export function PageHeading({ title, intro, actions, picture }: { title: string;
 // A photo of the place (the forecourt, the showroom): wide and short on a phone, 4:3 beside the title.
 // `position` (an object-position class) picks the part that survives the wide crop on a phone, when the middle is the wrong part.
 export function PagePhoto({ src, width, height, position = "" }: { src: string; width: number; height: number; position?: string }) {
-  return <Image src={src} width={width} height={height} alt="" priority sizes="(min-width: 1024px) 26rem, 100vw" className={`aspect-[21/9] w-full rounded-tile object-cover lg:aspect-[16/10] ${position}`} />;
+  return <Image src={src} width={width} height={height} alt="" preload sizes="(min-width: 1024px) 26rem, 100vw" className={`aspect-[21/9] w-full rounded-tile object-cover lg:aspect-[16/10] ${position}`} />;
 }
 
 // A car from the stock on its lit plinth, as on the cards: for the pages about buying one (finance, trade-in). Not on a phone: it is
