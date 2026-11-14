@@ -1,5 +1,5 @@
-// The one repayment formula (UI-SPEC Maths): monthly rate = APR / 12, one payment a month. Pure, so it runs in the browser.
-// APR / 12 treats the APR as nominal; confirm against the dealer's product when the real terms arrive (research A9, #9).
+// The one repayment formula, one payment a month. Pure, so it runs in the browser. The APR is an annual rate (Consumer Credit Act):
+// the monthly rate is the one that compounds to it over 12 months, so 8.9% APR costs 8.9% a year, not the 9.27% that APR / 12 gives.
 export type Quote = { monthlyEur: number; borrowedEur: number; totalEur: number; interestEur: number };
 // The prices the calculator works with; the car page leaves out its Finance section for a car outside them.
 export const financeable = (priceEur: number) => priceEur >= 1000 && priceEur <= 250000;
@@ -9,7 +9,7 @@ export const financeable = (priceEur: number) => priceEur >= 1000 && priceEur <=
 export function quote(priceEur: number, depositEur: number, termMonths: number, aprPct: number): Quote | null {
   const borrowed = priceEur - depositEur;
   if (!financeable(priceEur) ||!(depositEur >= 0) || !(borrowed > 0) || !(aprPct >= 0 && aprPct <= 30) || !Number.isInteger(termMonths) || termMonths < 1) return null;
-  const r = aprPct / 100 / 12;
+  const r = Math.pow(1 + aprPct / 100, 1 / 12) - 1;
   const P = Math.round(borrowed * 100);
   const monthlyC = Math.round(r === 0 ? P / termMonths : (P * r) / (1 - Math.pow(1 + r, -termMonths)));
   const totalC = monthlyC * termMonths;
