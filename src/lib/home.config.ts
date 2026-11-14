@@ -7,4 +7,6 @@ export const HOME = {
   heroIntro: "A carefully selected range of quality used cars, backed by trusted service and straightforward finance.",
   heroPhoto: "/brand/hero.webp", // the big hero tile (1448x1086, 4:3: cropped by its box)
   heroPhotoSmall: "/brand/hero-sm.webp", // the same photo at 960 wide, for phones
+  heroPhotoDark: "/brand/hero-dusk.webp", // the same scene at dusk, for the dark theme (same size)
+  heroPhotoDarkSmall: "/brand/hero-dusk-sm.webp",
 } as const;

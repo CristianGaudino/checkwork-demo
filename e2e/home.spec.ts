@@ -211,7 +211,7 @@ test("the hero uses the dealer's photo, and the header logo is the vector one, i
   await page.goto("/");
   await expect(page.locator("main section").first().locator("img").first()).toHaveAttribute("src", "/brand/hero.webp");
   await expect(page.getByRole("banner").getByRole("img", { name: SITE_NAME })).toHaveAttribute("src", "/brand/logo-on-light.svg");
-  for (const path of ["/brand/hero.webp", "/brand/service.webp", "/brand/about.webp", "/brand/logo.svg", "/brand/logo-on-light.svg"]) expect((await request.get(path)).status(), path).toBe(200);
+  for (const path of ["/brand/hero.webp", "/brand/hero-dusk.webp", "/brand/service.webp", "/brand/about.webp", "/brand/logo.svg", "/brand/logo-on-light.svg"]) expect((await request.get(path)).status(), path).toBe(200);
 });
 
 test("every item in the trust strip is a link with the same padding, so the row lines up", async ({ page }) => {

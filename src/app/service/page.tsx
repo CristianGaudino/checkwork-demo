@@ -24,7 +24,7 @@ export default function ServicePage() {
       <PageHeading
         title="Service"
         intro="Keep your car running well. Call us to book it in, or choose a service to find out more."
-        picture={<PagePhoto src="/brand/service.webp" width={1200} height={900} />}
+        picture={<PagePhoto src="/brand/service.webp" width={1200} height={900} position="object-[50%_25%]" />}
         actions={
           <>
             <CallButton>Call {DEALER_PHONE}</CallButton>
