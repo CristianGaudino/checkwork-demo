@@ -21,6 +21,13 @@ export default function PrivacyPage() {
           them for the same {LEAD_RETENTION_MONTHS} months as the rest of your request.
         </p>
       </InfoSection>
+      <InfoSection title="What stays on your device">
+        <p>
+          The cars you save, compare or look at, and a form you have started but not sent, are kept in your browser. To show you those cars, the
+          site asks for them by number, and we don&apos;t keep that. An unsent form stays until you close the tab, and never with your name, phone
+          number or email. Recently viewed cars can be cleared from the list.
+        </p>
+      </InfoSection>
       <InfoSection title="Why we use it">
         <p>Only to reply to your request. We don&apos;t use it for marketing, and we don&apos;t sell it.</p>
         <p>

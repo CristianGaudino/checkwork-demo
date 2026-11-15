@@ -2,15 +2,13 @@ import type { Metadata } from "next";
 import { DEALER_LOCATION, SITE_NAME } from "@/lib/site";
 import { LeadPage } from "@/components/leads/LeadPage";
 import { LeadPageForm } from "@/components/leads/LeadPageForm";
-import { MAKE_OPTIONS } from "@/lib/leads/makes";
-import { slugify } from "@/lib/admin/stock-admin-pure";
+import { sourcingPrefill } from "@/lib/leads/sourcing-prefill";
 
 export const metadata: Metadata = { title: "Find a car", description: `Can't see the car you want? Tell us what you're looking for and we'll look for it. ${SITE_NAME}, ${DEALER_LOCATION}.` };
 
-// A make page sends ?make=Audi: the form starts with it chosen. Only a make from the list is taken, matched by slug so "Škoda" finds "Skoda".
+// A make page sends ?make=audi, a search with no cars its make, model, type and budget: the form starts with them (sourcing-prefill.ts).
 export default async function FindACarPage({ searchParams }: PageProps<"/find-a-car">) {
-  const asked = (await searchParams).make;
-  const make = typeof asked === "string" ? MAKE_OPTIONS.find((o) => o.value && slugify(o.value) === slugify(asked))?.value : undefined;
+  const prefill = sourcingPrefill(await searchParams);
   return (
     <LeadPage
       title="Find a car"
@@ -25,7 +23,7 @@ export default async function FindACarPage({ searchParams }: PageProps<"/find-a-
         { title: "We get in touch", text: "If we find a match, we contact you. No obligation.", more: ["We reach you by the phone number or email you give us.", "There is no obligation to buy."] },
       ]}
     >
-      <LeadPageForm form="sourcing" prefill={make ? { make } : undefined} submitLabel="Find it for me" success={{ heading: "Thanks, we'll look for it.", body: "We'll get in touch if we find a match." }} />
+      <LeadPageForm form="sourcing" prefill={prefill} submitLabel="Find it for me" success={{ heading: "Thanks, we'll look for it.", body: "We'll get in touch if we find a match." }} />
     </LeadPage>
   );
 }

@@ -1,3 +1,4 @@
+import { ViewedCar } from "@/components/recent/RecentlyViewed";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
@@ -60,6 +61,7 @@ export default async function CarPage({ params }: PageProps<"/used-cars/[slug]">
   return (
     <main className={pageMain}>
       <JsonLd data={carJsonLd(car)} />
+      <ViewedCar id={car.id} />
       <VehicleHint condition={car.condition ?? "used"} />
       <Breadcrumb car={car} />
       <CarControls id={car.id} slug={car.slug} sold={isSold(car)} listingUrl={car.listingUrl} />

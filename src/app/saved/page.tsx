@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SavedCars } from "@/components/saved/SavedCars";
+import { RecentlyViewed } from "@/components/recent/RecentlyViewed";
 import { pageMain } from "@/components/ui";
 import { PageHeading } from "@/components/PageHeading";
 
@@ -12,6 +13,9 @@ export default function SavedPage() {
       <PageHeading title="Saved cars" />
       <div className="mt-6 min-h-[28rem]">
         <SavedCars />
+      </div>
+      <div className="mt-12">
+        <RecentlyViewed max={6} notSaved />
       </div>
     </main>
   );

@@ -7,7 +7,9 @@ import { JsonLd } from "@/components/JsonLd";
 import { MapBox } from "@/components/MapBox";
 import { OpeningHours } from "@/components/OpeningHours";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
-import { dealerJsonLd, mapEmbedUrl } from "@/lib/dealer";
+import { dealerDirectionsUrl, dealerJsonLd, mapEmbedUrl } from "@/lib/dealer";
+import { CopyPhone } from "@/components/CopyPhone";
+import { DirectionsButton } from "@/components/DirectionsButton";
 import { getReviews } from "@/lib/reviews";
 import { DEALER_ADDRESS, DEALER_EMAIL, DEALER_FACTS_CONFIRMED, DEALER_LOCATION, DEALER_PHONE, SITE_NAME } from "@/lib/site";
 import { card, pageMain, subTitle } from "@/components/ui";
@@ -32,6 +34,7 @@ export default async function ContactPage() {
           <div className="order-1 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <CallButton sizing="w-full">Call {DEALER_PHONE}</CallButton>
             <WhatsAppButton sizing="w-full px-6" />
+            <CopyPhone />
           </div>
           {/* A placeholder address that does not forward yet (#54): shown only once the dealer confirms. */}
           {DEALER_FACTS_CONFIRMED && (
@@ -48,8 +51,9 @@ export default async function ContactPage() {
           </section>
         </div>
         <div className="flex flex-col gap-6 max-lg:contents">
-          <div className="order-2">
+          <div className="order-2 flex flex-col gap-3">
             <MapBox embedUrl={mapEmbedUrl()} title={`Map of ${SITE_NAME}, ${DEALER_ADDRESS.town}`} />
+            <DirectionsButton href={dealerDirectionsUrl()} />
           </div>
           <div className="order-4">
             <OpeningHours />

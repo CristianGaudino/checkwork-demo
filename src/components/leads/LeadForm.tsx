@@ -6,6 +6,8 @@ import { useEffect, useId, useRef, useState, useTransition } from "react";
 import { submitLead } from "@/app/actions/lead";
 import { CheckIcon } from "@/components/stock/icons";
 import { PHOTO_LIMITS, PHOTO_TOTAL_ERROR, PHOTO_TOTAL_MAX_BYTES } from "@/lib/leads/constants";
+import { readDraft, saveDraft } from "@/lib/leads/draft";
+import { SITE_SLUG } from "@/lib/site";
 import type { LeadType } from "@/lib/leads/schema";
 import type { LeadResult } from "@/lib/leads/process";
 import { ConsentRow } from "./ConsentRow";
@@ -114,6 +116,19 @@ export function LeadForm({
   useEffect(() => {
     if (done) heading.current?.focus();
   }, [done]);
+
+  // A half-filled form comes back after a reload in this tab (draft.ts says what is kept, and never the contact details). Read after
+  // mount, since the server has no sessionStorage; what the page filled in wins over the draft.
+  const draftKey = useRef<string>(undefined);
+  useEffect(() => {
+    draftKey.current = `${SITE_SLUG}:draft:${type}:${car?.id ?? ""}:${location.pathname}`;
+    const kept = readDraft(draftKey.current);
+    if (Object.keys(kept).length) setValues((s) => ({ ...kept, ...s }));
+  }, [type, car?.id]);
+  // After a send the values go back to the prefill, which keeps nothing, so the draft goes with it.
+  useEffect(() => {
+    if (draftKey.current) saveDraft(draftKey.current, values, prefill);
+  }, [values, prefill]);
 
   // On a failed send the first field to fix takes focus (a screen reader reads its error with it).
   useEffect(() => {
