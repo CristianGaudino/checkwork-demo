@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { useId } from "react";
 import { card, press } from "@/components/ui";
+import { Tween } from "@/components/Tween";
 import { AppliedFilters, DensityToggle, Filters, LiveSearch, SortHeader, type FilterGroup } from "./TableTools";
 import { PER_PAGE_DEFAULT, perPage } from "@/lib/admin/paging";
 import { fmtNum } from "@/lib/admin/format";
@@ -55,7 +56,9 @@ export function StatCard({ label, value, hint, tone, href }: { label: string; va
       {/* Sized from the tile's own width (a container query), so tiles side by side show their figures at the same size, and a
           half-width tile on a 360px phone still fits €117,565 on one line. A year's sales (€5,864,950) take a smaller share. Anything
           longer still wraps, never spills. */}
-      <p className={`font-display font-semibold leading-[1.1] tracking-[-0.02em] tabular-nums [overflow-wrap:anywhere] ${value.length > 8 ? "text-[min(2rem,15cqi)]" : "text-[min(2rem,20cqi)]"}`}>{value}</p>
+      <p className={`font-display font-semibold leading-[1.1] tracking-[-0.02em] tabular-nums [overflow-wrap:anywhere] ${value.length > 8 ? "text-[min(2rem,15cqi)]" : "text-[min(2rem,20cqi)]"}`}>
+        <Tween value={value} />
+      </p>
       {hint && <p className={`text-meta ${tone === "good" ? "text-ok" : tone === "bad" ? "text-bad" : tone === "warn" ? "text-warn" : "text-text-2"}`}>{hint}</p>}
     </>
   );

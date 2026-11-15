@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Suspense } from "react";
+import { NavProgress } from "@/components/NavProgress";
 import { CompareBar } from "@/components/compare/CompareBar";
 import { SiteChrome } from "@/components/SiteChrome";
 import { Toaster } from "@/components/Toaster";
@@ -38,6 +40,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
       <body className="flex min-h-dvh flex-col">
+        {/* Suspense: it reads the search params, which a static page only has in the browser. */}
+        <Suspense fallback={null}>
+          <NavProgress />
+        </Suspense>
         {DEMO_BAR_ENABLED && <DemoBar showAreas={adminReachable() || process.env.NEXT_PUBLIC_ACCESS_ENABLED === "1"} />}
         <SiteChrome>
           <SiteHeader />

@@ -34,7 +34,8 @@ export function SaveButton({ id, label, variant }: { id: string; label: string; 
         }}
         className={`inline-flex size-11 items-center justify-center transition-transform duration-100 ease-out ${press} ${looks[variant]}`}
       >
-        <HeartIcon filled={saved} />
+        {/* A pop when this tap saved it; not when the saved list loads, and not on a removal. */}
+        <HeartIcon filled={saved} className={said === "Saved" ? "heart-pop" : undefined} />
       </button>
       <span aria-live="polite" className="sr-only">
         {said}
