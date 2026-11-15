@@ -58,6 +58,13 @@ test("no cars match: Ask us to find it opens Find a car with the search filled i
   await ask.click();
   await page.waitForURL(/\/find-a-car\?/);
   await expect(page.getByLabel("Make")).toHaveValue("Volkswagen");
+  // What the buyer changes wins over the link after a reload; a link for another make starts from that make.
+  await choose(page.getByRole("combobox", { name: "Make" }), /^Audi$/);
+  await expect(page.getByLabel("Make")).toHaveValue("Audi");
+  await page.reload();
+  await expect(page.getByLabel("Make")).toHaveValue("Audi");
+  await page.goto("/find-a-car?make=bmw");
+  await expect(page.getByLabel("Make")).toHaveValue("BMW");
 });
 
 test.describe("on a computer", () => {
