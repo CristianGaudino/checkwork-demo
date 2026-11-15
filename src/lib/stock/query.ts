@@ -116,18 +116,30 @@ export function toggle(q: StockQuery, group: "make" | "model" | "body" | "fuel",
 }
 
 // One entry per applied filter in UI-SPEC group order; `next` is the query with only that filter removed.
+const named = (facets: Facets | null, group: "make" | "model" | "body", v: string) => facets?.[group].find((o) => o.value === v)?.label ?? v;
+
+// No cars match: the link to Find a car carries the search, so the buyer does not type it again. The first make (by slug, as a make page
+// sends it), model and type by name, and the top price as the budget. Find a car keeps only what its form accepts (sourcing-prefill.ts).
+export function sourcingHref(q: StockQuery, facets: Facets | null): string {
+  const p = new URLSearchParams();
+  if (q.make[0]) p.set("make", q.make[0]);
+  if (q.model[0]) p.set("model", named(facets, "model", q.model[0]));
+  if (q.body[0]) p.set("body", named(facets, "body", q.body[0]));
+  if (q.priceMax !== undefined) p.set("budget", String(q.priceMax));
+  return p.size ? `/find-a-car?${p}` : "/find-a-car";
+}
+
 export function appliedFilters(q: StockQuery, facets: Facets | null): { id: string; label: string; next: StockQuery }[] {
   const out: { id: string; label: string; next: StockQuery }[] = [];
   const drop = (patch: Partial<StockQuery>): StockQuery => ({ ...q, ...patch, page: 1 });
-  const named = (group: "make" | "model" | "body", v: string) => facets?.[group].find((o) => o.value === v)?.label ?? v;
   if (q.q) out.push({ id: "q", label: `Search: ${q.q}`, next: drop({ q: undefined }) });
-  for (const v of q.make) out.push({ id: `make:${v}`, label: named("make", v), next: toggle(q, "make", v, facets) });
-  for (const v of q.model) out.push({ id: `model:${v}`, label: named("model", v), next: toggle(q, "model", v, facets) });
+  for (const v of q.make) out.push({ id: `make:${v}`, label: named(facets, "make", v), next: toggle(q, "make", v, facets) });
+  for (const v of q.model) out.push({ id: `model:${v}`, label: named(facets, "model", v), next: toggle(q, "model", v, facets) });
   if (q.yearFrom !== undefined) out.push({ id: "yearFrom", label: `From ${q.yearFrom}`, next: drop({ yearFrom: undefined }) });
   if (q.yearTo !== undefined) out.push({ id: "yearTo", label: `To ${q.yearTo}`, next: drop({ yearTo: undefined }) });
   if (q.priceMin !== undefined) out.push({ id: "priceMin", label: `From ${formatPrice(q.priceMin)}`, next: drop({ priceMin: undefined }) });
   if (q.priceMax !== undefined) out.push({ id: "priceMax", label: `Up to ${formatPrice(q.priceMax)}`, next: drop({ priceMax: undefined }) });
-  for (const v of q.body) out.push({ id: `body:${v}`, label: named("body", v), next: toggle(q, "body", v, facets) });
+  for (const v of q.body) out.push({ id: `body:${v}`, label: named(facets, "body", v), next: toggle(q, "body", v, facets) });
   for (const v of q.fuel) out.push({ id: `fuel:${v}`, label: FUEL_LABELS[v], next: toggle(q, "fuel", v, facets) });
   if (q.gearbox) out.push({ id: "gearbox", label: GEARBOX_LABELS[q.gearbox], next: drop({ gearbox: undefined }) });
   if (q.kmMax !== undefined) out.push({ id: "kmMax", label: `Up to ${formatKm(q.kmMax)}`, next: drop({ kmMax: undefined }) });

@@ -7,7 +7,7 @@ import { Tween } from "@/components/Tween";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useId, useOptimistic, useRef, useState, useTransition } from "react";
 import { countLabel } from "@/lib/stock/format";
-import { appliedFilters, clearFilters, stockHref } from "@/lib/stock/query";
+import { appliedFilters, clearFilters, sourcingHref, stockHref } from "@/lib/stock/query";
 import { SORT_KEYS } from "@/lib/stock/types";
 import type { Facets, SortKey, StockQuery } from "@/lib/stock/types";
 import { AppliedFilters } from "./AppliedFilters";
@@ -188,7 +188,7 @@ export function StockShell({ query, summary, orderable, children }: { query: Sto
 }
 
 export function EmptyState() {
-  const { query, navigate } = useStock();
+  const { query, facets, navigate } = useStock();
   // With nothing applied there is no filter to remove: the stock itself is empty.
   if (appliedFilters(query, null).length === 0) {
     return (
@@ -201,7 +201,7 @@ export function EmptyState() {
   }
   return (
     <StateBlock title="No cars match these filters" text="Try removing a filter.">
-      <Link href="/find-a-car" className="mx-auto flex min-h-11 w-fit items-center text-body underline">
+      <Link href={sourcingHref(query, facets)} className="mx-auto flex min-h-11 w-fit items-center text-body underline">
         Can&apos;t find it? Ask us to find it for you.
       </Link>
       <button type="button" onClick={() => navigate(clearFilters(query))} className={stateButton}>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState, useRef, useState } from "react";
 import { RegLookup } from "@/components/leads/RegLookup";
+import { useLeaveGuard } from "@/components/admin/useLeaveGuard";
 import { Select } from "@/components/Select";
 import { Field, Panel, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
 import { saveCarAction, type CarFormState } from "@/app/dashboard/stock/actions";
@@ -23,6 +24,7 @@ export function CarForm({ car, cost, reg: startReg = "" }: { car?: Car; cost?: {
   const [drawn, setDrawn] = useState(0);
   const [reg, setReg] = useState(startReg);
   const form = useRef<HTMLFormElement>(null);
+  useLeaveGuard(form); // a menu tap would throw the edits away
   const value = (name: string): string => {
     if (found[name] !== undefined) return found[name];
     const v = name === "features" ? car?.features?.join("\n") : (car as Record<string, unknown> | undefined)?.[name];

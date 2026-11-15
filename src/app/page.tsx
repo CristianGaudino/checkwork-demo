@@ -14,6 +14,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { ReviewsStrip } from "@/components/reviews/ReviewsStrip";
 import { ListingCard } from "@/components/stock/ListingCard";
 import { ArrowRightIcon } from "@/components/stock/icons";
+import { RecentlyViewed } from "@/components/recent/RecentlyViewed";
 import { accentButton, card, pageMain, pageWidth, press, sectionTitle, secondaryButton, textLink } from "@/components/ui";
 import { dealerJsonLd } from "@/lib/dealer";
 import { HOME } from "@/lib/home.config";
@@ -141,6 +142,9 @@ export default async function Home() {
             ))}
           </ol>
         </section>
+
+        {/* Below the fold: it arrives after hydration, so it must not sit where it would push what is in view. */}
+        <RecentlyViewed max={3} />
 
         <BrowseByMake makes={makes.slice(0, HOME.makeChipsMax)} />
 
