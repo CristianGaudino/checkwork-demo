@@ -4,7 +4,7 @@ import { Badge, DataTable, PageHeader, Panel, adminButtonQuiet, rowButton } from
 import { ActButton } from "@/components/admin/ActButton";
 import { getSettings } from "@/lib/admin/collections";
 import { INTEGRATIONS, isUsable, missingEnv, modeOf } from "@/lib/integrations";
-import { DEALER_ADDRESS_LINES, DEALER_EMAIL, DEALER_PHONE, OPENING_HOURS, SITE_NAME } from "@/lib/site";
+import { DEALER_ADDRESS_TEXT, DEALER_EMAIL, DEALER_PHONE, OPENING_HOURS, SITE_NAME } from "@/lib/site";
 import { removeTeamAction, resetDemoAction } from "./actions";
 import { seedsDemoRecords } from "@/lib/admin/docs";
 import { syncLine } from "@/components/admin/SyncPanel";
@@ -70,7 +70,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
 
           <Panel title="Business details">
             <dl className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
-              {[["Name", SITE_NAME], ["Phone", DEALER_PHONE], ["Email", DEALER_EMAIL], ["Address", DEALER_ADDRESS_LINES.join(", ")]].map(([k, v]) => (
+              {[["Name", SITE_NAME], ["Phone", DEALER_PHONE], ["Email", DEALER_EMAIL], ["Address", DEALER_ADDRESS_TEXT]].map(([k, v]) => (
                 <div key={k}>
                   <dt className="text-meta text-text-2">{k}</dt>
                   <dd className="text-body">{v}</dd>

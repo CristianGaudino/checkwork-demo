@@ -49,7 +49,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
               <ul className="flex flex-col divide-y divide-hairline">
                 {o.notes.map((n) => (
                   <li key={n.at} className="flex flex-col gap-0.5 py-2">
-                    <span className="text-body">{n.text}</span>
+                    <span className="whitespace-pre-line text-body">{n.text}</span>
                     <span className="text-meta text-text-2">{fmtDateTime(n.at)}</span>
                   </li>
                 ))}

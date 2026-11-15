@@ -17,6 +17,7 @@ import { pageMain } from "@/components/ui";
 import { financeable } from "@/lib/finance/payment";
 import { stock } from "@/lib/stock";
 import { carName, carSummary } from "@/lib/stock/format";
+import { payableEur, priceInfo } from "@/lib/stock/price";
 import { landingMetadata, landingPath } from "@/lib/stock/landing";
 import { DEFAULT_QUERY } from "@/lib/stock/query";
 import { carJsonLd, carMetadata } from "@/lib/stock/seo";
@@ -78,10 +79,11 @@ export default async function CarPage({ params }: PageProps<"/used-cars/[slug]">
           <Specifications car={car} />
           <Equipment car={car} />
           {/* In stock only: a sold car offers no finance (UI-SPEC section 7). Only the summary and price reach the client. */}
-          {!isSold(car) && !car.reserved && financeable(car.priceEur) && (
+          {/* Finance is on what the buyer pays, as in the buy box: an ex. VAT price with VAT on. */}
+          {!isSold(car) && !car.reserved && financeable(payableEur(car)) && (
             <section className="flex flex-col gap-4">
               <h2 className={`text-heading font-semibold`}>Finance</h2>
-              <FinanceCalculator car={{ ...carSummary(car), priceEur: car.priceEur }} />
+              <FinanceCalculator car={{ ...carSummary(car), price: priceInfo(car).incVat ?? carSummary(car).price, priceEur: payableEur(car) }} />
             </section>
           )}
         </div>

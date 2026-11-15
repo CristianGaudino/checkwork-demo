@@ -19,7 +19,7 @@ import { accentButton, card, pageMain, pageWidth, press, sectionTitle, secondary
 import { dealerJsonLd } from "@/lib/dealer";
 import { HOME } from "@/lib/home.config";
 import { getReviews } from "@/lib/reviews";
-import { DEALER_ADDRESS, DEALER_ADDRESS_LINES, DEALER_LOCATION, SITE_NAME } from "@/lib/site";
+import { DEALER_ADDRESS, DEALER_ADDRESS_TEXT, DEALER_LOCATION, SITE_NAME } from "@/lib/site";
 import { queryAllOrNull } from "@/lib/stock";
 import { searchOptions } from "@/lib/stock/search-options";
 
@@ -57,7 +57,7 @@ export default async function Home() {
           <div className="theme-dark flex min-w-0 flex-col items-start text-text">
             <h1 className="max-w-[14ch] text-balance text-hero font-semibold lg:text-hero-lg">{HOME.heroTitle}</h1>
             <p className="mt-4 max-w-[40ch] text-body text-text/90">{HOME.heroIntro}</p>
-            <p className="mt-2 max-w-measure text-meta text-text/75">Find us at {DEALER_ADDRESS_LINES.join(", ").replace(/ (\S+)$/, " $1")}.</p>
+            <p className="mt-2 max-w-measure text-meta text-text/75">Find us at {DEALER_ADDRESS_TEXT}.</p>
             <div className="mt-6 flex w-full flex-wrap gap-3">
               <Link href="/used-cars" className={`inline-flex w-full items-center justify-center gap-2 sm:w-auto ${accentButton}`}>
                 Browse stock

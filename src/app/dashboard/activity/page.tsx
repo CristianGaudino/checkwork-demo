@@ -69,6 +69,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
           {
             key: "who",
             header: "Who",
+            nowrap: true,
             hide: "sm",
             cell: (e) => (
               <span className="flex items-center gap-2">
@@ -105,9 +106,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
                 <span className="text-text-2">{r.label}</span>
               );
             },
-            className: "[overflow-wrap:anywhere]", // an alert or subscriber is an email, which would otherwise widen the table
+            className: "sm:min-w-[14rem] [overflow-wrap:anywhere]", // an alert or subscriber is an email, which would otherwise widen the table
           },
-          { key: "area", header: "Area", cell: (e) => AREA_LABELS[e.area], hide: "lg" },
+          { key: "area", header: "Area", cell: (e) => AREA_LABELS[e.area], hide: "lg", nowrap: true },
         ]}
       />
       <TableFooter page={page} pageCount={pageCount} total={result.total} per={size} />

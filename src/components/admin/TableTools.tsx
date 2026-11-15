@@ -255,7 +255,7 @@ export function TableFooter({ page, pageCount, total, per, exportHref }: { page:
     csv = p.size ? `${path}?${p}` : path;
   }
   const pageHref = (n: number) => hrefWith({ page: n > 1 ? String(n) : undefined }, true);
-  const step = `inline-flex h-10 min-w-10 items-center justify-center rounded-control border border-hairline bg-card px-3 text-meta font-medium text-text transition-colors hover:border-control ${press}`;
+  const step = `inline-flex h-11 min-w-11 items-center justify-center rounded-control border border-hairline bg-card px-3 text-meta font-medium text-text transition-colors hover:border-control ${press}`;
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">

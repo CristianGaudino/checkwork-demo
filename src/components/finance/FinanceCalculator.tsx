@@ -8,7 +8,7 @@ import { LeadDialog } from "@/components/leads/LeadDialog";
 import type { CarSummary } from "@/components/leads/LeadDialog";
 import { LeadForm } from "@/components/leads/LeadForm";
 import { Tween } from "@/components/Tween";
-import { FINANCE } from "@/lib/finance/finance.config";
+import { FINANCE, financeNotice } from "@/lib/finance/finance.config";
 import { financeable, quote } from "@/lib/finance/payment";
 import { formatPrice } from "@/lib/stock/format";
 import { ArrowRightIcon, InfoIcon } from "@/components/stock/icons";
@@ -96,7 +96,7 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
           </div>
           <p className="flex items-start gap-2 text-meta text-text-2">
             <InfoIcon className="mt-0.5 size-4 shrink-0" />
-            {FINANCE.notice}
+            {car ? financeNotice(car.priceEur) : FINANCE.notice}
           </p>
           {car ? (
             <button

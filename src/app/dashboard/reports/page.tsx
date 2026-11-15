@@ -69,7 +69,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
             rowKey={(p) => p.name}
             empty={<p className="text-body text-text-2">No sales or leads in this period.</p>}
             columns={[
-              { key: "name", header: "Name", cell: (p) => <span className="font-medium">{p.name}</span> },
+              { key: "name", header: "Name", cell: (p) => <span className="font-medium">{p.name}</span>, nowrap: true },
               { key: "sold", header: "Sold", align: "right", cell: (p) => fmtNum(p.sold) },
               { key: "value", header: "Sales", align: "right", hide: "sm", cell: (p) => fmtEur(p.value) },
               { key: "profit", header: "Profit", align: "right", hide: "md", cell: (p) => (p.costed ? fmtEur(p.profit) : <span className="text-text-2">-</span>) },

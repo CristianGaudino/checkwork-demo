@@ -65,8 +65,8 @@ describe("specRows", () => {
       { label: "Seats", value: "5" },
       { label: "Owners", value: "2" },
       { label: "NCT expires", value: "Jul 2027" },
-      { label: "Max speed", value: "126 mph" },
-      { label: "0 to 62 mph", value: "9.9 s" },
+      { label: "Max speed", value: "203 km/h", miles: { label: "Max speed", value: "126 mph" } },
+      { label: "0 to 100 km/h", value: "9.9 s", miles: { label: "0 to 62 mph", value: "9.9 s" } },
     ]);
     expect(specRows({ ...full, engineLitres: 1.5 }).find((r) => r.label === "Engine")?.value).toBe("1.5 L");
   });

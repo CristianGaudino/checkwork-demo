@@ -77,13 +77,13 @@ function ViewToggle() {
       aria-label={label}
       aria-pressed={view === v}
       onClick={() => setView(v)}
-      className={`flex size-12 items-center justify-center transition-colors ${view === v ? "bg-accent text-on-accent" : "hover:bg-hairline"}`}
+      className={`flex h-full w-12 items-center justify-center transition-colors ${view === v ? "bg-accent text-on-accent" : "hover:bg-hairline"}`}
     >
       <Icon className="size-6" />
     </button>
   );
   return (
-    <div role="group" aria-label="Layout" className="flex overflow-hidden rounded-control border border-control">
+    <div role="group" aria-label="Layout" className="flex h-12 overflow-hidden rounded-control border border-control">
       {btn("grid", "Grid view", GridIcon)}
       {btn("list", "List view", ListIcon)}
     </div>
@@ -164,13 +164,13 @@ export function StockShell({ query, summary, orderable, children }: { query: Sto
           <div ref={results} onClickCapture={(e) => e.target instanceof Element && e.target.closest("a[href^='/used-cars/']") && rememberScroll(query)} className="min-w-0 scroll-mt-16 lg:min-h-[100dvh] lg:scroll-mt-6">
             <div
               data-testid="sticky-bar"
-              className="sticky top-14 z-20 lg:static -mx-4 flex h-14 items-center justify-between bg-surface/80 px-4 backdrop-blur-[20px] backdrop-saturate-[1.8] sm:-mx-6 sm:px-6 lg:mx-0 lg:justify-end lg:gap-3 lg:bg-transparent lg:px-0 lg:backdrop-blur-none lg:backdrop-saturate-100 reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none reduce-transparency:backdrop-saturate-100"
+              className="sticky top-14 z-20 lg:static -mx-4 flex h-14 items-center justify-between gap-2 bg-surface/80 px-4 backdrop-blur-[20px] backdrop-saturate-[1.8] sm:-mx-6 sm:px-6 lg:mx-0 lg:justify-end lg:gap-3 lg:bg-transparent lg:px-0 lg:backdrop-blur-none lg:backdrop-saturate-100 reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none reduce-transparency:backdrop-saturate-100"
             >
               <div className="lg:hidden">
                 <FilterSheet />
               </div>
               {/* km or miles for every card on the list: a view, not a filter. */}
-              <UnitToggle className="max-lg:hidden" />
+              <UnitToggle className="h-12 max-lg:hidden" />
               <SortControl className="flex" />
               <div className="hidden lg:block">
                 <ViewToggle />

@@ -13,7 +13,7 @@ export function LeadPage({ title, intro, how, actions, picture, bare = false, ch
     <main className={pageMain}>
       <PageHeading title={title} intro={intro} actions={actions} picture={picture} />
       {how && (
-        <ol className="mt-6 grid grid-cols-1 items-start gap-3 sm:grid-cols-3">
+        <ol className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
           {how.map((s, i) => (
             <li key={s.title} className={`reveal ${card}`}>
               {s.more ? (

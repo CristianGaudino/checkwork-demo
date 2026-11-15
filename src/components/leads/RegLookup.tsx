@@ -26,10 +26,11 @@ export function RegLookup({ reg, onFound, lookup = lookupRegAction, className = 
       onFound?.({ year: r.year, car: r.car });
       setSaid(r.car ? `${r.car.make} ${r.car.model}. ${regSummary(r)}.` : `${regSummary(r)}.`);
     });
-  // Two pieces for the parent's row: the button sits beside the box (`className` sizes it), and the line under the whole row.
+  // Two pieces for the parent's row: the button sits beside the box, and the line under the whole row.
+  // `className` sets the height to match the box beside it (h-12 public, h-11 dashboard) and the offset past its label.
   return (
     <>
-      <button type="button" onClick={look} disabled={pending || !reg.trim()} className={`inline-flex h-12 shrink-0 items-center justify-center gap-2 px-5 disabled:opacity-60 ${secondaryButton} ${className}`}>
+      <button type="button" onClick={look} disabled={pending || !reg.trim()} className={`inline-flex shrink-0 items-center justify-center gap-2 px-5 disabled:opacity-60 ${secondaryButton} ${className}`}>
         <SearchIcon className="size-5" />
         {pending ? "Looking up" : "Look up"}
       </button>
