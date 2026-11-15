@@ -7,6 +7,7 @@ const km = new Intl.NumberFormat("en-IE");
 export const formatPrice = (n: number) => eur.format(n);
 export const formatKm = (n: number) => `${km.format(n)} km`;
 export const formatCount = (n: number) => km.format(n); // 1,163, as the rest of the site writes a number
+export const KM_PER_MILE = 1.609344;
 
 export const carTitle = (car: Pick<Car, "make" | "model" | "variant">) => [car.make, car.model, car.variant].filter(Boolean).join(" ");
 export const carName = (car: Pick<Car, "year" | "make" | "model">) => `${car.year} ${car.make} ${car.model}`;
@@ -23,8 +24,11 @@ const nctLabel = (s: string) => {
 };
 
 // Every spec the car has, in the order the page shows them. Rows with no value are left out (D-10); road tax is dropped on purpose (stale due dates).
-export function specRows(car: Car): { label: string; value: string }[] {
-  const rows: [string, string | undefined][] = [
+// The speeds are in km/h, the site's own unit; `miles` is the same row for a buyer who chose miles, with the mph as published.
+export type SpecRow = { label: string; value: string; miles?: { label: string; value: string } };
+export function specRows(car: Car): SpecRow[] {
+  const mph = car.maxSpeedMph;
+  const rows: [string, string | undefined, SpecRow["miles"]?][] = [
     ["Year", String(car.year)],
     ["Mileage", car.mileageKm === undefined ? undefined : formatKm(car.mileageKm)],
     ["Fuel", car.fuel && FUEL_LABELS[car.fuel]],
@@ -36,10 +40,10 @@ export function specRows(car: Car): { label: string; value: string }[] {
     ["Seats", car.seats === undefined ? undefined : String(car.seats)],
     ["Owners", car.owners === undefined ? undefined : String(car.owners)],
     ["NCT expires", car.nctExpiry && nctLabel(car.nctExpiry)],
-    ["Max speed", car.maxSpeedMph === undefined ? undefined : `${car.maxSpeedMph} mph`],
-    ["0 to 62 mph", car.zeroTo62Secs === undefined ? undefined : `${car.zeroTo62Secs} s`],
+    ["Max speed", mph === undefined ? undefined : `${Math.round(mph * KM_PER_MILE)} km/h`, { label: "Max speed", value: `${mph} mph` }],
+    ["0 to 100 km/h", car.zeroTo62Secs === undefined ? undefined : `${car.zeroTo62Secs} s`, { label: "0 to 62 mph", value: `${car.zeroTo62Secs} s` }],
   ];
-  return rows.flatMap(([label, value]) => (value ? [{ label, value }] : []));
+  return rows.flatMap(([label, value, miles]) => (value ? [miles ? { label, value, miles } : { label, value }] : []));
 }
 
 // The first four present of Year, Mileage, Fuel, Transmission, Body type, Engine, Colour: spec order is the priority order.

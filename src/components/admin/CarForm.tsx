@@ -50,7 +50,7 @@ export function CarForm({ car, cost, reg: startReg = "" }: { car?: Car; cost?: {
             <RegLookup
               reg={reg}
               lookup={lookupRegStaffAction}
-              className="h-11 sm:mt-6 sm:w-44"
+              className="h-11 text-meta sm:mt-6 sm:w-44"
               onFound={({ year, car: c }) => fill({ year, make: c?.make, model: c?.model, fuel: c?.fuel, engineLitres: c?.engineLitres, colour: c?.colour, bodyType: c?.bodyType })}
             />
           </div>

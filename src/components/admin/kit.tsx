@@ -20,7 +20,7 @@ export function PageHeader({ title, text, actions }: { title: string; text?: str
       </div>
       {/* On a phone two or more actions are one full-width row of equal buttons, each icon above its label, so three fit at 360px and
           never wrap two and one. A single action (All leads) keeps its own size. From 640px they sit beside the title as they are. */}
-      {actions && <div className="flex flex-wrap gap-2 max-sm:has-[>:nth-child(2)]:w-full max-sm:has-[>:nth-child(2)]:flex-nowrap max-sm:has-[>:nth-child(2)]:[&>*]:h-auto max-sm:has-[>:nth-child(2)]:[&>*]:min-h-11 max-sm:has-[>:nth-child(2)]:[&>*]:flex-1 max-sm:has-[>:nth-child(2)]:[&>*]:flex-col max-sm:has-[>:nth-child(2)]:[&>*]:gap-1 max-sm:has-[>:nth-child(2)]:[&>*]:px-2 max-sm:has-[>:nth-child(2)]:[&>*]:py-2">{actions}</div>}
+      {actions && <div className="flex flex-wrap gap-2 max-sm:has-[>:nth-child(2)]:w-full max-sm:has-[>:nth-child(2)]:flex-nowrap max-sm:has-[>:nth-child(2)]:[&>*]:h-auto max-sm:has-[>:nth-child(2)]:[&>*]:min-h-11 max-sm:has-[>:nth-child(2)]:[&>*]:flex-1 max-sm:has-[>:nth-child(2)]:[&>*]:flex-col max-sm:has-[>:nth-child(2)]:[&>*]:gap-1 max-sm:has-[>:nth-child(2)]:[&>*]:px-2 max-sm:has-[>:nth-child(2)]:[&>*]:py-2 max-sm:has-[>:nth-child(2)]:[&>*]:text-center">{actions}</div>}
     </header>
   );
 }
@@ -107,6 +107,7 @@ export function EmptyState({ title, text, action }: { title: string; text?: stri
 }
 
 // `hide` keeps a less important column off narrow screens: it shows from that width up. `nowrap` keeps short values (a name, a date) on one line.
+// A right-aligned column is figures, which never wrap either.
 const HIDE = { sm: "hidden sm:table-cell", md: "hidden md:table-cell", lg: "hidden lg:table-cell", xl: "hidden xl:table-cell", "2xl": "hidden 2xl:table-cell" } as const;
 // `sort`: the value the column sorts by; with it, its header sorts the list (sortRows does it on the server, before the list is paged).
 // `quietHeader`: the header is for screen readers only (a column of tick boxes).
@@ -128,7 +129,7 @@ export function sortRows<T>(rows: T[], columns: Column<T>[], sp: { sort?: string
   });
   return { rows: sorted, sort };
 }
-const colClass = (c: Column<unknown>) => `${c.hide ? HIDE[c.hide] : ""} ${c.nowrap ? "whitespace-nowrap" : ""}`;
+const colClass = (c: Column<unknown>) => `${c.hide ? HIDE[c.hide] : ""} ${c.nowrap || c.align === "right" ? "whitespace-nowrap" : ""}`;
 
 // The dealer's tables: every other row filled, so a long list is easy to follow across; 48px rows; numbers on the right in even figures.
 // A table wider than its card scrolls sideways inside it at every width, so no column or button is ever cut off.
@@ -256,7 +257,7 @@ export function Segmented({ items, label }: { items: { label: string; href: stri
   return (
     <nav aria-label={label} className="inline-flex rounded-control border border-hairline bg-card p-1">
       {items.map((i) => (
-        <Link key={i.label} href={i.href} aria-current={i.active ? "page" : undefined} className={`inline-flex min-h-9 items-center rounded-[calc(var(--radius-control)-4px)] px-4 text-meta font-medium ${i.active ? "bg-text text-ink" : "text-text-2 hover:text-text"} ${press}`}>
+        <Link key={i.label} href={i.href} aria-current={i.active ? "page" : undefined} className={`inline-flex min-h-9 items-center justify-center rounded-[calc(var(--radius-control)-4px)] px-4 text-meta max-sm:flex-1 font-medium ${i.active ? "bg-text text-ink" : "text-text-2 hover:text-text"} ${press}`}>
           {i.label}
         </Link>
       ))}

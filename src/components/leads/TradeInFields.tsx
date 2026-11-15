@@ -53,7 +53,7 @@ export function TradeInFields({ bind, photos, step, mode = "sell", cars = [] }: 
           </div>
           <RegLookup
             reg={bind("reg").value}
-            className="sm:mt-7 sm:w-44"
+            className="h-12 sm:mt-6 sm:w-44"
             onFound={({ year, car }) => {
               const fill = (name: string, v: string | number | undefined) => {
                 const b = bind(name);

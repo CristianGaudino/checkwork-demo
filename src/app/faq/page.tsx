@@ -8,7 +8,7 @@ import { pageMain, subTitle } from "@/components/ui";
 // A link inside a sentence: underlined, no taller than the line.
 const inline = "font-medium underline underline-offset-2";
 import { FINANCE } from "@/lib/finance/finance.config";
-import { DEALER_ADDRESS_LINES, DEALER_LOCATION, DEALER_PHONE, DEALER_TEL, NEW_CAR_WARRANTY, SITE_NAME, WARRANTY } from "@/lib/site";
+import { DEALER_ADDRESS_TEXT, DEALER_LOCATION, DEALER_PHONE, DEALER_TEL, NEW_CAR_WARRANTY, SITE_NAME, WARRANTY } from "@/lib/site";
 
 export const metadata: Metadata = { title: "Questions", description: `Answers to common questions about buying, selling, finance and warranty at ${SITE_NAME} in ${DEALER_LOCATION}.` };
 
@@ -53,7 +53,7 @@ const GROUPS: { title: string; items: QA[] }[] = [
   {
     title: "Visiting us",
     items: [
-      { q: "Where are you?", a: <>{DEALER_ADDRESS_LINES.join(", ")}. <Link href="/contact" className={inline}>Directions</Link></> },
+      { q: "Where are you?", a: <>{DEALER_ADDRESS_TEXT}. <Link href="/contact" className={inline}>Directions</Link></> },
       { q: "When are you open?", a: <OpeningHours /> },
       { q: "Do you service cars?", a: <>Yes. Call us on {tel} to book it in. <Link href="/service" className={inline}>Our services</Link></> },
     ],

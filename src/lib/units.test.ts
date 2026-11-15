@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { KM_PER_MILE, formatMileage } from "./units";
+import { KM_PER_MILE } from "./stock/format";
+import { formatMileage } from "./units";
 
 describe("mileage", () => {
   it("shows km as stored, or miles rounded to the nearest mile, with the site's number format", () => {

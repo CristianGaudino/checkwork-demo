@@ -8,7 +8,7 @@ const LABELS = { demo: "Demo data", worst: "Worst case", empty: "Empty", one: "O
 
 export function DevDataToggle({ mode }: { mode: DevMode }) {
   return (
-    <div data-dev-toggle role="group" aria-label="Data" className="fixed left-1/2 top-1 z-100 flex -translate-x-1/2 gap-0.5 rounded-lg bg-neutral-300 p-0.5 font-sans text-xs text-black shadow">
+    <div data-dev-toggle role="group" aria-label="Data" className="fixed left-1/2 top-1 z-100 flex -translate-x-1/2 gap-0.5 rounded-lg bg-neutral-300 p-0.5 font-sans text-[11px] text-black shadow">
       {DEV_MODES.map((m) => (
         <button
           key={m}

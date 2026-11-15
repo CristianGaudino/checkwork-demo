@@ -69,7 +69,7 @@ export async function LeadView({ id }: { id: string }) {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <div className="flex min-w-0 flex-col gap-6 max-lg:contents">
           <Panel title="Message" className="max-lg:order-2">
-            <p className="max-w-measure text-body">{lead.message}</p>
+            <p className="max-w-measure whitespace-pre-line text-body">{lead.message}</p>
             {lead.carTitle && lead.carSlug && (
               <p className="text-meta text-text-2">
                 About{" "}
@@ -109,7 +109,7 @@ export async function LeadView({ id }: { id: string }) {
                 Registration <span className="font-medium tabular-nums">{lead.reg}</span>
               </p>
               <div className="flex flex-wrap gap-2">
-                <RegLookup reg={lead.reg} lookup={lookupRegStaffAction} className="sm:w-44" />
+                <RegLookup reg={lead.reg} lookup={lookupRegStaffAction} className="h-11 text-meta sm:w-44" />
               </div>
             </Panel>
           )}
@@ -120,7 +120,7 @@ export async function LeadView({ id }: { id: string }) {
               <ul className="flex flex-col divide-y divide-hairline">
                 {lead.notes.map((n) => (
                   <li key={n.at} className="flex flex-col gap-0.5 py-2">
-                    <span className="text-body">{n.text}</span>
+                    <span className="whitespace-pre-line text-body">{n.text}</span>
                     <span className="text-meta text-text-2">{fmtDateTime(n.at)}</span>
                   </li>
                 ))}
@@ -214,7 +214,7 @@ export async function LeadView({ id }: { id: string }) {
                 <Field label="Or a day" className="w-44">
                   <input type="date" name="on" min={today} defaultValue={lead.followUpOn ?? ""} required className={adminInput} />
                 </Field>
-                <button type="submit" className={rowButton}>
+                <button type="submit" className={adminButtonQuiet}>
                   Set
                 </button>
               </form>

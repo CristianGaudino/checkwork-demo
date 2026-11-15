@@ -31,7 +31,7 @@ export function SiteFooter() {
             </div>
             <address className="text-body not-italic">
               {DEALER_ADDRESS_LINES.map((line) => (
-                <span key={line} className="block max-lg:inline max-lg:after:content-[',_'] max-lg:last:after:content-none">
+                <span key={line} className="block last:whitespace-nowrap max-lg:inline max-lg:after:content-[',_'] max-lg:last:after:content-none">
                   {line}
                 </span>
               ))}

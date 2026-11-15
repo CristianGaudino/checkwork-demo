@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 import { SITE_SLUG } from "@/lib/site";
-import { formatCount, formatKm } from "@/lib/stock/format";
+import { KM_PER_MILE, formatCount, formatKm } from "@/lib/stock/format";
 
 // How mileage is shown: km (the site's own unit) or miles, for buyers who think in miles. Only the view changes: the stock, filters
 // and forms stay in km. Remembered in this browser; km until the buyer chooses.
@@ -30,5 +30,4 @@ export function setUnit(u: Unit) {
   listeners.forEach((l) => l());
 }
 
-export const KM_PER_MILE = 1.609344;
 export const formatMileage = (km: number, unit: Unit) => (unit === "miles" ? `${formatCount(Math.round(km / KM_PER_MILE))} miles` : formatKm(km));

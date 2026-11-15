@@ -28,7 +28,7 @@ export function AreaChart({ data, summary, format = fmtNum }: { data: Point[]; s
       </svg>
       <figcaption className="flex flex-wrap justify-between gap-x-4 text-meta text-text-2">
         <span>{data[0]?.label}</span>
-        <span>
+        <span className="order-last basis-full sm:order-none sm:basis-auto">
           Busiest: {peak.label}, {format(peak.value)}
         </span>
         <span>{data.at(-1)?.label}</span>

@@ -11,7 +11,7 @@ export const TIME_ZONE = "Europe/Dublin";
 export const DEFAULT_OG_IMAGE = { url: "/brand/og-default.png", width: 1200, height: 630, alt: SITE_NAME };
 // The phone number is made up. The address is a real street in Dublin; the eircode is illustrative.
 export const DEALER_PHONE = "+353 1 906 0045";
-export const DEALER_EMAIL = "demo@checkwork.ie";
+export const DEALER_EMAIL = "contact@checkwork.ie";
 export const DEALER_TEL = "+35319060045";
 // The same number is the demo dealer's WhatsApp.
 // The agency that built the site, credited in the footer.
@@ -42,6 +42,8 @@ export const WARRANTY = { title: "12 month warranty", text: "Engine and gearbox 
 // A new car is covered by its maker, not by the dealer's used-car warranty.
 export const NEW_CAR_WARRANTY = { title: "Manufacturer's warranty", text: "Covered by the manufacturer's warranty from the day you collect it." };
 export const DEALER_ADDRESS_LINES = [DEALER_ADDRESS.street, DEALER_ADDRESS.town, DEALER_ADDRESS.county, DEALER_ADDRESS.eircode];
+// The address on one line, for reading: the eircode never splits over two lines.
+export const DEALER_ADDRESS_TEXT = DEALER_ADDRESS_LINES.join(", ").replace(/ (\S+)$/, " $1");
 // "Dublin 12, Co. Dublin": where the dealer is, as the page descriptions say it.
 export const DEALER_LOCATION = `${DEALER_ADDRESS.town}, ${DEALER_ADDRESS.county}`;
 // Confirmed by the dealer, 2026-11-07. 24 hour HH:MM; no opens means closed.

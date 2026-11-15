@@ -6,3 +6,8 @@ import { formatMileage, useUnit } from "@/lib/units";
 export function Mileage({ km }: { km: number }) {
   return <>{formatMileage(km, useUnit())}</>;
 }
+
+// Any text that has a miles version (a spec in mph): km text first, as the server and first paint say it.
+export function ByUnit({ km, miles }: { km: string; miles: string }) {
+  return <>{useUnit() === "miles" ? miles : km}</>;
+}

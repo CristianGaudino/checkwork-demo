@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: "Compare cars", robots: { index: fals
 export default function ComparePage() {
   return (
     <main className={pageMain}>
-      <PageHeading title="Compare cars" intro="Compare up to three cars side by side." actions={<UnitToggle />} />
+      <PageHeading title="Compare cars" intro="Compare up to three cars side by side." actions={<UnitToggle className="self-start" />} />
       <div className="mt-6 min-h-[28rem]">
         <CompareCards />
       </div>

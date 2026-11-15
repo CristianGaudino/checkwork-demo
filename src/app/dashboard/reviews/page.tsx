@@ -47,9 +47,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ f
                 <Stars rating={r.rating} />
                 <span className="text-meta text-text-2">{fmtDate(r.createdAt)}</span>
               </div>
-              <p className="max-w-measure text-body">{r.text}</p>
+              <p className="max-w-measure whitespace-pre-line text-body">{r.text}</p>
               {r.reply && (
-                <p className="max-w-measure border-l-2 border-hairline pl-3 text-meta text-text-2">
+                <p className="max-w-measure whitespace-pre-line border-l-2 border-hairline pl-3 text-meta text-text-2">
                   <span className="font-medium text-text">Your reply: </span>
                   {r.reply}
                 </p>

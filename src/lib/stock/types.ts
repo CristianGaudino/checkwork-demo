@@ -58,7 +58,7 @@ export interface Car {
   seats?: number;
   owners?: number; // 2 for "2 Owners"
   nctExpiry?: string; // "2027-07" for "07/2027"
-  maxSpeedMph?: number; // 126 for "126 mph", as published, not converted
+  maxSpeedMph?: number; // 126 for "126 mph", as published; the page shows km/h unless the buyer chose miles
   zeroTo62Secs?: number; // 9.9 for "9.9 seconds"
   description?: string; // the dealer's text, line breaks kept, contact block removed
   features?: string[]; // equipment items
