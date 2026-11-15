@@ -3,6 +3,7 @@
 import { UnitToggle } from "@/components/UnitToggle";
 import Link from "next/link";
 import { StateBlock } from "@/components/StateBlock";
+import { Tween } from "@/components/Tween";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useId, useOptimistic, useRef, useState, useTransition } from "react";
 import { countLabel } from "@/lib/stock/format";
@@ -145,7 +146,7 @@ export function StockShell({ query, summary, orderable, children }: { query: Sto
           </div>
           <div className="mt-4 flex items-center justify-between gap-4 lg:mt-0 lg:justify-end lg:gap-6">
             <p aria-live="polite" data-testid="count" className="text-heading font-semibold">
-              {summary && countLabel(summary.total)}
+              {summary && <Tween value={countLabel(summary.total)} />}
             </p>
           </div>
         </div>

@@ -7,6 +7,7 @@ import { FinanceFields, TERM_OPTIONS } from "@/components/leads/FinanceFields";
 import { LeadDialog } from "@/components/leads/LeadDialog";
 import type { CarSummary } from "@/components/leads/LeadDialog";
 import { LeadForm } from "@/components/leads/LeadForm";
+import { Tween } from "@/components/Tween";
 import { FINANCE } from "@/lib/finance/finance.config";
 import { financeable, quote } from "@/lib/finance/payment";
 import { formatPrice } from "@/lib/stock/format";
@@ -70,7 +71,7 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
               <>
                 <p className="text-meta text-text-2">Estimated monthly payment</p>
                 <p className="text-display font-semibold tabular-nums">
-                  About {formatPrice(q.monthlyEur)}<span className="text-body font-normal text-text-2"> a month</span>
+                  About <Tween value={formatPrice(q.monthlyEur)} /><span className="text-body font-normal text-text-2"> a month</span>
                 </p>
                 <dl className="flex flex-col gap-1 text-meta">
                   {(
@@ -82,7 +83,9 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
                   ).map(([label, value]) => (
                     <div key={label} className="flex justify-between gap-4">
                       <dt className="text-text-2">{label}</dt>
-                      <dd className="text-right tabular-nums">{formatPrice(value)}</dd>
+                      <dd className="text-right tabular-nums">
+                        <Tween value={formatPrice(value)} />
+                      </dd>
                     </div>
                   ))}
                 </dl>
