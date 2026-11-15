@@ -118,12 +118,13 @@ export function LeadForm({
   }, [done]);
 
   // A half-filled form comes back after a reload in this tab (draft.ts says what is kept, and never the contact details). Read after
-  // mount, since the server has no sessionStorage; what the page filled in wins over the draft.
+  // mount, since the server has no sessionStorage; what was typed wins, unless the page now fills that field differently.
   const draftKey = useRef<string>(undefined);
   useEffect(() => {
     draftKey.current = `${SITE_SLUG}:draft:${type}:${car?.id ?? ""}:${location.pathname}`;
-    const kept = readDraft(draftKey.current);
-    if (Object.keys(kept).length) setValues((s) => ({ ...kept, ...s }));
+    const kept = readDraft(draftKey.current, prefill);
+    if (Object.keys(kept).length) setValues((s) => ({ ...s, ...kept }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- read once per form; a later prefill change is handled where prefill is applied
   }, [type, car?.id]);
   // After a send the values go back to the prefill, which keeps nothing, so the draft goes with it.
   useEffect(() => {

@@ -3,25 +3,33 @@
 // the form is sent, or when the tab closes.
 const NEVER = new Set(["name", "phone", "email", "consent"]);
 
+type Fields = Record<string, string>;
+const strings = (v: unknown): Fields =>
+  v && typeof v === "object" && !Array.isArray(v) ? Object.fromEntries(Object.entries(v).filter((e): e is [string, string] => typeof e[1] === "string")) : {};
+
 // What is worth keeping: typed fields that differ from what the page filled in itself.
-export function draftOf(values: Record<string, string>, prefill: Record<string, string> = {}): Record<string, string> {
+export function draftOf(values: Fields, prefill: Fields = {}): Fields {
   return Object.fromEntries(Object.entries(values).filter(([k, v]) => !NEVER.has(k) && v.trim() !== "" && v !== prefill[k]));
 }
 
-export function readDraft(key: string): Record<string, string> {
+// What the buyer typed wins over what the page fills in, unless the page now fills that field with something else (another car in the
+// calculator, another search's make): then the typed value was an answer to a different question, and the page's value stands.
+export function readDraft(key: string, prefill: Fields = {}): Fields {
   try {
-    const value: unknown = JSON.parse(sessionStorage.getItem(key) ?? "{}");
-    if (!value || typeof value !== "object" || Array.isArray(value)) return {};
-    return draftOf(Object.fromEntries(Object.entries(value).filter((e): e is [string, string] => typeof e[1] === "string")));
+    const stored: unknown = JSON.parse(sessionStorage.getItem(key) ?? "{}");
+    const { for: was, values } = (stored ?? {}) as { for?: unknown; values?: unknown };
+    const over = strings(was);
+    return Object.fromEntries(Object.entries(draftOf(strings(values))).filter(([k]) => over[k] === prefill[k]));
   } catch {
     return {}; // storage blocked or edited: start empty
   }
 }
 
-export function saveDraft(key: string, values: Record<string, string>, prefill?: Record<string, string>) {
+export function saveDraft(key: string, values: Fields, prefill: Fields = {}) {
   const draft = draftOf(values, prefill);
+  const over = Object.fromEntries(Object.keys(draft).filter((k) => k in prefill).map((k) => [k, prefill[k]]));
   try {
-    if (Object.keys(draft).length) sessionStorage.setItem(key, JSON.stringify(draft));
+    if (Object.keys(draft).length) sessionStorage.setItem(key, JSON.stringify({ for: over, values: draft }));
     else sessionStorage.removeItem(key);
   } catch {
     // storage full or blocked: the form still works, it just is not kept

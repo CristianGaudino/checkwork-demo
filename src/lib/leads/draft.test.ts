@@ -20,10 +20,19 @@ describe("lead form drafts", () => {
     expect(data.has("k")).toBe(false);
   });
 
+  it("what was typed wins over the same prefill, and gives way when the page fills that field differently", () => {
+    saveDraft("k", { make: "Audi", message: "Low miles" }, { make: "Volkswagen" });
+    expect(readDraft("k", { make: "Volkswagen" })).toEqual({ make: "Audi", message: "Low miles" });
+    expect(readDraft("k", { make: "BMW" })).toEqual({ message: "Low miles" });
+    expect(readDraft("k")).toEqual({ message: "Low miles" });
+  });
+
   it("starts empty on anything it did not write", () => {
     data.set("k", "not json");
     expect(readDraft("k")).toEqual({});
-    data.set("k", JSON.stringify({ message: 5, email: "a@b.ie", model: "Golf" }));
+    data.set("k", JSON.stringify({ message: "old shape" }));
+    expect(readDraft("k")).toEqual({});
+    data.set("k", JSON.stringify({ for: [], values: { message: 5, email: "a@b.ie", model: "Golf" } }));
     expect(readDraft("k")).toEqual({ model: "Golf" });
   });
 });
