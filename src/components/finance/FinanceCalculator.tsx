@@ -10,7 +10,7 @@ import { LeadForm } from "@/components/leads/LeadForm";
 import { Tween } from "@/components/Tween";
 import { FINANCE, financeNotice } from "@/lib/finance/finance.config";
 import { financeable, quote } from "@/lib/finance/payment";
-import { formatPrice } from "@/lib/stock/format";
+import { fmtEur } from "@/lib/stock/format";
 import { ArrowRightIcon, InfoIcon } from "@/components/stock/icons";
 import { accentButton, card, press } from "@/components/ui";
 import { count } from "@/lib/count-client";
@@ -72,7 +72,7 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
               <>
                 <p className="text-meta text-text-2">Estimated monthly payment</p>
                 <p className="text-display font-semibold tabular-nums">
-                  About <Tween value={formatPrice(q.monthlyEur)} /><span className="text-body font-normal text-text-2"> a month</span>
+                  About <Tween value={fmtEur(q.monthlyEur)} /><span className="text-body font-normal text-text-2"> a month</span>
                 </p>
                 <dl className="flex flex-col gap-1 text-meta">
                   {(
@@ -85,7 +85,7 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
                     <div key={label} className="flex justify-between gap-4">
                       <dt className="text-text-2">{label}</dt>
                       <dd className="text-right tabular-nums">
-                        <Tween value={formatPrice(value)} />
+                        <Tween value={fmtEur(value)} />
                       </dd>
                     </div>
                   ))}

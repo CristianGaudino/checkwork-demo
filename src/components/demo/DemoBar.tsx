@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useId, useState, useSyncExternalStore } from "react";
 import { DEMO_ROLES, THEME_KEY, isAppPath, roleForPath, type Theme } from "@/lib/demo";
 import { setDealerRole, setDemoRole, setDemoStockSource, useDealerRole, useDemoRole, useStockSource } from "@/lib/demo-role";
 import { ROLES, type Role } from "@/lib/permission-rules";
@@ -58,24 +58,10 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
   const theme = useSyncExternalStore(subscribe, read, () => "light" as Theme);
   const dealerRole = useDealerRole();
   const donedeal = useStockSource() === "donedeal";
-  const [open, setOpen] = useState(false);
-  const root = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false); // mirrors the popover, for the chevron and aria-expanded
   const panelId = useId();
   const barRoom = useRoomFor(0);
   const pillRoom = useRoomFor(20); // the pill and the 12px gap under it, and a little air above
-
-  // Open on a phone: a tap anywhere else, or Escape, folds it again.
-  useEffect(() => {
-    if (!open) return;
-    const away = (e: PointerEvent) => !root.current?.contains(e.target as Node) && setOpen(false);
-    const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
-    document.addEventListener("pointerdown", away);
-    document.addEventListener("keydown", esc);
-    return () => {
-      document.removeEventListener("pointerdown", away);
-      document.removeEventListener("keydown", esc);
-    };
-  }, [open]);
 
   const chip = "flex h-9 shrink-0 items-center rounded-full border px-3 text-meta";
   // `phone`: the controls in the pill's panel, where the row wraps and the module list opens in place; else the slim bar.
@@ -147,21 +133,24 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
   );
 
   return (
-    <div ref={root} data-demo-bar className="theme-dark text-meta text-text">
+    <div data-demo-bar className="theme-dark text-meta text-text">
       {/* A phone: the pill, and the controls above it when open. In the dashboard it stays a pill until 1024px, above the tab bar that
-          shows until then, so the two are never stacked at the foot of a tablet. */}
-      <div className={`fixed right-3 z-40 flex flex-col items-end gap-2 ${inApp ? "bottom-[calc(4rem+env(safe-area-inset-bottom))] lg:hidden" : "bottom-[calc(0.75rem+env(safe-area-inset-bottom))] sm:hidden"}`}>
-        {open && (
-          <div id={panelId} className="flex w-[min(20rem,calc(100vw-1.5rem))] flex-col items-start gap-1 rounded-card border border-hairline bg-band p-2 shadow-panel">
-            {controls(true)}
-          </div>
-        )}
+          shows until then, so the two are never stacked at the foot of a tablet. The controls are a native popover: a tap anywhere else, or
+          Escape, folds them again. Placed 3rem above the pill's foot: its 2.5rem and an 0.5rem gap. */}
+      <div className={`fixed right-3 z-40 ${inApp ? "bottom-[calc(4rem+env(safe-area-inset-bottom))] lg:hidden" : "bottom-[calc(0.75rem+env(safe-area-inset-bottom))] sm:hidden"}`}>
+        <div
+          id={panelId}
+          popover="auto"
+          onToggle={(e) => setOpen(e.newState === "open")}
+          className={`fixed inset-auto right-3 m-0 w-[min(20rem,calc(100vw-1.5rem))] flex-col items-start gap-1 rounded-card border border-hairline bg-band p-2 text-text shadow-panel ${inApp ? "bottom-[calc(7rem+env(safe-area-inset-bottom))] max-lg:[&:popover-open]:flex lg:hidden" : "bottom-[calc(3.75rem+env(safe-area-inset-bottom))] max-sm:[&:popover-open]:flex sm:hidden"}`}
+        >
+          {controls(true)}
+        </div>
         <button
           ref={pillRoom}
           type="button"
           aria-expanded={open}
-          aria-controls={panelId}
-          onClick={() => setOpen((o) => !o)}
+          popoverTarget={panelId}
           className={`flex h-10 items-center gap-1.5 rounded-full border border-hairline bg-band pl-4 pr-3 shadow-panel ${press}`}
         >
           <span className="text-text-2">Demo</span>

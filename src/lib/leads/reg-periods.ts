@@ -13,6 +13,3 @@ export function regPeriods(today: string): string[] {
 }
 
 export const regPeriodLabel = (p: string) => `${p}, ${p.endsWith("1") ? "January to June" : "July to December"} 20${p.slice(0, 2)}`;
-
-// Today in Ireland, for the browser and the server alike.
-export const irishToday = () => new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Dublin" });

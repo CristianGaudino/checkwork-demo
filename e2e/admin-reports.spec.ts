@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
+import { as } from "./open";
 import { sideLink } from "./admin-menu";
 
 // Reports: the whole dealership's for the margins roles, a salesperson's own (counts only) for sales. Prep costs on a car, margins only.
-const as = (context: import("@playwright/test").BrowserContext, role: string) => context.addCookies([{ name: "checkwork-demo-role", value: role, url: "http://localhost:3000" }]);
 
 test("owners, managers and finance see the full report with profit; the period filter narrows it", async ({ page, context }) => {
   for (const role of ["Owner", "Manager", "Finance"]) {

@@ -158,7 +158,6 @@ export function PostComposer({ cars, initialSlug, initialFormat = "post", initia
                       onClick={() => setChosen(on ? photos.filter((x) => x !== src) : limits.photos[1] === 1 ? [src] : [...photos, src].slice(0, limits.photos[1]))}
                       className={`relative size-20 shrink-0 overflow-hidden rounded-control border-2 bg-photo-bg ${on ? "border-accent" : "border-transparent"} ${press}`}
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element -- local static photo or the dealer's own upload; images are unoptimized on this Worker */}
                       <img src={src} alt="" className="size-full object-cover" />
                       {on && (
                         <span className="absolute right-1 top-1 inline-flex size-5 items-center justify-center rounded-full bg-accent text-on-accent">

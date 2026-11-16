@@ -47,7 +47,6 @@ export async function SocialStrip({ cars }: { cars: Car[] }) {
                   live publisher stores each post's address. */}
               <a href={SOCIAL_LINKS.find((l) => l.name === post.network)?.href} {...NEW_TAB} className={`group flex flex-col gap-2 ${press}`}>
                 <span className="relative block aspect-square overflow-hidden rounded-tile bg-photo-bg">
-                  {/* eslint-disable-next-line @next/next/no-img-element -- a local /stock file, sized by its box */}
                 <img src={car.photos[0].src} alt="" width={car.photos[0].width} height={car.photos[0].height} loading="lazy" className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none" />
                   <span className="absolute left-2 top-2 flex size-8 items-center justify-center rounded-full bg-card/90 text-text">
                     <Icon className="size-5" />

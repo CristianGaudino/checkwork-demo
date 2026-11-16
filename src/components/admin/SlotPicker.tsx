@@ -51,7 +51,7 @@ export function SlotPicker({ days, taken, windowMin, now, date, time, onChange, 
             );
           })}
         </div>
-        {errors?.date && <p className="text-meta text-bad">{errors.date}</p>}
+        {errors?.date && <p className="text-meta text-destructive">{errors.date}</p>}
       </fieldset>
       {date && (
         <fieldset className="flex flex-col gap-2">
@@ -75,7 +75,7 @@ export function SlotPicker({ days, taken, windowMin, now, date, time, onChange, 
               ))}
             </div>
           )}
-          {errors?.time && <p className="text-meta text-bad">{errors.time}</p>}
+          {errors?.time && <p className="text-meta text-destructive">{errors.time}</p>}
         </fieldset>
       )}
     </div>

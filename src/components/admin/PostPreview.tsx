@@ -9,7 +9,6 @@ export type PreviewProps = { network: Network; format: PostFormat; layout?: Stor
 const bar = "bg-band/60 text-on-accent";
 
 function Media({ src, className = "" }: { src?: string; className?: string }) {
-  // eslint-disable-next-line @next/next/no-img-element -- the dealer's own upload or a local car photo; images are unoptimized on this Worker
   return src ? <img src={src} alt="" className={`size-full object-cover ${className}`} /> : <div className={`size-full bg-photo-bg ${className}`} />;
 }
 

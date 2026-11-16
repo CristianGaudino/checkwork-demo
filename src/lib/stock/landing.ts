@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { DEALER_ADDRESS, DEALER_LOCATION, DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/site";
-import { formatPrice } from "./format";
+import { fmtEur } from "./format";
 import { carJsonLd } from "./seo";
 import type { Car, StockQuery } from "./types";
 
@@ -43,7 +43,7 @@ export const landingPath = (l: Landing) =>
 export const landingFilter = (l: Landing): Pick<StockQuery, "make" | "model" | "body"> =>
   l.kind === "make" ? { make: [l.makeSlug], model: [], body: [] } : l.kind === "body" ? { make: [], model: [], body: [l.bodySlug] } : { make: [l.makeSlug], model: [l.modelSlug], body: [] };
 
-const priceText = (f: Facts) => (f.n === 1 || f.min === f.max ? `at ${formatPrice(f.min)}` : `from ${formatPrice(f.min)} to ${formatPrice(f.max)}`);
+const priceText = (f: Facts) => (f.n === 1 || f.min === f.max ? `at ${fmtEur(f.min)}` : `from ${fmtEur(f.min)} to ${fmtEur(f.max)}`);
 
 export function landingIntro(l: Landing, f: Facts): string {
   // One body type car reads "1 used SUV car"; makes and models keep their name.

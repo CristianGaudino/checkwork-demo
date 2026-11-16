@@ -73,11 +73,11 @@ export function StatCard({ label, value, hint, tone, href }: { label: string; va
 }
 
 // A thin bar filled to a share of its width: ratings, visitors by source. Decorative: the number is always written beside it.
-export function Meter({ value, max, tone = "accent", className = "" }: { value: number; max: number; tone?: "accent" | "warning"; className?: string }) {
+export function Meter({ value, max }: { value: number; max: number }) {
   const share = max > 0 ? Math.min(100, (value / max) * 100) : 0;
   return (
-    <span aria-hidden="true" className={`h-2 overflow-hidden rounded-full bg-hairline ${className}`}>
-      <span className={`block h-full rounded-full ${tone === "warning" ? "bg-warning" : "bg-accent"}`} style={{ width: `${share}%` }} />
+    <span aria-hidden="true" className="h-2 overflow-hidden rounded-full bg-hairline">
+      <span className="block h-full rounded-full bg-accent" style={{ width: `${share}%` }} />
     </span>
   );
 }
@@ -308,6 +308,26 @@ export function Field({ label, hint, error, children, className = "" }: { label:
         </span>
       )}
     </label>
+  );
+}
+
+// One answer from a few, as radio buttons under a legend: what happened to a deposit, why a sale was undone. Errors as Field shows them.
+export function Choice({ name, options, value, onChange, legend, error, className = "" }: { name: string; options: [string, string][]; value: string; onChange: (v: string) => void; legend: string; error?: string; className?: string }) {
+  return (
+    <fieldset className={`flex flex-col gap-2 ${className}`}>
+      <legend className="mb-1 text-meta font-medium">{legend}</legend>
+      {options.map(([v, label]) => (
+        <label key={v} className="flex min-h-11 items-center gap-3 text-body">
+          <input type="radio" name={name} value={v} checked={value === v} onChange={() => onChange(v)} className="size-5 accent-accent" />
+          {label}
+        </label>
+      ))}
+      {error && (
+        <span role="alert" className="text-meta text-destructive">
+          {error}
+        </span>
+      )}
+    </fieldset>
   );
 }
 

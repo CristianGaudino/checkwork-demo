@@ -8,11 +8,12 @@ import { useLeaveGuard } from "@/components/admin/useLeaveGuard";
 import { Select } from "@/components/Select";
 import { Field, Panel, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
 import { AITextarea } from "@/components/admin/AIWriter";
-import { saveCarAction, type CarFormState } from "@/app/dashboard/stock/actions";
+import { saveCarAction } from "@/app/dashboard/stock/actions";
 import { lookupRegStaffAction } from "@/app/dashboard/reg-action";
 import { CAR_FIELDS, FIELD_GROUPS } from "@/lib/admin/car-fields";
 import type { Car } from "@/lib/stock/types";
 import type { WriteRequest } from "@/lib/ai/tasks";
+import type { FormState } from "@/lib/admin/validation";
 
 // What Write with AI sends for the description: the form's boxes, or nothing until the make and model are in (the writer then says so).
 const carRequest = (form: HTMLFormElement | null | undefined): WriteRequest | null => {
@@ -27,7 +28,7 @@ const carRequest = (form: HTMLFormElement | null | undefined): WriteRequest | nu
 // `reg`: a registration to start a new car from (a trade-in taken on a sale).
 export function CarForm({ car, cost, reg: startReg = "" }: { car?: Car; cost?: { eur?: number }; reg?: string }) {
   const form = useRef<HTMLFormElement>(null);
-  const [state, action, pending] = useKeptForm<CarFormState>(saveCarAction.bind(null, car?.id ?? null), undefined, form);
+  const [state, action, pending] = useKeptForm<FormState>(saveCarAction.bind(null, car?.id ?? null), undefined, form);
   const errors = state?.errors ?? {};
   // What the registration lookup filled in. The boxes are uncontrolled, so a lookup redraws them (`drawn`) from what was typed plus what
   // was found; a box already typed in keeps its value.
@@ -76,7 +77,7 @@ export function CarForm({ car, cost, reg: startReg = "" }: { car?: Car; cost?: {
               <div key={f.name} className="flex min-w-0 flex-col gap-1 sm:col-span-2 lg:col-span-3">
                 <span className="text-meta font-semibold">{f.label}</span>
                 <AITextarea name={f.name} label={f.label} task="carDescription" defaultValue={value(f.name)} rows={5} request={(box) => carRequest(box?.form)} />
-                {errors[f.name] && <span className="text-meta text-bad">{errors[f.name]}</span>}
+                {errors[f.name] && <span className="text-meta text-destructive">{errors[f.name]}</span>}
               </div>
             ) : (
               <Field key={f.name} label={f.label} hint={f.hint} error={errors[f.name]} className={f.wide ? "sm:col-span-2 lg:col-span-3" : ""}>

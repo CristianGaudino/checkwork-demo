@@ -6,6 +6,7 @@ import { logActivity } from "@/lib/admin/activity";
 import { addDays, dublinDay, fmtDate, isIsoDay } from "@/lib/admin/format";
 import { isOpenLead } from "@/lib/admin/leads";
 import { LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_TYPE_LABELS, LOST_REASONS, getSettings, leadsStore } from "@/lib/admin/collections";
+import { appendNote } from "@/lib/admin/notes";
 import { notify } from "@/lib/admin/notifications";
 import { currentMember } from "@/lib/permissions";
 import { requireStaff } from "@/lib/staff";
@@ -68,10 +69,7 @@ export async function assignLeadAction(id: string, data: FormData) {
 
 export async function addNoteAction(id: string, data: FormData) {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
-  const text = String(data.get("note") ?? "").trim().slice(0, 500);
-  const lead = await leadsStore.get(id);
-  if (!text || !lead) return;
-  if (!(await leadsStore.update(id, (l) => ({ ...l, notes: [...l.notes, { at: Date.now(), text }] })))) return;
+  if (!(await appendNote(leadsStore, id, data))) return;
   await logActivity("leads", "Added a note", ref(id)); // never the note itself
   revalidatePath(`/dashboard/leads/${id}`);
   revalidatePath(`/dashboard/aftersales/requests/${id}`);

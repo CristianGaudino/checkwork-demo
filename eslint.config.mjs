@@ -22,6 +22,10 @@ export default defineConfig([
     },
   },
   {
+    // next/image buys nothing here: images are unoptimized on the Worker (next.config.ts), so plain <img> is the house way.
+    rules: { "@next/next/no-img-element": "off" },
+  },
+  {
     // D-08: no console calls in the lead path. src/lib/log.ts is the only logger and sits outside this scope on purpose.
     files: ["src/lib/leads/**", "src/components/leads/**", "src/app/actions/**", "src/app/lead-photos/**"],
     rules: { "no-console": "error" },

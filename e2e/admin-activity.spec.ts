@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
+import { as } from "./open";
+import { sideLink } from "./admin-menu";
 
 // The activity history: owners and managers only (the demo bar's role, a cookie), every change, newest first.
-const as = (context: import("@playwright/test").BrowserContext, role: string) => context.addCookies([{ name: "checkwork-demo-role", value: role, url: "http://localhost:3000" }]);
-import { sideLink } from "./admin-menu";
 
 test("sales and finance have no Activity page; owners and managers do", async ({ page, context }) => {
   await page.setViewportSize({ width: 1280, height: 900 }); // the sidebar; the phone tab bar has its own test (admin-shell)

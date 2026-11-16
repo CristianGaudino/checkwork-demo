@@ -3,11 +3,12 @@
 import { useKeptForm } from "@/components/admin/useKeptForm";
 import { Select } from "@/components/Select";
 import { Field, adminButton, adminInput } from "@/components/admin/kit";
-import { openClaimAction, setClaimCostAction, type ClaimFormState, type CostState } from "@/app/dashboard/aftersales/actions";
+import { openClaimAction, setClaimCostAction, type CostState } from "@/app/dashboard/aftersales/actions";
+import type { FormState } from "@/lib/admin/validation";
 
 // Opening a warranty claim on a car the dealer sold, and (margins only) what the repair cost. The server checks every box again.
 export function OpenClaimForm({ sales, today, defaults }: { sales: { id: string; label: string }[]; today: string; defaults: { saleId?: string; fault?: string; leadId?: string } }) {
-  const [state, action, pending] = useKeptForm<ClaimFormState>(openClaimAction, undefined);
+  const [state, action, pending] = useKeptForm<FormState>(openClaimAction, undefined);
   const e = state?.errors ?? {};
   return (
     <form {...action} className="grid grid-cols-1 gap-4 sm:grid-cols-2" noValidate>

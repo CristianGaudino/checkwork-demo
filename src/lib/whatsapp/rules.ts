@@ -99,7 +99,11 @@ export function parsePrice(text: string): number | null {
   return Number.isFinite(value) && value >= 100 && value <= 500_000 ? Math.round(value) : null;
 }
 
-export const firstName = (name: string) => name.trim().split(/\s+/)[0] || "there";
+// The name to greet someone by, or `fallback` when there is none: an empty name, or a lone initial (Google's "A Google User" is not "A").
+export const firstName = (name: string, fallback = "there") => {
+  const first = name.trim().split(/\s+/)[0] ?? "";
+  return first.length > 1 ? first : fallback;
+};
 
 // What an alert says, from the facts of the event. Short, as a message on a phone is.
 export type Facts = { first?: string; car?: string; reg?: string; text?: string; sell?: boolean; warranty?: boolean; eur?: number; stars?: number; author?: string; days?: number; dropEur?: number; leads?: number; drives?: number; sales?: number };

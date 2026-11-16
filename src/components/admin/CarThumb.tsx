@@ -8,7 +8,6 @@ export function CarThumb({ src }: { src?: string }) {
   const [failed, setFailed] = useState(false);
   if (!src || failed) return null;
   return (
-    // eslint-disable-next-line @next/next/no-img-element -- a local /stock file, sized by its box
     <img
       src={src}
       alt=""

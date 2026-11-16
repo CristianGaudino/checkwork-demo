@@ -3,18 +3,19 @@
 import { useKeptForm } from "@/components/admin/useKeptForm";
 import { useState } from "react";
 import { Select } from "@/components/Select";
-import { Field, adminButton, adminInput } from "@/components/admin/kit";
+import { Choice, Field, adminButton, adminInput } from "@/components/admin/kit";
 import { BuyerFields } from "@/components/admin/BuyerFields";
-import { cancelOrderAction, placeOrderAction, type OrderFormState } from "@/app/dashboard/orders/actions";
+import { cancelOrderAction, placeOrderAction } from "@/app/dashboard/orders/actions";
 import { DEPOSIT_METHODS } from "@/lib/admin/deposits";
 import { regPeriodLabel } from "@/lib/leads/reg-periods";
+import type { FormState } from "@/lib/admin/validation";
 
 // Placing a factory order, and cancelling one. The server checks every box again.
 const grid = "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3";
 const full = "sm:col-span-2 lg:col-span-3";
 
 export function PlaceOrderForm({ periods, month, lastMonth, team, me, customers, leadId }: { periods: string[]; month: string; lastMonth: string; team: string[]; me?: string; customers: { id: string; label: string }[]; leadId?: string }) {
-  const [state, action, pending] = useKeptForm<OrderFormState>(placeOrderAction, undefined);
+  const [state, action, pending] = useKeptForm<FormState>(placeOrderAction, undefined);
   const e = state?.errors ?? {};
   return (
     <form {...action} className={grid} noValidate>
@@ -58,22 +59,13 @@ export function PlaceOrderForm({ periods, month, lastMonth, team, me, customers,
 }
 
 export function CancelOrderForm({ id, depositEur }: { id: string; depositEur?: number }) {
-  const [state, action, pending] = useKeptForm<OrderFormState>(cancelOrderAction.bind(null, id), undefined);
+  const [state, action, pending] = useKeptForm<FormState>(cancelOrderAction.bind(null, id), undefined);
   const [outcome, setOutcome] = useState(depositEur ? "refunded" : "none");
   const e = state?.errors ?? {};
   return (
     <form {...action} className="flex flex-col gap-4" noValidate>
       {depositEur ? (
-        <fieldset className="flex flex-col gap-2">
-          <legend className="mb-1 text-meta font-medium">The deposit was</legend>
-          {[["refunded", "Refunded"], ["kept", "Kept, under our terms"]].map(([v, label]) => (
-            <label key={v} className="flex min-h-11 items-center gap-3 text-body">
-              <input type="radio" name="outcome" value={v} checked={outcome === v} onChange={() => setOutcome(v)} className="size-5 accent-accent" />
-              {label}
-            </label>
-          ))}
-          {e.outcome && <p className="text-meta text-bad">{e.outcome}</p>}
-        </fieldset>
+        <Choice name="outcome" legend="The deposit was" value={outcome} onChange={setOutcome} error={e.outcome} options={[["refunded", "Refunded"], ["kept", "Kept, under our terms"]]} />
       ) : (
         <input type="hidden" name="outcome" value="none" />
       )}
