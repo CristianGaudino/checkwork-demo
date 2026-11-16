@@ -24,8 +24,13 @@ async function formLeadsOf(qs: PersonQuery[]): Promise<FormLead[]> {
   const db = getDb();
   const all = await db.select({ id: formLeads.id, email: formLeads.email, phone: formLeads.phone }).from(formLeads);
   const ids = all.filter((r) => matchesAny(r, qs)).map((r) => r.id);
-  return ids.length ? db.select().from(formLeads).where(inArray(formLeads.id, ids)) : [];
+  const rows: FormLead[] = [];
+  for (const part of chunks(ids)) rows.push(...(await db.select().from(formLeads).where(inArray(formLeads.id, part))));
+  return rows;
 }
+
+// D1 binds at most 100 values a statement, so a long list of ids goes in parts.
+const chunks = <T,>(all: T[], size = 90): T[][] => Array.from({ length: Math.ceil(all.length / size) }, (_, i) => all.slice(i * size, (i + 1) * size));
 
 // By the email or phone given, then once more by the other details their customer record and leads hold, so a booking made with only a
 // phone is found from their email too. Once, not over and over: a shared family phone must not pull in everyone it ever touched.
@@ -72,11 +77,16 @@ export function exportOf(h: Held, at = new Date()) {
   };
 }
 
-// Erasure: the photos first, then the rows (if R2 fails the rows stay and the request can be run again), then the dashboard's records.
+// Erasure: the sales, deposits, claims and orders lose the buyer first (they are found through the customer record, so a run that stops part
+// way can be run again), then the photos, then the rows (if R2 fails the rows stay and the request can be run again), then the dashboard's records.
 // Returns how many records went. A sale, a deposit, a factory order or a warranty claim stays, without its buyer (a claim also loses its words: the fault and
 // the notes may name them), so the repair cost still counts.
 export async function erasePerson(q: PersonQuery): Promise<number> {
   const h = await findPerson(q);
+  for (const s of h.sales) await salesStore.update(s.id, (x) => ({ ...x, customerId: undefined }));
+  for (const r of h.deposits) await reservationsStore.update(r.id, (x) => ({ ...x, customerId: undefined }));
+  for (const k of h.claims) await claimsStore.update(k.id, (x) => ({ ...x, customerId: undefined, leadId: undefined, fault: "Erased on request", notes: [] }));
+  for (const o of h.orders) await ordersStore.update(o.id, (x) => ({ ...x, customerId: undefined, leadId: undefined, notes: [] }));
   if (h.formLeads.length) {
     const keys = h.formLeads.flatMap((r) => r.photoKeys);
     const bucket = getBindings().LEAD_PHOTOS;
@@ -84,7 +94,7 @@ export async function erasePerson(q: PersonQuery): Promise<number> {
       if (!bucket) throw new Error("Missing binding LEAD_PHOTOS");
       for (let i = 0; i < keys.length; i += 1000) await bucket.delete(keys.slice(i, i + 1000));
     }
-    await getDb().delete(formLeads).where(inArray(formLeads.id, h.formLeads.map((r) => r.id)));
+    for (const part of chunks(h.formLeads.map((r) => r.id))) await getDb().delete(formLeads).where(inArray(formLeads.id, part));
   }
   for (const m of h.messages) await messagesStore.remove(m.id);
   for (const l of h.leads) await leadsStore.remove(l.id);
@@ -92,9 +102,5 @@ export async function erasePerson(q: PersonQuery): Promise<number> {
   for (const a of h.alerts) await alertsStore.remove(a.id);
   for (const s of h.subscribers) await subscribersStore.remove(s.id);
   for (const c of h.customers) await customersStore.remove(c.id);
-  for (const s of h.sales) await salesStore.put({ ...s, customerId: undefined });
-  for (const r of h.deposits) await reservationsStore.put({ ...r, customerId: undefined });
-  for (const k of h.claims) await claimsStore.put({ ...k, customerId: undefined, leadId: undefined, fault: "Erased on request", notes: [] });
-  for (const o of h.orders) await ordersStore.put({ ...o, customerId: undefined, leadId: undefined, notes: [] });
   return heldCount(h) - h.sales.length - h.deposits.length - h.claims.length - h.orders.length;
 }

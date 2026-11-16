@@ -104,7 +104,8 @@ with no D1). The actor is the signed-in person (`currentMember`), or a named one
 - **A sale** (`salesStore`, one per car): the price it sold for, the day, who sold it and the buyer, a customer on file or a new one made
   on the form. In our version Mark sold opens the form and marks the car sold on the sale's day. In the DoneDeal version the dealer
   answers for a car whose ad came down, and the Sold view on Stock (Record sale) asks for a sold car with none. Margins use the sale price
-  for a sold car. After six years the daily job removes the buyer from sales and deposits (`src/lib/admin/sales-purge.ts`,
+  for a sold car. After six years the daily job removes the buyer from sales, deposits, warranty claims and factory orders (a claim or order
+  also loses its lead, notes and fault text, as an erasure does) (`src/lib/admin/sales-purge.ts`,
   `{"job":"anonymise-sales"}`); the figures stay. /privacy says so.
 - **A deposit** (`reservationsStore`, our version only): Reserve on a car for sale takes the amount, how it was paid, the day, the buyer
   and the last day it is held. The car shows as Reserved on the website, listed after the cars for sale, with no enquiry or test drive

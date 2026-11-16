@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { sendToDealer } from "@/lib/leads/mail";
-import { getSettings, leadsStore, settingsStore, type DealerSettings, drivesStore } from "@/lib/admin/collections";
+import { SETTINGS_DEFAULT, getSettings, leadsStore, settingsStore, type DealerSettings, drivesStore } from "@/lib/admin/collections";
 import { resetDemoRecords } from "@/lib/admin/demo-reset";
 import { EMAIL_INVALID, NAME_REQUIRED } from "@/lib/copy";
 import { newId } from "@/lib/admin/ids";
@@ -23,7 +23,8 @@ const refused = async (field: string): Promise<SettingsState | null> => ((await 
 
 // Reads the current record, applies one change and writes it back, so each panel saves on its own.
 async function change(fn: (s: DealerSettings) => DealerSettings) {
-  await settingsStore.put({ ...fn(await getSettings()), updatedAt: Date.now() });
+  const apply = (s: Partial<DealerSettings>) => ({ ...fn({ ...SETTINGS_DEFAULT, ...s }), updatedAt: Date.now() });
+  if (!(await settingsStore.update("dealer", apply))) await settingsStore.put(apply({})); // update: two panels saved at once both land
   revalidatePath("/dashboard/settings");
 }
 
@@ -161,8 +162,8 @@ export async function removeTeamAction(id: string) {
   if (no) return { error: no };
   if (hasOwner(team) && !hasOwner(team.filter((t) => t.id !== id))) return { error: "Make someone else an Owner first. The team always has one." };
   await change((s) => ({ ...s, team: s.team.filter((t) => t.id !== id) }));
-  for (const l of await leadsStore.list()) if (l.assignedTo === gone.name) await leadsStore.put({ ...l, assignedTo: undefined });
-  for (const d of await drivesStore.list()) if (d.assignedTo === gone.name) await drivesStore.put({ ...d, assignedTo: undefined });
+  for (const l of await leadsStore.list()) if (l.assignedTo === gone.name) await leadsStore.update(l.id, (x) => ({ ...x, assignedTo: x.assignedTo === gone.name ? undefined : x.assignedTo }));
+  for (const d of await drivesStore.list()) if (d.assignedTo === gone.name) await drivesStore.update(d.id, (x) => ({ ...x, assignedTo: x.assignedTo === gone.name ? undefined : x.assignedTo }));
   await staffStore.remove(id); // their WhatsApp phone goes too: no more buyers' alerts to someone who left
   await logActivity("settings", `Removed ${gone.name} from the team`, { kind: "team", id, label: gone.name });
 }

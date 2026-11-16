@@ -8,7 +8,7 @@ import { buyerFields, buyerOf } from "@/lib/admin/buyer";
 import { DEPOSIT_METHODS, ORDER_STATUS_LABELS, heldFor, leadsStore, orderOpen, ordersStore, reservationsStore, type Order } from "@/lib/admin/collections";
 import { addDays, addMonths, dublinDay, fmtEur } from "@/lib/admin/format";
 import { newId } from "@/lib/admin/ids";
-import { adminCar, freeCarId, saveCar } from "@/lib/admin/stock-admin";
+import { addCar, adminCar, freeCarId, saveCar } from "@/lib/admin/stock-admin";
 import { carSlug, slugify } from "@/lib/admin/stock-admin-pure";
 import { fieldErrors, isoMonth } from "@/lib/admin/validation";
 import { regPeriods } from "@/lib/leads/reg-periods";
@@ -99,7 +99,7 @@ export async function setOrderStatusAction(id: string, data: FormData) {
     carId = await freeCarId();
     const base = { id: carId, make: o.make, model: o.model, year: 2000 + Number(o.regPeriod.slice(0, 2)) };
     const car: Car = { ...base, slug: carSlug(base), makeSlug: slugify(o.make), modelSlug: slugify(o.model), ...(o.spec && { variant: o.spec }), ...(o.colour && { colour: o.colour }), priceEur: o.priceEur, condition: "new", photos: [], listing: "hidden", ...(o.depositEur && { reserved: true }) };
-    await saveCar(car);
+    carId = (await addCar(car)).id; // the id still free as it is written
     if (o.depositEur) {
       const today = dublinDay();
       await reservationsStore.put({ id: newId("res"), carId, carTitle: title(o), customerId: o.customerId, depositEur: o.depositEur, method: o.depositMethod ?? "Card", paidOn: o.orderedOn, until: addDays(today, 30), salesperson: o.salesperson, status: "held", createdAt: Date.now() });

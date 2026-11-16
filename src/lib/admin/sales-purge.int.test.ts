@@ -21,4 +21,19 @@ describe("anonymiseOldSales", () => {
     expect(rows.dep).toEqual({ id: "dep", paidOn: "2020-01-01", depositEur: 500 }); // a deposit as old goes the same way
     expect(await anonymiseOldSales(db as never, new Date("2026-11-11T03:00:00Z"))).toBe(0); // done once
   });
+
+  it("clears an old claim's and order's lead, fault and notes as an erasure does, and keeps the figures", async () => {
+    const db = getDb();
+    const notes = [{ at: 1, text: "Pat rang about the clutch" }];
+    await db.insert(adminDocs).values([
+      { collection: "claims", id: "k", data: { id: "k", openedOn: "2020-01-01", fault: "Pat says it slips", notes, costEur: 400, customerId: "cust-1", leadId: "lead-1" } },
+      { collection: "orders", id: "o", data: { id: "o", orderedOn: "2020-01-01", priceEur: 30000, notes, customerId: "cust-1", leadId: "lead-1" } },
+      { collection: "claims", id: "new", data: { id: "new", openedOn: "2026-01-01", fault: "Kept", notes, customerId: "cust-2" } },
+    ]);
+    expect(await anonymiseOldSales(db as never, new Date("2026-11-11T03:00:00Z"))).toBe(2);
+    const rows = Object.fromEntries((await db.select().from(adminDocs)).map((r) => [r.id, r.data]));
+    expect(rows.k).toEqual({ id: "k", openedOn: "2020-01-01", fault: "Removed after six years", notes: [], costEur: 400 });
+    expect(rows.o).toEqual({ id: "o", orderedOn: "2020-01-01", priceEur: 30000, notes: [] });
+    expect(rows.new).toMatchObject({ fault: "Kept", customerId: "cust-2" });
+  });
 });
