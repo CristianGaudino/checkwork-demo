@@ -13,6 +13,7 @@ import { carName, carSummary, keyFacts, carHref } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 import { accentButton, card } from "@/components/ui";
+import { IfModule } from "@/components/IfModule";
 
 const button = `flex w-full items-center justify-center gap-2 ${accentButton}`;
 const FACT_ICONS: Record<string, typeof CarIcon> = { Year: CalendarIcon, Mileage: GaugeIcon, Fuel: FuelIcon, Transmission: GearIcon };
@@ -93,10 +94,12 @@ export function BuyBox({ car }: { car: Car }) {
             <>
               <StockAlertButton car={carSummary(car)} kind="price-drop" />
               {/* The trade-in door with this car already chosen. */}
+              <IfModule href="/trade-in">
               <Link href={`/trade-in?car=${car.slug}`} className="inline-flex min-h-11 items-center gap-2 text-meta font-medium text-accent-text underline col-span-2">
                 <SwapIcon className="size-4" />
                 Trade in your car against this one
               </Link>
+              </IfModule>
             </>
           )}
         </div>

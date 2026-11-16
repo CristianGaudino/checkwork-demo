@@ -8,6 +8,7 @@ import { Breadcrumb } from "@/components/car/Breadcrumb";
 import { CarGallery } from "@/components/car/CarGallery";
 import { AboutCar, Equipment, SimilarCars, Specifications } from "@/components/car/CarSections";
 import { FinanceCalculator } from "@/components/finance/FinanceCalculator";
+import { IfModule } from "@/components/IfModule";
 import { resolveLanding } from "@/components/landing/data";
 import { LandingPage } from "@/components/landing/LandingPage";
 import { VehicleHint } from "@/components/vehicleHint";
@@ -81,10 +82,12 @@ export default async function CarPage({ params }: PageProps<"/used-cars/[slug]">
           {/* In stock only: a sold car offers no finance (UI-SPEC section 7). Only the summary and price reach the client. */}
           {/* Finance is on what the buyer pays, as in the buy box: an ex. VAT price with VAT on. */}
           {!isSold(car) && !car.reserved && financeable(payableEur(car)) && (
+            <IfModule id="finance">
             <section className="flex flex-col gap-4">
               <h2 className={`text-heading font-semibold`}>Finance</h2>
               <FinanceCalculator car={{ ...carSummary(car), price: priceInfo(car).incVat ?? carSummary(car).price, priceEur: payableEur(car) }} />
             </section>
+            </IfModule>
           )}
         </div>
       </div>

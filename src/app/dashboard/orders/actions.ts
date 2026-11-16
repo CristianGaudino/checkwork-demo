@@ -15,6 +15,7 @@ import { regPeriods } from "@/lib/leads/reg-periods";
 import { can } from "@/lib/permissions";
 import { stockSource } from "@/lib/stock-source";
 import type { Car } from "@/lib/stock/types";
+import { LISTING_SITE } from "@/lib/stock-source-rules";
 
 // Factory orders, our version only (a DoneDeal dealer's new cars arrive on DoneDeal). Anyone on the team places one and moves it along;
 // cancelling, with money going back or kept, is for owners and managers. Recorded in the activity history by the car, never the buyer.
@@ -43,7 +44,7 @@ const placing = z.object({
 });
 
 export async function placeOrderAction(_prev: OrderFormState, data: FormData): Promise<OrderFormState> {
-  if (!(await theirs())) return { errors: { make: "Orders are for stock kept here, not on DoneDeal" } };
+  if (!(await theirs())) return { errors: { make: `Orders are for stock kept here, not on ${LISTING_SITE}` } };
   const r = placing.safeParse(Object.fromEntries(data));
   if (!r.success) return { errors: fieldErrors(r.error) };
   const d = r.data;

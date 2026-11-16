@@ -3,6 +3,7 @@ import { SyncIcon } from "@/components/stock/icons";
 import { syncNowAction } from "@/app/dashboard/stock/actions";
 import { fmtAgo } from "@/lib/admin/format";
 import type { SyncStatus } from "@/lib/donedeal/sync";
+import { LISTING_SITE } from "@/lib/stock-source-rules";
 
 // How the DoneDeal sync is doing, and Sync now. On Stock, Overview and Settings for a dealer whose stock comes from DoneDeal.
 // `canForce`: owners and managers may apply a sync that was held because DoneDeal's answer looked wrong (it can take many cars off the site).
@@ -15,7 +16,7 @@ export function syncLine(s: SyncStatus) {
   return `${s.problem} ${s.lastOkAt ? `The site shows the stock from the last good sync, ${fmtAgo(s.lastOkAt)}.` : "Nothing has synced yet."}`;
 }
 
-export function SyncPanel({ status, canForce, title = "DoneDeal sync" }: { status: SyncStatus; canForce: boolean; title?: string }) {
+export function SyncPanel({ status, canForce, title = `${LISTING_SITE} sync` }: { status: SyncStatus; canForce: boolean; title?: string }) {
   return (
     <Panel title={title}>
       <p role="status" className={`max-w-measure text-body ${status.problem ? "rounded-control bg-warn-soft px-4 py-3 text-warn" : "text-text-2"}`}>

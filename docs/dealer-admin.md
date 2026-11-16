@@ -2,17 +2,33 @@
 
 The demo has two views. The public site is `/`. The dealer dashboard is `/dashboard`. The demo bar at the foot of every page switches between them: choosing Dealer on a public page keeps that page and adds a Dashboard link to the header (and stock and social links on a car page). There is no login of our own: on a deployed site Cloudflare Access is the login (see below). There is no superuser role and no platform in this site: running many dealers is a separate program, not part of what a dealer is sold. The platform that was here is in git history (PR #30).
 
+## Modules
+
+A dealer has the base site plus the modules they pay for (#173, `src/lib/modules-rules.ts`). A module that is off has its pages answer
+404 (the proxy checks, for public and dashboard pages alike), its links leave the menus, footer and pages (`IfModule`), and its server
+actions refuse. On the demo the bar's Modules switches choose them (a cookie); on a real site `NEXT_PUBLIC_SITE_MODULES` does, and a
+cookie never can. Data is never deleted when a module goes off. Stock kept in the dashboard is not a module switch: it follows where the
+stock comes from.
+
+## Usage billed per use
+
+Registration lookups, AI actions and WhatsApp messages cost the dealer per use, on top of the plan (#181). The code that makes a paid use
+counts it with `recordUsage` and asks `usageAllowed` first (`src/lib/billing/usage.ts`): past a monthly cap (the dealer's, set by the Owner
+or Manager on Billing, or our ceiling) the service stops for the month and falls back (a lookup gives the plate's own facts, AI leaves the
+text alone, WhatsApp goes by email). Alerts at 80% of a cap, at the cap and at amounts the dealer chose go to the owners and managers in
+the bell, once a month each. Counts are one record per month per line of the bill. Prices are in `src/lib/billing/rules.ts`.
+
 ## Roles and permissions
 
 Everyone the dashboard lets in works the everyday dashboard (leads, test drives, stock, customers, reviews, marketing). A role adds
 permissions, each checked on the server in every page and action that needs it (`src/lib/permissions.ts`, rules in `permission-rules.ts`):
 
-| Role | Margins (costs, prep and profit) | Reports | Team | Business settings | Activity history | Data requests and lead exports |
-|---|---|---|---|---|---|---|
-| Owner | Yes | The dealership's | Yes | Yes | Yes | Yes |
-| Manager | Yes | The dealership's | Yes, except an owner | Yes | Yes | Yes |
-| Finance | Yes | The dealership's | No | No | No | No |
-| Sales | No | Their own, counts only | No | No | No | No |
+| Role | Margins (costs, prep and profit) | Reports | Team | Business settings | Activity history | Data requests and lead exports | Billing |
+|---|---|---|---|---|---|---|---|
+| Owner | Yes | The dealership's | Yes | Yes | Yes | Yes | Yes |
+| Manager | Yes | The dealership's | Yes, except an owner | Yes | Yes | Yes | Yes |
+| Finance | Yes | The dealership's | No | No | No | No | No |
+| Sales | No | Their own, counts only | No | No | No | No | No |
 
 - **Margins:** a Margins screen, a margin column on the stock list, a Stock margin stat on the overview and a cost price box on the car
   form. Without it none of those are in the page, and the Margins page and the cost field answer as if they were not there. Costs are kept
@@ -165,9 +181,12 @@ the overview and the reports) until a claim is opened from it or it is set aside
   Business Profile once it is connected; on the demo it is the seeded reviews.
 - **Questions** (`/faq`) answers only from what the site already says (warranty, finance wording, selling, hours), so it promises nothing new.
 
-## DoneDeal stock
+## Listing site stock (DoneDeal or CarsIreland)
 
-A dealer whose stock is on DoneDeal (`NEXT_PUBLIC_STOCK_SOURCE=donedeal`, or the demo bar's DoneDeal switch) keeps one source of truth:
+Both DoneDeal and CarsIreland offer a dealer API for the dealer's own site, and the site reads either the same way (`src/lib/donedeal/`,
+named for the first). `NEXT_PUBLIC_LISTING_SITE` names it in the dashboard (DoneDeal by default). Below, "DoneDeal" stands for either.
+
+A dealer whose stock is on DoneDeal (`NEXT_PUBLIC_STOCK_SOURCE=donedeal`, or the demo bar's sync switch) keeps one source of truth:
 cars are added, changed and sold on DoneDeal only. The dashboard never edits them; it holds only the dealer's own figures (cost).
 - **The sync** (`src/lib/donedeal/sync.ts`, rules in `plan.ts`): every 15 minutes the Worker's cron calls `/api/donedeal/sync` with the
   `CRON_KEY` secret; Sync now on Stock or Overview runs the same. New ads are added and changed ones updated. A car DoneDeal no longer

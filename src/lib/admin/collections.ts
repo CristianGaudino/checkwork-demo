@@ -14,6 +14,7 @@ import type { Car } from "@/lib/stock/types";
 import type { Role } from "@/lib/permission-rules";
 import type { PrepLine } from "./prep";
 import { carTitleOf, livePicks, person, rng } from "./seed-data";
+import { BILLING_DEFAULT, type BillingSettings } from "@/lib/billing/rules";
 
 // For the demo's stories: a day relative to today (YYYY-MM-DD, Irish), a demo car by id, a seeded customer by id.
 const ago = (daysAgo: number) => dublinDay(Date.now() - daysAgo * DAY);
@@ -287,6 +288,7 @@ export type DealerSettings = {
   marketing: { voice: string; hashtags: string; signOff: string }; // used by the post and newsletter writers
   team: TeamMember[];
   leadEmails: string[]; // who gets the email when a visitor sends a form; empty means the LEAD_TO_EMAIL variable
+  billing?: BillingSettings; // usage limits and alerts, and our ceilings (#181, src/lib/billing/usage.ts); missing on a record from before
   updatedAt: number;
 };
 export const SETTINGS_DEFAULT: DealerSettings = {
@@ -303,7 +305,9 @@ export const SETTINGS_DEFAULT: DealerSettings = {
 // The demo has the morning follow-up email on, so it can be shown (the made-up team's mail goes to the lead inbox, src/lib/leads/mail.ts).
 const seedSettings = (): DealerSettings[] => {
   const demo = seedsDemoRecords();
-  return [{ ...SETTINGS_DEFAULT, team: demo ? SETTINGS_DEFAULT.team : [], notifications: { ...SETTINGS_DEFAULT.notifications, followUps: demo }, updatedAt: Date.now() }];
+  // The demo's limits: AI near its cap, so the Billing page can show the 80% alert and a limit; a ceiling of ours on all usage.
+  const billing: BillingSettings | undefined = demo ? { ...BILLING_DEFAULT, caps: { ai: 9, whatsapp: 40, total: 60 }, ceilings: { total: 150 }, alerts: [{ scope: "total", amountEur: 25 }] } : undefined;
+  return [{ ...SETTINGS_DEFAULT, team: demo ? SETTINGS_DEFAULT.team : [], notifications: { ...SETTINGS_DEFAULT.notifications, followUps: demo }, billing, updatedAt: Date.now() }];
 };
 export const settingsStore = defineCollection<DealerSettings>("settings", seedSettings, { always: true });
 

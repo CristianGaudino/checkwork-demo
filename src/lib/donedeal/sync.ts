@@ -14,12 +14,13 @@ import type { Car } from "@/lib/stock/types";
 import { HOUR, MINUTE } from "@/lib/time";
 import { fetchListings, type FeedResult } from "./feed";
 import { planSync } from "./plan";
+import { LISTING_SITE } from "@/lib/stock-source-rules";
 
 // One sync: read the dealer's DoneDeal ads, work out the changes (plan.ts), write them to the stock the site reads, and record each in the
 // activity history as "DoneDeal sync". Run every 15 minutes by the Worker (worker.mjs, through /api/donedeal/sync) and by Sync now.
 // A failed or held sync changes nothing: the site keeps the stock from the last good one. After an hour of failures the owners and
 // managers get one email, then no more until a sync works again.
-export const SYNC_ACTOR = "DoneDeal sync";
+export const SYNC_ACTOR = `${LISTING_SITE} sync`;
 // Where the sync runs: a site whose stock comes from DoneDeal, and the demo (which shows both versions; its feed changes nothing).
 export const syncRunsHere = () => DEMO_BAR_ENABLED || process.env.NEXT_PUBLIC_STOCK_SOURCE === "donedeal";
 export const ALERT_AFTER = HOUR;
@@ -45,9 +46,9 @@ export async function syncStatus(): Promise<SyncStatus> {
 }
 
 const PROBLEMS: Record<Exclude<FeedResult, { ok: true }>["reason"], string> = {
-  "not-connected": "DoneDeal is not connected. Add the API key under Settings, Connected services.",
-  "not-installed": "The DoneDeal key is set, but the connection is not switched on yet.",
-  failed: "DoneDeal did not answer.",
+  "not-connected": `${LISTING_SITE} is not connected. Add the API key under Settings, Connected services.`,
+  "not-installed": `The ${LISTING_SITE} key is set, but the connection is not switched on yet.`,
+  failed: `${LISTING_SITE} did not answer.`,
 };
 
 const ref = (c: Car) => ({ kind: "car" as const, id: c.id, label: carTitleOf(c) });
@@ -58,7 +59,7 @@ export async function runSync({ force = false, now = Date.now() } = {}): Promise
   if (!feed.ok) return failed(prev, PROBLEMS[feed.reason], false, now);
   const today = dublinDay(now); // the Irish day, as the rest of the dashboard dates a sale
   const plan = planSync(await adminCars(), feed.listings, today, { force });
-  if (plan.held) return failed(prev, `${plan.held} The site kept its stock. Check DoneDeal, then sync again.`, true, now);
+  if (plan.held) return failed(prev, `${plan.held} The site kept its stock. Check ${LISTING_SITE}, then sync again.`, true, now);
   // Car by car: one that cannot be saved (an ad whose address clashes with another car's) is skipped and counted, never stops the rest.
   // shortcut: a cron run and Sync now at the same moment both apply the plan; the stock ends the same but the history shows each change
   // twice. Fine while syncs take seconds; add a lock if it shows up.
@@ -74,20 +75,20 @@ export async function runSync({ force = false, now = Date.now() } = {}): Promise
     }
   };
   const result = { added: 0, changed: 0, takenDown: 0 };
-  for (const c of plan.added) if (await apply(c, "Added from DoneDeal")) result.added++;
+  for (const c of plan.added) if (await apply(c, `Added from ${LISTING_SITE}`)) result.added++;
   for (const { before, after } of plan.changed) {
-    if (!(await apply(after, before.soldAt ? "Back on sale on DoneDeal" : before.listing ? "Back on DoneDeal" : carEditSummary(before, after)))) continue;
+    if (!(await apply(after, before.soldAt ? `Back on sale on ${LISTING_SITE}` : before.listing ? `Back on ${LISTING_SITE}` : carEditSummary(before, after)))) continue;
     result.changed++;
     // Back on sale: the sale fell through. Kept as a cancelled sale, as in our version, so the history still has it.
     const sale = before.soldAt ? await salesStore.get(after.id) : undefined;
-    if (sale) await undoSale(sale, { returnedOn: today, kind: "cancelled", reason: "Listed again on DoneDeal" });
+    if (sale) await undoSale(sale, { returnedOn: today, kind: "cancelled", reason: `Listed again on ${LISTING_SITE}` });
   }
   for (const c of plan.gone) {
-    if (!(await apply(c, "Hidden: the ad came down on DoneDeal"))) continue;
+    if (!(await apply(c, `Hidden: the ad came down on ${LISTING_SITE}`))) continue;
     result.takenDown++;
-    await notify({ kind: "taken-down", text: `Ad taken down on DoneDeal: ${carTitleOf(c)}`, href: "/dashboard/stock" }, now);
+    await notify({ kind: "taken-down", text: `Ad taken down on ${LISTING_SITE}: ${carTitleOf(c)}`, href: "/dashboard/stock" }, now);
   }
-  const status: SyncStatus = { id: "status", lastRunAt: now, lastOkAt: now, result, ...(skipped && { problem: `${skipped === 1 ? "1 car" : `${skipped} cars`} from DoneDeal could not be saved. The rest are up to date.` }) };
+  const status: SyncStatus = { id: "status", lastRunAt: now, lastOkAt: now, result, ...(skipped && { problem: `${skipped === 1 ? "1 car" : `${skipped} cars`} from ${LISTING_SITE} could not be saved. The rest are up to date.` }) };
   await statusStore.put(status);
   return status;
 }
@@ -97,7 +98,7 @@ async function failed(prev: SyncStatus, problem: string, held: boolean, now: num
   const failingSince = prev.problem && prev.failingSince !== undefined ? prev.failingSince : now;
   const status: SyncStatus = { ...prev, lastRunAt: now, problem, held, failingSince };
   // In the bell once an outage starts, not every 15 minutes it lasts.
-  if (failingSince === now) await notify({ kind: "sync", text: "The DoneDeal stock did not update", href: "/dashboard/stock" }, now);
+  if (failingSince === now) await notify({ kind: "sync", text: `The ${LISTING_SITE} stock did not update`, href: "/dashboard/stock" }, now);
   const due = now - failingSince >= ALERT_AFTER && !(prev.alertedAt !== undefined && prev.alertedAt >= failingSince);
   if (due && (await alertOwners(problem, prev.lastOkAt))) status.alertedAt = now;
   await statusStore.put(status);
@@ -109,8 +110,8 @@ async function alertOwners(problem: string, lastOkAt?: number): Promise<boolean>
   const since = lastOkAt ? `since ${new Date(lastOkAt).toLocaleString("en-IE", { timeZone: TIME_ZONE, dateStyle: "medium", timeStyle: "short" })}` : "yet";
   try {
     await sendTo(to, {
-      subject: `${SITE_NAME}: the DoneDeal stock has not updated ${since}`,
-      text: `${problem}\n\nThe website still shows the cars from the last update ${since}. New cars, price changes and sales on DoneDeal will not show until it works again. Open the dealer dashboard, Stock, to see the latest attempt and to sync again.`,
+      subject: `${SITE_NAME}: the ${LISTING_SITE} stock has not updated ${since}`,
+      text: `${problem}\n\nThe website still shows the cars from the last update ${since}. New cars, price changes and sales on ${LISTING_SITE} will not show until it works again. Open the dealer dashboard, Stock, to see the latest attempt and to sync again.`,
     });
     return true;
   } catch {

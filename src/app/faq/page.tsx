@@ -4,6 +4,8 @@ import { OpeningHours } from "@/components/OpeningHours";
 import { PageHeading } from "@/components/PageHeading";
 import { ChevronDownIcon } from "@/components/stock/icons";
 import { pageMain, subTitle } from "@/components/ui";
+import { IfModule } from "@/components/IfModule";
+import type { ModuleId } from "@/lib/modules-rules";
 
 // A link inside a sentence: underlined, no taller than the line.
 const inline = "font-medium underline underline-offset-2";
@@ -15,15 +17,16 @@ export const metadata: Metadata = { title: "Questions", description: `Answers to
 // Every answer is built from what the site already says (the warranty, the finance wording, the selling pages, the hours), so it makes no
 // promise the dealer has not made elsewhere and changes when they do. No FAQ structured data: Google shows FAQ results only for government
 // and health sites since 2023.
-type QA = { q: string; a: React.ReactNode };
+// `module`: the answer points at a page of that module (#173), so it is shown only with the module on.
+type QA = { q: string; a: React.ReactNode; module?: ModuleId };
 const tel = <a href={`tel:${DEALER_TEL}`} className={inline}>{DEALER_PHONE}</a>;
 
 const GROUPS: { title: string; items: QA[] }[] = [
   {
     title: "Buying",
     items: [
-      { q: "Can I see a car before I buy it?", a: <>Yes. <Link href="/test-drive" className={inline}>Book a test drive</Link> online, or call us on {tel} to arrange a viewing.</> },
-      { q: "What if you don't have the car I want?", a: <>Tell us what you&apos;re looking for and we&apos;ll look for it. <Link href="/find-a-car" className={inline}>Find a car</Link></> },
+      { module: "testDrives", q: "Can I see a car before I buy it?", a: <>Yes. <Link href="/test-drive" className={inline}>Book a test drive</Link> online, or call us on {tel} to arrange a viewing.</> },
+      { module: "carFinder", q: "What if you don't have the car I want?", a: <>Tell us what you&apos;re looking for and we&apos;ll look for it. <Link href="/find-a-car" className={inline}>Find a car</Link></> },
       { q: "Do the prices of vans include VAT?", a: <>Commercial vehicles show the price without VAT, which a VAT-registered buyer can usually reclaim, with the price including VAT underneath. Cars show the full price.</> },
     ],
   },
@@ -38,14 +41,14 @@ const GROUPS: { title: string; items: QA[] }[] = [
   {
     title: "Finance",
     items: [
-      { q: "Can I buy a car on finance?", a: <>Yes, through a lender. Our <Link href="/finance" className={inline}>finance estimator</Link> shows roughly what a monthly payment could be. {FINANCE.notice}</> },
+      { module: "finance", q: "Can I buy a car on finance?", a: <>Yes, through a lender. Our <Link href="/finance" className={inline}>finance estimator</Link> shows roughly what a monthly payment could be. {FINANCE.notice}</> },
     ],
   },
   {
     title: "Selling and trading in",
     items: [
-      { q: "Will you buy my car if I'm not buying one?", a: <>Yes, we buy good cars. Tell us about it and send some photos, and we come back with an offer. <Link href="/sell-your-car" className={inline}>Sell your car</Link></> },
-      { q: "Can I trade in my car against one of yours?", a: <>Yes. We value yours and take it off the price of the car you buy, and can usually offer more than for a straight sale. <Link href="/trade-in" className={inline}>Trade in your car</Link></> },
+      { module: "tradeIn", q: "Will you buy my car if I'm not buying one?", a: <>Yes, we buy good cars. Tell us about it and send some photos, and we come back with an offer. <Link href="/sell-your-car" className={inline}>Sell your car</Link></> },
+      { module: "tradeIn", q: "Can I trade in my car against one of yours?", a: <>Yes. We value yours and take it off the price of the car you buy, and can usually offer more than for a straight sale. <Link href="/trade-in" className={inline}>Trade in your car</Link></> },
       { q: "Is the price you give me final?", a: <>It&apos;s an estimate until we&apos;ve seen the car.</> },
       { q: "How do you pay for my car?", a: <>By bank transfer when we collect it.</> },
     ],
@@ -55,7 +58,7 @@ const GROUPS: { title: string; items: QA[] }[] = [
     items: [
       { q: "Where are you?", a: <>{DEALER_ADDRESS_TEXT}. <Link href="/contact" className={inline}>Directions</Link></> },
       { q: "When are you open?", a: <OpeningHours /> },
-      { q: "Do you service cars?", a: <>Yes. Call us on {tel} to book it in. <Link href="/service" className={inline}>Our services</Link></> },
+      { module: "service", q: "Do you service cars?", a: <>Yes. Call us on {tel} to book it in. <Link href="/service" className={inline}>Our services</Link></> },
     ],
   },
 ];
@@ -72,7 +75,8 @@ export default function FaqPage() {
             </h2>
             <ul className="flex flex-col divide-y divide-hairline border-y border-hairline">
               {g.items.map((it) => (
-                <li key={it.q}>
+                <IfModule key={it.q} id={it.module}>
+                <li>
                   <details className="group">
                     <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 py-3 text-body font-medium [&::-webkit-details-marker]:hidden">
                       {it.q}
@@ -81,6 +85,7 @@ export default function FaqPage() {
                     <div className="pb-4 text-body">{it.a}</div>
                   </details>
                 </li>
+                </IfModule>
               ))}
             </ul>
           </section>

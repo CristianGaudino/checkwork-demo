@@ -11,6 +11,7 @@ import { countLabel } from "@/lib/stock/format";
 import { carsOfMake, findMake } from "@/lib/stock/makes";
 import { DEFAULT_QUERY } from "@/lib/stock/query";
 import type { Car, Condition } from "@/lib/stock/types";
+import { IfModule } from "@/components/IfModule";
 
 // One page per make: what we have of it across used, new and commercial, a few of each with the way to the full list; or, with none in
 // stock, what we sold recently, what we have that is like it, and an offer to find one.
@@ -107,9 +108,11 @@ function FindOne({ make }: { make: string }) {
         <h2 className={subTitle}>Looking for a particular {make}?</h2>
         <p className="text-body text-text-2">Tell us the model, year and budget and we will look for it. No obligation.</p>
       </div>
+      <IfModule href="/find-a-car">
       <Link href={`/find-a-car?make=${encodeURIComponent(make)}`} className={`inline-flex h-12 shrink-0 items-center px-6 ${secondaryButton}`}>
         Find one for me
       </Link>
+      </IfModule>
     </div>
   );
 }

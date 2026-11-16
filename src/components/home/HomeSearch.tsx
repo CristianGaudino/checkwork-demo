@@ -7,6 +7,7 @@ import { PriceRange } from "@/components/PriceRange";
 import { IconBadge } from "@/components/Feature";
 import { ArrowRightIcon, SearchIcon } from "@/components/stock/icons";
 import { accentButton, card } from "@/components/ui";
+import { IfModule } from "@/components/IfModule";
 
 type Option = { slug: string; label: string };
 type Props = { makes: Option[]; bodies: Option[]; models: { makeSlug: string; slug: string; label: string }[] };
@@ -81,10 +82,12 @@ export function HomeSearch({ makes, bodies, models }: Props) {
               </li>
             ))}
           </ol>
+          <IfModule href="/find-a-car">
           <Link href="/find-a-car" className={`inline-flex items-center justify-center gap-2 lg:shrink-0 ${accentButton}`}>
             Find it for me
             <ArrowRightIcon className="size-5" />
           </Link>
+          </IfModule>
         </div>
       </div>
     </div>

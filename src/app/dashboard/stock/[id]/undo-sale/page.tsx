@@ -8,6 +8,7 @@ import { dublinDay, fmtDate, fmtEur } from "@/lib/admin/format";
 import { adminCar } from "@/lib/admin/stock-admin";
 import { can } from "@/lib/permissions";
 import { stockSource } from "@/lib/stock-source";
+import { LISTING_SITE } from "@/lib/stock-source-rules";
 
 export const metadata = { title: "Undo the sale" };
 
@@ -34,7 +35,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
           {inWindow ? `Today is within ${RETURN_WINDOW_DAYS} days of the sale. A buyer who rejects a faulty car in that time is usually owed a full refund.` : `Today is more than ${RETURN_WINDOW_DAYS} days after the sale.`}
         </p>
         <p className="max-w-measure text-meta text-text-2">
-          {source === "donedeal" || !car ? "The sale is kept in the records as undone. The car itself is changed on DoneDeal." : "The sale is kept in the records as undone. A car brought back is hidden from the website until you show it; one that fell through goes straight back on sale."}
+          {source === "donedeal" || !car ? `The sale is kept in the records as undone. The car itself is changed on ${LISTING_SITE}.` : "The sale is kept in the records as undone. A car brought back is hidden from the website until you show it; one that fell through goes straight back on sale."}
         </p>
         <UndoSaleForm carId={id} soldOn={sale.soldOn} today={today} />
       </Panel>

@@ -11,7 +11,8 @@ import type { Car, Fuel } from "@/lib/stock/types";
 // A registration lookup: what the plate says on its own (year, county), and with a lookup service the car itself. One lookup for the
 // visitor's forms (trade-in, sell) and the dealer's (Add a car, #103; a lead).
 export type CarFound = { make: string; model: string; fuel?: Fuel; engineLitres?: number; colour?: string; bodyType?: string };
-export type RegLookup = RegFacts & { car?: CarFound };
+// `limited`: the dealer's monthly limit for lookups is reached (#181), so only the plate's own facts came back.
+export type RegLookup = RegFacts & { car?: CarFound; limited?: true };
 
 // Cartell is the service (issue #2). Each real lookup costs money, so a live one goes through these limits first, in this order:
 // 1. the cache: a plate looked up in the last 30 days is answered from it, free, however often it is asked for;
@@ -41,12 +42,16 @@ async function visitorCountId(today: string, visitor: string): Promise<string> {
   return `${today}-v-${[...hash.slice(0, 12)].map((b) => b.toString(16).padStart(2, "0")).join("")}`;
 }
 
-// `visitor`: the visitor's address, for their limits; null for staff, who have none.
-export async function lookupReg(raw: string, visitor: string | null, service: (reg: string) => Promise<CarFound | null> = cartell): Promise<RegLookup | null> {
+// `visitor`: the visitor's address, for their limits; null for staff, who have none. `paid`: called once for each lookup that costs money
+// (or would, on the demo), so the dealer's meter counts it (src/lib/billing/usage.ts); a cached answer is free and not counted.
+export async function lookupReg(raw: string, visitor: string | null, service: (reg: string) => Promise<CarFound | null> = cartell, paid?: () => Promise<void>): Promise<RegLookup | null> {
   const facts = parseIrishReg(raw);
   if (!facts) return null;
   const mode = modeOf("reglookup");
-  if (mode === "simulated") return { ...facts, car: sampleCar(facts.reg) };
+  if (mode === "simulated") {
+    await paid?.();
+    return { ...facts, car: sampleCar(facts.reg) };
+  }
   if (mode === "off") return facts;
 
   const now = Date.now();
@@ -71,6 +76,7 @@ export async function lookupReg(raw: string, visitor: string | null, service: (r
   } catch {
     return facts; // a failed lookup is not cached, and never stops the form
   }
+  await paid?.();
   await regCache.put({ id: facts.reg, car, at: now });
   return car ? { ...facts, car } : facts;
 }

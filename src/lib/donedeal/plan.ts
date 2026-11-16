@@ -1,4 +1,5 @@
 import { forSale, type Car } from "@/lib/stock/types";
+import { LISTING_SITE } from "@/lib/stock-source-rules";
 
 // What one sync changes, worked out before anything is written. Pure, so every rule is tested.
 // `current`: every car on the site (sold ones too). `listings`: every car the dealer has on DoneDeal now, already in our shape.
@@ -32,9 +33,9 @@ export function planSync(current: Car[], listings: Car[], today: string, { force
   }
   const onSite = current.filter(forSale);
   const gone = onSite.filter((c) => !listed.has(c.id));
-  if (!force && onSite.length && !listings.length) return { added: [], changed: [], gone: [], held: `DoneDeal sent no cars, and the site has ${onSite.length}.` };
+  if (!force && onSite.length && !listings.length) return { added: [], changed: [], gone: [], held: `${LISTING_SITE} sent no cars, and the site has ${onSite.length}.` };
   if (!force && gone.length >= HOLD_MIN_GONE && gone.length > onSite.length * HOLD_SHARE)
-    return { added: [], changed: [], gone: [], held: `DoneDeal no longer lists ${gone.length} of the ${onSite.length} cars for sale.` };
+    return { added: [], changed: [], gone: [], held: `${LISTING_SITE} no longer lists ${gone.length} of the ${onSite.length} cars for sale.` };
   return { added, changed, gone: gone.map((c) => ({ ...c, listing: "hidden" as const, takenDownAt: today })) };
 }
 

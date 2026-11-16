@@ -10,7 +10,7 @@ import { seedsDemoRecords } from "@/lib/admin/docs";
 import { syncLine } from "@/components/admin/SyncPanel";
 import { syncStatus } from "@/lib/donedeal/sync";
 import { stockSource } from "@/lib/stock-source";
-import { DONEDEAL_DEALER_URL } from "@/lib/stock-source-rules";
+import { LISTING_SITE, DONEDEAL_DEALER_URL } from "@/lib/stock-source-rules";
 import { NEW_TAB } from "@/components/ui";
 import { currentMember } from "@/lib/permissions";
 import { ROLES, roleCan, type Role } from "@/lib/permission-rules";
@@ -144,13 +144,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
           )}
 
           {section === "services" && sync && (
-            <Panel title="DoneDeal">
+            <Panel title={LISTING_SITE}>
               <dl className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
                 <div>
                   <dt className="text-meta text-text-2">Account</dt>
                   <dd className="text-body">
                     <a href={DONEDEAL_DEALER_URL} {...NEW_TAB} className="underline-offset-2 hover:underline">
-                      {modeOf("donedeal") === "simulated" ? INTEGRATIONS.find((i) => i.id === "donedeal")!.demoAccount : "Your DoneDeal dealer page"}
+                      {modeOf("donedeal") === "simulated" ? INTEGRATIONS.find((i) => i.id === "donedeal")!.demoAccount : `Your ${LISTING_SITE} dealer page`}
                       <span className="sr-only"> (opens in a new tab)</span>
                     </a>
                   </dd>
@@ -162,7 +162,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
               </dl>
               <p className="text-body">{syncLine(sync)}</p>
               <p className="max-w-measure text-meta text-text-2">
-                Cars are added, changed and sold on DoneDeal, and the site follows every 15 minutes. DoneDeal gives the key for your own site only, with your written consent.
+                Cars are added, changed and sold on {LISTING_SITE}, and the site follows every 15 minutes. {LISTING_SITE} gives the key for your own site only, with your written consent.
               </p>
             </Panel>
           )}

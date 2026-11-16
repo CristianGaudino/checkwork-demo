@@ -6,7 +6,9 @@ import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore }
 import { DEMO_ROLES, THEME_KEY, isAppPath, roleForPath, type Theme } from "@/lib/demo";
 import { setDealerRole, setDemoRole, setDemoStockSource, useDealerRole, useDemoRole, useStockSource } from "@/lib/demo-role";
 import { ROLES, type Role } from "@/lib/permission-rules";
+import { LISTING_SITE } from "@/lib/stock-source-rules";
 import { ChevronDownIcon } from "@/components/stock/icons";
+import { ModuleSwitches } from "./ModuleSwitches";
 import { press } from "@/components/ui";
 
 // The theme lives on <html data-theme>; this watches that attribute, so the button is right on first paint and after any change.
@@ -121,7 +123,7 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
               ))}
             </select>
           </label>
-          {/* Where the stock comes from: added here, or synced from DoneDeal and read only here (src/lib/stock-source.ts). */}
+          {/* Where the stock comes from: added here, or synced from a listing site (DoneDeal or CarsIreland) and read only here (src/lib/stock-source.ts). */}
           <button
             type="button"
             aria-pressed={donedeal}
@@ -131,8 +133,10 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
             }}
             className={`${chip} ${donedeal ? "border-accent bg-accent text-on-accent" : "border-hairline text-text-2"} ${press}`}
           >
-            DoneDeal<span className="ml-1">{donedeal ? "on" : "off"}</span>
+            {LISTING_SITE} sync<span className="ml-1">{donedeal ? "on" : "off"}</span>
           </button>
+          {/* Which modules the dealer has (#173), so a smaller site can be shown. */}
+          <ModuleSwitches chip={chip} />
         </div>
       )}
       <button type="button" aria-pressed={theme === "dark"} onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className={`flex h-11 items-center px-2 text-text-2 ${press}`}>

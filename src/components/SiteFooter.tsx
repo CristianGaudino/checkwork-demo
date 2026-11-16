@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronDownIcon, FacebookIcon, InstagramIcon, TikTokIcon } from "@/components/stock/icons";
 import { FOOTER_GROUPS, LEGAL_LINKS } from "@/lib/nav";
+import { IfModule } from "@/components/IfModule";
 import { CHECKWORK_URL, DEALER_ADDRESS_LINES, SITE_NAME, SOCIAL_LINKS } from "@/lib/site";
 import { Logo } from "@/components/Logo";
 import { PhoneLink } from "@/components/PhoneLink";
@@ -60,38 +61,46 @@ export function SiteFooter() {
             {/* A phone: one row per group, folded. */}
             <div className="flex flex-col border-b border-hairline lg:hidden">
               {FOOTER_GROUPS.map((g) => (
-                <details key={g.title} className="group border-t border-hairline">
+                <IfModule key={g.title} hrefs={g.links.map((l) => l.href)}>
+                <details className="group border-t border-hairline">
                   <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between text-body font-medium [&::-webkit-details-marker]:hidden">
                     {g.title}
                     <ChevronDownIcon className="size-5 text-text-2 transition-transform group-open:rotate-180 motion-reduce:transition-none" />
                   </summary>
                   <ul className="flex flex-col pb-3">
                     {g.links.map((l) => (
-                      <li key={l.href}>
-                        <Link href={l.href} className={`${link} text-body text-text-2`}>
-                          {l.long ?? l.label}
-                        </Link>
-                      </li>
+                      <IfModule key={l.href} href={l.href}>
+                        <li>
+                          <Link href={l.href} className={`${link} text-body text-text-2`}>
+                            {l.long ?? l.label}
+                          </Link>
+                        </li>
+                      </IfModule>
                     ))}
                   </ul>
                 </details>
+                </IfModule>
               ))}
             </div>
             {/* From 1024px: the same groups as open columns. */}
             <div className="hidden grid-cols-4 gap-x-6 lg:grid">
               {FOOTER_GROUPS.map((g) => (
-                <div key={g.title}>
+                <IfModule key={g.title} hrefs={g.links.map((l) => l.href)}>
+                <div>
                   <h2 className="text-meta font-semibold text-text-2">{g.title}</h2>
                   <ul className="mt-2 flex flex-col gap-1">
                     {g.links.map((l) => (
-                      <li key={l.href}>
-                        <Link href={l.href} className={`${link} text-body`}>
-                          {l.long ?? l.label}
-                        </Link>
-                      </li>
+                      <IfModule key={l.href} href={l.href}>
+                        <li>
+                          <Link href={l.href} className={`${link} text-body`}>
+                            {l.long ?? l.label}
+                          </Link>
+                        </li>
+                      </IfModule>
                     ))}
                   </ul>
                 </div>
+                </IfModule>
               ))}
             </div>
           </nav>

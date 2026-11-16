@@ -109,7 +109,7 @@ export async function LeadView({ id }: { id: string }) {
                 Registration <span className="font-medium tabular-nums">{lead.reg}</span>
               </p>
               <div className="flex flex-wrap gap-2">
-                <RegLookup reg={lead.reg} lookup={lookupRegStaffAction} className="h-11 text-meta sm:w-44" />
+                <RegLookup reg={lead.reg} lookup={lookupRegStaffAction} place="dashboard" className="h-11 text-meta sm:w-44" />
               </div>
             </Panel>
           )}
