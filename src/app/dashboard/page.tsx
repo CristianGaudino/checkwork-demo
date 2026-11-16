@@ -89,8 +89,8 @@ export default async function Page() {
                     <span className="flex min-w-0 flex-col">
                       <span className="truncate font-medium">{l.name}</span>
                       <span className="flex min-w-0 gap-1 text-meta text-text-2">
-                        <span className="truncate">{l.carTitle ?? l.message.split("\n")[0]}</span>
-                        <span className="shrink-0">· {fmtAgo(l.createdAt)}</span>
+                        <span className="truncate">{l.carTitle ?? l.message.trim().split("\n")[0]}</span>
+                        <span className="shrink-0">{(l.carTitle ?? l.message.trim()) && "· "}{fmtAgo(l.createdAt)}</span>
                       </span>
                     </span>
                     <LeadStatusBadge status={l.status} />

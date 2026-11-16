@@ -111,7 +111,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
 
       {tab === "customers" && (
         <>
-          <TableToolbar search={{ placeholder: "Search name, email, phone", label: "Search customers" }} filters={filters.customers} />
+          <TableToolbar search={{ placeholder: "Search", label: "Search customers" }} filters={filters.customers} />
           <DataTable label="Customers" linkRows sort={people.sort} rows={peoplePage.rows} rowKey={(c) => c.id} columns={customerColumns} empty={<EmptyState title="No customers match" text="Try another filter or search." />} />
           {footer(peoplePage)}
         </>
@@ -119,7 +119,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
 
       {tab === "alerts" && (
         <>
-          <TableToolbar search={{ placeholder: "Search email or car", label: "Search stock alerts" }} filters={filters.alerts} />
+          <TableToolbar search={{ placeholder: "Search", label: "Search stock alerts" }} filters={filters.alerts} />
           <DataTable label="Stock alerts" sort={alertList.sort} rows={alertPage.rows} rowKey={(a) => a.id} columns={alertColumns} empty={<EmptyState title={q || sp.kind || sp.state ? "No alerts match" : "No alerts yet"} text={q || sp.kind || sp.state ? "Try another filter or search." : "Visitors can ask to be told about a car. They show here."} />} />
           {footer(alertPage)}
         </>
@@ -127,7 +127,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
 
       {tab === "newsletter" && (
         <>
-          <TableToolbar search={{ placeholder: "Search email", label: "Search subscribers" }} filters={filters.newsletter} />
+          <TableToolbar search={{ placeholder: "Search", label: "Search subscribers" }} filters={filters.newsletter} />
           <DataTable label="Newsletter subscribers" sort={subList.sort} rows={subPage.rows} rowKey={(s) => s.id} columns={subColumns} empty={<EmptyState title="No subscribers match" />} />
           {footer(subPage)}
         </>

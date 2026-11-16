@@ -44,13 +44,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ q
       header: "Car",
       sort: (r) => carName(r.car),
       cell: (r) => (
-        <Link href={`/dashboard/stock/${r.car.id}`} className="font-semibold underline-offset-2 hover:underline">
+        <Link href={`/dashboard/stock/${r.car.id}`} className="inline-block min-w-28 font-semibold underline-offset-2 hover:underline">
           {carName(r.car)}
         </Link>
       ),
     },
     { key: "status", header: "Status", hide: "md", sort: (r) => carStatus(r.car), cell: (r) => <CarStatusBadge car={r.car} /> },
-    { key: "price", header: "Price", align: "right", sort: (r) => r.price, cell: (r) => (r.salePrice !== undefined ? <span className="flex flex-col items-end">{fmtEur(r.salePrice)}<span className="text-meta text-text-2">sold for</span></span> : fmtEur(r.car.priceEur)) },
+    { key: "price", header: "Price", align: "right", hide: "sm", sort: (r) => r.price, cell: (r) => (r.salePrice !== undefined ? <span className="flex flex-col items-end">{fmtEur(r.salePrice)}<span className="text-meta text-text-2">sold for</span></span> : fmtEur(r.car.priceEur)) },
     {
       key: "cost",
       header: "Cost",
@@ -60,7 +60,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ q
         if (r.cost === undefined) return "Not set";
         const { prep, claims } = costs.get(r.car.id)!;
         const parts = [prep && `${fmtEur(prep)} prep`, claims && `${fmtEur(claims)} warranty`].filter(Boolean).join(", ");
-        return parts ? <span className="flex flex-col items-end">{fmtEur(r.cost)}<span className="text-meta text-text-2">with {parts}</span></span> : fmtEur(r.cost);
+        return parts ? <span className="flex flex-col items-end">{fmtEur(r.cost)}<span className="text-meta text-text-2 max-sm:hidden">with {parts}</span></span> : fmtEur(r.cost);
       },
     },
     { key: "margin", header: "Margin", align: "right", sort: (r) => (r.cost === undefined ? undefined : marginOf(r.price, r.cost).eur), cell: (r) => (r.cost === undefined ? "" : fmtEur(marginOf(r.price, r.cost).eur)) },
@@ -76,13 +76,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ q
     <>
       <PageHeader title="Margins" text="What each car cost, prep included, and what it makes: the price less the cost, before VAT and running costs. A sold car uses what it sold for. Only owners, managers and finance see this." />
       <StatGrid>
-        <StatCard label="Stock cost" value={fmtEur(stockCost)} hint={`${plural(stock.length, "car")} for sale`} />
+        <StatCard label="Stock cost" value={fmtEur(stockCost)} hint={`${plural(stock.length, "unsold car")} with a cost`} />
         <StatCard label="Stock value" value={fmtEur(stockPrice)} hint="At the advertised prices" />
         <StatCard label="Expected margin" value={fmtEur(stockMargin.eur)} hint={`${fmtPct(stockMargin.pct)} of the value`} />
         <StatCard label="Margin on sold cars" value={fmtEur(soldMargin)} hint={`${plural(sold.length, "sold car")}, at what they sold for where recorded`} />
       </StatGrid>
       <Panel title="Every car">
-        <TableToolbar search={{ placeholder: "Search make or model", label: "Search cars" }} filters={[{ name: "state", label: "Which cars", any: "Every car", options: [["stock", "In stock"], ["sold", "Sold"], ["no-cost", "No cost price yet"]] }]} />
+        <TableToolbar search={{ placeholder: "Search", label: "Search cars" }} filters={[{ name: "state", label: "Which cars", any: "Every car", options: [["stock", "In stock"], ["sold", "Sold"], ["no-cost", "No cost price yet"]] }]} />
         <DataTable bare columns={columns} rows={paged.rows} rowKey={(r) => r.car.id} sort={sort} empty={<EmptyState title="No cars match" />} />
         <TableFooter page={paged.page} pageCount={paged.pageCount} total={paged.total} per={paged.per} />
       </Panel>

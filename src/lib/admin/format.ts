@@ -22,12 +22,14 @@ const DAY_STYLES = {
   month: utc({ month: "short" }), // Nov
 } as const;
 
-export const fmtDate = (t: number | string) => date.format(new Date(t));
+// Some engines write September "Sept" beside "Oct": every short month is three letters.
+export const threeLetter = (s: string) => s.replace("Sept", "Sep");
+export const fmtDate = (t: number | string) => threeLetter(date.format(new Date(t)));
 export const fmtTime = (t: number) => time.format(t);
-export const fmtDay = (iso: string, style: keyof typeof DAY_STYLES = "long") => DAY_STYLES[style].format(new Date(`${iso}T12:00:00Z`));
+export const fmtDay = (iso: string, style: keyof typeof DAY_STYLES = "long") => threeLetter(DAY_STYLES[style].format(new Date(`${iso}T12:00:00Z`)));
 // Whole days from a listed day (YYYY-MM-DD) to now, never below 0: how long a car has been in stock.
 export const daysSince = (day: string, now = Date.now()) => Math.max(0, Math.floor((now - Date.parse(`${day}T00:00:00Z`)) / 86_400_000));
-export const fmtDateTime = (t: number | string) => dateTime.format(new Date(t));
+export const fmtDateTime = (t: number | string) => threeLetter(dateTime.format(new Date(t)));
 // A count with its word, singular for one: "1 review", "12 reviews", "1,284 cars".
 export const plural = (n: number, one: string, many = `${one}s`) => `${fmtNum(n)} ${n === 1 ? one : many}`;
 // The Irish calendar day of a moment, as YYYY-MM-DD ("today" for follow-ups and sales), and a day n days on.

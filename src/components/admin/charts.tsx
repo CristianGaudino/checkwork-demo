@@ -1,5 +1,5 @@
 import { Meter } from "@/components/admin/kit";
-import { fmtNum } from "@/lib/admin/format";
+import { fmtNum, threeLetter } from "@/lib/admin/format";
 
 // Charts drawn by hand in SVG and HTML: no library, nothing to load. Colours come from the tokens, so both themes work. Each chart
 // carries its numbers as text for a screen reader, and never relies on colour alone.
@@ -93,7 +93,7 @@ export function LeadsByWeek({ weeks, starts, usual }: { weeks: number[]; starts:
         <span className="absolute inset-x-0 border-t border-dashed border-control" style={{ bottom: `${(usual / max) * 86}%` }} />
         {weeks.map((n, i) => (
           <span key={i} className="relative flex h-full flex-col items-center justify-end gap-1">
-            <span className={`bg-card px-1 text-meta tabular-nums ${i === weeks.length - 1 ? "font-medium text-text" : "text-text-2"}`}>{n}</span>
+            <span className={`relative z-10 rounded-sm bg-card px-1.5 py-0.5 text-meta tabular-nums ${i === weeks.length - 1 ? "font-medium text-text" : "text-text-2"}`}>{n}</span>
             <span className={`w-full max-w-10 rounded-t-control ${i === weeks.length - 1 ? "bg-accent" : "bg-chart-muted"}`} style={{ height: `${Math.max(2, (n / max) * 86)}%` }} />
           </span>
         ))}
@@ -109,7 +109,7 @@ export function LeadsByWeek({ weeks, starts, usual }: { weeks: number[]; starts:
               </>
             ) : (
               <>
-                <span className="max-sm:hidden">{weekOf.format(t)}</span>
+                <span className="max-sm:hidden">{threeLetter(weekOf.format(t))}</span>
                 <span className="sm:hidden">{weekShort.format(t)}</span>
               </>
             )}
@@ -117,7 +117,7 @@ export function LeadsByWeek({ weeks, starts, usual }: { weeks: number[]; starts:
         ))}
       </div>
       <figcaption className="sr-only">
-        Leads each week for the last eight weeks, from the week of {weekOf.format(starts[0])}: {weeks.join(", ")}. A usual week has {usual}.
+        Leads each week for the last eight weeks, from the week of {threeLetter(weekOf.format(starts[0]))}: {weeks.join(", ")}. A usual week has {usual}.
       </figcaption>
     </figure>
   );

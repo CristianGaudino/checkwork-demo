@@ -15,7 +15,11 @@ const FORM = "stock-bulk";
 type Op = "price" | "sold" | "delete";
 
 export function StockPick({ id, name }: { id: string; name: string }) {
-  return <input type="checkbox" form={FORM} name="ids" value={id} aria-label={`Select ${name}`} className="relative z-10 size-5 accent-accent" />;
+  return (
+    <span className="relative z-10 -m-3 flex size-11 items-center justify-center">
+      <input type="checkbox" form={FORM} name="ids" value={id} aria-label={`Select ${name}`} className="size-5 accent-accent" />
+    </span>
+  );
 }
 
 const boxes = () => [...document.querySelectorAll<HTMLInputElement>(`input[form="${FORM}"][name="ids"]`)];

@@ -91,7 +91,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         </>
       ) : (
       <>
-      <TableToolbar search={{ placeholder: "Search car, customer or fault", label: "Search claims" }} filters={[{ name: "cover", label: "Cover", any: "In or out of cover", options: [["true", "In cover"], ["false", "Out of cover"]] }]} />
+      <TableToolbar search={{ placeholder: "Search", label: "Search claims" }} filters={[{ name: "cover", label: "Cover", any: "In or out of cover", options: [["true", "In cover"], ["false", "Out of cover"]] }]} />
       <DataTable
         label="Warranty claims"
         linkRows

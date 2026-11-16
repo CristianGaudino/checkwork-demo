@@ -42,7 +42,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
           )}
         </span>
       ),
-      className: "max-w-[14rem]",
+      className: "max-w-[9.5rem] sm:max-w-[14rem]",
     },
     { key: "about", header: "About", sort: (l) => l.carTitle, cell: (l) => <span title={l.carTitle ?? l.message} className="line-clamp-2">{l.carTitle ?? <span className="text-text-2">{l.message.split("\n")[0]}</span>}</span>, className: "max-w-[16rem]", hide: "sm" },
     {
@@ -74,7 +74,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
           <span className={l.followUpOn < today ? "font-medium text-bad" : followUpDue(l, today) ? "font-medium text-warn" : ""}>{l.followUpOn === today ? "Today" : l.followUpOn < today ? `Overdue, ${fmtDate(`${l.followUpOn}T12:00:00Z`)}` : fmtDate(`${l.followUpOn}T12:00:00Z`)}</span>
         ) : null,
     },
-    { key: "owner", header: "With", hide: "lg", nowrap: true, sort: (l) => l.assignedTo, cell: (l) => (l.assignedTo ? <span className="inline-flex items-center gap-2"><Avatar name={l.assignedTo} />{l.assignedTo.split(" ")[0]}</span> : <span className="text-text-2">Nobody</span>) },
+    { key: "owner", header: "With", hide: "2xl", nowrap: true, sort: (l) => l.assignedTo, cell: (l) => (l.assignedTo ? <span className="inline-flex items-center gap-2"><Avatar name={l.assignedTo} />{l.assignedTo.split(" ")[0]}</span> : <span className="text-text-2">Nobody</span>) },
     { key: "when", header: "Received", sort: (l) => l.createdAt, cell: (l) => fmtAgo(l.createdAt), align: "right", nowrap: true },
   ];
   const ordered = sortRows(filterLeads(all, f, today, leadSlaHours), columns, sp, { key: "when", dir: "desc" });
@@ -108,7 +108,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
         label="Lead status"
         items={[{ label: "All", href: href({ status: undefined }), active: !f.status, count: all.length }, ...LEAD_STATUSES.map((s) => ({ label: LEAD_STATUS_LABELS[s], href: href({ status: s }), active: f.status === s, count: counts[s] }))]}
       />
-      <TableToolbar search={{ placeholder: "Search name, phone, email, car", label: "Search leads" }} filters={filters} />
+      <TableToolbar search={{ placeholder: "Search", label: "Search leads" }} filters={filters} />
       <DataTable label="Leads" linkRows rows={rows} rowKey={(l) => l.id} columns={columns} sort={sort} empty={<EmptyState title="No leads match" text="Try another filter or search." />} />
       {/* The list as it is filtered now, as a CSV: owners and managers only. */}
       <TableFooter page={paged.page} pageCount={paged.pageCount} total={paged.total} per={paged.per} exportHref={canExport ? "/dashboard/leads/export" : undefined} />
