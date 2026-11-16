@@ -16,7 +16,7 @@ export const carFormSchema = z.object({
   model: z.string().trim().min(1, "Enter the model").max(60),
   variant: text(TEXT_LIMITS.variant),
   year: z.coerce.number().int().min(1980, "Enter a year from 1980").max(new Date().getFullYear() + 1),
-  priceEur: z.coerce.number().int("Whole euros only").min(0).max(1_000_000),
+  priceEur: z.coerce.number().int("Whole euros only").min(1, "Enter the price").max(1_000_000),
   wasPriceEur: int(0, 1_000_000),
   condition: oneOf(CONDITIONS),
   vat: oneOf(VAT_STATUSES),

@@ -2,13 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { stock } from "@/lib/stock";
+import { findMake } from "@/lib/stock/makes";
 import { accentButton, pageMain } from "@/components/ui";
 
 export const metadata: Metadata = { title: "Car no longer available", robots: { index: false } };
 
 export default async function GonePage({ params }: PageProps<"/gone/[make]">) {
   const { make: slug } = await params;
-  const make = (await stock.taxonomy()).makes.find((m) => m.slug === slug);
+  // A van or new car of a make never listed used has no used page: it goes to the make's page, which lists every kind.
+  const used = (await stock.taxonomy()).makes.find((m) => m.slug === slug);
+  const make = used ?? (await findMake(slug));
   if (!make) notFound();
 
   return (
@@ -17,7 +20,7 @@ export default async function GonePage({ params }: PageProps<"/gone/[make]">) {
       <p className="mt-4 max-w-measure text-body text-text-2">It has been sold or taken off our site. Here is what else we have.</p>
       <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2">
         <Link
-          href={`/used-cars/${make.slug}`}
+          href={`${used ? "/used-cars" : "/makes"}/${make.slug}`}
           className={`inline-flex items-center ${accentButton}`}
         >
           See more {make.label}

@@ -25,7 +25,11 @@ const never = () => () => {};
 type Row = { label: string; number?: (c: Car) => number | undefined; text: (c: Car) => React.ReactNode | undefined; better?: "low" | "high" };
 const spec = (label: string) => (c: Car) => specRows(c).find((r) => r.label === label)?.value;
 const ROWS: Row[] = [
-  { label: "Price", number: (c) => (isSold(c) ? undefined : payableEur(c)), text: (c) => priceInfo(c).headline, better: "low" },
+  { label: "Price", number: (c) => (isSold(c) ? undefined : payableEur(c)), text: (c) => {
+      const p = priceInfo(c);
+      // Ranked on what the buyer pays, so an ex. VAT price shows that figure too.
+      return p.incVat ? <span className="flex flex-col items-end">{p.headline}<span className="text-meta font-normal text-text-2">{p.incVat}</span></span> : p.headline;
+    }, better: "low" },
   { label: "Year", number: (c) => c.year, text: (c) => String(c.year), better: "high" },
   { label: "Mileage", number: (c) => c.mileageKm, text: (c) => (c.mileageKm === undefined ? undefined : <Mileage km={c.mileageKm} />), better: "low" },
   { label: "Fuel", text: spec("Fuel") },

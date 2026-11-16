@@ -43,6 +43,20 @@ describe("carMetadata", () => {
   });
 });
 
+describe("carMetadata for a sold, reserved or dashboard car", () => {
+  it("drops 'for sale' from a sold car's title", () => {
+    expect(carMetadata(sold).title).toBe("2019 Audi A4 2.0 TDI S line");
+  });
+  it("shares a dashboard car's first photo, and no image for an inline one", () => {
+    const added = { ...car, photos: [{ src: "/api/car-photo/a.jpg", width: 900, height: 675 }] };
+    expect(carMetadata(added).openGraph?.images).toEqual([{ url: "/api/car-photo/a.jpg", width: 900, height: 675, alt: "2019 Audi A4" }]);
+    expect(carMetadata({ ...car, photos: [{ src: "data:image/jpeg;base64,AA", width: 1, height: 1 }] }).openGraph?.images).toEqual([]);
+  });
+  it("marks a reserved car OutOfStock in JSON-LD", () => {
+    expect(ld({ ...car, reserved: true }).offers.availability).toBe("https://schema.org/OutOfStock");
+  });
+});
+
 describe("carDescription", () => {
   it("lists year, specs, price and the dealer", () => {
     expect(carDescription(car)).toBe("2019 Audi A4 2.0 TDI S line. 84,000 km, Diesel, Manual. €18,950. Checkwork Motors, Dublin 12, Co. Dublin.");

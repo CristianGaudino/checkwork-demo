@@ -40,7 +40,7 @@ test("/about has the photo on the right on desktop with the hours and directions
   await expect(main(page).getByRole("link", { name: /Get directions/i })).toHaveAttribute("href", /^https:\/\/www\.google\.com\/maps\//);
 });
 
-test("/terms is the dealer's full terms: no draft banner, the sections, and an email to ask about them", async ({ page }) => {
+test("/terms is the dealer's full terms: no draft banner, the sections, and a way to ask about them", async ({ page }) => {
   await page.goto("/terms");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Terms of use");
   await expect(page.getByText(/draft|placeholder/i)).toHaveCount(0);
@@ -57,7 +57,7 @@ test("/terms is the dealer's full terms: no draft banner, the sections, and an e
     "Law",
     "Contact",
   ]);
-  await expect(main(page).getByRole("link", { name: /@/ })).toHaveAttribute("href", /^mailto:/);
+  await expect(main(page).getByRole("link", { name: "contact page" })).toHaveAttribute("href", "/contact");
   await expect(main(page).getByRole("link", { name: "Privacy policy" })).toHaveAttribute("href", "/privacy");
 });
 

@@ -33,11 +33,11 @@ export function priceInfo(car: Pick<Car, "priceEur" | "wasPriceEur" | "vat" | "s
     out.drop = `${L.reduced} ${formatPrice(car.wasPriceEur - car.priceEur)}`;
   }
   // Finance is worked out on what the buyer pays, so an ex. VAT price is taken with VAT on. A reserved car has no finance offer, as on the
-  // rest of its page: a deposit is on it.
+  // rest of its page: a deposit is on it. The deposit is the calculator's own default (none on a car cheaper than it), so the two agree.
   const payable = payableEur(car);
   if (financeable(payable) && !car.reserved) {
     const { defaults } = FINANCE;
-    const q = quote(payable, Math.round((payable * PRICING.financeFromDepositPct) / 100), defaults.termMonths, defaults.aprPct);
+    const q = quote(payable, payable > defaults.depositEur ? defaults.depositEur : 0, defaults.termMonths, defaults.aprPct);
     if (q) out.financeFrom = `${L.financeFrom} ${formatPrice(Math.round(q.monthlyEur))} ${L.perMonth}`;
   }
   return out;

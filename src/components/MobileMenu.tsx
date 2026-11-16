@@ -6,7 +6,8 @@ import { usePathname } from "next/navigation";
 import { useId, useRef } from "react";
 import { useDemoRole, useModules } from "@/lib/demo-role";
 import { pathAllowed } from "@/lib/modules-rules";
-import { DASHBOARD_LINK } from "@/lib/nav";
+import { useVehicleHint } from "@/components/vehicleHint";
+import { DASHBOARD_LINK, VEHICLE_TYPES } from "@/lib/nav";
 import { PhoneLink } from "@/components/PhoneLink";
 import { ChevronDownIcon, CloseIcon, MenuIcon, PhoneIcon } from "@/components/stock/icons";
 import { accentButton, closeButton, press } from "@/components/ui";
@@ -27,7 +28,11 @@ export function MobileMenu({ home, primary: allPrimary, groups: allGroups }: { h
   const top = [...(useDemoRole() === "dealer" && modules.has("dashboard") ? [DASHBOARD_LINK] : []), ...(path !== "/" ? [home] : []), ...primary];
 
   useCloseAtDesktop(() => dialog.current?.close());
-  const here = (href: string) => path === href || (href !== "/" && path.startsWith(`${href}/`)); // a car page marks Used cars
+  const hint = useVehicleHint(); // a car page's address does not say whether it is used, new or a van; the page says so
+  const here = (href: string) => {
+    const vehicle = VEHICLE_TYPES.find((t) => t.href === href);
+    return hint && vehicle ? hint === vehicle.condition : path === href || (href !== "/" && path.startsWith(`${href}/`));
+  };
   const close = () => {
     dialog.current?.setAttribute("data-instant", "");
     dialog.current?.close();

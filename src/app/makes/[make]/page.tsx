@@ -106,17 +106,17 @@ function Cards({ cars }: { cars: Car[] }) {
 // The way on when the right one is not here.
 function FindOne({ make }: { make: string }) {
   return (
-    <div className={`${card} flex flex-col items-start gap-3 p-6 sm:flex-row sm:items-center sm:justify-between`}>
-      <div className="flex flex-col gap-1">
-        <h2 className={subTitle}>Looking for a particular {make}?</h2>
-        <p className="text-body text-text-2">Tell us the model, year and budget and we will look for it. No obligation.</p>
+    <IfModule href="/find-a-car">
+      <div className={`${card} flex flex-col items-start gap-3 p-6 sm:flex-row sm:items-center sm:justify-between`}>
+        <div className="flex flex-col gap-1">
+          <h2 className={subTitle}>Looking for a particular {make}?</h2>
+          <p className="text-body text-text-2">Tell us the model, year and budget and we will look for it. No obligation.</p>
+        </div>
+        <Link href={`/find-a-car?make=${encodeURIComponent(make)}`} className={`inline-flex h-12 shrink-0 items-center px-6 ${secondaryButton}`}>
+          Find one for me
+        </Link>
       </div>
-      <IfModule href="/find-a-car">
-      <Link href={`/find-a-car?make=${encodeURIComponent(make)}`} className={`inline-flex h-12 shrink-0 items-center px-6 ${secondaryButton}`}>
-        Find one for me
-      </Link>
-      </IfModule>
-    </div>
+    </IfModule>
   );
 }
 
