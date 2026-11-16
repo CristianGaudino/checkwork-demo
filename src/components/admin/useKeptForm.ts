@@ -25,5 +25,6 @@ export function useKeptForm<S extends Refused>(action: (prev: S, data: FormData)
     sent.current = true;
     startTransition(() => run(data));
   };
-  return [state, { ref: form, onSubmit }, pending] as const;
+  // method post: a tap before the page's script has loaded posts the form instead of putting every field (a buyer's email) in the address.
+  return [state, { ref: form, onSubmit, method: "post" }, pending] as const;
 }

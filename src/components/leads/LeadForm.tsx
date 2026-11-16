@@ -232,6 +232,7 @@ export function LeadForm({
     <form
       ref={form}
       noValidate
+      method="post" // a send before the script loads never puts the buyer's details in the address
       onSubmit={onSubmit}
       // With no submit button on a step, Enter in a field would do nothing at all: it moves to the next step instead.
       onKeyDown={(e) => {
