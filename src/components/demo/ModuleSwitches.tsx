@@ -49,7 +49,7 @@ export function ModuleSwitches({ chip, inline = false }: { chip: string; inline?
         Plan<span className="ml-1 font-medium text-text">{preset}</span>
       </button>
       {open && (
-        <div id={panelId} role="group" aria-label="Plan and modules" className={`flex flex-col gap-1 overflow-y-auto rounded-card border border-hairline bg-band p-2 ${inline ? "mt-2 max-h-[50vh] w-full" : "absolute bottom-full left-0 z-50 mb-2 max-h-[70vh] w-72 shadow-panel"}`}>
+        <div id={panelId} role="group" aria-label="Plan and modules" className={`flex flex-col gap-1 overflow-y-auto rounded-card border border-hairline bg-band p-2 ${inline ? "mt-2 max-h-[50vh] w-full" : "absolute bottom-full left-0 z-50 mb-2 max-h-[70vh] w-80 shadow-panel"}`}>
           <div className="grid grid-cols-2 gap-2 p-1">
             {PLANS.map((p) => (
               <button
@@ -57,10 +57,10 @@ export function ModuleSwitches({ chip, inline = false }: { chip: string; inline?
                 type="button"
                 aria-pressed={preset === p.label}
                 onClick={() => apply(p.modules)}
-                className={`flex min-h-11 items-center justify-between gap-2 rounded-control border px-3 text-meta ${preset === p.label ? "border-accent bg-accent text-on-accent" : "border-hairline"} ${press}`}
+                className={`flex min-h-11 flex-col items-start justify-center rounded-control border px-3 py-1.5 text-left text-meta leading-tight ${preset === p.label ? "border-accent bg-accent text-on-accent" : "border-hairline"} ${press}`}
               >
-                <span className="font-medium">{p.label}</span>
-                <span className="tabular-nums">{eur(p.eur)}</span>
+                <span className="font-medium whitespace-nowrap">{p.label}</span>
+                <span className="tabular-nums">{eur(p.eur)} a month</span>
               </button>
             ))}
           </div>

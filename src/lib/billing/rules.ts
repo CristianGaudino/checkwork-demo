@@ -78,6 +78,8 @@ export type BillingSettings = {
 // Every site starts with our AI ceiling, so a live key never runs without a limit; the owner's program can set another per dealer.
 export const AI_CEILING_EUR = 50;
 export const BILLING_DEFAULT: BillingSettings = { caps: {}, ceilings: { ai: AI_CEILING_EUR }, alerts: [], alertAt80: true, aiPlan: "perAction" };
+// A stored record over the defaults, the ceilings merged one level down: a record saved before a default ceiling existed still gets it.
+export const withBillingDefaults = (b?: Partial<BillingSettings>): BillingSettings => ({ ...BILLING_DEFAULT, ...b, ceilings: { ...BILLING_DEFAULT.ceilings, ...b?.ceilings } });
 
 // The cap in force: the lower of the dealer's and ours, or none.
 export function capOf(b: BillingSettings, scope: Scope): number | undefined {

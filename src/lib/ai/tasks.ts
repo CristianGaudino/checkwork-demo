@@ -39,12 +39,26 @@ export type FactsOf = {
   reviewReply: { dealer: string; firstName: string; rating: number; text: string };
 };
 
-// A customer's phone number or email never goes to the AI provider: it is not needed to draft a reply.
-export const noContacts = (s: string) =>
-  s
-    .replace(/[^\s@]+@[^\s@]+\.[^\s@]*[^\s@.,;:!?)]/gu, "[email]") // a full stop after the address stays
-    // 9 digits or more is a phone number; a date, a time, a year pair or a price range has fewer.
-    .replace(/\+?\(?\d[\d\s()./-]{6,}\d/g, (m) => (m.replace(/\D/g, "").length >= 9 ? "[phone]" : m));
+// Phone numbers and emails never go to the AI provider: a reply is drafted without them. 9 digits or more is a phone number, unless it holds
+// a date ("14/06/2025 14:00") or is only years ("2019 2020 2021").
+// shortcut: a price range with no commas ("15000-20000") is taken for a phone number; fine while it only loses a figure from a draft.
+const EMAIL = /[^\s@(<]+@[^\s@]+\.[^\s@]*[^\s@.,;:!?)>]/gu;
+const PHONE = /\+?\(?\d[\d\s()./-]{6,}\d/g;
+const DATE = /\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}/;
+const YEARS = /^(19|20)\d\d([\s/-]+(19|20)\d\d)+$/;
+const isPhone = (m: string) => m.replace(/\D/g, "").length >= 9 && !DATE.test(m) && !YEARS.test(m.trim());
+export function maskContacts(s: string): { text: string; emails: string[]; phones: string[] } {
+  const emails: string[] = [];
+  const phones: string[] = [];
+  const text = s.replace(EMAIL, (m) => (emails.push(m), "[email]")).replace(PHONE, (m) => (isPhone(m) ? (phones.push(m), "[phone]") : m));
+  return { text, emails, phones };
+}
+export const noContacts = (s: string) => maskContacts(s).text;
+// The dealer's own number or email, taken out of their draft before an adjust, put back in the answer in the same order.
+export const unmaskContacts = (s: string, m: { emails: string[]; phones: string[] }) => {
+  const [e, p] = [[...m.emails], [...m.phones]];
+  return s.replace(/\[email\]/g, (t) => e.shift() ?? t).replace(/\[phone\]/g, (t) => p.shift() ?? t);
+};
 
 // What the browser sends: ids and the form's own fields. The server builds the facts from the records, so the browser never supplies them.
 export type WriteRequest =

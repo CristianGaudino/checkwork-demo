@@ -19,7 +19,7 @@ export async function writeWithAI<T extends Task>(task: T, facts: FactsOf[T], ad
   if (mode === "off") return { ok: false };
   let text: string | null;
   if (mode === "live") {
-    // A backstop on top of the monthly cap: at most AI_LIMITER's calls a minute for the whole site (wrangler.jsonc), so nothing can run up a bill.
+    // A backstop on top of the monthly cap: at most AI_LIMITER's calls a minute (wrangler.jsonc; counted per Cloudflare location), so nothing can run up a bill.
     const limiter = getBindings().AI_LIMITER;
     if (limiter && !(await limiter.limit({ key: "ai" })).success) return { ok: false };
     text = await claudeText(task, facts, adjust, current);

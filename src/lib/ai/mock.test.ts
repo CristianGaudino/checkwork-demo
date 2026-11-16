@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { mockText } from "./mock";
-import { ADJUSTS, adjustsFor, noContacts, type Adjust, type CarFacts, type FactsOf } from "./tasks";
+import { ADJUSTS, adjustsFor, maskContacts, noContacts, unmaskContacts, type Adjust, type CarFacts, type FactsOf } from "./tasks";
 
 const car: CarFacts = { name: "2019 Ford Focus 1.0 Titanium", year: 2019, mileageKm: 129999, fuel: "Petrol", gearbox: "Manual", body: "Hatchback", engineLitres: 1, colour: "Blue", doors: 5, seats: 5, owners: 2, nctExpiry: "2027-07", price: "€13,950 Inc. VAT", was: "€14,450", features: ["Bluetooth", "Parking sensors", "Cruise control"], link: "https://x.test/used-cars/ford-focus" };
 const voice = { signOff: "Call in to see it.", hashtags: "#usedcars" };
@@ -90,5 +90,11 @@ describe("what goes to the AI provider", () => {
   it("keeps registrations, dates, times, budgets, mileage and prices", () => {
     const kept = "191-D-12345, 06-D-1234567, 22-11-2026, 23.11.2026, Saturday 10.30 - 11.30, 2019 2020 model, 85,000 km, 120 000 km, €12,500";
     expect(noContacts(kept)).toBe(kept);
+    for (const t of ["Can I view it on 14/06/2025 14:00?", "192 Toyota 2019 2020 2021", "Write to me (pat@x.ie) today"]) expect(noContacts(t)).toBe(t.replace("pat@x.ie", "[email]"));
+  });
+  it("puts the dealer's own number and email back after an adjust, in order", () => {
+    const m = maskContacts("Ring me on 087 123 4567 or mail sales@dealer.ie");
+    expect(m.text).toBe("Ring me on [phone] or mail [email]");
+    expect(unmaskContacts("Call [phone], or email [email].", m)).toBe("Call 087 123 4567, or email sales@dealer.ie.");
   });
 });

@@ -3,7 +3,7 @@ import { defineCollection } from "@/lib/admin/docs";
 import { dublinDay } from "@/lib/admin/format";
 import { SETTINGS_DEFAULT, getSettings, settingsStore, type DealerSettings } from "@/lib/admin/collections";
 import { notify } from "@/lib/admin/notifications";
-import { BILLING_DEFAULT, alertsCrossed, usageCosts, usageId, withinCaps, type BillingSettings, type Kind, type Service, type UsageCount } from "./rules";
+import { alertsCrossed, usageCosts, usageId, withinCaps, type BillingSettings, type Kind, type Service, type UsageCount, withBillingDefaults } from "./rules";
 import { hasModule } from "@/lib/modules";
 import { roleCan } from "@/lib/permission-rules";
 
@@ -19,7 +19,7 @@ export const monthOf = (t: number = Date.now()) => dublinDay(t).slice(0, 7);
 // The assistant plan counts only while the dealer has the AI module, so the Billing page, the meters and the owner API agree.
 export async function billingSettings(): Promise<BillingSettings> {
   const s = await getSettings();
-  const b = { ...BILLING_DEFAULT, ...s.billing };
+  const b = withBillingDefaults(s.billing);
   return b.aiPlan === "assistant" && !(await hasModule("ai")) ? { ...b, aiPlan: "perAction" } : b;
 }
 export async function monthCounts(month = monthOf()): Promise<UsageCount[]> {
@@ -74,7 +74,7 @@ type BillingChange = Partial<Pick<BillingSettings, "caps" | "alerts" | "alertAt8
 export async function saveBilling(change: BillingChange | ((now: BillingSettings) => BillingChange)) {
   // On the settings as they are now, so a team change saved at the same moment is never undone.
   const apply = (s: Partial<DealerSettings>) => {
-    const b = { ...BILLING_DEFAULT, ...s.billing };
+    const b = withBillingDefaults(s.billing);
     return { ...SETTINGS_DEFAULT, ...s, billing: { ...b, ...(typeof change === "function" ? change(b) : change) }, updatedAt: Date.now() };
   };
   if (!(await settingsStore.update("dealer", apply))) await settingsStore.put(apply({}));

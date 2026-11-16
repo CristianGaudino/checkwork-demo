@@ -36,3 +36,11 @@ describe("who hears that a limit is reached", () => {
     expect(notices).toEqual([]);
   });
 });
+
+describe("our ceilings on a record saved before they existed", () => {
+  it("still apply: a stored empty ceilings never drops the AI ceiling", async () => {
+    const { billingSettings } = await import("./usage");
+    const { AI_CEILING_EUR } = await import("./rules");
+    expect((await billingSettings()).ceilings.ai).toBe(AI_CEILING_EUR);
+  });
+});
