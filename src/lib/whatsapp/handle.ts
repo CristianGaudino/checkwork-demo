@@ -31,8 +31,8 @@ const ACTS: Partial<Record<ButtonId | "confirm-test-drive" | "confirm-deposit", 
   handled: { site: () => "Marked as handled.", note: "Handled from WhatsApp.", status: "contacted", activity: "Marked the lead handled, from WhatsApp" },
   photos: { site: (f) => `Asked ${f} for more photos.`, buyer: (f) => `Hi ${f}, could you send a few more photos of your car? The front, the back and the inside help most.`, note: "Asked the buyer on WhatsApp for more photos.", status: "contacted", activity: "Asked for more photos, from WhatsApp", keepOpen: true },
   decline: { site: (f) => `Told ${f}. The lead is closed.`, buyer: (f) => `Hi ${f}, thanks for sending us your car. We are not able to make an offer on this one.`, note: "Turned down from WhatsApp.", status: "lost", activity: "Turned the car down, from WhatsApp" },
-  "confirm-test-drive": { site: () => "Confirmed. The booking is in the diary.", buyer: (f) => `Hi ${f}, your test drive is confirmed. See you then.`, note: "Test drive confirmed from WhatsApp.", status: "appointment", activity: "Confirmed the test drive, from WhatsApp" },
-  slot: { site: () => "Confirmed. The slot is booked.", buyer: (f) => `Hi ${f}, your slot is confirmed. See you then.`, note: "Slot confirmed from WhatsApp.", status: "appointment", activity: "Confirmed the slot, from WhatsApp" },
+  "confirm-test-drive": { site: (f) => `Confirmed. I told ${f}.`, buyer: (f) => `Hi ${f}, your test drive is confirmed. See you then.`, note: "Test drive confirmed from WhatsApp.", status: "appointment", activity: "Confirmed the test drive, from WhatsApp" },
+  slot: { site: (f) => `Sent to ${f}: we can fit them in and will call to agree a time.`, buyer: (f) => `Hi ${f}, we can fit you in. We will call you to agree a time.`, note: "Told the buyer on WhatsApp we can fit them in; a time to agree by phone.", status: "contacted", activity: "Said we can fit them in, from WhatsApp" },
   ack: { site: (f) => `Sent to ${f}: we have your application.`, buyer: (f) => `Hi ${f}, we have your finance application and will come back to you soon.`, note: "Application acknowledged from WhatsApp.", status: "contacted", activity: "Acknowledged the application, from WhatsApp" },
   "confirm-deposit": { site: () => "Confirmed.", activity: "" },
 };
@@ -48,7 +48,8 @@ async function say(to: string, m: Partial<Msg> & { text: string }, at = Date.now
 // How a buyer can be reached: WhatsApp if they ticked the box and gave a number, email if they gave an address, or neither (only a phone,
 // no box): then nothing is sent and the dealer is told to call.
 const reach = (lead: Lead): "WhatsApp" | "email" | null => (lead.whatsappOptIn && lead.phone ? "WhatsApp" : lead.email ? "email" : null);
-const callThem = (lead: Lead) => `${firstName(lead.name)} gave no email and did not ask for WhatsApp, so nothing was sent. Call them on ${lead.phone || "the number on the lead"}.`;
+const callThem = (lead: Lead) =>
+  `${lead.whatsappOptIn ? `WhatsApp could not send and ${firstName(lead.name)} gave no email` : `${firstName(lead.name)} gave no email and did not ask for WhatsApp`}, so nothing was sent. Call them on ${lead.phone || "the number on the lead"}.`;
 
 // A message to the buyer, by `reach`. When it went by WhatsApp and an answer is given, the buyer's answer comes back a few seconds later,
 // into the buyer's phone, the dealer's phone and (when shown) the lead.
@@ -115,30 +116,33 @@ export async function tap(me: string, msgId: string, button: ButtonId): Promise<
 
   const act = ACTS[button === "confirm" ? (msg.event === "deposit" ? "confirm-deposit" : "confirm-test-drive") : button];
   if (!act) return;
-  if (button === "confirm" && msg.event === "test-drive" && msg.ref) {
-    const drive = await drivesStore.get(msg.ref);
-    if (drive && drive.status !== "requested" && drive.status !== "confirmed") return void (await say(me, { text: "That test drive is no longer open." }));
-    if (drive && drive.status === "requested") {
-      await drivesStore.put({ ...drive, status: "confirmed" });
-      await logActivity("test-drives", act.activity, { kind: "drive", id: drive.id });
-    }
-  }
   if (!act.activity) {
     await markDone(all);
     return void (await say(me, { text: act.site("") }));
   }
-  if (!lead && !(button === "confirm" && msg.ref)) return void (await say(me, { text: "I can't find that request any more." }));
+  const drive = button === "confirm" && msg.event === "test-drive" ? await drivesStore.get(msg.ref ?? msg.leadId ?? "") : undefined;
+  if (drive && drive.status !== "requested" && drive.status !== "confirmed") return void (await say(me, { text: "That test drive is no longer open." }));
+  if (!lead && !drive) return void (await say(me, { text: "I can't find that request any more." }));
+  if (lead && act.keepOpen && act.note && lead.notes.some((n) => n.text === act.note)) return void (await say(me, { leadId: lead.id, text: "Already asked." })); // asked once, whoever taps
+  // Done first, so a second tap at the same moment finds it done; open again if the buyer could not be told, and nothing has changed.
+  if (!act.keepOpen) await markDone(all);
   if (lead) {
-    // A request kept open (more photos) is asked once, whoever taps it: a second tap adds nothing.
-    if (act.keepOpen && act.note && lead.notes.some((n) => n.text === act.note)) return void (await say(me, { leadId: lead.id, text: "Already asked." }));
-    if (act.buyer && !(await toBuyer(lead, me, act.buyer(first, lead.carTitle ?? "car"), act.answer))) return void (await say(me, { leadId: lead.id, href: `/dashboard/leads/${lead.id}`, text: callThem(lead) }));
+    if (act.buyer && !(await toBuyer(lead, me, act.buyer(first, lead.carTitle ?? "car"), act.answer))) {
+      if (!act.keepOpen) await Promise.all(all.map((m) => messagesStore.put({ ...m, done: false })));
+      return void (await say(me, { leadId: lead.id, href: `/dashboard/leads/${lead.id}`, text: callThem(lead) }));
+    }
     const fresh = (await leadsStore.get(lead.id)) ?? lead; // the buyer's answer may be on it now
     const status = moved(fresh.status, act.status);
     await leadsStore.put({ ...fresh, status, ...(status === "lost" && !fresh.lostReason && { lostReason: "Other" as const }), ...(act.note && { notes: [...fresh.notes, { at: Date.now(), text: act.note }] }) });
     if (button !== "confirm") await logActivity("leads", act.activity, { kind: "lead", id: lead.id });
   }
-  if (!act.keepOpen) await markDone(all);
-  await say(me, { text: act.site(first), ...(lead && { leadId: lead.id, href: `/dashboard/leads/${lead.id}` }) });
+  // The diary last, once the buyer has been told.
+  const booked = drive?.status === "requested";
+  if (drive && booked) {
+    await drivesStore.put({ ...drive, status: "confirmed" });
+    await logActivity("test-drives", act.activity, { kind: "drive", id: drive.id });
+  }
+  await say(me, { text: `${act.site(first || (drive ? firstName(drive.name) : ""))}${booked ? " The booking is in the diary." : ""}`, ...(lead && { leadId: lead.id, href: `/dashboard/leads/${lead.id}` }) });
 }
 
 // A typed message answers the latest question the site asked this person.

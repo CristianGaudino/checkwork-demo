@@ -53,12 +53,14 @@ export async function recordUsage<S extends Service>(service: S, kind: Kind<S>, 
     const alerts = alertsCrossed(usageCosts(before, b.aiPlan), usageCosts(after, b.aiPlan), b, month);
     if (!alerts.length) return;
     const { team } = await getSettings();
-    const leaders = team.filter((t) => t.role === "Owner" || t.role === "Manager").map((t) => t.name);
+    // Each owner and manager, by the name the bell knows them by (src/lib/permissions.ts): the team's, and an owner in ADMIN_OWNER_EMAILS who is
+    // not on the team goes by their email. Only them, so Sales and Finance never see what the dealer pays; with nobody, no notice.
+    const teamEmails = new Set(team.map((t) => t.email.toLowerCase()));
+    const leaders = [...team.filter((t) => t.role === "Owner" || t.role === "Manager").map((t) => t.name), ...(process.env.ADMIN_OWNER_EMAILS ?? "").split(",").map((e) => e.trim().toLowerCase()).filter((e) => e && !teamEmails.has(e))];
     for (const a of alerts) {
       if (await sentAlertsStore.get(a.key)) continue;
       await sentAlertsStore.put({ id: a.key });
-      // To each owner and manager by name, so Sales and Finance never see what the dealer pays.
-      for (const name of leaders.length ? leaders : [undefined]) await notify({ kind: "usage", text: a.text, href: "/dashboard/billing", ...(name && { for: name }) });
+      for (const name of leaders) await notify({ kind: "usage", text: a.text, href: "/dashboard/billing", for: name });
     }
   } catch {
     // shortcut: a lost count is a few cents unbilled; the use itself went through

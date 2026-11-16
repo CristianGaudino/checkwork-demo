@@ -69,10 +69,6 @@ function seedMessages(): Msg[] {
     alert("slow-stock", 22 * HOUR, { ref: slow.id }, alertText("slow-stock", { car: carTitleOf(slow), days: 52, dropEur: 500 }));
     alert("deposit", 5 * HOUR, { ref: car(9).id }, alertText("deposit", { car: carTitleOf(car(9)), eur: 1000 }));
     alert("enquiry", 3 * HOUR, { leadId: enq.id }, alertText("enquiry", { first: firstName(enq.name), car: enq.carTitle ?? carTitleOf(buyerCar), text: enq.message }));
-    if (mine.has("enquiry") && t.role !== "Finance") {
-      add({ at: now - 3 * HOUR + 2 * MINUTE, from: "staff", text: "Yes, it's available", leadId: enq.id });
-      add({ at: now - 3 * HOUR + 2 * MINUTE + 4000, from: "site", text: `Sent to ${firstName(enq.name)}: yes, the car is still available.`, leadId: enq.id });
-    }
     // From a website booking (a test-drive lead), as a real alert is, so every button reaches the buyer.
     if (tdLead) alert("test-drive", 70 * MINUTE, { leadId: tdLead.id }, alertText("test-drive", { first: firstName(tdLead.name), car: tdLead.carTitle ?? drive.carTitle, text: tdLead.message }));
     else alert("test-drive", 70 * MINUTE, { ref: drive.id }, alertText("test-drive", { first: firstName(drive.name), car: drive.carTitle, text: drive.notes }));
