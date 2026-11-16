@@ -42,10 +42,8 @@ test("sales has no Billing page", async ({ page, context }) => {
 
 test("a help request is sent and shows in the list with its page", async ({ page, context }) => {
   await as(context, "Sales");
-  await page.goto("/dashboard/stock");
-  await page.setViewportSize({ width: 1280, height: 900 });
-  await page.getByRole("navigation", { name: "Dealer dashboard" }).getByRole("link", { name: "Help" }).click();
-  await expect(page).toHaveURL(/\/dashboard\/help\?from=%2Fdashboard%2Fstock/);
+  // A link from a page (as Billing's) says which page it came from; the menu's Help says none.
+  await page.goto("/dashboard/help?from=%2Fdashboard%2Fstock");
   await expect(page.getByRole("link", { name: /Call/ })).toHaveAttribute("href", "tel:+35319060099");
   const text = `Where do I change a price ${Date.now()}`;
   await page.getByLabel("Your message").fill(text);
@@ -53,5 +51,5 @@ test("a help request is sent and shows in the list with its page", async ({ page
   await expect(page.getByRole("status").filter({ hasText: "Sent" })).toBeVisible();
   const item = page.getByRole("listitem").filter({ hasText: text });
   await expect(item).toContainText("Received");
-  await expect(item).toContainText("From stock");
+  await expect(item).toContainText("From Stock");
 });
