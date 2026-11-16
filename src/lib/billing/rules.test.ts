@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { BILLING_DEFAULT, alertsCrossed, capOf, monthEndEstimate, planEur, usageCosts, usageEstimate, withinCaps, type BillingSettings, type UsageCount } from "./rules";
+import { MODULE_IDS } from "@/lib/modules-rules";
+import { BILLING_DEFAULT, alertsCrossed, capOf, monthEndEstimate, planEur, planFor, planLines, presetName, usageCosts, usageEstimate, withinCaps, type BillingSettings, type UsageCount } from "./rules";
 
 const c = (service: UsageCount["service"], kind: string, count: number): UsageCount => ({ id: `m:${service}:${kind}`, month: "2026-11", service, kind, count });
 
@@ -53,6 +54,19 @@ describe("the plan and the estimate", () => {
   it("prices the base and the modules, with the assistant's fee when chosen", () => {
     expect(planEur([], "perAction")).toBe(200);
     expect(planEur(["dashboard", "finance"], "assistant")).toBe(200 + 49 + 29 + 19);
+  });
+  it("prices a bundle when it is cheaper, with extra modules at their own price", () => {
+    const leads = ["dashboard", "tradeIn", "finance", "testDrives"] as const;
+    const dealer = [...leads, "sales", "margins", "reviews"] as const;
+    expect(planFor(leads)).toMatchObject({ name: "Leads", eur: 319, separateEur: 356, saving: 37, extras: [] });
+    expect(planFor([...dealer, "carFinder"])).toMatchObject({ name: "Dealer", eur: 449 + 19, extras: ["carFinder"] });
+    expect(planEur(MODULE_IDS, "perAction")).toBe(619);
+    expect(planFor(["finance"])).toMatchObject({ name: "Custom", eur: 229, saving: 0 });
+    expect(planFor([]).name).toBe("Base only");
+    expect(presetName(dealer)).toBe("Dealer");
+    expect(presetName([...dealer, "ai"])).toBe("Custom");
+    expect(planLines([...leads, "carFinder", "ai"])).toEqual([{ label: "Leads plan", eur: 319 }, { label: "Car finder", eur: 19 }]);
+    expect(planLines([])).toEqual([{ label: "Website", eur: 200 }]);
   });
   it("takes the month to date to a whole month at the same pace", () => {
     expect(monthEndEstimate(10, "2026-11-10")).toBe(30); // 10 of 30 days

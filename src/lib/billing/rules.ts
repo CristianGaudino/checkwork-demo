@@ -1,4 +1,4 @@
-import type { ModuleId } from "@/lib/modules-rules";
+import { MODULES, MODULE_IDS, type ModuleId } from "@/lib/modules-rules";
 
 // What a dealer pays us, and the rules for the usage billed on top (#181). Plain data and pure functions, so the Billing page, the
 // meters and the tests agree. The prices are the demo's: a real site reads the dealer's own prices, discounts and bills from the owner's
@@ -123,9 +123,43 @@ export function usageEstimate(costs: Record<Service, ServiceCost> & { totalEur: 
   const each = SERVICES.reduce((sum, s) => sum + Math.max(costs[s].costEur, Math.min(monthEndEstimate(costs[s].costEur, today), capOf(b, s) ?? Infinity)), 0);
   return round2(Math.max(costs.totalEur, Math.min(each, capOf(b, "total") ?? Infinity)));
 }
+// The bundles: the base site and a set of modules for one price a month, before VAT. Single modules can be added on top.
+const LEADS: ModuleId[] = ["dashboard", "tradeIn", "finance", "testDrives"];
+export const BUNDLES: { id: string; label: string; modules: readonly ModuleId[]; eur: number }[] = [
+  { id: "leads", label: "Leads", modules: LEADS, eur: 319 },
+  { id: "dealer", label: "Dealer", modules: [...LEADS, "sales", "margins", "reviews"], eur: 449 },
+  { id: "everything", label: "Everything", modules: MODULE_IDS, eur: 619 },
+];
+export type Bundle = (typeof BUNDLES)[number];
+
+// The cheapest way to pay for these modules: base and each module, or the best bundle they contain and the rest at module prices.
+// `name`: the bundle's, else "Base only" with no modules, else "Custom". `saving`: against the base and every module bought separately.
+export function planFor(modules: Iterable<ModuleId>): { bundle?: Bundle; extras: ModuleId[]; eur: number; separateEur: number; saving: number; name: string } {
+  const set = new Set(modules);
+  const on = MODULE_IDS.filter((m) => set.has(m)); // the list's order, each once
+  const sum = (ms: ModuleId[]) => ms.reduce((n, m) => n + MODULE_EUR[m], 0);
+  const separateEur = BASE_EUR + sum(on);
+  let best: { bundle?: Bundle; extras: ModuleId[]; eur: number } = { extras: on, eur: separateEur };
+  for (const bundle of BUNDLES) {
+    if (!bundle.modules.every((m) => set.has(m))) continue;
+    const extras = on.filter((m) => !bundle.modules.includes(m));
+    const eur = bundle.eur + sum(extras);
+    if (eur < best.eur) best = { bundle, extras, eur };
+  }
+  return { ...best, separateEur, saving: separateEur - best.eur, name: best.bundle?.label ?? (on.length ? "Custom" : "Base only") };
+}
+// The plan's name when the modules are exactly a preset (a bundle, or the base only), else "Custom".
+export function presetName(modules: Iterable<ModuleId>): string {
+  const p = planFor(modules);
+  return p.extras.length ? "Custom" : p.name;
+}
+// The plan as bill lines: the bundle as one line, or the website, then each extra module that costs a month.
+export function planLines(modules: Iterable<ModuleId>): { label: string; eur: number }[] {
+  const p = planFor(modules);
+  const extras = MODULES.filter((m) => p.extras.includes(m.id) && MODULE_EUR[m.id] > 0).map((m) => ({ label: m.label, eur: MODULE_EUR[m.id] }));
+  return [p.bundle ? { label: `${p.bundle.label} plan`, eur: p.bundle.eur } : { label: "Website", eur: BASE_EUR }, ...extras];
+}
 // The plan's monthly price for these modules, the AI assistant's flat fee included when chosen.
 export function planEur(modules: Iterable<ModuleId>, aiPlan: AiPlan): number {
-  let n = BASE_EUR;
-  for (const m of modules) n += MODULE_EUR[m];
-  return n + (aiPlan === "assistant" ? AI_ASSISTANT.monthlyEur : 0);
+  return planFor(modules).eur + (aiPlan === "assistant" ? AI_ASSISTANT.monthlyEur : 0);
 }
