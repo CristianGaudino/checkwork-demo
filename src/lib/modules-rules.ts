@@ -39,7 +39,11 @@ export function parseModules(v: string | undefined): Set<ModuleId> {
   // Drop anything whose needs are off, until nothing changes (margins needs sales needs dashboard).
   for (let changed = true; changed; ) {
     changed = false;
-    for (const id of on) if (needsOf(id).some((n) => !on.has(n))) (on.delete(id), (changed = true));
+    for (const id of on) {
+      if (!needsOf(id).some((n) => !on.has(n))) continue;
+      on.delete(id);
+      changed = true;
+    }
   }
   return on;
 }
