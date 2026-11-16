@@ -4,14 +4,15 @@ import { useKeptForm } from "@/components/admin/useKeptForm";
 import { Select } from "@/components/Select";
 import { Field, adminButton, adminInput } from "@/components/admin/kit";
 import { BuyerFields } from "@/components/admin/BuyerFields";
-import { recordSaleAction, type SaleFormState } from "@/app/dashboard/stock/actions";
+import { recordSaleAction } from "@/app/dashboard/stock/actions";
 import { COVER_CHOICES, COVER_MONTHS } from "@/lib/admin/deposits";
+import type { FormState } from "@/lib/admin/validation";
 
 // The sale of one car: price, day, salesperson, and the buyer (a customer on file, or a new one). The server checks every box again.
 // `leads`: this car's leads, to say which one it came from (it is marked won).
 export type SaleDefaults = { priceEur: number; soldOn: string; salesperson?: string; customerId?: string; coverMonths?: number; tradeIn?: { reg: string; allowanceEur: number }; leadId?: string };
 export function SaleForm({ carId, defaults, today, team, customers, leads, submit }: { carId: string; defaults: SaleDefaults; today: string; team: string[]; customers: { id: string; label: string }[]; leads: { id: string; label: string }[]; submit: string }) {
-  const [state, action, pending] = useKeptForm<SaleFormState>(recordSaleAction.bind(null, carId), undefined);
+  const [state, action, pending] = useKeptForm<FormState>(recordSaleAction.bind(null, carId), undefined);
   const e = state?.errors ?? {};
   return (
     <form {...action} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" noValidate>

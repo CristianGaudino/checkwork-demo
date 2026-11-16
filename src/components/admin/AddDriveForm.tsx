@@ -60,7 +60,7 @@ export function BookDriveForm({ cars, team, me, slots, initialCar }: { cars: Car
             setStep(1);
           }}
         />
-        {e.carSlug && <p className="mt-2 text-meta text-bad">{e.carSlug}</p>}
+        {e.carSlug && <p className="mt-2 text-meta text-destructive">{e.carSlug}</p>}
       </section>
 
       <section hidden={step !== 1} className="flex flex-col gap-4">

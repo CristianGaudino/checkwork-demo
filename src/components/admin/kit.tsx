@@ -311,6 +311,26 @@ export function Field({ label, hint, error, children, className = "" }: { label:
   );
 }
 
+// One answer from a few, as radio buttons under a legend: what happened to a deposit, why a sale was undone. Errors as Field shows them.
+export function Choice({ name, options, value, onChange, legend, error, className = "" }: { name: string; options: [string, string][]; value: string; onChange: (v: string) => void; legend: string; error?: string; className?: string }) {
+  return (
+    <fieldset className={`flex flex-col gap-2 ${className}`}>
+      <legend className="mb-1 text-meta font-medium">{legend}</legend>
+      {options.map(([v, label]) => (
+        <label key={v} className="flex min-h-11 items-center gap-3 text-body">
+          <input type="radio" name={name} value={v} checked={value === v} onChange={() => onChange(v)} className="size-5 accent-accent" />
+          {label}
+        </label>
+      ))}
+      {error && (
+        <span role="alert" className="text-meta text-destructive">
+          {error}
+        </span>
+      )}
+    </fieldset>
+  );
+}
+
 // Initials in a circle: a person at a glance.
 export function Avatar({ name, className = "" }: { name: string; className?: string }) {
   const initials = name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("");

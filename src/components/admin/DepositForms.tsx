@@ -3,33 +3,19 @@
 import { useKeptForm } from "@/components/admin/useKeptForm";
 import { useState } from "react";
 import { Select } from "@/components/Select";
-import { Field, adminButton, adminInput } from "@/components/admin/kit";
+import { Choice, Field, adminButton, adminInput } from "@/components/admin/kit";
 import { BuyerFields } from "@/components/admin/BuyerFields";
-import { endReservationAction, reserveAction, undoSaleAction, type DepositFormState } from "@/app/dashboard/stock/actions";
+import { endReservationAction, reserveAction, undoSaleAction } from "@/app/dashboard/stock/actions";
 import { DEPOSIT_METHODS } from "@/lib/admin/deposits";
+import type { FormState } from "@/lib/admin/validation";
 
 // The forms around a sale that is not a plain sale: a deposit taken, a reservation ended, a sale undone. The server checks every box again.
 const grid = "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3";
 const full = "sm:col-span-2 lg:col-span-3";
 const textarea = `${adminInput} h-auto min-h-24 py-2`;
 
-function Choice({ name, options, value, onChange, legend, error }: { name: string; options: [string, string][]; value: string; onChange: (v: string) => void; legend: string; error?: string }) {
-  return (
-    <fieldset className={`flex flex-col gap-2 ${full}`}>
-      <legend className="mb-1 text-meta font-medium">{legend}</legend>
-      {options.map(([v, label]) => (
-        <label key={v} className="flex min-h-11 items-center gap-3 text-body">
-          <input type="radio" name={name} value={v} checked={value === v} onChange={() => onChange(v)} className="size-5 accent-accent" />
-          {label}
-        </label>
-      ))}
-      {error && <p className="text-meta text-bad">{error}</p>}
-    </fieldset>
-  );
-}
-
 export function ReserveForm({ carId, today, latest, team, me, customers }: { carId: string; today: string; latest: string; team: string[]; me?: string; customers: { id: string; label: string }[] }) {
-  const [state, action, pending] = useKeptForm<DepositFormState>(reserveAction.bind(null, carId), undefined);
+  const [state, action, pending] = useKeptForm<FormState>(reserveAction.bind(null, carId), undefined);
   const e = state?.errors ?? {};
   return (
     <form {...action} className={grid} noValidate>
@@ -57,12 +43,12 @@ export function ReserveForm({ carId, today, latest, team, me, customers }: { car
 }
 
 export function EndReservationForm({ carId, depositEur }: { carId: string; depositEur: number }) {
-  const [state, action, pending] = useKeptForm<DepositFormState>(endReservationAction.bind(null, carId), undefined);
+  const [state, action, pending] = useKeptForm<FormState>(endReservationAction.bind(null, carId), undefined);
   const [outcome, setOutcome] = useState("refunded");
   const e = state?.errors ?? {};
   return (
     <form {...action} className={grid} noValidate>
-      <Choice name="outcome" legend="The deposit was" value={outcome} onChange={setOutcome} error={e.outcome} options={[["refunded", "Refunded"], ["kept", "Kept, under our terms"]]} />
+      <Choice className={full} name="outcome" legend="The deposit was" value={outcome} onChange={setOutcome} error={e.outcome} options={[["refunded", "Refunded"], ["kept", "Kept, under our terms"]]} />
       {outcome === "refunded" && (
         <Field label="Refunded (€)" error={e.refundEur}>
           <input name="refundEur" inputMode="numeric" defaultValue={depositEur} className={adminInput} />
@@ -76,12 +62,13 @@ export function EndReservationForm({ carId, depositEur }: { carId: string; depos
 }
 
 export function UndoSaleForm({ carId, soldOn, today }: { carId: string; soldOn: string; today: string }) {
-  const [state, action, pending] = useKeptForm<DepositFormState>(undoSaleAction.bind(null, carId), undefined);
+  const [state, action, pending] = useKeptForm<FormState>(undoSaleAction.bind(null, carId), undefined);
   const [kind, setKind] = useState("returned");
   const e = state?.errors ?? {};
   return (
     <form {...action} className={grid} noValidate>
       <Choice
+        className={full}
         name="kind"
         legend="What happened"
         value={kind}

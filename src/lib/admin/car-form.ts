@@ -1,11 +1,10 @@
 import { z } from "zod";
 import { listedOn, slugify, carSlug } from "./stock-admin-pure";
 import { CONDITIONS, FUELS, GEARBOXES, TEXT_LIMITS, VAT_STATUSES, type Car } from "@/lib/stock/types";
-import { fieldErrors } from "./validation";
+import { blank, fieldErrors } from "./validation";
 
 // The car form, as data the server checks. The browser's own limits (min, max, maxLength) are a convenience; this is the check.
 // Empty boxes mean "not given", never zero.
-const blank = (v: unknown) => (v === "" || v === null || v === undefined ? undefined : v);
 const text = (max: number) => z.preprocess(blank, z.string().trim().max(max).optional());
 const num = (min: number, max: number) => z.preprocess(blank, z.coerce.number().min(min).max(max).optional());
 const int = (min: number, max: number) => z.preprocess(blank, z.coerce.number().int().min(min).max(max).optional());

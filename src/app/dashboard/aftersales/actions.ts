@@ -7,8 +7,9 @@ import { logActivity } from "@/lib/admin/activity";
 import { CLAIM_STATUSES, CLAIM_STATUS_LABELS, claimsStore, coverEnds, leadsStore, salesStore } from "@/lib/admin/collections";
 import { dublinDay, fmtEur } from "@/lib/admin/format";
 import { newId } from "@/lib/admin/ids";
+import { appendNote } from "@/lib/admin/notes";
 import { BAD_COST, parseCost } from "@/lib/admin/margins";
-import { fieldErrors, isoDay } from "@/lib/admin/validation";
+import { fieldErrors, isoDay, type FormState } from "@/lib/admin/validation";
 import { can } from "@/lib/permissions";
 import { requireModule } from "@/lib/modules";
 import { requireStaff } from "@/lib/staff";
@@ -21,7 +22,6 @@ const paths = (id: string) => {
   revalidatePath(`/dashboard/aftersales/${id}`);
 };
 
-export type ClaimFormState = { errors?: Record<string, string> } | undefined;
 const opening = z.object({
   saleId: z.string().min(1, "Choose the car they bought").max(60),
   fault: z.string().trim().min(1, "Say what the fault is").max(1000),
@@ -30,7 +30,7 @@ const opening = z.object({
 });
 
 // Whether it is in cover is worked out from the sale (the day sold and the months of cover), never typed.
-export async function openClaimAction(_prev: ClaimFormState, data: FormData): Promise<ClaimFormState> {
+export async function openClaimAction(_prev: FormState, data: FormData): Promise<FormState> {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   await requireModule("service"); // and only while the dealer has it
   const r = opening.safeParse(Object.fromEntries(data));
@@ -63,10 +63,8 @@ export async function setClaimStatusAction(id: string, data: FormData) {
 export async function addClaimNoteAction(id: string, data: FormData) {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   await requireModule("service"); // and only while the dealer has it
-  const text = String(data.get("note") ?? "").trim().slice(0, 500);
-  const claim = await claimsStore.get(id);
-  if (!text || !claim) return;
-  await claimsStore.put({ ...claim, notes: [...claim.notes, { at: Date.now(), text }] });
+  const claim = await appendNote(claimsStore, id, data);
+  if (!claim) return;
   await logActivity("customers", "Added a note to the warranty claim", carRef(claim)); // never the note itself
   paths(id);
 }

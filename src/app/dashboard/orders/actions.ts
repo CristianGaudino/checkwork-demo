@@ -8,9 +8,10 @@ import { buyerFields, buyerOf } from "@/lib/admin/buyer";
 import { DEPOSIT_METHODS, ORDER_STATUS_LABELS, heldFor, leadsStore, orderOpen, ordersStore, reservationsStore, type Order } from "@/lib/admin/collections";
 import { addDays, addMonths, dublinDay, fmtEur } from "@/lib/admin/format";
 import { newId } from "@/lib/admin/ids";
+import { appendNote } from "@/lib/admin/notes";
 import { addCar, adminCar, freeCarId, saveCar } from "@/lib/admin/stock-admin";
 import { carSlug, slugify } from "@/lib/admin/stock-admin-pure";
-import { fieldErrors, isoMonth } from "@/lib/admin/validation";
+import { blank, euros, fieldErrors, isoMonth, type FormState } from "@/lib/admin/validation";
 import { regPeriods } from "@/lib/leads/reg-periods";
 import { can } from "@/lib/permissions";
 import { stockSource } from "@/lib/stock-source";
@@ -28,9 +29,6 @@ const paths = (id: string) => {
   revalidatePath(`/dashboard/orders/${id}`);
 };
 
-export type OrderFormState = { errors?: Record<string, string> } | undefined;
-const blank = (v: unknown) => (v === "" ? undefined : v);
-const euros = (max: number) => z.coerce.number({ message: "Enter the amount in whole euros" }).int("Enter the amount in whole euros").min(1, "Enter the amount in whole euros").max(max, "That amount looks too high");
 const placing = z.object({
   make: z.string().trim().min(1, "Enter the make").max(40),
   model: z.string().trim().min(1, "Enter the model").max(60),
@@ -45,7 +43,7 @@ const placing = z.object({
   ...buyerFields,
 });
 
-export async function placeOrderAction(_prev: OrderFormState, data: FormData): Promise<OrderFormState> {
+export async function placeOrderAction(_prev: FormState, data: FormData): Promise<FormState> {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   await requireModule("newCars"); // and only while the dealer has it
   if (!(await theirs())) return { errors: { make: `Orders are for stock kept here, not on ${LISTING_SITE}` } };
@@ -116,10 +114,8 @@ export async function setOrderStatusAction(id: string, data: FormData) {
 export async function addOrderNoteAction(id: string, data: FormData) {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   await requireModule("newCars"); // and only while the dealer has it
-  const text = String(data.get("note") ?? "").trim().slice(0, 500);
-  const o = await ordersStore.get(id);
-  if (!text || !o) return;
-  await ordersStore.put({ ...o, notes: [...o.notes, { at: Date.now(), text }] });
+  const o = await appendNote(ordersStore, id, data);
+  if (!o) return;
   await logActivity("stock", `Added a note to the factory order ${title(o)}`, o.carId ? { kind: "car", id: o.carId, label: title(o) } : undefined); // never the note itself
   paths(id);
 }
@@ -127,7 +123,7 @@ export async function addOrderNoteAction(id: string, data: FormData) {
 // Cancelling: the deposit refunded (all or part) or kept, under the dealer's terms. A car that already arrived stays in stock, hidden and
 // no longer held for them: the dealer decides whether to sell it.
 const cancelling = z.discriminatedUnion("outcome", [z.object({ outcome: z.literal("refunded"), refundEur: euros(1_000_000) }), z.object({ outcome: z.literal("kept") }), z.object({ outcome: z.literal("none") })], { message: "Choose what happened to the deposit" });
-export async function cancelOrderAction(id: string, _prev: OrderFormState, data: FormData): Promise<OrderFormState> {
+export async function cancelOrderAction(id: string, _prev: FormState, data: FormData): Promise<FormState> {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   await requireModule("newCars"); // and only while the dealer has it
   if (!(await can("settings"))) return { errors: { outcome: "Only owners and managers can cancel an order" } };
