@@ -160,7 +160,9 @@ export default async function Home() {
 
         <BrowseByType tiles={typeTiles} />
 
-        <ReviewsStrip data={reviews} />
+        <IfModule id="reviews">
+          <ReviewsStrip data={reviews} />
+        </IfModule>
 
         <SocialStrip cars={all?.cars ?? []} />
 
