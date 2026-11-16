@@ -12,6 +12,7 @@ import { fieldErrors } from "@/lib/admin/validation";
 import { billingSettings, saveBilling } from "@/lib/billing/usage";
 import { eur, parseAlert, parseLimits, servicesOf } from "@/lib/billing/bills-rules";
 import { AI_PLANS, SERVICE_LABELS, type AiPlan, type Scope } from "@/lib/billing/rules";
+import { requireStaff } from "@/lib/staff";
 
 export type BillingState = { errors?: Record<string, string>; saved?: boolean } | undefined;
 const NO = "Only an owner or manager can change this";
@@ -21,6 +22,7 @@ const scopesOf = async (): Promise<Scope[]> => [...servicesOf(await enabledModul
 const done = (): BillingState => (revalidatePath("/dashboard/billing"), { saved: true });
 
 export async function saveLimitsAction(_p: BillingState, data: FormData): Promise<BillingState> {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   if (!(await can("billing"))) return { errors: { form: NO } };
   const [b, scopes] = [await billingSettings(), await scopesOf()];
   const { caps, errors } = parseLimits((k) => String(data.get(k) ?? ""), b.ceilings, scopes);
@@ -36,6 +38,7 @@ export async function saveLimitsAction(_p: BillingState, data: FormData): Promis
 }
 
 export async function addAlertAction(_p: BillingState, data: FormData): Promise<BillingState> {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   if (!(await can("billing"))) return { errors: { alert: NO } };
   const b = await billingSettings();
   const r = parseAlert(String(data.get("scope") ?? ""), String(data.get("amount") ?? ""), await scopesOf(), b.alerts);
@@ -46,6 +49,7 @@ export async function addAlertAction(_p: BillingState, data: FormData): Promise<
 }
 
 export async function removeAlertAction(scope: Scope, amountEur: number) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   if (!(await can("billing"))) return;
   const b = await billingSettings();
   const alerts = b.alerts.filter((a) => !(a.scope === scope && a.amountEur === amountEur));
@@ -56,6 +60,7 @@ export async function removeAlertAction(scope: Scope, amountEur: number) {
 }
 
 export async function saveAiPlanAction(plan: AiPlan) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   if (!(await can("billing")) || !AI_PLANS.includes(plan) || !(await enabledModules()).has("ai")) return;
   if ((await billingSettings()).aiPlan === plan) return;
   await saveBilling({ aiPlan: plan });
@@ -71,6 +76,7 @@ const details = z.object({
   email: z.email("Enter a valid email").max(120),
 });
 export async function saveDetailsAction(_p: BillingState, data: FormData): Promise<BillingState> {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   if ((await currentMember()).role !== "Owner") return { errors: { company: "Only the owner can change the billing details" } };
   const r = details.safeParse(Object.fromEntries(data));
   if (!r.success) return { errors: fieldErrors(r.error) };
@@ -82,6 +88,7 @@ export async function saveDetailsAction(_p: BillingState, data: FormData): Promi
 
 // "Ask us to add": sends us a request; nothing is switched on. Asking twice for the same one while we have not finished is one request.
 export async function askModuleAction(id: ModuleId) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const m = MODULES.find((x) => x.id === id);
   if (!m || !(await can("billing")) || (await enabledModules()).has(id)) return;
   const me = await currentMember();

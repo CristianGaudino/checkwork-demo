@@ -24,6 +24,7 @@ import { stockSource } from "@/lib/stock-source";
 import { runSync } from "@/lib/donedeal/sync";
 import { forSale, isSold, type Car } from "@/lib/stock/types";
 import { LISTING_SITE } from "@/lib/stock-source-rules";
+import { requireStaff } from "@/lib/staff";
 
 const carRef = (c: Car) => ({ kind: "car" as const, id: c.id, label: carTitleOf(c) });
 
@@ -35,6 +36,7 @@ export type CarFormState = { errors?: Record<string, string> } | undefined;
 
 // `id` is null for a new car. A bad form comes back with a message per box; a good one saves and goes to the list.
 export async function saveCarAction(id: string | null, _prev: CarFormState, data: FormData): Promise<CarFormState> {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   if (await readOnly()) return { errors: { make: `This stock comes from ${LISTING_SITE}. Change it there.` } };
   const existing = id ? await adminCar(id) : undefined;
   if (id && !existing) return { errors: { make: "This car no longer exists" } };
@@ -56,6 +58,7 @@ export async function saveCarAction(id: string | null, _prev: CarFormState, data
 
 // The cost is the dealer's own figure, never DoneDeal's, so it can be set on synced stock too. Margins permission only; a bad figure saves nothing.
 export async function saveCostAction(id: string, data: FormData) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const car = (await can("margins")) ? await adminCar(id) : undefined;
   if (!car) return;
   const cost = parseCost(String(data.get("costEur") ?? ""));
@@ -70,6 +73,7 @@ export async function saveCostAction(id: string, data: FormData) {
 
 // Back on sale is for a sold car with no sale recorded. One with a sale is undone on its own page (undoSaleAction), which keeps the record.
 export async function toggleSoldAction(id: string) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   if (await readOnly()) return;
   const car = await adminCar(id);
   if (!car || (car.soldAt && (await salesStore.get(id)))) return;
@@ -83,6 +87,7 @@ export async function toggleSoldAction(id: string) {
 // DoneDeal stock is shown or hidden there. Undone from the toast by calling it again with the old state.
 const LISTINGS = { live: "Put it on the website", hidden: "Hid it from the website", draft: "Made it a draft" } as const;
 export async function setListingAction(id: string, to: string) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   if (!Object.hasOwn(LISTINGS, to) || (await readOnly())) return;
   const car = await adminCar(id);
   const listing = to === "live" ? undefined : (to as "hidden" | "draft");
@@ -94,6 +99,7 @@ export async function setListingAction(id: string, to: string) {
 
 // DoneDeal took the ad down and the dealer says it was not sold: it stays hidden, and stops asking. (Sold goes through the sale form.)
 export async function withdrawnAction(id: string) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const car = await adminCar(id);
   if (!car?.takenDownAt) return;
   await saveCar({ ...car, takenDownAt: undefined });
@@ -104,6 +110,7 @@ export async function withdrawnAction(id: string) {
 // Deleting is for owners and managers (the settings permission, as for a forced sync): it cannot be undone. Everyone else marks it sold.
 // Not while a deposit is held on it: the reservation is ended first, so the money is accounted for. Its sale, if any, stays for the books.
 export async function deleteCarAction(id: string) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   if ((await readOnly()) || !(await can("settings")) || heldFor(await reservationsStore.list(), id)) return;
   const car = await adminCar(id);
   await removeCar(id);
@@ -124,6 +131,7 @@ const bulk = z.object({
 });
 export type BulkResult = { changed: number; skipped: number } | { error: string };
 export async function bulkStockAction(data: FormData): Promise<BulkResult> {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const parsed = bulk.safeParse({ ids: [...new Set(data.getAll("ids"))], op: data.get("op"), amount: data.get("amount") || undefined, unit: data.get("unit") || undefined });
   if (!parsed.success || (await readOnly())) return { error: "Nothing was changed. Try again." };
   const { ids, op, amount, unit } = parsed.data;
@@ -162,6 +170,7 @@ export async function bulkStockAction(data: FormData): Promise<BulkResult> {
 // One photo per call, so a slow phone connection loses at most one. The first photo is the one on the card and at the top of the page.
 const photoSize = z.coerce.number().int().min(1).max(4000);
 export async function addCarPhotoAction(carId: string, data: FormData): Promise<{ error?: string }> {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const car = (await readOnly()) ? undefined : await adminCar(carId);
   if (!car) return { error: "This car can no longer be changed here." };
   if (car.photos.length >= CAR_PHOTOS_MAX) return { error: `A car can have ${CAR_PHOTOS_MAX} photos.` };
@@ -181,6 +190,7 @@ export async function addCarPhotoAction(carId: string, data: FormData): Promise<
 
 // `to`: "first" makes it the main photo, "remove" takes it off the car (and out of storage).
 export async function carPhotoAction(carId: string, src: string, to: "first" | "remove") {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const car = (await readOnly()) ? undefined : await adminCar(carId);
   const photo = car?.photos.find((p) => p.src === src);
   if (!car || !photo || !["first", "remove"].includes(to)) return;
@@ -194,6 +204,7 @@ export async function carPhotoAction(carId: string, src: string, to: "first" | "
 // Sync now, for stock from DoneDeal. `force` applies a sync that was held because DoneDeal's answer looked wrong: owners and managers only,
 // since it can take many cars off the site at once. The sync records its own changes in the activity history.
 export async function syncNowAction(force: boolean) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   if (!(await readOnly())) return;
   await runSync({ force: force && (await can("settings")) });
   redirect(`/dashboard/stock?synced=1`);
@@ -217,6 +228,7 @@ const sale = z.object({
 // is Mark sold, so the car is marked sold on the sale's day. In the DoneDeal version the car is sold there; the sale is only recorded, and a
 // car hidden because its ad came down is marked sold here (the dealer's answer), so its page shows it as sold for a while.
 export async function recordSaleAction(carId: string, _prev: SaleFormState, data: FormData): Promise<SaleFormState> {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const car = await adminCar(carId);
   if (!car) return { errors: { priceEur: "This car no longer exists" } };
   const r = sale.safeParse(Object.fromEntries(data));
@@ -269,6 +281,7 @@ const deposit = z.object({
 // shortcut: two people taking a deposit on one car in the same second could both pass the for-sale check; only the first can then be
 // ended. Fine for one dealer's team; check again inside a transaction if it ever shows up.
 export async function reserveAction(carId: string, _prev: DepositFormState, data: FormData): Promise<DepositFormState> {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const car = (await readOnly()) ? undefined : await adminCar(carId);
   if (!car || !forSale(car)) return { errors: { depositEur: "This car is not for sale" } };
   const r = deposit.safeParse(Object.fromEntries(data));
@@ -290,6 +303,7 @@ export async function reserveAction(carId: string, _prev: DepositFormState, data
 // back, so owners and managers only (the settings permission). The car goes back on sale.
 const ending = z.discriminatedUnion("outcome", [z.object({ outcome: z.literal("refunded"), refundEur: euros(1_000_000) }), z.object({ outcome: z.literal("kept") })], { message: "Choose what happened to the deposit" });
 export async function endReservationAction(carId: string, _prev: DepositFormState, data: FormData): Promise<DepositFormState> {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   if (!(await can("settings"))) return { errors: { outcome: "Only owners and managers can end a reservation" } };
   const held = heldFor(await reservationsStore.list(), carId);
   if (!held) return { errors: { outcome: "This car has no deposit on it" } };
@@ -314,6 +328,7 @@ const undoing = z.object({
   reason: z.string().trim().max(300).optional(),
 });
 export async function undoSaleAction(carId: string, _prev: SaleFormState, data: FormData): Promise<SaleFormState> {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   if (!(await can("settings"))) return { errors: { kind: "Only owners and managers can undo a sale" } };
   const was = await salesStore.get(carId);
   if (!was) return { errors: { kind: "This car has no sale recorded" } };
@@ -340,6 +355,7 @@ const prepLine = z.object({
 });
 export type PrepFormState = { errors?: Record<string, string>; added?: number } | undefined;
 export async function addPrepAction(carId: string, _prev: PrepFormState, data: FormData): Promise<PrepFormState> {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const car = (await can("margins")) ? await adminCar(carId) : undefined;
   if (!car) return { errors: { kind: "Only staff who see margins can add prep costs" } };
   const r = prepLine.safeParse(Object.fromEntries(data));
@@ -353,6 +369,7 @@ export async function addPrepAction(carId: string, _prev: PrepFormState, data: F
 
 // `at` names the line: two lines can share a kind and an amount, never the moment they were added.
 export async function removePrepAction(carId: string, at: number) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const car = (await can("margins")) ? await adminCar(carId) : undefined;
   const prep = car && (await prepStore.get(carId));
   const line = prep?.lines.find((l) => l.at === at);

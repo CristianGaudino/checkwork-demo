@@ -16,11 +16,13 @@ import { fieldErrors, isoDay } from "@/lib/admin/validation";
 import { addMonths, dublinDay, dublinMs } from "@/lib/admin/format";
 import { isBankHoliday } from "@/lib/bank-holidays";
 import { LIMITS, TEST_DRIVE, driveTimes, inDriveHours } from "@/lib/leads/constants";
+import { requireStaff } from "@/lib/staff";
 
 // `day`: the booked day, so the page can open the diary on it.
 export type DriveFormState = { errors?: Record<string, string>; done?: string; day?: string } | undefined;
 
 export async function setDriveStatusAction(id: string, status: string) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const next = parseDriveStatus(status);
   const drive = await drivesStore.get(id);
   if (!next || !drive || drive.status === next) return;
@@ -31,6 +33,7 @@ export async function setDriveStatusAction(id: string, status: string) {
 
 // Who takes the customer out: a team member's name, or "" for nobody yet. Anything else is refused.
 export async function assignDriveAction(id: string, name: string) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const drive = await drivesStore.get(id);
   const { team } = await getSettings();
   if (!drive || (name && !team.some((t) => t.name === name)) || (drive.assignedTo ?? "") === name) return;
@@ -72,6 +75,7 @@ async function checkSlot(carSlug: string, carTitle: string, date: string, time: 
 // A booking moved to another time, by the same rules. Only one still to happen (requested or confirmed).
 const moving = z.object({ date: booking.shape.date, time: booking.shape.time });
 export async function moveDriveAction(id: string, _prev: DriveFormState, data: FormData): Promise<DriveFormState> {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const drive = await drivesStore.get(id);
   if (!drive || (drive.status !== "requested" && drive.status !== "confirmed")) return { errors: { date: "This booking can no longer be moved" } };
   const parsed = moving.safeParse(Object.fromEntries(data));
@@ -86,6 +90,7 @@ export async function moveDriveAction(id: string, _prev: DriveFormState, data: F
 
 // A booking the dealer takes by phone or in person. It refuses a time when the same car is already out within the hour.
 export async function addDriveAction(_prev: DriveFormState, data: FormData): Promise<DriveFormState> {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const parsed = booking.safeParse(Object.fromEntries(data));
   if (!parsed.success) return { errors: fieldErrors(parsed.error) };
   const b = parsed.data;

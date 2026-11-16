@@ -9,6 +9,8 @@ vi.mock("next/headers", () => ({
   cookies: async () => ({ get: (n: string) => (n === "checkwork-demo-role" && cookie !== undefined ? { value: cookie } : undefined) }),
   headers: async () => ({ get: (n: string) => (n === "x-admin-email" ? (email ?? null) : null) }),
 }));
+// The verified Access email (src/lib/staff.ts verifies the token; here the test says who it is).
+vi.mock("@/lib/staff", () => ({ staffIdentity: async () => (email === undefined ? { ok: false } : { ok: true, email: email.toLowerCase() }) }));
 const { can, currentMember } = await import("./permissions");
 const { settingsStore } = await import("@/lib/admin/collections");
 

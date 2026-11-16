@@ -50,15 +50,13 @@ export async function lookupReg(raw: string, visitor: string | null, service: (r
   const facts = parseIrishReg(raw);
   if (!facts) return null;
   const mode = modeOf("reglookup");
-  if (mode === "simulated") {
-    if (meter && !(await meter.allowed())) return { ...facts, limited: true };
-    await meter?.paid();
-    return { ...facts, car: sampleCar(facts.reg) };
-  }
   if (mode === "off") return facts;
 
   const now = Date.now();
-  const hit = await regCache.get(facts.reg);
+  const simulated = mode === "simulated";
+  // The demo has no cache (its answer is made up, the same each time), but it counts against the same limits, so nobody can use up the
+  // demo's monthly limit for every viewer.
+  const hit = simulated ? undefined : await regCache.get(facts.reg);
   if (hit && hit.at > now - REG_CACHE_DAYS * DAY) return hit.car ? { ...facts, car: hit.car } : facts;
   if (meter && !(await meter.allowed())) return { ...facts, limited: true };
   const today = `day-${new Date(now).toISOString().slice(0, 10)}`;
@@ -74,6 +72,10 @@ export async function lookupReg(raw: string, visitor: string | null, service: (r
 
   await regCounts.put({ id: today, n: count + 1 });
   if (mine) await regCounts.put({ id: mine, n: used + 1 });
+  if (simulated) {
+    await meter?.paid();
+    return { ...facts, car: sampleCar(facts.reg) };
+  }
   let car: CarFound | null;
   try {
     car = await service(facts.reg);

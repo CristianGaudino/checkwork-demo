@@ -16,6 +16,7 @@ import { can } from "@/lib/permissions";
 import { stockSource } from "@/lib/stock-source";
 import type { Car } from "@/lib/stock/types";
 import { LISTING_SITE } from "@/lib/stock-source-rules";
+import { requireStaff } from "@/lib/staff";
 
 // Factory orders, our version only (a DoneDeal dealer's new cars arrive on DoneDeal). Anyone on the team places one and moves it along;
 // cancelling, with money going back or kept, is for owners and managers. Recorded in the activity history by the car, never the buyer.
@@ -44,6 +45,7 @@ const placing = z.object({
 });
 
 export async function placeOrderAction(_prev: OrderFormState, data: FormData): Promise<OrderFormState> {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   if (!(await theirs())) return { errors: { make: `Orders are for stock kept here, not on ${LISTING_SITE}` } };
   const r = placing.safeParse(Object.fromEntries(data));
   if (!r.success) return { errors: fieldErrors(r.error) };
@@ -85,6 +87,7 @@ export async function placeOrderAction(_prev: OrderFormState, data: FormData): P
 // order never steps back (its car is in stock, and the sale only hands over an arrived order).
 const steps = z.enum(["ordered", "built", "in-transit", "arrived"]);
 export async function setOrderStatusAction(id: string, data: FormData) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const to = steps.safeParse(data.get("status"));
   const o = await ordersStore.get(id);
   if (!to.success || !o || !orderOpen(o.status) || o.status === "arrived" || o.status === to.data || !(await theirs())) return;
@@ -105,6 +108,7 @@ export async function setOrderStatusAction(id: string, data: FormData) {
 }
 
 export async function addOrderNoteAction(id: string, data: FormData) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const text = String(data.get("note") ?? "").trim().slice(0, 500);
   const o = await ordersStore.get(id);
   if (!text || !o) return;
@@ -116,6 +120,7 @@ export async function addOrderNoteAction(id: string, data: FormData) {
 // no longer held for them: the dealer decides whether to sell it.
 const cancelling = z.discriminatedUnion("outcome", [z.object({ outcome: z.literal("refunded"), refundEur: euros(1_000_000) }), z.object({ outcome: z.literal("kept") }), z.object({ outcome: z.literal("none") })], { message: "Choose what happened to the deposit" });
 export async function cancelOrderAction(id: string, _prev: OrderFormState, data: FormData): Promise<OrderFormState> {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   if (!(await can("settings"))) return { errors: { outcome: "Only owners and managers can cancel an order" } };
   const o = await ordersStore.get(id);
   if (!o || !orderOpen(o.status)) return { errors: { outcome: "This order can no longer be cancelled" } };

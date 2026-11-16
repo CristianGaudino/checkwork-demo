@@ -29,11 +29,8 @@ export async function proxy(req: NextRequest) {
     const verdict = open ? "open" : cfg === null ? "not-configured" : !token ? "no-token" : who ? "open" : "rejected";
     if (verdict === "open") {
       if (!allowed) return notThere(req);
-      // The verified address goes on to the pages (src/lib/permissions.ts). Whatever the browser sent in that header is thrown away first.
-      const forward = new Headers(req.headers);
-      forward.delete("x-admin-email");
-      if (who?.email) forward.set("x-admin-email", who.email);
-      return NextResponse.next({ request: { headers: forward } });
+      // The pages and actions verify the token again themselves (src/lib/staff.ts): a server action can be posted to any page.
+      return NextResponse.next();
     }
     // Why it was closed, in the Worker's logs (never the token): "no-token" means Access did not cover this path, "rejected" means a token came
     // that did not verify (wrong audience, team domain or expired), "not-configured" means CF_ACCESS_TEAM_DOMAIN or CF_ACCESS_AUD is missing.

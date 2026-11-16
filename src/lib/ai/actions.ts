@@ -8,6 +8,7 @@ import { POST_FORMATS, STORY_LAYOUTS, NETWORKS } from "@/lib/admin/networks";
 import { buildFacts } from "./facts";
 import { ADJUSTS, adjustsFor, type Adjust, type WriteRequest, type WriteResult } from "./tasks";
 import { writeWithAI } from "./write";
+import { requireStaff } from "@/lib/staff";
 
 const request = z.discriminatedUnion("task", [
   z.object({ task: z.literal("post"), carSlug: z.string().max(200), network: z.enum(NETWORKS), format: z.enum(POST_FORMATS), layout: z.enum(STORY_LAYOUTS).optional() }),
@@ -20,6 +21,7 @@ const request = z.discriminatedUnion("task", [
 // Called by the writing buttons. Order matters: the module (a dealer without AI gets nothing), then the monthly cap (past it the text is
 // left alone and the button says so), then the writer, then the count, so a failed write is never billed.
 export async function writeAction(req: WriteRequest, adjust?: Adjust, current = ""): Promise<WriteResult> {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   await requireModule("ai");
   const parsed = request.safeParse(req);
   if (!parsed.success) return { ok: false, reason: "failed" };

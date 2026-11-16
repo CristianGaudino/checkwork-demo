@@ -8,6 +8,7 @@ import { isOpenLead } from "@/lib/admin/leads";
 import { LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_TYPE_LABELS, LOST_REASONS, getSettings, leadsStore } from "@/lib/admin/collections";
 import { notify } from "@/lib/admin/notifications";
 import { currentMember } from "@/lib/permissions";
+import { requireStaff } from "@/lib/staff";
 
 const ref = (id: string) => ({ kind: "lead" as const, id });
 
@@ -18,6 +19,7 @@ const reason = z.enum(LOST_REASONS);
 // One tap, one change. Anything that is not a known status is dropped by the check.
 // `on` and `reason`: what Undo puts back with the status it had (a follow-up day, why it was lost), since moving on cleared them.
 export async function setStatusAction(id: string, data: FormData) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const parsed = status.safeParse(data.get("status"));
   const lead = await leadsStore.get(id);
   if (!parsed.success || !lead || lead.status === parsed.data) return;
@@ -34,6 +36,7 @@ export async function setStatusAction(id: string, data: FormData) {
 }
 
 export async function setLostReasonAction(id: string, data: FormData) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const parsed = reason.safeParse(data.get("reason"));
   const lead = await leadsStore.get(id);
   if (!parsed.success || lead?.status !== "lost" || lead.lostReason === parsed.data) return;
@@ -45,6 +48,7 @@ export async function setLostReasonAction(id: string, data: FormData) {
 
 // Only someone on the team can have a lead; an empty choice means nobody.
 export async function assignLeadAction(id: string, data: FormData) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const name = String(data.get("assignedTo") ?? "").slice(0, 80);
   const lead = await leadsStore.get(id);
   if (!lead) return;
@@ -62,6 +66,7 @@ export async function assignLeadAction(id: string, data: FormData) {
 }
 
 export async function addNoteAction(id: string, data: FormData) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const text = String(data.get("note") ?? "").trim().slice(0, 500);
   const lead = await leadsStore.get(id);
   if (!text || !lead) return;
@@ -74,6 +79,7 @@ export async function addNoteAction(id: string, data: FormData) {
 // The day to get back to them: a quick choice (1, 3 or 7 days from today, Irish time), a date typed in, or nothing to clear it. A day that
 // has passed, a date more than a year out, or a lead already won or lost is refused.
 export async function setFollowUpAction(id: string, data: FormData) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const lead = await leadsStore.get(id);
   if (!lead || !isOpenLead(lead)) return;
   const today = dublinDay();

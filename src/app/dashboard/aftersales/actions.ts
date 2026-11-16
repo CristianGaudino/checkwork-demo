@@ -10,6 +10,7 @@ import { newId } from "@/lib/admin/ids";
 import { BAD_COST, parseCost } from "@/lib/admin/margins";
 import { fieldErrors, isoDay } from "@/lib/admin/validation";
 import { can } from "@/lib/permissions";
+import { requireStaff } from "@/lib/staff";
 
 // Warranty claims: anyone on the team opens one and moves it along; what the repair cost is for staff who see margins, since it counts
 // against the car's margin. Recorded against the car in the activity history, never with the fault or the person.
@@ -29,6 +30,7 @@ const opening = z.object({
 
 // Whether it is in cover is worked out from the sale (the day sold and the months of cover), never typed.
 export async function openClaimAction(_prev: ClaimFormState, data: FormData): Promise<ClaimFormState> {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const r = opening.safeParse(Object.fromEntries(data));
   if (!r.success) return { errors: fieldErrors(r.error) };
   const d = r.data;
@@ -46,6 +48,7 @@ export async function openClaimAction(_prev: ClaimFormState, data: FormData): Pr
 
 const status = z.enum(CLAIM_STATUSES);
 export async function setClaimStatusAction(id: string, data: FormData) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const to = status.safeParse(data.get("status"));
   const claim = await claimsStore.get(id);
   if (!to.success || !claim || claim.status === to.data) return;
@@ -55,6 +58,7 @@ export async function setClaimStatusAction(id: string, data: FormData) {
 }
 
 export async function addClaimNoteAction(id: string, data: FormData) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const text = String(data.get("note") ?? "").trim().slice(0, 500);
   const claim = await claimsStore.get(id);
   if (!text || !claim) return;
@@ -64,6 +68,7 @@ export async function addClaimNoteAction(id: string, data: FormData) {
 
 export type CostState = { error?: string; saved?: number } | undefined;
 export async function setClaimCostAction(id: string, _prev: CostState, data: FormData): Promise<CostState> {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const claim = (await can("margins")) ? await claimsStore.get(id) : undefined;
   if (!claim) return { error: "Only staff who see margins can enter the cost" };
   const cost = parseCost(String(data.get("costEur") ?? ""));

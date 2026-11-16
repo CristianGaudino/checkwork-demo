@@ -21,6 +21,7 @@ import { fmtEur } from "@/lib/admin/format";
 import { aOrAn } from "@/lib/admin/activity-text";
 import type { ComposerCar } from "@/components/admin/PostComposer";
 import { dublinMs } from "@/lib/admin/format";
+import { requireStaff } from "@/lib/staff";
 
 const postRef = (p: SocialPost) => ({ kind: "post" as const, id: p.id, label: p.carTitle ?? "A post" });
 const adRef = (a: Ad) => ({ kind: "ad" as const, id: a.id, label: a.carTitle });
@@ -48,6 +49,7 @@ const compose = z.object({
   budgetEur: z.coerce.number().int().min(POST_LIMITS.budgetMin).max(POST_LIMITS.budgetMax).optional(),
 });
 export async function composeAction(data: FormData) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   await requireModule("social");
   const r = compose.safeParse(Object.fromEntries(data));
   const car = r.success ? (await adminCars()).find((c) => c.slug === r.data.carSlug) : undefined;
@@ -97,6 +99,7 @@ export async function composeAction(data: FormData) {
 }
 
 export async function publishPostAction(id: string) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   await requireModule("social");
   const post = await postsStore.get(id);
   if (!post) return go("posts", "invalid");
@@ -109,6 +112,7 @@ export async function publishPostAction(id: string) {
 }
 
 export async function deletePostAction(id: string) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   await requireModule("social");
   const post = await postsStore.get(id);
   await postsStore.remove(id);
@@ -118,6 +122,7 @@ export async function deletePostAction(id: string) {
 }
 
 export async function startAdAction(id: string) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   await requireModule("social");
   const a = await adsStore.get(id);
   if (!a) return go("posts", "invalid");
@@ -130,6 +135,7 @@ export async function startAdAction(id: string) {
 }
 
 export async function deleteAdAction(id: string) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   await requireModule("social");
   const ad = await adsStore.get(id);
   await adsStore.remove(id);
@@ -139,6 +145,7 @@ export async function deleteAdAction(id: string) {
 
 // The composer asks for a car's photos and suggested text when the dealer picks it, so the page never carries them for the whole stock.
 export async function composerCarAction(slug: string): Promise<ComposerCar | null> {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   await requireModule("social");
   const car = (await adminCars()).find((c) => c.slug === slug && forSale(c));
   if (!car) return null;
@@ -151,6 +158,7 @@ export async function composerCarAction(slug: string): Promise<ComposerCar | nul
 // "Write from the newest cars" fills the letter from the stock; otherwise the dealer's own subject and text are used.
 const letter = z.object({ subject: z.string().trim().max(120), body: z.string().trim().max(4000) });
 export async function createNewsletterAction(data: FormData) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   await requireModule("newsletter");
   const { marketing } = await getSettings();
   let { subject, body } = { subject: "", body: "" };
@@ -169,6 +177,7 @@ export async function createNewsletterAction(data: FormData) {
 }
 
 export async function sendNewsletterAction(id: string) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   await requireModule("newsletter");
   const n = await newslettersStore.get(id);
   if (!n || n.status !== "draft") return go("newsletters", "invalid");
@@ -181,6 +190,7 @@ export async function sendNewsletterAction(id: string) {
 }
 
 export async function deleteNewsletterAction(id: string) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   await requireModule("newsletter");
   const n = await newslettersStore.get(id);
   await newslettersStore.remove(id);
@@ -192,6 +202,7 @@ export async function deleteNewsletterAction(id: string) {
 // length; the bytes, the size and the length are checked again here. The file is stored first, then the record, so a record never points at nothing.
 const dim = z.coerce.number().int().min(1).max(8000).optional();
 export async function uploadMediaAction(data: FormData): Promise<{ ok: true; item: MediaItem } | { ok: false; error: string }> {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   await requireModule("social");
   const file = data.get("file");
   const bad = { ok: false as const, error: "That file could not be added. Try another." };
@@ -215,6 +226,7 @@ export async function uploadMediaAction(data: FormData): Promise<{ ok: true; ite
 }
 
 export async function deleteMediaAction(id: string) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   await requireModule("social");
   const item = await mediaStore.get(id);
   if (!item) return;

@@ -3,6 +3,7 @@ import { everyKindOrNull, stock } from "@/lib/stock";
 import { slugify } from "@/lib/admin/stock-admin-pure";
 import { MAKE_OPTIONS, POPULAR_MAKES } from "@/lib/leads/makes";
 import { isSold, type Car, type Condition } from "@/lib/stock/types";
+import { parseModules } from "@/lib/modules-rules";
 
 // Every make the site has a page for (/makes/<slug>): the makes in stock, the makes it has ever listed, and the makes people in Ireland
 // look for most, so a search for one lands on a real page even with none in stock.
@@ -13,7 +14,11 @@ const zero = (): Record<Condition, number> => ({ used: 0, new: 0, commercial: 0 
 // In stock first (most cars first), then the popular makes in the order people ask for them. `all` adds every other known make A to Z.
 // Cached per request (React `cache`): a make page asks for it in its title, its page and its cars, and pays once.
 export const makeDirectory = cache(async (all = false): Promise<MakeEntry[]> => { // a plain argument: cache matches by identity
-  const cars = ((await everyKindOrNull()) ?? []).filter((c) => !isSold(c));
+  // New cars and vans count only with their module (#173), so a make's count matches the sections its page shows. The build setting, not
+  // the demo's cookie: the home page that reads this is built ahead.
+  const modules = parseModules(process.env.NEXT_PUBLIC_SITE_MODULES);
+  const shown = (c: Car) => (c.condition === "new" ? modules.has("newCars") : c.condition === "commercial" ? modules.has("commercial") : true);
+  const cars = ((await everyKindOrNull()) ?? []).filter((c) => !isSold(c) && shown(c));
   const bySlug = new Map<string, MakeEntry>();
   for (const c of cars) {
     const e = bySlug.get(c.makeSlug) ?? { slug: c.makeSlug, label: c.make, count: 0, byKind: zero() };
