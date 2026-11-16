@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { Field, Notice, PageHeader, Panel, adminButton, adminInput } from "@/components/admin/kit";
+import { Field, Notice, PageHeader, Panel, adminButton, adminInput, rowButton } from "@/components/admin/kit";
+import { ActButton } from "@/components/admin/ActButton";
+import { askModuleAction } from "@/app/dashboard/billing/actions";
 import { Phones } from "@/components/admin/whatsapp/Phones";
 import { WhatsAppIcon } from "@/components/stock/icons";
 import { getSettings } from "@/lib/admin/collections";
@@ -55,10 +57,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ n
                   <li key={g.id} data-wa-module={g.id} className="flex flex-col gap-1.5">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <h3 className="text-body font-semibold">{g.label}</h3>
-                      {!on && (
-                        <Link href="/dashboard/help?type=module" className="text-meta font-medium text-accent-text underline underline-offset-2">
-                          Add to your plan
-                        </Link>
+                      {/* As on Billing: a request to us, for the owners and managers. Switches nothing on. */}
+                      {!on && mayBill && (
+                        <ActButton act={askModuleAction.bind(null, g.id)} done="We have your request. Our reply will show in Help." label={`Ask us to add ${g.label}`} className={rowButton}>
+                          Ask us to add
+                        </ActButton>
                       )}
                     </div>
                     <ul className={`flex flex-col gap-1.5 ${on ? "" : "opacity-60"}`}>

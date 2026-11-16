@@ -15,10 +15,13 @@ export { BucketCachePurge, DOQueueHandler, DOShardedTagCache } from "./.open-nex
 
 const HOST = new URL(SITE_URL).hostname;
 // The jobs that live in the app, by cron (wrangler.jsonc triggers): the Worker calls their route through the app's own handler with the
-// CRON_KEY secret. Without the key nothing runs. A 404 means the job does not apply to this site. Logs counts only.
+// CRON_KEY secret. Without the key nothing runs. A 404 means the job does not apply to this site. Logs counts only. A list runs in order.
 const APP_JOBS = {
   "*/15 * * * *": { job: "donedeal-sync", path: "/api/donedeal/sync" }, // src/lib/donedeal/sync.ts
-  "0 7 * * *": { job: "follow-up-digest", path: "/api/follow-ups/digest" }, // src/lib/admin/follow-up-digest.ts, 7am or 8am Irish time
+  "0 7 * * *": [
+    { job: "follow-up-digest", path: "/api/follow-ups/digest" }, // src/lib/admin/follow-up-digest.ts, 7am or 8am Irish time
+    { job: "whatsapp-daily", path: "/api/whatsapp/daily" }, // src/lib/whatsapp/alerts.ts: slow stock, new reviews, the Monday summary
+  ],
   "0 7 1 * *": { job: "monthly-report", path: "/api/reports/monthly" }, // src/lib/reports/send.ts, the 1st, 7am or 8am Irish time
   "30 6 * * 1": { job: "demo-reset", path: "/api/demo/reset" }, // the demo only: after the Monday 06:00 deploy moves the sold dates (deploy.yml)
 };
@@ -40,7 +43,10 @@ const worker = {
   // The nightly jobs each run whatever the others do (photo storage being down must not stop the sales being anonymised), then the run
   // fails if any did, so it shows as failed and the next night tries again.
   async scheduled(controller, env, ctx) {
-    if (APP_JOBS[controller.cron]) return runAppJob(APP_JOBS[controller.cron], env, ctx);
+    if (APP_JOBS[controller.cron]) {
+      for (const job of [APP_JOBS[controller.cron]].flat()) await runAppJob(job, env, ctx);
+      return;
+    }
     const db = drizzle(env.DB);
     const jobs = [
       ["purge-leads", "deleted", () => purgeOldLeads(db, env.LEAD_PHOTOS)], // a count only, never a lead (D-08)

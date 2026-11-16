@@ -1,7 +1,8 @@
 import { NEW_TAB } from "@/components/ui";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChoiceAct } from "@/components/admin/ActButton";
+import { ActButton, ChoiceAct } from "@/components/admin/ActButton";
+import { stopWhatsAppAction } from "@/app/dashboard/whatsapp/actions";
 import { LeadStatusBadge } from "@/components/admin/badges";
 import { RegLookup } from "@/components/leads/RegLookup";
 import { AITextarea } from "@/components/admin/AIWriter";
@@ -173,6 +174,17 @@ export async function LeadView({ id }: { id: string }) {
                 </a>
               )}
             </div>
+            {/* They ticked the WhatsApp box on the form: the site's messages reach them there until someone stops it. */}
+            {lead.whatsappOptIn && (
+              <IfModule id="whatsapp">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-meta text-text-2">WhatsApp updates: on</p>
+                  <ActButton act={stopWhatsAppAction.bind(null, lead.id)} done="WhatsApp updates stopped" confirm={{ title: "Stop WhatsApp?", text: "Nothing more goes to them on WhatsApp. They get email instead, if they gave an address.", yes: "Stop WhatsApp" }} className={rowButton}>
+                    Stop WhatsApp
+                  </ActButton>
+                </div>
+              </IfModule>
+            )}
           </Panel>
           <Panel title="Status" className="max-lg:order-3" action={<LeadStatusBadge status={lead.status} />}>
             <div className="flex flex-wrap gap-2">

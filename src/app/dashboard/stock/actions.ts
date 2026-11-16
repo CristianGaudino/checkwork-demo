@@ -26,6 +26,7 @@ import { forSale, isSold, type Car } from "@/lib/stock/types";
 import { LISTING_SITE } from "@/lib/stock-source-rules";
 import { requireStaff } from "@/lib/staff";
 import { requireModule } from "@/lib/modules";
+import { alertNewIn, alertStaff } from "@/lib/whatsapp/alerts";
 
 const carRef = (c: Car) => ({ kind: "car" as const, id: c.id, label: carTitleOf(c) });
 
@@ -52,6 +53,7 @@ export async function saveCarAction(id: string | null, _prev: CarFormState, data
   if (cost === null) await costsStore.remove(result.car.id);
   else if (cost !== undefined) await costsStore.put({ id: result.car.id, costEur: cost });
   await logActivity("stock", existing ? carEditSummary(existing, result.car) : "Added the car", carRef(result.car));
+  if (!result.car.listing && (!existing || existing.listing === "draft")) await alertNewIn(result.car); // on the website for the first time
   const costChange = cost === undefined ? null : costText(wasCost, cost);
   if (costChange) await logActivity("stock", costChange, carRef(result.car));
   redirect(`/dashboard/stock?saved=${result.car.id}`);
@@ -95,6 +97,7 @@ export async function setListingAction(id: string, to: string) {
   if (!car || car.listing === listing) return;
   await saveCar({ ...car, listing, listedAt: listedOn(car, !listing, dublinDay()) });
   await logActivity("stock", LISTINGS[to as keyof typeof LISTINGS], carRef(car));
+  if (!listing && car.listing === "draft") await alertNewIn(car); // a draft published: on the website for the first time
   revalidatePath("/dashboard/stock");
 }
 
@@ -295,9 +298,11 @@ export async function reserveAction(carId: string, _prev: DepositFormState, data
   if (d.until < today || d.until > addMonths(today, 3)) return { errors: { until: "Choose a day in the next three months" } };
   const who = await buyerOf(d, "Deposit");
   if ("errors" in who) return who;
-  await reservationsStore.put({ id: newId("res"), carId: car.id, carTitle: carTitleOf(car), ...who, depositEur: d.depositEur, method: d.method, paidOn: d.paidOn, until: d.until, status: "held", createdAt: Date.now() });
+  const resId = newId("res");
+  await reservationsStore.put({ id: resId, carId: car.id, carTitle: carTitleOf(car), ...who, depositEur: d.depositEur, method: d.method, paidOn: d.paidOn, until: d.until, status: "held", createdAt: Date.now() });
   await saveCar({ ...car, reserved: true });
   await logActivity("stock", `Took a deposit of ${fmtEur(d.depositEur)}, reserved until ${d.until}`, carRef(car));
+  await alertStaff("deposit", { car: carTitleOf(car), eur: d.depositEur }, { ref: resId }); // WhatsApp, to whoever has it on
   redirect(`/dashboard/stock?view=reserved&reserved=${car.id}`);
 }
 

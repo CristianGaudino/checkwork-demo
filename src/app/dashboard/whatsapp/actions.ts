@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { logActivity } from "@/lib/admin/activity";
-import { getSettings } from "@/lib/admin/collections";
+import { getSettings, leadsStore } from "@/lib/admin/collections";
 import { enabledModules, requireModule } from "@/lib/modules";
 import { can, currentMember } from "@/lib/permissions";
 import { tap, typed } from "@/lib/whatsapp/handle";
@@ -61,4 +61,16 @@ export async function saveStaffAction(id: string, data: FormData) {
   await staffStore.put({ id, name: person.name, phone, alerts, quietFrom, quietTo });
   await logActivity("settings", phone ? "Changed the WhatsApp alerts for a team member" : "Unlinked a team member's WhatsApp", { kind: "team", id, label: person.name });
   redirect("/dashboard/whatsapp?notice=saved");
+}
+
+// A buyer who asked not to hear on WhatsApp any more: nothing more goes to them that way (src/lib/whatsapp/handle.ts reads the opt-in), and
+// email takes over where they gave an address. shortcut: the buyer's own STOP reply comes with the adapter (src/lib/whatsapp/send.ts).
+export async function stopWhatsAppAction(leadId: string) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
+  await requireModule("whatsapp");
+  const lead = await leadsStore.get(String(leadId));
+  if (!lead?.whatsappOptIn) return;
+  await leadsStore.put({ ...lead, whatsappOptIn: undefined });
+  await logActivity("leads", "Stopped WhatsApp updates to the buyer", { kind: "lead", id: lead.id }); // never the buyer
+  revalidatePath(`/dashboard/leads/${lead.id}`);
 }

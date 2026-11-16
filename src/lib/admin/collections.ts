@@ -60,7 +60,8 @@ export type Lead = {
   assignedTo?: string;
   followUpOn?: string; // YYYY-MM-DD, the Irish day to get back to them; cleared once the lead is won or lost
   lostReason?: LostReason; // only on a lost lead
-  notes: { at: number; text: string }[];
+  // `auto`: written by the site (a buyer's WhatsApp answer, a call-back reminder), not a reply to the buyer, so the reports skip it.
+  notes: { at: number; text: string; auto?: true }[];
   createdAt: number;
 };
 
@@ -466,7 +467,8 @@ function seedUndone(): Sale[] {
     { id: "undone-s2", carId: "4710020", carTitle: title("4710020"), priceEur: 10450, soldOn: ago(6), salesperson: "Aoife Brennan", customerId: "cust-314", returnedOn: ago(4), kind: "cancelled", reason: "Finance declined.", createdAt: now - 6 * DAY },
   ];
 }
-export const salesStore = defineCollection<Sale>("sales", () => [...seedSales(), ...PAST_SALES.map((p) => p.sale), ...seedUndone()]);
+export const demoSales = (): Sale[] => [...seedSales(), ...PAST_SALES.map((p) => p.sale), ...seedUndone()]; // also the WhatsApp seed's
+export const salesStore = defineCollection<Sale>("sales", demoSales);
 
 // ---- Reservations ----
 // A deposit on a car: the car is marked reserved on the website until the date agreed. It ends sold (the deposit is part of the price),
@@ -504,6 +506,7 @@ function seedReservations(): Reservation[] {
   ];
 }
 export const reservationsStore = defineCollection<Reservation>("reservations", seedReservations);
+export const demoReservations = seedReservations; // for the WhatsApp conversation's own seed (src/lib/whatsapp/store.ts)
 export const heldFor = (all: Reservation[], carId: string) => all.find((r) => r.carId === carId && r.status === "held");
 
 // ---- Warranty claims ----
