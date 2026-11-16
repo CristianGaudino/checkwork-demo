@@ -42,11 +42,11 @@ export async function buildFacts(req: WriteRequest, dealer: string): Promise<Bui
     }
     case "leadReply": {
       const lead = await leadsStore.get(req.leadId);
-      return lead ? { task: "leadReply", facts: { dealer, firstName: firstName(lead.name, ""), kind: LEAD_TYPE_LABELS[lead.type], message: noContacts(lead.message.slice(0, 600)), car: lead.carTitle } } : null;
+      return lead ? { task: "leadReply", facts: { dealer, firstName: firstName(lead.name, ""), kind: LEAD_TYPE_LABELS[lead.type], message: noContacts(lead.message).slice(0, 600), car: lead.carTitle } } : null;
     }
     case "reviewReply": {
       const r = await reviewsStore.get(req.reviewId);
-      return r ? { task: "reviewReply", facts: { dealer, firstName: firstName(r.author, ""), rating: r.rating, text: noContacts(r.text.slice(0, 600)) } } : null;
+      return r ? { task: "reviewReply", facts: { dealer, firstName: firstName(r.author, ""), rating: r.rating, text: noContacts(r.text).slice(0, 600) } } : null;
     }
   }
 }

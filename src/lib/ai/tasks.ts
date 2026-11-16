@@ -46,19 +46,19 @@ const EMAIL = /[^\s@(<]+@[^\s@]+\.[^\s@]*[^\s@.,;:!?)>]/gu;
 const PHONE = /\+?\(?\d[\d\s()./-]{6,}\d/g;
 const DATE = /\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}/;
 const YEARS = /^(19|20)\d\d([\s/-]+(19|20)\d\d)+$/;
-const isPhone = (m: string) => m.replace(/\D/g, "").length >= 9 && !DATE.test(m) && !YEARS.test(m.trim());
-export function maskContacts(s: string): { text: string; emails: string[]; phones: string[] } {
+const isPhone = (m: string) => m.replace(new RegExp(DATE, "g"), "").replace(/\D/g, "").length >= 9 && !YEARS.test(m.trim()); // a date beside a number does not hide it
+// `numbered`: the dealer's own draft, whose contacts go back in after an adjust: "[phone 1]", "[email 1]", each put back by its number, so a
+// customer's plain "[phone]" never gets the dealer's number and a reordered or dropped one never shifts the rest.
+export function maskContacts(s: string, numbered = false): { text: string; emails: string[]; phones: string[] } {
   const emails: string[] = [];
   const phones: string[] = [];
-  const text = s.replace(EMAIL, (m) => (emails.push(m), "[email]")).replace(PHONE, (m) => (isPhone(m) ? (phones.push(m), "[phone]") : m));
+  const tag = (kind: string, list: string[], m: string) => (list.push(m), numbered ? `[${kind} ${list.length}]` : `[${kind}]`);
+  const text = s.replace(EMAIL, (m) => tag("email", emails, m)).replace(PHONE, (m) => (isPhone(m) ? tag("phone", phones, m) : m));
   return { text, emails, phones };
 }
 export const noContacts = (s: string) => maskContacts(s).text;
-// The dealer's own number or email, taken out of their draft before an adjust, put back in the answer in the same order.
-export const unmaskContacts = (s: string, m: { emails: string[]; phones: string[] }) => {
-  const [e, p] = [[...m.emails], [...m.phones]];
-  return s.replace(/\[email\]/g, (t) => e.shift() ?? t).replace(/\[phone\]/g, (t) => p.shift() ?? t);
-};
+export const unmaskContacts = (s: string, m: { emails: string[]; phones: string[] }) =>
+  s.replace(/\[(email|phone) (\d+)\]/g, (t, kind: string, n: string) => (kind === "email" ? m.emails : m.phones)[Number(n) - 1] ?? t);
 
 // What the browser sends: ids and the form's own fields. The server builds the facts from the records, so the browser never supplies them.
 export type WriteRequest =

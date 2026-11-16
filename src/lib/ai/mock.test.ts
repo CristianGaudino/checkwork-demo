@@ -93,8 +93,13 @@ describe("what goes to the AI provider", () => {
     for (const t of ["Can I view it on 14/06/2025 14:00?", "192 Toyota 2019 2020 2021", "Write to me (pat@x.ie) today"]) expect(noContacts(t)).toBe(t.replace("pat@x.ie", "[email]"));
   });
   it("puts the dealer's own number and email back after an adjust, in order", () => {
-    const m = maskContacts("Ring me on 087 123 4567 or mail sales@dealer.ie");
-    expect(m.text).toBe("Ring me on [phone] or mail [email]");
-    expect(unmaskContacts("Call [phone], or email [email].", m)).toBe("Call 087 123 4567, or email sales@dealer.ie.");
+    const m = maskContacts("Sales 01 111 2222, Service 01 333 4444, mail sales@dealer.ie", true);
+    expect(m.text).toBe("Sales [phone 1], Service [phone 2], mail [email 1]");
+    expect(unmaskContacts("For a service, call [phone 2] or email [email 1].", m)).toBe("For a service, call 01 333 4444 or email sales@dealer.ie.");
+    // A customer's number, masked plain in the facts, never gets the dealer's
+    expect(unmaskContacts("We'll ring you on [phone]. Or call us on [phone 1].", m)).toBe("We'll ring you on [phone]. Or call us on 01 111 2222.");
+  });
+  it("takes out a number that follows a date", () => {
+    expect(noContacts("Viewing 14/06/2025 087 123 4567")).not.toContain("123 4567");
   });
 });
