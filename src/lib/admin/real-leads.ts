@@ -7,6 +7,7 @@ import { ALERT_KINDS, alertsStore, getSettings, customersStore, drivesStore, lea
 import { dublinMs } from "./format";
 import { noticeOfLead, notify } from "./notifications";
 import { MINUTE } from "@/lib/time";
+import { alertStaffOnWhatsApp } from "@/lib/whatsapp/alerts";
 
 // What visitors send reaches the dealer's admin as records. The lead pipeline (consent, bot check, retention) stays the one way in:
 // after a lead is stored, this copies it into the admin's own collections so it can be worked (status, notes, who has it). The copies
@@ -33,6 +34,9 @@ async function customerId(row: LeadRow): Promise<string> {
   return "real-c-" + [...new Uint8Array(hash).slice(0, 8)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+// The form's WhatsApp box (another form adds it): ticked reads as true, "on", "yes" or 1; anything else, or no box, is no.
+const optedIn = (v: unknown) => v === true || v === 1 || v === "true" || v === "on" || v === "yes" || v === "1";
+
 export type Mirror = { lead?: Lead; drive?: TestDrive; alert?: StockAlert };
 // emailed is false when the email to the dealer failed: the lead says so, as its first note, so the team replies from here.
 export function mirrorOf(row: LeadRow, emailed = true): Mirror {
@@ -58,6 +62,7 @@ export function mirrorOf(row: LeadRow, emailed = true): Mirror {
     ...(typeof row.details.reg === "string" && { reg: row.details.reg }),
     ...(typeof row.details.topic === "string" && { topic: row.details.topic, answers: Object.fromEntries(ANSWER_KEYS.filter((k) => typeof row.details[k] === "string").map((k) => [k, String(row.details[k])])) }),
     ...(row.photoKeys.length > 0 && { photoKeys: row.photoKeys }),
+    ...(optedIn(row.details.whatsappOptIn) && { whatsappOptIn: true }),
     notes: emailed ? [] : [{ at, text: "The email about this lead didn't reach you. Reply from here." }],
     createdAt: at,
   };
@@ -81,5 +86,6 @@ export async function mirrorLead(row: LeadRow, emailed = true): Promise<void> {
     const c: Customer = known ?? { id, name: row.name, email: row.email ?? "", phone: row.phone ?? "", source: "Website", marketingConsent: false, createdAt: row.consentAt.getTime(), lastContactAt: 0 };
     await customersStore.put({ ...c, lastContactAt: row.consentAt.getTime() });
     await notify(noticeOfLead(m.lead, Boolean(m.drive), m.drive?.id), row.consentAt.getTime());
+    await alertStaffOnWhatsApp(m.lead);
   }
 }
