@@ -1,11 +1,11 @@
 import { expect, test } from "@playwright/test";
+import { digits, prices } from "./open";
 import type { Locator, Page } from "@playwright/test";
 import { choose, optionLabels } from "./combo";
 import { formatKm } from "../src/lib/stock/format";
 import { PRICE_STOPS } from "../src/lib/stock/types";
 
 const PER_PAGE = 12;
-const digits = (s: string | null) => Number((s ?? "").replace(/\D/g, ""));
 const countText = (n: number) => (n === 0 ? "No cars" : n === 1 ? "1 car" : `${n} cars`);
 
 // Pixel 7 is a touch device, so wait for React to attach before the first click: a click before that does nothing.
@@ -38,7 +38,6 @@ async function rows(page: Page, name = "Make") {
 const showAll = (page: Page) => makeGroup(page).getByRole("button", { name: /^Show all \d+$/i });
 const titles = (page: Page) => page.locator("article h2").allTextContents();
 const metas = (page: Page) => page.locator("article [data-meta]").allTextContents();
-const prices = (page: Page) => page.locator("article [data-price]").allTextContents().then((l) => l.map(digits));
 const search = (page: Page) => page.getByRole("searchbox", { name: "Search make or model" });
 const select = (page: Page, name: string) => page.getByRole("combobox", { name, exact: true });
 // A thumb of the price range: move it to a price (the track steps through PRICE_STOPS), then let go (the filter is applied when a thumb is released).

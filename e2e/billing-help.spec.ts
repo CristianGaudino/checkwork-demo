@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
+import { as } from "./open";
 
 // Billing is for the owner and manager; Help is for everyone. The demo bar's role is a cookie (see admin-margins.spec.ts).
-const as = (context: import("@playwright/test").BrowserContext, role: string) => context.addCookies([{ name: "checkwork-demo-role", value: role, url: "http://localhost:3000" }]);
 
 test("the owner sees the plan, sets a limit and an alert, and opens a bill", async ({ page }) => {
   await page.goto("/dashboard/billing");
