@@ -37,6 +37,8 @@ export const MODULE_EUR: Record<ModuleId, number> = {
 export const VAT_PCT = 23;
 export const withVat = (eur: number) => round2(eur * (1 + VAT_PCT / 100));
 export const round2 = (n: number) => Math.round(n * 100) / 100;
+// "€20", "€20.50": whole euros without cents, as the Billing page writes them.
+export const eur = (n: number) => `€${n.toLocaleString("en-IE", { minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2 })}`;
 
 // One count a month per service, kind and place: a record per line of the bill, not one per use, so it never grows with traffic.
 export type UsageCount = { id: string; month: string; service: Service; kind: string; count: number };
@@ -99,18 +101,19 @@ export function alertsCrossed(before: ReturnType<typeof usageCosts>, after: Retu
   for (const s of ["total", ...SERVICES] as Scope[]) {
     const cap = capOf(b, s);
     if (cap !== undefined && cap > 0) {
-      if (b.alertAt80 && crossed(s, cap * 0.8)) out.push({ key: `${month}:${s}:80:${cap}`, scope: s, text: `${label(s)} has reached 80% of its €${cap} monthly limit` });
-      if (crossed(s, cap)) out.push({ key: `${month}:${s}:cap:${cap}`, scope: s, text: `${label(s)} has reached its €${cap} monthly limit and has stopped until next month` });
+      if (b.alertAt80 && crossed(s, cap * 0.8)) out.push({ key: `${month}:${s}:80:${cap}`, scope: s, text: `${label(s)} has reached 80% of its ${eur(cap)} monthly limit` });
+      if (crossed(s, cap)) out.push({ key: `${month}:${s}:cap:${cap}`, scope: s, text: `${label(s)} has reached its ${eur(cap)} monthly limit and has stopped until next month` });
     }
   }
-  for (const a of b.alerts) if (crossed(a.scope, a.amountEur)) out.push({ key: `${month}:${a.scope}:${a.amountEur}`, scope: a.scope, text: `${label(a.scope)} has passed €${a.amountEur} this month` });
+  for (const a of b.alerts) if (crossed(a.scope, a.amountEur)) out.push({ key: `${month}:${a.scope}:${a.amountEur}`, scope: a.scope, text: `${label(a.scope)} has passed ${eur(a.amountEur)} this month` });
   return out;
 }
 
 // The month to date, a whole month at the same pace: an estimate, always shown as one.
-export function monthEndEstimate(sofarEur: number, now: Date): number {
-  const day = now.getUTCDate();
-  const days = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0)).getUTCDate();
+// `today`: the dealer's day, "YYYY-MM-DD" in Dublin time, the same calendar the usage months are counted in.
+export function monthEndEstimate(sofarEur: number, today: string): number {
+  const [y, m, day] = today.split("-").map(Number);
+  const days = new Date(Date.UTC(y, m, 0)).getUTCDate();
   return round2((sofarEur / day) * days);
 }
 // The plan's monthly price for these modules, the AI assistant's flat fee included when chosen.

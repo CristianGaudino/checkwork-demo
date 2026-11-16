@@ -4,7 +4,7 @@ import Link from "next/link";
 import { LIMITS } from "@/lib/leads/constants";
 import { CHOICES, TOPICS, URGENCY_FOR, type TopicId } from "@/lib/leads/contact-topics";
 import { count } from "@/lib/count-client";
-import { saveDraft } from "@/lib/leads/draft";
+import { readDraft, saveDraft } from "@/lib/leads/draft";
 import { useModules } from "@/lib/demo-role";
 import { SITE_SLUG } from "@/lib/site";
 import { secondaryButton } from "@/components/ui";
@@ -42,7 +42,11 @@ const only = (key: keyof typeof CHOICES, values: string[]) => CHOICES[key].filte
 // Hands over to a form of its own, so there is one valuation form and not two. What is carried lands in that form's kept draft.
 function Handover({ href, children, carry }: { href: string; children: React.ReactNode; carry?: { type: string; values: Record<string, string> } }) {
   return (
-    <Link href={href} onClick={() => carry && saveDraft(`${SITE_SLUG}:draft:${carry.type}::${href}`, carry.values)} className={`inline-flex h-12 items-center justify-center px-5 ${secondaryButton}`}>
+    <Link href={href} onClick={() => {
+        // Added to what the buyer may already have typed on that form, never in place of it.
+        const key = `${SITE_SLUG}:draft:${carry?.type}::${href}`;
+        if (carry && Object.values(carry.values).some(Boolean)) saveDraft(key, { ...readDraft(key), ...carry.values });
+      }} className={`inline-flex h-12 items-center justify-center px-5 ${secondaryButton}`}>
       {children}
     </Link>
   );

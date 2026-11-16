@@ -9,9 +9,10 @@ import { enabledModules } from "@/lib/modules";
 import { can, currentMember } from "@/lib/permissions";
 import { billingDetails, listBills } from "@/lib/billing/bills";
 import { AI_PLAN_LABELS, FOUNDING, afterDiscount, eur, fmtMonth, foundingEnd, itemise, nextBillDate, scopeName, servicesOf } from "@/lib/billing/bills-rules";
-import { AI_ASSISTANT, BASE_EUR, MODULE_EUR, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, capOf, monthEndEstimate, planEur, round2, withVat, type AiPlan, type Scope, type Service } from "@/lib/billing/rules";
+import { AI_ASSISTANT, BASE_EUR, MODULE_EUR, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, capOf, monthEndEstimate, planEur, round2, withVat, type AiPlan, type Scope, type Service, SERVICES } from "@/lib/billing/rules";
 import { billingSettings, monthUsage } from "@/lib/billing/usage";
 import { askModuleAction, removeAlertAction, saveAiPlanAction } from "./actions";
+import { dublinDay } from "@/lib/admin/format";
 
 export const metadata = { title: "Billing" };
 
@@ -32,7 +33,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
   const sp = await searchParams;
   const section = SECTIONS.find(([k]) => k === sp.section)?.[0] ?? "plan";
   const [modules, b, usage, me] = await Promise.all([enabledModules(), billingSettings(), monthUsage(), currentMember()]);
-  const services = servicesOf(modules);
+  // A service the dealer has, or one used this month before it was switched off: what the total counts is always listed.
+  const services = SERVICES.filter((s) => servicesOf(modules).includes(s) || usage[s].count > 0);
   const scopes: Scope[] = [...services, "total"];
   return (
     <>
@@ -117,7 +119,7 @@ function PlanAndUsage({ modules, services, usage, aiPlan, now }: { modules: Modu
   const plan = planEur(modules, assistant ? "assistant" : "perAction");
   const planNet = afterDiscount(plan);
   const sofar = usage.totalEur;
-  const estimate = monthEndEstimate(sofar, now);
+  const estimate = monthEndEstimate(sofar, dublinDay(now.getTime()));
   const bill = round2(planNet + estimate);
   const lines: (readonly [string, number])[] = [["Website", BASE_EUR], ...mine.map((m) => [m.label, MODULE_EUR[m.id]] as const), ...(assistant ? [["AI assistant", AI_ASSISTANT.monthlyEur] as const] : [])];
   return (

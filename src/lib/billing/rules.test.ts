@@ -55,6 +55,7 @@ describe("the plan and the estimate", () => {
     expect(planEur(["dashboard", "finance"], "assistant")).toBe(200 + 49 + 29 + 19);
   });
   it("takes the month to date to a whole month at the same pace", () => {
-    expect(monthEndEstimate(10, new Date(Date.UTC(2026, 10, 10)))).toBe(30); // 10 of 30 days
+    expect(monthEndEstimate(10, "2026-11-10")).toBe(30); // 10 of 30 days
+    expect(monthEndEstimate(1, "2026-12-01")).toBe(31); // the 1st in Dublin, whatever the UTC day
   });
 });

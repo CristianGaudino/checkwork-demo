@@ -68,7 +68,7 @@ export default async function Page() {
       <StatGrid>
         <StatCard href="/dashboard/leads?status=new" label="Leads to answer" value={fmtNum(o.newLeads)} hint={o.lateLeads ? `${o.lateLeads} past your reply target` : "All within your reply target"} tone={o.lateLeads ? "bad" : "good"} />
         <StatCard href="/dashboard/stock" label="Cars for sale" value={fmtNum(cars.filter(forSale).length)} hint={o.oldStock ? `${o.oldStock} for sale 60 days or more` : undefined} tone={o.oldStock ? "warn" : undefined} />
-        {costs && mods.has("margins") && <StatCard href="/dashboard/margins" label="Stock margin" value={fmtEur(margin)} />}
+        {costs && <StatCard href="/dashboard/margins" label="Stock margin" value={fmtEur(margin)} />}
         {mods.has("reviews") && <StatCard href="/dashboard/reviews" label="Review rating" value={o.reviewCount ? o.averageRating.toFixed(1) : "None"} hint={plural(o.reviewCount, "review")} />}
       </StatGrid>
 

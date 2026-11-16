@@ -25,6 +25,7 @@ import { runSync } from "@/lib/donedeal/sync";
 import { forSale, isSold, type Car } from "@/lib/stock/types";
 import { LISTING_SITE } from "@/lib/stock-source-rules";
 import { requireStaff } from "@/lib/staff";
+import { requireModule } from "@/lib/modules";
 
 const carRef = (c: Car) => ({ kind: "car" as const, id: c.id, label: carTitleOf(c) });
 
@@ -282,6 +283,7 @@ const deposit = z.object({
 // ended. Fine for one dealer's team; check again inside a transaction if it ever shows up.
 export async function reserveAction(carId: string, _prev: DepositFormState, data: FormData): Promise<DepositFormState> {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
+  await requireModule("sales"); // deposits are the sales module (#173)
   const car = (await readOnly()) ? undefined : await adminCar(carId);
   if (!car || !forSale(car)) return { errors: { depositEur: "This car is not for sale" } };
   const r = deposit.safeParse(Object.fromEntries(data));
@@ -304,6 +306,7 @@ export async function reserveAction(carId: string, _prev: DepositFormState, data
 const ending = z.discriminatedUnion("outcome", [z.object({ outcome: z.literal("refunded"), refundEur: euros(1_000_000) }), z.object({ outcome: z.literal("kept") })], { message: "Choose what happened to the deposit" });
 export async function endReservationAction(carId: string, _prev: DepositFormState, data: FormData): Promise<DepositFormState> {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
+  await requireModule("sales"); // deposits are the sales module (#173)
   if (!(await can("settings"))) return { errors: { outcome: "Only owners and managers can end a reservation" } };
   const held = heldFor(await reservationsStore.list(), carId);
   if (!held) return { errors: { outcome: "This car has no deposit on it" } };

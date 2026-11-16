@@ -68,8 +68,7 @@ export async function saveBilling(change: Partial<Pick<BillingSettings, "caps" |
   await settingsStore.put({ ...s, billing: { ...BILLING_DEFAULT, ...s.billing, ...change }, updatedAt: Date.now() });
 }
 
-// The demo's month so far: steady daily use, so the Billing page shows a lived-in month on any day. AI sits near its cap, so the 80% alert
-// and the limit can be shown.
+// The demo's month so far: steady daily use, so the Billing page shows a lived-in month on any day, well under the demo's limits.
 function seedUsage(): UsageCount[] {
   const month = monthOf();
   const day = Number(dublinDay().slice(8, 10));

@@ -5,7 +5,8 @@ import { KINDS, SERVICES, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, round2, type 
 // so the forms (browser) and the tests use them too.
 
 // Money as the page writes it: whole euros bare, anything else with cents.
-export const eur = (n: number) => `€${n.toLocaleString("en-IE", { minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2 })}`;
+import { eur } from "./rules";
+export { eur };
 
 // Us, as every bill says it. A real site reads these from the billing program (#62).
 export const OUR_DETAILS = { name: "Checkwork Ltd", vat: "IE 3456789 TH", address: "Dublin, Ireland", email: "support@checkwork.ie" } as const;

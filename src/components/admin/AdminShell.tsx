@@ -61,10 +61,10 @@ export function AdminShell({ title, subtitle, nav, navLabel, openGroups, rail: r
           <div className={`hidden items-center border-t border-hairline lg:mx-3 lg:flex lg:min-h-14 ${rail ? "lg:justify-center" : "lg:justify-between lg:gap-2 lg:pl-3"}`}>
             {!rail && (
               <span className="flex min-w-0 flex-col">
-                <Link href="/" className="truncate py-1 text-meta text-text-2 underline">
+                <Link href="/" className="inline-flex min-h-11 items-center truncate text-meta text-text-2 underline">
                   View the public site
                 </Link>
-                <Link href={`/dashboard/help?from=${encodeURIComponent(path)}`} className="truncate py-1 text-meta text-text-2 underline">
+                <Link href={`/dashboard/help?from=${encodeURIComponent(path)}`} className="inline-flex min-h-11 items-center truncate text-meta text-text-2 underline">
                   Need help?
                 </Link>
               </span>

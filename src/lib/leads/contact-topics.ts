@@ -9,7 +9,7 @@ export const TOPICS = [
   { id: "selling", label: "Selling or trading in my car", subject: "Selling", module: "tradeIn" },
   { id: "finance", label: "Finance", subject: "Finance", module: "finance" },
   { id: "service", label: "Service or repair", subject: "Service", module: "service" },
-  { id: "bought", label: "A car I bought from you", subject: "Aftersales" },
+  { id: "bought", label: "A car I bought from you", subject: "Aftersales", module: "service" }, // filed in Aftersales
   { id: "other", label: "Something else", subject: "Message" },
 ] as const satisfies readonly { id: string; label: string; subject: string; module?: ModuleId }[];
 export type TopicId = (typeof TOPICS)[number]["id"];

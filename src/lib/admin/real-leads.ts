@@ -34,7 +34,6 @@ async function customerId(row: LeadRow): Promise<string> {
   return "real-c-" + [...new Uint8Array(hash).slice(0, 8)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-// The form's WhatsApp box (another form adds it): ticked reads as true, "on", "yes" or 1; anything else, or no box, is no.
 
 export type Mirror = { lead?: Lead; drive?: TestDrive; alert?: StockAlert };
 // emailed is false when the email to the dealer failed: the lead says so, as its first note, so the team replies from here.

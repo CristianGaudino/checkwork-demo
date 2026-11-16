@@ -7,6 +7,8 @@ const headers = { "Cache-Control": "no-store" };
 // An anonymous count of one feature use (src/lib/count-client.ts). The body is {"event": "<name from the fixed list>"}; nothing else is read,
 // stored or logged. The limit is per visitor, the way the lead forms' is; a visitor over it is simply not counted.
 export async function POST(req: Request) {
+  // A count is a few bytes: anything bigger is refused before it is read.
+  if (Number(req.headers.get("content-length") ?? 0) > 200) return new Response(null, { status: 413, headers });
   const body = (await req.text()).slice(0, 200);
   let event: unknown;
   try {
@@ -15,7 +17,7 @@ export async function POST(req: Request) {
     return new Response(null, { status: 400, headers });
   }
   if (!isCountEvent(event)) return new Response(null, { status: 400, headers });
-  // Every count is limited per visitor, with its own limiter (30 a minute: a buyer setting filters, saving and comparing stays under it).
+  // Every count is limited per visitor, with its own limiter (20 a minute: a buyer setting filters, saving and comparing stays under it).
   // With no limiter (next dev, the E2E run) nothing is limited.
   const limiter = getBindings().COUNT_LIMITER;
   const ip = req.headers.get("cf-connecting-ip") ?? "unknown";
