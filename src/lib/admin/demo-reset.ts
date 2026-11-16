@@ -6,6 +6,7 @@ import { noticesStore, readsStore } from "./notifications";
 import { sentAlertsStore, usageStore } from "@/lib/billing/usage";
 import { billsStore } from "@/lib/billing/bills";
 import { feedbackStore, helpStore } from "./help";
+import { getBindings, type PhotoBucket } from "@/lib/leads/bindings";
 import { adminCars, saveCar } from "./stock-admin";
 
 // The demo's made-up records back to their seed, dated from today: Settings, Reset demo data, and every Monday after the deploy moves the
@@ -19,4 +20,15 @@ export async function resetDemoRecords() {
   for (const car of await adminCars()) if (Boolean(car.reserved) !== held.has(car.id)) await saveCar({ ...car, reserved: held.has(car.id) || undefined });
   await resetActivity();
   await resetSyncStatus();
+  // The media library's uploaded files in R2 go too, best effort: the library's records are already back to the seed.
+  try {
+    const bucket = getBindings().LEAD_PHOTOS as (PhotoBucket & { list(o: { prefix: string; cursor?: string }): Promise<{ objects: { key: string }[]; truncated: boolean; cursor?: string }> }) | undefined;
+    let cursor: string | undefined;
+    for (let more = !!bucket; bucket && more; ) {
+      const page = await bucket.list({ prefix: "media/", cursor });
+      if (page.objects.length) await bucket.delete(page.objects.map((o) => o.key));
+      cursor = page.truncated ? page.cursor : undefined;
+      more = page.truncated;
+    }
+  } catch {}
 }

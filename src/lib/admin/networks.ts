@@ -10,9 +10,9 @@ export const POST_LIMITS = { text: 1000, photos: 4, budgetMin: 20, budgetMax: 50
 export const POST_FORMATS = ["post", "story", "reel", "carousel"] as const;
 export type PostFormat = (typeof POST_FORMATS)[number];
 export const FORMAT_LABELS: Record<PostFormat, string> = { post: "Post", story: "Story", reel: "Reel or video", carousel: "Carousel" };
-export const STORY_LAYOUTS = ["just-in", "price-drop", "sold", "collected"] as const;
+export const STORY_LAYOUTS = ["just-in", "price-drop"] as const;
 export type StoryLayout = (typeof STORY_LAYOUTS)[number];
-export const LAYOUT_LABELS: Record<StoryLayout, string> = { "just-in": "Just in", "price-drop": "Price drop", sold: "Sold", collected: "Collected today" };
+export const LAYOUT_LABELS: Record<StoryLayout, string> = { "just-in": "Just in", "price-drop": "Price drop" };
 // What each network takes, and how it goes out. "auto": the network's publishing API takes it from us. "prepare": we make it ready and the dealer
 // posts it from the phone. Facebook Page stories are limited in the API and Instagram's API cannot add the link sticker, so both stories are
 // prepared; TikTok's posting API holds an unaudited app's posts as private, so TikTok is prepared until the app is audited.

@@ -39,12 +39,10 @@ describe("the demo writer", () => {
     }
   });
 
-  it("writes a story for each ready layout, short, and never states a price on Sold", () => {
+  it("writes a story for each ready layout, short", () => {
     const story = (layout: FactsOf["post"]["layout"]) => mockText("post", post({ format: "story", layout }));
     expect(story("just-in")).toMatch(/^Just in: /);
     expect(story("price-drop")).toContain("Now €13,950 Inc. VAT, was €14,450");
-    expect(story("collected")).toMatch(/^Collected today/);
-    expect(story("sold")).not.toContain("€");
     expect(story("just-in").length).toBeLessThan(120);
     expect(adjustsFor("post", "story")).toEqual(["shorter", "urgency"]);
   });

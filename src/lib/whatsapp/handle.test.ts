@@ -102,11 +102,37 @@ describe("Not for us", () => {
 describe("a price reply", () => {
   it("writes one offer note", async () => {
     db.leads.set("real-1", lead("new"));
-    alert("q1", [], { leadId: "real-1", expects: "price" });
+    alert("q1", [], { leadId: "real-1", expects: "price", at: Date.now() - 1000 });
     await typed("Aoife", "8,500");
     const notes = (db.leads.get("real-1")?.notes as { text: string }[]).filter((n) => n.text.startsWith("Offer sent"));
     expect(notes).toHaveLength(1);
     await typed("Aoife", "9,000"); // the question is answered, so a second number is not another offer
     expect((db.leads.get("real-1")?.notes as unknown[]).length).toBe(2); // the offer, and the buyer's answer
+  });
+});
+
+describe("a closed lead and an old question", () => {
+  it("sends no offer after the lead was declined from the other copy", async () => {
+    db.leads.set("real-1", lead("contacted"));
+    alert("a1", ["decline"], { leadId: "real-1", event: "trade-in" });
+    alert("a2", ["price"], { leadId: "real-1", event: "trade-in", to: "Aoife" });
+    await tap("Aoife", "a1", "decline");
+    sent.length = 0;
+    await tap("Aoife", "a2", "price");
+    expect(db.msgs.get("a2")?.done).toBe(true);
+    await typed("Aoife", "8,500");
+    expect(sent).toHaveLength(0);
+  });
+  it("sends no offer when the lead closes after the question", async () => {
+    db.leads.set("real-1", lead("lost"));
+    alert("q1", [], { leadId: "real-1", expects: "price", at: Date.now() - 1000 });
+    await typed("Aoife", "8,500");
+    expect(sent).toHaveLength(0);
+  });
+  it("ignores a question asked over an hour ago", async () => {
+    db.leads.set("real-1", lead("new"));
+    alert("q1", [], { leadId: "real-1", expects: "price", at: Date.now() - 2 * 3600_000 });
+    await typed("Aoife", "8,500");
+    expect(sent).toHaveLength(0);
   });
 });

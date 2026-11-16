@@ -50,7 +50,7 @@ export function PostComposer({ cars, initialSlug, initialFormat = "post", initia
   const car = loaded?.slug === slug ? loaded : undefined;
   const limits = FORMAT_LIMITS[format];
   // A story is a few words over the photo, led by the layout; the other formats start from the car's facts for this network.
-  const storyLine = car ? (layout === "price-drop" && car.was ? `Now ${car.price}, was ${car.was}.` : layout === "sold" || layout === "collected" ? "" : `${car.price}.`) : "";
+  const storyLine = car ? (layout === "price-drop" && car.was ? `Now ${car.price}, was ${car.was}.` : `${car.price}.`) : "";
   const suggestion = car ? (format === "story" ? [`${LAYOUT_LABELS[layout]}: ${car.title}.`, storyLine].filter(Boolean).join("\n") : car.byFormat[format][network]) : "";
   // The text follows the suggestion until the dealer types; "Use the suggestion" brings it back.
   const [typed, setTyped] = useState<string | null>(null);

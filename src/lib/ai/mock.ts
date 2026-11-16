@@ -18,11 +18,11 @@ function post(f: FactsOf["post"], a: Adjust | undefined, current: string): strin
   const link = c.link && (social ? "Link in bio." : c.link);
   const price = c.price && `${c.price}.`;
   if (format === "story") {
-    const head = { "just-in": "Just in", "price-drop": "Price drop", sold: "Sold", collected: "Collected today" }[f.layout ?? "just-in"];
+    const head = { "just-in": "Just in", "price-drop": "Price drop" }[f.layout ?? "just-in"];
     const drop = f.layout === "price-drop" && c.was && c.price ? `Now ${c.price}, was ${c.was}.` : price;
     if (a === "shorter") return lines(`${head}: ${c.name}.`);
     if (a === "urgency") return lines(`${head}: ${c.name}.`, drop, "Message us today.");
-    return lines(`${head}: ${c.name}.`, f.layout === "sold" ? "Thank you." : drop, f.layout === "sold" || f.layout === "collected" ? "" : "See it on our site.");
+    return lines(`${head}: ${c.name}.`, drop, "See it on our site.");
   }
   const lead = { post: "Just in", story: "Just in", reel: "Walkaround", carousel: "More photos" }[format];
   const base = [`${lead}: ${c.name}.`, specs(c) && `${specs(c)}.`, price, voice.signOff.trim(), link, network === "Facebook" ? "" : voice.hashtags.trim()];

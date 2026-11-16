@@ -40,7 +40,7 @@ export function PostPreview({ network, format, layout = "just-in", text, photos,
             <div className="absolute inset-x-0 bottom-0 flex flex-col items-start gap-2 bg-gradient-to-t from-band/80 via-band/40 to-transparent p-4 pt-16 text-on-accent">
               <span className="rounded-full bg-on-accent px-3 py-1 text-meta font-semibold text-band">{LAYOUT_LABELS[layout]}</span>
               <span className="text-heading font-bold leading-tight">{title}</span>
-              {layout !== "sold" && layout !== "collected" && price && (
+              {price && (
                 <span className="flex items-baseline gap-2 text-display font-bold leading-none">
                   {price}
                   {layout === "price-drop" && was && <s className="text-meta font-normal opacity-80">{was}</s>}

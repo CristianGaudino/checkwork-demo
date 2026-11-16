@@ -8,6 +8,7 @@ import { carEditSummary } from "@/lib/admin/activity-text";
 import { postReviewReply } from "@/lib/admin/publishers";
 import { carTitleOf } from "@/lib/admin/seed-data";
 import { SITE_NAME } from "@/lib/site";
+import { HOUR } from "@/lib/time";
 import { stockSource } from "@/lib/stock-source";
 import { LISTING_SITE } from "@/lib/stock-source-rules";
 import { isSold } from "@/lib/stock/types";
@@ -79,31 +80,33 @@ export async function tap(me: string, msgId: string, button: ButtonId): Promise<
   const lead = msg.leadId ? await leadsStore.get(msg.leadId) : undefined;
   const first = lead ? firstName(lead.name) : "";
 
+  const closed = lead && (lead.status === "won" || lead.status === "lost");
+  const all = await copies(msg);
+  if (button !== "review" && button !== "report" && button !== "post" && (msg.done || all.some((m) => m.done))) return void (await say(me, { text: "Already done." }));
+  if (closed) return void (await say(me, { text: "That lead is closed." }));
   if (button === "price") return void (await say(me, { leadId: msg.leadId, text: `What price do you want to offer${first ? ` ${first}` : ""}? Type it, like 8,500.`, expects: "price" }));
   if (button === "other") return void (await say(me, { leadId: msg.leadId, ref: msg.ref, text: "What time suits? Type it, like Saturday at 11.", expects: "time" }));
   if (button === "review") return void (await say(me, { ref: msg.ref, text: "Type your reply and I will post it on Google.", expects: "review-reply" }));
   if (button === "report") return void (await say(me, { text: "Here is the full report.", href: "/dashboard/reports" }));
   if (button === "post") return void (await say(me, { text: "Thanks. Approve the post in Marketing and it is scheduled.", href: "/dashboard/marketing" }));
-  const all = await copies(msg);
   if (button === "drop") {
-    if (msg.done || all.some((m) => m.done)) return void (await say(me, { text: "Already done." }));
     if ((await stockSource()) === "donedeal") return void (await say(me, { text: `The price comes from ${LISTING_SITE}. Change it there.` }));
+    await markDone(all); // first, so a second tap while this runs finds it done
     const car = msg.ref ? await adminCar(msg.ref) : undefined;
     if (car && isSold(car)) return void (await say(me, { text: "That car is sold, so I left the price." }));
     const drop = car && droppedPrice(car, 500, "eur");
     if (!car || !drop) return void (await say(me, { text: "I could not change that price. Open the car to do it." }));
     const next = { ...car, ...drop };
     await saveCar(next);
-    await markDone(all);
     await logActivity("stock", carEditSummary(car, next), { kind: "car", id: car.id, label: carTitleOf(car) });
     return void (await say(me, { text: `Done. The ${carTitleOf(car)} is now ${fmtEur(drop.priceEur)}.`, href: `/dashboard/stock/${car.id}` }));
   }
 
-  if (all.some((m) => m.done)) return void (await say(me, { text: "Already done." }));
   const act = ACTS[button === "confirm" ? (msg.event === "deposit" ? "confirm-deposit" : "confirm-test-drive") : button];
   if (!act) return;
   if (button === "confirm" && msg.event === "test-drive" && msg.ref) {
     const drive = await drivesStore.get(msg.ref);
+    if (drive && drive.status !== "requested" && drive.status !== "confirmed") return void (await say(me, { text: "That test drive is no longer open." }));
     if (drive && drive.status === "requested") {
       await drivesStore.put({ ...drive, status: "confirmed" });
       await logActivity("test-drives", act.activity, { kind: "drive", id: drive.id });
@@ -125,7 +128,7 @@ export async function tap(me: string, msgId: string, button: ButtonId): Promise<
 export async function typed(me: string, raw: string): Promise<void> {
   const text = raw.trim().slice(0, 500);
   if (!text || !(await linked(me))) return;
-  const q = (await messagesStore.list()).filter((m) => m.to === me && m.expects && !m.done && m.at <= Date.now()).sort((a, b) => b.at - a.at)[0];
+  const q = (await messagesStore.list()).filter((m) => m.to === me && m.expects && !m.done && m.at <= Date.now() && m.at > Date.now() - HOUR).sort((a, b) => b.at - a.at)[0];
   await addMessage({ thread: "staff", from: "staff", to: me, text });
   if (!q) return void (await say(me, { text: "I did not catch that. Tap a button under one of the messages above." }));
   const lead = q.leadId ? await leadsStore.get(q.leadId) : undefined;
@@ -134,6 +137,7 @@ export async function typed(me: string, raw: string): Promise<void> {
     const eur = parsePrice(text);
     if (eur === null) return void (await say(me, { text: "I could not read that as a price. Type an amount in euro, like 8,500." }));
     if (!lead) return void (await say(me, { text: "I can't find that request any more." }));
+    if (lead.status === "won" || lead.status === "lost") return void (await say(me, { text: "That lead is closed." }));
     const by = await toBuyer(lead, me, `Hi ${firstName(lead.name)}, thank you for sending us your car. We can offer you ${fmtEur(eur)} for it, subject to seeing it. Reply here and we will book a time for you to bring it in. ${SITE_NAME}`, "That sounds good. Could I bring it in on Saturday morning?");
     const cur = (await leadsStore.get(lead.id)) ?? lead; // toBuyer may have added the buyer's answer
     await leadsStore.put({ ...cur, status: moved(cur.status, "contacted"), notes: [...cur.notes, { at: Date.now(), text: `Offer sent by ${by}: ${fmtEur(eur)}` }] });
@@ -143,6 +147,7 @@ export async function typed(me: string, raw: string): Promise<void> {
   }
   if (q.expects === "time") {
     if (!lead) return void (await say(me, { text: "I can't find that request any more." }));
+    if (lead.status === "won" || lead.status === "lost") return void (await say(me, { text: "That lead is closed." }));
     const by = await toBuyer(lead, me, `Hi ${firstName(lead.name)}, could we do ${text} instead? Let us know if that suits.`);
     await leadsStore.put({ ...lead, notes: [...lead.notes, { at: Date.now(), text: `Suggested another time by ${by}: ${text}` }] });
     await logActivity("leads", "Suggested another time, from WhatsApp", { kind: "lead", id: lead.id });
