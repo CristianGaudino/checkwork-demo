@@ -93,6 +93,7 @@ test("/contact: Something else needs the message text, then ends on the thanks",
   await expect(page.getByRole("heading", { level: 1, name: "Contact" })).toBeVisible();
   await page.getByText("Something else", { exact: true }).click();
   await next(page);
+  await expect(page.getByText("Step 2 of 3")).toBeVisible(); // a second tap too soon lands on the step that is leaving
   await next(page); // nothing typed yet
   await expect(page.locator("p", { hasText: "Tell us how we can help." })).toBeVisible();
   await page.getByLabel("How can we help?").fill("Do you service Fords?");

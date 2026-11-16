@@ -159,8 +159,11 @@ test("no two of the main pages share a description", async ({ page }) => {
 async function toDetails(page: Page) {
   await page.waitForFunction(() => Object.keys(document.querySelector("form")!).some((k) => k.startsWith("__reactFiber")));
   await page.getByText("Buying a car", { exact: true }).click();
+  // Each Next waits for its step to show: a second tap too soon lands on the step that is still leaving.
   await page.getByRole("button", { name: "Next", exact: true }).click();
+  await expect(page.getByText("Step 2 of 3")).toBeVisible();
   await page.getByRole("button", { name: "Next", exact: true }).click();
+  await expect(page.getByText("Step 3 of 3")).toBeVisible();
 }
 
 test("the phone field defaults to Ireland +353, drops a leading 0 and keeps the chosen country", async ({ page }) => {
