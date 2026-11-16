@@ -10,7 +10,7 @@ import { drivesStore, getSettings, leadsStore, reviewsStore, salesStore } from "
 import { adminCars } from "@/lib/admin/stock-admin";
 import { carTitleOf } from "@/lib/admin/seed-data";
 import { daysSince, dublinDay } from "@/lib/admin/format";
-import { forSale, type Car } from "@/lib/stock/types";
+import { forSale, onRequest, type Car } from "@/lib/stock/types";
 import { DAY } from "@/lib/time";
 
 const clock = () => new Date().toLocaleTimeString("en-GB", { timeZone: TIME_ZONE, hour: "2-digit", minute: "2-digit" });
@@ -79,7 +79,7 @@ export async function sendDailyAlerts(now = Date.now()): Promise<{ sent: number 
   let sent = 0;
   for (const c of cars) {
     const days = c.listedAt ? daysSince(c.listedAt, now) : 0;
-    if (forSale(c) && days >= SLOW_DAYS && !said.has(`slow-stock:${c.id}`)) sent += await alertStaff("slow-stock", { car: carTitleOf(c), days, dropEur: SLOW_DROP_EUR }, { ref: c.id });
+    if (forSale(c) && !onRequest(c) && days >= SLOW_DAYS && !said.has(`slow-stock:${c.id}`)) sent += await alertStaff("slow-stock", { car: carTitleOf(c), days, dropEur: SLOW_DROP_EUR }, { ref: c.id });
   }
   for (const r of reviews) if (r.createdAt > now - 2 * DAY && !said.has(`review:${r.id}`)) sent += await alertStaff("review", { stars: r.rating, author: r.author, text: r.text }, { ref: r.id });
   if (new Date(`${dublinDay(now)}T12:00:00Z`).getUTCDay() === 1) {

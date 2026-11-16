@@ -13,7 +13,7 @@ import { SyncPanel } from "@/components/admin/SyncPanel";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { syncStatus } from "@/lib/donedeal/sync";
 import { stockSource } from "@/lib/stock-source";
-import { forSale, isSold } from "@/lib/stock/types";
+import { forSale, isSold, onRequest } from "@/lib/stock/types";
 import { isSalesLead } from "@/lib/admin/leads";
 import { enabledModules } from "@/lib/modules";
 import type { ModuleId } from "@/lib/modules-rules";
@@ -34,7 +34,7 @@ export default async function Page() {
   const mods = await enabledModules();
   const MODULE_OF: Record<string, ModuleId> = { drives: "testDrives", "sold-drives": "testDrives", reviews: "reviews", deposits: "sales", orders: "newCars", costs: "margins" };
   const attention = o.attention.filter((a) => !MODULE_OF[a.key] || mods.has(MODULE_OF[a.key]));
-  const margin = costs ? cars.filter((c) => costs.has(c.id)).reduce((s, c) => s + marginOf(c.priceEur, costs.get(c.id)!).eur, 0) : 0;
+  const margin = costs ? cars.filter((c) => costs.has(c.id) && !onRequest(c)).reduce((s, c) => s + marginOf(c.priceEur, costs.get(c.id)!).eur, 0) : 0;
 
   return (
     <>

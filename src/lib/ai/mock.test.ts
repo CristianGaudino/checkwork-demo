@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { mockText } from "./mock";
-import { ADJUSTS, adjustsFor, type Adjust, type CarFacts, type FactsOf } from "./tasks";
+import { ADJUSTS, adjustsFor, noContacts, type Adjust, type CarFacts, type FactsOf } from "./tasks";
 
 const car: CarFacts = { name: "2019 Ford Focus 1.0 Titanium", year: 2019, mileageKm: 129999, fuel: "Petrol", gearbox: "Manual", body: "Hatchback", engineLitres: 1, colour: "Blue", doors: 5, seats: 5, owners: 2, nctExpiry: "2027-07", price: "€13,950 Inc. VAT", was: "€14,450", features: ["Bluetooth", "Parking sensors", "Cruise control"], link: "https://x.test/used-cars/ford-focus" };
 const voice = { signOff: "Call in to see it.", hashtags: "#usedcars" };
@@ -79,5 +79,11 @@ describe("the demo writer", () => {
 
     const nl: FactsOf["newsletter"] = { dealer: "D", cars: [car], voice };
     for (const a of adjustsFor("newsletter")) expect(mockText("newsletter", nl, a), a).not.toBe(mockText("newsletter", nl));
+  });
+});
+
+describe("what goes to the AI provider", () => {
+  it("takes phone numbers and emails out of a customer's message", () => {
+    expect(noContacts("Call 087 123 4567 or +353 87 765 4321, or mail pat.b@example.ie. Is the 2019 car still there?")).toBe("Call [phone] or [phone], or mail [email]. Is the 2019 car still there?");
   });
 });

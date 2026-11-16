@@ -10,8 +10,8 @@ import { marginOf } from "@/lib/admin/margins";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { can } from "@/lib/permissions";
 import { daysSince, fmtDate, fmtEur, fmtNum } from "@/lib/admin/format";
-import { carName, carHref } from "@/lib/stock/format";
-import { FUEL_LABELS, FUELS, GEARBOXES, GEARBOX_LABELS, forSale, isReduced, isSold, type Car } from "@/lib/stock/types";
+import { carName, carHref, priceLabel } from "@/lib/stock/format";
+import { FUEL_LABELS, FUELS, GEARBOXES, GEARBOX_LABELS, forSale, isReduced, isSold, onRequest, type Car } from "@/lib/stock/types";
 import { stockSource } from "@/lib/stock-source";
 import { LISTING_SITE, DONEDEAL_DEALER_URL, listingHref } from "@/lib/stock-source-rules";
 import { SyncPanel } from "@/components/admin/SyncPanel";
@@ -117,7 +117,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
       sort: (c) => c.priceEur,
       cell: (c) => (
         <span className="flex flex-col items-end">
-          {fmtEur(c.priceEur)}
+          {priceLabel(c)}
           {isSold(c) && sales.has(c.id) ? (
             <span className="text-meta text-text-2">sold for {fmtEur(sales.get(c.id)!.priceEur)}</span>
           ) : (
@@ -126,7 +126,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         </span>
       ),
     },
-    ...(costs ? [{ key: "margin", header: "Margin", align: "right" as const, hide: "md" as const, nowrap: true, sort: (c: Car) => (costs.has(c.id) ? marginOf(c.priceEur, costs.get(c.id)!).eur : undefined), cell: (c: Car) => (costs.has(c.id) ? fmtEur(marginOf(c.priceEur, costs.get(c.id)!).eur) : <span className="text-text-2">Not set</span>) }] : []),
+    ...(costs ? [{ key: "margin", header: "Margin", align: "right" as const, hide: "md" as const, nowrap: true, sort: (c: Car) => (costs.has(c.id) && !onRequest(c) ? marginOf(c.priceEur, costs.get(c.id)!).eur : undefined), cell: (c: Car) => (onRequest(c) ? "" : costs.has(c.id) ? fmtEur(marginOf(c.priceEur, costs.get(c.id)!).eur) : <span className="text-text-2">Not set</span>) }] : []),
     // How long a car has been for sale: what a dealer watches to decide on a price drop.
     // The days, and a bar that turns amber at OLD_STOCK_DAYS (the old stock view): which cars are ageing, down the column at a glance.
     {

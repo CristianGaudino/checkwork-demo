@@ -39,6 +39,9 @@ export type FactsOf = {
   reviewReply: { dealer: string; firstName: string; rating: number; text: string };
 };
 
+// A customer's phone number or email never goes to the AI provider: it is not needed to draft a reply.
+export const noContacts = (s: string) => s.replace(/[\w.+-]+@[\w-]+(\.[\w-]+)+/g, "[email]").replace(/\+?\d[\d\s().-]{6,}\d/g, "[phone]");
+
 // What the browser sends: ids and the form's own fields. The server builds the facts from the records, so the browser never supplies them.
 export type WriteRequest =
   | { task: "post"; carSlug: string; network: Network; format: PostFormat; layout?: StoryLayout }

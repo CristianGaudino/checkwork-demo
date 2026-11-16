@@ -4,6 +4,7 @@ import { isSold, type Car } from "@/lib/stock/types";
 import { DAY } from "@/lib/time";
 import { daysSince, dublinDay, threeLetter } from "./format";
 import { followUpDue } from "./follow-ups";
+import { OLD_STOCK_DAYS } from "./overview";
 
 // The Reports page's figures, worked out from the records. Pure, so every figure is tested.
 // A period is the last 3, 6 or 12 months, counted in whole Irish calendar months, this one included.
@@ -79,7 +80,7 @@ export function fullReport(input: { sales: Sale[]; cars: Car[]; leads: Lead[]; t
     .sort((a, b) => b.won - a.won || b.leads - a.leads);
 
   // Cars for sale now, by how long they have been listed.
-  const BANDS: [string, number, number][] = [["Under 30 days", 0, 30], ["30 to 59 days", 30, 60], ["60 to 89 days", 60, 90], ["90 days or more", 90, Infinity]];
+  const BANDS: [string, number, number][] = [["Under 30 days", 0, 30], ["30 to 59 days", 30, 60], [`60 to ${OLD_STOCK_DAYS - 1} days`, 60, OLD_STOCK_DAYS], [`${OLD_STOCK_DAYS} days or more`, OLD_STOCK_DAYS, Infinity]] // the last band is old stock;
   const ageOf = (c: Car) => daysSince(c.listedAt!, input.now);
   const forSale = input.cars.filter((c) => !isSold(c) && c.listedAt);
   const stockAge = BANDS.map(([band, from, to]) => {

@@ -85,6 +85,7 @@ describe("the morning job", () => {
       { id: "old", listedAt: "2026-07-01", priceEur: 9000 }, // 138 days
       { id: "new", listedAt: "2026-11-01", priceEur: 9000 },
       { id: "sold", listedAt: "2026-08-01", priceEur: 9000, soldAt: "2026-11-10" },
+      { id: "poa", listedAt: "2026-06-01", priceEur: 0 }, // on request: no price to drop
     ];
     db.reviews = [{ id: "r1", author: "Orla R.", rating: 5, text: "Great", createdAt: MONDAY_NOON - 3_600_000 }, { id: "r0", author: "Sean B.", rating: 4, text: "Fine", createdAt: MONDAY_NOON - 10 * 86_400_000 }];
     await sendDailyAlerts();

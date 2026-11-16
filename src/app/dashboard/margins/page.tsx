@@ -9,7 +9,7 @@ import { fmtEur, fmtPct, plural } from "@/lib/admin/format";
 import { marginOf } from "@/lib/admin/margins";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { can } from "@/lib/permissions";
-import { carName } from "@/lib/stock/format";
+import { carName, priceLabel } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 
@@ -30,9 +30,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ q
       const salePrice = isSold(car) ? soldFor.get(car.id) : undefined;
       return { car, cost: byId.get(car.id), price: salePrice ?? car.priceEur, salePrice };
     }).sort((a, b) => Number(isSold(a.car)) - Number(isSold(b.car)) || Number(b.car.id) - Number(a.car.id));
-  const known = rows.filter((r): r is Row & { cost: number } => r.cost !== undefined);
+  // A car on request (price 0, no sale recorded) has no margin to work out: it is left out of the sums.
+  const known = rows.filter((r): r is Row & { cost: number } => r.cost !== undefined && r.price > 0);
   const stock = known.filter((r) => !isSold(r.car));
-  const stockPrice = stock.reduce((s, r) => s + r.car.priceEur, 0);
+  const stockPrice = stock.reduce((s, r) => s + r.price, 0);
   const stockCost = stock.reduce((s, r) => s + r.cost, 0);
   const sold = known.filter((r) => isSold(r.car));
   const soldMargin = sold.reduce((s, r) => s + marginOf(r.price, r.cost).eur, 0);
@@ -50,7 +51,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ q
       ),
     },
     { key: "status", header: "Status", hide: "md", sort: (r) => carStatus(r.car), cell: (r) => <CarStatusBadge car={r.car} /> },
-    { key: "price", header: "Price", align: "right", hide: "sm", sort: (r) => r.price, cell: (r) => (r.salePrice !== undefined ? <span className="flex flex-col items-end">{fmtEur(r.salePrice)}<span className="text-meta text-text-2">sold for</span></span> : fmtEur(r.car.priceEur)) },
+    { key: "price", header: "Price", align: "right", hide: "sm", sort: (r) => r.price, cell: (r) => (r.salePrice !== undefined ? <span className="flex flex-col items-end">{fmtEur(r.salePrice)}<span className="text-meta text-text-2">sold for</span></span> : priceLabel(r.car)) },
     {
       key: "cost",
       header: "Cost",
@@ -63,8 +64,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ q
         return parts ? <span className="flex flex-col items-end">{fmtEur(r.cost)}<span className="text-meta text-text-2 max-sm:hidden">with {parts}</span></span> : fmtEur(r.cost);
       },
     },
-    { key: "margin", header: "Margin", align: "right", sort: (r) => (r.cost === undefined ? undefined : marginOf(r.price, r.cost).eur), cell: (r) => (r.cost === undefined ? "" : fmtEur(marginOf(r.price, r.cost).eur)) },
-    { key: "pct", header: "Margin %", align: "right", hide: "md", sort: (r) => (r.cost === undefined ? undefined : marginOf(r.price, r.cost).pct), cell: (r) => (r.cost === undefined ? "" : fmtPct(marginOf(r.price, r.cost).pct)) },
+    { key: "margin", header: "Margin", align: "right", sort: (r) => (r.cost === undefined || !r.price ? undefined : marginOf(r.price, r.cost).eur), cell: (r) => (r.cost === undefined || !r.price ? "" : fmtEur(marginOf(r.price, r.cost).eur)) },
+    { key: "pct", header: "Margin %", align: "right", hide: "md", sort: (r) => (r.cost === undefined || !r.price ? undefined : marginOf(r.price, r.cost).pct), cell: (r) => (r.cost === undefined || !r.price ? "" : fmtPct(marginOf(r.price, r.cost).pct)) },
   ];
   // The figures above are over every car; the table is searched, filtered, sorted and in pages.
   const q = (sp.q ?? "").trim().toLowerCase().slice(0, 60);

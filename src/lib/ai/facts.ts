@@ -2,7 +2,7 @@ import { FUEL_LABELS, GEARBOX_LABELS, forSale, type Fuel, type Gearbox } from "@
 import { carFacts, newestForSale } from "@/lib/admin/marketing";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { getSettings, leadsStore, LEAD_TYPE_LABELS, reviewsStore } from "@/lib/admin/collections";
-import type { CarFacts, FactsOf, WriteRequest } from "./tasks";
+import { noContacts, type CarFacts, type FactsOf, type WriteRequest } from "./tasks";
 import { firstName } from "@/lib/whatsapp/rules";
 
 const num = (s: string | undefined) => (s && Number.isFinite(Number(s)) && Number(s) > 0 ? Number(s) : undefined);
@@ -42,11 +42,11 @@ export async function buildFacts(req: WriteRequest, dealer: string): Promise<Bui
     }
     case "leadReply": {
       const lead = await leadsStore.get(req.leadId);
-      return lead ? { task: "leadReply", facts: { dealer, firstName: firstName(lead.name, ""), kind: LEAD_TYPE_LABELS[lead.type], message: lead.message.slice(0, 600), car: lead.carTitle } } : null;
+      return lead ? { task: "leadReply", facts: { dealer, firstName: firstName(lead.name, ""), kind: LEAD_TYPE_LABELS[lead.type], message: noContacts(lead.message.slice(0, 600)), car: lead.carTitle } } : null;
     }
     case "reviewReply": {
       const r = await reviewsStore.get(req.reviewId);
-      return r ? { task: "reviewReply", facts: { dealer, firstName: firstName(r.author, ""), rating: r.rating, text: r.text.slice(0, 600) } } : null;
+      return r ? { task: "reviewReply", facts: { dealer, firstName: firstName(r.author, ""), rating: r.rating, text: noContacts(r.text.slice(0, 600)) } } : null;
     }
   }
 }

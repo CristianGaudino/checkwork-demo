@@ -48,13 +48,13 @@ export function carJsonLd(car: Car): Record<string, unknown> {
     numberOfPreviousOwners: car.owners,
     color: car.colour,
     vehicleEngine: car.engineLitres === undefined ? undefined : { "@type": "EngineSpecification", engineDisplacement: { "@type": "QuantitativeValue", value: car.engineLitres, unitCode: "LTR" } },
-    offers: {
+    offers: onRequest(car) ? undefined : { // no price, no offer Google can read
       "@type": "Offer",
       url,
       itemCondition: car.condition === "new" ? "https://schema.org/NewCondition" : "https://schema.org/UsedCondition",
       availability: sold ? "https://schema.org/SoldOut" : car.reserved ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
-      price: sold || onRequest(car) ? undefined : car.priceEur,
-      priceCurrency: sold || onRequest(car) ? undefined : "EUR",
+      price: sold ? undefined : car.priceEur,
+      priceCurrency: sold ? undefined : "EUR",
       seller: {
         "@type": "AutoDealer",
         name: SITE_NAME,

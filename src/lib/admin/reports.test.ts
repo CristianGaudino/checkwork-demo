@@ -44,7 +44,7 @@ describe("fullReport", () => {
   it("shows which lead sources win, the stock by age, and the period's prep by kind", () => {
     expect(fullReport({ ...input, leads: [lead("l1", "2026-11-01", { status: "lost", lostReason: "Price" }), lead("l2", "2026-11-02", { status: "lost", lostReason: "Price" }), lead("l3", "2026-11-03", { status: "lost" })] }).lost).toEqual([{ reason: "Price", leads: 2 }, { reason: "Not said", leads: 1 }]);
     expect(r.sources).toEqual([{ source: "Phone", leads: 2, won: 1, winRate: 50 }, { source: "Website", leads: 1, won: 0, winRate: 0 }]);
-    expect(r.stockAge.map((b) => [b.band, b.cars, b.value])).toEqual([["Under 30 days", 1, 10000], ["30 to 59 days", 0, 0], ["60 to 89 days", 0, 0], ["90 days or more", 1, 8000]]);
+    expect(r.stockAge.map((b) => [b.band, b.cars, b.value])).toEqual([["Under 30 days", 1, 10000], ["30 to 59 days", 0, 0], ["60 to 119 days", 1, 8000], ["120 days or more", 0, 0]]);
     expect(r.prep).toEqual([{ kind: "Tyres", eur: 300, lines: 1 }]);
   });
 });

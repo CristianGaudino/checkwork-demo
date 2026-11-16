@@ -4,12 +4,12 @@ import { ActButton } from "@/components/admin/ActButton";
 import { AlertForm, DetailsForm, LimitsForm } from "@/components/admin/BillingForms";
 import { Badge, DataTable, EmptyState, PageHeader, Panel, Segmented, StatCard, StatGrid, adminButtonQuiet, rowButton } from "@/components/admin/kit";
 import { fmtDay, fmtNum } from "@/lib/admin/format";
-import { MODULES } from "@/lib/modules-rules";
+import { MODULES, withModule } from "@/lib/modules-rules";
 import { enabledModules } from "@/lib/modules";
 import { can, currentMember } from "@/lib/permissions";
 import { billingDetails, listBills } from "@/lib/billing/bills";
 import { AI_PLAN_LABELS, FOUNDING, afterDiscount, eur, fmtMonth, foundingEnd, itemise, nextBillDate, scopeName, billedServices } from "@/lib/billing/bills-rules";
-import { AI_ASSISTANT, MODULE_EUR, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, capOf, planEur, planLines, usageEstimate, round2, withVat, type BillingSettings, type Scope, type Service } from "@/lib/billing/rules";
+import { AI_ASSISTANT, MODULE_EUR, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, capOf, planEur, planFor, planLines, usageEstimate, round2, withVat, type BillingSettings, type Scope, type Service } from "@/lib/billing/rules";
 import { billingSettings, monthUsage } from "@/lib/billing/usage";
 import { askModuleAction, removeAlertAction, saveAiPlanAction } from "./actions";
 import { dublinDay } from "@/lib/admin/format";
@@ -150,7 +150,7 @@ function PlanAndUsage({ modules, services, usage, b, now }: { modules: Modules; 
               {others.map((m) => (
                 <li key={m.id} className="flex flex-wrap items-center justify-between gap-3 py-2">
                   <span>
-                    {m.label} <span className="text-text-2">{eur(MODULE_EUR[m.id])} a month</span>
+                    {m.label} <span className="text-text-2">{eur(planFor(withModule(modules, m.id)).eur - planFor(modules).eur)} a month</span>
                   </span>
                   <ActButton act={askModuleAction.bind(null, m.id)} done="We have your request. Our reply will show in Help." label={`Ask us to add ${m.label}`} className={rowButton}>
                     Ask us to add

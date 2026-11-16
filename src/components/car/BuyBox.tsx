@@ -10,7 +10,7 @@ import { rareMarker } from "@/lib/stock/markers";
 import { CarMeta, FactValue } from "@/components/stock/CarMeta";
 import { PriceBlock } from "@/components/stock/PriceBlock";
 import { carName, carSummary, keyFacts, carHref } from "@/lib/stock/format";
-import { isSold } from "@/lib/stock/types";
+import { isSold, onRequest } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 import { accentButton, card } from "@/components/ui";
 import { IfModule } from "@/components/IfModule";
@@ -98,9 +98,11 @@ export function BuyBox({ car }: { car: Car }) {
           </CompareCell>
           {!car.reserved && (
             <>
-              <IfModule id="newsletter">
-                <StockAlertButton car={carSummary(car)} kind="price-drop" />
-              </IfModule>
+              {!onRequest(car) && (
+                <IfModule id="newsletter">
+                  <StockAlertButton car={carSummary(car)} kind="price-drop" />
+                </IfModule>
+              )}
               {/* The trade-in door with this car already chosen. */}
               <IfModule href="/trade-in">
               <Link href={`/trade-in?car=${car.slug}`} className="inline-flex min-h-11 items-center gap-2 text-meta font-medium text-accent-text underline col-span-2">

@@ -6,7 +6,7 @@ import { bounds, summarise, type ReportData } from "@/lib/reports/monthly";
 import { newId } from "@/lib/admin/ids";
 import { signPhotoPath } from "@/lib/leads/photos";
 import demoCars from "@/lib/stock/demo-cars.json";
-import { forSale, type Car } from "@/lib/stock/types";
+import { forSale, onRequest, type Car } from "@/lib/stock/types";
 import { carTitleOf } from "@/lib/admin/seed-data";
 import type { ModuleId } from "@/lib/modules-rules";
 import type { Role } from "@/lib/permission-rules";
@@ -65,7 +65,7 @@ function seedMessages(): Msg[] {
   const tdLead = leads.find((l) => l.type === "test-drive" && l.status === "new");
   const review = demoReviews().find((r) => r.rating >= 4) ?? demoReviews()[0];
   // The slow car and the deposit are the seed's own, so the alert says what the dashboard shows.
-  const slow = (demoCars as Car[]).filter((c) => forSale(c) && c.listedAt).sort((a, b) => a.listedAt!.localeCompare(b.listedAt!))[0];
+  const slow = (demoCars as Car[]).filter((c) => forSale(c) && !onRequest(c) && c.listedAt).sort((a, b) => a.listedAt!.localeCompare(b.listedAt!))[0];
   const slowDays = slow ? daysSince(slow.listedAt!, now) : 0;
   const held = demoReservations().find((r) => r.status === "held");
   const week = lastWeek({ leads, cars: demoCars as Car[], sales: demoSales(), reviews: demoReviews() }, demoDrives(), now - 50 * HOUR);
