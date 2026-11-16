@@ -32,7 +32,7 @@ test("an enquiry from a car page ends on the thanks, and the next one starts emp
   await expect(d.getByRole("button", { name: "Close" })).toBeFocused();
 
   await d.getByLabel("Name").fill("Test buyer");
-  await d.getByLabel("Email").fill("buyer@example.com");
+  await d.getByLabel("Email", { exact: true }).fill("buyer@example.com");
   await d.getByRole("checkbox").check();
   await d.getByRole("button", { name: "Send enquiry" }).click();
 
@@ -45,7 +45,7 @@ test("an enquiry from a car page ends on the thanks, and the next one starts emp
   await expect(enquire(page)).toBeFocused();
   await enquire(page).click();
   await expect(d.getByLabel("Name")).toHaveValue("");
-  await expect(d.getByLabel("Email")).toHaveValue("");
+  await expect(d.getByLabel("Email", { exact: true })).toHaveValue("");
   await expect(d.getByRole("checkbox")).not.toBeChecked();
 });
 
@@ -88,7 +88,7 @@ test("the bot check loads only once the dialog opens, and a failed check keeps w
   const d = dialog(page);
   await expect.poll(() => calls.length).toBe(1);
   await d.getByLabel("Name").fill("Kept name");
-  await d.getByLabel("Email").fill("buyer@example.com");
+  await d.getByLabel("Email", { exact: true }).fill("buyer@example.com");
   await d.getByRole("checkbox").check();
   await d.getByRole("button", { name: "Send enquiry" }).click();
   await expect(d.getByRole("alert")).toContainText("We couldn't check this request.");
@@ -116,12 +116,12 @@ test("a field error keeps what was typed, and consent is needed to send", async 
   await enquire(page).click();
   const d = dialog(page);
   await d.getByLabel("Name").fill("Kept name");
-  await d.getByLabel("Email").fill("buyer@example.com");
+  await d.getByLabel("Email", { exact: true }).fill("buyer@example.com");
   await d.getByRole("button", { name: "Send enquiry" }).click();
 
   await expect(d.locator("p", { hasText: "Tick the box to send your request." })).toBeVisible();
   await expect(d.locator("p", { hasText: "Enter your name." })).toHaveCount(0);
-  await expect(d.getByLabel("Email")).toHaveValue("buyer@example.com");
+  await expect(d.getByLabel("Email", { exact: true })).toHaveValue("buyer@example.com");
   await expect(d.getByLabel("Name")).toHaveValue("Kept name");
   await expect(d.getByRole("button", { name: "Send enquiry" })).toBeEnabled();
 
@@ -177,7 +177,7 @@ test("a price drop alert takes an email and says what happens next", async ({ pa
   await open(page, live.slug);
   await page.getByRole("button", { name: "Price alert" }).click();
   const d = page.getByRole("dialog");
-  await d.getByLabel("Email").fill("alert.person@example.com");
+  await d.getByLabel("Email", { exact: true }).fill("alert.person@example.com");
   await d.getByRole("checkbox").check();
   await d.getByRole("button", { name: "Set alert" }).click();
   await expect(d.getByRole("heading", { name: "You're on the list." })).toBeFocused();

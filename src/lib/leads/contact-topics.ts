@@ -26,7 +26,7 @@ export const CHOICES = {
   boughtWhen: opts(["month", "In the last month"], ["half-year", "1 to 6 months ago"], ["year", "6 to 12 months ago"], ["older", "Over a year ago"]),
   concern: opts(["fault", "A fault"], ["paperwork", "Paperwork"], ["warranty", "Warranty"], ["other", "Something else"]),
   urgency: opts(["cant-drive", "Can't be driven"], ["this-week", "This week"], ["next-week", "Next week"], ["no-rush", "No rush"]),
-  contactVia: opts(["call", "Call me"], ["whatsapp", "WhatsApp"], ["email", "Write to me"]),
+  contactVia: opts(["call", "Call me"], ["whatsapp", "WhatsApp"], ["email", "Email me"]),
   contactWhen: opts(["morning", "Morning"], ["afternoon", "Afternoon"], ["evening", "Evening"]),
 } as const;
 export type ChoiceKey = keyof typeof CHOICES;

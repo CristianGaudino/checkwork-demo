@@ -49,12 +49,12 @@ test("a half-filled form survives a reload, without the contact details", async 
   await next.click();
   await form.getByLabel("How can we help?").fill("Do you have a blue one?");
   await next.click();
-  await form.getByLabel("Email").fill("buyer@example.com");
+  await form.getByLabel("Email", { exact: true }).fill("buyer@example.com");
   await page.reload();
   // The topic and the words come back; the contact details never do.
   await expect(form.getByRole("radio", { name: "Something else" })).toBeChecked();
   await expect(form.getByLabel("How can we help?")).toHaveValue("Do you have a blue one?");
-  await expect(form.getByLabel("Email")).toHaveValue("");
+  await expect(form.getByLabel("Email", { exact: true })).toHaveValue("");
 });
 
 test("no cars match: Ask us to find it opens Find a car with the search filled in", async ({ page }) => {
