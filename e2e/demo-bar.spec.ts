@@ -81,13 +81,12 @@ test("light is the default, dark is a choice that sticks and does not flash", as
   await expect(html).not.toHaveAttribute("data-theme", "dark");
 });
 
-test("the public site follows the plan: on Base only the module pages are gone, from the menu and the car page too", async ({ page, context, baseURL }) => {
+test("the public site follows the plan: on Base only the module pages are gone, from the menu and the car page too (the finance estimate stays: it is the car's price)", async ({ page, context, baseURL }) => {
   await context.addCookies([{ name: "checkwork-demo-modules", value: "none", url: baseURL! }]);
   for (const path of ["/finance", "/trade-in", "/test-drive", "/reviews", "/service", "/new-cars", "/commercial", "/find-a-car"]) expect((await page.request.get(path)).status(), path).toBe(404);
   expect((await page.request.get("/dashboard/test-drives")).status()).toBe(404);
   await page.goto("/used-cars");
   await expect(page.getByRole("banner").getByRole("link", { name: "Finance" })).toHaveCount(0);
   await page.goto((await page.locator("article a").first().getAttribute("href"))!);
-  await expect(page.locator("[data-price-block]").first()).not.toContainText("a month"); // the car's own price, above the similar cars
   await expect(page.getByRole("button", { name: "Test drive" })).toHaveCount(0);
 });

@@ -52,8 +52,9 @@ export const round2 = (n: number) => Math.round(n * 100) / 100;
 // "€20", "€20.50": whole euros without cents, as the Billing page writes them; `cents` always shows them, as a bill does ("€200.00").
 export const eur = (n: number, cents = !Number.isInteger(n)) => `€${n.toLocaleString("en-IE", { minimumFractionDigits: cents ? 2 : 0, maximumFractionDigits: 2 })}`;
 
-// shortcut: pricing is hidden on screen for now (the owner's call, November 2026): no Billing page or menu link, no "Set the cap" link,
-// no limit notifications, and no prices in the demo bar. The limits still apply. Set true to show it all again; nothing was removed.
+// shortcut: our pricing is hidden on screen for now (the owner's call, November 2026). Billing shows the plan and its modules, the AI
+// writing choice and the billing details with no prices; its limits, bills and bill pages, the "Set the cap" link, limit notifications and
+// the demo bar's prices are hidden. The limits still apply. Set true to show it all again; nothing was removed.
 export const SHOW_PRICING = false;
 
 // One count a month per service, kind and place: a record per line of the bill, not one per use, so it never grows with traffic.

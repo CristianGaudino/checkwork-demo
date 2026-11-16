@@ -1,4 +1,3 @@
-import { IfModule } from "@/components/IfModule";
 import { priceInfo } from "@/lib/stock/price";
 import type { Car } from "@/lib/stock/types";
 
@@ -20,11 +19,7 @@ export function PriceBlock({ car, size = "card" }: { car: Pick<Car, "priceEur" |
           <s className="text-text-2">{p.was}</s> <span className="font-semibold text-better">{p.drop}</span>
         </p>
       )}
-      {hero && p.financeFrom && (
-        <IfModule id="finance">
-          <p className="text-meta tabular-nums text-text-2">{p.financeFrom}</p>
-        </IfModule>
-      )}
+      {hero && p.financeFrom && <p className="text-meta tabular-nums text-text-2">{p.financeFrom}</p>}
     </div>
   );
 }

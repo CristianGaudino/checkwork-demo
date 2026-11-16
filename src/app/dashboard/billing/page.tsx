@@ -1,4 +1,3 @@
-import { SHOW_PRICING } from "@/lib/billing/rules";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ActButton } from "@/components/admin/ActButton";
@@ -10,7 +9,7 @@ import { enabledModules } from "@/lib/modules";
 import { can, currentMember } from "@/lib/permissions";
 import { billingDetails, listBills } from "@/lib/billing/bills";
 import { AI_PLAN_LABELS, FOUNDING, afterDiscount, eur, fmtMonth, foundingEnd, itemise, nextBillDate, scopeName, billedServices } from "@/lib/billing/bills-rules";
-import { AI_ASSISTANT, AI_MODELS, KINDS, MODULE_EUR, setupEur, setupLines, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, capOf, planEur, planFor, planLines, usageEstimate, round2, withVat, type BillingSettings, type Scope, type Service } from "@/lib/billing/rules";
+import { AI_ASSISTANT, AI_MODELS, KINDS, MODULE_EUR, SHOW_PRICING, presetName, setupEur, setupLines, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, capOf, planEur, planFor, planLines, usageEstimate, round2, withVat, type BillingSettings, type Scope, type Service } from "@/lib/billing/rules";
 import { billingSettings, monthUsage } from "@/lib/billing/usage";
 import { askModuleAction, removeAlertAction, saveAiModelAction, saveAiPlanAction } from "./actions";
 import { dublinDay } from "@/lib/admin/format";
@@ -30,7 +29,8 @@ type Usage = Awaited<ReturnType<typeof monthUsage>>;
 
 // Owners and managers only (the "billing" permission): without it the page is not there, whatever the menu showed.
 export default async function Page({ searchParams }: { searchParams: Promise<{ section?: string }> }) {
-  if (!SHOW_PRICING || !(await can("billing"))) notFound(); // hidden for now (SHOW_PRICING)
+  if (!(await can("billing"))) notFound();
+  if (!SHOW_PRICING) return <WithoutPrices />;
   const sp = await searchParams;
   const section = SECTIONS.find(([k]) => k === sp.section)?.[0] ?? "plan";
   const [modules, b, usage, me] = await Promise.all([enabledModules(), billingSettings(), monthUsage(), currentMember()]);
@@ -226,6 +226,62 @@ function PlanAndUsage({ modules, services, usage, b, now }: { modules: Modules; 
             ))}
           </>
         )}
+      </Panel>
+    </>
+  );
+}
+
+// While our prices are hidden (SHOW_PRICING): the plan and its modules, the AI writing choice and the billing details, with no prices,
+// limits or bills.
+async function WithoutPrices() {
+  const [modules, b, me, details] = await Promise.all([enabledModules(), billingSettings(), currentMember(), billingDetails()]);
+  const on = MODULES.filter((m) => modules.has(m.id));
+  const off = MODULES.filter((m) => !modules.has(m.id));
+  return (
+    <>
+      <PageHeader title="Billing" />
+      <Panel title={`Your plan: ${presetName(modules)}`}>
+        {on.length > 0 ? (
+          <ul className="flex flex-col divide-y divide-hairline text-body">
+            {on.map((m) => (
+              <li key={m.id} className="py-2">
+                <span className="font-medium">{m.label}</span> <span className="text-text-2">{m.blurb}</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-body text-text-2">The website, with your stock and the enquiry and contact forms.</p>
+        )}
+        {off.length > 0 && (
+          <details className="rounded-control border border-hairline px-3">
+            <summary className="min-h-11 cursor-pointer py-2.5 text-body font-medium">Ask us to add</summary>
+            <ul className="flex flex-col divide-y divide-hairline pb-2">
+              {off.map((m) => (
+                <li key={m.id} className="flex flex-wrap items-center justify-between gap-3 py-2">
+                  <span>{m.label}</span>
+                  <ActButton act={askModuleAction.bind(null, m.id)} done="We have your request. Our reply will show in Help." label={`Ask us to add ${m.label}`} className={rowButton}>
+                    Ask us to add
+                  </ActButton>
+                </li>
+              ))}
+            </ul>
+          </details>
+        )}
+      </Panel>
+      {modules.has("ai") && (
+        <Panel title="AI writing">
+          <p className="max-w-measure text-body text-text-2">Premium writes the best copy. Standard is quicker.</p>
+          <div className="flex flex-wrap gap-2">
+            {AI_MODELS.map((m) => (
+              <ActButton key={m} act={saveAiModelAction.bind(null, m)} pressed={b.aiModel === m} done="Writing quality changed" className={`${adminButtonQuiet} aria-pressed:border-text aria-pressed:bg-text aria-pressed:text-ink`}>
+                {KINDS.ai[m]}
+              </ActButton>
+            ))}
+          </div>
+        </Panel>
+      )}
+      <Panel title="Billing details">
+        <DetailsForm details={details} editable={me.role === "Owner"} />
       </Panel>
     </>
   );

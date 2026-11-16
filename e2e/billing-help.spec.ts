@@ -36,6 +36,17 @@ test("the owner sees the plan, sets a limit and an alert, and opens a bill", asy
   await expect(page.getByText("Founding dealer discount")).toBeVisible();
 });
 
+test("with our prices hidden, the owner still has Billing: the plan and its modules, AI writing and the details, and no euro anywhere", async ({ page }) => {
+  test.skip(SHOW_PRICING, "only while pricing is hidden");
+  await page.goto("/dashboard/billing");
+  const main = page.getByRole("main");
+  await expect(main.getByRole("heading", { name: /^Your plan: / })).toBeVisible();
+  await expect(main.getByRole("button", { name: "Premium" })).toBeVisible();
+  await expect(main.getByRole("heading", { name: "Billing details" })).toBeVisible();
+  await expect(main).not.toContainText("€");
+  expect((await page.request.get("/dashboard/billing/2026-01")).status()).toBe(404);
+});
+
 test("sales has no Billing page", async ({ page, context }) => {
   await as(context, "Sales");
   expect((await page.request.get("/dashboard/billing")).status()).toBe(404);
