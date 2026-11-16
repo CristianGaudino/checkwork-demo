@@ -142,7 +142,7 @@ export async function tap(me: string, msgId: string, button: ButtonId): Promise<
     await drivesStore.put({ ...drive, status: "confirmed" });
     await logActivity("test-drives", act.activity, { kind: "drive", id: drive.id });
   }
-  await say(me, { text: `${act.site(first || (drive ? firstName(drive.name) : ""))}${booked ? " The booking is in the diary." : ""}`, ...(lead && { leadId: lead.id, href: `/dashboard/leads/${lead.id}` }) });
+  await say(me, { text: `${lead ? act.site(first) : "Confirmed."}${booked ? " The booking is in the diary." : ""}`, ...(lead && { leadId: lead.id, href: `/dashboard/leads/${lead.id}` }) });
 }
 
 // A typed message answers the latest question the site asked this person.
