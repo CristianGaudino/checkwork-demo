@@ -6,6 +6,7 @@ import { StateBlock } from "@/components/StateBlock";
 import { Tween } from "@/components/Tween";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useId, useOptimistic, useRef, useState, useTransition } from "react";
+import { count, countFilters } from "@/lib/count-client";
 import { countLabel } from "@/lib/stock/format";
 import { appliedFilters, clearFilters, sourcingHref, stockHref } from "@/lib/stock/query";
 import { SORT_KEYS } from "@/lib/stock/types";
@@ -121,6 +122,7 @@ export function StockShell({ query, summary, orderable, children }: { query: Sto
   }, [listKey]);
   const navigate: Stock["navigate"] = (next, { scroll = false } = {}) =>
     startTransition(() => {
+      countFilters(optimisticQuery, next);
       setOptimisticQuery(next);
       router.replace(stockHref(next), { scroll });
     });
@@ -192,6 +194,10 @@ export function StockShell({ query, summary, orderable, children }: { query: Sto
 
 export function EmptyState() {
   const { query, facets, navigate } = useStock();
+  const filtered = appliedFilters(query, null).length > 0;
+  useEffect(() => {
+    if (filtered) count("no-results");
+  }, [filtered]);
   // With nothing applied there is no filter to remove: the stock itself is empty.
   if (appliedFilters(query, null).length === 0) {
     return (

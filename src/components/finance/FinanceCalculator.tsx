@@ -13,6 +13,7 @@ import { financeable, quote } from "@/lib/finance/payment";
 import { formatPrice } from "@/lib/stock/format";
 import { ArrowRightIcon, InfoIcon } from "@/components/stock/icons";
 import { accentButton, card, press } from "@/components/ui";
+import { count } from "@/lib/count-client";
 
 // Keystrokes that would not make a number are refused, so the fields only ever hold digits.
 const WHOLE = /^\d{0,6}$/;
@@ -44,7 +45,7 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
   const depositError = !priceError && depositEur >= priceEur ? "Deposit must be less than the price." : undefined;
   const q = quote(priceEur, depositEur, Number(term), d.aprPct);
 
-  const field = (name: string, value: string, onChange: (v: string) => void, error?: string) => ({ id: `${uid}-${name}`, name, value, onChange, error });
+  const field = (name: string, value: string, onChange: (v: string) => void, error?: string) => ({ id: `${uid}-${name}`, name, value, onChange: (v: string) => (count("finance"), onChange(v)), error });
 
   return (
     <>

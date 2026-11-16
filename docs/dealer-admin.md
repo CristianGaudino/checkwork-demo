@@ -227,6 +227,12 @@ saved with the request (a dashboard path only, `safeFrom`). Requests are the `he
 the demo nothing is sent outside (`ADAPTER GOES HERE`: the email to support and the owner's program, #174). Screenshots are checked by
 their bytes and kept in the private bucket under `help/`, or as a data URL with no bucket.
 
+## Monthly report and the owner API
+
+- **Monthly report** (`/dashboard/monthly-report`): last month by default, any of the twelve before it from the picker. Each section shows only for the modules on (Leads and Stock always, Visitors with Site analytics, Sales, Reviews). Each figure says how it compares with the month before, or "Too few to compare" under 5. Sales value and profit show only to staff with the margins permission. One "What to do" line comes from fixed rules. "Print or save as PDF" uses the browser's print, with the menu left out.
+- **Email**: `/api/reports/monthly` (CRON_KEY, scheduled `0 7 1 * *` in `worker.mjs` and `wrangler.jsonc`) emails last month's summary to the owners and managers: counts only. On the demo it goes to the lead inbox like the follow-up digest.
+- **Owner API** and the anonymous feature counters: see `docs/owner-api.md`. The figures for the report and the API are one module, `src/lib/reports/monthly.ts`.
+
 ## Where things are
 
 | What | Where |
@@ -243,6 +249,7 @@ their bytes and kept in the private bucket under `help/`, or as a data URL with 
 | Navigation of each area | `src/lib/admin/nav.ts` |
 | Billing page, bills and their maths | `src/app/dashboard/billing/`, `src/lib/billing/bills.ts`, `bills-rules.ts` |
 | Help requests | `src/app/dashboard/help/`, `src/lib/admin/help.ts`, `help-rules.ts` |
+| Monthly report maths, page and email; owner API and counters | `src/lib/reports/`, `src/app/dashboard/monthly-report/`, `src/lib/owner-api/`, `docs/owner-api.md` |
 
 ## Connecting a service
 

@@ -8,6 +8,7 @@ import { SITE_NAME } from "@/lib/site";
 import { stockSource } from "@/lib/stock-source";
 import { enabledModules } from "@/lib/modules";
 import { pathAllowed } from "@/lib/modules-rules";
+import { DashboardBeacon } from "@/components/admin/DashboardBeacon";
 
 // Never indexed. Real access is Cloudflare Access (#7, #21); the demo shows it open so every role can be seen.
 // Always rendered per request: these pages show records that change, so they are never built once with the seed.
@@ -22,6 +23,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
   const nav = DEALER_NAV.filter((i) => (!i.permission || roleCan(role, i.permission)) && !(i.ours && source === "donedeal") && pathAllowed(i.href, modules) && (!i.module || [i.module].flat().some((m) => modules.has(m))));
   return (
     <AdminShell title={SITE_NAME} subtitle="Dealer dashboard" nav={nav} navLabel="Dealer dashboard" openGroups={parseOpenGroups(jar.get(NAV_COOKIE)?.value)} rail={jar.get(RAIL_COOKIE)?.value === "1"} compact={jar.get(DENSITY_COOKIE)?.value === "compact"}>
+      <DashboardBeacon />
       {children}
     </AdminShell>
   );
