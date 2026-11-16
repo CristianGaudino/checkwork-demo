@@ -38,7 +38,7 @@ export default function PrivacyPage() {
           requests in a database, and trade-in photos, in the EU.
         </p>
         <IfModule id="ai">
-          <p>When our staff draft a reply to your request or review, its text goes to Anthropic, whose Claude AI writes a draft for them to check. Phone numbers and email addresses are taken out first.</p>
+          <p>When our staff draft a reply to your request or review, its text goes to our AI provider, which writes a draft for them to check. Phone numbers and email addresses are taken out first.</p>
         </IfModule>
         <IfModule id="whatsapp">
           <p>If you give us your WhatsApp number or message us there, your number and messages go to WhatsApp, which delivers them to us. We can also send you updates about your request on WhatsApp.</p>

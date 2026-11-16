@@ -101,11 +101,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
                   </ActButton>
                 ))}
               </div>
-              <h3 className="text-body font-semibold">Model</h3>
-              <p className="max-w-measure text-body text-text-2">Opus writes the best copy. Sonnet is quick and costs less.</p>
+              <h3 className="text-body font-semibold">Writing quality</h3>
+              <p className="max-w-measure text-body text-text-2">Premium writes the best copy. Standard is quick and costs less.</p>
               <div className="flex flex-wrap gap-2">
                 {AI_MODELS.map((m) => (
-                  <ActButton key={m} act={saveAiModelAction.bind(null, m)} pressed={b.aiModel === m} done="AI model changed" className={`${adminButtonQuiet} aria-pressed:border-text aria-pressed:bg-text aria-pressed:text-ink`}>
+                  <ActButton key={m} act={saveAiModelAction.bind(null, m)} pressed={b.aiModel === m} done="Writing quality changed" className={`${adminButtonQuiet} aria-pressed:border-text aria-pressed:bg-text aria-pressed:text-ink`}>
                     {KINDS.ai[m]}, {eur(UNIT.ai[m])} an action
                   </ActButton>
                 ))}

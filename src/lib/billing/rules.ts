@@ -11,11 +11,12 @@ export const SERVICE_LABELS: Record<Service, string> = { lookup: "Registration l
 export type Scope = Service | "total"; // a cap or an alert is on one service, or on all usage together
 
 // What each use is, and its price. A lookup is on the website or in the dashboard; an AI action (a draft or an adjust) is counted by the
-// Claude model that wrote it, Opus or the cheaper Sonnet, the dealer's choice (BillingSettings.aiModel); a WhatsApp
+// model that wrote it, Premium (Claude Opus) or Standard (Claude Sonnet), the dealer's choice (BillingSettings.aiModel); the dealer never
+// sees which model or provider it is. A WhatsApp
 // message is an alert or confirmation, a reply inside the 24 hours after a buyer writes, or a marketing message.
 export const KINDS = {
   lookup: { website: "On the website", dashboard: "In the dashboard" },
-  ai: { opus: "Claude Opus", sonnet: "Claude Sonnet" },
+  ai: { opus: "Premium", sonnet: "Standard" },
   whatsapp: { alert: "Alerts and confirmations", reply: "Replies to buyers", marketing: "Marketing messages" },
 } as const satisfies Record<Service, Record<string, string>>;
 export type Kind<S extends Service = Service> = keyof (typeof KINDS)[S] & string;

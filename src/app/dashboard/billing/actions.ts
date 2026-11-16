@@ -74,7 +74,7 @@ export async function saveAiModelAction(model: AiModel) {
   if (!(await can("billing")) || !AI_MODELS.includes(model) || !(await enabledModules()).has("ai")) return;
   if ((await billingSettings()).aiModel === model) return;
   await saveBilling({ aiModel: model });
-  await logActivity("settings", `Changed the AI model to ${KINDS.ai[model]}`);
+  await logActivity("settings", `Changed AI writing to ${KINDS.ai[model]}`);
   revalidatePath("/dashboard/billing");
 }
 

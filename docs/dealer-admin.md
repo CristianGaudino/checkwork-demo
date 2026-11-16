@@ -224,8 +224,9 @@ Until both are set the admin answers 404 for everyone. The Worker checks Access'
 the plan and this month's usage (with the founding dealer discount, which is taken off the plan, not the usage, and an "Estimate" for the
 month end), the setup fees (the website's and those of Social, New cars and WhatsApp, half off for a founding dealer;
 `setupLines` in `src/lib/billing/rules.ts`, also totalled in the demo bar's plans panel), the limits and alerts (a euro limit per service
-and for all usage, never above ours; the 80% alert; "tell me when X passes EUR N"; the AI plan and the AI model, Claude Opus at EUR 0.08 an
-action or Claude Sonnet at EUR 0.04, each action counted under the model that wrote it), and the bills. Every change is written to the activity log. Rules and maths: `src/lib/billing/bills-rules.ts`
+and for all usage, never above ours; the 80% alert; "tell me when X passes EUR N"; the AI plan and the writing quality, Premium (Claude Opus) at EUR 0.08
+an action or Standard (Claude Sonnet) at EUR 0.04, each action counted under the model that wrote it; the dealer never sees the model
+or provider's name), and the bills. Every change is written to the activity log. Rules and maths: `src/lib/billing/bills-rules.ts`
 (unit tested); the bills are a seeded collection, `src/lib/billing/bills.ts`. There is no PDF and no download: invoices come from the
 payment provider chosen at clone time and are emailed when issued. Billing details (company, VAT number, address, email) are the
 Owner's, stored in settings as `billingDetails`. "Ask us to add" sends a Help request of type "Add a module"; it switches nothing on.
