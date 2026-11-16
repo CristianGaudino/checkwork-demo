@@ -2,13 +2,14 @@
 
 import { MAKE_OPTIONS } from "@/lib/leads/makes";
 import { LIMITS } from "@/lib/leads/constants";
-import { irishToday, regPeriodLabel, regPeriods } from "@/lib/leads/reg-periods";
+import { regPeriodLabel, regPeriods } from "@/lib/leads/reg-periods";
+import { dublinDay } from "@/lib/admin/format";
 import { ContactFields, Field } from "./Field";
 import type { FieldBinding } from "./LeadForm";
 
 // A new car ordered from the factory: the car, the spec, when they'd like it, then contact. One page: it is short.
 export function OrderFields({ bind }: { bind(name: string): FieldBinding }) {
-  const periods = [{ value: "", label: "Choose" }, ...regPeriods(irishToday()).map((p) => ({ value: p, label: regPeriodLabel(p) }))];
+  const periods = [{ value: "", label: "Choose" }, ...regPeriods(dublinDay()).map((p) => ({ value: p, label: regPeriodLabel(p) }))];
   return (
     <>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

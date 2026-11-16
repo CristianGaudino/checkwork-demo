@@ -1,11 +1,10 @@
 import { z } from "zod";
 import { listedOn, slugify, carSlug } from "./stock-admin-pure";
 import { CONDITIONS, FUELS, GEARBOXES, TEXT_LIMITS, VAT_STATUSES, type Car } from "@/lib/stock/types";
-import { fieldErrors } from "./validation";
+import { blank, fieldErrors } from "./validation";
 
 // The car form, as data the server checks. The browser's own limits (min, max, maxLength) are a convenience; this is the check.
 // Empty boxes mean "not given", never zero.
-const blank = (v: unknown) => (v === "" || v === null || v === undefined ? undefined : v);
 const text = (max: number) => z.preprocess(blank, z.string().trim().max(max).optional());
 const num = (min: number, max: number) => z.preprocess(blank, z.coerce.number().min(min).max(max).optional());
 const int = (min: number, max: number) => z.preprocess(blank, z.coerce.number().int().min(min).max(max).optional());
@@ -16,7 +15,8 @@ export const carFormSchema = z.object({
   model: z.string().trim().min(1, "Enter the model").max(60),
   variant: text(TEXT_LIMITS.variant),
   year: z.coerce.number().int().min(1980, "Enter a year from 1980").max(new Date().getFullYear() + 1),
-  priceEur: z.coerce.number().int("Whole euros only").min(0).max(1_000_000),
+  // 0 is Price on request; an empty box is still an error, never a silent 0.
+  priceEur: z.preprocess(blank, z.coerce.number({ message: "Enter the price" }).int("Whole euros only").min(0, "Enter the price").max(1_000_000)),
   wasPriceEur: int(0, 1_000_000),
   condition: oneOf(CONDITIONS),
   vat: oneOf(VAT_STATUSES),

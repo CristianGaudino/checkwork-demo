@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { DEALER_ADDRESS, DEALER_LOCATION, DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/site";
-import { formatPrice } from "./format";
+import { fmtEur } from "./format";
 import { carJsonLd } from "./seo";
-import type { Car, StockQuery } from "./types";
+import { onRequest, type Car, type StockQuery } from "./types";
 
 // Pure: no provider import. The labels and slugs come from the provider's taxonomy.
 export type Landing =
@@ -21,7 +21,7 @@ function ranked(names: string[]): string[] {
 
 // Call with at least one car: an empty landing page has no facts.
 export function landingFacts(cars: Car[]) {
-  const prices = cars.map((c) => c.priceEur);
+  const prices = cars.filter((c) => !onRequest(c)).map((c) => c.priceEur); // Price on request has no figure to quote
   const years = cars.map((c) => c.year);
   return {
     n: cars.length,
@@ -43,7 +43,8 @@ export const landingPath = (l: Landing) =>
 export const landingFilter = (l: Landing): Pick<StockQuery, "make" | "model" | "body"> =>
   l.kind === "make" ? { make: [l.makeSlug], model: [], body: [] } : l.kind === "body" ? { make: [], model: [], body: [l.bodySlug] } : { make: [l.makeSlug], model: [l.modelSlug], body: [] };
 
-const priceText = (f: Facts) => (f.n === 1 || f.min === f.max ? `at ${formatPrice(f.min)}` : `from ${formatPrice(f.min)} to ${formatPrice(f.max)}`);
+// No priced car (all on request): no price in the sentence. One price: "at"; else the range.
+const priceText = (f: Facts) => (!Number.isFinite(f.min) ? "with prices on request" : f.min === f.max ? `at ${fmtEur(f.min)}` : `from ${fmtEur(f.min)} to ${fmtEur(f.max)}`);
 
 export function landingIntro(l: Landing, f: Facts): string {
   // One body type car reads "1 used SUV car"; makes and models keep their name.

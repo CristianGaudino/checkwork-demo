@@ -8,10 +8,19 @@ import { useLeaveGuard } from "@/components/admin/useLeaveGuard";
 import { Select } from "@/components/Select";
 import { Field, Panel, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
 import { AITextarea } from "@/components/admin/AIWriter";
-import { saveCarAction, type CarFormState } from "@/app/dashboard/stock/actions";
+import { saveCarAction } from "@/app/dashboard/stock/actions";
 import { lookupRegStaffAction } from "@/app/dashboard/reg-action";
 import { CAR_FIELDS, FIELD_GROUPS } from "@/lib/admin/car-fields";
 import type { Car } from "@/lib/stock/types";
+import type { WriteRequest } from "@/lib/ai/tasks";
+import type { FormState } from "@/lib/admin/validation";
+
+// What Write with AI sends for the description: the form's boxes, or nothing until the make and model are in (the writer then says so).
+const carRequest = (form: HTMLFormElement | null | undefined): WriteRequest | null => {
+  if (!form) return null;
+  const fields = Object.fromEntries(CAR_FIELDS.map((c) => [c.name, String(new FormData(form).get(c.name) ?? "").trim()]));
+  return fields.make && fields.model ? { task: "carDescription", fields } : null;
+};
 
 // Add or edit a car. Every box comes from CAR_FIELDS; the server checks it again (car-form.ts), and a bad box comes back with its message.
 // `car` is the car being edited, or none for a new one.
@@ -19,13 +28,14 @@ import type { Car } from "@/lib/stock/types";
 // `reg`: a registration to start a new car from (a trade-in taken on a sale).
 export function CarForm({ car, cost, reg: startReg = "" }: { car?: Car; cost?: { eur?: number }; reg?: string }) {
   const form = useRef<HTMLFormElement>(null);
-  const [state, action, pending] = useKeptForm<CarFormState>(saveCarAction.bind(null, car?.id ?? null), undefined, form);
+  const [state, action, pending] = useKeptForm<FormState>(saveCarAction.bind(null, car?.id ?? null), undefined, form);
   const errors = state?.errors ?? {};
   // What the registration lookup filled in. The boxes are uncontrolled, so a lookup redraws them (`drawn`) from what was typed plus what
   // was found; a box already typed in keeps its value.
   const [found, setFound] = useState<Record<string, string>>({});
   const [drawn, setDrawn] = useState(0);
   const [reg, setReg] = useState(startReg);
+  const [onRequest, setOnRequest] = useState(car?.priceEur === 0); // a price of 0 says so as it is typed
   useLeaveGuard(form); // a menu tap would throw the edits away
   const value = (name: string): string => {
     if (found[name] !== undefined) return found[name];
@@ -67,17 +77,17 @@ export function CarForm({ car, cost, reg: startReg = "" }: { car?: Car; cost?: {
               // The description has the AI writer under it, so it is not inside the label the other boxes use.
               <div key={f.name} className="flex min-w-0 flex-col gap-1 sm:col-span-2 lg:col-span-3">
                 <span className="text-meta font-semibold">{f.label}</span>
-                <AITextarea name={f.name} label={f.label} task="carDescription" defaultValue={value(f.name)} rows={5} request={(box) => box?.form ? { task: "carDescription", fields: Object.fromEntries(CAR_FIELDS.map((c) => [c.name, String(new FormData(box.form!).get(c.name) ?? "")])) } : null} />
-                {errors[f.name] && <span className="text-meta text-bad">{errors[f.name]}</span>}
+                <AITextarea name={f.name} label={f.label} task="carDescription" defaultValue={value(f.name)} rows={5} request={(box) => carRequest(box?.form)} />
+                {errors[f.name] && <span className="text-meta text-destructive">{errors[f.name]}</span>}
               </div>
             ) : (
-              <Field key={f.name} label={f.label} hint={f.hint} error={errors[f.name]} className={f.wide ? "sm:col-span-2 lg:col-span-3" : ""}>
+              <Field key={f.name} label={f.label} hint={f.name === "priceEur" && onRequest ? "A price of 0 shows as Price on request on the website, with no finance estimate." : f.hint} error={errors[f.name]} className={f.wide ? "sm:col-span-2 lg:col-span-3" : ""}>
                 {f.type === "select" ? (
                   <Select name={f.name} defaultValue={value(f.name)} options={[["", f.name === "condition" ? "Used" : "Not set"], ...f.options!.filter(([v]) => !(f.name === "condition" && v === "used"))]} />
                 ) : f.type === "textarea" ? (
                   <textarea name={f.name} defaultValue={value(f.name)} rows={f.name === "features" ? 6 : 5} className={`${adminInput} h-auto py-2`} />
                 ) : (
-                  <input name={f.name} type={f.type} step={f.step} inputMode={f.type === "number" ? "decimal" : undefined} defaultValue={value(f.name)} aria-invalid={errors[f.name] ? true : undefined} className={adminInput} />
+                  <input name={f.name} type={f.type} step={f.step} inputMode={f.type === "number" ? "decimal" : undefined} defaultValue={value(f.name)} onInput={f.name === "priceEur" ? (e) => setOnRequest(e.currentTarget.value.trim() === "0") : undefined} aria-invalid={errors[f.name] ? true : undefined} className={adminInput} />
                 )}
               </Field>
             ))}

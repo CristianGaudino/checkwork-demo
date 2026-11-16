@@ -1,8 +1,8 @@
 import { FINANCE } from "@/lib/finance/finance.config";
 import { financeable, quote } from "@/lib/finance/payment";
 import { PRICING } from "./pricing.config";
-import { formatPrice } from "./format";
-import { isSold, type Car } from "./types";
+import { fmtEur } from "./format";
+import { isReduced, isSold, onRequest, type Car } from "./types";
 
 export type PriceInfo = {
   headline: string; // "Sold", or the price as advertised
@@ -22,23 +22,24 @@ export const payableEur = (car: Pick<Car, "priceEur" | "vat">) => (car.vat === "
 export function priceInfo(car: Pick<Car, "priceEur" | "wasPriceEur" | "vat" | "soldAt" | "reserved">): PriceInfo {
   const L = PRICING.labels;
   if (isSold(car)) return { headline: L.sold };
-  const out: PriceInfo = { headline: formatPrice(car.priceEur) };
+  if (onRequest(car)) return { headline: L.onRequest };
+  const out: PriceInfo = { headline: fmtEur(car.priceEur) };
   if (car.vat === "inc") out.vatLine = L.vatInc;
   if (car.vat === "ex") {
     out.vatLine = L.vatEx;
-    out.incVat = `${formatPrice(withVat(car.priceEur))} ${L.incVatSuffix}`;
+    out.incVat = `${fmtEur(withVat(car.priceEur))} ${L.incVatSuffix}`;
   }
-  if (car.wasPriceEur !== undefined && car.wasPriceEur > car.priceEur) {
-    out.was = formatPrice(car.wasPriceEur);
-    out.drop = `${L.reduced} ${formatPrice(car.wasPriceEur - car.priceEur)}`;
+  if (isReduced(car)) {
+    out.was = fmtEur(car.wasPriceEur!);
+    out.drop = `${L.reduced} ${fmtEur(car.wasPriceEur! - car.priceEur)}`;
   }
   // Finance is worked out on what the buyer pays, so an ex. VAT price is taken with VAT on. A reserved car has no finance offer, as on the
-  // rest of its page: a deposit is on it.
+  // rest of its page: a deposit is on it. The deposit is the calculator's own default (none on a car cheaper than it), so the two agree.
   const payable = payableEur(car);
   if (financeable(payable) && !car.reserved) {
     const { defaults } = FINANCE;
-    const q = quote(payable, Math.round((payable * PRICING.financeFromDepositPct) / 100), defaults.termMonths, defaults.aprPct);
-    if (q) out.financeFrom = `${L.financeFrom} ${formatPrice(Math.round(q.monthlyEur))} ${L.perMonth}`;
+    const q = quote(payable, payable > defaults.depositEur ? defaults.depositEur : 0, defaults.termMonths, defaults.aprPct);
+    if (q) out.financeFrom = `${L.financeFrom} ${fmtEur(Math.round(q.monthlyEur))} ${L.perMonth}`;
   }
   return out;
 }

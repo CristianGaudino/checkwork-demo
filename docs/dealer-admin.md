@@ -104,12 +104,14 @@ with no D1). The actor is the signed-in person (`currentMember`), or a named one
 - **A sale** (`salesStore`, one per car): the price it sold for, the day, who sold it and the buyer, a customer on file or a new one made
   on the form. In our version Mark sold opens the form and marks the car sold on the sale's day. In the DoneDeal version the dealer
   answers for a car whose ad came down, and the Sold view on Stock (Record sale) asks for a sold car with none. Margins use the sale price
-  for a sold car. After six years the daily job removes the buyer from sales and deposits (`src/lib/admin/sales-purge.ts`,
+  for a sold car. After six years the daily job removes the buyer from sales, deposits, warranty claims and factory orders (a claim or order
+  also loses its lead, notes and fault text, as an erasure does) (`src/lib/admin/sales-purge.ts`,
   `{"job":"anonymise-sales"}`); the figures stay. /privacy says so.
 - **A deposit** (`reservationsStore`, our version only): Reserve on a car for sale takes the amount, how it was paid, the day, the buyer
   and the last day it is held. The car shows as Reserved on the website, listed after the cars for sale, with no enquiry or test drive
   buttons. Mark sold turns it into the sale (the sale keeps the deposit). Owners and managers end it with the deposit refunded (all or
   part) or kept, under the dealer's own terms. Overview flags one past its date.
+- **Change the sale** (owners and managers): a sale already recorded is changed from the car's page; anyone else is refused.
 - **Undo sale** (owners and managers): the sale fell through before handover, or the buyer brought the car back (with the refund and the
   reason; the page says when it is within the 30-day short-term right to reject). The record is kept under its own id with
   `returnedOn` and `kind`, and reports count it under Returns, not sales. In our version a car brought back is hidden for a look over; one
@@ -127,6 +129,9 @@ with no D1). The actor is the signed-in person (`currentMember`), or a named one
 
 A warranty message sent from the website is aftersales work, not a sale: it waits in Aftersales under Requests (left out of Leads, its counts,
 the overview and the reports) until a claim is opened from it or it is set aside. Aftersales opens on Requests while any wait.
+
+Customers has three lists: the customers (the Sales module) and the stock alerts and newsletter subscribers (the Newsletter module, where
+visitors sign up). Each list, its actions and its export answer only with its module on; the page answers with either.
 
 
 - **A customer's page** (`/dashboard/customers/[id]`): how to reach them, what they bought with the warranty on each (in cover or not),
@@ -217,8 +222,11 @@ Until both are set the admin answers 404 for everyone. The Worker checks Access'
 
 `/dashboard/billing` is for the Owner and Manager (`can("billing")`; anyone else gets a 404, and so does every action). It has three sections:
 the plan and this month's usage (with the founding dealer discount, which is taken off the plan, not the usage, and an "Estimate" for the
-month end), the limits and alerts (a euro limit per service and for all usage, never above ours; the 80% alert; "tell me when X passes
-EUR N"; the AI plan), and the bills. Every change is written to the activity log. Rules and maths: `src/lib/billing/bills-rules.ts`
+month end), the setup fees (the website's and those of Social, New cars and WhatsApp, half off for a founding dealer;
+`setupLines` in `src/lib/billing/rules.ts`, also totalled in the demo bar's plans panel), the limits and alerts (a euro limit per service
+and for all usage, never above ours; the 80% alert; "tell me when X passes EUR N"; the AI plan and the writing quality, Premium (Claude Opus) at EUR 0.08
+an action or Standard (Claude Sonnet) at EUR 0.04, each action counted under the model that wrote it; the dealer never sees the model
+or provider's name), and the bills. Every change is written to the activity log. Rules and maths: `src/lib/billing/bills-rules.ts`
 (unit tested); the bills are a seeded collection, `src/lib/billing/bills.ts`. There is no PDF and no download: invoices come from the
 payment provider chosen at clone time and are emailed when issued. Billing details (company, VAT number, address, email) are the
 Owner's, stored in settings as `billingDetails`. "Ask us to add" sends a Help request of type "Add a module"; it switches nothing on.
@@ -232,7 +240,7 @@ their bytes and kept in the private bucket under `help/`, or as a data URL with 
 
 ## Monthly report and the owner API
 
-- **Monthly report** (`/dashboard/monthly-report`): last month by default, any of the twelve before it from the picker. Each section shows only for the modules on (Leads and Stock always, Visitors with Site analytics, Sales, Reviews). Each figure says how it compares with the month before, or "Too few to compare" under 5. Sales value and profit show only to staff with the margins permission. One "What to do" line comes from fixed rules. "Print or save as PDF" uses the browser's print, with the menu left out.
+- **Monthly report** (`/dashboard/monthly-report`): last month by default, any of the twelve before it from the picker. Each section shows only for the modules on (Leads and Stock always, Visitors with Site analytics, Sales, Reviews). Each figure says how it compares with the month before, or "Too few to compare" under 5. Sales value and profit show only to staff with the margins permission. As on Reports, staff without it (Sales) see their own leads and sales only, with no stock, visitors or reviews. One "What to do" line comes from fixed rules. "Print or save as PDF" uses the browser's print, with the menu left out.
 - **Email**: `/api/reports/monthly` (CRON_KEY, scheduled `0 7 1 * *` in `worker.mjs` and `wrangler.jsonc`) emails last month's summary to the owners and managers: counts only. On the demo it goes to the lead inbox like the follow-up digest.
 - **Owner API** and the anonymous feature counters: see `docs/owner-api.md`. The figures for the report and the API are one module, `src/lib/reports/monthly.ts`.
 
@@ -260,8 +268,11 @@ The `whatsapp` module. On the demo it is simulated (integration `whatsapp`): `/d
   photos keeps it open for the offer. A closed lead takes no more buyer messages, and a question expires after an hour.
 - Messages are kept 30 days (the daily purge), and go with their lead or an erasure. Removing someone from the team removes their phone.
 - Each new website request is added to the conversation of every team member who has that alert on and a linked number, outside their quiet hours (`alertStaffOnWhatsApp`, called once from `real-leads.ts`). The template is the request's own module's, or the plain enquiry when the dealer lacks that module (`eventOfLead`). A buyer who ticked the WhatsApp box (`whatsappOptIn` on the lead, read from the form's detail of the same name) gets a confirmation.
-- A tap or a typed reply goes through `src/lib/whatsapp/handle.ts`: it writes the lead (status, note), the activity log (never a name), and the buyer's message. Reply with a price reads "8,500", "€8.5k", "8500" (`parsePrice`), sends the offer, and the buyer's simulated answer lands six seconds later on both phones and the lead.
-- Only a team member with a linked phone can act, in their own conversation. Margins are never in a message.
+- The other alerts go the same way (`alertStaff`, also checking the alert's own module): Deposit taken from Take deposit (`reserveAction`), A new car in stock when a car first goes on the website (added live, or a draft published), and from the morning cron (`/api/whatsapp/daily`, after the follow-up digest in `worker.mjs`) each car old stock (`DEALER_RULES.oldStockDays`, 120 days by default), each review from the last two days (each once while its alert is kept), and on a Monday last week's leads, test drives taken and cars sold, from the report's own sums. The demo's seeded alerts use the seed's own figures.
+- A tap or a typed reply goes through `src/lib/whatsapp/handle.ts`: it writes the lead (status, note), the activity log (never a name), and the buyer's message. Notes and replies say how the buyer was told (WhatsApp or email). Reply with a price reads "8,500", "€8.5k", "8500" (`parsePrice`), sends the offer, and the buyer's simulated answer lands six seconds later on both phones and the lead.
+- Call back is not a reply: it sets the follow-up to today and gives the lead to whoever tapped, and leaves the status. Its note and a buyer's answer are marked `auto`, so the report's first reply skips them. Confirm on a deposit records it in the activity log against the car. Suggest another time sends the buyer the time and leaves the alert open: the booking moves in Test drives once they agree. A test drive confirmed with its booking tells the buyer the day and time.
+- Only a team member with a linked phone can act, in their own conversation (an unlinked one is told to link it). With an alert's module off, its alert and questions are hidden and acting on them is refused. Margins are never in a message.
+- The lead page shows "WhatsApp updates: on" for a buyer who ticked the box, with Stop WhatsApp, which clears `whatsappOptIn` (logged, without the buyer): nothing more goes to them on WhatsApp. Their own STOP reply comes with the adapter.
 - Every message to a phone or a buyer checks `usageAllowed("whatsapp")` and records `alert`, `reply` or `marketing`. Past the cap an alert or reply is stored as "Sent by email instead" and not counted; marketing is not sent. A buyer without the opt-in gets email, also uncounted. The site's acknowledgements to the dealer inside a conversation are free replies and not counted.
 - Messages about a lead are removed once the lead is gone (purge, data request), on the next read of the page.
 - The real Cloud API goes where `ADAPTER GOES HERE` is, in `src/lib/whatsapp/send.ts`: approved templates outside the 24 hour window, and a webhook that checks Meta's signature and ignores unknown numbers.
@@ -272,13 +283,13 @@ The `whatsapp` module. On the demo it is simulated (integration `whatsapp`): `/d
 - **Media library** (`mediaStore`, tab Media): photos (JPEG, PNG, WebP; shrunk to 1,600px on the device) and videos (MP4, MOV, up to 15 MB and 90 seconds on the demo; length read in the browser and checked loosely on the server), optionally tagged to a car. Stored in R2 under `media/` in the `LEAD_PHOTOS` bucket and served by `/media-files`; with no bucket a data URL is kept in memory. Rules in `src/lib/admin/media-rules.ts`. No range requests yet, so add them before real video use.
 - **Calendar**: a week of scheduled and posted posts and started ads (`calendarWeek`); drafts are not on it.
 - **Modules**: posts, calendar and media need Social and ads, newsletters need Newsletter and alerts; the page needs one of them.
-- **AI writing** (#179): `writeAction` (`src/lib/ai/actions.ts`) checks the `ai` module, then the monthly cap, builds the facts from the records (the browser sends ids only), writes, then counts a draft or adjustment. On the demo `writeWithAI` is the mock in `src/lib/ai/mock.ts` (deterministic, facts only, dashes stripped, 700 ms pause). The real Claude adapter goes at `ADAPTER GOES HERE` in `src/lib/ai/write.ts`. `AIWriter` / `AITextarea` show the button, adjust chips, Undo and an "AI draft" label, and hide with the module off. Used in the post composer, newsletters, the car description, the lead page (Draft a reply) and review replies.
+- **AI writing** (#179): `writeAction` (`src/lib/ai/actions.ts`) checks the `ai` module, then the monthly cap, builds the facts from the records (the browser sends ids only), writes with the model chosen on Billing, then counts the action under that model. On the demo `writeWithAI` is the mock in `src/lib/ai/mock.ts` (deterministic, facts only, dashes stripped, 700 ms pause). With `ANTHROPIC_API_KEY` set as a Worker secret (`npx wrangler secret put ANTHROPIC_API_KEY`) it is real Claude instead (`src/lib/ai/claude.ts`, every prompt in one place): a refusal, a cut-off answer or an error is a failed write, not billed, and the facts and text are never logged. Limits: the monthly AI cap (demo €25), our AI ceiling that a cap can never go past (`AI_CEILING_EUR`, €50 on every site unless the owner's program sets another; €25 on a freshly seeded demo), `AI_LIMITER` of 10 calls a minute (wrangler.jsonc, namespace 1003; Cloudflare counts it per location), short prompts (a message or review is cut to 600 characters; phone numbers and emails are taken out of the facts and the draft, and the dealer's own are put back in the answer) and `max_tokens` 2048. Set a spend limit on the Claude Console workspace too. `AIWriter` / `AITextarea` show the button, adjust chips, Undo and an "AI draft" label, and hide with the module off. Used in the post composer, newsletters, the car description, the lead page (Draft a reply) and review replies.
 
 ## Where things are
 
 | What | Where |
 |---|---|
-| AI writing (mock on the demo), media library | `src/lib/ai/`, `src/lib/admin/media.ts` |
+| AI writing (Claude with a key, the mock without), media library | `src/lib/ai/`, `src/lib/admin/media.ts` |
 | Record store (one D1 table, `admin_docs`; memory with no D1) | `src/lib/admin/docs.ts` |
 | The dealer's collections, types and seeds | `src/lib/admin/collections.ts`, `seed-data.ts` |
 | WhatsApp: templates, price parser, sender, handlers, conversation | `src/lib/whatsapp/`, `src/app/dashboard/whatsapp/` |

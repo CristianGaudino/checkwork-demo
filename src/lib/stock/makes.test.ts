@@ -6,7 +6,7 @@ import { POPULAR_MAKES } from "@/lib/leads/makes";
 import { everyKindOrNull } from "./index";
 import { carsOfMake, findMake, makeDirectory } from "./makes";
 import { carChoices } from "./options";
-import { isSold } from "./types";
+import { forSale, isSold } from "./types";
 
 describe("the make directory", () => {
   it("lists the makes in stock first (most cars first), then the popular ones, each once, with counts by kind", async () => {
@@ -37,9 +37,9 @@ describe("the make directory", () => {
 });
 
 describe("the cars a form offers", () => {
-  it("are every unsold car, newest first, named with the variant", async () => {
+  it("are every car for sale (not sold, not reserved), newest first, named with the variant", async () => {
     const choices = await carChoices();
-    const cars = ((await everyKindOrNull()) ?? []).filter((c) => !isSold(c));
+    const cars = ((await everyKindOrNull()) ?? []).filter(forSale);
     expect(choices).toHaveLength(cars.length);
     const ids = choices.map(([id]) => Number(id));
     expect(ids).toEqual([...ids].sort((a, b) => b - a));

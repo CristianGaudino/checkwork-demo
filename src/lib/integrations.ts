@@ -33,7 +33,7 @@ export const INTEGRATIONS: readonly Integration[] = [
   // Only for a dealer whose stock comes from a listing site, DoneDeal or CarsIreland (src/lib/stock-source.ts): Settings lists it then.
   { id: "donedeal", demoAccount: `${SITE_NAME} on ${LISTING_SITE}`, name: `${LISTING_SITE} stock`, purpose: `Brings the dealer's ${LISTING_SITE} ads onto the site every 15 minutes.`, env: ["DONEDEAL_API_KEY"], where: `${LISTING_SITE}, an API key for the dealer's own site, given with the dealer's written consent (DoneDeal and CarsIreland work the same way)` },
   { id: "whatsapp", demoAccount: `${SITE_NAME} on WhatsApp`, name: "WhatsApp Business", purpose: "Sends leads to staff phones and buyers' updates, and takes replies from WhatsApp (#178).", env: ["WHATSAPP_PHONE_NUMBER_ID", "WHATSAPP_ACCESS_TOKEN", "WHATSAPP_APP_SECRET"], where: "Meta for developers, the WhatsApp Business Platform (Cloud API), for the dealer's own business number" },
-  { id: "ai", demoAccount: "Claude", name: "AI writing", purpose: "Writes drafts of posts, car descriptions and replies for staff to check (#179).", env: ["ANTHROPIC_API_KEY"], where: "The Claude Console, an API key for the dealer's site" },
+  { id: "ai", demoAccount: "Included with your site", name: "AI writing", purpose: "Writes drafts of posts, car descriptions and replies for staff to check (#179).", env: ["ANTHROPIC_API_KEY"], where: "The Claude Console, an API key for the dealer's site" },
   { id: "analytics", name: "Site analytics", purpose: "Real visitor numbers in Analytics instead of the sample figures.", env: ["CF_ANALYTICS_TOKEN", "CF_ZONE_ID"], where: "Cloudflare dashboard, an API token with analytics read" },
 ];
 

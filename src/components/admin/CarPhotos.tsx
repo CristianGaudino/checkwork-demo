@@ -28,12 +28,10 @@ export function CarPhotos({ carId, photos, max }: { carId: string; photos: Photo
         setSaid(`Adding photo ${added + 1} of ${Math.min(files.length, room)}`);
         try {
           const jpeg = await downscale(file, 1600);
-          const bmp = await createImageBitmap(jpeg);
           const f = new FormData();
-          f.set("photo", jpeg);
-          f.set("width", String(bmp.width));
-          f.set("height", String(bmp.height));
-          bmp.close();
+          f.set("photo", jpeg.blob);
+          f.set("width", String(jpeg.width));
+          f.set("height", String(jpeg.height));
           const r = await addCarPhotoAction(carId, f);
           if (r.error) {
             setSaid(r.error);

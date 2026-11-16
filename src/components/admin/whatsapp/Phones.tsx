@@ -24,7 +24,6 @@ function Bubble({ m, mine, onTap, busy }: { m: Msg; mine: boolean; onTap?: (id: 
           <ul className="mb-1.5 grid grid-cols-3 gap-1">
             {m.photos.map((src, i) => (
               <li key={src}>
-                {/* eslint-disable-next-line @next/next/no-img-element -- a thumbnail in a mock phone, or a private signed link: not for the image optimiser */}
                 <img src={src} alt={`Photo ${i + 1} of the car`} loading="lazy" className="aspect-square w-full rounded object-cover" />
               </li>
             ))}
@@ -45,7 +44,8 @@ function Bubble({ m, mine, onTap, busy }: { m: Msg; mine: boolean; onTap?: (id: 
         <ul aria-label="Quick replies" className="flex w-[85%] flex-col gap-1">
           {m.buttons.map((b) => (
             <li key={b}>
-              <button type="button" disabled={busy} onClick={() => onTap(m.id, b)} className="min-h-10 w-full rounded-xl bg-wa-in px-3 text-center text-meta font-medium text-wa-link shadow-sm disabled:opacity-60">
+              {/* An answered alert keeps its buttons, greyed out, as a phone does. */}
+              <button type="button" disabled={busy || m.done} onClick={() => onTap(m.id, b)} className="min-h-10 w-full rounded-xl bg-wa-in px-3 text-center text-meta font-medium text-wa-link shadow-sm disabled:opacity-60">
                 {BUTTON_LABELS[b]}
               </button>
             </li>

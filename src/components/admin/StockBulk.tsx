@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useId, useState, useTransition } from "react";
-import { createPortal } from "react-dom";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { showToast } from "@/components/toast";
 import { bulkStockAction } from "@/app/dashboard/stock/actions";
 import { PRICE_DROP_MAX_PCT } from "@/lib/admin/stock-admin-pure";
+import { fmtEur } from "@/lib/admin/format";
 import { adminButton, adminButtonQuiet, adminInput, choicePill, dangerButton } from "./kit";
+import { ConfirmDialog } from "./ActButton";
 
 // Several cars at once (#104), for our own stock. Each row has a tick box (StockPick) tied to this bar by the `form` attribute, so the
 // table stays a server component. The bar shows once a car is ticked: drop the price by euros or a percentage, mark sold, or delete.
@@ -15,7 +16,12 @@ const FORM = "stock-bulk";
 type Op = "price" | "sold" | "delete";
 
 export function StockPick({ id, name }: { id: string; name: string }) {
-  return <input type="checkbox" form={FORM} name="ids" value={id} aria-label={`Select ${name}`} className="relative z-10 size-5 accent-accent" />;
+  return (
+    <label className="relative z-10 -m-3 flex size-11 cursor-pointer items-center justify-center">
+      {/* A label, so a tap anywhere in the 44px ring ticks the box (a span would swallow it, above the row's link). */}
+      <input type="checkbox" form={FORM} name="ids" value={id} aria-label={`Select ${name}`} className="size-5 accent-accent" />
+    </label>
+  );
 }
 
 const boxes = () => [...document.querySelectorAll<HTMLInputElement>(`input[form="${FORM}"][name="ids"]`)];
@@ -29,7 +35,6 @@ export function StockBulk({ canDelete }: { canDelete: boolean }) {
   const [asking, setAsking] = useState(false);
   const [error, setError] = useState("");
   const [pending, start] = useTransition();
-  const titleId = useId();
 
   useEffect(() => {
     const recount = () => setCount(boxes().filter((b) => b.checked).length);
@@ -44,7 +49,7 @@ export function StockBulk({ canDelete }: { canDelete: boolean }) {
     if (!on) setOp(null);
   };
   const cars = count === 1 ? "1 car" : `${count} cars`;
-  const drop = unit === "eur" ? `€${Number(amount).toLocaleString("en-IE")}` : `${amount}%`;
+  const drop = unit === "eur" ? fmtEur(Number(amount)) : `${amount}%`;
   const question = op === "price" ? `Drop the price of ${cars} by ${drop}?` : op === "sold" ? `Mark ${cars} sold?` : `Delete ${cars}?`;
   const text =
     op === "price" ? "The earlier price shows beside each new one on the website. Sold cars keep their price." : op === "sold" ? "They come off sale on the website. Record each sale from its row. A car with a deposit held is left as it is." : "This cannot be undone. A car with a deposit held is left as it is.";
@@ -99,20 +104,14 @@ export function StockBulk({ canDelete }: { canDelete: boolean }) {
         </div>
       )}
       {error && <p role="alert" className="text-meta text-destructive">{error}</p>}
-      {asking &&
-        createPortal(
-          <dialog ref={(d) => void (d && !d.open && d.showModal())} onClose={() => setAsking(false)} aria-labelledby={titleId} className="m-auto w-[min(28rem,calc(100%-2rem))] rounded-card bg-card p-5 text-text shadow-lift backdrop:bg-black/50">
-            <h2 id={titleId} className="text-heading font-semibold">{question}</h2>
-            <p className="mt-2 text-body text-text-2">{text}</p>
-            <div className="mt-5 flex flex-wrap justify-end gap-3">
-              <button type="button" autoFocus onClick={() => setAsking(false)} className={adminButtonQuiet}>Cancel</button>
-              <button type="button" onClick={() => (setAsking(false), run())} className={op === "price" ? adminButton : dangerButton}>
-                {op === "price" ? "Drop the price" : op === "sold" ? "Mark sold" : "Delete"}
-              </button>
-            </div>
-          </dialog>,
-          document.body,
-        )}
+      {asking && (
+        <ConfirmDialog
+          confirm={{ title: question, text, yes: op === "price" ? "Drop the price" : op === "sold" ? "Mark sold" : "Delete" }}
+          yesClassName={op === "price" ? adminButton : dangerButton}
+          onYes={run}
+          onClose={() => setAsking(false)}
+        />
+      )}
     </form>
   );
 }

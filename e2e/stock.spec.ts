@@ -1,11 +1,10 @@
 import { expect, test } from "@playwright/test";
-import { unfold } from "./open";
+import { digits, prices, unfold } from "./open";
 import type { Page } from "@playwright/test";
 import { choose } from "./combo";
 import { SITE_NAME } from "../src/lib/site";
 
 const PER_PAGE = 12;
-const digits = (s: string | null) => Number((s ?? "").replace(/\D/g, ""));
 
 async function total(page: Page) {
   const text = (await page.getByTestId("count").textContent()) ?? "";
@@ -13,7 +12,6 @@ async function total(page: Page) {
   return text === "No cars" ? 0 : digits(text) || 1;
 }
 
-const prices = (page: Page) => page.locator("article [data-price]").allTextContents().then((l) => l.map(digits));
 
 test("lists the cars, price first, 12 per page", async ({ page }) => {
   await page.goto("/used-cars");

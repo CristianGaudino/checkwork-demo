@@ -96,6 +96,8 @@ The lead row is the record; the email to the dealer is a notification. If that e
 
 The lead still reaches the dashboard, with a note on it that the email didn't go, so the team sees it without this query. If the buyer tries again, it arrives a second time.
 
+If the copy into the dashboard fails, the Worker writes one error-level `mirror_failed` line (the lead id, type and outcome only). The lead is still in the `leads` table and, if it went, in the dealer's email.
+
 To find them from the database, when Workers Logs show a `notify_failed` line, run:
 
 ```sql

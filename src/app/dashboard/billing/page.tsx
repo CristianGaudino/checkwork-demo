@@ -4,14 +4,14 @@ import { ActButton } from "@/components/admin/ActButton";
 import { AlertForm, DetailsForm, LimitsForm } from "@/components/admin/BillingForms";
 import { Badge, DataTable, EmptyState, PageHeader, Panel, Segmented, StatCard, StatGrid, adminButtonQuiet, rowButton } from "@/components/admin/kit";
 import { fmtDay, fmtNum } from "@/lib/admin/format";
-import { MODULES } from "@/lib/modules-rules";
+import { MODULES, withModule } from "@/lib/modules-rules";
 import { enabledModules } from "@/lib/modules";
 import { can, currentMember } from "@/lib/permissions";
 import { billingDetails, listBills } from "@/lib/billing/bills";
 import { AI_PLAN_LABELS, FOUNDING, afterDiscount, eur, fmtMonth, foundingEnd, itemise, nextBillDate, scopeName, billedServices } from "@/lib/billing/bills-rules";
-import { AI_ASSISTANT, BASE_EUR, MODULE_EUR, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, capOf, planEur, usageEstimate, round2, withVat, type BillingSettings, type Scope, type Service, SERVICES } from "@/lib/billing/rules";
+import { AI_ASSISTANT, AI_MODELS, KINDS, MODULE_EUR, SHOW_PRICING, presetName, setupEur, setupLines, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, capOf, planEur, planFor, planLines, usageEstimate, round2, withVat, type BillingSettings, type Scope, type Service } from "@/lib/billing/rules";
 import { billingSettings, monthUsage } from "@/lib/billing/usage";
-import { askModuleAction, removeAlertAction, saveAiPlanAction } from "./actions";
+import { askModuleAction, removeAlertAction, saveAiModelAction, saveAiPlanAction } from "./actions";
 import { dublinDay } from "@/lib/admin/format";
 
 export const metadata = { title: "Billing" };
@@ -30,6 +30,7 @@ type Usage = Awaited<ReturnType<typeof monthUsage>>;
 // Owners and managers only (the "billing" permission): without it the page is not there, whatever the menu showed.
 export default async function Page({ searchParams }: { searchParams: Promise<{ section?: string }> }) {
   if (!(await can("billing"))) notFound();
+  if (!SHOW_PRICING) return <WithoutPrices />;
   const sp = await searchParams;
   const section = SECTIONS.find(([k]) => k === sp.section)?.[0] ?? "plan";
   const [modules, b, usage, me] = await Promise.all([enabledModules(), billingSettings(), monthUsage(), currentMember()]);
@@ -101,6 +102,15 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
                   </ActButton>
                 ))}
               </div>
+              <h3 className="text-body font-semibold">Writing quality</h3>
+              <p className="max-w-measure text-body text-text-2">Premium writes the best copy. Standard is quick and costs less.</p>
+              <div className="flex flex-wrap gap-2">
+                {AI_MODELS.map((m) => (
+                  <ActButton key={m} act={saveAiModelAction.bind(null, m)} pressed={b.aiModel === m} done="Writing quality changed" className={`${adminButtonQuiet} aria-pressed:border-text aria-pressed:bg-text aria-pressed:text-ink`}>
+                    {KINDS.ai[m]}, {eur(UNIT.ai[m])} an action
+                  </ActButton>
+                ))}
+              </div>
             </Panel>
           )}
         </>
@@ -113,7 +123,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
 
 function PlanAndUsage({ modules, services, usage, b, now }: { modules: Modules; services: Service[]; usage: Usage; b: BillingSettings; now: Date }) {
   const { aiPlan } = b;
-  const mine = MODULES.filter((m) => modules.has(m.id) && MODULE_EUR[m.id] > 0);
+  // What adding a module costs: with what it needs, and a bundle it completes. 0 when the plan already pays for it.
+  const addEur = (id: (typeof MODULES)[number]["id"]) => planFor(withModule(modules, id)).eur - planFor(modules).eur;
   const others = MODULES.filter((m) => !modules.has(m.id) && MODULE_EUR[m.id] > 0);
   const assistant = aiPlan === "assistant" && modules.has("ai");
   const plan = planEur(modules, assistant ? "assistant" : "perAction");
@@ -121,7 +132,10 @@ function PlanAndUsage({ modules, services, usage, b, now }: { modules: Modules; 
   const sofar = usage.totalEur;
   const estimate = usageEstimate(usage, b, dublinDay(now.getTime()));
   const bill = round2(planNet + estimate);
-  const lines: (readonly [string, number])[] = [["Website", BASE_EUR], ...mine.map((m) => [m.label, MODULE_EUR[m.id]] as const), ...(assistant ? [["AI assistant", AI_ASSISTANT.monthlyEur] as const] : [])];
+  const setup = setupLines(modules);
+  const setupFull = setupEur(modules);
+  const setupNet = round2(setupFull * (1 - FOUNDING.setupPct / 100));
+  const lines: (readonly [string, number])[] = [...planLines(modules).map((l) => [l.label, l.eur] as const), ...(assistant ? [["AI assistant", AI_ASSISTANT.monthlyEur] as const] : [])];
   return (
     <>
       <Panel title="Your plan">
@@ -136,7 +150,7 @@ function PlanAndUsage({ modules, services, usage, b, now }: { modules: Modules; 
             <dt>
               Founding dealer: {FOUNDING.pct}% off until {foundingEnd(now)}
             </dt>
-            <dd className="tabular-nums">-{eur(round2(plan - planNet))}</dd>
+            <dd className="whitespace-nowrap tabular-nums">-{eur(round2(plan - planNet))}</dd>
           </div>
           <div className="flex justify-between gap-4 py-2 font-semibold">
             <dt>Plan each month, before VAT</dt>
@@ -151,7 +165,7 @@ function PlanAndUsage({ modules, services, usage, b, now }: { modules: Modules; 
               {others.map((m) => (
                 <li key={m.id} className="flex flex-wrap items-center justify-between gap-3 py-2">
                   <span>
-                    {m.label} <span className="text-text-2">{eur(MODULE_EUR[m.id])} a month</span>
+                    {m.label} <span className="text-text-2">{addEur(m.id) ? `${eur(addEur(m.id))} a month` : "Included in your plan"}</span>
                   </span>
                   <ActButton act={askModuleAction.bind(null, m.id)} done="We have your request. Our reply will show in Help." label={`Ask us to add ${m.label}`} className={rowButton}>
                     Ask us to add
@@ -161,6 +175,25 @@ function PlanAndUsage({ modules, services, usage, b, now }: { modules: Modules; 
             </ul>
           </details>
         )}
+      </Panel>
+
+      <Panel title="Setup fees">
+        <dl className="flex flex-col divide-y divide-hairline text-body">
+          {setup.map((l) => (
+            <div key={l.label} className="flex justify-between gap-4 py-2">
+              <dt>{l.label}</dt>
+              <dd className="tabular-nums">{eur(l.eur)}</dd>
+            </div>
+          ))}
+          <div className="flex justify-between gap-4 py-2 text-ok">
+            <dt>Founding dealer: {FOUNDING.setupPct}% off</dt>
+            <dd className="whitespace-nowrap tabular-nums">-{eur(round2(setupFull - setupNet))}</dd>
+          </div>
+          <div className="flex justify-between gap-4 py-2 font-semibold">
+            <dt>Paid once at launch, before VAT</dt>
+            <dd className="tabular-nums">{eur(setupNet)}</dd>
+          </div>
+        </dl>
       </Panel>
 
       <Panel title="Usage this month">
@@ -193,6 +226,62 @@ function PlanAndUsage({ modules, services, usage, b, now }: { modules: Modules; 
             ))}
           </>
         )}
+      </Panel>
+    </>
+  );
+}
+
+// While our prices are hidden (SHOW_PRICING): the plan and its modules, the AI writing choice and the billing details, with no prices,
+// limits or bills.
+async function WithoutPrices() {
+  const [modules, b, me, details] = await Promise.all([enabledModules(), billingSettings(), currentMember(), billingDetails()]);
+  const on = MODULES.filter((m) => modules.has(m.id));
+  const off = MODULES.filter((m) => !modules.has(m.id));
+  return (
+    <>
+      <PageHeader title="Billing" />
+      <Panel title={`Your plan: ${presetName(modules)}`}>
+        {on.length > 0 ? (
+          <ul className="flex flex-col divide-y divide-hairline text-body">
+            {on.map((m) => (
+              <li key={m.id} className="py-2">
+                <span className="font-medium">{m.label}</span> <span className="text-text-2">{m.blurb}</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-body text-text-2">The website, with your stock and the enquiry and contact forms.</p>
+        )}
+        {off.length > 0 && (
+          <details className="rounded-control border border-hairline px-3">
+            <summary className="min-h-11 cursor-pointer py-2.5 text-body font-medium">Ask us to add</summary>
+            <ul className="flex flex-col divide-y divide-hairline pb-2">
+              {off.map((m) => (
+                <li key={m.id} className="flex flex-wrap items-center justify-between gap-3 py-2">
+                  <span>{m.label}</span>
+                  <ActButton act={askModuleAction.bind(null, m.id)} done="We have your request. Our reply will show in Help." label={`Ask us to add ${m.label}`} className={rowButton}>
+                    Ask us to add
+                  </ActButton>
+                </li>
+              ))}
+            </ul>
+          </details>
+        )}
+      </Panel>
+      {modules.has("ai") && (
+        <Panel title="AI writing">
+          <p className="max-w-measure text-body text-text-2">Premium writes the best copy. Standard is quicker.</p>
+          <div className="flex flex-wrap gap-2">
+            {AI_MODELS.map((m) => (
+              <ActButton key={m} act={saveAiModelAction.bind(null, m)} pressed={b.aiModel === m} done="Writing quality changed" className={`${adminButtonQuiet} aria-pressed:border-text aria-pressed:bg-text aria-pressed:text-ink`}>
+                {KINDS.ai[m]}
+              </ActButton>
+            ))}
+          </div>
+        </Panel>
+      )}
+      <Panel title="Billing details">
+        <DetailsForm details={details} editable={me.role === "Owner"} />
       </Panel>
     </>
   );

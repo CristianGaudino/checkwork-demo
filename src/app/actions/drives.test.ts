@@ -28,4 +28,11 @@ describe("the times a car is already out, for the website's booking form", () =>
     expect(await takenDriveTimes(42)).toEqual([]);
     expect(await takenDriveTimes("x".repeat(100))).toEqual([]);
   });
+  it("is nothing without the test drives module", async () => {
+    const car = (await stock.query({ condition: "used", make: [], model: [], body: [], fuel: [], sort: "newest", page: 1, pageSize: 1 })).cars[0];
+    await drivesStore.put({ name: "x", email: "", phone: "", carSlug: car.slug, carTitle: "x", notes: "", createdAt: 0, id: "t-mod", startsAt: dublinMs(driveDays()[5], "12:00"), status: "confirmed" });
+    vi.stubEnv("NEXT_PUBLIC_SITE_MODULES", "tradeIn");
+    expect(await takenDriveTimes(car.id)).toEqual([]);
+    vi.unstubAllEnvs();
+  });
 });

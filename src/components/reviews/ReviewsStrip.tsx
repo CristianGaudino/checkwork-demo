@@ -1,7 +1,7 @@
 import { AutoCarousel } from "@/components/AutoCarousel";
 import { StarIcon } from "@/components/stock/icons";
 import type { Review, Reviews } from "@/lib/reviews";
-import { formatCount } from "@/lib/stock/format";
+import { fmtNum } from "@/lib/stock/format";
 import { ReviewAvatar } from "./ReviewAvatar";
 import { card, sectionTitle, textLink, NEW_TAB } from "@/components/ui";
 
@@ -79,7 +79,7 @@ function ReviewCard({ review }: { review: Review }) {
 export function ReviewsStrip({ data, grid = false }: { data: Reviews | null; grid?: boolean }) {
   if (!data?.reviews.length) return null;
   const { rating, count } = data;
-  const reviewCount = count === undefined ? "" : `${formatCount(count)} Google ${count === 1 ? "review" : "reviews"}`;
+  const reviewCount = count === undefined ? "" : `${fmtNum(count)} Google ${count === 1 ? "review" : "reviews"}`;
   return (
     <section aria-labelledby="reviews-heading" className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">

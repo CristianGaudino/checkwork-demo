@@ -26,6 +26,8 @@ describe("a booking taken at the desk", () => {
   });
   it("refuses a car not in stock, a day gone, a day too far, a closed day and a time out of hours", async () => {
     expect((await addDriveAction(undefined, form(await base({ carSlug: "no-such-car" }))))?.errors).toEqual({ carSlug: "That car is not in stock" });
+    const sold = (await adminCars()).find((c) => c.soldAt)!;
+    expect((await addDriveAction(undefined, form(await base({ carSlug: sold.slug }))))?.errors).toEqual({ carSlug: "That car is no longer for sale" });
     expect((await addDriveAction(undefined, form(await base({ date: "2020-01-01" }))))?.errors?.date).toBe("Choose a day that has not passed");
     expect((await addDriveAction(undefined, form(await base({ date: addDays(today, 75) }))))?.errors?.date).toBe("Choose a day in the next two months");
     const closed = firstDay(1, (d) => driveTimes(d).length === 0 && !isBankHoliday(d));

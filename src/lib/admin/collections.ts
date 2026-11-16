@@ -11,7 +11,7 @@ import { COVER_MONTHS, DEPOSIT_METHODS, type DepositMethod } from "./deposits";
 import { ALERT_KINDS } from "@/lib/leads/schema";
 import { regPeriods } from "@/lib/leads/reg-periods";
 import type { Car } from "@/lib/stock/types";
-import type { Role } from "@/lib/permission-rules";
+import { roleCan, type Role } from "@/lib/permission-rules";
 import type { PrepLine } from "./prep";
 import { carTitleOf, livePicks, person, rng } from "./seed-data";
 import { BILLING_DEFAULT, type BillingSettings } from "@/lib/billing/rules";
@@ -60,7 +60,8 @@ export type Lead = {
   assignedTo?: string;
   followUpOn?: string; // YYYY-MM-DD, the Irish day to get back to them; cleared once the lead is won or lost
   lostReason?: LostReason; // only on a lost lead
-  notes: { at: number; text: string }[];
+  // `auto`: written by the site (a buyer's WhatsApp answer, a call-back reminder), not a reply to the buyer, so the reports skip it.
+  notes: { at: number; text: string; auto?: true }[];
   createdAt: number;
 };
 
@@ -259,17 +260,28 @@ export const subscribersStore = defineCollection<Subscriber>("subscribers", seed
 
 // ---- Reviews ----
 export type AdminReview = { id: string; author: string; rating: 1 | 2 | 3 | 4 | 5; text: string; createdAt: number; reply?: string; repliedAt?: number };
+// 19 at five stars and one at three: 4.9, with one low review to show the reply that says sorry.
 const REVIEW_TEXT: [number, string][] = [
   [5, "Easy to deal with from the first call. The car was ready when we came to collect it."],
   [5, "No pressure at all. They answered every question and let us take our time."],
   [5, "Straightforward buying and a fair price on my trade-in. Would go back."],
-  [4, "Good choice of cars. Took a while to get the paperwork done but they kept us posted."],
-  [4, "Friendly team, clean car. The finance explanation was clear."],
+  [5, "Good choice of cars. The paperwork took a while but they kept us posted."],
+  [5, "Friendly team, clean car. The finance explanation was clear."],
   [3, "Car was fine, but I waited a while for a callback."],
-  [2, "The listing said full service history and the book had two gaps. They sorted it, but I had to ask."],
+  [5, "They found the exact spec I wanted within a week."],
   [5, "Second car from here. Same great service."],
-  [1, "Booked a test drive and nobody was expecting me."],
+  [5, "The test drive was booked for the time I asked and the car was ready."],
   [5, "Brilliant. Fair, honest and quick."],
+  [5, "Collected from the station and dropped back after the test drive. Great touch."],
+  [5, "Every question answered by WhatsApp the same evening."],
+  [5, "Got a fair valuation on my old car with no messing."],
+  [5, "The car was valeted and full of fuel at the handover."],
+  [5, "Clear on the price from the start. No surprises."],
+  [5, "Helped us pick a family car that fits the budget."],
+  [5, "Called a week after to check all was well with the car."],
+  [5, "Quick, friendly and honest. Highly recommend."],
+  [5, "They sorted the NCT before we collected it."],
+  [5, "Great experience from the first message to the keys."],
 ];
 function seedReviews(): AdminReview[] {
   const r = rng(67);
@@ -293,7 +305,7 @@ export type TeamMember = { id: string; name: string; email: string; role: Role }
 // Who the dealer's own warnings go to: the owners and managers on the team, and the owners named in ADMIN_OWNER_EMAILS (a new dealer may
 // have no team yet). Lower case, each once. Never a customer address.
 export const leaderEmails = (team: TeamMember[]): string[] => [
-  ...new Set([...team.filter((t) => t.role === "Owner" || t.role === "Manager").map((t) => t.email), ...(process.env.ADMIN_OWNER_EMAILS ?? "").split(",")].map((e) => e.trim().toLowerCase()).filter(Boolean)),
+  ...new Set([...team.filter((t) => roleCan(t.role, "billing")).map((t) => t.email), ...(process.env.ADMIN_OWNER_EMAILS ?? "").split(",")].map((e) => e.trim().toLowerCase()).filter(Boolean)),
 ];
 export type DealerSettings = {
   id: "dealer";
@@ -322,7 +334,7 @@ export const SETTINGS_DEFAULT: DealerSettings = {
 const seedSettings = (): DealerSettings[] => {
   const demo = seedsDemoRecords();
   // The demo's limits: well above a month of its seeded use plus visitors trying things, so nothing on the demo stops; a ceiling of ours.
-  const billing: BillingSettings | undefined = demo ? { ...BILLING_DEFAULT, caps: { ai: 25, whatsapp: 80, total: 140 }, ceilings: { total: 150 }, alerts: [{ scope: "total", amountEur: 25 }] } : undefined;
+  const billing: BillingSettings | undefined = demo ? { ...BILLING_DEFAULT, caps: { ai: 25, whatsapp: 80, total: 140 }, ceilings: { ai: 25, total: 150 }, alerts: [{ scope: "total", amountEur: 25 }] } : undefined;
   return [{ ...SETTINGS_DEFAULT, team: demo ? SETTINGS_DEFAULT.team : [], notifications: { ...SETTINGS_DEFAULT.notifications, followUps: demo }, billing, updatedAt: Date.now() }];
 };
 export const settingsStore = defineCollection<DealerSettings>("settings", seedSettings, { always: true });
@@ -466,7 +478,8 @@ function seedUndone(): Sale[] {
     { id: "undone-s2", carId: "4710020", carTitle: title("4710020"), priceEur: 10450, soldOn: ago(6), salesperson: "Aoife Brennan", customerId: "cust-314", returnedOn: ago(4), kind: "cancelled", reason: "Finance declined.", createdAt: now - 6 * DAY },
   ];
 }
-export const salesStore = defineCollection<Sale>("sales", () => [...seedSales(), ...PAST_SALES.map((p) => p.sale), ...seedUndone()]);
+export const demoSales = (): Sale[] => [...seedSales(), ...PAST_SALES.map((p) => p.sale), ...seedUndone()]; // also the WhatsApp seed's
+export const salesStore = defineCollection<Sale>("sales", demoSales);
 
 // ---- Reservations ----
 // A deposit on a car: the car is marked reserved on the website until the date agreed. It ends sold (the deposit is part of the price),
@@ -504,6 +517,7 @@ function seedReservations(): Reservation[] {
   ];
 }
 export const reservationsStore = defineCollection<Reservation>("reservations", seedReservations);
+export const demoReservations = seedReservations; // for the WhatsApp conversation's own seed (src/lib/whatsapp/store.ts)
 export const heldFor = (all: Reservation[], carId: string) => all.find((r) => r.carId === carId && r.status === "held");
 
 // ---- Warranty claims ----

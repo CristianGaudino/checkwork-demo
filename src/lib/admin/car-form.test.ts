@@ -24,6 +24,10 @@ describe("slugs and ids", () => {
 });
 
 describe("carFromForm", () => {
+  it("takes 0 as Price on request, and an empty price as a mistake", () => {
+    expect(carFromForm(form({ priceEur: "0" }), "1")).toMatchObject({ car: { priceEur: 0 } });
+    expect(carFromForm(form({ priceEur: "" }), "1")).toMatchObject({ errors: { priceEur: "Enter the price" } });
+  });
   it("makes a car from the minimum, with empty boxes left out and not zero", () => {
     const r = carFromForm(form({ mileageKm: "", variant: "", wasPriceEur: "" }), "42");
     expect(r.ok).toBe(true);

@@ -25,7 +25,8 @@ export function HomeSearch({ makes, bodies, models }: Props) {
   const [tabName, setTab] = useState<"search" | "find">("search");
   const [make, setMake] = useState("");
   const id = useId();
-  const shownModels = make ? models.filter((m) => m.makeSlug === make) : models;
+  // With no make chosen a model name shared by two makes (Fiat 500, Abarth 500) is one choice: the filter is by model slug.
+  const shownModels = make ? models.filter((m) => m.makeSlug === make) : [...new Map(models.map((m) => [m.slug, m])).values()];
   const [price, setPrice] = useState<{ min?: number; max?: number }>({});
   const finder = useModules().has("carFinder");
   // `invisible`, not `hidden`: the search form stays in the flow (so it still sets the height), but is not seen, read or focusable.

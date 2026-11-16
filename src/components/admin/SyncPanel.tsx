@@ -17,9 +17,9 @@ export function syncLine(s: SyncStatus) {
   return `${s.problem} ${s.lastOkAt ? `The site shows the stock from the last good sync, ${fmtAgo(s.lastOkAt)}.` : "Nothing has synced yet."}`;
 }
 
-export function SyncPanel({ status, canForce, title = `${LISTING_SITE} sync` }: { status: SyncStatus; canForce: boolean; title?: string }) {
+export function SyncPanel({ status, canForce }: { status: SyncStatus; canForce: boolean }) {
   return (
-    <Panel title={title}>
+    <Panel title={`${LISTING_SITE} sync`}>
       <p role="status" className={`max-w-measure text-body ${status.problem ? "rounded-control bg-warn-soft px-4 py-3 text-warn" : "text-text-2"}`}>
         {syncLine(status)}
       </p>

@@ -9,13 +9,12 @@ import { hasModule } from "@/lib/modules";
 import { notFound } from "next/navigation";
 import { TIME_ZONE } from "@/lib/site";
 import { FORMAT_LABELS } from "@/lib/admin/networks";
-import { addDays, dublinDay, fmtDate, fmtDateTime, fmtEur, fmtNum, fmtPct, isIsoDay, plural } from "@/lib/admin/format";
+import { addDays, dublinDay, fmtDate, fmtDateTime, fmtEur, fmtNum, fmtPct, isIsoDay, plural, threeLetter } from "@/lib/admin/format";
 import Link from "next/link";
-import { calendarWeek, weekDays, worthPosting } from "@/lib/admin/marketing";
+import { calendarWeek, newestForSale, weekDays, worthPosting } from "@/lib/admin/marketing";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { isUsable } from "@/lib/integrations";
 import { carName } from "@/lib/stock/format";
-import { forSale } from "@/lib/stock/types";
 import { createNewsletterAction, deleteAdAction, deleteMediaAction, deleteNewsletterAction, deletePostAction, publishPostAction, sendNewsletterAction, startAdAction } from "./actions";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 
@@ -37,6 +36,8 @@ const NOTICES: Record<string, { tone: "good" | "warn"; text: string }> = {
   "letter-sent": { tone: "good", text: "Newsletter sent." },
   deleted: { tone: "good", text: "Deleted." },
   invalid: { tone: "warn", text: "That did not go through. Check the details and try again." },
+  "car-gone": { tone: "warn", text: "That car is no longer for sale, so nothing was posted." },
+  "no-subscribers": { tone: "warn", text: "Nobody is subscribed yet, so nothing was sent." },
   "invalid-time": { tone: "warn", text: "Choose a time that has not passed." },
   "social-not-connected": { tone: "warn", text: "Facebook and Instagram are not connected, so nothing was posted. The draft is kept. Connect them under Settings." },
   "ads-not-connected": { tone: "warn", text: "Ads are not connected, so the ad was not started. Connect them under Settings." },
@@ -64,7 +65,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
   const notice = sp.notice ? NOTICES[sp.notice] : undefined;
   await sendDuePosts(); // posts whose time has come go out before the list is read
   const [posts, ads, letters, subs, cars, library] = await Promise.all([postsStore.list(), adsStore.list(), newslettersStore.list(), subscribersStore.list(), adminCars(), mediaStore.list()]);
-  const onSale = cars.filter(forSale).sort((a, b) => Number(b.id) - Number(a.id));
+  const onSale = newestForSale(cars);
   const live = subs.filter((s) => s.status === "subscribed").length;
   const ideas = worthPosting(onSale, posts);
   // Posts and ads in one list, newest first, filtered by what it is and where it stands.
@@ -200,7 +201,6 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                       {m.kind === "video" ? (
                         <video src={m.src} muted playsInline preload="none" aria-label={m.name} className="size-full object-cover" />
                       ) : (
-                        // eslint-disable-next-line @next/next/no-img-element -- the dealer's own upload; images are unoptimized on this Worker
                         <img src={m.src} alt={m.name} className="size-full object-cover" />
                       )}
                     </div>
@@ -234,14 +234,18 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                       <span className="font-medium">{n.subject}</span>
                       <Badge tone={n.status === "sent" ? "good" : "neutral"}>{n.status === "sent" ? "Sent" : "Draft"}</Badge>
                       <span className="text-meta text-text-2">{fmtDate(n.sentAt ?? n.createdAt)}</span>
-                      {n.status === "sent" && n.recipients !== undefined && (
+                      {n.status === "sent" && n.recipients !== undefined && n.recipients > 0 && (
                         <span className="text-meta text-text-2 sm:ml-auto">{fmtNum(n.recipients)} sent · {fmtPct(((n.opens ?? 0) / n.recipients) * 100)} opened · {fmtPct(((n.clicks ?? 0) / n.recipients) * 100)} clicked</span>
                       )}
                     </div>
                     <p className="line-clamp-2 max-w-measure whitespace-pre-line text-body text-text-2">{n.body}</p>
                     {n.status === "draft" && (
                       <div className="flex flex-wrap items-center gap-2">
-                        <ActButton act={sendNewsletterAction.bind(null, n.id)} confirm={{ title: `Send "${n.subject}"?`, text: `It goes to ${plural(live, "subscriber")} and cannot be taken back.`, yes: "Send" }} className={rowButton}>Send to {fmtNum(live)}</ActButton>
+                        {live > 0 ? (
+                          <ActButton act={sendNewsletterAction.bind(null, n.id)} confirm={{ title: `Send "${n.subject}"?`, text: `It goes to ${plural(live, "subscriber")} and cannot be taken back.`, yes: "Send" }} className={rowButton}>Send to {fmtNum(live)}</ActButton>
+                        ) : (
+                          <span className="text-meta text-text-2">No subscribers to send to yet</span>
+                        )}
                         <ActButton act={deleteNewsletterAction.bind(null, n.id)} confirm={{ title: `Delete this newsletter?`, text: "This cannot be undone.", yes: "Delete" }} className={`${rowButton} text-bad`}>Delete</ActButton>
                       </div>
                     )}
@@ -273,7 +277,7 @@ function Calendar({ posts, ads, week }: { posts: Awaited<ReturnType<typeof posts
   const days = weekDays(anchor);
   const items = calendarWeek(posts, ads, days);
   const link = (day: string) => `/dashboard/marketing?tab=calendar&week=${day}`;
-  const label = (day: string) => new Date(`${day}T12:00:00Z`).toLocaleDateString("en-IE", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+  const label = (day: string) => threeLetter(new Date(`${day}T12:00:00Z`).toLocaleDateString("en-IE", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" }));
   return (
     <section aria-label="Week" className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-2">

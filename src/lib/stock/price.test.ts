@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { FINANCE } from "@/lib/finance/finance.config";
+import { quote } from "@/lib/finance/payment";
 import { payableEur, priceInfo } from "./price";
 
 describe("priceInfo", () => {
@@ -8,6 +10,9 @@ describe("priceInfo", () => {
     expect(p.vatLine).toBeUndefined();
     expect(p.was).toBeUndefined();
     expect(p.financeFrom).toMatch(/^Estimate from €\d+ a month$/);
+  });
+  it("says Price on request and nothing else for a price of 0, an earlier price included", () => {
+    expect(priceInfo({ priceEur: 0, wasPriceEur: 15000, vat: "inc" })).toEqual({ headline: "Price on request" });
   });
   it("says Sold and nothing else for a sold car", () => {
     expect(priceInfo({ priceEur: 15000, soldAt: "2026-10-01" })).toEqual({ headline: "Sold" });
@@ -20,6 +25,12 @@ describe("priceInfo", () => {
   });
   it("works finance out on the VAT-inclusive price", () => {
     expect(priceInfo({ priceEur: 20000, vat: "ex" }).financeFrom).toBe(priceInfo({ priceEur: 24600 }).financeFrom);
+  });
+  it("uses the calculator's default deposit, so the line under the price and the calculator agree", () => {
+    const { defaults } = FINANCE;
+    const monthly = (price: number, deposit: number) => `€${Math.round(quote(price, deposit, defaults.termMonths, defaults.aprPct)!.monthlyEur)}`;
+    expect(priceInfo({ priceEur: 18000 }).financeFrom).toContain(monthly(18000, defaults.depositEur));
+    expect(priceInfo({ priceEur: 2500 }).financeFrom).toContain(monthly(2500, 0));
   });
   it("shows a drop in words, and ignores a was price that is not higher", () => {
     const p = priceInfo({ priceEur: 14500, wasPriceEur: 15000 });

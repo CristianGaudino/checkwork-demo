@@ -8,9 +8,10 @@ import { buyerFields, buyerOf } from "@/lib/admin/buyer";
 import { DEPOSIT_METHODS, ORDER_STATUS_LABELS, heldFor, leadsStore, orderOpen, ordersStore, reservationsStore, type Order } from "@/lib/admin/collections";
 import { addDays, addMonths, dublinDay, fmtEur } from "@/lib/admin/format";
 import { newId } from "@/lib/admin/ids";
-import { adminCar, freeCarId, saveCar } from "@/lib/admin/stock-admin";
+import { appendNote } from "@/lib/admin/notes";
+import { addCar, adminCar, freeCarId, saveCar } from "@/lib/admin/stock-admin";
 import { carSlug, slugify } from "@/lib/admin/stock-admin-pure";
-import { fieldErrors, isoMonth } from "@/lib/admin/validation";
+import { blank, euros, fieldErrors, isoMonth, type FormState } from "@/lib/admin/validation";
 import { regPeriods } from "@/lib/leads/reg-periods";
 import { can } from "@/lib/permissions";
 import { stockSource } from "@/lib/stock-source";
@@ -28,9 +29,6 @@ const paths = (id: string) => {
   revalidatePath(`/dashboard/orders/${id}`);
 };
 
-export type OrderFormState = { errors?: Record<string, string> } | undefined;
-const blank = (v: unknown) => (v === "" ? undefined : v);
-const euros = (max: number) => z.coerce.number({ message: "Enter the amount in whole euros" }).int("Enter the amount in whole euros").min(1, "Enter the amount in whole euros").max(max, "That amount looks too high");
 const placing = z.object({
   make: z.string().trim().min(1, "Enter the make").max(40),
   model: z.string().trim().min(1, "Enter the model").max(60),
@@ -45,7 +43,7 @@ const placing = z.object({
   ...buyerFields,
 });
 
-export async function placeOrderAction(_prev: OrderFormState, data: FormData): Promise<OrderFormState> {
+export async function placeOrderAction(_prev: FormState, data: FormData): Promise<FormState> {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   await requireModule("newCars"); // and only while the dealer has it
   if (!(await theirs())) return { errors: { make: `Orders are for stock kept here, not on ${LISTING_SITE}` } };
@@ -79,7 +77,10 @@ export async function placeOrderAction(_prev: OrderFormState, data: FormData): P
     createdAt: Date.now(),
   };
   await ordersStore.put(o);
-  if (lead && lead.status !== "won") await leadsStore.put({ ...lead, status: "won", followUpOn: undefined, notes: [...lead.notes, { at: Date.now(), text: "Placed a factory order." }] });
+  if (lead && lead.status !== "won") {
+    await leadsStore.update(lead.id, (l) => ({ ...l, status: "won", followUpOn: undefined, notes: [...l.notes, { at: Date.now(), text: "Placed a factory order." }] }));
+    await logActivity("leads", "Marked the lead won, with a factory order", { kind: "lead", id: lead.id });
+  }
   await logActivity("stock", `Placed a factory order: ${title(o)}${o.depositEur ? `, ${fmtEur(o.depositEur)} deposit` : ""}`);
   redirect(`/dashboard/orders/${id}`);
 }
@@ -96,16 +97,30 @@ export async function setOrderStatusAction(id: string, data: FormData) {
   if (!to.success || !o || !orderOpen(o.status) || o.status === "arrived" || o.status === to.data || !(await theirs())) return;
   let carId = o.carId;
   if (to.data === "arrived" && !carId) {
-    carId = await freeCarId();
-    const base = { id: carId, make: o.make, model: o.model, year: 2000 + Number(o.regPeriod.slice(0, 2)) };
-    const car: Car = { ...base, slug: carSlug(base), makeSlug: slugify(o.make), modelSlug: slugify(o.model), ...(o.spec && { variant: o.spec }), ...(o.colour && { colour: o.colour }), priceEur: o.priceEur, condition: "new", photos: [], listing: "hidden", ...(o.depositEur && { reserved: true }) };
-    await saveCar(car);
+    // Claimed first: a second tap (or a colleague) at the same moment finds it arrived and adds no second car. Set on every run of the
+    // update (it runs again on a clash), so only the run that wrote counts.
+    let claimed = false;
+    await ordersStore.update(id, (cur) => ((claimed = orderOpen(cur.status) && cur.status !== "arrived" && !cur.carId) ? { ...cur, status: "arrived" as const } : cur));
+    if (!claimed) return paths(id);
+    try {
+      carId = await freeCarId();
+      const base = { id: carId, make: o.make, model: o.model, year: 2000 + Number(o.regPeriod.slice(0, 2)) };
+      const car: Car = { ...base, slug: carSlug(base), makeSlug: slugify(o.make), modelSlug: slugify(o.model), ...(o.spec && { variant: o.spec }), ...(o.colour && { colour: o.colour }), priceEur: o.priceEur, condition: "new", photos: [], listing: "hidden", ...(o.depositEur && { reserved: true }) };
+      carId = (await addCar(car)).id; // the id still free as it is written
+      const added = carId;
+      await ordersStore.update(id, (cur) => ({ ...cur, carId: added })); // the order points at its car at once
+    } catch (e) {
+      // No car was added: the order goes back to where it was, so Arrived can be tapped again.
+      await ordersStore.update(id, (cur) => (cur.carId ? cur : { ...cur, status: o.status }));
+      throw e;
+    }
     if (o.depositEur) {
       const today = dublinDay();
       await reservationsStore.put({ id: newId("res"), carId, carTitle: title(o), customerId: o.customerId, depositEur: o.depositEur, method: o.depositMethod ?? "Card", paidOn: o.orderedOn, until: addDays(today, 30), salesperson: o.salesperson, status: "held", createdAt: Date.now() });
     }
   }
-  await ordersStore.put({ ...o, status: to.data, ...(carId && { carId }) });
+  // Never over a cancel or a hand-over landed meanwhile.
+  await ordersStore.update(id, (cur) => (orderOpen(cur.status) ? { ...cur, status: to.data, ...(carId && { carId }) } : cur));
   await logActivity("stock", `Moved the factory order ${title(o)} from ${ORDER_STATUS_LABELS[o.status]} to ${ORDER_STATUS_LABELS[to.data]}`, carId ? { kind: "car", id: carId, label: title(o) } : undefined);
   paths(id);
 }
@@ -113,17 +128,16 @@ export async function setOrderStatusAction(id: string, data: FormData) {
 export async function addOrderNoteAction(id: string, data: FormData) {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   await requireModule("newCars"); // and only while the dealer has it
-  const text = String(data.get("note") ?? "").trim().slice(0, 500);
-  const o = await ordersStore.get(id);
-  if (!text || !o) return;
-  await ordersStore.put({ ...o, notes: [...o.notes, { at: Date.now(), text }] });
+  const o = await appendNote(ordersStore, id, data);
+  if (!o) return;
+  await logActivity("stock", `Added a note to the factory order ${title(o)}`, o.carId ? { kind: "car", id: o.carId, label: title(o) } : undefined); // never the note itself
   paths(id);
 }
 
 // Cancelling: the deposit refunded (all or part) or kept, under the dealer's terms. A car that already arrived stays in stock, hidden and
 // no longer held for them: the dealer decides whether to sell it.
 const cancelling = z.discriminatedUnion("outcome", [z.object({ outcome: z.literal("refunded"), refundEur: euros(1_000_000) }), z.object({ outcome: z.literal("kept") }), z.object({ outcome: z.literal("none") })], { message: "Choose what happened to the deposit" });
-export async function cancelOrderAction(id: string, _prev: OrderFormState, data: FormData): Promise<OrderFormState> {
+export async function cancelOrderAction(id: string, _prev: FormState, data: FormData): Promise<FormState> {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   await requireModule("newCars"); // and only while the dealer has it
   if (!(await can("settings"))) return { errors: { outcome: "Only owners and managers can cancel an order" } };

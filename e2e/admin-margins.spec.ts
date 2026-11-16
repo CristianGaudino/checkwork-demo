@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
+import { as } from "./open";
 import { sideLink } from "./admin-menu";
 
 // Margins and cost prices are behind a permission that comes with the role. In this run the demo bar is on, so its role (a cookie) is
 // what grants it: the owner by default, sales has none.
-const as = (context: import("@playwright/test").BrowserContext, role: string) => context.addCookies([{ name: "checkwork-demo-role", value: role, url: "http://localhost:3000" }]);
 
 test("without the permission there is no Margins screen, no margin column or stat, and no cost box", async ({ page, context }) => {
   await as(context, "Sales");

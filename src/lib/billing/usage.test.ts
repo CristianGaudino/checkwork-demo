@@ -9,6 +9,7 @@ vi.mock("@/lib/admin/collections", () => ({
 const notices = vi.hoisted(() => [] as { for?: string }[]);
 vi.mock("@/lib/admin/notifications", () => ({ notify: async (n: { for?: string }) => void notices.push(n) }));
 vi.mock("@/lib/modules", () => ({ hasModule: async () => true }));
+vi.mock("./rules", async (real) => ({ ...(await real<typeof import("./rules")>()), SHOW_PRICING: true })); // the notices as they work with pricing shown
 const { recordUsage, usageStore, sentAlertsStore } = await import("./usage");
 
 beforeEach(async () => {
@@ -34,5 +35,13 @@ describe("who hears that a limit is reached", () => {
     team.list = [{ id: "2", name: "Conor Doyle", email: "conor@example.com", role: "Sales" }];
     await recordUsage("lookup", "website", 4);
     expect(notices).toEqual([]);
+  });
+});
+
+describe("our ceilings on a record saved before they existed", () => {
+  it("still apply: a stored empty ceilings never drops the AI ceiling", async () => {
+    const { billingSettings } = await import("./usage");
+    const { AI_CEILING_EUR } = await import("./rules");
+    expect((await billingSettings()).ceilings.ai).toBe(AI_CEILING_EUR);
   });
 });

@@ -1,10 +1,10 @@
 import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
+import { as } from "./open";
 import { sideLink } from "./admin-menu";
 import { bookDrive, openDay } from "./days";
 
 // Data requests and the list exports: personal data, owners and managers only.
-const as = (context: import("@playwright/test").BrowserContext, role: string) => context.addCookies([{ name: "checkwork-demo-role", value: role, url: "http://localhost:3000" }]);
 
 test("sales and finance have no data requests and no lead or customer exports; the stock export has no costs for them", async ({ page, context }) => {
   for (const role of ["Sales", "Finance"]) {

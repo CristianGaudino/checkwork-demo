@@ -7,7 +7,7 @@ import { memoryCars, refreshMemoryStock } from "@/lib/stock";
 import type { Car } from "@/lib/stock/types";
 import { devFixtureCars } from "@/lib/dev-data";
 import { reservationsStore, salesStore } from "./collections";
-import { nextCarId } from "./stock-admin-pure";
+import { carSlug, nextCarId } from "./stock-admin-pure";
 import { dropCarPhotos } from "./car-photos";
 
 // The dealer's view of the stock: every car, sold ones too, and the writes. On the Worker this is the `cars` table the public site reads
@@ -50,9 +50,24 @@ export async function saveCar(car: Car): Promise<void> {
   await afterWrite();
 }
 
+// A new car, under the next free id. Two cars added at once would get the same id: the insert only lands if the id (and slug) is still free,
+// else the next id is tried. Returns the car as saved.
+export async function addCar(draft: Car): Promise<Car> {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const id = await freeCarId();
+    const car = { ...draft, id, slug: carSlug({ ...draft, id }) };
+    if (!hasDb()) memoryCars.unshift(car);
+    else if (!(await getDb().insert(cars).values({ id, slug: car.slug, data: car }).onConflictDoNothing().returning({ id: cars.id })).length) continue;
+    await afterWrite();
+    return car;
+  }
+  throw new Error("No free car id");
+}
+
 // Its photos added in the dashboard go with it, after the row: a photo left behind is only space, a car without its photos is broken.
-export async function removeCar(id: string): Promise<void> {
-  const car = await adminCar(id);
+// `known`: the car, when the caller already has it, so a bulk delete does not read the whole table once per car.
+export async function removeCar(id: string, known?: Car): Promise<void> {
+  const car = known ?? (await adminCar(id));
   if (hasDb()) await getDb().delete(cars).where(eq(cars.id, id));
   else {
     const i = memoryCars.findIndex((c) => c.id === id);

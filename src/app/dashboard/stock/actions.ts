@@ -10,13 +10,13 @@ import { PREP_KINDS } from "@/lib/admin/prep";
 import { DEPOSIT_METHODS, costsStore, heldFor, leadsStore, ordersStore, prepStore, reservationsStore, salesStore, undoSale } from "@/lib/admin/collections";
 import { addMonths, dublinDay, fmtEur } from "@/lib/admin/format";
 import { newId } from "@/lib/admin/ids";
-import { fieldErrors, isoDay } from "@/lib/admin/validation";
+import { blank, euros, fieldErrors, isoDay, type FormState } from "@/lib/admin/validation";
 import { buyerFields, buyerOf } from "@/lib/admin/buyer";
 import { COVER_CHOICES, COVER_MONTHS } from "@/lib/admin/deposits";
 import { carTitleOf } from "@/lib/admin/seed-data";
 import { BAD_COST, parseCost } from "@/lib/admin/margins";
 import { can } from "@/lib/permissions";
-import { adminCar, adminCars, freeCarId, removeCar, saveCar } from "@/lib/admin/stock-admin";
+import { addCar, adminCar, adminCars, freeCarId, removeCar, saveCar } from "@/lib/admin/stock-admin";
 import { droppedPrice, listedOn } from "@/lib/admin/stock-admin-pure";
 import { CAR_PHOTOS_MAX, CAR_PHOTO_MAX_BYTES, dropCarPhotos, storeCarPhoto } from "@/lib/admin/car-photos";
 import { sniffImage } from "@/lib/leads/photos";
@@ -26,6 +26,7 @@ import { forSale, isSold, type Car } from "@/lib/stock/types";
 import { LISTING_SITE } from "@/lib/stock-source-rules";
 import { requireStaff } from "@/lib/staff";
 import { requireModule } from "@/lib/modules";
+import { alertNewIn, alertStaff } from "@/lib/whatsapp/alerts";
 
 const carRef = (c: Car) => ({ kind: "car" as const, id: c.id, label: carTitleOf(c) });
 
@@ -33,10 +34,9 @@ const carRef = (c: Car) => ({ kind: "car" as const, id: c.id, label: carTitleOf(
 // Stock synced from DoneDeal is edited on DoneDeal: every write here is refused, whatever the page showed.
 const readOnly = async () => (await stockSource()) === "donedeal";
 
-export type CarFormState = { errors?: Record<string, string> } | undefined;
 
 // `id` is null for a new car. A bad form comes back with a message per box; a good one saves and goes to the list.
-export async function saveCarAction(id: string | null, _prev: CarFormState, data: FormData): Promise<CarFormState> {
+export async function saveCarAction(id: string | null, _prev: FormState, data: FormData): Promise<FormState> {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   if (await readOnly()) return { errors: { make: `This stock comes from ${LISTING_SITE}. Change it there.` } };
   const existing = id ? await adminCar(id) : undefined;
@@ -47,14 +47,15 @@ export async function saveCarAction(id: string | null, _prev: CarFormState, data
   // save, so the car is never saved with a cost the dealer did not mean.
   const cost = (await can("margins")) ? parseCost(String(data.get("costEur") ?? "")) : undefined;
   if (cost === "invalid") return { errors: { costEur: BAD_COST } };
-  const wasCost = cost === undefined ? undefined : (await costsStore.get(result.car.id))?.costEur;
-  await saveCar(result.car);
-  if (cost === null) await costsStore.remove(result.car.id);
-  else if (cost !== undefined) await costsStore.put({ id: result.car.id, costEur: cost });
-  await logActivity("stock", existing ? carEditSummary(existing, result.car) : "Added the car", carRef(result.car));
+  const wasCost = cost === undefined || !id ? undefined : (await costsStore.get(id))?.costEur;
+  const car = existing ? (await saveCar(result.car), result.car) : await addCar(result.car); // a new car takes the id still free as it is written
+  if (cost === null) await costsStore.remove(car.id);
+  else if (cost !== undefined) await costsStore.put({ id: car.id, costEur: cost });
+  await logActivity("stock", existing ? carEditSummary(existing, car) : "Added the car", carRef(car));
+  if (!car.listing && (!existing || (existing.listing && !existing.listedAt))) await alertNewIn(car); // on the website for the first time
   const costChange = cost === undefined ? null : costText(wasCost, cost);
-  if (costChange) await logActivity("stock", costChange, carRef(result.car));
-  redirect(`/dashboard/stock?saved=${result.car.id}`);
+  if (costChange) await logActivity("stock", costChange, carRef(car));
+  redirect(`/dashboard/stock?saved=${car.id}`);
 }
 
 // The cost is the dealer's own figure, never DoneDeal's, so it can be set on synced stock too. Margins permission only; a bad figure saves nothing.
@@ -79,7 +80,7 @@ export async function toggleSoldAction(id: string) {
   const car = await adminCar(id);
   if (!car || (car.soldAt && (await salesStore.get(id)))) return;
   const { soldAt: was, ...rest } = car;
-  await saveCar(was ? rest : { ...car, soldAt: new Date().toISOString().slice(0, 10) });
+  await saveCar(was ? rest : { ...car, soldAt: dublinDay() });
   await logActivity("stock", was ? "Put back on sale" : "Marked sold", carRef(car));
   redirect("/dashboard/stock");
 }
@@ -95,6 +96,7 @@ export async function setListingAction(id: string, to: string) {
   if (!car || car.listing === listing) return;
   await saveCar({ ...car, listing, listedAt: listedOn(car, !listing, dublinDay()) });
   await logActivity("stock", LISTINGS[to as keyof typeof LISTINGS], carRef(car));
+  if (!listing && car.listing && !car.listedAt) await alertNewIn(car); // on the website for the first time (a draft, or an arrived order)
   revalidatePath("/dashboard/stock");
 }
 
@@ -114,9 +116,11 @@ export async function deleteCarAction(id: string) {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   if ((await readOnly()) || !(await can("settings")) || heldFor(await reservationsStore.list(), id)) return;
   const car = await adminCar(id);
-  await removeCar(id);
-  await costsStore.remove(id); // the cost and the prep go with the car
-  await prepStore.remove(id);
+  await removeCar(id, car);
+  if (!(await salesStore.get(id))) {
+    await costsStore.remove(id); // the cost and the prep go with the car, unless it was sold: they stay with the sale for the reports
+    await prepStore.remove(id);
+  }
   if (car) await logActivity("stock", "Deleted the car", carRef(car));
   redirect("/dashboard/stock?deleted=1");
 }
@@ -138,7 +142,8 @@ export async function bulkStockAction(data: FormData): Promise<BulkResult> {
   const { ids, op, amount, unit } = parsed.data;
   if (op === "delete" && !(await can("settings"))) return { error: "Only owners and managers can delete cars." };
   if (op === "price" && !droppedPrice({ priceEur: 1_000_000 }, amount ?? 0, unit ?? "eur")) return { error: "Enter the drop in whole euros, or a percentage up to 50." };
-  const [cars, deposits] = await Promise.all([adminCars(), reservationsStore.list()]);
+  const [cars, deposits, sales] = await Promise.all([adminCars(), reservationsStore.list(), salesStore.list()]);
+  const soldIds = new Set(sales.map((s) => s.id));
   const byId = new Map(cars.map((c) => [c.id, c]));
   let changed = 0;
   for (const id of ids) {
@@ -156,9 +161,11 @@ export async function bulkStockAction(data: FormData): Promise<BulkResult> {
       await logActivity("stock", "Marked sold", carRef(car));
     } else {
       if (heldFor(deposits, id)) continue;
-      await removeCar(id);
-      await costsStore.remove(id);
-      await prepStore.remove(id);
+      await removeCar(id, car);
+      if (!soldIds.has(id)) {
+        await costsStore.remove(id);
+        await prepStore.remove(id);
+      }
       await logActivity("stock", "Deleted the car", carRef(car));
     }
     changed++;
@@ -211,10 +218,7 @@ export async function syncNowAction(force: boolean) {
   redirect(`/dashboard/stock?synced=1`);
 }
 
-export type SaleFormState = { errors?: Record<string, string> } | undefined;
-const euros = (max: number, min = 1) => z.coerce.number({ message: "Enter the amount in whole euros" }).int("Enter the amount in whole euros").min(min, "Enter the amount in whole euros").max(max, "That amount looks too high");
 // Cover is the included months or more (extended cover bought); a trade-in is a reg with its allowance, both or neither.
-const blank = (v: unknown) => (v === "" ? undefined : v);
 const sale = z.object({
   priceEur: euros(10_000_000),
   soldOn: isoDay("Choose the day it sold"),
@@ -228,10 +232,12 @@ const sale = z.object({
 // What the car sold for, when, by whom and to whom. The buyer is a customer already on file, or a new one made here. In our version this
 // is Mark sold, so the car is marked sold on the sale's day. In the DoneDeal version the car is sold there; the sale is only recorded, and a
 // car hidden because its ad came down is marked sold here (the dealer's answer), so its page shows it as sold for a while.
-export async function recordSaleAction(carId: string, _prev: SaleFormState, data: FormData): Promise<SaleFormState> {
+export async function recordSaleAction(carId: string, _prev: FormState, data: FormData): Promise<FormState> {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const car = await adminCar(carId);
   if (!car) return { errors: { priceEur: "This car no longer exists" } };
+  // Changing a sale already recorded rewrites the figures: owners and managers only, as undoing one is.
+  if ((await salesStore.get(car.id)) && !(await can("settings"))) return { errors: { priceEur: "Only owners and managers can change a sale" } };
   const r = sale.safeParse(Object.fromEntries(data));
   if (!r.success) return { errors: fieldErrors(r.error) };
   const d = r.data;
@@ -248,7 +254,10 @@ export async function recordSaleAction(carId: string, _prev: SaleFormState, data
   // The lead it came from (one on this car, still open or already won) is marked won with it.
   const lead = d.leadId ? await leadsStore.get(d.leadId) : undefined;
   const leadId = lead?.carSlug === car.slug && lead.status !== "lost" ? lead.id : undefined;
-  if (lead && leadId && lead.status !== "won") await leadsStore.put({ ...lead, status: "won", followUpOn: undefined, notes: [...lead.notes, { at: Date.now(), text: "Bought the car." }] });
+  if (lead && leadId && lead.status !== "won") {
+    await leadsStore.update(lead.id, (l) => ({ ...l, status: "won", followUpOn: undefined, notes: [...l.notes, { at: Date.now(), text: "Bought the car." }] }));
+    await logActivity("leads", "Marked the lead won, with the sale", { kind: "lead", id: lead.id });
+  }
   await salesStore.put({
     id: car.id,
     carTitle: carTitleOf(car),
@@ -271,7 +280,6 @@ export async function recordSaleAction(carId: string, _prev: SaleFormState, data
 }
 
 // A deposit: the car is reserved, on the website as Reserved, until the day agreed. Anyone on the team. Our version only.
-export type DepositFormState = { errors?: Record<string, string> } | undefined;
 const deposit = z.object({
   depositEur: euros(1_000_000),
   method: z.enum(DEPOSIT_METHODS, { message: "Choose how it was paid" }),
@@ -281,7 +289,7 @@ const deposit = z.object({
 });
 // shortcut: two people taking a deposit on one car in the same second could both pass the for-sale check; only the first can then be
 // ended. Fine for one dealer's team; check again inside a transaction if it ever shows up.
-export async function reserveAction(carId: string, _prev: DepositFormState, data: FormData): Promise<DepositFormState> {
+export async function reserveAction(carId: string, _prev: FormState, data: FormData): Promise<FormState> {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   await requireModule("sales"); // deposits are the sales module (#173)
   const car = (await readOnly()) ? undefined : await adminCar(carId);
@@ -290,21 +298,23 @@ export async function reserveAction(carId: string, _prev: DepositFormState, data
   if (!r.success) return { errors: fieldErrors(r.error) };
   const d = r.data;
   const today = dublinDay();
-  if (d.depositEur > car.priceEur) return { errors: { depositEur: "A deposit cannot be more than the price" } };
+  if (car.priceEur && d.depositEur > car.priceEur) return { errors: { depositEur: "A deposit cannot be more than the price" } };
   if (d.paidOn > today) return { errors: { paidOn: "Choose a day that has passed or today" } };
   if (d.until < today || d.until > addMonths(today, 3)) return { errors: { until: "Choose a day in the next three months" } };
   const who = await buyerOf(d, "Deposit");
   if ("errors" in who) return who;
-  await reservationsStore.put({ id: newId("res"), carId: car.id, carTitle: carTitleOf(car), ...who, depositEur: d.depositEur, method: d.method, paidOn: d.paidOn, until: d.until, status: "held", createdAt: Date.now() });
+  const resId = newId("res");
+  await reservationsStore.put({ id: resId, carId: car.id, carTitle: carTitleOf(car), ...who, depositEur: d.depositEur, method: d.method, paidOn: d.paidOn, until: d.until, status: "held", createdAt: Date.now() });
   await saveCar({ ...car, reserved: true });
   await logActivity("stock", `Took a deposit of ${fmtEur(d.depositEur)}, reserved until ${d.until}`, carRef(car));
+  await alertStaff("deposit", { car: carTitleOf(car), eur: d.depositEur }, { ref: resId }); // WhatsApp, to whoever has it on
   redirect(`/dashboard/stock?view=reserved&reserved=${car.id}`);
 }
 
 // Ending a reservation that did not become a sale: the deposit refunded (all or part) or kept, under the dealer's terms. Money going
 // back, so owners and managers only (the settings permission). The car goes back on sale.
 const ending = z.discriminatedUnion("outcome", [z.object({ outcome: z.literal("refunded"), refundEur: euros(1_000_000) }), z.object({ outcome: z.literal("kept") })], { message: "Choose what happened to the deposit" });
-export async function endReservationAction(carId: string, _prev: DepositFormState, data: FormData): Promise<DepositFormState> {
+export async function endReservationAction(carId: string, _prev: FormState, data: FormData): Promise<FormState> {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   await requireModule("sales"); // deposits are the sales module (#173)
   if (!(await can("settings"))) return { errors: { outcome: "Only owners and managers can end a reservation" } };
@@ -327,10 +337,10 @@ export async function endReservationAction(carId: string, _prev: DepositFormStat
 const undoing = z.object({
   kind: z.enum(["cancelled", "returned"], { message: "Choose what happened" }),
   returnedOn: isoDay("Choose the day"),
-  refundEur: z.preprocess((v) => (v === "" ? undefined : v), euros(10_000_000, 0).optional()),
+  refundEur: z.preprocess(blank, euros(10_000_000, 0).optional()),
   reason: z.string().trim().max(300).optional(),
 });
-export async function undoSaleAction(carId: string, _prev: SaleFormState, data: FormData): Promise<SaleFormState> {
+export async function undoSaleAction(carId: string, _prev: FormState, data: FormData): Promise<FormState> {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   if (!(await can("settings"))) return { errors: { kind: "Only owners and managers can undo a sale" } };
   const was = await salesStore.get(carId);
@@ -353,7 +363,7 @@ export async function undoSaleAction(carId: string, _prev: SaleFormState, data: 
 // Prep costs: one line at a time, from the fixed list of kinds, margins permission only. Both versions: prep is the dealer's own spend.
 const prepLine = z.object({
   kind: z.enum(PREP_KINDS, { message: "Choose what it was for" }),
-  eur: z.coerce.number({ message: "Enter the amount in whole euros" }).int("Enter the amount in whole euros").min(1, "Enter the amount in whole euros").max(100_000, "That amount looks too high"),
+  eur: euros(100_000),
   note: z.string().trim().max(80).optional(),
 });
 export type PrepFormState = { errors?: Record<string, string>; added?: number } | undefined;

@@ -1,11 +1,11 @@
-import { forSale, isSold, type Car } from "@/lib/stock/types";
+import { forSale, isReduced, isSold, type Car } from "@/lib/stock/types";
 import { OLD_STOCK_DAYS, isOldStock } from "./overview";
 
 // The stock list's views (each a summary tile and a filter) and its search, shared by the page and its CSV export.
 export const FEW_PHOTOS = 4;
 export const STOCK_VIEWS = {
   "for-sale": { label: "For sale", test: forSale },
-  reduced: { label: "Reduced", test: (c: Car) => forSale(c) && c.wasPriceEur !== undefined && c.wasPriceEur > c.priceEur },
+  reduced: { label: "Reduced", test: (c: Car) => forSale(c) && isReduced(c) },
   photos: { label: "Need photos", test: (c: Car) => !isSold(c) && c.photos.length < FEW_PHOTOS },
   old: { label: `${OLD_STOCK_DAYS} days or more`, test: (c: Car) => isOldStock(c, Date.now()) },
   reserved: { label: "Reserved", test: (c: Car) => Boolean(c.reserved) && !isSold(c) },

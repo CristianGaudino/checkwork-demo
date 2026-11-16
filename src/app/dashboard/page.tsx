@@ -8,12 +8,12 @@ import { drivesStore, getSettings, leadsStore, ordersStore, reservationsStore, r
 import { marginOf } from "@/lib/admin/margins";
 import { can } from "@/lib/permissions";
 import { fmtAgo, fmtDateTime, fmtEur, fmtNum, plural } from "@/lib/admin/format";
-import { overview } from "@/lib/admin/overview";
+import { OLD_STOCK_DAYS, overview } from "@/lib/admin/overview";
 import { SyncPanel } from "@/components/admin/SyncPanel";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { syncStatus } from "@/lib/donedeal/sync";
 import { stockSource } from "@/lib/stock-source";
-import { forSale, isSold } from "@/lib/stock/types";
+import { forSale, isSold, onRequest } from "@/lib/stock/types";
 import { isSalesLead } from "@/lib/admin/leads";
 import { enabledModules } from "@/lib/modules";
 import type { ModuleId } from "@/lib/modules-rules";
@@ -34,7 +34,7 @@ export default async function Page() {
   const mods = await enabledModules();
   const MODULE_OF: Record<string, ModuleId> = { drives: "testDrives", "sold-drives": "testDrives", reviews: "reviews", deposits: "sales", orders: "newCars", costs: "margins" };
   const attention = o.attention.filter((a) => !MODULE_OF[a.key] || mods.has(MODULE_OF[a.key]));
-  const margin = costs ? cars.filter((c) => costs.has(c.id)).reduce((s, c) => s + marginOf(c.priceEur, costs.get(c.id)!).eur, 0) : 0;
+  const margin = costs ? cars.filter((c) => costs.has(c.id) && !onRequest(c)).reduce((s, c) => s + marginOf(c.priceEur, costs.get(c.id)!).eur, 0) : 0;
 
   return (
     <>
@@ -67,7 +67,7 @@ export default async function Page() {
 
       <StatGrid>
         <StatCard href="/dashboard/leads?status=new" label="Leads to answer" value={fmtNum(o.newLeads)} hint={o.lateLeads ? `${o.lateLeads} past your reply target` : "All within your reply target"} tone={o.lateLeads ? "bad" : "good"} />
-        <StatCard href="/dashboard/stock" label="Cars for sale" value={fmtNum(cars.filter(forSale).length)} hint={o.oldStock ? `${o.oldStock} for sale 60 days or more` : undefined} tone={o.oldStock ? "warn" : undefined} />
+        <StatCard href="/dashboard/stock" label="Cars for sale" value={fmtNum(cars.filter(forSale).length)} hint={o.oldStock ? `${o.oldStock} for sale ${OLD_STOCK_DAYS} days or more` : undefined} tone={o.oldStock ? "warn" : undefined} />
         {costs && <StatCard href="/dashboard/margins" label="Stock margin" value={fmtEur(margin)} />}
         {mods.has("reviews") && <StatCard href="/dashboard/reviews" label="Review rating" value={o.reviewCount ? o.averageRating.toFixed(1) : "None"} hint={plural(o.reviewCount, "review")} />}
       </StatGrid>
@@ -89,8 +89,8 @@ export default async function Page() {
                     <span className="flex min-w-0 flex-col">
                       <span className="truncate font-medium">{l.name}</span>
                       <span className="flex min-w-0 gap-1 text-meta text-text-2">
-                        <span className="truncate">{l.carTitle ?? l.message.split("\n")[0]}</span>
-                        <span className="shrink-0">· {fmtAgo(l.createdAt)}</span>
+                        <span className="truncate">{l.carTitle ?? l.message.trim().split("\n")[0]}</span>
+                        <span className="shrink-0">{(l.carTitle ?? l.message.trim()) && "· "}{fmtAgo(l.createdAt)}</span>
                       </span>
                     </span>
                     <LeadStatusBadge status={l.status} />

@@ -27,6 +27,12 @@ describe("buildLeadEmail", () => {
     expect(buildLeadEmail(row, { demo: false }).subject).toBe("Enquiry: 2011 Mercedes-Benz G Class");
   });
 
+  it("says Price on request for a car priced 0, never €0", () => {
+    const { text } = buildLeadEmail({ ...row, carPriceEur: 0 }, { demo: false });
+    expect(text).toContain("Price: Price on request");
+    expect(text).not.toContain("€0");
+  });
+
   it("writes words and formatted figures, not stored keys", () => {
     const f = { ...row, type: "finance" as const, details: { employment: "self_employed", deposit: 3000, mileage: 120500, budgetMax: 15000 } };
     const { text } = buildLeadEmail(f, { demo: false });

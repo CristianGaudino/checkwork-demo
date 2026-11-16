@@ -30,6 +30,7 @@ Everything above, then:
 | Consent wording | `CONSENT` in `src/lib/leads/constants.ts`. New wording is a new version: add it to the frozen list in `src/lib/leads/consent.test.ts`. |
 | Home page words and counts | `src/lib/home.config.ts` |
 | New car franchises | `src/lib/partners.ts` |
+| Business rules: days before a car is old stock (120), the price drop the slow-stock alert suggests, how long a sold car stays on the site | `src/lib/dealer.config.ts`. Agreed with the dealer at launch; the dashboard cannot change them, so a later change is ours to make (and charge for). |
 | Font | `src/app/layout.tsx` and `src/app/fonts/` (Sora for headings, Inter for text, both kept in the repo) |
 
 Set `DEALER_FACTS_CONFIRMED = true` in `site.ts` once the dealer has confirmed the services, warranty and About wording: a production
@@ -71,6 +72,8 @@ the two a real site needs before it takes a lead.
 Newsletters and stock alerts also need `UNSUBSCRIBE_SECRET` (a random secret, made like `PHOTO_LINK_SECRET` in
 `docs/lead-retention.md`): each email carries a signed link to `/unsubscribe` and the `List-Unsubscribe` headers (`src/lib/unsubscribe.ts`).
 Each subscription has one link that never changes. Changing the secret stops every link already sent, so set it once.
+AI writing uses Claude once `ANTHROPIC_API_KEY` is set as a Worker secret (`npx wrangler secret put ANTHROPIC_API_KEY`). Without it the
+demo uses the built-in writer (`src/lib/ai/mock.ts`), and a real site shows AI writing as not connected.
 
 ### Infrastructure names
 - `wrangler.jsonc`: `name`, the self-reference service, `routes`, the R2 bucket, the D1 database name and id

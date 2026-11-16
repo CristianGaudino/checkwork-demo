@@ -8,13 +8,12 @@ import { dropMedia, storeMedia } from "@/lib/admin/media";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { NETWORKS, adsStore, getSettings, mediaStore, newslettersStore, postsStore, subscribersStore, type Ad, type MediaItem, type SocialPost } from "@/lib/admin/collections";
-import { simulatedAd, simulatedLetter, simulatedPost, writeNewsletter, writePost, type SendResult } from "@/lib/admin/marketing";
+import { newestForSale, simulatedAd, simulatedLetter, simulatedPost, writeNewsletter, writePost, type SendResult } from "@/lib/admin/marketing";
 import { publishPost, sendNewsletter, startAd } from "@/lib/admin/publishers";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { carName } from "@/lib/stock/format";
-import { forSale } from "@/lib/stock/types";
+import { forSale, isReduced } from "@/lib/stock/types";
 import { priceInfo } from "@/lib/stock/price";
-import { formatPrice } from "@/lib/stock/format";
 import { newId } from "@/lib/admin/ids";
 import { logActivity } from "@/lib/admin/activity";
 import { fmtEur } from "@/lib/admin/format";
@@ -54,6 +53,7 @@ export async function composeAction(data: FormData) {
   const r = compose.safeParse(Object.fromEntries(data));
   const car = r.success ? (await adminCars()).find((c) => c.slug === r.data.carSlug) : undefined;
   if (!r.success || !car) return go("posts", "invalid");
+  if (!forSale(car)) return go("posts", "car-gone"); // sold or hidden while the composer was open
   const d = r.data;
   const later = d.intent === "publish" && d.timing === "later";
   // The time is typed in Irish time (datetime-local has no zone), like the test drive form.
@@ -102,7 +102,7 @@ export async function publishPostAction(id: string) {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   await requireModule("social");
   const post = await postsStore.get(id);
-  if (!post) return go("posts", "invalid");
+  if (!post || post.status === "posted") return go("posts", "invalid"); // a draft or a scheduled post only: never the same post twice
   const r = await publishPost(post);
   if (r.ok) {
     await postsStore.put({ ...post, status: "posted", postedAt: Date.now(), ...(r.simulated && { simulated: true, ...simulatedPost(post.id) }) });
@@ -132,7 +132,7 @@ export async function startAdAction(id: string) {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   await requireModule("social");
   const a = await adsStore.get(id);
-  if (!a) return go("posts", "invalid");
+  if (!a || a.status !== "draft") return go("posts", "invalid"); // a draft only: a running ad is never started again
   const r = await startAd(a);
   if (r.ok) {
     await adsStore.put({ ...a, status: "running", startedAt: Date.now(), ...(r.simulated && simulatedAd(a.id)) });
@@ -159,7 +159,7 @@ export async function composerCarAction(slug: string): Promise<ComposerCar | nul
   const { marketing } = await getSettings();
   const p = priceInfo(car);
   const text = (format: (typeof POST_FORMATS)[number]) => Object.fromEntries(NETWORKS.map((n) => [n, writePost(car, n, marketing, format)])) as ComposerCar["text"];
-  return { slug: car.slug, title: carName(car), photos: car.photos.slice(0, 10), text: text("post"), byFormat: Object.fromEntries(POST_FORMATS.map((f) => [f, text(f)])) as ComposerCar["byFormat"], price: p.headline, was: car.wasPriceEur !== undefined && car.wasPriceEur > car.priceEur ? formatPrice(car.wasPriceEur) : undefined };
+  return { slug: car.slug, title: carName(car), photos: car.photos.slice(0, 10), text: text("post"), byFormat: Object.fromEntries(POST_FORMATS.map((f) => [f, text(f)])) as ComposerCar["byFormat"], price: p.headline, was: isReduced(car) ? fmtEur(car.wasPriceEur!) : undefined };
 }
 
 // "Write from the newest cars" fills the letter from the stock; otherwise the dealer's own subject and text are used.
@@ -170,7 +170,7 @@ export async function createNewsletterAction(data: FormData) {
   const { marketing } = await getSettings();
   let { subject, body } = { subject: "", body: "" };
   if (data.get("intent") === "write") {
-    const cars = (await adminCars()).filter(forSale).sort((a, b) => Number(b.id) - Number(a.id)).slice(0, 5);
+    const cars = newestForSale(await adminCars(), 5);
     ({ subject, body } = writeNewsletter(cars, marketing));
   } else {
     const r = letter.safeParse(Object.fromEntries(data));
@@ -188,9 +188,11 @@ export async function sendNewsletterAction(id: string) {
   await requireModule("newsletter");
   const n = await newslettersStore.get(id);
   if (!n || n.status !== "draft") return go("newsletters", "invalid");
+  const subscribers = (await subscribersStore.list()).filter((x) => x.status === "subscribed").length;
+  if (!subscribers) return go("newsletters", "no-subscribers");
   const r = await sendNewsletter(n);
   if (r.ok) {
-    await newslettersStore.put({ ...n, status: "sent", sentAt: Date.now(), ...(r.simulated && simulatedLetter(n.id, (await subscribersStore.list()).filter((x) => x.status === "subscribed").length)) });
+    await newslettersStore.put({ ...n, status: "sent", sentAt: Date.now(), ...(r.simulated && simulatedLetter(n.id, subscribers)) });
     await logActivity("marketing", "Sent the newsletter", letterRef(n));
   }
   outcome("newsletters", "newsletters", r, "letter-sent");

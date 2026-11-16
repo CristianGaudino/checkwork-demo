@@ -9,7 +9,7 @@ import { newId } from "./ids";
 // The fields go into each form's schema; buyerOf turns them into a customer id (making the customer when new) and a known salesperson.
 export const buyerFields = {
   salesperson: z.string().max(80).optional(),
-  customerId: z.string().max(40).optional(),
+  customerId: z.string().max(60).optional(),
   name: z.string().trim().max(80).optional(),
   email: z.preprocess((v) => (v === "" ? undefined : v), z.string().trim().toLowerCase().email(EMAIL_INVALID).max(LIMITS.email).optional()),
   phone: z.string().trim().max(30).optional(),

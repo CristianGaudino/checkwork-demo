@@ -1,24 +1,9 @@
-import { FUEL_LABELS, GEARBOX_LABELS, forSale, type Car, type Fuel, type Gearbox } from "@/lib/stock/types";
-import { carHref, carName, formatPrice } from "@/lib/stock/format";
-import { priceInfo } from "@/lib/stock/price";
-import { SITE_URL } from "@/lib/site";
+import { FUEL_LABELS, GEARBOX_LABELS, forSale, type Fuel, type Gearbox } from "@/lib/stock/types";
+import { carFacts, newestForSale } from "@/lib/admin/marketing";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { getSettings, leadsStore, LEAD_TYPE_LABELS, reviewsStore } from "@/lib/admin/collections";
-import type { CarFacts, FactsOf, WriteRequest } from "./tasks";
-
-// Builds what a task may see from the records. The browser sends ids (and, for a car being edited, the form's own boxes); never the facts.
-export function carFacts(c: Car): CarFacts {
-  const p = priceInfo(c);
-  return {
-    name: `${carName(c)}${c.variant ? ` ${c.variant}` : ""}`,
-    year: c.year, mileageKm: c.mileageKm, fuel: c.fuel && FUEL_LABELS[c.fuel], gearbox: c.gearbox && GEARBOX_LABELS[c.gearbox], body: c.bodyType, engineLitres: c.engineLitres,
-    colour: c.colour, doors: c.doors, seats: c.seats, owners: c.owners, nctExpiry: c.nctExpiry,
-    price: [p.headline, p.vatLine].filter(Boolean).join(" "),
-    was: c.wasPriceEur !== undefined && c.wasPriceEur > c.priceEur ? formatPrice(c.wasPriceEur) : undefined,
-    features: c.features?.slice(0, 12),
-    link: `${SITE_URL}${carHref(c.slug)}`,
-  };
-}
+import { noContacts, type CarFacts, type FactsOf, type WriteRequest } from "./tasks";
+import { firstName } from "@/lib/whatsapp/rules";
 
 const num = (s: string | undefined) => (s && Number.isFinite(Number(s)) && Number(s) > 0 ? Number(s) : undefined);
 const text = (s: string | undefined, max = 80) => s?.trim().slice(0, max) || undefined;
@@ -37,7 +22,7 @@ export function formCarFacts(f: Record<string, string>): CarFacts | null {
   };
 }
 
-const first = (name: string) => name.trim().split(/\s+/)[0] ?? "";
+// Builds what a task may see from the records. The browser sends ids (and, for a car being edited, the form's own boxes); never the facts.
 type Built = { [K in WriteRequest["task"]]: { task: K; facts: FactsOf[K] } }[WriteRequest["task"]];
 export async function buildFacts(req: WriteRequest, dealer: string): Promise<Built | null> {
   const { marketing: voice } = await getSettings();
@@ -48,20 +33,20 @@ export async function buildFacts(req: WriteRequest, dealer: string): Promise<Bui
       return car ? { task: "post", facts: { dealer, car: carFacts(car), network: req.network, format: req.format, layout: req.layout, voice: v } } : null;
     }
     case "newsletter": {
-      const cars = (await adminCars()).filter(forSale).sort((a, b) => Number(b.id) - Number(a.id)).slice(0, 5);
+      const cars = newestForSale(await adminCars(), 5);
       return { task: "newsletter", facts: { dealer, cars: cars.map(carFacts), voice: v } };
     }
     case "carDescription": {
       const car = formCarFacts(req.fields);
-      return car ? { task: "carDescription", facts: { dealer, car, notes: text(req.fields.description, 600) } } : null;
+      return car ? { task: "carDescription", facts: { dealer, car, notes: text(noContacts(req.fields.description ?? ""), 600) } } : null;
     }
     case "leadReply": {
       const lead = await leadsStore.get(req.leadId);
-      return lead ? { task: "leadReply", facts: { dealer, firstName: first(lead.name), kind: LEAD_TYPE_LABELS[lead.type], message: lead.message.slice(0, 600), car: lead.carTitle } } : null;
+      return lead ? { task: "leadReply", facts: { dealer, firstName: firstName(lead.name, ""), kind: LEAD_TYPE_LABELS[lead.type], message: noContacts(lead.message).slice(0, 600), car: lead.carTitle } } : null;
     }
     case "reviewReply": {
       const r = await reviewsStore.get(req.reviewId);
-      return r ? { task: "reviewReply", facts: { dealer, firstName: first(r.author), rating: r.rating, text: r.text.slice(0, 600) } } : null;
+      return r ? { task: "reviewReply", facts: { dealer, firstName: firstName(r.author, ""), rating: r.rating, text: noContacts(r.text).slice(0, 600) } } : null;
     }
   }
 }

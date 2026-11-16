@@ -237,6 +237,14 @@ export function runContract(name: string, makeProvider: (cars: Car[], opts: Cloc
         expect((await p.lookup("kia-rio-2019-501"))?.state).toBe("live");
       });
 
+      it("puts a car with its price on request last in a price sort, and out of any budget", async () => {
+        const p = makeProvider(structuredClone([car("601", "Kia", "Rio", 2019, 0), car("602", "Kia", "Rio", 2019, 9000), car("603", "Kia", "Rio", 2019, 12000)]), clock);
+        const order = async (o: Partial<StockQuery>) => (await p.query(q(o))).cars.map((c) => c.id);
+        expect(await order({ sort: "price-asc" })).toEqual(["602", "603", "601"]);
+        expect(await order({ sort: "price-desc" })).toEqual(["603", "602", "601"]);
+        expect(await order({ sort: "price-asc", priceMax: 10000 })).toEqual(["602"]);
+      });
+
       it("keeps a car 29 days after its sale date and drops it at 30", async () => {
         const edge = (days: number) => makeProvider(structuredClone([car("301", "Kia", "Rio", 2019, 9000, { soldAt: daysBefore(days) })]), clock);
         expect((await edge(29).lookup("kia-rio-2019-301"))?.state).toBe("live");

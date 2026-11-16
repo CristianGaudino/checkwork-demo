@@ -7,7 +7,7 @@ import { addMonths, dublinDay, fmtDate, fmtEur } from "@/lib/admin/format";
 import { adminCar } from "@/lib/admin/stock-admin";
 import { can, currentMember } from "@/lib/permissions";
 import { stockSource } from "@/lib/stock-source";
-import { carName } from "@/lib/stock/format";
+import { carName, priceLabel } from "@/lib/stock/format";
 import { forSale } from "@/lib/stock/types";
 import { requireModule } from "@/lib/modules";
 
@@ -26,7 +26,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   if (!held) {
     return (
       <>
-        <PageHeader title="Take a deposit" text={`${carName(car)}, ${fmtEur(car.priceEur)}. It shows as Reserved on the website until the day you choose.`} actions={back} />
+        <PageHeader title="Take a deposit" text={`${carName(car)}, ${priceLabel(car)}. It shows as Reserved on the website until the day you choose.`} actions={back} />
         <Panel>
           <ReserveForm carId={car.id} today={today} latest={addMonths(today, 3)} team={team.map((t) => t.name)} me={team.some((t) => t.name === me.name) ? me.name : undefined} customers={[...customers].sort((a, b) => a.name.localeCompare(b.name, "en-IE")).map((c) => ({ id: c.id, label: c.phone ? `${c.name}, ${c.phone}` : c.name }))} />
         </Panel>

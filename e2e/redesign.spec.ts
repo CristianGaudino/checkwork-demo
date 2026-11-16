@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
-import { unfold } from "./open";
+import { unfold, BASE } from "./open";
 import { choose } from "./combo";
 
 // The owner's 2026-11-11 list (#85 to #88): two doors to the valuation, DoneDeal stock, the drop-down that stayed open, the Follow us
@@ -92,7 +92,7 @@ test.describe("price drop on a card", () => {
 test.describe("DoneDeal stock", () => {
   test.use({ viewport: { width: 1280, height: 800 }, isMobile: false, hasTouch: false });
   test.beforeEach(async ({ context }) => {
-    await context.addCookies([{ name: "checkwork-demo-stock", value: "donedeal", url: "http://localhost:3000" }]);
+    await context.addCookies([{ name: "checkwork-demo-stock", value: "donedeal", url: BASE }]);
   });
 
   test("the stock page is read only and points to DoneDeal", async ({ page }) => {

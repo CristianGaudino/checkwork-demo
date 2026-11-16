@@ -1,10 +1,9 @@
 import { TIME_ZONE as timeZone } from "@/lib/site";
 import { HOUR } from "@/lib/time";
-import { formatCount, formatPrice } from "@/lib/stock/format";
+import { fmtNum } from "@/lib/stock/format";
 
-// The dashboard's names for the site's own money and number formats (src/lib/stock/format.ts): one way of writing them everywhere.
-export const fmtNum = formatCount;
-export const fmtEur = formatPrice;
+// The site's own money and number formats (src/lib/stock/format.ts), here too: one way of writing them everywhere.
+export { fmtEur, fmtNum } from "@/lib/stock/format";
 
 // Irish time, whatever zone the server runs in (a Worker runs in UTC): a 11:00 test drive reads 11:00 in summer too. No server-only
 // imports: the lead forms use these in the browser.
@@ -22,12 +21,14 @@ const DAY_STYLES = {
   month: utc({ month: "short" }), // Nov
 } as const;
 
-export const fmtDate = (t: number | string) => date.format(new Date(t));
+// Some engines write September "Sept" beside "Oct": every short month is three letters.
+export const threeLetter = (s: string) => s.replace("Sept", "Sep");
+export const fmtDate = (t: number | string) => threeLetter(date.format(new Date(t)));
 export const fmtTime = (t: number) => time.format(t);
-export const fmtDay = (iso: string, style: keyof typeof DAY_STYLES = "long") => DAY_STYLES[style].format(new Date(`${iso}T12:00:00Z`));
+export const fmtDay = (iso: string, style: keyof typeof DAY_STYLES = "long") => threeLetter(DAY_STYLES[style].format(new Date(`${iso}T12:00:00Z`)));
 // Whole days from a listed day (YYYY-MM-DD) to now, never below 0: how long a car has been in stock.
 export const daysSince = (day: string, now = Date.now()) => Math.max(0, Math.floor((now - Date.parse(`${day}T00:00:00Z`)) / 86_400_000));
-export const fmtDateTime = (t: number | string) => dateTime.format(new Date(t));
+export const fmtDateTime = (t: number | string) => threeLetter(dateTime.format(new Date(t)));
 // A count with its word, singular for one: "1 review", "12 reviews", "1,284 cars".
 export const plural = (n: number, one: string, many = `${one}s`) => `${fmtNum(n)} ${n === 1 ? one : many}`;
 // The Irish calendar day of a moment, as YYYY-MM-DD ("today" for follow-ups and sales), and a day n days on.

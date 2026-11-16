@@ -2,16 +2,17 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { OrderBadge } from "@/components/admin/badges";
 import { ChoiceAct } from "@/components/admin/ActButton";
-import { Facts, Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
+import { Facts, PageHeader, Panel, adminButton, adminButtonQuiet } from "@/components/admin/kit";
 import { CancelOrderForm } from "@/components/admin/OrderForms";
 import { ORDER_STATUS_LABELS, customersStore, orderOpen, ordersStore } from "@/lib/admin/collections";
-import { fmtDate, fmtDateTime, fmtEur } from "@/lib/admin/format";
+import { fmtDate, fmtEur } from "@/lib/admin/format";
 import { monthLabel } from "@/lib/admin/reports";
 import { regPeriodLabel } from "@/lib/leads/reg-periods";
 import { can } from "@/lib/permissions";
+import { hasModule } from "@/lib/modules";
 import { stockSource } from "@/lib/stock-source";
 import { addOrderNoteAction, setOrderStatusAction } from "../actions";
-import { SubmitButton } from "@/components/admin/SubmitButton";
+import { NotesPanel } from "@/components/admin/NotesPanel";
 
 export const metadata = { title: "Order" };
 
@@ -33,7 +34,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
           <Panel title="The order">
             <Facts
               items={[
-                ["Customer", buyer ? <Link key="b" href={`/dashboard/customers/${buyer.id}`} className="underline">{buyer.name}</Link> : "Not on file"],
+                ["Customer", buyer ? ((await hasModule("sales")) ? <Link key="b" href={`/dashboard/customers/${buyer.id}`} className="underline">{buyer.name}</Link> : buyer.name) : "Not on file"],
                 ["Spec", [o.spec, o.colour].filter(Boolean).join(", ") || "Not given"],
                 ["Price", fmtEur(o.priceEur)],
                 ["Deposit", o.depositEur ? `${fmtEur(o.depositEur)}, ${o.depositMethod?.toLowerCase()}${o.refundEur ? `, ${fmtEur(o.refundEur)} refunded` : ""}` : "None"],
@@ -43,26 +44,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             />
             {o.leadId && <Link href={`/dashboard/leads/${o.leadId}`} className="w-fit text-meta underline">The website request</Link>}
           </Panel>
-          <Panel title="Notes">
-            {o.notes.length === 0 ? (
-              <p className="text-body text-text-2">No notes yet.</p>
-            ) : (
-              <ul className="flex flex-col divide-y divide-hairline">
-                {o.notes.map((n) => (
-                  <li key={n.at} className="flex flex-col gap-0.5 py-2">
-                    <span className="whitespace-pre-line text-body">{n.text}</span>
-                    <span className="text-meta text-text-2">{fmtDateTime(n.at)}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <form action={addOrderNoteAction.bind(null, o.id)} className="flex flex-col gap-3">
-              <Field label="Add a note">
-                <textarea name="note" rows={3} maxLength={500} required className={`${adminInput} h-auto py-2`} />
-              </Field>
-              <SubmitButton className={`${adminButton} self-start`}>Add note</SubmitButton>
-            </form>
-          </Panel>
+          <NotesPanel notes={o.notes} action={addOrderNoteAction.bind(null, o.id)} />
           {/* At the end, out of the way: it cannot be taken back. Owners and managers only; the server refuses anyone else. */}
           {open && canCancel && (
             <Panel title="Cancel the order">

@@ -29,7 +29,7 @@ export async function GET(req: Request) {
           ["Cost (€)", (c) => costs.get(c.id)?.purchase],
           ["Prep (€)", (c) => costs.get(c.id)?.prep],
           ["Warranty repairs (€)", (c) => costs.get(c.id)?.claims],
-          ["Margin (€)", (c) => (costs.has(c.id) ? c.priceEur - costs.get(c.id)!.total : "")],
+          ["Margin (€)", (c) => (costs.has(c.id) && c.priceEur ? c.priceEur - costs.get(c.id)!.total : "")],
         ] as CsvColumn<Car>[])
       : []),
   ];

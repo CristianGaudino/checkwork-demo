@@ -57,13 +57,14 @@ test("on the narrowest phone the dealer's module switches open inside the panel 
   await page.goto("/dashboard");
   await demoBar(page);
   const bar = page.locator("[data-demo-bar]");
-  const modules = bar.getByRole("button", { name: /^Modules/ });
+  const modules = bar.getByRole("button", { name: /^Plan/ });
   await expect(modules).toBeInViewport({ ratio: 1 });
   await modules.click();
-  const base = bar.getByRole("button", { name: "Base site only" });
+  const base = bar.getByRole("button", { name: /^Base only/ });
   await expect(base).toBeInViewport({ ratio: 1 });
   await base.click();
-  await expect(modules).toContainText(/0 of/);
+  await expect(modules).toContainText("Base only");
+  await expect(base).toHaveAttribute("aria-pressed", "true");
 });
 
 test("light is the default, dark is a choice that sticks and does not flash", async ({ page }) => {
@@ -78,4 +79,15 @@ test("light is the default, dark is a choice that sticks and does not flash", as
   await expect(html).toHaveAttribute("data-theme", "dark");
   await (await demoBar(page)).getByRole("button", { name: "Dark" }).click();
   await expect(html).not.toHaveAttribute("data-theme", "dark");
+});
+
+test("the public site follows the plan: on Base only the module pages are gone, from the menu and the car page too (the finance estimate stays: it is the car's price)", async ({ page, context, baseURL }) => {
+  await context.addCookies([{ name: "checkwork-demo-modules", value: "none", url: baseURL! }]);
+  for (const path of ["/finance", "/trade-in", "/test-drive", "/reviews", "/service", "/new-cars", "/commercial", "/find-a-car"]) expect((await page.request.get(path)).status(), path).toBe(404);
+  expect((await page.request.get("/dashboard/test-drives")).status()).toBe(404);
+  await page.goto("/used-cars");
+  await expect(page.getByRole("banner").getByRole("link", { name: "Finance" })).toHaveCount(0);
+  await page.goto((await page.locator("article a").first().getAttribute("href"))!);
+  await expect(page.getByRole("button", { name: "Test drive" })).toHaveCount(0);
+  await expect(page.getByText(/^Estimate from €[\d,]+ a month$/).first()).toBeVisible();
 });

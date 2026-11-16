@@ -1,7 +1,8 @@
 import { NEW_TAB } from "@/components/ui";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChoiceAct } from "@/components/admin/ActButton";
+import { ActButton, ChoiceAct } from "@/components/admin/ActButton";
+import { stopWhatsAppAction } from "@/app/dashboard/whatsapp/actions";
 import { LeadStatusBadge } from "@/components/admin/badges";
 import { RegLookup } from "@/components/leads/RegLookup";
 import { AITextarea } from "@/components/admin/AIWriter";
@@ -21,6 +22,8 @@ import { followUpDue, isOpenLead } from "@/lib/admin/leads";
 import { signPhotoPath } from "@/lib/leads/photos";
 import { telHref, waHref } from "@/lib/phone";
 import { carHref } from "@/lib/stock/format";
+import { stockSource } from "@/lib/stock-source";
+import { NotesPanel } from "@/components/admin/NotesPanel";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 
 // The quick actions on a lead: the steps it moves through. New is where it starts, so it has no button.
@@ -103,7 +106,6 @@ export async function LeadView({ id }: { id: string }) {
                 {photos.map((src, i) => (
                   <li key={src}>
                     <a href={src} {...NEW_TAB} className="block overflow-hidden rounded-control">
-                      {/* eslint-disable-next-line @next/next/no-img-element -- a private, signed link: not for the image optimiser */}
                       <img src={src} alt={`Photo ${i + 1} of their car (opens in a new tab)`} className="aspect-square w-full object-cover" />
                     </a>
                   </li>
@@ -122,28 +124,7 @@ export async function LeadView({ id }: { id: string }) {
               </div>
             </Panel>
           )}
-          <Panel title="Notes" className="max-lg:order-8">
-            {lead.notes.length === 0 ? (
-              <p className="text-body text-text-2">No notes yet.</p>
-            ) : (
-              <ul className="flex flex-col divide-y divide-hairline">
-                {[...lead.notes].sort((a, b) => a.at - b.at).map((n) => ( // by time: a buyer's WhatsApp answer is written before the question that caused it
-                  <li key={n.at} className="flex flex-col gap-0.5 py-2">
-                    <span className="whitespace-pre-line text-body">{n.text}</span>
-                    <span className="text-meta text-text-2">{fmtDateTime(n.at)}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <form action={addNoteAction.bind(null, lead.id)} className="flex flex-col gap-3">
-              <Field label="Add a note">
-                <textarea name="note" rows={3} maxLength={500} required className={`${adminInput} h-auto py-2`} />
-              </Field>
-              <SubmitButton className={`${adminButton} self-start`}>
-                Add note
-              </SubmitButton>
-            </form>
-          </Panel>
+          <NotesPanel notes={lead.notes} action={addNoteAction.bind(null, lead.id)} className="max-lg:order-8" />
         </div>
 
         <div className="flex min-w-0 flex-col gap-6 max-lg:contents">
@@ -173,6 +154,17 @@ export async function LeadView({ id }: { id: string }) {
                 </a>
               )}
             </div>
+            {/* They ticked the WhatsApp box on the form: the site's messages reach them there until someone stops it. */}
+            {lead.whatsappOptIn && (
+              <IfModule id="whatsapp">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-meta text-text-2">WhatsApp updates: on</p>
+                  <ActButton act={stopWhatsAppAction.bind(null, lead.id)} done="WhatsApp updates stopped" confirm={{ title: "Stop WhatsApp?", text: "Nothing more goes to them on WhatsApp. They get email instead, if they gave an address.", yes: "Stop WhatsApp" }} className={rowButton}>
+                    Stop WhatsApp
+                  </ActButton>
+                </div>
+              </IfModule>
+            )}
           </Panel>
           <Panel title="Status" className="max-lg:order-3" action={<LeadStatusBadge status={lead.status} />}>
             <div className="flex flex-wrap gap-2">
@@ -197,17 +189,21 @@ export async function LeadView({ id }: { id: string }) {
               </fieldset>
             )}
           </Panel>
-          {/* A factory order request from the website: place it, copying from what they asked for. */}
-          {lead.type === "order" && (
-            <Panel title="Factory order" className="max-lg:order-3">
-              <Link href={`/dashboard/orders/new?lead=${lead.id}`} className={`${adminButton} w-fit`}>Place the order</Link>
-            </Panel>
+          {/* A factory order request from the website: place it, copying from what they asked for. Orders are for stock kept here. */}
+          {lead.type === "order" && (await stockSource()) !== "donedeal" && (
+            <IfModule id="newCars">
+              <Panel title="Factory order" className="max-lg:order-3">
+                <Link href={`/dashboard/orders/new?lead=${lead.id}`} className={`${adminButton} w-fit`}>Place the order</Link>
+              </Panel>
+            </IfModule>
           )}
           {/* A warranty claim from the website: open it on the sale, with the buyer found from their details. */}
           {lead.type === "warranty" && (
-            <Panel title="Warranty" className="max-lg:order-3">
-              <Link href={`/dashboard/aftersales/new?lead=${lead.id}`} className={`${adminButton} w-fit`}>Open a claim</Link>
-            </Panel>
+            <IfModule id="service">
+              <Panel title="Warranty" className="max-lg:order-3">
+                <Link href={`/dashboard/aftersales/new?lead=${lead.id}`} className={`${adminButton} w-fit`}>Open a claim</Link>
+              </Panel>
+            </IfModule>
           )}
           {/* The day to get back to them. Only while the lead is open: won and lost need none. */}
           {isOpenLead(lead) && (

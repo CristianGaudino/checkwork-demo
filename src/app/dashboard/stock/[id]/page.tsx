@@ -55,6 +55,7 @@ export default async function Page({ params, searchParams }: { params: Promise<{
     <>
       {view}
       {sold && !sale && <Link href={`/dashboard/stock/${id}/sale`} className={adminButton}>Record sale</Link>}
+      {sold && sale && canDelete && <Link href={`/dashboard/stock/${id}/sale`} className={adminButtonQuiet}>Change the sale</Link>}
       {sold && sale && canDelete && <Link href={`/dashboard/stock/${id}/undo-sale`} className={adminButtonQuiet}>Undo sale</Link>}
       {deposits && !synced && !sold && (held || forSale(car)) && <Link href={`/dashboard/stock/${id}/reserve`} className={adminButtonQuiet}>{held ? "Deposit" : "Reserve"}</Link>}
       {!synced && !sold && <Link href={`/dashboard/stock/${id}/sale`} className={adminButton}>Mark sold</Link>}

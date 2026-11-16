@@ -2,6 +2,7 @@ import demoCars from "./demo-cars.json";
 import type { DevMode } from "../dev-modes";
 import type { Review, Reviews } from "../reviews";
 import type { Car, Photo } from "./types";
+import { slugify } from "@/lib/admin/stock-admin-pure";
 
 // break-ui: the worst realistic stock, for the dev-only Demo / Worst case switch (src/lib/dev-data.ts). Dev builds only; never imported in production.
 // Every value is something a dealer feed can produce. Photos reuse real demo files so the layout is judged on the data, not on missing images.
@@ -13,9 +14,8 @@ let next = 9_000_001;
 let pad = 8_000_001; // fillers sort below the worst cars, which are newest first
 const car = (c: Omit<Car, "id" | "slug" | "makeSlug" | "modelSlug"> & { makeSlug?: string; modelSlug?: string }): Car => {
   const id = String(next++);
-  const slug = (s: string) => s.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-  const makeSlug = c.makeSlug ?? slug(c.make);
-  const modelSlug = c.modelSlug ?? slug(c.model);
+  const makeSlug = c.makeSlug ?? slugify(c.make);
+  const modelSlug = c.modelSlug ?? slugify(c.model);
   return { ...c, id, makeSlug, modelSlug, slug: `${makeSlug}-${modelSlug}-${c.year}-${id}` };
 };
 

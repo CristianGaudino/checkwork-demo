@@ -1,9 +1,10 @@
+import { newsletterText, postText } from "@/lib/admin/marketing";
 import { ADJUSTS, type Adjust, type CarFacts, type FactsOf, type Task } from "./tasks";
 
 // The demo's writer: no key, no cost. The same facts and button always give the same text, and it is built only from the facts it is
 // given (the car's fields, the lead's message, the review). It never states a history, a warranty or a finance term, and never a figure
 // the record does not hold. The real writer replaces this in write.ts.
-const clean = (s: string) => s.replace(/\s*[\u2014\u2013]\s*/g, ", "); // the house style: no em or en dashes, whatever came back
+export const clean = (s: string) => s.replace(/\s*[\u2014\u2013]\s*/g, ", "); // the house style: no em or en dashes, whatever came back
 const BR = "\n"; // a blank line between parts
 const lines = (...l: (string | number | false | undefined)[]) => clean(l.filter(Boolean).join("\n").replace(/\n{3,}/g, "\n\n").trim());
 const km = (c: CarFacts) => c.mileageKm !== undefined && `${c.mileageKm.toLocaleString("en-IE")} km`;
@@ -25,6 +26,7 @@ function post(f: FactsOf["post"], a: Adjust | undefined, current: string): strin
     return lines(`${head}: ${c.name}.`, drop, "See it on our site.");
   }
   const lead = { post: "Just in", story: "Just in", reel: "Walkaround", carousel: "More photos" }[format];
+  const plain = clean(postText(c, network, voice, format)); // the free writer's text (src/lib/admin/marketing.ts): only the buttons write differently
   const base = [`${lead}: ${c.name}.`, specs(c) && `${specs(c)}.`, price, voice.signOff.trim(), link, network === "Facebook" ? "" : voice.hashtags.trim()];
   switch (a) {
     case "professional": return lines(`${c.name} is now available at ${f.dealer}.`, specs(c) && `${specs(c)}.`, price, "Please contact our team to arrange a viewing.", link);
@@ -33,15 +35,15 @@ function post(f: FactsOf["post"], a: Adjust | undefined, current: string): strin
     case "detail": return lines(...base.slice(0, 3), extras(c) && `${extras(c)}.`, kit(c), ...base.slice(3));
     case "urgency": {
       const ask = "Message us today to book a viewing.";
-      const text = current || lines(...base);
+      const text = current || plain;
       return text.includes(ask) ? text : lines(text, ask);
     }
     case "hashtags": {
       const tags = [...c.name.split(" ").filter((w) => /^[A-Za-z]/.test(w)).slice(0, 2), c.body, "UsedCars"].filter(Boolean).map((t) => tag(t as string));
-      const text = current || lines(...base);
+      const text = current || plain;
       return text.includes(tags.join(" ")) ? text : lines(text, tags.join(" "));
     }
-    default: return lines(...base);
+    default: return plain;
   }
 }
 
@@ -51,7 +53,7 @@ function newsletter(f: FactsOf["newsletter"], a: Adjust | undefined): string {
   if (a === "shorter") return lines(...list, sign);
   if (a === "friendlier") return lines("Hi there!", `Here is what has just come in at ${f.dealer}.`, BR, ...list, BR, "Pop in and say hello.", sign);
   if (a === "professional") return lines("Dear subscriber,", `These cars are now available at ${f.dealer}.`, BR, ...list, BR, "Please contact us to arrange a viewing.", sign);
-  return lines(`New in this week at ${f.dealer}:`, BR, ...list, BR, sign);
+  return clean(newsletterText(f.cars, f.voice)); // the free writer's text (src/lib/admin/marketing.ts): only the buttons write differently
 }
 
 function description(f: FactsOf["carDescription"], a: Adjust | undefined): string {

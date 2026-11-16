@@ -20,6 +20,5 @@ export function MakeLogo({ slug, className = "size-5", standalone = false }: { s
       </span>
     );
   }
-  // eslint-disable-next-line @next/next/no-img-element -- a small local SVG, sized by its class
   return <img src={`/brands/${slug}.svg`} alt="" width={20} height={20} loading="lazy" className={`shrink-0 object-contain grayscale [[data-theme=dark]_&]:invert ${className}`} />;
 }

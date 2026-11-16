@@ -52,7 +52,7 @@ export function Panel({ title, count, action, children, className = "", quiet = 
 export function StatCard({ label, value, hint, tone, href }: { label: string; value: string; hint?: string; tone?: "good" | "bad" | "warn"; href?: string }) {
   const body = (
     <>
-      <p className="text-meta text-text-2">{label}</p>
+      <p className="min-h-[2lh] text-meta text-text-2">{label}</p>
       {/* Sized from the tile's own width (a container query), so tiles side by side show their figures at the same size, and a
           half-width tile on a 360px phone still fits €117,565 on one line. A year's sales (€5,864,950) take a smaller share. Anything
           longer still wraps, never spills. */}
@@ -73,11 +73,11 @@ export function StatCard({ label, value, hint, tone, href }: { label: string; va
 }
 
 // A thin bar filled to a share of its width: ratings, visitors by source. Decorative: the number is always written beside it.
-export function Meter({ value, max, tone = "accent", className = "" }: { value: number; max: number; tone?: "accent" | "warning"; className?: string }) {
+export function Meter({ value, max }: { value: number; max: number }) {
   const share = max > 0 ? Math.min(100, (value / max) * 100) : 0;
   return (
-    <span aria-hidden="true" className={`h-2 overflow-hidden rounded-full bg-hairline ${className}`}>
-      <span className={`block h-full rounded-full ${tone === "warning" ? "bg-warning" : "bg-accent"}`} style={{ width: `${share}%` }} />
+    <span aria-hidden="true" className="h-2 overflow-hidden rounded-full bg-hairline">
+      <span className="block h-full rounded-full bg-accent" style={{ width: `${share}%` }} />
     </span>
   );
 }
@@ -250,14 +250,14 @@ export function Pager({ page, pageCount, total, href }: { page: number; pageCoun
 }
 
 // A small button in a table row: always a word, sometimes an icon before it.
-export const rowButton = `inline-flex h-10 group-data-[density=compact]/shell:h-8 items-center justify-center gap-1.5 whitespace-nowrap rounded-control border border-hairline bg-card px-3 text-meta font-medium text-text transition-colors hover:border-control ${press}`;
+export const rowButton = `inline-flex h-11 group-data-[density=compact]/shell:h-8 items-center justify-center gap-1.5 whitespace-nowrap rounded-control border border-hairline bg-card px-3 text-meta font-medium text-text transition-colors hover:border-control ${press}`;
 
 // A page's views, one at a time (Today, Week, List): links, so the view is in the URL. Not a filter: a view changes how the page is laid out.
 export function Segmented({ items, label }: { items: { label: string; href: string; active: boolean }[]; label: string }) {
   return (
     <nav aria-label={label} className="inline-flex rounded-control border border-hairline bg-card p-1">
       {items.map((i) => (
-        <Link key={i.label} href={i.href} aria-current={i.active ? "page" : undefined} className={`inline-flex min-h-9 items-center justify-center rounded-[calc(var(--radius-control)-4px)] px-4 text-meta max-sm:flex-1 font-medium ${i.active ? "bg-text text-ink" : "text-text-2 hover:text-text"} ${press}`}>
+        <Link key={i.label} href={i.href} aria-current={i.active ? "page" : undefined} className={`inline-flex min-h-11 items-center justify-center rounded-[calc(var(--radius-control)-4px)] px-4 text-meta max-sm:flex-1 font-medium ${i.active ? "bg-accent text-white" : "text-text-2 hover:text-text"} ${press}`}>
           {i.label}
         </Link>
       ))}
@@ -308,6 +308,26 @@ export function Field({ label, hint, error, children, className = "" }: { label:
         </span>
       )}
     </label>
+  );
+}
+
+// One answer from a few, as radio buttons under a legend: what happened to a deposit, why a sale was undone. Errors as Field shows them.
+export function Choice({ name, options, value, onChange, legend, error, className = "" }: { name: string; options: [string, string][]; value: string; onChange: (v: string) => void; legend: string; error?: string; className?: string }) {
+  return (
+    <fieldset className={`flex flex-col gap-2 ${className}`}>
+      <legend className="mb-1 text-meta font-medium">{legend}</legend>
+      {options.map(([v, label]) => (
+        <label key={v} className="flex min-h-11 items-center gap-3 text-body">
+          <input type="radio" name={name} value={v} checked={value === v} onChange={() => onChange(v)} className="size-5 accent-accent" />
+          {label}
+        </label>
+      ))}
+      {error && (
+        <span role="alert" className="text-meta text-destructive">
+          {error}
+        </span>
+      )}
+    </fieldset>
   );
 }
 

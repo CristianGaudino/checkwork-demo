@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { parseModules } from "@/lib/modules-rules";
 import { ROLES } from "@/lib/permission-rules";
-import { BUTTON_LABELS, EVENTS, EVENT_IDS, alertText, channelFor, defaultAlerts, eventOfLead, eventsFor, inQuiet, parsePrice } from "./rules";
+import { BUTTON_LABELS, EVENTS, EVENT_IDS, alertText, channelFor, defaultAlerts, eventOfLead, eventsFor, firstName, inQuiet, parsePrice } from "./rules";
 
 describe("parsePrice", () => {
   it.each([
@@ -59,5 +59,13 @@ describe("quiet hours", () => {
     expect(inQuiet("12:00", "22:00", "07:00")).toBe(false);
     expect(inQuiet("13:00", "12:00", "14:00")).toBe(true);
     expect(inQuiet("13:00", "", "")).toBe(false);
+  });
+});
+
+describe("firstName", () => {
+  it("greets by the first name, never by an initial or a generic author", () => {
+    expect(firstName("  Aoife  Byrne ")).toBe("Aoife");
+    expect(firstName("A Google User")).toBe("there");
+    expect(firstName("", "")).toBe("");
   });
 });

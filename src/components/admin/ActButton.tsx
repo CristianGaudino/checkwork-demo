@@ -18,7 +18,6 @@ export function ActButton({ act, undo, done, confirm, label, pressed, className,
   const router = useRouter();
   const [pending, start] = useTransition();
   const [asking, setAsking] = useState(false);
-  const titleId = useId();
   const run = () =>
     start(async () => {
       const r = await act();
@@ -33,20 +32,25 @@ export function ActButton({ act, undo, done, confirm, label, pressed, className,
       <button type="button" aria-label={label} aria-pressed={pressed} disabled={pending} aria-busy={pending || undefined} onClick={() => (pressed ? undefined : confirm ? setAsking(true) : run())} className={className}>
         {children}
       </button>
-      {confirm &&
-        asking &&
-        createPortal(
-          <dialog ref={(d) => void (d && !d.open && d.showModal())} onClose={() => setAsking(false)} aria-labelledby={titleId} className="m-auto w-[min(28rem,calc(100%-2rem))] rounded-card bg-card p-5 text-text shadow-lift backdrop:bg-black/50">
-            <h2 id={titleId} className="text-heading font-semibold">{confirm.title}</h2>
-            {confirm.text && <p className="mt-2 text-body text-text-2">{confirm.text}</p>}
-            <div className="mt-5 flex flex-wrap justify-end gap-3">
-              <button type="button" autoFocus onClick={(e) => e.currentTarget.closest("dialog")?.close()} className={adminButtonQuiet}>Cancel</button>
-              <button type="button" onClick={(e) => (e.currentTarget.closest("dialog")?.close(), run())} className={danger}>{confirm.yes}</button>
-            </div>
-          </dialog>,
-          document.body,
-        )}
+      {confirm && asking && <ConfirmDialog confirm={confirm} onYes={run} onClose={() => setAsking(false)} />}
     </>
+  );
+}
+
+// The question asked before something that cannot be taken back: a native modal dialog in the page's body. Escape or Cancel does nothing.
+// `yesClassName`: the yes button, the danger one unless the action is not destructive.
+export function ConfirmDialog({ confirm, onYes, onClose, yesClassName = danger }: { confirm: Confirm; onYes: () => void; onClose: () => void; yesClassName?: string }) {
+  const titleId = useId();
+  return createPortal(
+    <dialog ref={(d) => void (d && !d.open && d.showModal())} onClose={onClose} aria-labelledby={titleId} className="m-auto w-[min(28rem,calc(100%-2rem))] rounded-card bg-card p-5 text-text shadow-lift backdrop:bg-black/50">
+      <h2 id={titleId} className="text-heading font-semibold">{confirm.title}</h2>
+      {confirm.text && <p className="mt-2 text-body text-text-2">{confirm.text}</p>}
+      <div className="mt-5 flex flex-wrap justify-end gap-3">
+        <button type="button" autoFocus onClick={(e) => e.currentTarget.closest("dialog")?.close()} className={adminButtonQuiet}>Cancel</button>
+        <button type="button" onClick={(e) => (e.currentTarget.closest("dialog")?.close(), onYes())} className={yesClassName}>{confirm.yes}</button>
+      </div>
+    </dialog>,
+    document.body,
   );
 }
 

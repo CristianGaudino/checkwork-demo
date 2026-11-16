@@ -5,10 +5,9 @@ import { carCards } from "@/lib/admin/car-cards";
 import { mediaStore, postsStore } from "@/lib/admin/collections";
 import { POST_FORMATS, STORY_LAYOUTS } from "@/lib/admin/networks";
 import { requireModule } from "@/lib/modules";
-import { worthPosting } from "@/lib/admin/marketing";
+import { newestForSale, worthPosting } from "@/lib/admin/marketing";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { isUsable } from "@/lib/integrations";
-import { forSale } from "@/lib/stock/types";
 import { composeAction, composerCarAction } from "../actions";
 
 export const metadata = { title: "New post" };
@@ -18,7 +17,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ c
   await requireModule("social");
   const sp = await searchParams;
   const [cars, posts, library] = await Promise.all([adminCars(), postsStore.list(), mediaStore.list()]);
-  const onSale = cars.filter(forSale).sort((a, b) => Number(b.id) - Number(a.id));
+  const onSale = newestForSale(cars);
   // The cars worth a post come first, with the reason on their card.
   const ideas = new Map<string, string>(worthPosting(onSale, posts).map((i) => [i.car.slug, i.reason]));
   const cards = carCards([...onSale.filter((c) => ideas.has(c.slug)), ...onSale.filter((c) => !ideas.has(c.slug))], ideas);

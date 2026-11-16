@@ -1,5 +1,7 @@
 import { Meter } from "@/components/admin/kit";
-import { fmtNum } from "@/lib/admin/format";
+import { fmtNum, threeLetter } from "@/lib/admin/format";
+import { TIME_ZONE } from "@/lib/site";
+import { DEALER_RULES } from "@/lib/dealer.config";
 
 // Charts drawn by hand in SVG and HTML: no library, nothing to load. Colours come from the tokens, so both themes work. Each chart
 // carries its numbers as text for a screen reader, and never relies on colour alone.
@@ -72,8 +74,8 @@ export function BarList({ items, of, format = fmtNum }: { items: { label: string
   );
 }
 
-const weekOf = new Intl.DateTimeFormat("en-IE", { day: "numeric", month: "short", timeZone: "Europe/Dublin" });
-const weekShort = new Intl.DateTimeFormat("en-IE", { day: "numeric", month: "numeric", timeZone: "Europe/Dublin" }); // 18/9, for a phone
+const weekOf = new Intl.DateTimeFormat("en-IE", { day: "numeric", month: "short", timeZone: TIME_ZONE });
+const weekShort = new Intl.DateTimeFormat("en-IE", { day: "numeric", month: "numeric", timeZone: TIME_ZONE }); // 18/9, for a phone
 
 // The overview's one main chart: leads each week for eight weeks, this one last and the only one in the accent, against a dashed line at a
 // usual week. It answers whether this week is a normal one. Each bar has its count over it, each week its start under it; read aloud whole.
@@ -93,7 +95,7 @@ export function LeadsByWeek({ weeks, starts, usual }: { weeks: number[]; starts:
         <span className="absolute inset-x-0 border-t border-dashed border-control" style={{ bottom: `${(usual / max) * 86}%` }} />
         {weeks.map((n, i) => (
           <span key={i} className="relative flex h-full flex-col items-center justify-end gap-1">
-            <span className={`bg-card px-1 text-meta tabular-nums ${i === weeks.length - 1 ? "font-medium text-text" : "text-text-2"}`}>{n}</span>
+            <span className={`relative z-10 rounded-sm bg-card px-1.5 py-0.5 text-meta tabular-nums ${i === weeks.length - 1 ? "font-medium text-text" : "text-text-2"}`}>{n}</span>
             <span className={`w-full max-w-10 rounded-t-control ${i === weeks.length - 1 ? "bg-accent" : "bg-chart-muted"}`} style={{ height: `${Math.max(2, (n / max) * 86)}%` }} />
           </span>
         ))}
@@ -109,7 +111,7 @@ export function LeadsByWeek({ weeks, starts, usual }: { weeks: number[]; starts:
               </>
             ) : (
               <>
-                <span className="max-sm:hidden">{weekOf.format(t)}</span>
+                <span className="max-sm:hidden">{threeLetter(weekOf.format(t))}</span>
                 <span className="sm:hidden">{weekShort.format(t)}</span>
               </>
             )}
@@ -117,17 +119,17 @@ export function LeadsByWeek({ weeks, starts, usual }: { weeks: number[]; starts:
         ))}
       </div>
       <figcaption className="sr-only">
-        Leads each week for the last eight weeks, from the week of {weekOf.format(starts[0])}: {weeks.join(", ")}. A usual week has {usual}.
+        Leads each week for the last eight weeks, from the week of {threeLetter(weekOf.format(starts[0]))}: {weeks.join(", ")}. A usual week has {usual}.
       </figcaption>
     </figure>
   );
 }
 
-// How long a car has been for sale, on a scale to `full` days: amber from `late`, when it is worth a price check. The days are written beside.
-export function AgeBar({ days, late, full = 90 }: { days: number; late: number; full?: number }) {
+// How long a car has been for sale, on a scale to 90 days: amber from `late`, when it is worth a price check. The days are written beside.
+export function AgeBar({ days, late }: { days: number; late: number }) {
   return (
     <span aria-hidden className="block h-1.5 w-16 overflow-hidden rounded-full bg-hairline">
-      <span className={`block h-full rounded-full ${days >= late ? "bg-warn" : "bg-control"}`} style={{ width: `${Math.min(100, (days / full) * 100)}%` }} />
+      <span className={`block h-full rounded-full ${days >= late ? "bg-warn" : "bg-control"}`} style={{ width: `${Math.min(100, (days / (DEALER_RULES.oldStockDays * 1.5)) * 100)}%` }} />
     </span>
   );
 }

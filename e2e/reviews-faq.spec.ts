@@ -4,7 +4,7 @@ import { unfold } from "./open";
 test("the Reviews page shows Google's reviews as Google gives them, the rating, and the way to all of them", async ({ page }) => {
   await page.goto("/reviews");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Reviews");
-  await expect(page.getByRole("list", { name: "Google reviews" }).getByRole("listitem")).toHaveCount(5);
+  await expect(page.getByRole("list", { name: "Google reviews" }).getByRole("listitem")).toHaveCount(10);
   await expect(page.getByRole("link", { name: /See all on Google Maps/ })).toHaveAttribute("target", "_blank");
   await expect(page.getByRole("link", { name: /review policy/ })).toBeVisible();
   await expect(page.getByRole("link", { name: /Leave a review on Google Maps/ })).toBeVisible();

@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { DEALER_NAV } from "../src/lib/admin/nav";
 import { sideLink, sideMenu } from "./admin-menu";
+import { as } from "./open";
 
 // The dealer area: its own frame, every nav link alive, no public header or footer, nothing wider than a phone. A dealer without a
 // permission does not get the entries that need one (see admin-margins.spec.ts for those).
@@ -82,7 +83,7 @@ test("on a tablet the demo bar never covers the tab bar: in the dashboard it sta
 });
 
 test("a dashboard page that is not there keeps the dashboard's menu and leads back to the overview", async ({ page, context }) => {
-  await context.addCookies([{ name: "checkwork-demo-role", value: "Sales", url: "http://localhost:3000" }]);
+  await as(context, "Sales");
   // A page this role cannot open, a deleted record and a mistyped address all answer the same way.
   for (const path of ["/dashboard/margins", "/dashboard/leads/lead-no-such", "/dashboard/no-such-page"]) {
     const res = await page.goto(path);

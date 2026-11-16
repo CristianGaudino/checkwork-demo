@@ -1,12 +1,13 @@
-import { FUEL_LABELS, GEARBOX_LABELS } from "./types";
+import { FUEL_LABELS, GEARBOX_LABELS, onRequest } from "./types";
+import { PRICING } from "./pricing.config";
 import type { Car } from "./types";
 
 const eur = new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
 const km = new Intl.NumberFormat("en-IE");
 
-export const formatPrice = (n: number) => eur.format(n);
+export const fmtEur = (n: number) => eur.format(n);
 export const formatKm = (n: number) => `${km.format(n)} km`;
-export const formatCount = (n: number) => km.format(n); // 1,163, as the rest of the site writes a number
+export const fmtNum = (n: number) => km.format(n); // 1,163, as the rest of the site writes a number
 export const KM_PER_MILE = 1.609344;
 
 export const carTitle = (car: Pick<Car, "make" | "model" | "variant">) => [car.make, car.model, car.variant].filter(Boolean).join(" ");
@@ -14,7 +15,9 @@ export const carName = (car: Pick<Car, "year" | "make" | "model">) => `${car.yea
 // A car's own page, whatever kind it is (used, new or commercial all live under /used-cars).
 export const carHref = (slug: string) => `/used-cars/${slug}`;
 // What a lead dialog shows of a car (CarSummary). Only these fields cross into client components, never the Car (LED-02).
-export const carSummary = (car: Car) => ({ id: car.id, name: carName(car), title: carTitle(car), variant: car.variant, price: formatPrice(car.priceEur), photo: car.photos[0]?.src });
+// The price as words: the figure, or Price on request for a price of 0.
+export const priceLabel = (car: Pick<Car, "priceEur">) => (onRequest(car) ? PRICING.labels.onRequest : fmtEur(car.priceEur));
+export const carSummary = (car: Car) => ({ id: car.id, name: carName(car), title: carTitle(car), variant: car.variant, price: priceLabel(car), photo: car.photos[0]?.src });
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 // "2027-07" -> "Jul 2027". Fixed names, not Intl, so the Worker and Node print the same text.
@@ -50,7 +53,7 @@ export function specRows(car: Car): SpecRow[] {
 const KEY_LABELS = ["Year", "Mileage", "Fuel", "Transmission", "Body type", "Engine", "Colour"];
 export const keyFacts = (car: Car) => specRows(car).filter((r) => KEY_LABELS.includes(r.label)).slice(0, 4);
 
-export const countLabel = (n: number) => (n === 0 ? "No cars" : n === 1 ? "1 car" : `${formatCount(n)} cars`);
+export const countLabel = (n: number) => (n === 0 ? "No cars" : n === 1 ? "1 car" : `${fmtNum(n)} cars`);
 
 // Equipment comes from the dealer's feed in Title Case ("Air Conditioning"); the site writes sentence case ("Air conditioning"). Only
 // plain capitalised words after the first are lowered: acronyms (ABS, DAB) and brand names in KEEP stay as they are.

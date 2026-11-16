@@ -113,7 +113,7 @@
   --color-accent-text: #a78bfa; /* lavender: accent text on Midnight */
   --color-card: #121832;
   --color-row-alt: #161d3b;
-  --color-chart-muted: #353d61;
+  --color-chart-muted: #5a6491; /* 3.2:1 on the dark card */
   --color-rail: #070a17; /* a step below Midnight: the menu recedes, the cards on the page come forward */
   --color-ink: #0b0f1f;
   --color-text: #f5f6fa; /* off-white */

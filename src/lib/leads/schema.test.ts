@@ -2,7 +2,8 @@ import { z } from "zod";
 import { describe, expect, it } from "vitest";
 import { CONTACT_ERROR, LIMITS } from "./constants";
 import { leadSchema } from "./schema";
-import { irishToday, regPeriods } from "./reg-periods";
+import { regPeriods } from "./reg-periods";
+import { dublinDay } from "@/lib/admin/format";
 
 const base = { type: "enquiry", carId: "123", clientRef: crypto.randomUUID(), sourcePath: "/used-cars/x", name: "Ann", phone: "087 123 4567", consent: "yes" };
 const errors = (input: Record<string, unknown>) => {
@@ -197,7 +198,7 @@ describe("finance application (FIN-03, D-17)", () => {
 
 describe("a factory order request", () => {
   const order = { ...base, type: "order", carId: undefined, make: "Kia", model: "Sportage" };
-  const period = regPeriods(irishToday())[1];
+  const period = regPeriods(dublinDay())[1];
   it("takes a make, a model and a period that can still be ordered for", () => {
     expect(errors({ ...order, regPeriod: period })).toEqual({});
     expect(errors({ ...order, regPeriod: "201" }).regPeriod).toEqual(["Choose when you'd like it."]);

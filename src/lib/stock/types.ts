@@ -1,4 +1,5 @@
 import textLimits from "./text-limits.json";
+import { DEALER_RULES } from "@/lib/dealer.config";
 export const FUELS = ["petrol", "diesel", "hybrid", "plug-in-hybrid", "electric", "other"] as const;
 export type Fuel = (typeof FUELS)[number];
 export const FUEL_LABELS: Record<Fuel, string> = {
@@ -112,12 +113,16 @@ export interface StockResult {
   pageCount: number;
   facets: Facets;
 }
-// Days a sold car stays visible after its sale date (D-02). One setting: confirm with the dealer.
-export const SOLD_VISIBLE_DAYS = 30;
+// Days a sold car stays visible after its sale date (D-02): the dealer's setting.
+export const SOLD_VISIBLE_DAYS = DEALER_RULES.soldVisibleDays;
 export const isSold = (car: Pick<Car, "soldAt">) => car.soldAt !== undefined;
-// On the website and for sale: not sold, not a draft, not hidden. Where a car must be offered (posts, test drives); "not sold" alone is
-// the stock the dealer owns (margins, stock age), hidden cars included.
+// On the website and for sale: not sold, not a draft, not hidden, not reserved. Where a car must be offered (posts, test drives) and old
+// stock (a price to look at); "not sold" alone is the stock the dealer owns (margins), hidden cars included.
 export const forSale = (car: Pick<Car, "soldAt" | "listing" | "reserved">) => !isSold(car) && !car.listing && !car.reserved;
+// A price of €0 is Price on request: no figure, no finance, no drop, and last in a price sort.
+export const onRequest = (car: Pick<Car, "priceEur">) => car.priceEur === 0;
+// Reduced: an earlier, higher price is shown struck through. Never on a car with its price on request.
+export const isReduced = (car: Pick<Car, "priceEur" | "wasPriceEur">) => !onRequest(car) && car.wasPriceEur !== undefined && car.wasPriceEur > car.priceEur;
 
 // live: in stock or sold inside the period. gone: sold past the period (the URL answers 410). null: never known (404).
 export type Lookup = { state: "live"; car: Car } | { state: "gone"; make: string; makeSlug: string } | null;

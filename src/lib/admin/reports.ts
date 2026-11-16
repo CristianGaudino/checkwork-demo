@@ -2,8 +2,9 @@ import type { Lead, Sale } from "./collections";
 import type { PrepKind, PrepLine } from "./prep";
 import { isSold, type Car } from "@/lib/stock/types";
 import { DAY } from "@/lib/time";
-import { daysSince, dublinDay } from "./format";
+import { daysSince, dublinDay, threeLetter } from "./format";
 import { followUpDue } from "./follow-ups";
+import { OLD_STOCK_DAYS } from "./overview";
 
 // The Reports page's figures, worked out from the records. Pure, so every figure is tested.
 // A period is the last 3, 6 or 12 months, counted in whole Irish calendar months, this one included.
@@ -19,7 +20,7 @@ export function monthsOf(period: Period, today: string): string[] {
     return d.toISOString().slice(0, 7);
   });
 }
-export const monthLabel = (month: string) => MONTH.format(new Date(`${month}-01T12:00:00Z`));
+export const monthLabel = (month: string) => threeLetter(MONTH.format(new Date(`${month}-01T12:00:00Z`)));
 const leadMonth = (l: Lead) => dublinDay(l.createdAt).slice(0, 7);
 const rate = (won: number, of: number) => (of ? Math.round((won / of) * 100) : 0);
 
@@ -79,7 +80,12 @@ export function fullReport(input: { sales: Sale[]; cars: Car[]; leads: Lead[]; t
     .sort((a, b) => b.won - a.won || b.leads - a.leads);
 
   // Cars for sale now, by how long they have been listed.
-  const BANDS: [string, number, number][] = [["Under 30 days", 0, 30], ["30 to 59 days", 30, 60], ["60 to 89 days", 60, 90], ["90 days or more", 90, Infinity]];
+  // The last band is old stock, whatever the dealer set it to; the bands before it stop short of it.
+  const edges = [...[0, 30, 60].filter((d) => d < OLD_STOCK_DAYS), OLD_STOCK_DAYS];
+  const BANDS: [string, number, number][] = [
+    ...edges.slice(0, -1).map((from, i): [string, number, number] => [from === 0 ? `Under ${edges[i + 1]} days` : `${from} to ${edges[i + 1] - 1} days`, from, edges[i + 1]]),
+    [`${OLD_STOCK_DAYS} days or more`, OLD_STOCK_DAYS, Infinity],
+  ];
   const ageOf = (c: Car) => daysSince(c.listedAt!, input.now);
   const forSale = input.cars.filter((c) => !isSold(c) && c.listedAt);
   const stockAge = BANDS.map(([band, from, to]) => {

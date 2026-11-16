@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
+import { digits } from "./open";
 import type { Page } from "@playwright/test";
 import { SOLD_VISIBLE_DAYS } from "../src/lib/stock/types";
 
@@ -11,7 +12,6 @@ const inPeriod = cars.filter((c) => c.soldAt && Date.parse(c.soldAt) + SOLD_VISI
 // A make that has both cars to buy and a sold car in the window, so the order check has something on each side.
 const mixedMake = inPeriod.find((s) => cars.some((c) => c.makeSlug === s.makeSlug && !c.soldAt))?.makeSlug;
 
-const digits = (s: string | null) => Number((s ?? "").replace(/\D/g, ""));
 const countText = (n: number) => (n === 0 ? "No cars" : n === 1 ? "1 car" : `${n} cars`);
 const SKIP = "No demo car is inside the sold window: run npm run stock:redate to refresh the demo dates";
 

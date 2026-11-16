@@ -2,14 +2,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ClaimStatusBadge, CoverBadge } from "@/components/admin/badges";
 import { ChoiceAct } from "@/components/admin/ActButton";
-import { Facts, Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
+import { Facts, PageHeader, Panel, adminButtonQuiet } from "@/components/admin/kit";
 import { ClaimCostForm } from "@/components/admin/ClaimForms";
 import { CLAIM_STATUSES, CLAIM_STATUS_LABELS, claimsStore, coverEnds, customersStore, salesStore } from "@/lib/admin/collections";
 import { TimeLeft } from "@/components/admin/charts";
-import { dublinDay, fmtDate, fmtDateTime } from "@/lib/admin/format";
+import { dublinDay, fmtDate } from "@/lib/admin/format";
 import { can } from "@/lib/permissions";
+import { hasModule } from "@/lib/modules";
 import { addClaimNoteAction, setClaimStatusAction } from "../actions";
-import { SubmitButton } from "@/components/admin/SubmitButton";
+import { NotesPanel } from "@/components/admin/NotesPanel";
 
 export const metadata = { title: "Warranty claim" };
 
@@ -34,33 +35,14 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             <p className="max-w-measure whitespace-pre-line text-body">{claim.fault}</p>
             <Facts
               items={[
-                ["Customer", buyer ? <Link key="b" href={`/dashboard/customers/${buyer.id}`} className="underline">{buyer.name}</Link> : "Not on file"],
+                ["Customer", buyer ? ((await hasModule("sales")) ? <Link key="b" href={`/dashboard/customers/${buyer.id}`} className="underline">{buyer.name}</Link> : buyer.name) : "Not on file"],
                 ["Sold", sale ? day(sale.soldOn) : "Not on file"],
                 ["Cover until", sale ? day(coverEnds(sale)) : "Not known"],
                 ...(claim.leadId ? [["From", <Link key="l" href={`/dashboard/aftersales/requests/${claim.leadId}`} className="underline">The website request</Link>] as const] : []),
               ] as const}
             />
           </Panel>
-          <Panel title="Notes">
-            {claim.notes.length === 0 ? (
-              <p className="text-body text-text-2">No notes yet.</p>
-            ) : (
-              <ul className="flex flex-col divide-y divide-hairline">
-                {claim.notes.map((n) => (
-                  <li key={n.at} className="flex flex-col gap-0.5 py-2">
-                    <span className="whitespace-pre-line text-body">{n.text}</span>
-                    <span className="text-meta text-text-2">{fmtDateTime(n.at)}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <form action={addClaimNoteAction.bind(null, claim.id)} className="flex flex-col gap-3">
-              <Field label="Add a note">
-                <textarea name="note" rows={3} maxLength={500} required className={`${adminInput} h-auto py-2`} />
-              </Field>
-              <SubmitButton className={`${adminButton} self-start`}>Add note</SubmitButton>
-            </form>
-          </Panel>
+          <NotesPanel notes={claim.notes} action={addClaimNoteAction.bind(null, claim.id)} />
         </div>
         <div className="flex min-w-0 flex-col gap-6">
           <Panel title="Status" action={<ClaimStatusBadge status={claim.status} />}>

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { mockText } from "./mock";
-import { ADJUSTS, adjustsFor, type Adjust, type CarFacts, type FactsOf } from "./tasks";
+import { ADJUSTS, adjustsFor, maskContacts, noContacts, unmaskContacts, type Adjust, type CarFacts, type FactsOf } from "./tasks";
 
 const car: CarFacts = { name: "2019 Ford Focus 1.0 Titanium", year: 2019, mileageKm: 129999, fuel: "Petrol", gearbox: "Manual", body: "Hatchback", engineLitres: 1, colour: "Blue", doors: 5, seats: 5, owners: 2, nctExpiry: "2027-07", price: "€13,950 Inc. VAT", was: "€14,450", features: ["Bluetooth", "Parking sensors", "Cruise control"], link: "https://x.test/used-cars/ford-focus" };
 const voice = { signOff: "Call in to see it.", hashtags: "#usedcars" };
@@ -79,5 +79,28 @@ describe("the demo writer", () => {
 
     const nl: FactsOf["newsletter"] = { dealer: "D", cars: [car], voice };
     for (const a of adjustsFor("newsletter")) expect(mockText("newsletter", nl, a), a).not.toBe(mockText("newsletter", nl));
+  });
+});
+
+describe("what goes to the AI provider", () => {
+  it("takes phone numbers and emails out of a customer's message", () => {
+    expect(noContacts("Call 087 123 4567 or +353 87 765 4321, or mail pat.b@example.ie. Is the 2019 car still there?")).toBe("Call [phone] or [phone], or mail [email]. Is the 2019 car still there?");
+    expect(noContacts("Ring 087/1234567 or (087) 123 4567, mail seán.óg@example.ie")).toBe("Ring [phone] or [phone], mail [email]");
+  });
+  it("keeps registrations, dates, times, budgets, mileage and prices", () => {
+    const kept = "191-D-12345, 06-D-1234567, 22-11-2026, 23.11.2026, Saturday 10.30 - 11.30, 2019 2020 model, 85,000 km, 120 000 km, €12,500";
+    expect(noContacts(kept)).toBe(kept);
+    for (const t of ["Can I view it on 14/06/2025 14:00?", "192 Toyota 2019 2020 2021", "Write to me (pat@x.ie) today"]) expect(noContacts(t)).toBe(t.replace("pat@x.ie", "[email]"));
+  });
+  it("puts the dealer's own number and email back after an adjust, in order", () => {
+    const m = maskContacts("Sales 01 111 2222, Service 01 333 4444, mail sales@dealer.ie", true);
+    expect(m.text).toBe("Sales [phone 1], Service [phone 2], mail [email 1]");
+    expect(unmaskContacts("For a service, call [phone 2] or email [email 1].", m)).toBe("For a service, call 01 333 4444 or email sales@dealer.ie.");
+    // A customer's number, masked plain in the facts, never gets the dealer's
+    expect(unmaskContacts("We'll ring you on [phone]. Or call us on [phone 1].", m)).toBe("We'll ring you on [phone]. Or call us on 01 111 2222.");
+  });
+  it("takes out a number that follows a date", () => {
+    expect(noContacts("Viewing 14/06/2025 087 123 4567")).not.toContain("123 4567");
+    for (const t of ["Ring 087-12-34567", "Mob 087-1-234567", "01.23.45678"]) expect(noContacts(t)).toContain("[phone]");
   });
 });

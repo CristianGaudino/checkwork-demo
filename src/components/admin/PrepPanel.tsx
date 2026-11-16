@@ -6,8 +6,7 @@ import { Field, Panel, adminButton, adminInput, rowButton } from "@/components/a
 import { ActButton } from "@/components/admin/ActButton";
 import { addPrepAction, removePrepAction, type PrepFormState } from "@/app/dashboard/stock/actions";
 import { PREP_KINDS, type PrepLine } from "@/lib/admin/prep";
-
-const eur = new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
+import { fmtEur } from "@/lib/admin/format";
 
 // Prep costs on a car: a short list and its total, with adding a line folded away until it is wanted, so a dealer who does not track
 // prep sees one quiet line. Margins permission only (the page and the server both check).
@@ -16,7 +15,7 @@ export function PrepPanel({ carId, lines }: { carId: string; lines: PrepLine[] }
   const e = state?.errors ?? {};
   const total = lines.reduce((s, l) => s + l.eur, 0);
   return (
-    <Panel title="Prep costs" action={total > 0 && <span className="font-semibold tabular-nums">{eur.format(total)}</span>}>
+    <Panel title="Prep costs" action={total > 0 && <span className="font-semibold tabular-nums">{fmtEur(total)}</span>}>
       {lines.length === 0 ? (
         <p className="text-body text-text-2">None yet. Valet, tyres, NCT and the like go here, on top of the cost price.</p>
       ) : (
@@ -28,8 +27,8 @@ export function PrepPanel({ carId, lines }: { carId: string; lines: PrepLine[] }
                 {l.note && <span title={l.note} className="truncate text-meta text-text-2">{l.note}</span>}
               </span>
               <span className="flex items-center gap-3">
-                <span className="tabular-nums">{eur.format(l.eur)}</span>
-                <ActButton act={removePrepAction.bind(null, carId, l.at)} label={`Remove ${l.kind}, ${eur.format(l.eur)}`} confirm={{ title: `Remove ${l.kind}, ${eur.format(l.eur)}?`, yes: "Remove" }} className={`${rowButton} text-bad`}>
+                <span className="tabular-nums">{fmtEur(l.eur)}</span>
+                <ActButton act={removePrepAction.bind(null, carId, l.at)} label={`Remove ${l.kind}, ${fmtEur(l.eur)}`} confirm={{ title: `Remove ${l.kind}, ${fmtEur(l.eur)}?`, yes: "Remove" }} className={`${rowButton} text-bad`}>
                   Remove
                 </ActButton>
               </span>

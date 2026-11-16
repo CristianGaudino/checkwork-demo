@@ -3,8 +3,8 @@ import { FINANCE } from "@/lib/finance/finance.config";
 import { PRICE_STOPS } from "@/lib/stock/types";
 import { BAD_DRIVE_DAY, BAD_DRIVE_TIME, BAD_KM, driveDays, driveTimes, phoneError, BAD_REG, CONTACT_ERROR, EMPLOYMENT, KM_PATTERN, LIMITS, REG_PATTERN, SOURCING_BODIES, SOURCING_CAR_ERROR } from "./constants";
 import { DAY } from "../time";
-import { dublinMs } from "../admin/format";
-import { irishToday, regPeriods } from "./reg-periods";
+import { regPeriods } from "./reg-periods";
+import { dublinDay, dublinMs } from "@/lib/admin/format";
 import { CHOICES, TOPIC_IDS } from "./contact-topics";
 
 // The lead validation, run on the server. Client components import ./constants, never this file (it brings zod).
@@ -84,7 +84,7 @@ const order = {
   make: given(oneLine(z.string({ error: "Choose a make." }).trim().min(1, "Choose a make.").max(60, tooLong(60)))),
   model: given(oneLine(z.string({ error: "Enter the model." }).trim().min(1, "Enter the model.").max(60, tooLong(60)))),
   spec: given(oneLine(z.string().trim().max(120, tooLong(120))).optional()),
-  regPeriod: given(z.string({ error: "Choose when you'd like it." }).refine((v) => regPeriods(irishToday()).includes(v), "Choose when you'd like it.")),
+  regPeriod: given(z.string({ error: "Choose when you'd like it." }).refine((v) => regPeriods(dublinDay()).includes(v), "Choose when you'd like it.")),
   message: given(z.string().trim().max(LIMITS.message, tooLong(LIMITS.message)).optional()),
 };
 

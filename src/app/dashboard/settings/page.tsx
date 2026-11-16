@@ -4,6 +4,7 @@ import { Badge, DataTable, PageHeader, Panel, adminButtonQuiet, rowButton } from
 import { ActButton } from "@/components/admin/ActButton";
 import { getSettings } from "@/lib/admin/collections";
 import { INTEGRATIONS, type IntegrationId, isUsable, missingEnv, modeOf } from "@/lib/integrations";
+import { formatHours } from "@/lib/dealer";
 import { DEALER_ADDRESS_TEXT, DEALER_EMAIL, DEALER_PHONE, OPENING_HOURS, SITE_NAME } from "@/lib/site";
 import { removeTeamAction, resetDemoAction } from "./actions";
 import { mayResetDemo } from "@/lib/admin/docs";
@@ -18,11 +19,10 @@ import { enabledModules } from "@/lib/modules";
 import type { ModuleId } from "@/lib/modules-rules";
 
 // What each role may see, in words, so the owner knows what a role change does.
-const GRANTS: Record<Role, string> = { Owner: "Everything", Manager: "Everything except changing an owner", Sales: "Everything except margins, the full reports, the team, settings, activity and data requests", Finance: "Margins and the full reports, and everything Sales sees" };
+const GRANTS: Record<Role, string> = { Owner: "Everything", Manager: "Everything except changing an owner", Sales: "Everything except margins, the full reports, the team, settings, activity, data requests and billing", Finance: "Margins and the full reports, and everything Sales sees" };
 
 export const metadata = { title: "Settings" };
 
-const hours = (h: (typeof OPENING_HOURS)[number]) => (h.opens ? `${h.opens} to ${h.closes}` : "Closed");
 
 // The page in sections, one at a time (?section=), so it is never one long scroll on a phone: a list down the side from 1024px, a row of
 // tabs above on a phone.
@@ -88,7 +88,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
               {OPENING_HOURS.map((h) => (
                 <li key={h.day} className="flex justify-between gap-4 border-b border-hairline py-1.5">
                   <span>{h.day}</span>
-                  <span className="tabular-nums text-text-2">{hours(h)}</span>
+                  <span className="tabular-nums text-text-2">{formatHours(h)}</span>
                 </li>
               ))}
               {/* As on the public site: no test drive is offered on one (src/lib/bank-holidays.ts). */}
@@ -184,7 +184,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
 
           <Panel title="Notifications">
             <Locked open={edit}>
-              <NotificationsForm settings={s} emailConnected={isUsable("newsletter")} />
+              <NotificationsForm settings={s} emailConnected={isUsable("email")} />
             </Locked>
           </Panel>
 
@@ -209,7 +209,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
                 { key: "name", header: "Service", cell: (i) => <span className="font-medium">{i.name}</span> },
                 { key: "purpose", header: "What it does", hide: "md", cell: (i) => i.purpose, className: "max-w-[20rem]" },
                 { key: "status", header: "Status", cell: (i) => (isUsable(i.id) ? <Badge tone="good">Connected</Badge> : <Badge tone="warn">Not connected</Badge>) },
-                { key: "missing", header: "Account or still needed", hide: "sm", cell: (i) => <span className="break-words text-meta text-text-2">{modeOf(i.id) === "off" ? missingEnv(i).join(", ") : modeOf(i.id) === "simulated" ? i.demoAccount : "Nothing"}</span> },
+                { key: "missing", header: "Account or still needed", hide: "sm", cell: (i) => <span className="break-words text-meta text-text-2">{modeOf(i.id) === "off" ? (i.id === "ai" ? "An API key" : missingEnv(i).join(", ")) : modeOf(i.id) === "simulated" ? i.demoAccount : "Nothing"}</span> },
               ]}
             />
             <p className="text-meta text-text-2">Add a missing setting in the Cloudflare dashboard (Workers, Settings, Variables and secrets) and the service connects on the next request.</p>

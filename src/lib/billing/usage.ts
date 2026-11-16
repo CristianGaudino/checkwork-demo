@@ -1,10 +1,11 @@
 import "server-only";
 import { defineCollection } from "@/lib/admin/docs";
 import { dublinDay } from "@/lib/admin/format";
-import { getSettings, settingsStore } from "@/lib/admin/collections";
+import { SETTINGS_DEFAULT, getSettings, settingsStore, type DealerSettings } from "@/lib/admin/collections";
 import { notify } from "@/lib/admin/notifications";
-import { BILLING_DEFAULT, alertsCrossed, usageCosts, usageId, withinCaps, type BillingSettings, type Kind, type Service, type UsageCount } from "./rules";
+import { SHOW_PRICING, alertsCrossed, usageCosts, usageId, withinCaps, type BillingSettings, type Kind, type Service, type UsageCount, withBillingDefaults } from "./rules";
 import { hasModule } from "@/lib/modules";
+import { roleCan } from "@/lib/permission-rules";
 
 // The meters for what is billed per use (#181): registration lookups, AI actions and WhatsApp messages. Every paid use is counted here,
 // once, by the code that makes it; the Billing page, the owner API (#174) and the bill all read these counts, so they never disagree.
@@ -18,7 +19,7 @@ export const monthOf = (t: number = Date.now()) => dublinDay(t).slice(0, 7);
 // The assistant plan counts only while the dealer has the AI module, so the Billing page, the meters and the owner API agree.
 export async function billingSettings(): Promise<BillingSettings> {
   const s = await getSettings();
-  const b = { ...BILLING_DEFAULT, ...s.billing };
+  const b = withBillingDefaults(s.billing);
   return b.aiPlan === "assistant" && !(await hasModule("ai")) ? { ...b, aiPlan: "perAction" } : b;
 }
 export async function monthCounts(month = monthOf()): Promise<UsageCount[]> {
@@ -51,12 +52,12 @@ export async function recordUsage<S extends Service>(service: S, kind: Kind<S>, 
     await usageStore.put(next);
     const after = [...before.filter((c) => c.id !== id), next];
     const alerts = alertsCrossed(usageCosts(before, b.aiPlan), usageCosts(after, b.aiPlan), b, month);
-    if (!alerts.length) return;
+    if (!alerts.length || !SHOW_PRICING) return; // no limit notices while pricing is hidden, and none marked sent
     const { team } = await getSettings();
     // Each owner and manager, by the name the bell knows them by (src/lib/permissions.ts): the team's, and an owner in ADMIN_OWNER_EMAILS who is
     // not on the team goes by their email. Only them, so Sales and Finance never see what the dealer pays; with nobody, no notice.
     const teamEmails = new Set(team.map((t) => t.email.toLowerCase()));
-    const leaders = [...team.filter((t) => t.role === "Owner" || t.role === "Manager").map((t) => t.name), ...(process.env.ADMIN_OWNER_EMAILS ?? "").split(",").map((e) => e.trim().toLowerCase()).filter((e) => e && !teamEmails.has(e))];
+    const leaders = [...team.filter((t) => roleCan(t.role, "billing")).map((t) => t.name), ...(process.env.ADMIN_OWNER_EMAILS ?? "").split(",").map((e) => e.trim().toLowerCase()).filter((e) => e && !teamEmails.has(e))];
     for (const a of alerts) {
       if (await sentAlertsStore.get(a.key)) continue;
       await sentAlertsStore.put({ id: a.key });
@@ -68,9 +69,15 @@ export async function recordUsage<S extends Service>(service: S, kind: Kind<S>, 
 }
 
 // Saves the dealer's limits and alerts. Ours (the ceilings) are set from the owner's program, never here.
-export async function saveBilling(change: Partial<Pick<BillingSettings, "caps" | "alerts" | "alertAt80" | "aiPlan">>) {
-  const s = await getSettings();
-  await settingsStore.put({ ...s, billing: { ...BILLING_DEFAULT, ...s.billing, ...change }, updatedAt: Date.now() });
+// `change` may be worked out from the billing as it is when written (adding or removing one alert), so two saves at once both land.
+type BillingChange = Partial<Pick<BillingSettings, "caps" | "alerts" | "alertAt80" | "aiPlan" | "aiModel">>;
+export async function saveBilling(change: BillingChange | ((now: BillingSettings) => BillingChange)) {
+  // On the settings as they are now, so a team change saved at the same moment is never undone.
+  const apply = (s: Partial<DealerSettings>) => {
+    const b = withBillingDefaults(s.billing);
+    return { ...SETTINGS_DEFAULT, ...s, billing: { ...b, ...(typeof change === "function" ? change(b) : change) }, updatedAt: Date.now() };
+  };
+  if (!(await settingsStore.update("dealer", apply))) await settingsStore.put(apply({}));
 }
 
 // The demo's month so far: steady daily use, so the Billing page shows a lived-in month on any day, well under the demo's limits.
@@ -80,8 +87,8 @@ function seedUsage(): UsageCount[] {
   const lines: [Service, string, number][] = [
     ["lookup", "website", 2 * day],
     ["lookup", "dashboard", day],
-    ["ai", "draft", 4 * day],
-    ["ai", "adjust", 3 * day],
+    ["ai", "opus", 4 * day],
+    ["ai", "sonnet", 3 * day],
     ["whatsapp", "alert", 6 * day],
     ["whatsapp", "reply", 4 * day],
     ["whatsapp", "marketing", day > 7 ? 40 : 0],

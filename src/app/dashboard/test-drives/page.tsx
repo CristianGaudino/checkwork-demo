@@ -229,7 +229,7 @@ function List({ drives, sp, team, gone }: { drives: TestDrive[]; sp: Params; tea
   ];
   return (
     <>
-      <TableToolbar search={{ placeholder: "Search name, phone or car", label: "Search test drives" }} filters={filters} />
+      <TableToolbar search={{ placeholder: "Search", label: "Search test drives" }} filters={filters} />
       <DataTable label="Test drives" linkRows rows={paged.rows} rowKey={(d) => d.id} columns={columns} sort={sort} empty={<EmptyState title="No bookings match" text="Try another filter or search." />} />
       <TableFooter page={paged.page} pageCount={paged.pageCount} total={paged.total} per={paged.per} />
     </>

@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { InfoPage, InfoSection } from "@/components/InfoPage";
 import { LEAD_RETENTION_MONTHS, SALE_KEEP_YEARS } from "@/lib/leads/constants";
-import { DEALER_EMAIL, SITE_NAME } from "@/lib/site";
+import Link from "next/link";
+import { IfModule } from "@/components/IfModule";
+import { DEALER_EMAIL, DEALER_FACTS_CONFIRMED, SITE_NAME } from "@/lib/site";
 
 export const metadata: Metadata = { title: "Privacy policy", description: `How ${SITE_NAME} uses the details you send us, how long we keep them, and how to ask for them to be deleted.` };
 
@@ -35,6 +37,12 @@ export default function PrivacyPage() {
           Cloudflare hosts this site, runs the bot check on our forms, counts page visits for us (without cookies) and delivers your request to us by email. Cloudflare also keeps the
           requests in a database, and trade-in photos, in the EU.
         </p>
+        <IfModule id="ai">
+          <p>When our staff draft a reply to your request or review, its text goes to our AI provider, which writes a draft for them to check. Phone numbers and email addresses are taken out first.</p>
+        </IfModule>
+        <IfModule id="whatsapp">
+          <p>If you give us your WhatsApp number or message us there, your number and messages go to WhatsApp, which delivers them to us. We can also send you updates about your request on WhatsApp.</p>
+        </IfModule>
       </InfoSection>
       <InfoSection title="How long we keep it">
         <p>We keep each request for {LEAD_RETENTION_MONTHS} months, then delete it.</p>
@@ -42,12 +50,22 @@ export default function PrivacyPage() {
       </InfoSection>
       <InfoSection title="How to ask us to delete it">
         <p>
-          Email us at{" "}
-          <a href={`mailto:${DEALER_EMAIL}`} className="font-semibold underline">
-            {DEALER_EMAIL}
-          </a>{" "}
-          and we&apos;ll delete your details.
-          Please write from the address you used on the form, so we can find your request.
+          {DEALER_FACTS_CONFIRMED ? (
+            <>
+              Email us at{" "}
+              <a href={`mailto:${DEALER_EMAIL}`} className="font-semibold underline">
+                {DEALER_EMAIL}
+              </a>
+            </>
+          ) : (
+            <>
+              Send us a message from the{" "}
+              <Link href="/contact" className="font-semibold underline">
+                contact page
+              </Link>
+            </>
+          )}{" "}
+          and we&apos;ll delete your details. Please write from the address you used on the form, so we can find your request.
         </p>
       </InfoSection>
     </InfoPage>
