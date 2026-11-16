@@ -136,7 +136,7 @@ function PlanAndUsage({ modules, services, usage, b, now }: { modules: Modules; 
             <dt>
               Founding dealer: {FOUNDING.pct}% off until {foundingEnd(now)}
             </dt>
-            <dd className="tabular-nums">-{eur(round2(plan - planNet))}</dd>
+            <dd className="whitespace-nowrap tabular-nums">-{eur(round2(plan - planNet))}</dd>
           </div>
           <div className="flex justify-between gap-4 py-2 font-semibold">
             <dt>Plan each month, before VAT</dt>

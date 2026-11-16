@@ -2,7 +2,7 @@ import type { Lead, Sale } from "./collections";
 import type { PrepKind, PrepLine } from "./prep";
 import { isSold, type Car } from "@/lib/stock/types";
 import { DAY } from "@/lib/time";
-import { daysSince, dublinDay } from "./format";
+import { daysSince, dublinDay, threeLetter } from "./format";
 import { followUpDue } from "./follow-ups";
 
 // The Reports page's figures, worked out from the records. Pure, so every figure is tested.
@@ -19,7 +19,7 @@ export function monthsOf(period: Period, today: string): string[] {
     return d.toISOString().slice(0, 7);
   });
 }
-export const monthLabel = (month: string) => MONTH.format(new Date(`${month}-01T12:00:00Z`));
+export const monthLabel = (month: string) => threeLetter(MONTH.format(new Date(`${month}-01T12:00:00Z`)));
 const leadMonth = (l: Lead) => dublinDay(l.createdAt).slice(0, 7);
 const rate = (won: number, of: number) => (of ? Math.round((won / of) * 100) : 0);
 

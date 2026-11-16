@@ -82,7 +82,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         }
       />
       <SummaryTabs label="Orders" items={(Object.keys(VIEWS) as View[]).map((v) => ({ label: VIEWS[v].label, count: orders.filter(VIEWS[v].test).length, href: `/dashboard/orders?view=${v}`, active: view === v }))} />
-      <TableToolbar search={{ placeholder: "Search customer, make or model", label: "Search orders" }} filters={filters} />
+      <TableToolbar search={{ placeholder: "Search", label: "Search orders" }} filters={filters} />
       <DataTable
         label="Orders"
         linkRows

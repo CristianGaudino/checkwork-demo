@@ -2,7 +2,7 @@ import Link from "next/link";
 import { AreaChart, BarList } from "@/components/admin/charts";
 import { DataTable, EmptyState, PageHeader, Panel, Segmented, StatCard, StatGrid } from "@/components/admin/kit";
 import { RANGES, buildAnalytics, change, parseRange } from "@/lib/admin/analytics";
-import { fmtNum, fmtPct } from "@/lib/admin/format";
+import { fmtNum, fmtPct, threeLetter } from "@/lib/admin/format";
 import { leadsStore } from "@/lib/admin/collections";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { simulating } from "@/lib/integrations";
@@ -48,7 +48,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
       </StatGrid>
 
       <Panel title="Visitors each day">
-        <AreaChart data={a.days.map((d) => ({ label: shortDate.format(new Date(d.date)), value: d.visitors }))} summary={`Visitors each day over the last ${range} days, from ${fmtNum(Math.min(...a.days.map((d) => d.visitors)))} to ${fmtNum(Math.max(...a.days.map((d) => d.visitors)))}.`} />
+        <AreaChart data={a.days.map((d) => ({ label: threeLetter(shortDate.format(new Date(d.date))), value: d.visitors }))} summary={`Visitors each day over the last ${range} days, from ${fmtNum(Math.min(...a.days.map((d) => d.visitors)))} to ${fmtNum(Math.max(...a.days.map((d) => d.visitors)))}.`} />
       </Panel>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

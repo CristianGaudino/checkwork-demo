@@ -4,6 +4,7 @@ import { Badge, DataTable, PageHeader, Panel, adminButtonQuiet, rowButton } from
 import { ActButton } from "@/components/admin/ActButton";
 import { getSettings } from "@/lib/admin/collections";
 import { INTEGRATIONS, type IntegrationId, isUsable, missingEnv, modeOf } from "@/lib/integrations";
+import { formatHours } from "@/lib/dealer";
 import { DEALER_ADDRESS_TEXT, DEALER_EMAIL, DEALER_PHONE, OPENING_HOURS, SITE_NAME } from "@/lib/site";
 import { removeTeamAction, resetDemoAction } from "./actions";
 import { mayResetDemo } from "@/lib/admin/docs";
@@ -22,7 +23,7 @@ const GRANTS: Record<Role, string> = { Owner: "Everything", Manager: "Everything
 
 export const metadata = { title: "Settings" };
 
-const hours = (h: (typeof OPENING_HOURS)[number]) => (h.opens ? `${h.opens} to ${h.closes}` : "Closed");
+const hours = formatHours;
 
 // The page in sections, one at a time (?section=), so it is never one long scroll on a phone: a list down the side from 1024px, a row of
 // tabs above on a phone.

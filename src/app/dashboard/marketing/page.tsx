@@ -9,7 +9,7 @@ import { hasModule } from "@/lib/modules";
 import { notFound } from "next/navigation";
 import { TIME_ZONE } from "@/lib/site";
 import { FORMAT_LABELS } from "@/lib/admin/networks";
-import { addDays, dublinDay, fmtDate, fmtDateTime, fmtEur, fmtNum, fmtPct, isIsoDay, plural } from "@/lib/admin/format";
+import { addDays, dublinDay, fmtDate, fmtDateTime, fmtEur, fmtNum, fmtPct, isIsoDay, plural, threeLetter } from "@/lib/admin/format";
 import Link from "next/link";
 import { calendarWeek, weekDays, worthPosting } from "@/lib/admin/marketing";
 import { adminCars } from "@/lib/admin/stock-admin";
@@ -273,7 +273,7 @@ function Calendar({ posts, ads, week }: { posts: Awaited<ReturnType<typeof posts
   const days = weekDays(anchor);
   const items = calendarWeek(posts, ads, days);
   const link = (day: string) => `/dashboard/marketing?tab=calendar&week=${day}`;
-  const label = (day: string) => new Date(`${day}T12:00:00Z`).toLocaleDateString("en-IE", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+  const label = (day: string) => threeLetter(new Date(`${day}T12:00:00Z`).toLocaleDateString("en-IE", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" }));
   return (
     <section aria-label="Week" className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-2">
