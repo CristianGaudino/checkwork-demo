@@ -128,6 +128,20 @@ describe("asking for more photos, then making an offer", () => {
   });
 });
 
+describe("two people asked to reply to one alert", () => {
+  it("sends the first offer only, and tells the second it is done", async () => {
+    db.leads.set("real-1", lead("new"));
+    alert("a1", ["price"], { leadId: "real-1", event: "trade-in" });
+    alert("a2", ["price"], { leadId: "real-1", event: "trade-in" });
+    await tap("Aoife", "a1", "price");
+    await tap("Aoife", "a2", "price"); // both questions are open before either is answered
+    sent.length = 0;
+    await typed("Aoife", "8,500");
+    await typed("Aoife", "9,000");
+    expect(sent.filter((m) => /€/.test(String(m.text)))).toHaveLength(1);
+  });
+});
+
 describe("a closed lead and an old question", () => {
   it("sends no offer after the lead was declined from the other copy", async () => {
     db.leads.set("real-1", lead("contacted"));

@@ -91,7 +91,7 @@ export async function tap(me: string, msgId: string, button: ButtonId): Promise<
   // The rest answer the alert once, for everyone it went to: one offer, one decline, one confirm. Asking for more photos keeps it open.
   if (msg.done || all.some((m) => m.done)) return void (await say(me, { text: "Already done." }));
   if (button === "price") return void (await say(me, { leadId: msg.leadId, ref: msg.id, text: `What price do you want to offer${first ? ` ${first}` : ""}? Type it, like 8,500.`, expects: "price" }));
-  if (button === "other") return void (await say(me, { leadId: msg.leadId, ref: msg.ref, text: "What time suits? Type it, like Saturday at 11.", expects: "time" }));
+  if (button === "other") return void (await say(me, { leadId: msg.leadId, ref: msg.id, text: "What time suits? Type it, like Saturday at 11.", expects: "time" }));
   if (button === "drop") {
     if ((await stockSource()) === "donedeal") return void (await say(me, { text: `The price comes from ${LISTING_SITE}. Change it there.` }));
     await markDone(all); // first, so a second tap while this runs finds it done
@@ -124,7 +124,7 @@ export async function tap(me: string, msgId: string, button: ButtonId): Promise<
     const status = moved(lead.status, act.status);
     await leadsStore.put({ ...lead, status, ...(status === "lost" && !lead.lostReason && { lostReason: "Other" as const }), ...(act.note && { notes: [...lead.notes, { at: Date.now(), text: act.note }] }) });
     if (button !== "confirm") await logActivity("leads", act.activity, { kind: "lead", id: lead.id });
-    if (act.buyer) await toBuyer(lead, me, act.buyer(first, lead.carTitle ?? "car"), act.answer);
+    if (act.buyer && !(act.keepOpen && act.note && lead.notes.some((n) => n.text === act.note))) await toBuyer(lead, me, act.buyer(first, lead.carTitle ?? "car"), act.answer); // a request kept open is sent once
   }
   if (!act.keepOpen) await markDone(all);
   await say(me, { text: act.site(first), ...(lead && { leadId: lead.id, href: `/dashboard/leads/${lead.id}` }) });
@@ -138,6 +138,13 @@ export async function typed(me: string, raw: string): Promise<void> {
   await addMessage({ thread: "staff", from: "staff", to: me, text });
   if (!q) return void (await say(me, { text: "I did not catch that. Tap a button under one of the messages above." }));
   const lead = q.leadId ? await leadsStore.get(q.leadId) : undefined;
+  // An offer or a new time answers the alert the question came from, once for everyone: if another copy was answered meanwhile, stop.
+  const alert = (q.expects === "price" || q.expects === "time") && q.ref ? await messagesStore.get(q.ref) : undefined;
+  const all = alert ? await copies(alert) : [];
+  if (all.some((m) => m.done)) {
+    await messagesStore.put({ ...q, done: true });
+    return void (await say(me, { text: "Already done." }));
+  }
 
   if (q.expects === "price") {
     const eur = parsePrice(text);
@@ -149,8 +156,7 @@ export async function typed(me: string, raw: string): Promise<void> {
     await leadsStore.put({ ...cur, status: moved(cur.status, "contacted"), notes: [...cur.notes, { at: Date.now(), text: `Offer sent by ${by}: ${fmtEur(eur)}` }] });
     await logActivity("leads", `Sent an offer of ${fmtEur(eur)}, from WhatsApp`, { kind: "lead", id: lead.id });
     await messagesStore.put({ ...q, done: true });
-    const alert = q.ref ? await messagesStore.get(q.ref) : undefined; // the alert the price was asked from: one offer per alert
-    if (alert) await markDone(await copies(alert));
+    await markDone(all); // the alert is answered, for every copy
     return void (await say(me, { leadId: lead.id, href: `/dashboard/leads/${lead.id}`, text: `Done. I sent ${firstName(lead.name)} your offer of ${fmtEur(eur)} by ${by}. I will tell you when they answer.` }));
   }
   if (q.expects === "time") {
@@ -160,6 +166,7 @@ export async function typed(me: string, raw: string): Promise<void> {
     await leadsStore.put({ ...lead, notes: [...lead.notes, { at: Date.now(), text: `Suggested another time by ${by}: ${text}` }] });
     await logActivity("leads", "Suggested another time, from WhatsApp", { kind: "lead", id: lead.id });
     await messagesStore.put({ ...q, done: true });
+    await markDone(all); // the alert is answered, for every copy
     return void (await say(me, { leadId: lead.id, text: `Sent to ${firstName(lead.name)} by ${by}.` }));
   }
   const review = q.ref ? await reviewsStore.get(q.ref) : undefined;

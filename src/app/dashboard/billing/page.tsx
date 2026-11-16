@@ -118,7 +118,8 @@ function PlanAndUsage({ modules, services, usage, aiPlan, cap, now }: { modules:
   const plan = planEur(modules, assistant ? "assistant" : "perAction");
   const planNet = afterDiscount(plan);
   const sofar = usage.totalEur;
-  const estimate = Math.min(monthEndEstimate(sofar, dublinDay(now.getTime())), cap ?? Infinity); // usage stops at the limit
+  // Usage stops at the limit, and is never less than what is already spent (a limit lowered mid-month).
+  const estimate = Math.max(sofar, Math.min(monthEndEstimate(sofar, dublinDay(now.getTime())), cap ?? Infinity));
   const bill = round2(planNet + estimate);
   const lines: (readonly [string, number])[] = [["Website", BASE_EUR], ...mine.map((m) => [m.label, MODULE_EUR[m.id]] as const), ...(assistant ? [["AI assistant", AI_ASSISTANT.monthlyEur] as const] : [])];
   return (
