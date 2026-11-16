@@ -7,7 +7,7 @@ import { stubTurnstile } from "./turnstile";
 // The guided contact form (#176): a topic, a few taps, the details. Runs only against the local server with fake backends.
 test.skip(Boolean(process.env.E2E_BASE_URL), "Lead specs never run against a deployed site");
 
-const stamp = Date.now().toString(36);
+const stamp = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`; // two workers can load in the same millisecond
 let n = 0;
 const who = (topic: string) => `Guided ${topic} ${stamp}${n++}`; // unique, so parallel runs and reruns never meet
 
