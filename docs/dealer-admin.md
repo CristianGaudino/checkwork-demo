@@ -210,6 +210,12 @@ cars are added, changed and sold on DoneDeal only. The dashboard never edits the
 
 Until both are set the admin answers 404 for everyone. The Worker checks Access's signed token itself (`src/lib/access.ts`), so a missing policy fails closed instead of open.
 
+## Monthly report and the owner API
+
+- **Monthly report** (`/dashboard/monthly-report`): last month by default, any of the twelve before it from the picker. Each section shows only for the modules on (Leads and Stock always, Visitors with Site analytics, Sales, Reviews). Each figure says how it compares with the month before, or "Too few to compare" under 5. Sales value and profit show only to staff with the margins permission. One "What to do" line comes from fixed rules. "Print or save as PDF" uses the browser's print, with the menu left out.
+- **Email**: `/api/reports/monthly` (CRON_KEY, scheduled `0 7 1 * *` in `worker.mjs` and `wrangler.jsonc`) emails last month's summary to the owners and managers: counts only. On the demo it goes to the lead inbox like the follow-up digest.
+- **Owner API** and the anonymous feature counters: see `docs/owner-api.md`. The figures for the report and the API are one module, `src/lib/reports/monthly.ts`.
+
 ## Where things are
 
 | What | Where |
@@ -224,6 +230,7 @@ Until both are set the admin answers 404 for everyone. The Worker checks Access'
 | Admin kit (tables, stat cards, forms, charts) | `src/components/admin/` |
 | Stock the admin edits (the table the site reads) | `src/lib/admin/stock-admin.ts` |
 | Navigation of each area | `src/lib/admin/nav.ts` |
+| Monthly report maths, page and email; owner API and counters | `src/lib/reports/`, `src/app/dashboard/monthly-report/`, `src/lib/owner-api/`, `docs/owner-api.md` |
 
 ## Connecting a service
 

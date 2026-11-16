@@ -27,6 +27,7 @@ export default function PrivacyPage() {
           site asks for them by number, and we don&apos;t keep that. An unsent form stays until you close the tab, and never with your name, phone
           number or email. Recently viewed cars can be cleared from the list.
         </p>
+        <p>We also keep anonymous counts of how often features of the site are used, such as saving a car or using a filter. They are kept without cookies and say nothing about you.</p>
       </InfoSection>
       <InfoSection title="Why we use it">
         <p>Only to reply to your request. We don&apos;t use it for marketing, and we don&apos;t sell it.</p>
