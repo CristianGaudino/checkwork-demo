@@ -42,7 +42,7 @@ Send `Authorization: Bearer <OWNER_API_TOKEN>`. No token or a wrong one: `404`, 
 - `replies`: minutes from a lead arriving to the first note on it, by when it arrived. `none`: leads with no note within 24 hours, once those 24 hours have passed. `null` when there are none.
 - `stock`: `added` and `sold` are in the range. `inStock`, `avgDaysInStock`, `over45Days` and `priceDrops` are the stock now (the site keeps no daily history).
 - `sales.valueEur` appears only with `OWNER_API_MONEY=1`. Orders and deposits are not counted yet.
-- `features`: anonymous daily counters (`saved`, `compare`, `finance`, `units` for km or miles, `no-results`, `contact-topic`, `filter:<make|model|body|fuel|price|year|km|gearbox>`). `dashboard`: page opens per dashboard area. Neither says who.
+- `features`: anonymous daily counters (`saved`, `compare`, `finance`, `units` for km or miles, `no-results`, `contact-topic`, `filter:<make|model|body|fuel|price|year|km|gearbox>`). `dashboard`: page opens per dashboard area, counted by the dashboard itself behind Access. Neither says who.
 - No visitor numbers yet: they come from the `analytics` integration once connected. Errors in the last 24 hours are not included yet.
 
 ## Counters

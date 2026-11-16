@@ -37,9 +37,9 @@ describe("alerts", () => {
   it("fires the 80% mark, the cap and a chosen amount as each is crossed, once each", () => {
     const before = usageCosts([c("lookup", "website", 26)], "perAction"); // 7.80
     const after = usageCosts([c("lookup", "website", 27)], "perAction"); // 8.10
-    expect(alertsCrossed(before, after, b, "2026-11").map((a) => a.key)).toEqual(["2026-11:lookup:80"]);
+    expect(alertsCrossed(before, after, b, "2026-11").map((a) => a.key)).toEqual(["2026-11:lookup:80:10"]);
     const atCap = alertsCrossed(usageCosts([c("lookup", "website", 33)], "perAction"), usageCosts([c("lookup", "website", 34)], "perAction"), b, "2026-11");
-    expect(atCap.map((a) => a.key)).toEqual(["2026-11:lookup:cap"]);
+    expect(atCap.map((a) => a.key)).toEqual(["2026-11:lookup:cap:10"]);
     const chosen = alertsCrossed(usageCosts([c("lookup", "website", 16)], "perAction"), usageCosts([c("lookup", "website", 17)], "perAction"), b, "2026-11");
     expect(chosen.map((a) => a.key)).toEqual(["2026-11:total:5"]);
   });

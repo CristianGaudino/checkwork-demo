@@ -12,9 +12,5 @@ export async function lookupRegAction(reg: unknown): Promise<RegLookup | null> {
   if (typeof reg !== "string" || reg.length > 16) return null;
   // Off on the website for this dealer (#180), or past their monthly limit (#181): the plate's own facts, free, and the person types the rest.
   if (!(await hasModule("lookupWebsite"))) return parseIrishReg(reg);
-  if (!(await usageAllowed("lookup"))) {
-    const facts = parseIrishReg(reg);
-    return facts && { ...facts, limited: true };
-  }
-  return lookupReg(reg, (await headers()).get("cf-connecting-ip") ?? "", undefined, () => recordUsage("lookup", "website"));
+  return lookupReg(reg, (await headers()).get("cf-connecting-ip") ?? "", undefined, { allowed: () => usageAllowed("lookup"), paid: () => recordUsage("lookup", "website") });
 }

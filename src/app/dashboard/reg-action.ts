@@ -12,9 +12,5 @@ export async function lookupRegStaffAction(reg: unknown): Promise<RegLookup | nu
   if (typeof reg !== "string" || reg.length > 16) return null;
   // Off in the dashboard for this dealer (#180), or past their monthly limit (#181): the plate's own facts, and staff type the rest.
   if (!(await hasModule("lookupDashboard"))) return parseIrishReg(reg);
-  if (!(await usageAllowed("lookup"))) {
-    const facts = parseIrishReg(reg);
-    return facts && { ...facts, limited: true };
-  }
-  return lookupReg(reg, null, undefined, () => recordUsage("lookup", "dashboard"));
+  return lookupReg(reg, null, undefined, { allowed: () => usageAllowed("lookup"), paid: () => recordUsage("lookup", "dashboard") });
 }

@@ -21,6 +21,7 @@ import { fmtEur } from "@/lib/admin/format";
 import { aOrAn } from "@/lib/admin/activity-text";
 import type { ComposerCar } from "@/components/admin/PostComposer";
 import { dublinMs } from "@/lib/admin/format";
+import { getBindings } from "@/lib/leads/bindings";
 
 const postRef = (p: SocialPost) => ({ kind: "post" as const, id: p.id, label: p.carTitle ?? "A post" });
 const adRef = (a: Ad) => ({ kind: "ad" as const, id: a.id, label: a.carTitle });
@@ -40,7 +41,13 @@ const compose = z.object({
   timing: z.enum(["now", "later"]),
   format: z.enum(POST_FORMATS).default("post"),
   layout: z.enum(STORY_LAYOUTS).optional(),
-  video: z.string().max(Math.ceil((MEDIA_LIMITS.videoBytes * 4) / 3) + 100).optional(), // a library video is a data: URL when there is no bucket (dev, E2E)
+  // A library video's address: a short /media-files/ path, or, only where there is no bucket (dev, E2E), the video itself as a data: URL.
+  // Checked here so a long string never reaches the records store on the Worker.
+  video: z
+    .string()
+    .max(Math.ceil((MEDIA_LIMITS.videoBytes * 4) / 3) + 100)
+    .refine((v) => (v.startsWith("/media-files/") && v.length <= 300) || (!getBindings().LEAD_PHOTOS && v.startsWith("data:video/")), "That video is not in the library.")
+    .optional(),
   when: z.string().optional(),
   ad: z.string().optional(),
   platform: z.enum(AD_PLATFORMS).optional(),

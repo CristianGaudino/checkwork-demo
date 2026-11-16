@@ -42,14 +42,17 @@ async function visitorCountId(today: string, visitor: string): Promise<string> {
   return `${today}-v-${[...hash.slice(0, 12)].map((b) => b.toString(16).padStart(2, "0")).join("")}`;
 }
 
-// `visitor`: the visitor's address, for their limits; null for staff, who have none. `paid`: called once for each lookup that costs money
-// (or would, on the demo), so the dealer's meter counts it (src/lib/billing/usage.ts); a cached answer is free and not counted.
-export async function lookupReg(raw: string, visitor: string | null, service: (reg: string) => Promise<CarFound | null> = cartell, paid?: () => Promise<void>): Promise<RegLookup | null> {
+// `visitor`: the visitor's address, for their limits; null for staff, who have none. `meter`: the dealer's monthly limit and count
+// (src/lib/billing/usage.ts): asked before a lookup that costs money (or would, on the demo), counted after it. A cached answer is free, so
+// it is given even past the limit and never counted. Past the limit the answer is the plate's own facts, marked `limited`.
+type Meter = { allowed(): Promise<boolean>; paid(): Promise<void> };
+export async function lookupReg(raw: string, visitor: string | null, service: (reg: string) => Promise<CarFound | null> = cartell, meter?: Meter): Promise<RegLookup | null> {
   const facts = parseIrishReg(raw);
   if (!facts) return null;
   const mode = modeOf("reglookup");
   if (mode === "simulated") {
-    await paid?.();
+    if (meter && !(await meter.allowed())) return { ...facts, limited: true };
+    await meter?.paid();
     return { ...facts, car: sampleCar(facts.reg) };
   }
   if (mode === "off") return facts;
@@ -57,6 +60,7 @@ export async function lookupReg(raw: string, visitor: string | null, service: (r
   const now = Date.now();
   const hit = await regCache.get(facts.reg);
   if (hit && hit.at > now - REG_CACHE_DAYS * DAY) return hit.car ? { ...facts, car: hit.car } : facts;
+  if (meter && !(await meter.allowed())) return { ...facts, limited: true };
   const today = `day-${new Date(now).toISOString().slice(0, 10)}`;
   // shortcut: the count is read then written, so two lookups at the same moment can both pass at the cap. A few over a cap of 200 is
   // fine; a Durable Object counter if the cap ever has to be exact.
@@ -76,7 +80,7 @@ export async function lookupReg(raw: string, visitor: string | null, service: (r
   } catch {
     return facts; // a failed lookup is not cached, and never stops the form
   }
-  await paid?.();
+  await meter?.paid();
   await regCache.put({ id: facts.reg, car, at: now });
   return car ? { ...facts, car } : facts;
 }

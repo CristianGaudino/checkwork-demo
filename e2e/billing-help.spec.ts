@@ -10,11 +10,12 @@ test("the owner sees the plan, sets a limit and an alert, and opens a bill", asy
   await expect(page.getByText("Estimate").first()).toBeVisible();
 
   await page.getByRole("link", { name: "Limits and alerts" }).click();
-  await page.getByLabel("Registration lookup limit (€ a month)").fill("12.50");
+  // High enough that the other specs' lookups, on the same server, never reach it.
+  await page.getByLabel("Registration lookup limit (€ a month)").fill("120.50");
   await page.getByRole("button", { name: "Save limits" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Saved" })).toBeVisible();
   await page.reload();
-  await expect(page.getByLabel("Registration lookup limit (€ a month)")).toHaveValue("12.5");
+  await expect(page.getByLabel("Registration lookup limit (€ a month)")).toHaveValue("120.5");
   // Never above ours.
   await page.getByLabel("All usage limit (€ a month)").fill("151");
   await page.getByRole("button", { name: "Save limits" }).click();

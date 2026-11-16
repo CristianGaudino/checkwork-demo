@@ -99,8 +99,8 @@ export function alertsCrossed(before: ReturnType<typeof usageCosts>, after: Retu
   for (const s of ["total", ...SERVICES] as Scope[]) {
     const cap = capOf(b, s);
     if (cap !== undefined && cap > 0) {
-      if (b.alertAt80 && crossed(s, cap * 0.8)) out.push({ key: `${month}:${s}:80`, scope: s, text: `${label(s)} has reached 80% of its €${cap} monthly limit` });
-      if (crossed(s, cap)) out.push({ key: `${month}:${s}:cap`, scope: s, text: `${label(s)} has reached its €${cap} monthly limit and has stopped until next month` });
+      if (b.alertAt80 && crossed(s, cap * 0.8)) out.push({ key: `${month}:${s}:80:${cap}`, scope: s, text: `${label(s)} has reached 80% of its €${cap} monthly limit` });
+      if (crossed(s, cap)) out.push({ key: `${month}:${s}:cap:${cap}`, scope: s, text: `${label(s)} has reached its €${cap} monthly limit and has stopped until next month` });
     }
   }
   for (const a of b.alerts) if (crossed(a.scope, a.amountEur)) out.push({ key: `${month}:${a.scope}:${a.amountEur}`, scope: a.scope, text: `${label(a.scope)} has passed €${a.amountEur} this month` });

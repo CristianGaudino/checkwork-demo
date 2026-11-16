@@ -44,6 +44,8 @@ export async function proxy(req: NextRequest) {
   const slug = path.split("/")[2] ?? "";
   if (slug.length > 120 || !CAR_SLUG.test(slug)) return NextResponse.next();
   const hit = await stock.lookup(slug);
+  // A new car or a van has its page under /used-cars too: without its module (#173) it is not there, like /new-cars and /commercial.
+  if (hit?.state === "live" && ((hit.car.condition === "new" && !modules.has("newCars")) || (hit.car.condition === "commercial" && !modules.has("commercial")))) return notThere(req);
   // The target is a constant prefix plus the provider's own make slug, never request input (T-02-08).
   return hit?.state === "gone" ? NextResponse.rewrite(new URL("/gone/" + hit.makeSlug, req.url), { status: 410 }) : NextResponse.next();
 }

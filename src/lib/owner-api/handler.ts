@@ -15,7 +15,7 @@ export async function ownerGet(req: Request, name: string, build: (r: { from: st
   const q = new URL(req.url).searchParams;
   const today = dublinDay();
   const to = q.get("to") ?? today;
-  const from = q.get("from") ?? addDays(to, -29);
+  const from = q.get("from") ?? (isIsoDay(to) ? addDays(to, -29) : to);
   const span = isIsoDay(from) && isIsoDay(to) ? (Date.parse(to) - Date.parse(from)) / 86_400_000 : -1;
   if (span < 0 || span >= MAX_DAYS) return Response.json({ error: "from and to must be days as YYYY-MM-DD, from not after to, within a year" }, { status: 400, headers: { "Cache-Control": "no-store" } });
   const key = `${name}|${from}|${to}|${auth.money}`;

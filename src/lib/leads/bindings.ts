@@ -17,7 +17,7 @@ export interface PhotoBucket {
   delete(keys: string | string[]): Promise<void>;
 }
 
-type LeadBindings = { EMAIL?: SendEmail; LEAD_LIMITER?: RateLimit; LEAD_PHOTOS?: PhotoBucket; DB?: AnyD1Database };
+type LeadBindings = { EMAIL?: SendEmail; LEAD_LIMITER?: RateLimit; COUNT_LIMITER?: RateLimit; LEAD_PHOTOS?: PhotoBucket; DB?: AnyD1Database };
 
 // The one place that reads Cloudflare bindings. Outside the Worker (next start, tests) there is no context, so this returns {}.
 export function getBindings(): LeadBindings {

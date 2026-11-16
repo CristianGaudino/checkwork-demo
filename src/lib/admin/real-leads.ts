@@ -35,7 +35,6 @@ async function customerId(row: LeadRow): Promise<string> {
 }
 
 // The form's WhatsApp box (another form adds it): ticked reads as true, "on", "yes" or 1; anything else, or no box, is no.
-const optedIn = (v: unknown) => v === true || v === 1 || v === "true" || v === "on" || v === "yes" || v === "1";
 
 export type Mirror = { lead?: Lead; drive?: TestDrive; alert?: StockAlert };
 // emailed is false when the email to the dealer failed: the lead says so, as its first note, so the team replies from here.
@@ -62,7 +61,7 @@ export function mirrorOf(row: LeadRow, emailed = true): Mirror {
     ...(typeof row.details.reg === "string" && { reg: row.details.reg }),
     ...(typeof row.details.topic === "string" && { topic: row.details.topic, answers: Object.fromEntries(ANSWER_KEYS.filter((k) => typeof row.details[k] === "string").map((k) => [k, String(row.details[k])])) }),
     ...(row.photoKeys.length > 0 && { photoKeys: row.photoKeys }),
-    ...(optedIn(row.details.whatsappOptIn) && { whatsappOptIn: true }),
+    ...(row.details.whatsappOptIn === "yes" && { whatsappOptIn: true }), // the schema takes only "yes"
     notes: emailed ? [] : [{ at, text: "The email about this lead didn't reach you. Reply from here." }],
     createdAt: at,
   };

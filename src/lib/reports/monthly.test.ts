@@ -45,6 +45,11 @@ describe("summarise", () => {
     expect(s.leads.byType).toEqual({ enquiry: 3, finance: 1 });
     expect(s.leads.bySource).toEqual({ Website: 3, Phone: 1 });
   });
+  it("does not count the site's own note at the moment a lead came in as a reply", () => {
+    const at = "2026-03-03T10:00:00Z";
+    const told = summarise({ ...empty, leads: [lead(at, { notes: [{ at: Date.parse(at), text: "The email about this lead didn't reach you" }] })] }, "2026-03-01", "2026-03-31", now);
+    expect(told.replies).toEqual({ medianInHoursMin: null, medianOutOfHoursMin: null, none: 1 });
+  });
   it("works out the replies", () => {
     expect(s.replies).toEqual({ medianInHoursMin: 30, medianOutOfHoursMin: 120, none: 2 });
   });

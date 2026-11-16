@@ -27,7 +27,7 @@ export function RegLookup({ reg, onFound, lookup = lookupRegAction, place = "web
       if (r) last.current = { plate: plate(reg), r };
       if (!r) return setSaid("We could not read that as an Irish registration. Fill in the details below.");
       onFound?.({ year: r.year, car: r.car });
-      setSaid(r.car ? `${r.car.make} ${r.car.model}. ${regSummary(r)}.` : r.limited ? `${regSummary(r)}. Lookups have reached this month's limit, so fill in the rest below.` : `${regSummary(r)}.`);
+      setSaid(r.car ? `${r.car.make} ${r.car.model}. ${regSummary(r)}.` : r.limited ? `${regSummary(r)}. ${place === "dashboard" ? "Lookups have reached this month's limit, so fill" : "Fill"} in the rest below.` : `${regSummary(r)}.`);
     });
   if (!on) return null;
   // Two pieces for the parent's row: the button sits beside the box, and the line under the whole row.

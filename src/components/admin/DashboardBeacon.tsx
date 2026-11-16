@@ -2,11 +2,11 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
-import { count } from "@/lib/count-client";
+import { countDashboardOpen } from "@/app/dashboard/count-action";
 
-// Counts which dashboard area is opened (never by whom), so the owner can see which features dealers use.
+// Counts each open of a dashboard area (never by whom), so the owner can see which features dealers use. Every page change counts.
 export function DashboardBeacon() {
   const path = usePathname();
-  useEffect(() => count(`dash:${path.split("/")[2] || "overview"}`), [path]);
+  useEffect(() => void countDashboardOpen(path.split("/")[2] || "overview").catch(() => {}), [path]);
   return null;
 }

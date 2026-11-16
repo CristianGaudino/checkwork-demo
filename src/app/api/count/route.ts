@@ -15,10 +15,11 @@ export async function POST(req: Request) {
     return new Response(null, { status: 400, headers });
   }
   if (!isCountEvent(event)) return new Response(null, { status: 400, headers });
-  const limiter = getBindings().LEAD_LIMITER;
-  const ip = req.headers.get("cf-connecting-ip");
-  // The dashboard's page counts are behind Access and one per area a visit, so only the buyer's events are limited.
-  if (limiter && ip && !event.startsWith("dash:") && !(await limiter.limit({ key: `count:${ip}` })).success) return new Response(null, { status: 204, headers });
+  // Every count is limited per visitor, with its own limiter (30 a minute: a buyer setting filters, saving and comparing stays under it).
+  // With no limiter (next dev, the E2E run) nothing is limited.
+  const limiter = getBindings().COUNT_LIMITER;
+  const ip = req.headers.get("cf-connecting-ip") ?? "unknown";
+  if (limiter && !(await limiter.limit({ key: `count:${ip}` })).success) return new Response(null, { status: 204, headers });
   try {
     await bump(event);
   } catch {

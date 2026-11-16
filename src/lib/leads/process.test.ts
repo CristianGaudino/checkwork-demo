@@ -285,6 +285,13 @@ describe("processLead bot checks (D-05)", () => {
     expect(rows[0]).toMatchObject({ type: "trade_in", carId: null });
   });
 
+  it("a contact message whose chosen car is gone is still stored, with no car", async () => {
+    const { deps, rows } = fakeDeps();
+    const fd = enquiryForm({ type: "general", sourcePath: "/contact", topic: "buying", timing: "this-week", message: "", carId: "999999999" });
+    expect(await processLead(fd, ctx, deps)).toEqual({ status: "ok" });
+    expect(rows[0]).toMatchObject({ type: "general", carId: null });
+  });
+
   // Confirms the 03-05 snapshotCar rule for finance from /finance: if this fails, fix snapshotCar, never the test.
   it("stores a finance application from /finance with no car and never looks one up", async () => {
     const { deps, rows, mail } = fakeDeps();

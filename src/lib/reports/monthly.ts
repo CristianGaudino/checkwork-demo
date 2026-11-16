@@ -49,7 +49,11 @@ export function summarise(data: ReportData, from: string, to: string, now: numbe
   const open = leads.map((l) => ({ l, ...openingAt(l.createdAt) }));
   const byWeekday = [0, 0, 0, 0, 0, 0, 0];
   for (const x of open) byWeekday[x.weekday]++;
-  const first = (l: Lead) => (l.notes.length ? Math.min(...l.notes.map((n) => n.at)) : undefined);
+  // The first note written after the lead came in: the site's own note at that moment (the email did not reach the dealer) is not a reply.
+  const first = (l: Lead) => {
+    const after = l.notes.filter((n) => n.at > l.createdAt).map((n) => n.at);
+    return after.length ? Math.min(...after) : undefined;
+  };
   const wait = (l: Lead) => {
     const f = first(l);
     return f === undefined ? undefined : Math.max(0, Math.round((f - l.createdAt) / 60_000));

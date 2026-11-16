@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { ownerAuth } from "./auth";
-import { DASH_EVENTS, countId, isCountEvent } from "./counter-rules";
+import { DASH_EVENTS, countId, isCountEvent, isDashArea } from "./counter-rules";
 
 const req = (auth?: string) => new Request("https://x.test/api/owner/v1/summary", { headers: auth ? { authorization: auth } : {} });
 afterEach(() => {
@@ -26,9 +26,11 @@ describe("ownerAuth", () => {
 });
 
 describe("the counter allow-list", () => {
-  it("takes the named events and dashboard areas, and nothing else", () => {
-    for (const e of ["saved", "compare", "finance", "units", "no-results", "contact-topic", "filter:fuel", "filter:km", "dash:leads", "dash:overview"]) expect(isCountEvent(e)).toBe(true);
-    for (const e of ["filter:colour", "dash:secret", "dash:", "saved ", "SAVED", "", "a@b.ie", 7, null, undefined, { event: "saved" }]) expect(isCountEvent(e)).toBe(false);
+  it("takes the named buyer events on the public endpoint, never a dashboard area, and nothing else", () => {
+    for (const e of ["saved", "compare", "finance", "units", "no-results", "contact-topic", "filter:fuel", "filter:km"]) expect(isCountEvent(e)).toBe(true);
+    for (const e of ["dash:leads", "dash:overview", "filter:colour", "dash:secret", "dash:", "saved ", "SAVED", "", "a@b.ie", 7, null, undefined, { event: "saved" }]) expect(isCountEvent(e)).toBe(false);
+    expect(isDashArea("leads")).toBe(true);
+    expect(isDashArea("secret")).toBe(false);
     expect(DASH_EVENTS).toContain("dash:monthly-report");
   });
   it("keeps one record a day for an event", () => {

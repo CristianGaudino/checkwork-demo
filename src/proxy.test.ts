@@ -54,3 +54,19 @@ describe("the dashboard gate in the proxy", () => {
     expect(res.headers.get("x-middleware-override-headers") ?? "").not.toContain("x-admin-email");
   });
 });
+
+describe("modules in the proxy (#173)", () => {
+  it("runs on every public page a module can switch off", async () => {
+    const { config } = await import("./proxy");
+    const { MODULES } = await import("@/lib/modules-rules");
+    for (const m of MODULES) for (const p of m.pages) expect(config.matcher.some((x) => x === p || x === `${p}/:path*`), p).toBe(true);
+  });
+  it("answers 404 for a module's page when the site does not have it, and lets the base site through", async () => {
+    vi.stubEnv("NEXT_PUBLIC_SITE_MODULES", "dashboard");
+    expect((await get("/finance")).status).toBe(404);
+    expect((await get("/new-cars/order")).status).toBe(404);
+    expect((await get("/used-cars")).status).not.toBe(404);
+    vi.stubEnv("NEXT_PUBLIC_SITE_MODULES", "finance");
+    expect((await get("/finance")).status).not.toBe(404);
+  });
+});

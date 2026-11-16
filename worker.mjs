@@ -4,6 +4,7 @@
 import { drizzle } from "drizzle-orm/d1";
 import handler from "./.open-next/worker.js";
 import { purgeOldActivity } from "./src/lib/admin/activity-purge.ts";
+import { purgeOldCounts } from "./src/lib/owner-api/counts-purge.ts";
 import { anonymiseOldSales } from "./src/lib/admin/sales-purge.ts";
 import { purgeOldLeads } from "./src/lib/leads/purge.ts";
 import { apexRedirect } from "./src/lib/redirect.ts";
@@ -44,6 +45,7 @@ const worker = {
     const jobs = [
       ["purge-leads", "deleted", () => purgeOldLeads(db, env.LEAD_PHOTOS)], // a count only, never a lead (D-08)
       ["purge-activity", "deleted", () => purgeOldActivity(db)],
+      ["purge-counts", "deleted", () => purgeOldCounts(db)],
       ["anonymise-sales", "done", () => anonymiseOldSales(db)],
     ];
     let failed = 0;

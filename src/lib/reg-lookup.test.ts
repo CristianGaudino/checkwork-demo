@@ -36,6 +36,19 @@ describe("lookupReg with the paid service", () => {
   });
   afterEach(() => vi.unstubAllEnvs());
 
+  it("past the dealer's monthly limit gives a plate already in the cache, free, and only the plate's facts for a new one", async () => {
+    const service = vi.fn(async () => FOCUS);
+    const paid = vi.fn(async () => {});
+    expect((await lookupReg("191-KY-1234", "1.1.1.1", service, { allowed: async () => true, paid }))?.car).toEqual(FOCUS);
+    const full = { allowed: async () => false, paid };
+    expect((await lookupReg("191-KY-1234", "1.1.1.1", service, full))?.car).toEqual(FOCUS); // cached: free
+    const fresh = await lookupReg("192-D-555", "1.1.1.1", service, full);
+    expect(fresh?.limited).toBe(true);
+    expect(fresh?.car).toBeUndefined();
+    expect(service).toHaveBeenCalledOnce();
+    expect(paid).toHaveBeenCalledOnce();
+  });
+
   it("asks the service once per plate, then answers from the cache", async () => {
     const service = vi.fn(async () => FOCUS);
     expect((await lookupReg("191-KY-1234", "1.1.1.1", service))?.car).toEqual(FOCUS);

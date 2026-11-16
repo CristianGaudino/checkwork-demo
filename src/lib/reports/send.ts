@@ -5,11 +5,14 @@ import { monthLabel } from "@/lib/admin/reports";
 import { sendTo } from "@/lib/leads/mail";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { loadReportData } from "./load";
+import { hasModule } from "@/lib/modules";
 import { advice, compare, fmtWait, monthBefore, monthRange, summarise } from "./monthly";
 
 // The email on the 1st (worker.mjs, /api/reports/monthly): last month's figures to the owners and managers. Counts only, never a customer.
 export async function sendMonthlyReport(now = Date.now()): Promise<{ month: string; sent: number }> {
   const month = monthBefore(dublinDay(now).slice(0, 7));
+  // The report is a dashboard page: a dealer without the dashboard (#173) gets no email pointing at it.
+  if (!(await hasModule("dashboard"))) return { month, sent: 0 };
   const { team } = await getSettings();
   const to = leaderEmails(team);
   if (!to.length) return { month, sent: 0 };

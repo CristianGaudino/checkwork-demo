@@ -8,6 +8,9 @@ export const BUYER_EVENTS = ["saved", "compare", "finance", "units", "no-results
 export const DASH_AREAS = [...new Set(DEALER_NAV.map((i) => i.href.split("/")[2] ?? "overview"))];
 export const DASH_EVENTS = DASH_AREAS.map((a) => `dash:${a}`);
 
-export const isCountEvent = (e: unknown): e is string => typeof e === "string" && (BUYER_EVENTS.includes(e) || DASH_EVENTS.includes(e));
+// What the public endpoint takes: the buyer's events only. Dashboard opens are counted by a server action behind Access, so nobody outside
+// can raise them.
+export const isCountEvent = (e: unknown): e is string => typeof e === "string" && BUYER_EVENTS.includes(e);
+export const isDashArea = (a: unknown): a is string => typeof a === "string" && DASH_AREAS.includes(a);
 export const countId = (day: string, event: string) => `${day}:${event}`;
 export type DayCount = { id: string; day: string; event: string; count: number };

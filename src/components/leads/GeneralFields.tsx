@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { LIMITS } from "@/lib/leads/constants";
 import { CHOICES, TOPICS, URGENCY_FOR, type TopicId } from "@/lib/leads/contact-topics";
+import { count } from "@/lib/count-client";
 import { saveDraft } from "@/lib/leads/draft";
 import { useModules } from "@/lib/demo-role";
 import { SITE_SLUG } from "@/lib/site";
@@ -67,7 +68,10 @@ export function GeneralFields({ bind, step, cars = [], fixed }: { bind(name: str
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {cards.map((t) => (
               <label key={t.id} className={`${chip} min-h-14 rounded-card px-4 font-semibold`}>
-                <input type="radio" name="topic" value={t.id} checked={topic === t.id} onChange={() => topicBind.onChange(t.id)} className="sr-only" />
+                <input type="radio" name="topic" value={t.id} checked={topic === t.id} onChange={() => {
+                      topicBind.onChange(t.id);
+                      count("contact-topic");
+                    }} className="sr-only" />
                 {t.label}
               </label>
             ))}
