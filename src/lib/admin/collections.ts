@@ -15,6 +15,7 @@ import type { Role } from "@/lib/permission-rules";
 import type { PrepLine } from "./prep";
 import { carTitleOf, livePicks, person, rng } from "./seed-data";
 import { BILLING_DEFAULT, type BillingSettings } from "@/lib/billing/rules";
+import type { BillingDetails } from "@/lib/billing/bills-rules";
 
 // For the demo's stories: a day relative to today (YYYY-MM-DD, Irish), a demo car by id, a seeded customer by id.
 const ago = (daysAgo: number) => dublinDay(Date.now() - daysAgo * DAY);
@@ -289,6 +290,7 @@ export type DealerSettings = {
   team: TeamMember[];
   leadEmails: string[]; // who gets the email when a visitor sends a form; empty means the LEAD_TO_EMAIL variable
   billing?: BillingSettings; // usage limits and alerts, and our ceilings (#181, src/lib/billing/usage.ts); missing on a record from before
+  billingDetails?: BillingDetails; // who the bills are made out to (Billing, the Owner edits it); missing means the dealer's own details
   updatedAt: number;
 };
 export const SETTINGS_DEFAULT: DealerSettings = {
