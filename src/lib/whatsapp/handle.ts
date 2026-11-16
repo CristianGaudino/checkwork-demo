@@ -11,6 +11,7 @@ import { SITE_NAME } from "@/lib/site";
 import { stockSource } from "@/lib/stock-source";
 import { LISTING_SITE } from "@/lib/stock-source-rules";
 import { isSold } from "@/lib/stock/types";
+import { notify } from "@/lib/admin/notifications";
 import { sendWhatsApp } from "./send";
 import { addMessage, messagesStore, staffStore, type Msg } from "./store";
 import { BUTTON_LABELS, firstName, parsePrice, type ButtonId } from "./rules";
@@ -50,10 +51,22 @@ async function toBuyer(lead: Lead, to: string, text: string, answer?: string): P
   if (answer && by === "WhatsApp") {
     const at = Date.now() + BUYER_ANSWER_MS;
     await addMessage({ thread: "buyer", from: "buyer", leadId: lead.id, text: answer, at });
+    // The answer lands on the lead and in the bell now, dated when it arrives, so reading the conversation never writes.
+    const fresh = (await leadsStore.get(lead.id)) ?? lead;
+    await leadsStore.put({ ...fresh, notes: [...fresh.notes, { at, text: `Replied on WhatsApp: "${answer}"` }] });
+    await notify({ kind: "whatsapp", text: "A buyer replied on WhatsApp", href: `/dashboard/leads/${lead.id}` }, at);
     await say(to, { leadId: lead.id, text: `${firstName(lead.name)} replied: "${answer}"`, buttons: ["call", "handled"] }, at);
   }
   return by;
 }
+
+// Each team member has their own copy of an alert: a one-shot action runs once for all of them.
+async function copies(msg: Msg): Promise<Msg[]> {
+  const key = msg.ref ?? msg.leadId;
+  if (!msg.event || !key) return [msg];
+  return (await messagesStore.list()).filter((m) => m.thread === "staff" && m.event === msg.event && (m.ref ?? m.leadId) === key);
+}
+const markDone = async (all: Msg[]) => void (await Promise.all(all.map((m) => messagesStore.put({ ...m, done: true }))));
 
 async function linked(name: string) {
   return (await staffStore.list()).some((p) => p.name === name && p.phone);
@@ -71,8 +84,9 @@ export async function tap(me: string, msgId: string, button: ButtonId): Promise<
   if (button === "review") return void (await say(me, { ref: msg.ref, text: "Type your reply and I will post it on Google.", expects: "review-reply" }));
   if (button === "report") return void (await say(me, { text: "Here is the full report.", href: "/dashboard/reports" }));
   if (button === "post") return void (await say(me, { text: "Thanks. Approve the post in Marketing and it is scheduled.", href: "/dashboard/marketing" }));
+  const all = await copies(msg);
   if (button === "drop") {
-    if (msg.done) return;
+    if (msg.done || all.some((m) => m.done)) return void (await say(me, { text: "Already done." }));
     if ((await stockSource()) === "donedeal") return void (await say(me, { text: `The price comes from ${LISTING_SITE}. Change it there.` }));
     const car = msg.ref ? await adminCar(msg.ref) : undefined;
     if (car && isSold(car)) return void (await say(me, { text: "That car is sold, so I left the price." }));
@@ -80,11 +94,12 @@ export async function tap(me: string, msgId: string, button: ButtonId): Promise<
     if (!car || !drop) return void (await say(me, { text: "I could not change that price. Open the car to do it." }));
     const next = { ...car, ...drop };
     await saveCar(next);
-    await messagesStore.put({ ...msg, done: true });
+    await markDone(all);
     await logActivity("stock", carEditSummary(car, next), { kind: "car", id: car.id, label: carTitleOf(car) });
     return void (await say(me, { text: `Done. The ${carTitleOf(car)} is now ${fmtEur(drop.priceEur)}.`, href: `/dashboard/stock/${car.id}` }));
   }
 
+  if (all.some((m) => m.done)) return void (await say(me, { text: "Already done." }));
   const act = ACTS[button === "confirm" ? (msg.event === "deposit" ? "confirm-deposit" : "confirm-test-drive") : button];
   if (!act) return;
   if (button === "confirm" && msg.event === "test-drive" && msg.ref) {
@@ -102,6 +117,7 @@ export async function tap(me: string, msgId: string, button: ButtonId): Promise<
     if (button !== "confirm") await logActivity("leads", act.activity, { kind: "lead", id: lead.id });
     if (act.buyer) await toBuyer(lead, me, act.buyer(first, lead.carTitle ?? "car"), act.answer);
   }
+  await markDone(all);
   await say(me, { text: act.site(first), ...(lead && { leadId: lead.id, href: `/dashboard/leads/${lead.id}` }) });
 }
 
@@ -119,7 +135,8 @@ export async function typed(me: string, raw: string): Promise<void> {
     if (eur === null) return void (await say(me, { text: "I could not read that as a price. Type an amount in euro, like 8,500." }));
     if (!lead) return void (await say(me, { text: "I can't find that request any more." }));
     const by = await toBuyer(lead, me, `Hi ${firstName(lead.name)}, thank you for sending us your car. We can offer you ${fmtEur(eur)} for it, subject to seeing it. Reply here and we will book a time for you to bring it in. ${SITE_NAME}`, "That sounds good. Could I bring it in on Saturday morning?");
-    await leadsStore.put({ ...lead, status: moved(lead.status, "contacted"), notes: [...lead.notes, { at: Date.now(), text: `Offer sent by ${by}: ${fmtEur(eur)}` }] });
+    const cur = (await leadsStore.get(lead.id)) ?? lead; // toBuyer may have added the buyer's answer
+    await leadsStore.put({ ...cur, status: moved(cur.status, "contacted"), notes: [...cur.notes, { at: Date.now(), text: `Offer sent by ${by}: ${fmtEur(eur)}` }] });
     await logActivity("leads", `Sent an offer of ${fmtEur(eur)}, from WhatsApp`, { kind: "lead", id: lead.id });
     await messagesStore.put({ ...q, done: true });
     return void (await say(me, { leadId: lead.id, href: `/dashboard/leads/${lead.id}`, text: `Done. I sent ${firstName(lead.name)} your offer of ${fmtEur(eur)} by ${by}. I will tell you when they answer.` }));

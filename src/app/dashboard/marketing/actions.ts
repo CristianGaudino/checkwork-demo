@@ -116,7 +116,14 @@ export async function deletePostAction(id: string) {
   await requireModule("social");
   const post = await postsStore.get(id);
   await postsStore.remove(id);
-  if (post) await logActivity("marketing", `Deleted ${aOrAn(post.network)} post`, postRef(post));
+  if (post) {
+    await logActivity("marketing", `Deleted ${aOrAn(post.network)} post`, postRef(post));
+    // A library file stays while a library record or another post still uses it.
+    const [library, posts] = await Promise.all([mediaStore.list(), postsStore.list()]);
+    for (const src of [...(post.photos ?? []), ...(post.video ? [post.video] : [])]) {
+      if (src.startsWith("/media-files/") && !library.some((m) => m.src === src) && !posts.some((p) => p.video === src || p.photos?.includes(src))) await dropMedia(src);
+    }
+  }
   revalidatePath("/dashboard/marketing");
   go("posts", "deleted");
 }

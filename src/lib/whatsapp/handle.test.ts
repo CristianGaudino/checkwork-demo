@@ -19,7 +19,9 @@ vi.mock("@/lib/admin/collections", () => ({
 }));
 vi.mock("@/lib/admin/stock-admin", () => ({ adminCar: async () => db.car, saveCar: async (c: Record<string, unknown>) => void db.saved.push(c) }));
 vi.mock("@/lib/stock-source", () => ({ stockSource: async () => db.source }));
-vi.mock("./send", () => ({ sendWhatsApp: async (m: Record<string, unknown>) => m }));
+const sent = vi.hoisted(() => [] as Record<string, unknown>[]);
+vi.mock("./send", () => ({ sendWhatsApp: async (m: Record<string, unknown>) => (sent.push(m), m) }));
+vi.mock("@/lib/admin/notifications", () => ({ notify: async () => {} }));
 vi.mock("./store", () => ({
   messagesStore: { get: async (id: string) => db.msgs.get(id), put: async (m: { id: string }) => void db.msgs.set(m.id, m), list: async () => [...db.msgs.values()] },
   staffStore: { list: async () => [{ id: "t1", name: "Aoife", phone: "+353 83 000 1100", alerts: [], quietFrom: "", quietTo: "" }] },
@@ -38,6 +40,7 @@ beforeEach(() => {
   db.msgs.clear();
   db.leads.clear();
   db.saved.length = 0;
+  sent.length = 0;
   db.source = "demo";
   db.car = { id: "c1", priceEur: 10000 };
 });
@@ -51,6 +54,14 @@ describe("Drop the price", () => {
     await tap("Aoife", "a1", "drop");
     expect(db.saved).toHaveLength(1);
   });
+  it("applies once for all the copies of one alert", async () => {
+    alert("a1", ["drop"], { ref: "c1", event: "slow-stock" });
+    alert("a2", ["drop"], { ref: "c1", event: "slow-stock", to: "Sean" });
+    await tap("Aoife", "a1", "drop");
+    await tap("Aoife", "a2", "drop");
+    expect(db.saved).toHaveLength(1);
+    expect(db.msgs.get("a2")?.done).toBe(true);
+  });
   it("leaves a sold car alone", async () => {
     db.car = { id: "c1", priceEur: 10000, soldAt: "2026-11-01" };
     alert("a1", ["drop"], { ref: "c1" });
@@ -62,6 +73,17 @@ describe("Drop the price", () => {
     alert("a1", ["drop"], { ref: "c1" });
     await tap("Aoife", "a1", "drop");
     expect(db.saved).toEqual([]);
+  });
+});
+
+describe("a lead button on two copies of one alert", () => {
+  it("writes to the buyer once", async () => {
+    db.leads.set("real-1", lead("new"));
+    alert("a1", ["available"], { leadId: "real-1", event: "enquiry" });
+    alert("a2", ["available"], { leadId: "real-1", event: "enquiry" });
+    await tap("Aoife", "a1", "available");
+    await tap("Aoife", "a2", "available");
+    expect(sent).toHaveLength(1);
   });
 });
 
@@ -85,6 +107,6 @@ describe("a price reply", () => {
     const notes = (db.leads.get("real-1")?.notes as { text: string }[]).filter((n) => n.text.startsWith("Offer sent"));
     expect(notes).toHaveLength(1);
     await typed("Aoife", "9,000"); // the question is answered, so a second number is not another offer
-    expect((db.leads.get("real-1")?.notes as unknown[]).length).toBe(1);
+    expect((db.leads.get("real-1")?.notes as unknown[]).length).toBe(2); // the offer, and the buyer's answer
   });
 });

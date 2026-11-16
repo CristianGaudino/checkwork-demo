@@ -3,11 +3,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 vi.mock("next/cache", () => ({ revalidatePath: () => {} }));
 vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => undefined }), headers: async () => ({ get: () => null }) })); // who is signed in: the demo owner
+const dropped = vi.hoisted(() => [] as string[]);
+vi.mock("@/lib/admin/media", async (orig) => ({ ...(await orig<typeof import("@/lib/admin/media")>()), dropMedia: async (src: string) => void dropped.push(src) }));
 // A redirect throws in Next; here it throws its target so a test can read the notice.
 vi.mock("next/navigation", () => ({ redirect: (to: string) => { throw new Error(`redirect:${to}`); } }));
 const { composeAction, composerCarAction, createNewsletterAction, deleteAdAction, deleteNewsletterAction, deletePostAction, publishPostAction, sendNewsletterAction, startAdAction } = await import("./actions");
 const { addNoteAction, setStatusAction, assignLeadAction, setFollowUpAction, setLostReasonAction } = await import("../leads/actions");
-const { adsStore, getSettings, leadsStore, newslettersStore, postsStore, settingsStore } = await import("@/lib/admin/collections");
+const { adsStore, getSettings, leadsStore, mediaStore, newslettersStore, postsStore, settingsStore } = await import("@/lib/admin/collections");
 const { NETWORKS } = await import("@/lib/admin/networks");
 const { forSale } = await import("@/lib/stock/types");
 const { addDays, dublinDay } = await import("@/lib/admin/format");
@@ -107,6 +109,18 @@ describe("publishing, ads and newsletters", () => {
     expect(await notice(() => deleteAdAction(ad.id))).toBe("deleted");
     expect(await postsStore.list()).toHaveLength(0);
     expect(await adsStore.list()).toHaveLength(0);
+  });
+
+  it("deletes a post's stored file only when no library record or other post uses it", async () => {
+    const mk = (id: string, photos: string[]) => postsStore.put({ id, network: "Facebook", carSlug: "x", carTitle: "X", text: "t", photos, status: "draft", createdAt: 1 });
+    await mk("p1", ["/media-files/media/a.jpg", "/media-files/media/b.jpg", "/media-files/media/c.jpg", "/cars/x.jpg"]);
+    await mk("p2", ["/media-files/media/b.jpg"]);
+    await mediaStore.put({ id: "m1", kind: "image", src: "/media-files/media/c.jpg", name: "c", bytes: 1, createdAt: 1 });
+    dropped.length = 0;
+    await notice(() => deletePostAction("p1"));
+    expect(dropped).toEqual(["/media-files/media/a.jpg"]);
+    await postsStore.remove("p2");
+    await mediaStore.remove("m1");
   });
 
   it("suggests text for every network for a car on sale, and nothing for a car not on sale", async () => {

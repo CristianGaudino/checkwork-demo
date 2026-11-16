@@ -16,7 +16,7 @@ export async function storeMedia(bytes: Uint8Array, c: Extract<Checked, { ok: tr
   const bucket = getBindings().LEAD_PHOTOS;
   if (!bucket) return `data:${c.contentType};base64,${Buffer.from(bytes).toString("base64")}`;
   const key = `media/${crypto.randomUUID()}.${c.ext}`;
-  await bucket.put(key, bytes.slice().buffer, { httpMetadata: { contentType: c.contentType } });
+  await bucket.put(key, bytes.buffer as ArrayBuffer, { httpMetadata: { contentType: c.contentType } });
   return `${PREFIX}${key}`;
 }
 

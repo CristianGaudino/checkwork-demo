@@ -3,7 +3,6 @@ import { defineCollection } from "@/lib/admin/docs";
 import { TEAM_SEED, demoDrives, demoLeads, demoReviews, leadsStore } from "@/lib/admin/collections";
 import { newId } from "@/lib/admin/ids";
 import { signPhotoPath } from "@/lib/leads/photos";
-import { notify } from "@/lib/admin/notifications";
 import demoCars from "@/lib/stock/demo-cars.json";
 import type { Car } from "@/lib/stock/types";
 import { carTitleOf } from "@/lib/admin/seed-data";
@@ -32,7 +31,6 @@ export type Msg = {
   photoKeys?: string[];
   href?: string;
   via?: "email"; // sent by email instead: the buyer chose email, WhatsApp is over its cap, or it is not connected
-  applied?: boolean; // the buyer's answer is on the lead
 };
 export const messagesStore = defineCollection<Msg>("whatsapp", seedMessages);
 
@@ -93,25 +91,7 @@ const strip = (m: Msg, photos?: string[]): Msg => {
 };
 
 export async function viewFor(name: string, modules: ReadonlySet<ModuleId>, now = Date.now()): Promise<View> {
-  const all = await messagesStore.list();
-  // A message about a lead that is gone goes with it.
-  const names = new Map((await leadsStore.list()).map((l) => [l.id, l.name]));
-  const gone = new Set(all.flatMap((m) => (m.leadId && !names.has(m.leadId) ? [m.leadId] : [])));
-  const found = names;
-  for (const m of all.filter((m) => m.leadId && gone.has(m.leadId))) await messagesStore.remove(m.id);
-  const live = all.filter((m) => !(m.leadId && gone.has(m.leadId))).sort((a, b) => a.at - b.at);
-  // A buyer's answer that has come in lands on the lead and in the bell, once.
-  for (const m of live) {
-    if (m.thread === "buyer" && m.from === "buyer" && m.at <= now && !m.applied && m.leadId) {
-      const lead = await leadsStore.get(m.leadId);
-      await messagesStore.put({ ...m, applied: true });
-      m.applied = true;
-      if (lead) {
-        await leadsStore.put({ ...lead, notes: [...lead.notes, { at: m.at, text: `Replied on WhatsApp: "${m.text}"` }] });
-        await notify({ kind: "whatsapp", text: "A buyer replied on WhatsApp", href: `/dashboard/leads/${lead.id}` }, m.at);
-      }
-    }
-  }
+  const live = (await messagesStore.list()).sort((a, b) => a.at - b.at);
   const secret = process.env.PHOTO_LINK_SECRET;
   const shown = live.filter((m) => m.at <= now && (!m.event || modules.has(EVENTS[m.event].module)));
   const staff = await Promise.all(shown.filter((m) => m.thread === "staff" && m.to === name).map(async (m) => strip(m, m.photoKeys && secret ? await Promise.all(m.photoKeys.map((k) => signPhotoPath(k, secret, 3600))) : undefined)));
@@ -120,7 +100,7 @@ export async function viewFor(name: string, modules: ReadonlySet<ModuleId>, now 
   return {
     staff,
     buyer: buyerAll.filter((m) => m.leadId === focus).map((m) => strip(m)),
-    buyerName: focus ? (found.get(focus) ?? "") : "",
+    buyerName: focus ? ((await leadsStore.get(focus))?.name ?? "") : "",
     typing: live.some((m) => m.at > now && (m.thread === "buyer" || m.to === name)),
   };
 }
