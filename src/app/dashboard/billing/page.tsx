@@ -40,7 +40,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
       <PageHeader title="Billing" />
       <Segmented label="Billing sections" items={SECTIONS.map(([k, label]) => ({ label, href: k === "plan" ? "/dashboard/billing" : `/dashboard/billing?section=${k}`, active: k === section }))} />
 
-      {section === "plan" && <PlanAndUsage modules={modules} services={services} usage={usage} aiPlan={b.aiPlan} now={today()} />}
+      {section === "plan" && <PlanAndUsage modules={modules} services={services} usage={usage} aiPlan={b.aiPlan} cap={capOf(b, "total")} now={today()} />}
 
       {section === "limits" && (
         <>
@@ -111,14 +111,14 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
   );
 }
 
-function PlanAndUsage({ modules, services, usage, aiPlan, now }: { modules: Modules; services: Service[]; usage: Usage; aiPlan: AiPlan; now: Date }) {
+function PlanAndUsage({ modules, services, usage, aiPlan, cap, now }: { modules: Modules; services: Service[]; usage: Usage; aiPlan: AiPlan; cap?: number; now: Date }) {
   const mine = MODULES.filter((m) => modules.has(m.id) && MODULE_EUR[m.id] > 0);
   const others = MODULES.filter((m) => !modules.has(m.id) && MODULE_EUR[m.id] > 0);
   const assistant = aiPlan === "assistant" && modules.has("ai");
   const plan = planEur(modules, assistant ? "assistant" : "perAction");
   const planNet = afterDiscount(plan);
   const sofar = usage.totalEur;
-  const estimate = monthEndEstimate(sofar, dublinDay(now.getTime()));
+  const estimate = Math.min(monthEndEstimate(sofar, dublinDay(now.getTime())), cap ?? Infinity); // usage stops at the limit
   const bill = round2(planNet + estimate);
   const lines: (readonly [string, number])[] = [["Website", BASE_EUR], ...mine.map((m) => [m.label, MODULE_EUR[m.id]] as const), ...(assistant ? [["AI assistant", AI_ASSISTANT.monthlyEur] as const] : [])];
   return (
@@ -216,7 +216,7 @@ async function Bills({ owner }: { owner: boolean }) {
                 </Link>
               ),
             },
-            { key: "total", header: "Total", align: "right", cell: (x) => eur(itemise(x).total) },
+            { key: "total", header: "Total", align: "right", cell: (x) => eur(itemise(x).total, true) },
             { key: "status", header: "Status", cell: (x) => (x.status === "paid" ? <Badge tone="good">Paid</Badge> : <Badge tone="warn">Due {fmtDay(x.dueOn, "dayMonth")}</Badge>) },
           ]}
         />

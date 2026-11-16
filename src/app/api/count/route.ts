@@ -6,10 +6,31 @@ const headers = { "Cache-Control": "no-store" };
 
 // An anonymous count of one feature use (src/lib/count-client.ts). The body is {"event": "<name from the fixed list>"}; nothing else is read,
 // stored or logged. The limit is per visitor, the way the lead forms' is; a visitor over it is simply not counted.
+async function readUpTo(req: Request, max: number): Promise<string | null> {
+  if (Number(req.headers.get("content-length") ?? 0) > max) return null;
+  const reader = req.body?.getReader();
+  if (!reader) return "";
+  const parts: Uint8Array[] = [];
+  let size = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.length;
+    if (size > max) {
+      await reader.cancel();
+      return null;
+    }
+    parts.push(value);
+  }
+  const all = new Uint8Array(size);
+  parts.reduce((at, p) => (all.set(p, at), at + p.length), 0);
+  return new TextDecoder().decode(all);
+}
+
 export async function POST(req: Request) {
-  // A count is a few bytes (a beacon always says how many): anything bigger, or of no stated size, is refused before it is read.
-  if (Number(req.headers.get("content-length") ?? 201) > 200) return new Response(null, { status: 413, headers });
-  const body = (await req.text()).slice(0, 200);
+  // A count is a few bytes: the body is read only up to 200 bytes, so a big one is refused without being held, with or without a stated size.
+  const body = await readUpTo(req, 200);
+  if (body === null) return new Response(null, { status: 413, headers });
   let event: unknown;
   try {
     event = (JSON.parse(body) as { event?: unknown }).event;

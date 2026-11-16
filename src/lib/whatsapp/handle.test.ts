@@ -111,6 +111,23 @@ describe("a price reply", () => {
   });
 });
 
+describe("asking for more photos, then making an offer", () => {
+  it("sends the offer after the photos, then no second offer from another copy", async () => {
+    db.leads.set("real-1", lead("new"));
+    alert("a1", ["photos", "price"], { leadId: "real-1", event: "trade-in" });
+    alert("a2", ["photos", "price"], { leadId: "real-1", event: "trade-in" });
+    await tap("Aoife", "a1", "photos");
+    sent.length = 0;
+    await tap("Aoife", "a1", "price");
+    await typed("Aoife", "8,500");
+    expect(sent.some((m) => String(m.text).includes("8,500"))).toBe(true);
+    sent.length = 0;
+    await tap("Aoife", "a2", "price");
+    await typed("Aoife", "9,000");
+    expect(sent.some((m) => String(m.text).includes("9,000"))).toBe(false);
+  });
+});
+
 describe("a closed lead and an old question", () => {
   it("sends no offer after the lead was declined from the other copy", async () => {
     db.leads.set("real-1", lead("contacted"));

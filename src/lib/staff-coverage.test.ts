@@ -13,7 +13,7 @@ describe("the dashboard's server actions", () => {
   for (const f of actionFiles) {
     it(`${f}: every exported action checks the login first`, () => {
       const src = readFileSync(f, "utf8");
-      expect(src, "an action exported another way (export const, export {...}) could skip the check").not.toMatch(/^export (const|let|\{)/m);
+      expect(src, "an action exported another way (export const, export default, export {...}) could skip the check").not.toMatch(/^export (const|let|var|default|\{)/m);
       const bodies = [...src.matchAll(/^export async function (\w+)[\s\S]*?\{\r?\n(.*)/gm)];
       expect(bodies.length).toBeGreaterThan(0);
       for (const [, name, first] of bodies) expect(first, name).toMatch(/await requireStaff\(\)/);

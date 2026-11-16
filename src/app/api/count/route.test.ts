@@ -25,10 +25,12 @@ describe("the public counter", () => {
     expect(bump).not.toHaveBeenCalled();
   });
 
-  it("refuses a body over 200 bytes, or one that does not say its size, before reading it", async () => {
+  it("refuses a body over 200 bytes, whether or not it says its size, and takes a small one that does not", async () => {
     expect((await POST(post('{"event":"saved"}', "5000"))).status).toBe(413);
-    expect((await POST(post('{"event":"saved"}', null))).status).toBe(413);
+    expect((await POST(post(`{"event":"saved","pad":"${"x".repeat(300)}"}`, null))).status).toBe(413);
     expect(bump).not.toHaveBeenCalled();
+    expect((await POST(post('{"event":"saved"}', null))).status).toBe(204);
+    expect(bump).toHaveBeenCalledWith("saved");
   });
 
   it("does not count a visitor over the limit, and still answers quietly", async () => {

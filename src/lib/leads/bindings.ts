@@ -15,6 +15,7 @@ export interface PhotoBucket {
   put(key: string, value: Blob | ArrayBuffer | ReadableStream, opts?: { httpMetadata?: { contentType?: string } }): Promise<unknown>;
   get(key: string): Promise<{ body: ReadableStream; httpMetadata?: { contentType?: string } } | null>;
   delete(keys: string | string[]): Promise<void>;
+  list(opts: { prefix: string; cursor?: string }): Promise<{ objects: { key: string }[]; truncated: boolean; cursor?: string }>;
 }
 
 type LeadBindings = { EMAIL?: SendEmail; LEAD_LIMITER?: RateLimit; COUNT_LIMITER?: RateLimit; LEAD_PHOTOS?: PhotoBucket; DB?: AnyD1Database };

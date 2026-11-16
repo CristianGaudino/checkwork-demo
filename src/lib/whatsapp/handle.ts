@@ -22,13 +22,14 @@ import { BUTTON_LABELS, firstName, parsePrice, type ButtonId } from "./rules";
 // and only in their own conversation. The site's acknowledgements to the dealer are replies inside the 24 hours and not billed.
 const BUYER_ANSWER_MS = 6000; // how long the simulated buyer takes to answer
 
-type Act = { site: (first: string) => string; buyer?: (first: string, car: string) => string; answer?: string; note?: string; status?: LeadStatus; activity: string };
+// `keepOpen`: the alert stays open after it (asking for more photos: the offer comes after, from the same alert).
+type Act = { site: (first: string) => string; buyer?: (first: string, car: string) => string; answer?: string; note?: string; status?: LeadStatus; activity: string; keepOpen?: true };
 const ACTS: Partial<Record<ButtonId | "confirm-test-drive" | "confirm-deposit", Act>> = {
   available: { site: (f) => `Sent to ${f}: yes, it's available.`, buyer: (f, c) => `Hi ${f}, yes, the ${c} is still available. Would you like to come and see it?`, note: "Told the buyer on WhatsApp that the car is available.", status: "contacted", activity: "Told the buyer the car is available, from WhatsApp" },
   saturday: { site: (f) => `Sent to ${f}: can you come in Saturday?`, buyer: (f, c) => `Hi ${f}, could you come in on Saturday to see the ${c}? Tell us what time suits.`, answer: "Saturday works for me. Is 11:00 ok?", note: "Asked the buyer on WhatsApp to come in on Saturday.", status: "contacted", activity: "Asked the buyer to come in on Saturday, from WhatsApp" },
   call: { site: () => "Noted. I marked it to call back.", note: "Call back asked for from WhatsApp.", status: "contacted", activity: "Marked the lead to call back, from WhatsApp" },
   handled: { site: () => "Marked as handled.", note: "Handled from WhatsApp.", status: "contacted", activity: "Marked the lead handled, from WhatsApp" },
-  photos: { site: (f) => `Asked ${f} for more photos.`, buyer: (f) => `Hi ${f}, could you send a few more photos of your car? The front, the back and the inside help most.`, note: "Asked the buyer on WhatsApp for more photos.", status: "contacted", activity: "Asked for more photos, from WhatsApp" },
+  photos: { site: (f) => `Asked ${f} for more photos.`, buyer: (f) => `Hi ${f}, could you send a few more photos of your car? The front, the back and the inside help most.`, note: "Asked the buyer on WhatsApp for more photos.", status: "contacted", activity: "Asked for more photos, from WhatsApp", keepOpen: true },
   decline: { site: (f) => `Told ${f}. The lead is closed.`, buyer: (f) => `Hi ${f}, thanks for sending us your car. We are not able to make an offer on this one.`, note: "Turned down from WhatsApp.", status: "lost", activity: "Turned the car down, from WhatsApp" },
   "confirm-test-drive": { site: () => "Confirmed. The booking is in the diary.", buyer: (f) => `Hi ${f}, your test drive is confirmed. See you then.`, note: "Test drive confirmed from WhatsApp.", status: "appointment", activity: "Confirmed the test drive, from WhatsApp" },
   slot: { site: () => "Confirmed. The slot is booked.", buyer: (f) => `Hi ${f}, your slot is confirmed. See you then.`, note: "Slot confirmed from WhatsApp.", status: "appointment", activity: "Confirmed the slot, from WhatsApp" },
@@ -82,13 +83,15 @@ export async function tap(me: string, msgId: string, button: ButtonId): Promise<
 
   const closed = lead && (lead.status === "won" || lead.status === "lost");
   const all = await copies(msg);
-  if (button !== "review" && button !== "report" && button !== "post" && (msg.done || all.some((m) => m.done))) return void (await say(me, { text: "Already done." }));
-  if (closed) return void (await say(me, { text: "That lead is closed." }));
-  if (button === "price") return void (await say(me, { leadId: msg.leadId, text: `What price do you want to offer${first ? ` ${first}` : ""}? Type it, like 8,500.`, expects: "price" }));
-  if (button === "other") return void (await say(me, { leadId: msg.leadId, ref: msg.ref, text: "What time suits? Type it, like Saturday at 11.", expects: "time" }));
+  // These only open a link or ask about a review, so they work on any copy.
   if (button === "review") return void (await say(me, { ref: msg.ref, text: "Type your reply and I will post it on Google.", expects: "review-reply" }));
   if (button === "report") return void (await say(me, { text: "Here is the full report.", href: "/dashboard/reports" }));
   if (button === "post") return void (await say(me, { text: "Thanks. Approve the post in Marketing and it is scheduled.", href: "/dashboard/marketing" }));
+  if (closed) return void (await say(me, { text: "That lead is closed." }));
+  // The rest answer the alert once, for everyone it went to: one offer, one decline, one confirm. Asking for more photos keeps it open.
+  if (msg.done || all.some((m) => m.done)) return void (await say(me, { text: "Already done." }));
+  if (button === "price") return void (await say(me, { leadId: msg.leadId, ref: msg.id, text: `What price do you want to offer${first ? ` ${first}` : ""}? Type it, like 8,500.`, expects: "price" }));
+  if (button === "other") return void (await say(me, { leadId: msg.leadId, ref: msg.ref, text: "What time suits? Type it, like Saturday at 11.", expects: "time" }));
   if (button === "drop") {
     if ((await stockSource()) === "donedeal") return void (await say(me, { text: `The price comes from ${LISTING_SITE}. Change it there.` }));
     await markDone(all); // first, so a second tap while this runs finds it done
@@ -112,7 +115,10 @@ export async function tap(me: string, msgId: string, button: ButtonId): Promise<
       await logActivity("test-drives", act.activity, { kind: "drive", id: drive.id });
     }
   }
-  if (!act.activity) return void (await say(me, { text: act.site("") }));
+  if (!act.activity) {
+    await markDone(all);
+    return void (await say(me, { text: act.site("") }));
+  }
   if (!lead && !(button === "confirm" && msg.ref)) return void (await say(me, { text: "I can't find that request any more." }));
   if (lead) {
     const status = moved(lead.status, act.status);
@@ -120,7 +126,7 @@ export async function tap(me: string, msgId: string, button: ButtonId): Promise<
     if (button !== "confirm") await logActivity("leads", act.activity, { kind: "lead", id: lead.id });
     if (act.buyer) await toBuyer(lead, me, act.buyer(first, lead.carTitle ?? "car"), act.answer);
   }
-  await markDone(all);
+  if (!act.keepOpen) await markDone(all);
   await say(me, { text: act.site(first), ...(lead && { leadId: lead.id, href: `/dashboard/leads/${lead.id}` }) });
 }
 
@@ -143,6 +149,8 @@ export async function typed(me: string, raw: string): Promise<void> {
     await leadsStore.put({ ...cur, status: moved(cur.status, "contacted"), notes: [...cur.notes, { at: Date.now(), text: `Offer sent by ${by}: ${fmtEur(eur)}` }] });
     await logActivity("leads", `Sent an offer of ${fmtEur(eur)}, from WhatsApp`, { kind: "lead", id: lead.id });
     await messagesStore.put({ ...q, done: true });
+    const alert = q.ref ? await messagesStore.get(q.ref) : undefined; // the alert the price was asked from: one offer per alert
+    if (alert) await markDone(await copies(alert));
     return void (await say(me, { leadId: lead.id, href: `/dashboard/leads/${lead.id}`, text: `Done. I sent ${firstName(lead.name)} your offer of ${fmtEur(eur)} by ${by}. I will tell you when they answer.` }));
   }
   if (q.expects === "time") {

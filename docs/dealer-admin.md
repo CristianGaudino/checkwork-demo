@@ -256,6 +256,9 @@ the words for them are in `src/lib/leads/contact-topics.ts`; the steps and cards
 
 The `whatsapp` module. On the demo it is simulated (integration `whatsapp`): `/dashboard/whatsapp` shows the dealer's WhatsApp as a phone, and a smaller buyer's phone, and nothing leaves the site.
 
+- Each alert is answered once for everyone it went to: one offer, one decline, one confirm ("Already done." after). Asking for more
+  photos keeps it open for the offer. A closed lead takes no more buyer messages, and a question expires after an hour.
+- Messages are kept 30 days (the daily purge), and go with their lead or an erasure. Removing someone from the team removes their phone.
 - Each new website request is added to the conversation of every team member who has that alert on and a linked number, outside their quiet hours (`alertStaffOnWhatsApp`, called once from `real-leads.ts`). The template is the request's own module's, or the plain enquiry when the dealer lacks that module (`eventOfLead`). A buyer who ticked the WhatsApp box (`whatsappOptIn` on the lead, read from the form's detail of the same name) gets a confirmation.
 - A tap or a typed reply goes through `src/lib/whatsapp/handle.ts`: it writes the lead (status, note), the activity log (never a name), and the buyer's message. Reply with a price reads "8,500", "€8.5k", "8500" (`parsePrice`), sends the offer, and the buyer's simulated answer lands six seconds later on both phones and the lead.
 - Only a team member with a linked phone can act, in their own conversation. Margins are never in a message.
@@ -265,7 +268,7 @@ The `whatsapp` module. On the demo it is simulated (integration `whatsapp`): `/d
 
 ## Marketing formats, media and AI writing
 
-- **Formats** (#177): a post is a Post, Story (9:16 with a ready layout: Just in, Price drop, Sold, Collected today, drawn over the car photo), Reel or video, or Carousel (2 to 10 photos). The composer previews each at phone size. Limits live in `src/lib/admin/networks.ts` (`FORMAT_LIMITS`, `FORMATS_FOR`) and the server checks the same numbers. `PUBLISH_MODE` there says which formats a network's API can publish ("auto") and which are prepared here and posted from the phone ("prepare": Facebook and Instagram stories, all TikTok). Publishing stays simulated.
+- **Formats** (#177): a post is a Post, Story (9:16 with a ready layout: Just in or Price drop, drawn over the car photo), Reel or video, or Carousel (2 to 10 photos). The composer previews each at phone size. Limits live in `src/lib/admin/networks.ts` (`FORMAT_LIMITS`, `FORMATS_FOR`) and the server checks the same numbers. `PUBLISH_MODE` there says which formats a network's API can publish ("auto") and which are prepared here and posted from the phone ("prepare": Facebook and Instagram stories, all TikTok). Publishing stays simulated.
 - **Media library** (`mediaStore`, tab Media): photos (JPEG, PNG, WebP; shrunk to 1,600px on the device) and videos (MP4, MOV, up to 15 MB and 90 seconds on the demo; length read in the browser and checked loosely on the server), optionally tagged to a car. Stored in R2 under `media/` in the `LEAD_PHOTOS` bucket and served by `/media-files`; with no bucket a data URL is kept in memory. Rules in `src/lib/admin/media-rules.ts`. No range requests yet, so add them before real video use.
 - **Calendar**: a week of scheduled and posted posts and started ads (`calendarWeek`); drafts are not on it.
 - **Modules**: posts, calendar and media need Social and ads, newsletters need Newsletter and alerts; the page needs one of them.

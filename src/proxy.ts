@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { accessConfig, verifyAccessJwt } from "@/lib/access";
 import { adminReachable, demoCookiesCount, isAppPath } from "@/lib/demo";
-import { MODULES_COOKIE, parseModules, pathAllowed } from "@/lib/modules-rules";
+import { MODULES_COOKIE, conditionShown, parseModules, pathAllowed } from "@/lib/modules-rules";
 import { stock } from "@/lib/stock";
 
 // Next 16 has no gone(); a rewrite with a status is the documented way to answer 410 (D-03).
@@ -42,7 +42,7 @@ export async function proxy(req: NextRequest) {
   if (slug.length > 120 || !CAR_SLUG.test(slug)) return NextResponse.next();
   const hit = await stock.lookup(slug);
   // A new car or a van has its page under /used-cars too: without its module (#173) it is not there, like /new-cars and /commercial.
-  if (hit?.state === "live" && ((hit.car.condition === "new" && !modules.has("newCars")) || (hit.car.condition === "commercial" && !modules.has("commercial")))) return notThere(req);
+  if (hit?.state === "live" && !conditionShown(modules, hit.car.condition)) return notThere(req);
   // The target is a constant prefix plus the provider's own make slug, never request input (T-02-08).
   return hit?.state === "gone" ? NextResponse.rewrite(new URL("/gone/" + hit.makeSlug, req.url), { status: 410 }) : NextResponse.next();
 }

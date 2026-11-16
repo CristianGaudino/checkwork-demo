@@ -48,6 +48,8 @@ export function parseModules(v: string | undefined): Set<ModuleId> {
   return on;
 }
 export const modulesValue = (on: Iterable<ModuleId>) => [...on].join(",");
+// A car's own page and listings: a new car only with New cars, a van only with Commercial vehicles, a used car always.
+export const conditionShown = (on: Set<ModuleId>, condition?: string) => (condition === "new" ? on.has("newCars") : condition === "commercial" ? on.has("commercial") : true);
 
 // Turning one on brings what it needs; turning one off takes what needs it. The demo bar's switches use these, so a choice is never half on.
 export function withModule(on: Set<ModuleId>, id: ModuleId): Set<ModuleId> {

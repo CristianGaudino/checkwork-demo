@@ -15,7 +15,7 @@ export const API_VERSION = 1;
 export async function modulesBody() {
   const on = await enabledModules();
   const aiPlan = (await billingSettings()).aiPlan;
-  return { version: API_VERSION, appVersion: pkg.version, modules: MODULE_IDS.filter((m) => on.has(m)), planEur: planEur(on, aiPlan) };
+  return { version: API_VERSION, appVersion: pkg.version, modules: MODULE_IDS.filter((m) => on.has(m)), planEur: planEur(on, on.has("ai") ? aiPlan : "perAction") }; // the assistant fee only with the AI module, as the Billing page
 }
 
 // Each month the range touches (at most 13), with its counts and costs by service and kind.

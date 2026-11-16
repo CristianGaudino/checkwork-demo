@@ -13,6 +13,7 @@ import { can, currentMember } from "@/lib/permissions";
 import { ROLES, type Role } from "@/lib/permission-rules";
 import { logActivity } from "@/lib/admin/activity";
 import { requireStaff } from "@/lib/staff";
+import { staffStore } from "@/lib/whatsapp/store";
 
 export type SettingsState = { errors?: Record<string, string>; saved?: boolean } | undefined;
 
@@ -159,6 +160,7 @@ export async function removeTeamAction(id: string) {
   await change((s) => ({ ...s, team: s.team.filter((t) => t.id !== id) }));
   for (const l of await leadsStore.list()) if (l.assignedTo === gone.name) await leadsStore.put({ ...l, assignedTo: undefined });
   for (const d of await drivesStore.list()) if (d.assignedTo === gone.name) await drivesStore.put({ ...d, assignedTo: undefined });
+  await staffStore.remove(id); // their WhatsApp phone goes too: no more buyers' alerts to someone who left
   await logActivity("settings", `Removed ${gone.name} from the team`, { kind: "team", id, label: gone.name });
 }
 
