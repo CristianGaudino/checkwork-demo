@@ -47,7 +47,7 @@ Send `Authorization: Bearer <OWNER_API_TOKEN>`. No token or a wrong one: `404`, 
 
 ## Counters
 
-`POST /api/count` with `{"event": "<name>"}`, from `src/lib/count-client.ts` (`navigator.sendBeacon`, at most once per event per page load). Only names in `src/lib/owner-api/counter-rules.ts` are stored: one record a day per event, no cookie, no id, no IP. Buyer events are limited per IP with the lead limiter binding when present. The contact form's topic event (`contact-topic`) is in the list but not sent yet.
+`POST /api/count` with `{"event": "<name>"}`, from `src/lib/count-client.ts` (`navigator.sendBeacon`, at most once per event per page load). Only names in `src/lib/owner-api/counter-rules.ts` are stored: one record a day per event, no cookie, no id, no IP. Every event is limited per IP with its own limiter (`COUNT_LIMITER`, 20 a minute), and a body over 200 bytes or of no stated size is refused. Dashboard opens are not sent here: the dashboard counts them itself, behind Access.
 
 ## One set of figures
 

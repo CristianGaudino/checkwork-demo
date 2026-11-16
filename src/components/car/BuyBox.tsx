@@ -14,6 +14,7 @@ import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 import { accentButton, card } from "@/components/ui";
 import { IfModule } from "@/components/IfModule";
+import { CompareCell } from "./CompareCell";
 
 const button = `flex w-full items-center justify-center gap-2 ${accentButton}`;
 const FACT_ICONS: Record<string, typeof CarIcon> = { Year: CalendarIcon, Mileage: GaugeIcon, Fuel: FuelIcon, Transmission: GearIcon };
@@ -92,17 +93,9 @@ export function BuyBox({ car }: { car: Car }) {
       {!sold && (
         <div className="grid grid-cols-2 gap-2">
           {/* A reserved car can still be compared; a price alert or a trade-in against it would go nowhere (its panel offers Notify me). */}
-          {/* Price alerts are the newsletter module (#173): without them Compare takes the row. */}
-          <IfModule id="newsletter">
-            <div className={car.reserved ? "col-span-2" : undefined}>
-              <CompareButton id={car.id} label={`Compare ${carName(car)}`} sizing="flex h-12 w-full px-4" />
-            </div>
-          </IfModule>
-          <IfModule id="newsletter" not>
-            <div className="col-span-2">
-              <CompareButton id={car.id} label={`Compare ${carName(car)}`} sizing="flex h-12 w-full px-4" />
-            </div>
-          </IfModule>
+          <CompareCell wide={Boolean(car.reserved)}>
+            <CompareButton id={car.id} label={`Compare ${carName(car)}`} sizing="flex h-12 w-full px-4" />
+          </CompareCell>
           {!car.reserved && (
             <>
               <IfModule id="newsletter">

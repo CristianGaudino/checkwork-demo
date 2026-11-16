@@ -89,6 +89,9 @@ export function usageLines(counts: { service: Service; kind: string; count: numb
 export const AI_PLAN_LABELS: Record<AiPlan, string> = { perAction: "Pay per action", assistant: "AI assistant" };
 
 // The paid services a dealer has, from their modules: the lookup in either place, AI writing, WhatsApp.
+// What can have a limit, and is listed on the Billing page: each service the dealer has, and one used this month before it was switched
+// off (its spend counts in the total). The page and the save action both use this, so a field shown is a field saved.
+export const billedServices = (modules: { has(m: ModuleId): boolean }, used: Record<Service, { count: number }>): Service[] => SERVICES.filter((s) => servicesOf(modules).includes(s) || used[s].count > 0);
 export function servicesOf(modules: { has(m: ModuleId): boolean }): Service[] {
   return SERVICES.filter((s) => (s === "lookup" ? modules.has("lookupWebsite") || modules.has("lookupDashboard") : modules.has(s)));
 }

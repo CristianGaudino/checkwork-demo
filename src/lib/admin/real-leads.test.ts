@@ -15,6 +15,12 @@ describe("dublinMs", () => {
 });
 
 describe("mirrorOf", () => {
+  it("files a warranty claim as a general message for a dealer without the service module, so it shows in Leads", () => {
+    const claim = row({ type: "general", sourcePath: "/warranty" });
+    expect(mirrorOf(claim).lead?.type).toBe("warranty");
+    expect(mirrorOf(claim, true, false).lead?.type).toBe("general");
+  });
+
   it("makes a lead with the visitor's words and marks it as real", () => {
     const m = mirrorOf(row({}));
     expect(m.lead).toMatchObject({ id: "real-abc", type: "enquiry", status: "new", message: "Hello", carTitle: "2020 Audi A3", source: "Website" });

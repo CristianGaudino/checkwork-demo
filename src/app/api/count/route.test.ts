@@ -7,7 +7,7 @@ vi.mock("@/lib/owner-api/counters", () => ({ bump: (e: string) => bump(e) }));
 vi.mock("@/lib/leads/bindings", () => ({ getBindings: () => ({ COUNT_LIMITER: limiter }) }));
 import { POST } from "./route";
 
-const post = (body: string) => new Request("https://site.example/api/count", { method: "POST", body, headers: { "cf-connecting-ip": "203.0.113.9" } });
+const post = (body: string, length: string | null = String(body.length)) => new Request("https://site.example/api/count", { method: "POST", body, headers: { "cf-connecting-ip": "203.0.113.9", ...(length !== null && { "content-length": length }) } });
 
 beforeEach(() => {
   bump.mockClear();
@@ -22,6 +22,12 @@ describe("the public counter", () => {
 
   it("refuses a body that is not JSON, an event not on the list, and a dashboard area", async () => {
     for (const b of ["nope", '{"event":"hacked"}', '{"event":"dash:leads"}']) expect((await POST(post(b))).status).toBe(400);
+    expect(bump).not.toHaveBeenCalled();
+  });
+
+  it("refuses a body over 200 bytes, or one that does not say its size, before reading it", async () => {
+    expect((await POST(post('{"event":"saved"}', "5000"))).status).toBe(413);
+    expect((await POST(post('{"event":"saved"}', null))).status).toBe(413);
     expect(bump).not.toHaveBeenCalled();
   });
 

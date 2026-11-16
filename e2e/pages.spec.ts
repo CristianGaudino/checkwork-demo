@@ -195,6 +195,7 @@ test("the contact line sits with phone and email, below the name", async ({ page
   await toDetails(page);
   const y = (loc: ReturnType<Page["locator"]>) => loc.evaluate((el) => el.getBoundingClientRect().top);
   const hint = main(page).getByText("Add a phone number or an email, so we can reply.");
+  await expect(hint).toBeVisible(); // measured once the details step is on screen
   const bottom = (loc: ReturnType<Page["locator"]>) => loc.evaluate((el) => el.getBoundingClientRect().bottom);
   const above = (await y(hint)) - (await bottom(main(page).getByLabel("Name")));
   const below = (await y(main(page).getByText("Phone", { exact: true }))) - (await bottom(hint));

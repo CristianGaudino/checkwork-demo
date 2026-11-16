@@ -7,8 +7,8 @@ const headers = { "Cache-Control": "no-store" };
 // An anonymous count of one feature use (src/lib/count-client.ts). The body is {"event": "<name from the fixed list>"}; nothing else is read,
 // stored or logged. The limit is per visitor, the way the lead forms' is; a visitor over it is simply not counted.
 export async function POST(req: Request) {
-  // A count is a few bytes: anything bigger is refused before it is read.
-  if (Number(req.headers.get("content-length") ?? 0) > 200) return new Response(null, { status: 413, headers });
+  // A count is a few bytes (a beacon always says how many): anything bigger, or of no stated size, is refused before it is read.
+  if (Number(req.headers.get("content-length") ?? 201) > 200) return new Response(null, { status: 413, headers });
   const body = (await req.text()).slice(0, 200);
   let event: unknown;
   try {

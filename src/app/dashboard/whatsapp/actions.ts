@@ -12,12 +12,16 @@ import { staffStore, viewFor, type View } from "@/lib/whatsapp/store";
 import { requireStaff } from "@/lib/staff";
 
 // The phone panel's three calls. Each one checks the module and who is asking, acts, and sends back the conversation as it now is.
+// The conversation holds buyers' names and messages: each action below checks staff first, wherever it is posted.
 async function view(): Promise<View> {
   await requireModule("whatsapp");
   return viewFor((await currentMember()).name, await enabledModules());
 }
 
-export const snapshotAction = view;
+export async function snapshotAction(): Promise<View> {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
+  return view();
+}
 
 export async function tapAction(msgId: string, button: string): Promise<View> {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)

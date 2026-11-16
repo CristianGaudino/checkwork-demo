@@ -47,6 +47,8 @@ for (const [where, viewport] of [["on a phone", undefined], ["on a computer", { 
         await open(page);
         await pick(page, t.card);
         await next(page);
+        // Wait for the step to change before the next tap: a second tap too soon lands on the step that is still leaving.
+        await expect(page.getByText("Step 2 of 3")).toBeVisible();
         if ("message" in t) await page.getByLabel("How can we help?").fill(t.message);
         for (const tap of t.taps) await pick(page, tap);
         await next(page);

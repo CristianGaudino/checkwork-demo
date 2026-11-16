@@ -9,16 +9,16 @@ import { MODULES, type ModuleId } from "@/lib/modules-rules";
 import { enabledModules } from "@/lib/modules";
 import { can, currentMember } from "@/lib/permissions";
 import { fieldErrors } from "@/lib/admin/validation";
-import { billingSettings, saveBilling } from "@/lib/billing/usage";
-import { eur, parseAlert, parseLimits, servicesOf } from "@/lib/billing/bills-rules";
+import { billingSettings, saveBilling, monthUsage } from "@/lib/billing/usage";
+import { eur, parseAlert, parseLimits, billedServices } from "@/lib/billing/bills-rules";
 import { AI_PLANS, SERVICE_LABELS, type AiPlan, type Scope } from "@/lib/billing/rules";
 import { requireStaff } from "@/lib/staff";
 
 export type BillingState = { errors?: Record<string, string>; saved?: boolean } | undefined;
 const NO = "Only an owner or manager can change this";
 const scopeLabel = (s: Scope) => (s === "total" ? "all usage" : SERVICE_LABELS[s]);
-// What can have a limit or an alert: each service the dealer has, and all usage together.
-const scopesOf = async (): Promise<Scope[]> => [...servicesOf(await enabledModules()), "total"];
+// What can have a limit or an alert: the services the Billing page lists, and all usage together.
+const scopesOf = async (): Promise<Scope[]> => [...billedServices(await enabledModules(), await monthUsage()), "total"];
 const done = (): BillingState => (revalidatePath("/dashboard/billing"), { saved: true });
 
 export async function saveLimitsAction(_p: BillingState, data: FormData): Promise<BillingState> {
