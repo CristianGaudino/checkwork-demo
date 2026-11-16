@@ -89,4 +89,5 @@ test("the public site follows the plan: on Base only the module pages are gone, 
   await expect(page.getByRole("banner").getByRole("link", { name: "Finance" })).toHaveCount(0);
   await page.goto((await page.locator("article a").first().getAttribute("href"))!);
   await expect(page.getByRole("button", { name: "Test drive" })).toHaveCount(0);
+  await expect(page.getByText(/^Estimate from €[\d,]+ a month$/).first()).toBeVisible();
 });

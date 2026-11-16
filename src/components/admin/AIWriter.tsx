@@ -4,13 +4,15 @@ import { useId, useRef, useState, useTransition } from "react";
 import { SparkleIcon } from "@/components/stock/icons";
 import { press } from "@/components/ui";
 import { useModules } from "@/lib/demo-role";
+import { SHOW_PRICING } from "@/lib/billing/rules";
 import { writeAction } from "@/lib/ai/actions";
 import { ADJUSTS, adjustsFor, type Adjust, type Task, type WriteRequest } from "@/lib/ai/tasks";
 import type { PostFormat } from "@/lib/admin/networks";
 import { adminButtonQuiet, adminInput } from "./kit";
 
 const chip = `inline-flex min-h-11 items-center rounded-full border border-control bg-card px-4 text-meta font-medium disabled:opacity-50 ${press}`;
-const SAID = { limit: "The monthly AI limit is reached. Your text is unchanged.", failed: "Couldn't write that, try again. Your text is unchanged." };
+// With our pricing hidden the limit is not on Billing, so the message says where to ask.
+const SAID = { limit: `The monthly AI limit is reached. Your text is unchanged.${SHOW_PRICING ? "" : " Ask us in Help to raise it."}`, failed: "Couldn't write that, try again. Your text is unchanged." };
 
 // "Write with AI" for any text box (#179): a first draft from the record's facts, then buttons that rewrite it, Undo for one step back, and a
 // label so AI text is never taken for the dealer's own. The box stays the host's own and stays editable. `request` is read when a button is

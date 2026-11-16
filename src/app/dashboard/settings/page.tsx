@@ -209,7 +209,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
                 { key: "name", header: "Service", cell: (i) => <span className="font-medium">{i.name}</span> },
                 { key: "purpose", header: "What it does", hide: "md", cell: (i) => i.purpose, className: "max-w-[20rem]" },
                 { key: "status", header: "Status", cell: (i) => (isUsable(i.id) ? <Badge tone="good">Connected</Badge> : <Badge tone="warn">Not connected</Badge>) },
-                { key: "missing", header: "Account or still needed", hide: "sm", cell: (i) => <span className="break-words text-meta text-text-2">{modeOf(i.id) === "off" ? missingEnv(i).join(", ") : modeOf(i.id) === "simulated" ? i.demoAccount : "Nothing"}</span> },
+                { key: "missing", header: "Account or still needed", hide: "sm", cell: (i) => <span className="break-words text-meta text-text-2">{modeOf(i.id) === "off" ? (i.id === "ai" ? "An API key" : missingEnv(i).join(", ")) : modeOf(i.id) === "simulated" ? i.demoAccount : "Nothing"}</span> },
               ]}
             />
             <p className="text-meta text-text-2">Add a missing setting in the Cloudflare dashboard (Workers, Settings, Variables and secrets) and the service connects on the next request.</p>
