@@ -57,13 +57,14 @@ test("on the narrowest phone the dealer's module switches open inside the panel 
   await page.goto("/dashboard");
   await demoBar(page);
   const bar = page.locator("[data-demo-bar]");
-  const modules = bar.getByRole("button", { name: /^Modules/ });
+  const modules = bar.getByRole("button", { name: /^Plan/ });
   await expect(modules).toBeInViewport({ ratio: 1 });
   await modules.click();
-  const base = bar.getByRole("button", { name: "Base site only" });
+  const base = bar.getByRole("button", { name: /^Base only/ });
   await expect(base).toBeInViewport({ ratio: 1 });
   await base.click();
-  await expect(modules).toContainText(/0 of/);
+  await expect(modules).toContainText("Base only");
+  await expect(base).toHaveAttribute("aria-pressed", "true");
 });
 
 test("light is the default, dark is a choice that sticks and does not flash", async ({ page }) => {
