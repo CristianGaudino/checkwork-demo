@@ -1,6 +1,7 @@
 // Shrinks a picked photo on the device to a JPEG with a 2,000px long edge (UI-SPEC Photos, Resizing). Drawing it to a
 // canvas also drops the EXIF data, GPS and camera details included, so the original never leaves the phone (T-03-33).
-export async function downscale(file: File, longEdge = 2000, quality = 0.82): Promise<Blob> {
+// The size comes back with it, so the caller need not decode the JPEG again to learn it.
+export async function downscale(file: File, longEdge = 2000, quality = 0.82): Promise<{ blob: Blob; width: number; height: number }> {
   const bmp = await createImageBitmap(file, { imageOrientation: "from-image" });
   const k = Math.min(1, longEdge / Math.max(bmp.width, bmp.height));
   const canvas = document.createElement("canvas");
@@ -12,5 +13,6 @@ export async function downscale(file: File, longEdge = 2000, quality = 0.82): Pr
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(bmp, 0, 0, canvas.width, canvas.height);
   bmp.close();
-  return new Promise((ok, no) => canvas.toBlob((b) => (b ? ok(b) : no(new Error("Encode failed"))), "image/jpeg", quality));
+  const blob = await new Promise<Blob>((ok, no) => canvas.toBlob((b) => (b ? ok(b) : no(new Error("Encode failed"))), "image/jpeg", quality));
+  return { blob, width: canvas.width, height: canvas.height };
 }

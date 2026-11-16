@@ -75,7 +75,7 @@ export function AIWriter({ task, request, text, onText, format }: { task: Task; 
 
 // A text box with the writer under it, for the places that have no state of their own (a form that posts the box by `name`). `request` is
 // the ask, or (from a client component only) a function that gets the box, so the car form can read its sibling fields. `copy` adds a Copy button, for a draft that is sent from somewhere else.
-export function AITextarea({ id, name, label, defaultValue = "", rows = 5, maxLength, task, request, format, onSubject, copy = false, required = false }: { id?: string; name?: string; label: string; defaultValue?: string; rows?: number; maxLength?: number; task: Task; request: WriteRequest | ((box: HTMLTextAreaElement | null) => WriteRequest | null); format?: PostFormat; onSubject?: (s: string) => void; copy?: boolean; required?: boolean }) {
+export function AITextarea({ id, name, label, defaultValue = "", rows = 5, maxLength, task, request, onSubject, copy = false }: { id?: string; name?: string; label: string; defaultValue?: string; rows?: number; maxLength?: number; task: Task; request: WriteRequest | ((box: HTMLTextAreaElement | null) => WriteRequest | null); onSubject?: (s: string) => void; copy?: boolean }) {
   const box = useRef<HTMLTextAreaElement>(null);
   const own = useId();
   id ??= own;
@@ -84,8 +84,8 @@ export function AITextarea({ id, name, label, defaultValue = "", rows = 5, maxLe
   return (
     <div className="flex flex-col gap-2">
       <label className="sr-only" htmlFor={id}>{label}</label>
-      <textarea ref={box} id={id} name={name} rows={rows} maxLength={maxLength} required={required} value={text} onChange={(e) => setText(e.target.value)} className={`${adminInput} h-auto py-2`} />
-      <AIWriter task={task} format={format} text={text} request={() => (typeof request === "function" ? request(box.current) : request)} onText={(t, subject) => { setText(t); setCopied(false); if (subject) onSubject?.(subject); }} />
+      <textarea ref={box} id={id} name={name} rows={rows} maxLength={maxLength} value={text} onChange={(e) => setText(e.target.value)} className={`${adminInput} h-auto py-2`} />
+      <AIWriter task={task} text={text} request={() => (typeof request === "function" ? request(box.current) : request)} onText={(t, subject) => { setText(t); setCopied(false); if (subject) onSubject?.(subject); }} />
       {copy && text.trim() && (
         <button type="button" onClick={() => navigator.clipboard?.writeText(text).then(() => setCopied(true), () => {})} className={`${adminButtonQuiet} self-start`}>
           {copied ? "Copied" : "Copy"}

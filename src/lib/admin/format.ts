@@ -1,10 +1,9 @@
 import { TIME_ZONE as timeZone } from "@/lib/site";
 import { HOUR } from "@/lib/time";
-import { formatCount, formatPrice } from "@/lib/stock/format";
+import { fmtNum } from "@/lib/stock/format";
 
-// The dashboard's names for the site's own money and number formats (src/lib/stock/format.ts): one way of writing them everywhere.
-export const fmtNum = formatCount;
-export const fmtEur = formatPrice;
+// The site's own money and number formats (src/lib/stock/format.ts), here too: one way of writing them everywhere.
+export { fmtEur, fmtNum } from "@/lib/stock/format";
 
 // Irish time, whatever zone the server runs in (a Worker runs in UTC): a 11:00 test drive reads 11:00 in summer too. No server-only
 // imports: the lead forms use these in the browser.

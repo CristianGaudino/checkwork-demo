@@ -50,11 +50,9 @@ export function MediaUpload({ accept = MEDIA_ACCEPT, carSlug = "", label = "Add 
             f.set("seconds", String(s));
           } else {
             const jpeg = await downscale(file, 1600);
-            const bmp = await createImageBitmap(jpeg);
-            f.set("file", jpeg);
-            f.set("width", String(bmp.width));
-            f.set("height", String(bmp.height));
-            bmp.close();
+            f.set("file", jpeg.blob);
+            f.set("width", String(jpeg.width));
+            f.set("height", String(jpeg.height));
           }
           const r = await uploadMediaAction(f);
           if (!r.ok) return stop(r.error);

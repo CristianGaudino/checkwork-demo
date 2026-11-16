@@ -1,4 +1,4 @@
-import { formatKm, formatPrice } from "./format";
+import { formatKm, fmtEur } from "./format";
 import { FUEL_LABELS, FUELS, GEARBOX_LABELS, GEARBOXES, SORT_KEYS } from "./types";
 import type { Condition, FacetOption, Facets, Fuel, Gearbox, SortKey, StockQuery } from "./types";
 
@@ -137,8 +137,8 @@ export function appliedFilters(q: StockQuery, facets: Facets | null): { id: stri
   for (const v of q.model) out.push({ id: `model:${v}`, label: named(facets, "model", v), next: toggle(q, "model", v, facets) });
   if (q.yearFrom !== undefined) out.push({ id: "yearFrom", label: `From ${q.yearFrom}`, next: drop({ yearFrom: undefined }) });
   if (q.yearTo !== undefined) out.push({ id: "yearTo", label: `To ${q.yearTo}`, next: drop({ yearTo: undefined }) });
-  if (q.priceMin !== undefined) out.push({ id: "priceMin", label: `From ${formatPrice(q.priceMin)}`, next: drop({ priceMin: undefined }) });
-  if (q.priceMax !== undefined) out.push({ id: "priceMax", label: `Up to ${formatPrice(q.priceMax)}`, next: drop({ priceMax: undefined }) });
+  if (q.priceMin !== undefined) out.push({ id: "priceMin", label: `From ${fmtEur(q.priceMin)}`, next: drop({ priceMin: undefined }) });
+  if (q.priceMax !== undefined) out.push({ id: "priceMax", label: `Up to ${fmtEur(q.priceMax)}`, next: drop({ priceMax: undefined }) });
   for (const v of q.body) out.push({ id: `body:${v}`, label: named(facets, "body", v), next: toggle(q, "body", v, facets) });
   for (const v of q.fuel) out.push({ id: `fuel:${v}`, label: FUEL_LABELS[v], next: toggle(q, "fuel", v, facets) });
   if (q.gearbox) out.push({ id: "gearbox", label: GEARBOX_LABELS[q.gearbox], next: drop({ gearbox: undefined }) });

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/stock/icons";
-import { formatCount } from "@/lib/stock/format";
+import { fmtNum } from "@/lib/stock/format";
 import { stockHref } from "@/lib/stock/query";
 import type { StockQuery, StockResult } from "@/lib/stock/types";
 import { ListingCard } from "./ListingCard";
@@ -82,7 +82,7 @@ export function StockResults({ result, query }: { result: StockResult; query: St
             </li>
           </ul>
           <p className="text-meta text-text-2">
-            Showing {formatCount(first)} to {formatCount(first + cars.length - 1)} of {formatCount(result.total)} cars
+            Showing {fmtNum(first)} to {fmtNum(first + cars.length - 1)} of {fmtNum(result.total)} cars
           </p>
         </nav>
       )}

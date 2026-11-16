@@ -24,7 +24,6 @@ function Bubble({ m, mine, onTap, busy }: { m: Msg; mine: boolean; onTap?: (id: 
           <ul className="mb-1.5 grid grid-cols-3 gap-1">
             {m.photos.map((src, i) => (
               <li key={src}>
-                {/* eslint-disable-next-line @next/next/no-img-element -- a thumbnail in a mock phone, or a private signed link: not for the image optimiser */}
                 <img src={src} alt={`Photo ${i + 1} of the car`} loading="lazy" className="aspect-square w-full rounded object-cover" />
               </li>
             ))}

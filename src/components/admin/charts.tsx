@@ -1,5 +1,6 @@
 import { Meter } from "@/components/admin/kit";
 import { fmtNum, threeLetter } from "@/lib/admin/format";
+import { TIME_ZONE } from "@/lib/site";
 
 // Charts drawn by hand in SVG and HTML: no library, nothing to load. Colours come from the tokens, so both themes work. Each chart
 // carries its numbers as text for a screen reader, and never relies on colour alone.
@@ -72,8 +73,8 @@ export function BarList({ items, of, format = fmtNum }: { items: { label: string
   );
 }
 
-const weekOf = new Intl.DateTimeFormat("en-IE", { day: "numeric", month: "short", timeZone: "Europe/Dublin" });
-const weekShort = new Intl.DateTimeFormat("en-IE", { day: "numeric", month: "numeric", timeZone: "Europe/Dublin" }); // 18/9, for a phone
+const weekOf = new Intl.DateTimeFormat("en-IE", { day: "numeric", month: "short", timeZone: TIME_ZONE });
+const weekShort = new Intl.DateTimeFormat("en-IE", { day: "numeric", month: "numeric", timeZone: TIME_ZONE }); // 18/9, for a phone
 
 // The overview's one main chart: leads each week for eight weeks, this one last and the only one in the accent, against a dashed line at a
 // usual week. It answers whether this week is a normal one. Each bar has its count over it, each week its start under it; read aloud whole.
@@ -123,11 +124,11 @@ export function LeadsByWeek({ weeks, starts, usual }: { weeks: number[]; starts:
   );
 }
 
-// How long a car has been for sale, on a scale to `full` days: amber from `late`, when it is worth a price check. The days are written beside.
-export function AgeBar({ days, late, full = 90 }: { days: number; late: number; full?: number }) {
+// How long a car has been for sale, on a scale to 90 days: amber from `late`, when it is worth a price check. The days are written beside.
+export function AgeBar({ days, late }: { days: number; late: number }) {
   return (
     <span aria-hidden className="block h-1.5 w-16 overflow-hidden rounded-full bg-hairline">
-      <span className={`block h-full rounded-full ${days >= late ? "bg-warn" : "bg-control"}`} style={{ width: `${Math.min(100, (days / full) * 100)}%` }} />
+      <span className={`block h-full rounded-full ${days >= late ? "bg-warn" : "bg-control"}`} style={{ width: `${Math.min(100, (days / 90) * 100)}%` }} />
     </span>
   );
 }

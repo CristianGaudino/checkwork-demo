@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { carName, carTitle, countLabel, formatKm, formatPrice, keyFacts, specRows } from "./format";
+import { carName, carTitle, countLabel, formatKm, fmtEur, keyFacts, specRows } from "./format";
 import type { Car } from "./types";
 
 const audi: Car = {
@@ -20,7 +20,7 @@ const audi: Car = {
 
 describe("formatters", () => {
   it("formats price and mileage as exact strings", () => {
-    expect(formatPrice(18950)).toBe("€18,950");
+    expect(fmtEur(18950)).toBe("€18,950");
     expect(formatKm(84000)).toBe("84,000 km");
   });
 

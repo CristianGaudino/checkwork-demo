@@ -45,7 +45,6 @@ export function AdminShell({ title, subtitle, nav, navLabel, openGroups, rail: r
             </div>
             {/* The rail: the dealer's square mark when they have one (site.ts), else their initials, so the frame still says whose it is. */}
             {BRAND_MARK ? (
-              // eslint-disable-next-line @next/next/no-img-element -- a small local SVG, sized by its box
               <img src={BRAND_MARK} alt={title} title={title} width={40} height={40} className={`hidden size-10 object-contain ${rail ? "lg:block" : ""}`} />
             ) : (
               <span title={title} className={`hidden size-10 items-center justify-center rounded-control bg-text font-display text-meta font-semibold text-ink ${rail ? "lg:inline-flex" : ""}`}>

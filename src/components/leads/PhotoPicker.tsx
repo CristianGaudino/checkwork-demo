@@ -46,7 +46,7 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
         continue;
       }
       // A photo the phone cannot shrink, or that is still over the server's cap, is refused: the original is never sent.
-      const photo = await downscale(file).catch(() => null);
+      const photo = await downscale(file).then((d) => d.blob, () => null);
       if (!photo || photo.size > PHOTO_STORED_MAX_BYTES) refused.add(photoError(file.name));
       else if (total + photo.size > PHOTO_TOTAL_MAX_BYTES) refused.add(PHOTO_TOTAL_ERROR);
       else {
@@ -158,6 +158,5 @@ function Preview({ blob, alt }: { blob: Blob; alt: string }) {
     img.current!.src = url;
     return () => URL.revokeObjectURL(url);
   }, [blob]);
-  // eslint-disable-next-line @next/next/no-img-element -- a local blob preview; next/image cannot load it
   return <img ref={img} alt={alt} className="size-full object-cover" />;
 }

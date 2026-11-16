@@ -1,5 +1,5 @@
 import { SITE_URL } from "@/lib/site";
-import { formatPrice, carHref } from "@/lib/stock/format";
+import { fmtEur, carHref } from "@/lib/stock/format";
 import type { LeadRow } from "./process";
 import { EMPLOYMENT } from "./constants";
 import { DETAIL_LABELS, TYPE_LABELS } from "./schema";
@@ -11,7 +11,7 @@ function show(key: string, value: unknown): string {
   if (key === "employment") return EMPLOYMENT[v as keyof typeof EMPLOYMENT] ?? v;
   if (key === "intent") return v === "sell" ? "Sell the car" : "Trade it in";
   if (key === "mileage") return `${Number(v).toLocaleString("en-IE")} km`;
-  if (key === "budgetMax" || key === "deposit") return formatPrice(Number(v));
+  if (key === "budgetMax" || key === "deposit") return fmtEur(Number(v));
   return readable(key, v);
 }
 
@@ -29,7 +29,7 @@ export function buildLeadEmail(row: LeadRow, opts: { demo: boolean; photoPaths?:
     ...Object.entries(DETAIL_LABELS).map(([k, label]) => row.details[k] !== undefined && `${label}: ${show(k, row.details[k])}`),
     row.message && `Message:\n${row.message}`,
     row.carTitle && `Car: ${row.carTitle}`,
-    row.carPriceEur !== null && `Price: ${formatPrice(row.carPriceEur)}`,
+    row.carPriceEur !== null && `Price: ${fmtEur(row.carPriceEur)}`,
     row.carSlug && `Car page: ${SITE_URL}${carHref(row.carSlug)}`,
     ...(opts.photoPaths ?? []).map((p, i) => `Photo ${i + 1}: ${SITE_URL}${p}`),
     `Sent from: ${SITE_URL}${row.sourcePath}`,

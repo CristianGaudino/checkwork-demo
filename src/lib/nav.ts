@@ -1,11 +1,11 @@
 // Navigation as data, one place: every page's link is defined once (PAGE), and the header, the phone menu and the footer pick from it, so a
 // label or an address changes in one edit. The section pages (titles, intros) read VEHICLE_TYPES. The rules: docs/mobile-navigation.md.
 
-// The vehicle sections (Used, New, Commercial): the header links and the section pages read this. `enabled: false` hides a section until it exists (#23 new cars, #24 commercial).
+// The vehicle sections (Used, New, Commercial): the header links and the section pages read this.
 export const VEHICLE_TYPES = [
-  { id: "used", label: "Used", nav: "Used cars", href: "/used-cars", enabled: true, condition: "used", title: "Used cars", intro: "Browse our current stock of used cars, all carefully selected." },
-  { id: "new", label: "New", nav: "New cars", href: "/new-cars", enabled: true, condition: "new", title: "New cars", intro: "Brand new cars from the makes we sell, with the manufacturer's warranty and finance offers." },
-  { id: "commercial", label: "Commercial", nav: "Commercial", href: "/commercial", enabled: true, condition: "commercial", title: "Commercial vehicles", intro: "Vans and light commercials. Prices are shown without VAT, which a VAT-registered buyer can usually reclaim, with the price including VAT underneath." },
+  { id: "used", label: "Used", nav: "Used cars", href: "/used-cars", condition: "used", title: "Used cars", intro: "Browse our current stock of used cars, all carefully selected." },
+  { id: "new", label: "New", nav: "New cars", href: "/new-cars", condition: "new", title: "New cars", intro: "Brand new cars from the makes we sell, with the manufacturer's warranty and finance offers." },
+  { id: "commercial", label: "Commercial", nav: "Commercial", href: "/commercial", condition: "commercial", title: "Commercial vehicles", intro: "Vans and light commercials. Prices are shown without VAT, which a VAT-registered buyer can usually reclaim, with the price including VAT underneath." },
 ] as const;
 
 export type NavLink = { href: string; label: string; long?: string }; // `long`: the fuller wording the menu and the footer use

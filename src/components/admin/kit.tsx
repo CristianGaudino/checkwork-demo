@@ -73,11 +73,11 @@ export function StatCard({ label, value, hint, tone, href }: { label: string; va
 }
 
 // A thin bar filled to a share of its width: ratings, visitors by source. Decorative: the number is always written beside it.
-export function Meter({ value, max, tone = "accent", className = "" }: { value: number; max: number; tone?: "accent" | "warning"; className?: string }) {
+export function Meter({ value, max }: { value: number; max: number }) {
   const share = max > 0 ? Math.min(100, (value / max) * 100) : 0;
   return (
-    <span aria-hidden="true" className={`h-2 overflow-hidden rounded-full bg-hairline ${className}`}>
-      <span className={`block h-full rounded-full ${tone === "warning" ? "bg-warning" : "bg-accent"}`} style={{ width: `${share}%` }} />
+    <span aria-hidden="true" className="h-2 overflow-hidden rounded-full bg-hairline">
+      <span className="block h-full rounded-full bg-accent" style={{ width: `${share}%` }} />
     </span>
   );
 }

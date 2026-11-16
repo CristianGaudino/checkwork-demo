@@ -106,7 +106,6 @@ export async function LeadView({ id }: { id: string }) {
                 {photos.map((src, i) => (
                   <li key={src}>
                     <a href={src} {...NEW_TAB} className="block overflow-hidden rounded-control">
-                      {/* eslint-disable-next-line @next/next/no-img-element -- a private, signed link: not for the image optimiser */}
                       <img src={src} alt={`Photo ${i + 1} of their car (opens in a new tab)`} className="aspect-square w-full object-cover" />
                     </a>
                   </li>

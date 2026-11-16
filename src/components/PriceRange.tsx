@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { formatPrice } from "@/lib/stock/format";
+import { fmtEur } from "@/lib/stock/format";
 import { PRICE_STOPS } from "@/lib/stock/types";
 
 const LAST = PRICE_STOPS.length - 1;
@@ -21,7 +21,7 @@ export function PriceRange({ label, min, max, onCommit, maxOnly = false }: { lab
     onCommit(drag[0] === 0 ? undefined : PRICE_STOPS[drag[0]], drag[1] >= LAST ? undefined : PRICE_STOPS[drag[1]]);
   };
   const constrained = lo > 0 || hi < LAST;
-  const [from, to] = [formatPrice(PRICE_STOPS[lo]), formatPrice(PRICE_STOPS[hi])];
+  const [from, to] = [fmtEur(PRICE_STOPS[lo]), fmtEur(PRICE_STOPS[hi])];
   const value = !constrained ? (maxOnly ? "Any budget" : "Any price") : lo === 0 ? `Up to ${to}` : hi >= LAST ? `${from} and over` : `${from} to ${to}`;
   const pct = (i: number) => `${(i / LAST) * 100}%`;
   const input = (which: "lo" | "hi") => (
