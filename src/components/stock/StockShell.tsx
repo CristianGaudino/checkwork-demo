@@ -6,6 +6,7 @@ import { StateBlock } from "@/components/StateBlock";
 import { Tween } from "@/components/Tween";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useId, useOptimistic, useRef, useState, useTransition } from "react";
+import { count, countFilters } from "@/lib/count-client";
 import { countLabel } from "@/lib/stock/format";
 import { appliedFilters, clearFilters, sourcingHref, stockHref } from "@/lib/stock/query";
 import { SORT_KEYS } from "@/lib/stock/types";
@@ -20,6 +21,7 @@ import { stateButton } from "./StockError";
 import { setView, useView } from "./view";
 import { pageMain, subTitle } from "@/components/ui";
 import { VEHICLE_TYPES } from "@/lib/nav";
+import { IfModule } from "@/components/IfModule";
 
 type Summary = { total: number; facets: Facets } | null;
 type Stock = {
@@ -120,6 +122,7 @@ export function StockShell({ query, summary, orderable, children }: { query: Sto
   }, [listKey]);
   const navigate: Stock["navigate"] = (next, { scroll = false } = {}) =>
     startTransition(() => {
+      countFilters(optimisticQuery, next);
       setOptimisticQuery(next);
       router.replace(stockHref(next), { scroll });
     });
@@ -135,9 +138,11 @@ export function StockShell({ query, summary, orderable, children }: { query: Sto
             <h1 className="text-display font-bold lg:text-hero">{kind.title}</h1>
             <p className="mt-2 max-w-measure text-pretty text-body text-text-2">{kind.intro}</p>
             {orderable && kind.condition === "new" && (
+              <IfModule href="/new-cars">
               <Link href="/new-cars/order" className="mt-2 inline-flex min-h-11 items-center text-body font-semibold text-accent-text underline">
                 Not the spec you want? Order one from the factory
               </Link>
+              </IfModule>
             )}
             {/* Under the intro and above the count on a phone; from 1024px the search is in the filter panel. */}
             <div className="mt-4 lg:hidden">
@@ -189,13 +194,19 @@ export function StockShell({ query, summary, orderable, children }: { query: Sto
 
 export function EmptyState() {
   const { query, facets, navigate } = useStock();
+  const filtered = appliedFilters(query, null).length > 0;
+  useEffect(() => {
+    if (filtered) count("no-results");
+  }, [filtered]);
   // With nothing applied there is no filter to remove: the stock itself is empty.
   if (appliedFilters(query, null).length === 0) {
     return (
       <StateBlock title="No cars listed right now" text="New cars arrive often.">
+        <IfModule href="/find-a-car">
         <Link href="/find-a-car" className="mx-auto flex min-h-11 w-fit items-center text-body underline">
           Can&apos;t find it? Ask us to find it for you.
         </Link>
+        </IfModule>
       </StateBlock>
     );
   }

@@ -7,12 +7,18 @@ import { Select } from "@/components/Select";
 import { Stepper, useStepHeading } from "@/components/leads/Stepper";
 import { CheckIcon } from "@/components/stock/icons";
 import type { CarCard } from "@/lib/admin/car-cards";
-import { AD_PLATFORMS, NETWORKS, POST_LIMITS, type Network } from "@/lib/admin/networks";
+import { AD_PLATFORMS, FORMATS_FOR, FORMAT_LABELS, FORMAT_LIMITS, LAYOUT_LABELS, NETWORKS, POST_LIMITS, PUBLISH_MODE, STORY_LAYOUTS, type Network, type PostFormat, type StoryLayout } from "@/lib/admin/networks";
+import { AIWriter } from "@/components/admin/AIWriter";
+import { MediaUpload } from "@/components/admin/MediaUpload";
+import { PostPreview } from "@/components/admin/PostPreview";
+import type { MediaItem } from "@/lib/admin/collections";
 import { press } from "@/components/ui";
 
 // The page sends the cars as small cards (CarPicker); the chosen car's photos and suggested text are asked for when it is chosen (`load`), so the page
 // stays small with any size of stock.
-export type ComposerCar = { slug: string; title: string; photos: { src: string; width: number; height: number }[]; text: Record<Network, string> };
+export type ComposerCar = { slug: string; title: string; photos: { src: string; width: number; height: number }[]; text: Record<Network, string>; byFormat: Record<PostFormat, Record<Network, string>>; price: string; was?: string };
+// What the composer needs of a library file.
+export type LibraryFile = Pick<MediaItem, "id" | "kind" | "src" | "name" | "durationSec" | "carSlug">;
 
 const STEPS = ["Car", "Where", "Post", "When"];
 // Now, as datetime-local wants it (this device's time). Only read once "Later" is picked, so never on the server.
@@ -23,11 +29,15 @@ const chip = (on: boolean) => `inline-flex min-h-11 items-center gap-2 rounded-f
 // A post (and its ad) in four steps, one per screen on a phone: pick the car from photo cards, pick where it goes, edit the suggested text and
 // photos, then choose when. The preview sits beside the steps on a wide screen and comes in the last step on a phone. Every field stays in
 // one form, so going back keeps what was typed; `action` is a server action and validates every field.
-export function PostComposer({ cars, initialSlug, action, load }: { cars: CarCard[]; initialSlug: string; action: (data: FormData) => void | Promise<void>; load: (slug: string) => Promise<ComposerCar | null> }) {
+export function PostComposer({ cars, initialSlug, initialFormat = "post", initialLayout = "just-in", library, action, load }: { cars: CarCard[]; initialSlug: string; initialFormat?: PostFormat; initialLayout?: StoryLayout; library: LibraryFile[]; action: (data: FormData) => void | Promise<void>; load: (slug: string) => Promise<ComposerCar | null> }) {
   const start = cars.some((c) => c.slug === initialSlug) ? initialSlug : "";
   const [step, setStep] = useState(start ? 1 : 0);
   const [slug, setSlug] = useState(start);
   const [network, setNetwork] = useState<Network>("Facebook");
+  const [format, setFormat] = useState<PostFormat>(initialFormat);
+  const [layout, setLayout] = useState<StoryLayout>(initialLayout);
+  const [video, setVideo] = useState("");
+  const [added, setAdded] = useState<string[]>([]); // library photos picked or just uploaded
   const [loaded, setLoaded] = useState<ComposerCar | null>(null);
   useEffect(() => {
     if (!slug) return;
@@ -38,20 +48,33 @@ export function PostComposer({ cars, initialSlug, action, load }: { cars: CarCar
     };
   }, [slug, load]);
   const car = loaded?.slug === slug ? loaded : undefined;
-  const suggestion = car ? car.text[network] : "";
+  const limits = FORMAT_LIMITS[format];
+  // A story is a few words over the photo, led by the layout; the other formats start from the car's facts for this network.
+  const storyLine = car ? (layout === "price-drop" && car.was ? `Now ${car.price}, was ${car.was}.` : `${car.price}.`) : "";
+  const suggestion = car ? (format === "story" ? [`${LAYOUT_LABELS[layout]}: ${car.title}.`, storyLine].filter(Boolean).join("\n") : car.byFormat[format][network]) : "";
   // The text follows the suggestion until the dealer types; "Use the suggestion" brings it back.
   const [typed, setTyped] = useState<string | null>(null);
   const text = typed ?? suggestion;
   const [chosen, setChosen] = useState<string[] | null>(null);
-  const photos = car ? (chosen ?? car.photos.slice(0, 1).map((p) => p.src)) : [];
+  // Pictures come from the car's own photos and the dealer's library (the photos of this car first). A reel has no pictures, only its video.
+  const mine = library.filter((m) => m.kind === "image").sort((a, b) => Number(b.carSlug === slug) - Number(a.carSlug === slug));
+  const videos = library.filter((m) => m.kind === "video" && (m.durationSec ?? 0) <= limits.maxSeconds);
+  const pool = car ? [...car.photos.map((p) => p.src), ...mine.map((m) => m.src)] : [];
+  const photos = !car || !limits.photos[1] ? [] : (chosen ?? [...added, ...car.photos.slice(0, format === "carousel" ? 3 : 1).map((p) => p.src)]).filter((src) => pool.includes(src) || added.includes(src)).slice(0, limits.photos[1]);
+  const clip = limits.video && videos.some((v) => v.src === video) ? video : "";
+  const mode = PUBLISH_MODE[network][format];
   const [later, setLater] = useState(false);
   const [ad, setAd] = useState(false);
-  const first = car?.photos.find((p) => p.src === photos[0]);
   const picked = cars.find((c) => c.slug === slug);
 
   const heading = useStepHeading(step);
 
-  const canNext = step === 0 ? Boolean(slug) : step === 2 ? Boolean(car && text.trim()) : true;
+  const canNext = step === 0 ? Boolean(slug) : step === 2 ? Boolean(car && text.trim() && (format === "reel" ? clip : photos.length >= limits.photos[0])) : true;
+  const pick = (n: Network, f: PostFormat) => {
+    setNetwork(n);
+    setFormat(FORMATS_FOR[n].includes(f) ? f : "post");
+    setChosen(null);
+  };
 
   return (
     <form action={action} className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
@@ -59,6 +82,9 @@ export function PostComposer({ cars, initialSlug, action, load }: { cars: CarCar
         <Stepper titles={STEPS} step={step} headingRef={heading} />
         <input type="hidden" name="carSlug" value={slug} />
         <input type="hidden" name="network" value={network} />
+        <input type="hidden" name="format" value={format} />
+        <input type="hidden" name="layout" value={layout} />
+        <input type="hidden" name="video" value={clip} />
         <input type="hidden" name="timing" value={later ? "later" : "now"} />
         {photos.map((src) => <input key={src} type="hidden" name="photos" value={src} />)}
 
@@ -81,40 +107,58 @@ export function PostComposer({ cars, initialSlug, action, load }: { cars: CarCar
           {picked && <p className="text-body text-text-2">{picked.title}</p>}
           <div role="radiogroup" aria-label="Where" className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             {NETWORKS.map((n) => (
-              <button key={n} type="button" role="radio" aria-checked={network === n} onClick={() => setNetwork(n)} className={`${card(network === n)} flex min-h-14 items-center justify-between gap-3 px-4 text-body font-medium`}>
+              <button key={n} type="button" role="radio" aria-checked={network === n} onClick={() => pick(n, format)} className={`${card(network === n)} flex min-h-14 items-center justify-between gap-3 px-4 text-body font-medium`}>
                 {n}
                 {network === n && <CheckIcon className="size-4 text-accent-text" />}
               </button>
             ))}
           </div>
+          <div role="radiogroup" aria-label="Format" className="flex flex-wrap gap-2">
+            {FORMATS_FOR[network].map((f) => (
+              <button key={f} type="button" role="radio" aria-checked={format === f} onClick={() => { setFormat(f); setChosen(null); }} className={chip(format === f)}>
+                {FORMAT_LABELS[f]}
+              </button>
+            ))}
+          </div>
+          {mode === "prepare" && <p className="text-meta text-text-2">A {FORMAT_LABELS[format].toLowerCase()} on {network} is made ready here and posted from your phone.</p>}
         </section>
 
         <section hidden={step !== 2} className="flex flex-col gap-4">
+          {format === "story" && (
+            <div role="radiogroup" aria-label="Story layout" className="flex flex-wrap gap-2">
+              {STORY_LAYOUTS.map((l) => (
+                <button key={l} type="button" role="radio" aria-checked={layout === l} onClick={() => setLayout(l)} className={chip(layout === l)}>
+                  {LAYOUT_LABELS[l]}
+                </button>
+              ))}
+            </div>
+          )}
           <Field label="Text">
             <textarea name="text" rows={7} maxLength={POST_LIMITS.text} required value={text} placeholder={car ? undefined : "Loading the suggested text"} onChange={(e) => setTyped(e.target.value)} className={`${adminInput} h-auto py-2`} />
           </Field>
+          <AIWriter task="post" format={format} text={text} request={() => (slug ? { task: "post", carSlug: slug, network, format, ...(format === "story" && { layout }) } : null)} onText={(t) => setTyped(t)} />
           {typed !== null && typed !== suggestion && suggestion && (
             <button type="button" onClick={() => setTyped(null)} className="-mt-3 min-h-11 self-start text-meta font-medium text-accent-text underline">
               Use the suggestion
             </button>
           )}
-          {car && car.photos.length > 0 && (
+          {car && limits.photos[1] > 0 && (
             <fieldset className="flex flex-col gap-2">
-              <legend className="mb-2 text-meta font-medium">Photos, up to {POST_LIMITS.photos}</legend>
+              <legend className="mb-2 text-meta font-medium">{format === "carousel" ? `Photos, ${limits.photos[0]} to ${limits.photos[1]}` : format === "story" ? "Photo" : `Photos, up to ${limits.photos[1]}`}</legend>
               <div className="flex gap-2 overflow-x-auto pb-1">
-                {car.photos.map((p) => {
-                  const on = photos.includes(p.src);
+                {[...car.photos.map((p) => p.src), ...mine.map((m) => m.src)].filter((src, i, all) => all.indexOf(src) === i).map((src) => {
+                  const on = photos.includes(src);
                   return (
                     <button
-                      key={p.src}
+                      key={src}
                       type="button"
                       aria-pressed={on}
                       aria-label={on ? "Remove photo" : "Add photo"}
-                      onClick={() => setChosen(on ? photos.filter((x) => x !== p.src) : [...photos, p.src].slice(0, POST_LIMITS.photos))}
+                      onClick={() => setChosen(on ? photos.filter((x) => x !== src) : limits.photos[1] === 1 ? [src] : [...photos, src].slice(0, limits.photos[1]))}
                       className={`relative size-20 shrink-0 overflow-hidden rounded-control border-2 bg-photo-bg ${on ? "border-accent" : "border-transparent"} ${press}`}
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element -- local static photo; images are unoptimized on this Worker */}
-                      <img src={p.src} alt="" width={p.width} height={p.height} className="size-full object-cover" />
+                      {/* eslint-disable-next-line @next/next/no-img-element -- local static photo or the dealer's own upload; images are unoptimized on this Worker */}
+                      <img src={src} alt="" className="size-full object-cover" />
                       {on && (
                         <span className="absolute right-1 top-1 inline-flex size-5 items-center justify-center rounded-full bg-accent text-on-accent">
                           <CheckIcon className="size-3" />
@@ -124,6 +168,22 @@ export function PostComposer({ cars, initialSlug, action, load }: { cars: CarCar
                   );
                 })}
               </div>
+              <MediaUpload accept="image/jpeg,image/png,image/webp" carSlug={slug} label="Add a photo from this device" onAdded={(m) => { if (m.kind === "image") { setAdded((a) => [m.src, ...a]); setChosen((c) => (limits.photos[1] === 1 ? [m.src] : [...(c ?? photos), m.src].slice(0, limits.photos[1]))); } }} />
+            </fieldset>
+          )}
+          {car && limits.video && format === "reel" && (
+            <fieldset className="flex flex-col gap-2">
+              <legend className="mb-2 text-meta font-medium">Video, up to {limits.maxSeconds} seconds</legend>
+              {videos.length > 0 && (
+                <div role="radiogroup" aria-label="Video" className="flex flex-wrap gap-2">
+                  {videos.map((v) => (
+                    <button key={v.id} type="button" role="radio" aria-checked={clip === v.src} onClick={() => setVideo(v.src)} className={chip(clip === v.src)}>
+                      {v.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <MediaUpload accept="video/mp4,video/quicktime" carSlug={slug} label="Add a video from this device" onAdded={(m) => m.kind === "video" && setVideo(m.src)} />
             </fieldset>
           )}
         </section>
@@ -180,14 +240,10 @@ export function PostComposer({ cars, initialSlug, action, load }: { cars: CarCar
 
       {/* Beside the steps from 1024px once a car is chosen; on a phone, in the last step only. */}
       <figure aria-label="Preview" className={`${step === 3 ? "flex" : "hidden"} ${slug ? "lg:flex" : "lg:hidden"} min-w-0 flex-col self-start overflow-hidden rounded-card border border-hairline bg-card lg:sticky lg:top-24`}>
-        <figcaption className="px-4 py-3 text-meta font-medium">{network}</figcaption>
-        {first ? (
-          // eslint-disable-next-line @next/next/no-img-element -- local static photo; images are unoptimized on this Worker
-          <img src={first.src} alt="" width={first.width} height={first.height} className="aspect-photo w-full bg-photo-bg object-cover" />
-        ) : (
-          <div className="aspect-photo w-full bg-photo-bg" />
-        )}
-        <p className="line-clamp-[12] whitespace-pre-line px-4 py-3 text-body [overflow-wrap:anywhere]">{text || "Your post appears here."}</p>
+        <figcaption className="px-4 py-3 text-meta font-medium">{network}{format !== "post" && ` ${FORMAT_LABELS[format].toLowerCase()}`}</figcaption>
+        <div className="px-4 pb-4">
+          <PostPreview network={network} format={format} layout={layout} text={text} photos={photos} video={clip || undefined} title={picked?.title ?? ""} price={car?.price} was={car?.was} />
+        </div>
       </figure>
     </form>
   );

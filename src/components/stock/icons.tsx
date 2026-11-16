@@ -305,3 +305,25 @@ export const SyncIcon = (p: Props) => (
     <path d="M20 12a8 8 0 0 1-14 5.3M4 12a8 8 0 0 1 14-5.3M18 3v4h-4M6 21v-4h4" />
   </Icon>
 );
+// A bill: Billing in the dashboard.
+export const ReceiptIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M6 3h12v18l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5L6 21z" />
+    <path d="M9 8h6M9 12h6M9 16h3" />
+  </Icon>
+);
+// A question in a circle: Help in the dashboard.
+export const HelpIcon = (p: Props) => (
+  <Icon {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6" />
+    <path d="M12 17h.01" />
+  </Icon>
+);
+// Sparkles: whatever an AI wrote or can write, so it is never mistaken for the dealer's own words.
+export const SparkleIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z" />
+    <path d="M19 15l.7 2.3L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.7z" />
+  </Icon>
+);

@@ -2,9 +2,9 @@ import "server-only";
 import demoCars from "@/lib/stock/demo-cars.json";
 import extraCars from "@/lib/stock/demo-cars-extra.json";
 import { defineCollection, seedsDemoRecords } from "./docs";
-import { AD_PLATFORMS, NETWORKS, type AdPlatform, type Network } from "./networks";
+import { AD_PLATFORMS, NETWORKS, type AdPlatform, type Network, type PostFormat, type StoryLayout } from "./networks";
 import { demoCost } from "./margins";
-import { DAY, HOUR } from "@/lib/time";
+import { DAY, HOUR, MINUTE } from "@/lib/time";
 import { dublinDay, dublinMs } from "./format";
 import { newId } from "./ids";
 import { COVER_MONTHS, DEPOSIT_METHODS, type DepositMethod } from "./deposits";
@@ -14,6 +14,8 @@ import type { Car } from "@/lib/stock/types";
 import type { Role } from "@/lib/permission-rules";
 import type { PrepLine } from "./prep";
 import { carTitleOf, livePicks, person, rng } from "./seed-data";
+import { BILLING_DEFAULT, type BillingSettings } from "@/lib/billing/rules";
+import type { BillingDetails } from "@/lib/billing/bills-rules";
 
 // For the demo's stories: a day relative to today (YYYY-MM-DD, Irish), a demo car by id, a seeded customer by id.
 const ago = (daysAgo: number) => dublinDay(Date.now() - daysAgo * DAY);
@@ -51,7 +53,10 @@ export type Lead = {
   carSlug?: string;
   carTitle?: string;
   reg?: string; // the registration of the car a person wants to sell or trade in
+  topic?: string; // a contact form's guided topic (src/lib/leads/contact-topics.ts) and the tap answers, shown as tags
+  answers?: Record<string, string>;
   photoKeys?: string[]; // their car's photos, in the private bucket; the lead page signs short links to them
+  whatsappOptIn?: boolean; // the buyer ticked the box on the form: they may be messaged on WhatsApp (#178)
   assignedTo?: string;
   followUpOn?: string; // YYYY-MM-DD, the Irish day to get back to them; cleared once the lead is won or lost
   lostReason?: LostReason; // only on a lost lead
@@ -103,6 +108,7 @@ function seedLeads(): Lead[] {
       // A plate for the cars people want to sell or trade in, from the index (not the random sequence, so the rest of the seed is unchanged).
       ...((type === "trade-in" || type === "sell") && { reg: `${15 + (i % 9)}${1 + (i % 2)}-${["D", "C", "KY", "G", "L", "WX"][i % 6]}-${1000 + i * 37}` }),
       assignedTo: status === "new" ? undefined : r.pick(TEAM_SEED).name,
+      ...((i % 2 === 0 || type === "trade-in") && { whatsappOptIn: true }), // by index, so the random sequence is unchanged
       // A few open leads with a follow-up: one overdue, one today, two coming (by index, so the random sequence above is unchanged).
       ...((status === "contacted" || status === "appointment") && i % 3 === 0 && { followUpOn: dublinDay(now + ((i % 4) - 1) * DAY) }),
       ...(status === "lost" && { lostReason: LOST_REASONS[i % LOST_REASONS.length] }), // by index, so the random sequence is unchanged
@@ -152,16 +158,25 @@ const PAST_LEADS = (now: number): Lead[] => {
         carTitle: car && carTitleOf(car),
         assignedTo: r.pick(TEAM_SEED).name,
         ...(status === "lost" && { lostReason }),
-        notes: [],
-        createdAt: now - (week * 7 + r.int(0, 6)) * DAY - r.int(1, 10) * HOUR,
+        // Sent during the day in Dublin, and answered within a few hours, as most are (from the index, so the random sequence is unchanged).
+        ...(() => {
+          const at = irishAt(now - (week * 7 + r.int(0, 6)) * DAY - r.int(1, 10) * HOUR, 9 + ((out.length * 7) % 10), (out.length * 13) % 60);
+          return { createdAt: at, notes: out.length % 9 === 4 ? [] : [{ at: at + (20 + ((out.length * 37) % 220)) * MINUTE, text: "Called back." }] };
+        })(),
       });
     }
   }
   return out;
 };
+// Messages from the guided contact form (#176), so the leads list shows its tags ("Buying · this week · trade-in") on the demo.
+const GUIDED_LEADS = (now: number): Lead[] => [
+  { id: "lead-4000", type: "general", status: "new", name: "Fiona Byrne", email: "fiona.byrne@example.com", phone: "+353 87 000 4000", source: "Website", message: "", topic: "buying", answers: { timing: "this-week", hasTradeIn: "yes", contactVia: "whatsapp", contactWhen: "evening" }, notes: [], createdAt: now - 3 * HOUR },
+  { id: "lead-4001", type: "service", status: "new", name: "Declan Moore", email: "declan.moore@example.com", phone: "+353 86 000 4001", source: "Website", message: "The engine light came on this morning.", topic: "service", answers: { serviceNeed: "warning-light", urgency: "this-week", contactVia: "call", contactWhen: "morning" }, notes: [], createdAt: now - 6 * HOUR },
+  { id: "lead-4002", type: "general", status: "contacted", name: "Sorcha Daly", email: "sorcha.daly@example.com", phone: "+353 85 000 4002", source: "Website", message: "", topic: "finance", answers: { contactVia: "email" }, assignedTo: "Niamh Kavanagh", notes: [{ at: now - 26 * HOUR, text: "Sent the finance options." }], createdAt: now - 28 * HOUR },
+];
 function seedLeadsWithEdges(): Lead[] {
   const now = Date.now();
-  return [...seedLeads(), ...EDGE_LEADS(now), ...STORY_LEADS(now), ...PAST_LEADS(now)];
+  return [...seedLeads(), ...EDGE_LEADS(now), ...STORY_LEADS(now), ...PAST_LEADS(now), ...GUIDED_LEADS(now)];
 }
 export const leadsStore = defineCollection<Lead>("leads", seedLeadsWithEdges);
 // The seeded leads, for the notifications' own seed (notifications.ts), so the bell tells of the same requests.
@@ -270,6 +285,7 @@ function seedReviews(): AdminReview[] {
   }));
 }
 export const reviewsStore = defineCollection<AdminReview>("reviews", seedReviews);
+export const demoReviews = seedReviews; // for the WhatsApp conversation's own seed (src/lib/whatsapp/store.ts)
 
 // ---- Settings: one record ----
 // Only what the admin itself uses. The business details (name, phone, hours) live in the site configuration and change with a deploy.
@@ -287,6 +303,8 @@ export type DealerSettings = {
   marketing: { voice: string; hashtags: string; signOff: string }; // used by the post and newsletter writers
   team: TeamMember[];
   leadEmails: string[]; // who gets the email when a visitor sends a form; empty means the LEAD_TO_EMAIL variable
+  billing?: BillingSettings; // usage limits and alerts, and our ceilings (#181, src/lib/billing/usage.ts); missing on a record from before
+  billingDetails?: BillingDetails; // who the bills are made out to (Billing, the Owner edits it); missing means the dealer's own details
   updatedAt: number;
 };
 export const SETTINGS_DEFAULT: DealerSettings = {
@@ -303,14 +321,16 @@ export const SETTINGS_DEFAULT: DealerSettings = {
 // The demo has the morning follow-up email on, so it can be shown (the made-up team's mail goes to the lead inbox, src/lib/leads/mail.ts).
 const seedSettings = (): DealerSettings[] => {
   const demo = seedsDemoRecords();
-  return [{ ...SETTINGS_DEFAULT, team: demo ? SETTINGS_DEFAULT.team : [], notifications: { ...SETTINGS_DEFAULT.notifications, followUps: demo }, updatedAt: Date.now() }];
+  // The demo's limits: well above a month of its seeded use plus visitors trying things, so nothing on the demo stops; a ceiling of ours.
+  const billing: BillingSettings | undefined = demo ? { ...BILLING_DEFAULT, caps: { ai: 25, whatsapp: 80, total: 140 }, ceilings: { total: 150 }, alerts: [{ scope: "total", amountEur: 25 }] } : undefined;
+  return [{ ...SETTINGS_DEFAULT, team: demo ? SETTINGS_DEFAULT.team : [], notifications: { ...SETTINGS_DEFAULT.notifications, followUps: demo }, billing, updatedAt: Date.now() }];
 };
 export const settingsStore = defineCollection<DealerSettings>("settings", seedSettings, { always: true });
 
 // ---- Marketing: social posts, ads, newsletters ----
 export { NETWORKS, type Network };
-export type SocialPost = { id: string; network: Network; carSlug?: string; carTitle?: string; text: string; photos?: string[]; status: "draft" | "scheduled" | "posted"; scheduledFor?: number; postedAt?: number; simulated?: boolean; claimedAt?: number; reach?: number; clicks?: number; createdAt: number };
-export type Ad = { id: string; platform: AdPlatform; name: string; carTitle: string; budgetEur: number; status: "draft" | "running" | "paused" | "ended"; impressions: number; clicks: number; leads: number; createdAt: number };
+export type SocialPost = { id: string; network: Network; carSlug?: string; carTitle?: string; text: string; photos?: string[]; format?: PostFormat; layout?: StoryLayout; video?: string; status: "draft" | "scheduled" | "posted"; scheduledFor?: number; postedAt?: number; simulated?: boolean; claimedAt?: number; reach?: number; clicks?: number; createdAt: number };
+export type Ad = { id: string; platform: AdPlatform; name: string; carTitle: string; budgetEur: number; status: "draft" | "running" | "paused" | "ended"; impressions: number; clicks: number; leads: number; createdAt: number; startedAt?: number };
 export type Newsletter = { id: string; subject: string; body: string; status: "draft" | "sent"; sentAt?: number; recipients?: number; opens?: number; clicks?: number; createdAt: number };
 
 function seedPosts(): SocialPost[] {
@@ -324,7 +344,8 @@ function seedPosts(): SocialPost[] {
       network: r.pick(NETWORKS),
       carSlug: car.slug,
       carTitle: carTitleOf(car),
-      text: `Just in: ${carTitleOf(car)}, ${car.mileageKm?.toLocaleString("en-IE")} km. Come and see it.`,
+      text: i === 3 ? `Price drop: ${carTitleOf(car)}.` : `Just in: ${carTitleOf(car)}, ${car.mileageKm?.toLocaleString("en-IE")} km. Come and see it.`,
+      ...(i === 3 && { format: "story" as const, layout: "price-drop" as const }),
       status,
       scheduledFor: status === "scheduled" ? now + (i - 1) * DAY : undefined,
       postedAt: status === "posted" ? now - (i - 3) * 3 * DAY : undefined,
@@ -335,6 +356,10 @@ function seedPosts(): SocialPost[] {
   });
 }
 export const postsStore = defineCollection<SocialPost>("posts", seedPosts);
+
+// The dealer's media library (#177): photos and videos from their own devices, kept in R2 (src/lib/admin/media.ts), optionally tagged to a car.
+export type MediaItem = { id: string; kind: "image" | "video"; src: string; name: string; bytes: number; width?: number; height?: number; durationSec?: number; carSlug?: string; carTitle?: string; createdAt: number };
+export const mediaStore = defineCollection<MediaItem>("media", () => []);
 
 function seedAds(): Ad[] {
   const r = rng(83);
@@ -598,4 +623,4 @@ function seedPrep(): CarPrep[] {
 export const prepStore = defineCollection<CarPrep>("car-prep", seedPrep);
 
 // Every dealer collection, so "Reset demo data" puts the whole demo back to its seed.
-export const DEALER_COLLECTIONS = [leadsStore, drivesStore, customersStore, alertsStore, subscribersStore, reviewsStore, settingsStore, postsStore, adsStore, newslettersStore, costsStore, salesStore, prepStore, reservationsStore, claimsStore, ordersStore];
+export const DEALER_COLLECTIONS = [leadsStore, drivesStore, customersStore, alertsStore, subscribersStore, reviewsStore, settingsStore, postsStore, adsStore, newslettersStore, mediaStore, costsStore, salesStore, prepStore, reservationsStore, claimsStore, ordersStore];

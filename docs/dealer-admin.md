@@ -2,17 +2,33 @@
 
 The demo has two views. The public site is `/`. The dealer dashboard is `/dashboard`. The demo bar at the foot of every page switches between them: choosing Dealer on a public page keeps that page and adds a Dashboard link to the header (and stock and social links on a car page). There is no login of our own: on a deployed site Cloudflare Access is the login (see below). There is no superuser role and no platform in this site: running many dealers is a separate program, not part of what a dealer is sold. The platform that was here is in git history (PR #30).
 
+## Modules
+
+A dealer has the base site plus the modules they pay for (#173, `src/lib/modules-rules.ts`). A module that is off has its pages answer
+404 (the proxy checks, for public and dashboard pages alike), its links leave the menus, footer and pages (`IfModule`), and its server
+actions refuse. On the demo the bar's Modules switches choose them (a cookie); on a real site `NEXT_PUBLIC_SITE_MODULES` does, and a
+cookie never can. Data is never deleted when a module goes off. Stock kept in the dashboard is not a module switch: it follows where the
+stock comes from.
+
+## Usage billed per use
+
+Registration lookups, AI actions and WhatsApp messages cost the dealer per use, on top of the plan (#181). The code that makes a paid use
+counts it with `recordUsage` and asks `usageAllowed` first (`src/lib/billing/usage.ts`): past a monthly cap (the dealer's, set by the Owner
+or Manager on Billing, or our ceiling) the service stops for the month and falls back (a lookup gives the plate's own facts, AI leaves the
+text alone, WhatsApp goes by email). Alerts at 80% of a cap, at the cap and at amounts the dealer chose go to the owners and managers in
+the bell, once a month each. Counts are one record per month per line of the bill. Prices are in `src/lib/billing/rules.ts`.
+
 ## Roles and permissions
 
 Everyone the dashboard lets in works the everyday dashboard (leads, test drives, stock, customers, reviews, marketing). A role adds
 permissions, each checked on the server in every page and action that needs it (`src/lib/permissions.ts`, rules in `permission-rules.ts`):
 
-| Role | Margins (costs, prep and profit) | Reports | Team | Business settings | Activity history | Data requests and lead exports |
-|---|---|---|---|---|---|---|
-| Owner | Yes | The dealership's | Yes | Yes | Yes | Yes |
-| Manager | Yes | The dealership's | Yes, except an owner | Yes | Yes | Yes |
-| Finance | Yes | The dealership's | No | No | No | No |
-| Sales | No | Their own, counts only | No | No | No | No |
+| Role | Margins (costs, prep and profit) | Reports | Team | Business settings | Activity history | Data requests and lead exports | Billing |
+|---|---|---|---|---|---|---|---|
+| Owner | Yes | The dealership's | Yes | Yes | Yes | Yes | Yes |
+| Manager | Yes | The dealership's | Yes, except an owner | Yes | Yes | Yes | Yes |
+| Finance | Yes | The dealership's | No | No | No | No | No |
+| Sales | No | Their own, counts only | No | No | No | No | No |
 
 - **Margins:** a Margins screen, a margin column on the stock list, a Stock margin stat on the overview and a cost price box on the car
   form. Without it none of those are in the page, and the Margins page and the cost field answer as if they were not there. Costs are kept
@@ -33,6 +49,9 @@ Who the person is:
 
 ## Rules
 
+- **Every dashboard action checks the login itself.** Next runs a server action on a POST to any page, so the proxy's gate on `/dashboard`
+  paths is not enough: each action starts with `requireStaff()` (`src/lib/staff.ts`), which verifies the Access token, and who the person
+  is comes from that token, never from a header. Open where the dashboard is open (development, `NEXT_PUBLIC_ADMIN_OPEN=1`).
 - **Real visitor records only appear behind Cloudflare Access.** The admin shows seeded records plus what visitors send (leads, test drives, stock alerts). That is personal data, so on a deployed site the admin only answers with a valid Access token (checked in `src/proxy.ts`). `NEXT_PUBLIC_ADMIN_OPEN=1` skips the check and is for CI only: never set it on a deploy. Only `next dev` is open without it. Any build, even one that forgot `APP_ENV`, is closed, and the demo bar's role cookie only counts on the demo deploy (`APP_ENV=demo`).
 - **Posting, ads and newsletters are simulated on the demo, and send nothing outside.** They go through `src/lib/admin/publishers.ts`. With no keys, and simulation on (the default everywhere except a production site, `APP_ENV=production`; set `SIMULATE_INTEGRATIONS` to `on` or `off` to override), each reports success marked `simulated`, and the admin records made-up figures so the flow can be shown. With `SIMULATE_INTEGRATIONS=off` and no keys they say "not connected". With keys they say "not switched on" until the real adapter replaces the marked line. Lead email, the bot check, reviews and analytics are never simulated: Settings shows their true state. A unit test pins all three modes.
 - **What visitors send reaches the admin.** A test drive booking and a stock alert are lead types in the one lead pipeline (consent, bot check, rate limit, retention). After a lead is stored, `src/lib/admin/real-leads.ts` copies it into the admin's collections (ids start `real-`) so the dealer can work it. The daily purge deletes the copies with the lead.
@@ -165,9 +184,12 @@ the overview and the reports) until a claim is opened from it or it is set aside
   Business Profile once it is connected; on the demo it is the seeded reviews.
 - **Questions** (`/faq`) answers only from what the site already says (warranty, finance wording, selling, hours), so it promises nothing new.
 
-## DoneDeal stock
+## Listing site stock (DoneDeal or CarsIreland)
 
-A dealer whose stock is on DoneDeal (`NEXT_PUBLIC_STOCK_SOURCE=donedeal`, or the demo bar's DoneDeal switch) keeps one source of truth:
+Both DoneDeal and CarsIreland offer a dealer API for the dealer's own site, and the site reads either the same way (`src/lib/donedeal/`,
+named for the first). `NEXT_PUBLIC_LISTING_SITE` names it in the dashboard (DoneDeal by default). Below, "DoneDeal" stands for either.
+
+A dealer whose stock is on DoneDeal (`NEXT_PUBLIC_STOCK_SOURCE=donedeal`, or the demo bar's sync switch) keeps one source of truth:
 cars are added, changed and sold on DoneDeal only. The dashboard never edits them; it holds only the dealer's own figures (cost).
 - **The sync** (`src/lib/donedeal/sync.ts`, rules in `plan.ts`): every 15 minutes the Worker's cron calls `/api/donedeal/sync` with the
   `CRON_KEY` secret; Sync now on Stock or Overview runs the same. New ads are added and changed ones updated. A car DoneDeal no longer
@@ -191,12 +213,75 @@ cars are added, changed and sold on DoneDeal only. The dashboard never edits the
 
 Until both are set the admin answers 404 for everyone. The Worker checks Access's signed token itself (`src/lib/access.ts`), so a missing policy fails closed instead of open.
 
+## Billing and Help
+
+`/dashboard/billing` is for the Owner and Manager (`can("billing")`; anyone else gets a 404, and so does every action). It has three sections:
+the plan and this month's usage (with the founding dealer discount, which is taken off the plan, not the usage, and an "Estimate" for the
+month end), the limits and alerts (a euro limit per service and for all usage, never above ours; the 80% alert; "tell me when X passes
+EUR N"; the AI plan), and the bills. Every change is written to the activity log. Rules and maths: `src/lib/billing/bills-rules.ts`
+(unit tested); the bills are a seeded collection, `src/lib/billing/bills.ts`. There is no PDF and no download: invoices come from the
+payment provider chosen at clone time and are emailed when issued. Billing details (company, VAT number, address, email) are the
+Owner's, stored in settings as `billingDetails`. "Ask us to add" sends a Help request of type "Add a module"; it switches nothing on.
+
+`/dashboard/help` is for every team member: our phone, email and WhatsApp, a message form (Question, Something isn't working with steps
+and an optional screenshot, Request a change, Feedback or an idea, Billing and Add a module for the Owner and Manager), their own requests
+with our status and reply, and a quarterly one-question feedback. The "Need help?" link in the menu foot passes `?from=<page>`, which is
+saved with the request (a dashboard path only, `safeFrom`). Requests are the `help-requests` collection (`src/lib/admin/help.ts`). On
+the demo nothing is sent outside (`ADAPTER GOES HERE`: the email to support and the owner's program, #174). Screenshots are checked by
+their bytes and kept in the private bucket under `help/`, or as a data URL with no bucket.
+
+## Monthly report and the owner API
+
+- **Monthly report** (`/dashboard/monthly-report`): last month by default, any of the twelve before it from the picker. Each section shows only for the modules on (Leads and Stock always, Visitors with Site analytics, Sales, Reviews). Each figure says how it compares with the month before, or "Too few to compare" under 5. Sales value and profit show only to staff with the margins permission. One "What to do" line comes from fixed rules. "Print or save as PDF" uses the browser's print, with the menu left out.
+- **Email**: `/api/reports/monthly` (CRON_KEY, scheduled `0 7 1 * *` in `worker.mjs` and `wrangler.jsonc`) emails last month's summary to the owners and managers: counts only. On the demo it goes to the lead inbox like the follow-up digest.
+- **Owner API** and the anonymous feature counters: see `docs/owner-api.md`. The figures for the report and the API are one module, `src/lib/reports/monthly.ts`.
+
+## The contact form (guided)
+
+The public `/contact` form asks what the buyer needs, then a few taps, then how to reach them (#176). The topics, their tap answers and
+the words for them are in `src/lib/leads/contact-topics.ts`; the steps and cards in `src/components/leads/GeneralFields.tsx`.
+
+- Cards follow the modules: no Service card without `service`, no Selling card without `tradeIn`, no Finance card without `finance`. That
+  need goes to "Something else".
+- The server (`general` in `src/lib/leads/schema.ts`) takes the topic and answers as optional fields. With no topic, or with "Something
+  else", the message is still required, so the old free-text path stays valid.
+- A lead keeps `topic` and `answers`. The leads list shows them as tags ("Buying · this week · trade-in"), filters by topic, and puts
+  new leads answered "can't be driven" or "this week" first until a column is chosen. The dealer's email subject says the same
+  ("Service: warning light, this week"), built from fixed words only, never the registration.
+- A "A car I bought from you" message is filed as a warranty request (Aftersales), and "Service or repair" as a Service lead, like the
+  pages they come from. `/service` and `/warranty` open the same form on their topic.
+- The optional "Send me updates on WhatsApp" switch (with the `whatsapp` module) is stored on the lead as `whatsappOptIn`.
+
+## WhatsApp (#178)
+
+The `whatsapp` module. On the demo it is simulated (integration `whatsapp`): `/dashboard/whatsapp` shows the dealer's WhatsApp as a phone, and a smaller buyer's phone, and nothing leaves the site.
+
+- Each alert is answered once for everyone it went to: one offer, one decline, one confirm ("Already done." after). Asking for more
+  photos keeps it open for the offer. A closed lead takes no more buyer messages, and a question expires after an hour.
+- Messages are kept 30 days (the daily purge), and go with their lead or an erasure. Removing someone from the team removes their phone.
+- Each new website request is added to the conversation of every team member who has that alert on and a linked number, outside their quiet hours (`alertStaffOnWhatsApp`, called once from `real-leads.ts`). The template is the request's own module's, or the plain enquiry when the dealer lacks that module (`eventOfLead`). A buyer who ticked the WhatsApp box (`whatsappOptIn` on the lead, read from the form's detail of the same name) gets a confirmation.
+- A tap or a typed reply goes through `src/lib/whatsapp/handle.ts`: it writes the lead (status, note), the activity log (never a name), and the buyer's message. Reply with a price reads "8,500", "€8.5k", "8500" (`parsePrice`), sends the offer, and the buyer's simulated answer lands six seconds later on both phones and the lead.
+- Only a team member with a linked phone can act, in their own conversation. Margins are never in a message.
+- Every message to a phone or a buyer checks `usageAllowed("whatsapp")` and records `alert`, `reply` or `marketing`. Past the cap an alert or reply is stored as "Sent by email instead" and not counted; marketing is not sent. A buyer without the opt-in gets email, also uncounted. The site's acknowledgements to the dealer inside a conversation are free replies and not counted.
+- Messages about a lead are removed once the lead is gone (purge, data request), on the next read of the page.
+- The real Cloud API goes where `ADAPTER GOES HERE` is, in `src/lib/whatsapp/send.ts`: approved templates outside the 24 hour window, and a webhook that checks Meta's signature and ignores unknown numbers.
+
+## Marketing formats, media and AI writing
+
+- **Formats** (#177): a post is a Post, Story (9:16 with a ready layout: Just in or Price drop, drawn over the car photo), Reel or video, or Carousel (2 to 10 photos). The composer previews each at phone size. Limits live in `src/lib/admin/networks.ts` (`FORMAT_LIMITS`, `FORMATS_FOR`) and the server checks the same numbers. `PUBLISH_MODE` there says which formats a network's API can publish ("auto") and which are prepared here and posted from the phone ("prepare": Facebook and Instagram stories, all TikTok). Publishing stays simulated.
+- **Media library** (`mediaStore`, tab Media): photos (JPEG, PNG, WebP; shrunk to 1,600px on the device) and videos (MP4, MOV, up to 15 MB and 90 seconds on the demo; length read in the browser and checked loosely on the server), optionally tagged to a car. Stored in R2 under `media/` in the `LEAD_PHOTOS` bucket and served by `/media-files`; with no bucket a data URL is kept in memory. Rules in `src/lib/admin/media-rules.ts`. No range requests yet, so add them before real video use.
+- **Calendar**: a week of scheduled and posted posts and started ads (`calendarWeek`); drafts are not on it.
+- **Modules**: posts, calendar and media need Social and ads, newsletters need Newsletter and alerts; the page needs one of them.
+- **AI writing** (#179): `writeAction` (`src/lib/ai/actions.ts`) checks the `ai` module, then the monthly cap, builds the facts from the records (the browser sends ids only), writes, then counts a draft or adjustment. On the demo `writeWithAI` is the mock in `src/lib/ai/mock.ts` (deterministic, facts only, dashes stripped, 700 ms pause). The real Claude adapter goes at `ADAPTER GOES HERE` in `src/lib/ai/write.ts`. `AIWriter` / `AITextarea` show the button, adjust chips, Undo and an "AI draft" label, and hide with the module off. Used in the post composer, newsletters, the car description, the lead page (Draft a reply) and review replies.
+
 ## Where things are
 
 | What | Where |
 |---|---|
+| AI writing (mock on the demo), media library | `src/lib/ai/`, `src/lib/admin/media.ts` |
 | Record store (one D1 table, `admin_docs`; memory with no D1) | `src/lib/admin/docs.ts` |
 | The dealer's collections, types and seeds | `src/lib/admin/collections.ts`, `seed-data.ts` |
+| WhatsApp: templates, price parser, sender, handlers, conversation | `src/lib/whatsapp/`, `src/app/dashboard/whatsapp/` |
 | Roles and permissions | `src/lib/permissions.ts`, `permission-rules.ts` |
 | DoneDeal sync (feed, plan, run, route) | `src/lib/donedeal/`, `src/app/api/donedeal/sync/route.ts` |
 | Activity history (write, list, purge) | `src/lib/admin/activity.ts`, `activity-refs.ts`, `activity-purge.ts` |
@@ -205,6 +290,10 @@ Until both are set the admin answers 404 for everyone. The Worker checks Access'
 | Admin kit (tables, stat cards, forms, charts) | `src/components/admin/` |
 | Stock the admin edits (the table the site reads) | `src/lib/admin/stock-admin.ts` |
 | Navigation of each area | `src/lib/admin/nav.ts` |
+| Billing page, bills and their maths | `src/app/dashboard/billing/`, `src/lib/billing/bills.ts`, `bills-rules.ts` |
+| Help requests | `src/app/dashboard/help/`, `src/lib/admin/help.ts`, `help-rules.ts` |
+| Monthly report maths, page and email; owner API and counters | `src/lib/reports/`, `src/app/dashboard/monthly-report/`, `src/lib/owner-api/`, `docs/owner-api.md` |
+| Contact form topics, tags and subject | `src/lib/leads/contact-topics.ts`, `src/components/leads/GeneralFields.tsx` |
 
 ## Connecting a service
 

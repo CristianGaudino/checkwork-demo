@@ -79,6 +79,13 @@
   --color-scrim: rgb(11 15 31 / 0.55);
   --color-thumb: #ffffff;
   --color-whatsapp: #25d366; /* WhatsApp's own green, for its icon only */
+  /* The WhatsApp panel on the dashboard (header, chat paper, the two bubbles, the text on them, the button text) */
+  --color-wa-bar: #075e54;
+  --color-wa-chat: #efe7dd;
+  --color-wa-out: #d9fdd3;
+  --color-wa-in: #ffffff;
+  --color-wa-ink: #111b21;
+  --color-wa-link: #027eb5;
 
   --radius-card: 1.25rem;
   --radius-tile: 1.5rem; /* every photo tile: cards, the car page, the social strip */
@@ -126,6 +133,12 @@
   --color-info: #c4b5fd;
   --color-info-soft: #2a2766;
   --color-scrim: rgb(0 0 0 / 0.6);
+  --color-wa-bar: #1f2c34;
+  --color-wa-chat: #0b141a;
+  --color-wa-out: #005c4b;
+  --color-wa-in: #202c33;
+  --color-wa-ink: #e9edef;
+  --color-wa-link: #53bdeb;
   --shadow-lift: 0 10px 28px rgb(0 0 0 / 0.55);
   --shadow-panel: none; /* in dark, depth is the surface step and the hairline, not a shadow and not a highlight */
   --atmosphere: linear-gradient(180deg, #0b0f1f 0%, #0d1225 100%);

@@ -2,6 +2,7 @@
 
 import { setUnit, useUnit, type Unit } from "@/lib/units";
 import { press } from "@/components/ui";
+import { count } from "@/lib/count-client";
 
 // km or miles: a small two-button switch beside a mileage, for buyers who think in miles. Every mileage on the page follows it.
 export function UnitToggle({ className = "" }: { className?: string }) {
@@ -13,7 +14,7 @@ export function UnitToggle({ className = "" }: { className?: string }) {
           key={u}
           type="button"
           aria-pressed={unit === u}
-          onClick={() => setUnit(u)}
+          onClick={() => (setUnit(u), count("units"))}
           className={`min-h-9 rounded-full px-3 font-medium transition-colors ${unit === u ? "bg-text text-ink" : "text-text-2 hover:text-text"} ${press}`}
         >
           {u}

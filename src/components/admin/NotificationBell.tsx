@@ -5,12 +5,12 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { loadNotices, readNotices } from "@/app/dashboard/notifications/actions";
 import { fmtAgo } from "@/lib/admin/format";
-import { BellIcon, CalendarIcon, CarIcon, CloseIcon, InboxIcon, SyncIcon, TruckIcon, UsersIcon, WrenchIcon } from "@/components/stock/icons";
+import { BellIcon, CalendarIcon, CarIcon, CloseIcon, HelpIcon, InboxIcon, ReceiptIcon, SyncIcon, TruckIcon, UsersIcon, WhatsAppIcon, WrenchIcon } from "@/components/stock/icons";
 import { press } from "@/components/ui";
 import { placeSheet, sheetPanel } from "./sheet";
 
 type Data = Awaited<ReturnType<typeof loadNotices>>;
-const ICON = { lead: InboxIcon, drive: CalendarIcon, warranty: WrenchIcon, order: TruckIcon, "taken-down": CarIcon, sync: SyncIcon, assigned: UsersIcon } as const;
+const ICON = { lead: InboxIcon, drive: CalendarIcon, warranty: WrenchIcon, order: TruckIcon, "taken-down": CarIcon, sync: SyncIcon, assigned: UsersIcon, usage: ReceiptIcon, whatsapp: WhatsAppIcon, help: HelpIcon } as const;
 const POLL_MS = 60_000;
 
 // The bell: what has come in, in the app only. Loaded when the page changes and once a minute, so a new request shows without a reload.

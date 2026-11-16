@@ -5,6 +5,7 @@ import { BAD_DRIVE_DAY, BAD_DRIVE_TIME, BAD_KM, driveDays, driveTimes, phoneErro
 import { DAY } from "../time";
 import { dublinMs } from "../admin/format";
 import { irishToday, regPeriods } from "./reg-periods";
+import { CHOICES, TOPIC_IDS } from "./contact-topics";
 
 // The lead validation, run on the server. Client components import ./constants, never this file (it brings zod).
 
@@ -33,12 +34,29 @@ const contact = {
   email: given(z.email({ error: "Enter an email like name@example.com." }).max(LIMITS.email, tooLong(LIMITS.email)).optional()),
   message: given(z.string().max(LIMITS.message, tooLong(LIMITS.message)).optional()),
   consent: z.literal("yes", { error: "Tick the box to send your request." }),
+  // Optional agreement to updates on WhatsApp, only ever "yes".
+  whatsappOptIn: given(z.literal("yes").optional()),
 };
 
-// A general enquiry from /contact or /service: no car, only a required message (#58). The page it came from is the sourcePath.
+// A general enquiry from /contact, /service or /warranty (#58, #176). The guided form sends a topic and tap answers; the old free-text
+// path (no topic) still passes, and then the message is required. The page it came from is the sourcePath.
+const choice = (values: readonly string[]) => given(z.enum(values as [string, ...string[]], { error: "Choose one of the options." }).optional());
 const general = {
-  message: given(z.string({ error: "Tell us how we can help." }).trim().max(LIMITS.message, tooLong(LIMITS.message))),
+  topic: choice(TOPIC_IDS),
+  timing: choice(CHOICES.timing.map((o) => o.value)),
+  hasTradeIn: choice(CHOICES.hasTradeIn.map((o) => o.value)),
+  serviceNeed: choice(CHOICES.serviceNeed.map((o) => o.value)),
+  boughtWhen: choice(CHOICES.boughtWhen.map((o) => o.value)),
+  concern: choice(CHOICES.concern.map((o) => o.value)),
+  urgency: choice(CHOICES.urgency.map((o) => o.value)),
+  contactVia: choice(CHOICES.contactVia.map((o) => o.value)),
+  contactWhen: choice(CHOICES.contactWhen.map((o) => o.value)),
+  carId: given(z.string().regex(/^\d{1,12}$/).optional()),
+  reg: given(z.string({ error: BAD_REG }).trim().toUpperCase().regex(REG_PATTERN, BAD_REG).optional()),
+  message: given(z.string().trim().max(LIMITS.message, tooLong(LIMITS.message)).optional()),
 };
+// Only "Something else", or no topic at all, has nothing but the message to say what is wanted.
+const needsMessage = (d: { topic?: string; message?: string }) => Boolean(d.message) || (d.topic !== undefined && d.topic !== "other");
 
 const carId = z.string().regex(/^\d{1,12}$/);
 
@@ -138,7 +156,9 @@ export const leadSchema = z
     z
       .object({ type: z.literal("sourcing"), ...contact, ...sourcing })
       .refine((d) => Boolean(d.make || d.model || d.bodyType), { path: ["make"], message: SOURCING_CAR_ERROR, when: (p) => typeof p.value === "object" && p.value !== null }),
-    z.object({ type: z.literal("general"), ...contact, ...general }),
+    z
+      .object({ type: z.literal("general"), ...contact, ...general })
+      .refine(needsMessage, { path: ["message"], message: "Tell us how we can help.", when: (p) => typeof p.value === "object" && p.value !== null }),
     z.object({ type: z.literal("order"), ...contact, ...order }),
     z.object({ type: z.literal("trade_in"), ...contact, ...tradeIn }),
     z.object({ type: z.literal("finance"), ...contact, ...finance }),
@@ -168,6 +188,13 @@ export const TYPE_LABELS: Record<LeadType, string> = {
 };
 // Detail key to email label, in the order the email lists them; a new type's fields need only a line here.
 export const DETAIL_LABELS: Record<string, string> = {
+  topic: "About",
+  timing: "Hoping to buy",
+  hasTradeIn: "Car to trade in",
+  serviceNeed: "Needs",
+  boughtWhen: "Bought",
+  concern: "Concern",
+  urgency: "How soon",
   intent: "Wants to",
   reg: "Registration",
   mileage: "Mileage",
@@ -184,4 +211,7 @@ export const DETAIL_LABELS: Record<string, string> = {
   driveDate: "Day",
   driveTime: "Time",
   alertKind: "Alert",
+  contactVia: "Reach by",
+  contactWhen: "Best time",
+  whatsappOptIn: "WhatsApp updates",
 };

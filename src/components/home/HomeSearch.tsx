@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { useId, useState } from "react";
+import { useModules } from "@/lib/demo-role";
 import { Combobox } from "@/components/Combobox";
 import { PriceRange } from "@/components/PriceRange";
 import { IconBadge } from "@/components/Feature";
 import { ArrowRightIcon, SearchIcon } from "@/components/stock/icons";
 import { accentButton, card } from "@/components/ui";
+import { IfModule } from "@/components/IfModule";
 
 type Option = { slug: string; label: string };
 type Props = { makes: Option[]; bodies: Option[]; models: { makeSlug: string; slug: string; label: string }[] };
@@ -25,11 +27,14 @@ export function HomeSearch({ makes, bodies, models }: Props) {
   const id = useId();
   const shownModels = make ? models.filter((m) => m.makeSlug === make) : models;
   const [price, setPrice] = useState<{ min?: number; max?: number }>({});
+  const finder = useModules().has("carFinder");
   // `invisible`, not `hidden`: the search form stays in the flow (so it still sets the height), but is not seen, read or focusable.
   const panel = (t: "search" | "find") => `transition-[opacity,visibility] duration-200 motion-reduce:transition-none ${tabName === t ? "" : "invisible opacity-0"}`;
 
   return (
     <div className={`${card} shadow-lift`}>
+      {/* The Find tab is the car finder module (#173); without it the box is the search alone, with no tabs. */}
+      {finder && (
       <div role="tablist" aria-label="How to find a car" className="flex border-b border-hairline sm:px-2">
         {(["search", "find"] as const).map((t) => (
           <button
@@ -46,6 +51,7 @@ export function HomeSearch({ makes, bodies, models }: Props) {
           </button>
         ))}
       </div>
+      )}
       <div className="relative">
         <div role="tabpanel" id={`${id}-panel-search`} aria-labelledby={`${id}-tab-search`} className={panel("search")}>
           <form action="/used-cars" method="get" className="grid grid-cols-2 gap-x-3 gap-y-3 p-4 sm:grid-cols-3 sm:gap-4">
@@ -81,10 +87,12 @@ export function HomeSearch({ makes, bodies, models }: Props) {
               </li>
             ))}
           </ol>
+          <IfModule href="/find-a-car">
           <Link href="/find-a-car" className={`inline-flex items-center justify-center gap-2 lg:shrink-0 ${accentButton}`}>
             Find it for me
             <ArrowRightIcon className="size-5" />
           </Link>
+          </IfModule>
         </div>
       </div>
     </div>

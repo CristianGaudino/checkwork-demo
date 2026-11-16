@@ -15,6 +15,8 @@ import { syncStatus } from "@/lib/donedeal/sync";
 import { stockSource } from "@/lib/stock-source";
 import { forSale, isSold } from "@/lib/stock/types";
 import { isSalesLead } from "@/lib/admin/leads";
+import { enabledModules } from "@/lib/modules";
+import type { ModuleId } from "@/lib/modules-rules";
 
 export const metadata = { title: "Overview" };
 
@@ -28,6 +30,10 @@ export default async function Page() {
   // Only for staff with the margins permission: the costs are not read without it.
   const costs = (await can("margins")) ? new Map([...(await carCosts())].map(([id, c]) => [id, c.total])) : null;
   const o = overview({ leads: leads.filter(isSalesLead), drives, reviews, cars: all, costs: costs ? new Set(costs.keys()) : undefined, sales: new Set(sales.map((s) => s.id)), reservations, orders, syncProblem: Boolean(sync?.problem), slaHours: settings.leadSlaHours });
+  // What a module that is off would show goes with it (#173): its buttons, figures and to-dos.
+  const mods = await enabledModules();
+  const MODULE_OF: Record<string, ModuleId> = { drives: "testDrives", "sold-drives": "testDrives", reviews: "reviews", deposits: "sales", orders: "newCars", costs: "margins" };
+  const attention = o.attention.filter((a) => !MODULE_OF[a.key] || mods.has(MODULE_OF[a.key]));
   const margin = costs ? cars.filter((c) => costs.has(c.id)).reduce((s, c) => s + marginOf(c.priceEur, costs.get(c.id)!).eur, 0) : 0;
 
   return (
@@ -43,14 +49,18 @@ export default async function Page() {
                 Add car
               </Link>
             )}
-            <Link href="/dashboard/test-drives/new" className={adminButtonQuiet}>
-              <CalendarIcon className="size-4" />
-              Test drive
-            </Link>
-            <Link href="/dashboard/marketing/new" className={adminButtonQuiet}>
-              <ShareIcon className="size-4" />
-              New post
-            </Link>
+            {mods.has("testDrives") && (
+              <Link href="/dashboard/test-drives/new" className={adminButtonQuiet}>
+                <CalendarIcon className="size-4" />
+                Test drive
+              </Link>
+            )}
+            {mods.has("social") && (
+              <Link href="/dashboard/marketing/new" className={adminButtonQuiet}>
+                <ShareIcon className="size-4" />
+                New post
+              </Link>
+            )}
           </>
         }
       />
@@ -59,7 +69,7 @@ export default async function Page() {
         <StatCard href="/dashboard/leads?status=new" label="Leads to answer" value={fmtNum(o.newLeads)} hint={o.lateLeads ? `${o.lateLeads} past your reply target` : "All within your reply target"} tone={o.lateLeads ? "bad" : "good"} />
         <StatCard href="/dashboard/stock" label="Cars for sale" value={fmtNum(cars.filter(forSale).length)} hint={o.oldStock ? `${o.oldStock} for sale 60 days or more` : undefined} tone={o.oldStock ? "warn" : undefined} />
         {costs && <StatCard href="/dashboard/margins" label="Stock margin" value={fmtEur(margin)} />}
-        <StatCard href="/dashboard/reviews" label="Review rating" value={o.reviewCount ? o.averageRating.toFixed(1) : "None"} hint={plural(o.reviewCount, "review")} />
+        {mods.has("reviews") && <StatCard href="/dashboard/reviews" label="Review rating" value={o.reviewCount ? o.averageRating.toFixed(1) : "None"} hint={plural(o.reviewCount, "review")} />}
       </StatGrid>
 
       <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
@@ -95,11 +105,11 @@ export default async function Page() {
         <div className="flex min-w-0 flex-col gap-6">
           {sync && <SyncPanel status={sync} canForce={await can("settings")} />}
           <Panel title="Needs attention">
-            {o.attention.length === 0 ? (
+            {attention.length === 0 ? (
               <EmptyState title="All clear" />
             ) : (
               <ul className="-mx-1 flex flex-col divide-y divide-hairline">
-                {o.attention.map((a) => (
+                {attention.map((a) => (
                   <li key={a.key}>
                     <Link href={a.href} className={row}>
                       <span>{a.label}</span>
@@ -118,6 +128,7 @@ export default async function Page() {
             )}
           </Panel>
 
+          {mods.has("testDrives") && (
           <Panel title="Test drives this week" action={<Link href="/dashboard/test-drives?view=week" className="inline-flex min-h-11 items-center text-meta font-medium text-accent-text underline">The week</Link>}>
             {o.upcomingDrives.length === 0 ? (
               <EmptyState title="None booked" />
@@ -134,6 +145,7 @@ export default async function Page() {
               </ul>
             )}
           </Panel>
+          )}
         </div>
       </div>
     </>

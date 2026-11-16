@@ -11,6 +11,9 @@ import { countLabel } from "@/lib/stock/format";
 import { carsOfMake, findMake } from "@/lib/stock/makes";
 import { DEFAULT_QUERY } from "@/lib/stock/query";
 import type { Car, Condition } from "@/lib/stock/types";
+import { IfModule } from "@/components/IfModule";
+import { enabledModules } from "@/lib/modules";
+import { pathAllowed } from "@/lib/modules-rules";
 
 // One page per make: what we have of it across used, new and commercial, a few of each with the way to the full list; or, with none in
 // stock, what we sold recently, what we have that is like it, and an offer to find one.
@@ -38,7 +41,8 @@ export default async function MakePage({ params }: PageProps<"/makes/[make]">) {
   if (!make) notFound();
   const cars = await carsOfMake(make.slug);
   const of = (kind: Condition) => cars.filter((c) => (c.condition ?? "used") === kind);
-  const parts = SECTIONS.filter((s) => make.byKind[s.kind] > 0).map((s) => `${make.byKind[s.kind]} ${s.kind === "commercial" ? "commercial" : s.kind}`);
+  const modules = await enabledModules(); // new cars and vans are modules (#173): their sections go with them
+  const parts = SECTIONS.filter((s) => make.byKind[s.kind] > 0 && pathAllowed(s.href(make.slug), modules)).map((s) => `${make.byKind[s.kind]} ${s.kind === "commercial" ? "commercial" : s.kind}`);
 
   return (
     <main className={pageMain}>
@@ -67,7 +71,7 @@ export default async function MakePage({ params }: PageProps<"/makes/[make]">) {
 
       {make.count > 0 ? (
         <div className="mt-8 flex flex-col gap-12">
-          {SECTIONS.filter((s) => make.byKind[s.kind] > 0).map((s) => (
+          {SECTIONS.filter((s) => make.byKind[s.kind] > 0 && pathAllowed(s.href(make.slug), modules)).map((s) => (
             <section key={s.kind} aria-labelledby={`make-${s.kind}`} className="flex flex-col gap-4">
               <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
                 <h2 id={`make-${s.kind}`} className={subTitle}>
@@ -107,9 +111,11 @@ function FindOne({ make }: { make: string }) {
         <h2 className={subTitle}>Looking for a particular {make}?</h2>
         <p className="text-body text-text-2">Tell us the model, year and budget and we will look for it. No obligation.</p>
       </div>
+      <IfModule href="/find-a-car">
       <Link href={`/find-a-car?make=${encodeURIComponent(make)}`} className={`inline-flex h-12 shrink-0 items-center px-6 ${secondaryButton}`}>
         Find one for me
       </Link>
+      </IfModule>
     </div>
   );
 }

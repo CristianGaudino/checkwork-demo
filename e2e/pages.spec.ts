@@ -22,7 +22,7 @@ test("/service has a call button with the number, WhatsApp, services that open, 
   await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
   await main(page).getByRole("button", { name: /^Tyres/ }).click();
   await expect(main(page).getByText("Puncture repair")).toBeVisible();
-  await expect(main(page).getByLabel("Name")).toBeVisible(); // the form is open beside the checks
+  await expect(main(page).getByLabel("Registration")).toBeVisible(); // the form is open beside the checks, on its topic
 });
 
 test("/about has the photo on the right on desktop with the hours and directions under it, and no Visit us", async ({ page }) => {
@@ -155,9 +155,21 @@ test("no two of the main pages share a description", async ({ page }) => {
   }
 });
 
+// The contact form's third step: pick a topic, answer nothing, go on to the details.
+async function toDetails(page: Page) {
+  await page.waitForFunction(() => Object.keys(document.querySelector("form")!).some((k) => k.startsWith("__reactFiber")));
+  await page.getByText("Buying a car", { exact: true }).click();
+  // Each Next waits for its step to show: a second tap too soon lands on the step that is still leaving.
+  await page.getByRole("button", { name: "Next", exact: true }).click();
+  await expect(page.getByText("Step 2 of 3")).toBeVisible();
+  await page.getByRole("button", { name: "Next", exact: true }).click();
+  await expect(page.getByText("Step 3 of 3")).toBeVisible();
+}
+
 test("the phone field defaults to Ireland +353, drops a leading 0 and keeps the chosen country", async ({ page }) => {
   await page.goto("/contact");
   await page.waitForFunction(() => Object.keys(document.querySelector("form")!).some((k) => k.startsWith("__reactFiber")));
+  await toDetails(page);
   const code = page.getByLabel("Country code");
   const phone = page.getByLabel("Phone", { exact: true });
   await expect(code).toHaveValue(/^IE/);
@@ -183,8 +195,10 @@ test("the 404 page centres its message and the footer reaches the bottom of the 
 
 test("the contact line sits with phone and email, below the name", async ({ page }) => {
   await page.goto("/contact");
+  await toDetails(page);
   const y = (loc: ReturnType<Page["locator"]>) => loc.evaluate((el) => el.getBoundingClientRect().top);
   const hint = main(page).getByText("Add a phone number or an email, so we can reply.");
+  await expect(hint).toBeVisible(); // measured once the details step is on screen
   const bottom = (loc: ReturnType<Page["locator"]>) => loc.evaluate((el) => el.getBoundingClientRect().bottom);
   const above = (await y(hint)) - (await bottom(main(page).getByLabel("Name")));
   const below = (await y(main(page).getByText("Phone", { exact: true }))) - (await bottom(hint));

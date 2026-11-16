@@ -2,6 +2,7 @@
 
 import { Combobox } from "@/components/Combobox";
 import { useState } from "react";
+import { IfModule } from "@/components/IfModule";
 import { AlertIcon } from "@/components/stock/icons";
 import { CONTACT_ERROR, COUNTRIES, LIMITS } from "@/lib/leads/constants";
 import type { FieldBinding } from "./LeadForm";
@@ -116,7 +117,22 @@ export function ContactFields({ bind }: { bind(name: string): FieldBinding }) {
           <PhoneField {...bind("phone")} invalid={both} describedBy={both ? `${email.id}-error` : undefined} />
           <Field {...email} label="Email" type="email" autoComplete="email" maxLength={LIMITS.email} enterKeyHint="next" />
         </div>
+        <IfModule id="whatsapp">
+          <WhatsAppOptIn {...bind("whatsappOptIn")} />
+        </IfModule>
       </div>
+    </div>
+  );
+}
+
+// Optional, unticked: agreement to updates on WhatsApp, kept on the lead with the consent.
+function WhatsAppOptIn({ id, name, value, onChange }: FieldBinding) {
+  return (
+    <div className="flex min-h-11 items-center gap-3">
+      <input id={id} type="checkbox" role="switch" name={name} value="yes" checked={value === "yes"} onChange={(e) => onChange(e.target.checked ? "yes" : "")} className="size-5 shrink-0 accent-accent" />
+      <label htmlFor={id} className="text-meta">
+        Send me updates on WhatsApp
+      </label>
     </div>
   );
 }

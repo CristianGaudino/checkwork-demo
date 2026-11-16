@@ -1,4 +1,5 @@
 import { LEAD_SOURCES, LEAD_STATUSES, LEAD_TYPES, type Claim, type Lead, type LeadStatus, type LeadType } from "./collections";
+import { TOPIC_IDS, isUrgent, type TopicId } from "@/lib/leads/contact-topics";
 import { followUpDue, pastReplyTarget } from "./follow-ups";
 export { followUpDue, isOpenLead } from "./follow-ups";
 
@@ -14,10 +15,10 @@ export const openWarrantyRequests = (leads: Lead[], claims: Pick<Claim, "leadId"
 
 // The leads list's filters. Each one comes from the URL, so anything that is not a known value is ignored, never trusted.
 // due: follow-ups due; late: new leads past the reply target. One or the other. with: who has it (a name, or "none"); source: where it came from.
-export type LeadFilter = { status?: LeadStatus; type?: LeadType; q: string; due?: boolean; late?: boolean; with?: string; source?: (typeof LEAD_SOURCES)[number] };
+export type LeadFilter = { status?: LeadStatus; type?: LeadType; topic?: string; q: string; due?: boolean; late?: boolean; with?: string; source?: (typeof LEAD_SOURCES)[number] };
 
 // `need` is the Filters panel's one choice (due or late); the older `due=1` and `late=1` links still work.
-export function parseLeadFilter(sp: { status?: string; type?: string; q?: string; due?: string; late?: string; need?: string; with?: string; source?: string }): LeadFilter {
+export function parseLeadFilter(sp: { status?: string; type?: string; topic?: string; q?: string; due?: string; late?: string; need?: string; with?: string; source?: string }): LeadFilter {
   const due = sp.due === "1" || sp.need === "due";
   return {
     with: sp.with?.slice(0, 80) || undefined,
@@ -26,6 +27,7 @@ export function parseLeadFilter(sp: { status?: string; type?: string; q?: string
     late: (!due && (sp.late === "1" || sp.need === "late")) || undefined,
     status: (LEAD_STATUSES as readonly string[]).includes(sp.status ?? "") ? (sp.status as LeadStatus) : undefined,
     type: (LEAD_TYPES as readonly string[]).includes(sp.type ?? "") ? (sp.type as LeadType) : undefined,
+    topic: TOPIC_IDS.includes(sp.topic as TopicId) ? sp.topic : undefined,
     q: (sp.q ?? "").trim().toLowerCase().slice(0, 60),
   };
 }
@@ -41,6 +43,7 @@ export function filterLeads(leads: Lead[], f: LeadFilter, today = "", slaHours =
     .filter((l) => !f.late || pastReplyTarget(l, now, slaHours))
     .filter((l) => !f.status || l.status === f.status)
     .filter((l) => !f.type || l.type === f.type)
+    .filter((l) => !f.topic || l.topic === f.topic)
     .filter((l) => !f.with || (f.with === "none" ? !l.assignedTo : l.assignedTo === f.with))
     .filter((l) => !f.source || l.source === f.source)
     .filter((l) => !f.q || `${l.name} ${l.email} ${l.carTitle ?? ""} ${l.message}`.toLowerCase().includes(f.q) || (qDigits !== "" && digits(l.phone).includes(qDigits)))
@@ -52,3 +55,9 @@ export function countByStatus(leads: Lead[]): Record<LeadStatus, number> {
   for (const l of leads) out[l.status]++;
   return out;
 }
+
+// New leads that need an answer first: "this week" ("can't be driven" is a car bought here, filed in Aftersales). The rest keep their order.
+export const urgentFirst = (leads: Lead[]): Lead[] => {
+  const hot = (l: Lead) => l.status === "new" && Boolean(l.topic) && isUrgent(l.answers ?? {});
+  return [...leads.filter(hot), ...leads.filter((l) => !hot(l))];
+};

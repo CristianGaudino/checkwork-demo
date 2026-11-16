@@ -37,12 +37,21 @@ deploy fails its tests while it is false.
 
 ### Stock
 - **Their own uploader:** `NEXT_PUBLIC_STOCK_SOURCE=checkwork`. Staff add and edit cars in the dashboard; the registration lookup fills the basics.
-- **DoneDeal:** `NEXT_PUBLIC_STOCK_SOURCE=donedeal` and `NEXT_PUBLIC_DONEDEAL_DEALER_URL`. The dashboard's stock is read only and every
-  edit button points to DoneDeal. The DoneDeal API is licensed to one dealer's own site with their written consent: get that first, then
+- **A listing site (DoneDeal or CarsIreland):** `NEXT_PUBLIC_STOCK_SOURCE=donedeal` (it means "synced"), `NEXT_PUBLIC_LISTING_SITE`
+  (`DoneDeal`, the default, or `CarsIreland`: what the dashboard calls it) and `NEXT_PUBLIC_DONEDEAL_DEALER_URL` (the dealer's page on
+  that site). Both sites offer a dealer API for the dealer's own site, read the same way. The dashboard's stock is read only and every
+  edit button points to the listing site. The DoneDeal API is licensed to one dealer's own site with their written consent: get that first, then
   set `DONEDEAL_API_KEY` and `CRON_KEY` (secrets). The sync runs every 15 minutes (`docs/dealer-admin.md`, DoneDeal stock). The adapter
   that reads DoneDeal's API is written once DoneDeal sends its docs (`src/lib/donedeal/feed.ts`, issue #108). Empty
   `src/lib/stock/demo-cars*.json` first, so a deploy adds none of the demo cars to a stock that DoneDeal owns.
 - Replace `src/lib/stock/demo-cars.json` and `public/stock/` with photos you have the right to use, or start the D1 `cars` table empty.
+
+### Modules (what the dealer pays for)
+- `NEXT_PUBLIC_SITE_MODULES`: a comma list of the modules the dealer has (ids in `src/lib/modules-rules.ts`), or `all`. Empty means the
+  base site only. Unset means all, so set it for every real dealer. A module's pages answer 404 without it and its links go (#173).
+- The registration lookup is two modules: `lookupWebsite` and `lookupDashboard` (#180).
+- The prices on the Billing page are the demo's (`src/lib/billing/rules.ts`). Before a real dealer goes live, choose the payment
+  provider and how invoices are made, and connect the dealer's prices and bills from the owner's billing program (#181).
 
 ### The dashboard
 - It starts empty on a production site (no made-up leads, reviews or team). Set `ADMIN_OWNER_EMAILS` to the owner's Access email; the

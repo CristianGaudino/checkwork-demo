@@ -4,7 +4,8 @@ import { useCloseAtDesktop } from "@/components/useCloseAtDesktop";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useId, useRef } from "react";
-import { useDemoRole } from "@/lib/demo-role";
+import { useDemoRole, useModules } from "@/lib/demo-role";
+import { pathAllowed } from "@/lib/modules-rules";
 import { DASHBOARD_LINK } from "@/lib/nav";
 import { PhoneLink } from "@/components/PhoneLink";
 import { ChevronDownIcon, CloseIcon, MenuIcon, PhoneIcon } from "@/components/stock/icons";
@@ -14,12 +15,16 @@ import { accentButton, closeButton, press } from "@/components/ui";
 // with the same slide and scrim as the filter sheet (dialog.sheet in globals.css). The stock comes first as big rows; the rest sits in
 // groups that fold open, closed unless they hold the page you are on (docs/mobile-navigation.md).
 type Item = { href: string; label: string; long?: string };
-export function MobileMenu({ home, primary, groups }: { home: Item; primary: readonly Item[]; groups: readonly { title: string; links: readonly Item[] }[] }) {
+export function MobileMenu({ home, primary: allPrimary, groups: allGroups }: { home: Item; primary: readonly Item[]; groups: readonly { title: string; links: readonly Item[] }[] }) {
+  // Only the pages of modules the dealer has (#173).
+  const modules = useModules();
+  const primary = allPrimary.filter((l) => pathAllowed(l.href, modules));
+  const groups = allGroups.map((g) => ({ ...g, links: g.links.filter((l) => pathAllowed(l.href, modules)) })).filter((g) => g.links.length > 0);
   const dialog = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const path = usePathname();
   // Viewing as the dealer's staff: their dashboard first. Home only away from home.
-  const top = [...(useDemoRole() === "dealer" ? [DASHBOARD_LINK] : []), ...(path !== "/" ? [home] : []), ...primary];
+  const top = [...(useDemoRole() === "dealer" && modules.has("dashboard") ? [DASHBOARD_LINK] : []), ...(path !== "/" ? [home] : []), ...primary];
 
   useCloseAtDesktop(() => dialog.current?.close());
   const here = (href: string) => path === href || (href !== "/" && path.startsWith(`${href}/`)); // a car page marks Used cars

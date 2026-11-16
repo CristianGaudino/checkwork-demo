@@ -17,13 +17,14 @@ import { carName, carHref } from "@/lib/stock/format";
 import { stockSource } from "@/lib/stock-source";
 import { forSale } from "@/lib/stock/types";
 import { deleteCarAction, saveCostAction } from "../actions";
+import { hasModule } from "@/lib/modules";
 
 export const metadata = { title: "Edit car" };
 
 export default async function Page({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ cost?: string }> }) {
   const { id } = await params;
   const costSaved = (await searchParams).cost === "saved";
-  const car = await adminCar(id);
+  const [car, deposits] = await Promise.all([adminCar(id), hasModule("sales")]);
   if (!car) notFound();
   // A hidden car or a draft has no page on the website to view.
   const view = car.listing ? undefined : <Link href={carHref(car.slug)} className={adminButtonQuiet}>View on the site</Link>;
@@ -55,7 +56,7 @@ export default async function Page({ params, searchParams }: { params: Promise<{
       {view}
       {sold && !sale && <Link href={`/dashboard/stock/${id}/sale`} className={adminButton}>Record sale</Link>}
       {sold && sale && canDelete && <Link href={`/dashboard/stock/${id}/undo-sale`} className={adminButtonQuiet}>Undo sale</Link>}
-      {!synced && !sold && (held || forSale(car)) && <Link href={`/dashboard/stock/${id}/reserve`} className={adminButtonQuiet}>{held ? "Deposit" : "Reserve"}</Link>}
+      {deposits && !synced && !sold && (held || forSale(car)) && <Link href={`/dashboard/stock/${id}/reserve`} className={adminButtonQuiet}>{held ? "Deposit" : "Reserve"}</Link>}
       {!synced && !sold && <Link href={`/dashboard/stock/${id}/sale`} className={adminButton}>Mark sold</Link>}
     </>
   );

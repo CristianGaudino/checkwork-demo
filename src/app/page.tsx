@@ -22,6 +22,7 @@ import { getReviews } from "@/lib/reviews";
 import { DEALER_ADDRESS, DEALER_ADDRESS_TEXT, DEALER_LOCATION, SITE_NAME } from "@/lib/site";
 import { queryAllOrNull } from "@/lib/stock";
 import { searchOptions } from "@/lib/stock/search-options";
+import { IfModule } from "@/components/IfModule";
 
 export const metadata: Metadata = {
   title: { absolute: `${SITE_NAME} | Used cars in ${DEALER_ADDRESS.town}` },
@@ -63,9 +64,11 @@ export default async function Home() {
                 Browse stock
                 <ArrowRightIcon className="size-5" />
               </Link>
-              <Link href="/finance" className={`inline-flex h-12 w-full items-center justify-center gap-2 rounded-control border border-hairline bg-card px-6 font-medium text-text sm:w-auto ${press}`}>
-                Estimate finance
-              </Link>
+              <IfModule id="finance">
+                <Link href="/finance" className={`inline-flex h-12 w-full items-center justify-center gap-2 rounded-control border border-hairline bg-card px-6 font-medium text-text sm:w-auto ${press}`}>
+                  Estimate finance
+                </Link>
+              </IfModule>
             </div>
           </div>
           <div className="w-full rounded-card border border-hairline bg-surface p-1 shadow-panel">
@@ -87,9 +90,11 @@ export default async function Home() {
           ) : featured.length === 0 ? (
             <>
               <h2 id="featured" className="text-heading font-semibold">No cars listed right now</h2>
-              <Link href="/find-a-car" className={textLink}>
-                Can&apos;t find it? Ask us to find it for you.
-              </Link>
+              <IfModule id="carFinder">
+                <Link href="/find-a-car" className={textLink}>
+                  Can&apos;t find it? Ask us to find it for you.
+                </Link>
+              </IfModule>
             </>
           ) : (
             <>
@@ -114,6 +119,8 @@ export default async function Home() {
 
         <TrustStrip />
 
+        {/* All about finance: only with the module (#173). */}
+        <IfModule id="finance">
         <section className={`${card} grid grid-cols-1 gap-8 p-6 lg:grid-cols-[1fr_1.2fr] lg:items-center lg:gap-12 lg:p-12`}>
           <div className="flex flex-col items-start gap-4">
             <h2 className={sectionTitle}>Finance made simple</h2>
@@ -124,9 +131,11 @@ export default async function Home() {
                 Check finance options
                 <ArrowRightIcon className="size-5" />
               </Link>
-              <Link href="/trade-in" className={`inline-flex h-12 items-center justify-center gap-2 px-6 lg:h-14 lg:px-8 ${secondaryButton}`}>
-                Value your trade-in
-              </Link>
+              <IfModule id="tradeIn">
+                <Link href="/trade-in" className={`inline-flex h-12 items-center justify-center gap-2 px-6 lg:h-14 lg:px-8 ${secondaryButton}`}>
+                  Value your trade-in
+                </Link>
+              </IfModule>
             </div>
           </div>
           <ol className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -142,6 +151,7 @@ export default async function Home() {
             ))}
           </ol>
         </section>
+        </IfModule>
 
         {/* Below the fold: it arrives after hydration, so it must not sit where it would push what is in view. */}
         <RecentlyViewed max={3} />
@@ -150,7 +160,9 @@ export default async function Home() {
 
         <BrowseByType tiles={typeTiles} />
 
-        <ReviewsStrip data={reviews} />
+        <IfModule id="reviews">
+          <ReviewsStrip data={reviews} />
+        </IfModule>
 
         <SocialStrip cars={all?.cars ?? []} />
 

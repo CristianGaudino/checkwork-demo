@@ -13,7 +13,7 @@ import { daysSince, fmtDate, fmtEur, fmtNum } from "@/lib/admin/format";
 import { carName, carHref } from "@/lib/stock/format";
 import { FUEL_LABELS, FUELS, GEARBOXES, GEARBOX_LABELS, forSale, isSold, type Car } from "@/lib/stock/types";
 import { stockSource } from "@/lib/stock-source";
-import { DONEDEAL_DEALER_URL, listingHref } from "@/lib/stock-source-rules";
+import { LISTING_SITE, DONEDEAL_DEALER_URL, listingHref } from "@/lib/stock-source-rules";
 import { SyncPanel } from "@/components/admin/SyncPanel";
 import { StockBulk, StockPick } from "@/components/admin/StockBulk";
 import { CarThumb } from "@/components/admin/CarThumb";
@@ -24,6 +24,7 @@ import { salesStore } from "@/lib/admin/collections";
 import { syncStatus } from "@/lib/donedeal/sync";
 import { SEARCH_MAKE_MODEL } from "@/lib/copy";
 import { setListingAction, toggleSoldAction, withdrawnAction } from "./actions";
+import { hasModule } from "@/lib/modules";
 
 export const metadata = { title: "Stock" };
 
@@ -38,7 +39,7 @@ const daysIn = (listedAt: string) => {
 export default async function Page({ searchParams }: { searchParams: Promise<{ view?: string; status?: string; q?: string; make?: string; fuel?: string; gearbox?: string; sort?: string; dir?: string; per?: string; saved?: string; deleted?: string; sale?: string; reserved?: string; undone?: string; page?: string }> }) {
   const sp = await searchParams;
   const { view, q, make, fuel, gearbox } = parseStockList(sp);
-  const [all, source] = await Promise.all([adminCars(), stockSource()]);
+  const [all, source, deposits] = await Promise.all([adminCars(), stockSource(), hasModule("sales")]);
   const synced = source === "donedeal";
   const sync = synced ? await syncStatus() : null;
   const sales = new Map((await salesStore.list()).map((s) => [s.id, s]));
@@ -160,8 +161,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
           <div className="relative z-10 flex justify-end gap-2">
             {recordSale(c)}
             {undoSale(c)}
-            <a href={listingHref(c)} {...NEW_TAB} className={rowButton} aria-label={`Edit ${carName(c)} on DoneDeal (opens in a new tab)`}>
-              DoneDeal
+            <a href={listingHref(c)} {...NEW_TAB} className={rowButton} aria-label={`Edit ${carName(c)} on ${LISTING_SITE} (opens in a new tab)`}>
+              {LISTING_SITE}
               <ExternalIcon className="size-4" />
             </a>
           </div>
@@ -177,7 +178,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
             )}
             <RowMenu label={`More for ${carName(c)}`}>
               {listingButton(c)}
-              {(forSale(c) || c.reserved) && !isSold(c) && (
+              {deposits && (forSale(c) || c.reserved) && !isSold(c) && (
                 <Link href={`/dashboard/stock/${c.id}/reserve`} className={rowButton}>
                   {c.reserved ? "Deposit" : "Reserve"}
                 </Link>
@@ -210,13 +211,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
     <>
       <PageHeader
         title="Stock"
-        text={synced ? "Synced from DoneDeal. Add, edit and sell cars there; they update here within 15 minutes." : undefined}
+        text={synced ? `Synced from ${LISTING_SITE}. Add, edit and sell cars there; they update here within 15 minutes.` : undefined}
         actions={
           <>
             {synced ? (
               <a href={DONEDEAL_DEALER_URL} {...NEW_TAB} className={adminButton}>
                 <SyncIcon className="size-4" />
-                Open DoneDeal
+                Open {LISTING_SITE}
                 <span className="sr-only"> (opens in a new tab)</span>
               </a>
             ) : (
@@ -257,7 +258,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
       {undoneNow && <Notice tone="neutral">Sale undone for {carName(undoneNow)}. The record is kept.</Notice>}
       {/* DoneDeal does not say why an ad came down, so the car is hidden until the dealer says. Above the table, so a phone has it too. */}
       {takenDown.length > 0 && (
-        <Panel title="Ads taken down on DoneDeal">
+        <Panel title={`Ads taken down on ${LISTING_SITE}`}>
           <p className="max-w-measure text-body text-text-2">These cars are off the website. Did they sell?</p>
           <ul className="divide-y divide-hairline">
             {takenDown.map((c) => (
@@ -268,7 +269,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
                 </span>
                 <span className="flex flex-wrap gap-2">
                   <Link href={`/dashboard/stock/${c.id}/sale`} className={rowButton}>It sold</Link>
-                  <ActButton act={withdrawnAction.bind(null, c.id)} confirm={{ title: `${carName(c)} did not sell?`, text: "It stays off the website. If the ad goes back up on DoneDeal, the car comes back too.", yes: "It did not sell" }} className={rowButton}>
+                  <ActButton act={withdrawnAction.bind(null, c.id)} confirm={{ title: `${carName(c)} did not sell?`, text: `It stays off the website. If the ad goes back up on ${LISTING_SITE}, the car comes back too.`, yes: "It did not sell" }} className={rowButton}>
                     It did not sell
                   </ActButton>
                 </span>

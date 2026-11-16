@@ -13,6 +13,8 @@ import { carName, carSummary, keyFacts, carHref } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 import { accentButton, card } from "@/components/ui";
+import { IfModule } from "@/components/IfModule";
+import { CompareCell } from "./CompareCell";
 
 const button = `flex w-full items-center justify-center gap-2 ${accentButton}`;
 const FACT_ICONS: Record<string, typeof CarIcon> = { Year: CalendarIcon, Mileage: GaugeIcon, Fuel: FuelIcon, Transmission: GearIcon };
@@ -57,11 +59,16 @@ export function BuyBox({ car }: { car: Car }) {
         {sold || car.reserved ? (
           <div className={`flex flex-col gap-2 ${card} p-4`}>
             <p className="text-heading font-semibold">{sold ? "Sold" : "Reserved"}</p>
-            <p className="text-meta text-text-2">{sold ? "This car is no longer for sale." : "A deposit has been paid on this car. If it comes back on sale, we can let you know."}</p>
+            <p className="text-meta text-text-2">
+              {sold ? "This car is no longer for sale." : "A deposit has been paid on this car."}
+              {!sold && <IfModule id="newsletter"> If it comes back on sale, we can let you know.</IfModule>}
+            </p>
             <Link href={`/makes/${car.makeSlug}`} className={button}>
               See more {car.make}
             </Link>
-            <StockAlertButton car={carSummary(car)} kind="back-in-stock" />
+            <IfModule id="newsletter">
+              <StockAlertButton car={carSummary(car)} kind="back-in-stock" />
+            </IfModule>
           </div>
         ) : (
           <LeadActions car={carSummary(car)} whatsapp={whatsapp} />
@@ -86,17 +93,21 @@ export function BuyBox({ car }: { car: Car }) {
       {!sold && (
         <div className="grid grid-cols-2 gap-2">
           {/* A reserved car can still be compared; a price alert or a trade-in against it would go nowhere (its panel offers Notify me). */}
-          <div className={car.reserved ? "col-span-2" : undefined}>
+          <CompareCell wide={Boolean(car.reserved)}>
             <CompareButton id={car.id} label={`Compare ${carName(car)}`} sizing="flex h-12 w-full px-4" />
-          </div>
+          </CompareCell>
           {!car.reserved && (
             <>
-              <StockAlertButton car={carSummary(car)} kind="price-drop" />
+              <IfModule id="newsletter">
+                <StockAlertButton car={carSummary(car)} kind="price-drop" />
+              </IfModule>
               {/* The trade-in door with this car already chosen. */}
+              <IfModule href="/trade-in">
               <Link href={`/trade-in?car=${car.slug}`} className="inline-flex min-h-11 items-center gap-2 text-meta font-medium text-accent-text underline col-span-2">
                 <SwapIcon className="size-4" />
                 Trade in your car against this one
               </Link>
+              </IfModule>
             </>
           )}
         </div>

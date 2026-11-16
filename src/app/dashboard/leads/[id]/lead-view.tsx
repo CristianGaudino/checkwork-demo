@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { ChoiceAct } from "@/components/admin/ActButton";
 import { LeadStatusBadge } from "@/components/admin/badges";
 import { RegLookup } from "@/components/leads/RegLookup";
+import { AITextarea } from "@/components/admin/AIWriter";
+import { IfModule } from "@/components/IfModule";
 import { lookupRegStaffAction } from "@/app/dashboard/reg-action";
 import { Avatar, Badge, Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput, rowButton } from "@/components/admin/kit";
 import { LEAD_STATUS_LABELS, LEAD_TYPE_LABELS, LOST_REASONS, getSettings, leadsStore } from "@/lib/admin/collections";
@@ -88,6 +90,12 @@ export async function LeadView({ id }: { id: string }) {
               </p>
             )}
           </Panel>
+          {/* A reply to copy into email or WhatsApp: written from their message and the car, never from their phone or email. */}
+          <IfModule id="ai">
+            <Panel title="Draft a reply" className="max-lg:order-2">
+              <AITextarea label="Reply draft" task="leadReply" rows={6} copy request={{ task: "leadReply", leadId: lead.id }} />
+            </Panel>
+          </IfModule>
           {photos.length > 0 && (
             <Panel title="Photos" className="max-lg:order-7">
               <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
@@ -109,7 +117,7 @@ export async function LeadView({ id }: { id: string }) {
                 Registration <span className="font-medium tabular-nums">{lead.reg}</span>
               </p>
               <div className="flex flex-wrap gap-2">
-                <RegLookup reg={lead.reg} lookup={lookupRegStaffAction} className="h-11 text-meta sm:w-44" />
+                <RegLookup reg={lead.reg} lookup={lookupRegStaffAction} place="dashboard" className="h-11 text-meta sm:w-44" />
               </div>
             </Panel>
           )}
@@ -118,7 +126,7 @@ export async function LeadView({ id }: { id: string }) {
               <p className="text-body text-text-2">No notes yet.</p>
             ) : (
               <ul className="flex flex-col divide-y divide-hairline">
-                {lead.notes.map((n) => (
+                {[...lead.notes].sort((a, b) => a.at - b.at).map((n) => ( // by time: a buyer's WhatsApp answer is written before the question that caused it
                   <li key={n.at} className="flex flex-col gap-0.5 py-2">
                     <span className="whitespace-pre-line text-body">{n.text}</span>
                     <span className="text-meta text-text-2">{fmtDateTime(n.at)}</span>

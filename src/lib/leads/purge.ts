@@ -1,8 +1,12 @@
-import { and, eq, inArray, like, lt, sql } from "drizzle-orm";
+import { and, eq, inArray, like, lt, or, sql } from "drizzle-orm";
 import type { BaseSQLiteDatabase } from "drizzle-orm/sqlite-core";
 import { adminDocs, leads } from "../db/schema";
 import type * as schema from "../db/schema";
 import { LEAD_RETENTION_MONTHS, REG_CACHE_DAYS } from "./constants";
+
+// WhatsApp messages stay 30 days: what matters is on the lead's notes, and the panel reads the messages on every refresh.
+const WHATSAPP_KEEP_DAYS = 30;
+const DAY = 86_400_000;
 
 // The retention promise on /privacy (docs/lead-retention.md): leads, and the trade-in photos they point at, go after LEAD_RETENTION_MONTHS.
 // Run daily by worker.mjs. Relative imports only: wrangler bundles this outside Next's "@/" alias.
@@ -24,6 +28,10 @@ export async function purgeOldLeads(
   // The admin's copies of website leads and alerts (src/lib/admin/real-leads.ts, the "real-" rows) go on the same day.
   const older = lt(sql`json_extract(${adminDocs.data}, '$.createdAt')`, cutoff.getTime());
   await db.delete(adminDocs).where(and(inArray(adminDocs.collection, ["leads", "alerts"]), like(adminDocs.id, "real-%"), older));
+  // The WhatsApp messages about those leads go with them, and any message older than 30 days (the lead keeps its notes), so a buyer's
+  // words do not outlive their lead and the panel, which reads them on every refresh, stays small.
+  const chat = sql`json_extract(${adminDocs.data}, '$.leadId')`;
+  await db.delete(adminDocs).where(and(eq(adminDocs.collection, "whatsapp"), or(lt(sql`json_extract(${adminDocs.data}, '$.at')`, now.getTime() - WHATSAPP_KEEP_DAYS * DAY), and(like(chat, "real-%"), sql`${chat} NOT IN (SELECT l.id FROM admin_docs l WHERE l.collection = 'leads')`))));
   // Every test drive, not only the website's: one staff book on the dashboard (a phone booking, "drive-...") holds the same name and contact.
   await db.delete(adminDocs).where(and(eq(adminDocs.collection, "test-drives"), older));
   // A customer (from the website or typed in on the dashboard) goes once they have not been in touch for the same period and no sale,

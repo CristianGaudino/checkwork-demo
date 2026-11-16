@@ -12,6 +12,8 @@ import { fieldErrors } from "@/lib/admin/validation";
 import { can, currentMember } from "@/lib/permissions";
 import { ROLES, type Role } from "@/lib/permission-rules";
 import { logActivity } from "@/lib/admin/activity";
+import { requireStaff } from "@/lib/staff";
+import { staffStore } from "@/lib/whatsapp/store";
 
 export type SettingsState = { errors?: Record<string, string>; saved?: boolean } | undefined;
 
@@ -34,6 +36,7 @@ const targets = z.object({
   driveSlotMinutes: z.coerce.number().int("Whole minutes").min(15, "At least 15 minutes").max(240, "At most 240 minutes"),
 });
 export async function saveTargetsAction(_p: SettingsState, data: FormData): Promise<SettingsState> {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const no = await refused("leadSlaHours");
   if (no) return no;
   const r = targets.safeParse(Object.fromEntries(data));
@@ -46,6 +49,7 @@ export async function saveTargetsAction(_p: SettingsState, data: FormData): Prom
 }
 
 export async function saveNotificationsAction(_p: SettingsState, data: FormData): Promise<SettingsState> {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const no = await refused("notifications");
   if (no) return no;
   const on = (k: string) => data.get(k) === "on";
@@ -58,6 +62,7 @@ export async function saveNotificationsAction(_p: SettingsState, data: FormData)
 
 const marketing = z.object({ voice: z.string().trim().max(200), hashtags: z.string().trim().max(120), signOff: z.string().trim().max(160) });
 export async function saveMarketingAction(_p: SettingsState, data: FormData): Promise<SettingsState> {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const no = await refused("voice");
   if (no) return no;
   const r = marketing.safeParse(Object.fromEntries(data));
@@ -71,6 +76,7 @@ export async function saveMarketingAction(_p: SettingsState, data: FormData): Pr
 // The addresses that get the email when a visitor sends a form. Up to five, one per line or comma. Empty goes back to the site's own setting.
 const MAX_LEAD_EMAILS = 5;
 export async function saveLeadEmailsAction(_p: SettingsState, data: FormData): Promise<SettingsState> {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const no = await refused("leadEmails");
   if (no) return no;
   const list = [...new Set(String(data.get("leadEmails") ?? "").split(/[\s,;]+/).map((e) => e.trim().toLowerCase()).filter(Boolean))];
@@ -85,6 +91,7 @@ export async function saveLeadEmailsAction(_p: SettingsState, data: FormData): P
 
 // Sends one test message to the saved addresses so the dealer can see it arrive.
 export async function sendTestEmailAction(): Promise<SettingsState> {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const no = await refused("test");
   if (no) return no;
   try {
@@ -111,6 +118,7 @@ async function mayTouch(...roles: (Role | undefined)[]): Promise<string | null> 
 
 const member = z.object({ name: z.string().trim().min(1, NAME_REQUIRED).max(60), email: z.string().trim().toLowerCase().email(EMAIL_INVALID).max(120), role: z.enum(ROLES) });
 export async function addTeamAction(_p: SettingsState, data: FormData): Promise<SettingsState> {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const r = member.safeParse(Object.fromEntries(data));
   if (!r.success) return fail(r.error);
   const no = await mayTouch(r.data.role);
@@ -125,6 +133,7 @@ export async function addTeamAction(_p: SettingsState, data: FormData): Promise<
 }
 
 export async function setRoleAction(id: string, _p: SettingsState, data: FormData): Promise<SettingsState> {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const role = z.enum(ROLES).safeParse(data.get("role"));
   if (!role.success) return { errors: { role: "Choose a role" } };
   const { team } = await getSettings();
@@ -143,6 +152,7 @@ export async function setRoleAction(id: string, _p: SettingsState, data: FormDat
 // The last person cannot be removed: leads are assigned to the team, so it is never empty.
 // Their leads and test drives go back to nobody, so none points at someone the picker no longer lists.
 export async function removeTeamAction(id: string) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const { team } = await getSettings();
   const gone = team.length > 1 ? team.find((t) => t.id === id) : undefined;
   if (!gone || (await mayTouch(gone.role))) return;
@@ -150,10 +160,12 @@ export async function removeTeamAction(id: string) {
   await change((s) => ({ ...s, team: s.team.filter((t) => t.id !== id) }));
   for (const l of await leadsStore.list()) if (l.assignedTo === gone.name) await leadsStore.put({ ...l, assignedTo: undefined });
   for (const d of await drivesStore.list()) if (d.assignedTo === gone.name) await drivesStore.put({ ...d, assignedTo: undefined });
+  await staffStore.remove(id); // their WhatsApp phone goes too: no more buyers' alerts to someone who left
   await logActivity("settings", `Removed ${gone.name} from the team`, { kind: "team", id, label: gone.name });
 }
 
 export async function resetDemoAction() {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   if (!seedsDemoRecords() || !(await can("settings"))) return; // a real dealer's records are never wiped from a button
   await resetDemoRecords();
   await logActivity("settings", "Reset the demo data");

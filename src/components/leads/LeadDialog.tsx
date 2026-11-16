@@ -6,6 +6,7 @@ import { BellIcon, CalendarIcon, CloseIcon, PhoneIcon } from "@/components/stock
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { LIMITS } from "@/lib/leads/constants";
 import { DEALER_TEL } from "@/lib/site";
+import { useModules } from "@/lib/demo-role";
 import { ContactFields, Field } from "./Field";
 import { DriveFields } from "./DriveFields";
 import { LeadForm } from "./LeadForm";
@@ -49,6 +50,7 @@ export function LeadDialog({ title, open, onClose, children }: { title: string; 
 // two forms has its own dialog and stays mounted, so closing one never loses what was typed in it.
 export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: string }) {
   const [open, setOpen] = useState<"enquiry" | "drive" | null>(null);
+  const drives = useModules().has("testDrives"); // booking a test drive is a module (#173); without it, Enquire takes the row
   const opener = useRef<HTMLButtonElement>(null);
   const secondary = `flex h-12 items-center justify-center gap-2 px-3 text-text ${secondaryButton}`;
   const show = (el: HTMLButtonElement, which: "enquiry" | "drive") => {
@@ -63,13 +65,15 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
   return (
     <>
       <div className="grid grid-cols-2 gap-2 whitespace-nowrap">
-        <button type="button" onClick={(e) => show(e.currentTarget, "enquiry")} className={`col-span-2 flex h-12 w-full items-center justify-center gap-2 rounded-control bg-accent px-3 font-semibold text-on-accent sm:col-span-1 ${press}`}>
+        <button type="button" onClick={(e) => show(e.currentTarget, "enquiry")} className={`col-span-2 flex h-12 w-full items-center justify-center gap-2 rounded-control bg-accent px-3 font-semibold text-on-accent ${drives ? "sm:col-span-1" : ""} ${press}`}>
           Enquire
         </button>
-        <button type="button" onClick={(e) => show(e.currentTarget, "drive")} className={`col-span-2 sm:col-span-1 ${secondary}`}>
-          <CalendarIcon className="size-5 text-accent-text" />
-          Test drive
-        </button>
+        {drives && (
+          <button type="button" onClick={(e) => show(e.currentTarget, "drive")} className={`col-span-2 sm:col-span-1 ${secondary}`}>
+            <CalendarIcon className="size-5 text-accent-text" />
+            Test drive
+          </button>
+        )}
         <a href={`tel:${DEALER_TEL}`} className={secondary}>
           <PhoneIcon className="size-5 text-accent-text" />
           Call us

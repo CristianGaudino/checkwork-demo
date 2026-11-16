@@ -4,10 +4,14 @@ import { redirect } from "next/navigation";
 import { logActivity } from "@/lib/admin/activity";
 import { reviewsStore } from "@/lib/admin/collections";
 import { postReviewReply } from "@/lib/admin/publishers";
+import { requireModule } from "@/lib/modules";
+import { requireStaff } from "@/lib/staff";
 
 // A reply goes to Google first (Business Profile, simulated on the demo), and is kept here only once Google has it, so the dashboard never
 // shows a reply the customer cannot see. An empty box removes the reply. The answer comes back as a short code the page knows.
 export async function replyAction(id: string, data: FormData) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
+  await requireModule("reviews"); // and only while the dealer has it
   const reply = String(data.get("reply") ?? "").trim().slice(0, 500);
   const review = await reviewsStore.get(id);
   if (!review || reply === (review.reply ?? "")) return; // nothing changed

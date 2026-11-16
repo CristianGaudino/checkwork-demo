@@ -35,22 +35,29 @@ describe("the dashboard gate in the proxy", () => {
     expect((await get("/used-cars")).status).toBe(200);
   });
 
-  it("passes a verified address on to the pages, and throws away one the browser sent", async () => {
+  it("lets a verified request through and turns a forged one away; the pages verify the token again (src/lib/staff.ts)", async () => {
     vi.stubEnv("APP_ENV", "demo");
     vi.stubEnv("CF_ACCESS_TEAM_DOMAIN", "team.cloudflareaccess.com");
     vi.stubEnv("CF_ACCESS_AUD", "aud");
     verify.mockResolvedValueOnce({ email: "owner@dealer.ie" });
-    const ok = await get("/dashboard/margins", { "cf-access-jwt-assertion": "a.b.c", "x-admin-email": "forged@evil.example" });
-    expect(ok.status).toBe(200);
-    expect(ok.headers.get("x-middleware-request-x-admin-email")).toBe("owner@dealer.ie");
-    // A forged header with no valid token never gets that far.
+    expect((await get("/dashboard/margins", { "cf-access-jwt-assertion": "a.b.c" })).status).toBe(200);
     verify.mockResolvedValueOnce(null);
     expect((await get("/dashboard", { "cf-access-jwt-assertion": "a.b.c", "x-admin-email": "forged@evil.example" })).status).toBe(404);
   });
-  it("in development (no Access) drops any x-admin-email the browser sent", async () => {
-    vi.stubEnv("NODE_ENV", "development");
-    const res = await get("/dashboard", { "x-admin-email": "forged@evil.example" });
-    expect(res.headers.get("x-middleware-request-x-admin-email")).toBeNull();
-    expect(res.headers.get("x-middleware-override-headers") ?? "").not.toContain("x-admin-email");
+});
+
+describe("modules in the proxy (#173)", () => {
+  it("runs on every public page a module can switch off", async () => {
+    const { config } = await import("./proxy");
+    const { MODULES } = await import("@/lib/modules-rules");
+    for (const m of MODULES) for (const p of m.pages) expect(config.matcher.some((x) => x === p || x === `${p}/:path*`), p).toBe(true);
+  });
+  it("answers 404 for a module's page when the site does not have it, and lets the base site through", async () => {
+    vi.stubEnv("NEXT_PUBLIC_SITE_MODULES", "dashboard");
+    expect((await get("/finance")).status).toBe(404);
+    expect((await get("/new-cars/order")).status).toBe(404);
+    expect((await get("/used-cars")).status).not.toBe(404);
+    vi.stubEnv("NEXT_PUBLIC_SITE_MODULES", "finance");
+    expect((await get("/finance")).status).not.toBe(404);
   });
 });

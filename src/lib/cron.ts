@@ -6,7 +6,7 @@ export function cronAuthorized(req: Request): boolean {
 }
 
 // The same length of work however much of the key matches, so the answer time gives nothing away.
-function same(a: string, b: string) {
+export function same(a: string, b: string) {
   const [x, y] = [new TextEncoder().encode(a), new TextEncoder().encode(b)];
   let diff = x.length ^ y.length;
   for (let i = 0; i < Math.max(x.length, y.length); i++) diff |= (x[i] ?? 0) ^ (y[i] ?? 0);

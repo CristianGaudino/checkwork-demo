@@ -6,7 +6,7 @@ describe("the sidebar's groups", () => {
     const { top, groups } = navGroups(DEALER_NAV);
     expect(top.map((i) => i.label)).toEqual(["Overview"]);
     expect(groups.map((g) => g.name)).toEqual(["Sales", "Customers", "Growth", "Dealership"]);
-    expect(groups[0].items.map((i) => i.label)).toEqual(["Leads", "Test drives", "Stock", "Orders", "Margins"]);
+    expect(groups[0].items.map((i) => i.label)).toEqual(["Leads", "Test drives", "Stock", "Orders", "Margins", "WhatsApp"]);
     expect(top.length + groups.reduce((n, g) => n + g.items.length, 0)).toBe(DEALER_NAV.length);
   });
   it("keeps a heading when a role filters out its first item, under the next one that names no group", () => {

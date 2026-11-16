@@ -7,7 +7,7 @@ import { newId } from "./ids";
 // The dashboard's own notifications: the bell. In the app only, never emailed. Each says what happened in a few words and links to it.
 // Never a customer's name or details, only the kind of request and the car, so they are not personal data (nothing to erase, nothing to
 // purge for privacy). `for` is a team member's name when it is theirs alone (a lead given to them); otherwise everyone sees it.
-export const NOTICE_KINDS = ["lead", "drive", "warranty", "order", "taken-down", "sync", "assigned"] as const;
+export const NOTICE_KINDS = ["lead", "drive", "warranty", "order", "taken-down", "sync", "assigned", "usage", "whatsapp", "help"] as const;
 export type NoticeKind = (typeof NOTICE_KINDS)[number];
 export type Notice = { id: string; at: number; kind: NoticeKind; text: string; href: string; for?: string };
 // What one person has read: a record each (by their key), so two people reading at once never write the same record.

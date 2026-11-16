@@ -1,5 +1,6 @@
-import { EmptyState, Notice, PageHeader, Panel, SummaryTabs, TableFooter, adminButton, adminInput, pageOf, rowButton } from "@/components/admin/kit";
+import { EmptyState, Notice, PageHeader, Panel, SummaryTabs, TableFooter, adminButton, pageOf, rowButton } from "@/components/admin/kit";
 import { Stars } from "@/components/admin/Stars";
+import { AITextarea } from "@/components/admin/AIWriter";
 import { card } from "@/components/ui";
 import { reviewsStore } from "@/lib/admin/collections";
 import { fmtDate, plural } from "@/lib/admin/format";
@@ -58,8 +59,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ f
                 <details className="group w-full sm:w-auto sm:flex-1">
                   <summary className={`${r.reply ? rowButton : `${rowButton} border-accent text-accent-text`} w-fit cursor-pointer list-none [&::-webkit-details-marker]:hidden`}>{r.reply ? "Edit reply" : "Reply"}</summary>
                   <form action={replyAction.bind(null, r.id)} className="mt-2 flex max-w-measure flex-col gap-2">
-                    <label className="sr-only" htmlFor={`reply-${r.id}`}>Reply to {r.author}</label>
-                    <textarea id={`reply-${r.id}`} name="reply" rows={3} maxLength={500} defaultValue={r.reply ?? ""} className={`${adminInput} h-auto py-2`} />
+                    <AITextarea id={`reply-${r.id}`} name="reply" label={`Reply to ${r.author}`} rows={3} maxLength={500} defaultValue={r.reply ?? ""} task="reviewReply" request={{ task: "reviewReply", reviewId: r.id }} />
                     <button type="submit" className={`${adminButton} self-start`}>{r.reply ? "Update reply" : "Post reply"}</button>
                   </form>
                 </details>

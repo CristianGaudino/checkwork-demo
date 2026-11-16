@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useDemoRole, useStockSource } from "@/lib/demo-role";
 import { ExternalIcon, PencilIcon, ShareIcon } from "@/components/stock/icons";
 import { NEW_TAB, secondaryButton } from "@/components/ui";
-import { listingHref } from "@/lib/stock-source-rules";
+import { LISTING_SITE, listingHref } from "@/lib/stock-source-rules";
 
 const pill = `inline-flex min-h-11 flex-1 items-center justify-center gap-2 px-4 text-meta sm:flex-none ${secondaryButton}`;
 
@@ -20,7 +20,7 @@ export function CarControls({ id, slug, sold = false, listingUrl }: { id: string
       {synced ? (
         <a href={listingHref({ listingUrl })} {...NEW_TAB} className={pill}>
           <ExternalIcon className="size-4" />
-          Edit on DoneDeal<span className="sr-only"> (opens in a new tab)</span>
+          Edit on {LISTING_SITE}<span className="sr-only"> (opens in a new tab)</span>
         </a>
       ) : (
         <Link href={`/dashboard/stock/${id}`} className={pill}>

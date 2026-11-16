@@ -4,6 +4,7 @@
 import { drizzle } from "drizzle-orm/d1";
 import handler from "./.open-next/worker.js";
 import { purgeOldActivity } from "./src/lib/admin/activity-purge.ts";
+import { purgeOldCounts } from "./src/lib/owner-api/counts-purge.ts";
 import { anonymiseOldSales } from "./src/lib/admin/sales-purge.ts";
 import { purgeOldLeads } from "./src/lib/leads/purge.ts";
 import { apexRedirect } from "./src/lib/redirect.ts";
@@ -18,6 +19,7 @@ const HOST = new URL(SITE_URL).hostname;
 const APP_JOBS = {
   "*/15 * * * *": { job: "donedeal-sync", path: "/api/donedeal/sync" }, // src/lib/donedeal/sync.ts
   "0 7 * * *": { job: "follow-up-digest", path: "/api/follow-ups/digest" }, // src/lib/admin/follow-up-digest.ts, 7am or 8am Irish time
+  "0 7 1 * *": { job: "monthly-report", path: "/api/reports/monthly" }, // src/lib/reports/send.ts, the 1st, 7am or 8am Irish time
   "30 6 * * 1": { job: "demo-reset", path: "/api/demo/reset" }, // the demo only: after the Monday 06:00 deploy moves the sold dates (deploy.yml)
 };
 
@@ -43,6 +45,7 @@ const worker = {
     const jobs = [
       ["purge-leads", "deleted", () => purgeOldLeads(db, env.LEAD_PHOTOS)], // a count only, never a lead (D-08)
       ["purge-activity", "deleted", () => purgeOldActivity(db)],
+      ["purge-counts", "deleted", () => purgeOldCounts(db)],
       ["anonymise-sales", "done", () => anonymiseOldSales(db)],
     ];
     let failed = 0;

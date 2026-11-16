@@ -3,17 +3,19 @@ import { AddTeamForm, RoleForm, LeadEmailsForm, MarketingForm, NotificationsForm
 import { Badge, DataTable, PageHeader, Panel, adminButtonQuiet, rowButton } from "@/components/admin/kit";
 import { ActButton } from "@/components/admin/ActButton";
 import { getSettings } from "@/lib/admin/collections";
-import { INTEGRATIONS, isUsable, missingEnv, modeOf } from "@/lib/integrations";
+import { INTEGRATIONS, type IntegrationId, isUsable, missingEnv, modeOf } from "@/lib/integrations";
 import { DEALER_ADDRESS_TEXT, DEALER_EMAIL, DEALER_PHONE, OPENING_HOURS, SITE_NAME } from "@/lib/site";
 import { removeTeamAction, resetDemoAction } from "./actions";
 import { seedsDemoRecords } from "@/lib/admin/docs";
 import { syncLine } from "@/components/admin/SyncPanel";
 import { syncStatus } from "@/lib/donedeal/sync";
 import { stockSource } from "@/lib/stock-source";
-import { DONEDEAL_DEALER_URL } from "@/lib/stock-source-rules";
+import { LISTING_SITE, DONEDEAL_DEALER_URL } from "@/lib/stock-source-rules";
 import { NEW_TAB } from "@/components/ui";
 import { currentMember } from "@/lib/permissions";
 import { ROLES, roleCan, type Role } from "@/lib/permission-rules";
+import { enabledModules } from "@/lib/modules";
+import type { ModuleId } from "@/lib/modules-rules";
 
 // What each role may see, in words, so the owner knows what a role change does.
 const GRANTS: Record<Role, string> = { Owner: "Everything", Manager: "Everything except changing an owner", Sales: "Everything except margins, the full reports, the team, settings, activity and data requests", Finance: "Margins and the full reports, and everything Sales sees" };
@@ -33,20 +35,25 @@ const SECTIONS = [
   ["demo", "Demo data"],
 ] as const;
 type Section = (typeof SECTIONS)[number][0];
+// The module each outside service belongs to; a service without one is the base site's (lead email, the bot check).
+const SERVICE_MODULE: Partial<Record<IntegrationId, ModuleId | ModuleId[]>> = {
+  reviews: "reviews", gbp: "reviews", social: "social", ads: "social", newsletter: "newsletter", analytics: "analytics", whatsapp: "whatsapp", ai: "ai", reglookup: ["lookupWebsite", "lookupDashboard"],
+};
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ section?: string }> }) {
   const [s, me, source, sp] = await Promise.all([getSettings(), currentMember(), stockSource(), searchParams]);
   const synced = source === "donedeal";
   const sync = synced ? await syncStatus() : null;
-  // DoneDeal is a service only for a dealer whose stock comes from there.
-  const services = INTEGRATIONS.filter((i) => i.id !== "donedeal" || synced);
+  // The listing site is a service only for a dealer whose stock comes from there; the others only with their module (#173).
+  const mods = await enabledModules();
+  const services = INTEGRATIONS.filter((i) => (i.id !== "donedeal" || synced) && (!SERVICE_MODULE[i.id] || [SERVICE_MODULE[i.id]!].flat().some((m) => mods.has(m))));
   const team = roleCan(me.role, "team");
   const edit = roleCan(me.role, "settings");
   const owner = me.role === "Owner";
   // A manager changes everyone but an owner.
   const mayChange = (t: { role: Role }) => team && (owner || t.role !== "Owner");
   // Demo data only where there are made-up records to put back: a real dealer's dashboard has no demo, and the server refuses it there too.
-  const sections = SECTIONS.filter(([k]) => k !== "demo" || (seedsDemoRecords() && edit));
+  const sections = SECTIONS.filter(([k]) => (k !== "demo" || (seedsDemoRecords() && edit)) && (k !== "marketing" || mods.has("social") || mods.has("newsletter")));
   const section: Section = sections.find(([k]) => k === sp.section)?.[0] ?? "business";
   return (
     <>
@@ -144,13 +151,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
           )}
 
           {section === "services" && sync && (
-            <Panel title="DoneDeal">
+            <Panel title={LISTING_SITE}>
               <dl className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
                 <div>
                   <dt className="text-meta text-text-2">Account</dt>
                   <dd className="text-body">
                     <a href={DONEDEAL_DEALER_URL} {...NEW_TAB} className="underline-offset-2 hover:underline">
-                      {modeOf("donedeal") === "simulated" ? INTEGRATIONS.find((i) => i.id === "donedeal")!.demoAccount : "Your DoneDeal dealer page"}
+                      {modeOf("donedeal") === "simulated" ? INTEGRATIONS.find((i) => i.id === "donedeal")!.demoAccount : `Your ${LISTING_SITE} dealer page`}
                       <span className="sr-only"> (opens in a new tab)</span>
                     </a>
                   </dd>
@@ -162,7 +169,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
               </dl>
               <p className="text-body">{syncLine(sync)}</p>
               <p className="max-w-measure text-meta text-text-2">
-                Cars are added, changed and sold on DoneDeal, and the site follows every 15 minutes. DoneDeal gives the key for your own site only, with your written consent.
+                Cars are added, changed and sold on {LISTING_SITE}, and the site follows every 15 minutes. {LISTING_SITE} gives the key for your own site only, with your written consent.
               </p>
             </Panel>
           )}

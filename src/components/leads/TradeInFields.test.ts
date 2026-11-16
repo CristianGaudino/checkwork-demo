@@ -36,9 +36,9 @@ describe("trade-in step one, by the server's rules", () => {
 describe("trade-in photos step", () => {
   const photos = TRADE_IN_STEPS[2].check!;
   it("needs the minimum number of photos, with the server's words", () => {
-    expect(photos({ photos: PHOTO_MIN_COUNT - 1 })).toEqual({ photos: [PHOTO_MIN_ERROR] });
-    expect(photos({ photos: PHOTO_MIN_COUNT })).toBeUndefined();
-    expect(photos({ photos: 12 })).toBeUndefined();
+    expect(photos({ photos: PHOTO_MIN_COUNT - 1, values: {} })).toEqual({ photos: [PHOTO_MIN_ERROR] });
+    expect(photos({ photos: PHOTO_MIN_COUNT, values: {} })).toBeUndefined();
+    expect(photos({ photos: 12, values: {} })).toBeUndefined();
   });
 });
 
