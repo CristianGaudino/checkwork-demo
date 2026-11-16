@@ -75,13 +75,11 @@ async function encodeTo(page: Page, bytes: number, ms = 0) {
 test("it is a trade-in valuation page that explains itself, in four steps, with a lookup beside the registration", async ({ page }) => {
   await open(page);
   await expect(page.getByRole("heading", { level: 1, name: "Sell your car" })).toBeVisible();
-  // The three steps open on a tap, and the notes sit under the step they belong to (no column of tips beside the form).
-  const how = page.getByRole("list").filter({ has: page.locator("details") });
-  await expect(page.getByText("The offer is an estimate until we see the car.")).toBeHidden();
-  await how.getByText("Send some photos").click();
-  await expect(how.getByText(new RegExp(`At least ${PHOTO_MIN_COUNT} photos.*Front.*Dashboard and mileage\.$`))).toBeVisible(); // the angles in one bullet, not one each
+  // The three steps sit open, with the notes under the step they belong to: nothing to tap, and no column of tips beside the form.
+  const how = page.locator("ol", { hasText: "Send some photos" });
+  await expect(how.locator("details")).toHaveCount(0);
+  await expect(how.getByText(new RegExp(`At least ${PHOTO_MIN_COUNT} photos.*Front.*Dashboard and mileage\.$`))).toBeVisible(); // the angles in one line, not one each
   await expect(how.getByText("Include photos of any damage, even small marks.")).toBeVisible();
-  await how.getByText("We make you an offer").click();
   await expect(how.getByText("The offer is an estimate until we see the car.")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Required photos" })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Good to know" })).toHaveCount(0);

@@ -7,12 +7,11 @@ export function IconBadge({ children, size = "md" }: { children: React.ReactNode
   );
 }
 
-// One reason or fact in a list: a badge, a short title and a line of text, open on the page (no card: the cards are for things to press and
-// for forms, as on home). Renders an <li>, so it goes in a <ul>.
-export function FeatureCard({ badge, title, text }: { badge: React.ReactNode; title: string; text: string }) {
+// One reason or fact in a list: a short title and a line of text under a hairline, open on the page. No icon: the same few icons stood for
+// different reasons on every page, which said nothing (docs/design-contract.md, inner pages second pass). Renders an <li>, so it goes in a <ul>.
+export function FeatureCard({ title, text }: { title: string; text: string }) {
   return (
-    <li className="reveal flex items-start gap-4">
-      <IconBadge>{badge}</IconBadge>
+    <li className="reveal border-t border-hairline pt-4">
       <TitleText title={title} text={text} />
     </li>
   );
