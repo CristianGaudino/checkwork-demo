@@ -28,7 +28,7 @@ export async function setDriveStatusAction(id: string, status: string) {
   const next = parseDriveStatus(status);
   const drive = await drivesStore.get(id);
   if (!next || !drive || drive.status === next) return;
-  await drivesStore.put({ ...drive, status: next });
+  if (!(await drivesStore.update(id, (d) => ({ ...d, status: next })))) return;
   await logActivity("test-drives", `Changed the test drive from ${DRIVE_STATUS_LABELS[drive.status]} to ${DRIVE_STATUS_LABELS[next]}`, { kind: "drive", id });
   revalidatePath("/dashboard/test-drives");
 }
@@ -40,7 +40,7 @@ export async function assignDriveAction(id: string, name: string) {
   const drive = await drivesStore.get(id);
   const { team } = await getSettings();
   if (!drive || (name && !team.some((t) => t.name === name)) || (drive.assignedTo ?? "") === name) return;
-  await drivesStore.put({ ...drive, assignedTo: name || undefined });
+  if (!(await drivesStore.update(id, (d) => ({ ...d, assignedTo: name || undefined })))) return;
   await logActivity("test-drives", name ? `Gave the test drive to ${name}` : "Took the test drive off its person", { kind: "drive", id });
   const me = await currentMember();
   if (name && name !== me.name) await notify({ kind: "assigned", for: name, text: `${me.name} gave you a test drive: ${drive.carTitle}`, href: `/dashboard/test-drives/${id}` });
@@ -86,7 +86,7 @@ export async function moveDriveAction(id: string, _prev: DriveFormState, data: F
   if (!parsed.success) return { errors: fieldErrors(parsed.error) };
   const slot = await checkSlot(drive.carSlug, drive.carTitle, parsed.data.date, parsed.data.time, id);
   if ("errors" in slot) return slot;
-  await drivesStore.put({ ...drive, startsAt: slot.startsAt });
+  if (!(await drivesStore.update(id, (d) => ({ ...d, startsAt: slot.startsAt })))) return { errors: { date: "This booking can no longer be moved" } };
   await logActivity("test-drives", "Moved the test drive to another time", { kind: "drive", id });
   revalidatePath("/dashboard/test-drives");
   return { done: "Moved." };

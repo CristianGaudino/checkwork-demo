@@ -1,5 +1,5 @@
 import "server-only";
-import { and, eq, notLike } from "drizzle-orm";
+import { and, eq, notLike, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { adminDocs } from "@/lib/db/schema";
 import { getBindings } from "@/lib/leads/bindings";
@@ -78,9 +78,36 @@ export function defineCollection<T extends Doc>(name: string, demoSeed: () => T[
         getDb()
           .insert(adminDocs)
           .values({ collection: name, id: doc.id, data: doc })
-          .onConflictDoUpdate({ target: [adminDocs.collection, adminDocs.id], set: { data: doc, updatedAt: new Date() } }),
+          // Always a later updated_at than the row had, even in the same millisecond, so an update() racing this put sees it.
+          .onConflictDoUpdate({ target: [adminDocs.collection, adminDocs.id], set: { data: doc, updatedAt: sql`max(${Date.now()}, ${adminDocs.updatedAt} + 1)` } }),
         "put",
       );
+    },
+    // A change to a record that may be changed at the same time (a note while the status moves): `fn` gets the record as it is now, and
+    // the write only lands if nobody wrote it since (updated_at unchanged); one retry on a clash. A record that is gone (erased, purged)
+    // stays gone: nothing is written and it returns undefined.
+    async update(id: string, fn: (doc: T) => T | Promise<T>): Promise<T | undefined> {
+      await ready();
+      if (!hasDb()) {
+        const cur = memory.get(name)!.get(id) as T | undefined;
+        if (!cur) return undefined;
+        const next = await fn(cur);
+        if (!memory.get(name)!.has(id)) return undefined;
+        memory.get(name)!.set(id, next);
+        return next;
+      }
+      const db = getDb();
+      const where = and(eq(adminDocs.collection, name), eq(adminDocs.id, id));
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const [row] = await quiet(db.select({ data: adminDocs.data, at: adminDocs.updatedAt }).from(adminDocs).where(where).limit(1), "update");
+        if (!row) return undefined;
+        const next = await fn(row.data as T);
+        // At least a millisecond on from the last write, so two writes in the same millisecond still tell apart.
+        const at = new Date(Math.max(Date.now(), row.at.getTime() + 1));
+        const done = await quiet(db.update(adminDocs).set({ data: next, updatedAt: at }).where(and(where, eq(adminDocs.updatedAt, row.at))).returning({ id: adminDocs.id }), "update");
+        if (done.length) return next;
+      }
+      throw new Error(`admin_docs ${name} update clashed`);
     },
     async remove(id: string): Promise<void> {
       await ready();

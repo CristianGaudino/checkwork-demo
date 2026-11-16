@@ -28,7 +28,7 @@ export async function setStatusAction(id: string, data: FormData) {
   // A won or lost lead needs no follow-up. The reason belongs to a lost lead only: moving it on clears it.
   const followUpOn = isOpenLead({ status: parsed.data }) ? (lead.followUpOn ?? (isIsoDay(on) ? on : undefined)) : undefined;
   const lostReason = parsed.data === "lost" ? (lead.lostReason ?? (why.success ? why.data : undefined)) : undefined;
-  await leadsStore.put({ ...lead, status: parsed.data, followUpOn, lostReason });
+  if (!(await leadsStore.update(id, (l) => ({ ...l, status: parsed.data, followUpOn, lostReason })))) return;
   await logActivity("leads", `Moved the lead from ${LEAD_STATUS_LABELS[lead.status]} to ${LEAD_STATUS_LABELS[parsed.data]}`, ref(id));
   revalidatePath("/dashboard/leads");
   revalidatePath(`/dashboard/leads/${id}`);
@@ -40,7 +40,7 @@ export async function setLostReasonAction(id: string, data: FormData) {
   const parsed = reason.safeParse(data.get("reason"));
   const lead = await leadsStore.get(id);
   if (!parsed.success || lead?.status !== "lost" || lead.lostReason === parsed.data) return;
-  await leadsStore.put({ ...lead, lostReason: parsed.data });
+  if (!(await leadsStore.update(id, (l) => ({ ...l, lostReason: parsed.data })))) return;
   await logActivity("leads", `Said why the lead was lost: ${parsed.data}`, ref(id));
   revalidatePath(`/dashboard/leads/${id}`);
   revalidatePath(`/dashboard/aftersales/requests/${id}`);
@@ -56,7 +56,7 @@ export async function assignLeadAction(id: string, data: FormData) {
   const to = team.some((t) => t.name === name) ? name : undefined;
   if (name && !to) return { error: `${name} is no longer on the team.` }; // a stale page: never take the lead off its person by mistake
   if (to === lead.assignedTo) return;
-  await leadsStore.put({ ...lead, assignedTo: to });
+  if (!(await leadsStore.update(id, (l) => ({ ...l, assignedTo: to })))) return;
   await logActivity("leads", to ? `Gave the lead to ${to}` : `Took the lead off ${lead.assignedTo}`, ref(id));
   // The person it was given to hears of it in their bell, unless they took it themselves.
   const me = await currentMember();
@@ -71,7 +71,7 @@ export async function addNoteAction(id: string, data: FormData) {
   const text = String(data.get("note") ?? "").trim().slice(0, 500);
   const lead = await leadsStore.get(id);
   if (!text || !lead) return;
-  await leadsStore.put({ ...lead, notes: [...lead.notes, { at: Date.now(), text }] });
+  if (!(await leadsStore.update(id, (l) => ({ ...l, notes: [...l.notes, { at: Date.now(), text }] })))) return;
   await logActivity("leads", "Added a note", ref(id)); // never the note itself
   revalidatePath(`/dashboard/leads/${id}`);
   revalidatePath(`/dashboard/aftersales/requests/${id}`);
@@ -88,7 +88,7 @@ export async function setFollowUpAction(id: string, data: FormData) {
   const typed = String(data.get("on") ?? "");
   const on = data.get("clear") ? undefined : [1, 3, 7].includes(inDays) ? addDays(today, inDays) : isIsoDay(typed) ? typed : null;
   if (on === null || (on && (on < today || on > addDays(today, 366))) || on === lead.followUpOn) return;
-  await leadsStore.put({ ...lead, followUpOn: on });
+  if (!(await leadsStore.update(id, (l) => ({ ...l, followUpOn: on })))) return;
   await logActivity("leads", on ? `Set a follow-up for ${fmtDate(`${on}T12:00:00Z`)}` : "Cleared the follow-up", ref(id));
   revalidatePath("/dashboard/leads");
   revalidatePath(`/dashboard/leads/${id}`);

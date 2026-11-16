@@ -12,7 +12,7 @@ import type { LeadType } from "./schema";
 
 // The whole lead pipeline, framework-free (research Pattern 1): the server action only builds Deps and calls processLead.
 
-export type Outcome = "stored" | "notify_failed" | "duplicate" | "invalid" | "captcha" | "rate" | "honeypot" | "error";
+export type Outcome = "stored" | "notify_failed" | "mirror_failed" | "duplicate" | "invalid" | "captcha" | "rate" | "honeypot" | "error";
 export type LeadResult =
   | { status: "ok" }
   | { status: "invalid"; fieldErrors: Record<string, string[]> }
@@ -199,11 +199,12 @@ export async function processLead(fd: FormData, ctx: { ip: string }, deps: Deps)
       // The dealer was not emailed, so the buyer is not told "thanks": they see "we could not send this, call us" and their details
       // stay in the form. The lead still reaches the dashboard, marked as not emailed, so it is not lost if they never retry or call.
       // A retry sends a fresh clientRef, so it is stored again: the dealer may see it twice, never not at all.
-      await deps.toAdmin?.(row, false).catch(() => {});
+      await deps.toAdmin?.(row, false).catch(() => logLead({ leadId, type: input.type, outcome: "mirror_failed" }));
       logLead({ leadId, type: input.type, outcome: "notify_failed" });
       return SERVER;
     }
-    await deps.toAdmin?.(row, true).catch(() => {});
+    // A dashboard copy that fails leaves the lead in D1 and the email: logged (the id and type, never the details) so it can be copied by hand.
+    await deps.toAdmin?.(row, true).catch(() => logLead({ leadId, type: input.type, outcome: "mirror_failed" }));
     // If only this bookkeeping fails the buyer still gets ok, and the row reads as not notified.
     await deps.store.markNotified(row.id).catch(() => logLead({ leadId, type: input.type, outcome: "notify_failed" }));
     logLead({ leadId, type: input.type, outcome: "stored" });

@@ -61,6 +61,23 @@ describe("stock synced from DoneDeal", () => {
     expect(await adminCar(car.id)).toBeUndefined();
   });
 
+  it("keeps a sold car's cost and prep when it is deleted, one at a time or in bulk, for the reports", async () => {
+    stockCookie = "checkwork";
+    role = "Manager";
+    const deposits = new Set((await reservationsStore.list()).map((r) => r.carId));
+    const [one, two, unsold] = (await adminCars()).filter((c) => !c.soldAt && !c.reserved && !deposits.has(c.id)).slice(-3); // from the end: the other tests take the first ones
+    for (const c of [one, two, unsold]) await costsStore.put({ id: c.id, costEur: 7000 });
+    for (const c of [one, two]) await salesStore.put({ id: c.id, carTitle: "A car", priceEur: 9000, soldOn: "2026-01-01", createdAt: 0 });
+    await expect(deleteCarAction(one.id)).rejects.toThrow(/redirect/);
+    const f = new FormData();
+    f.set("op", "delete");
+    for (const c of [two, unsold]) f.append("ids", c.id);
+    expect(await bulkStockAction(f)).toEqual({ changed: 2, skipped: 0 });
+    expect((await costsStore.get(one.id))?.costEur).toBe(7000);
+    expect((await costsStore.get(two.id))?.costEur).toBe(7000);
+    expect(await costsStore.get(unsold.id)).toBeUndefined();
+  });
+
   it("lets sales hide, show and publish a car of our own, never one from DoneDeal", async () => {
     const car = (await adminCars()).find((c) => !c.soldAt && !c.listing)!;
     await setListingAction(car.id, "hidden");

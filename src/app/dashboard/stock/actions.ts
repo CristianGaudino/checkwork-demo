@@ -16,7 +16,7 @@ import { COVER_CHOICES, COVER_MONTHS } from "@/lib/admin/deposits";
 import { carTitleOf } from "@/lib/admin/seed-data";
 import { BAD_COST, parseCost } from "@/lib/admin/margins";
 import { can } from "@/lib/permissions";
-import { adminCar, adminCars, freeCarId, removeCar, saveCar } from "@/lib/admin/stock-admin";
+import { addCar, adminCar, adminCars, freeCarId, removeCar, saveCar } from "@/lib/admin/stock-admin";
 import { droppedPrice, listedOn } from "@/lib/admin/stock-admin-pure";
 import { CAR_PHOTOS_MAX, CAR_PHOTO_MAX_BYTES, dropCarPhotos, storeCarPhoto } from "@/lib/admin/car-photos";
 import { sniffImage } from "@/lib/leads/photos";
@@ -47,14 +47,14 @@ export async function saveCarAction(id: string | null, _prev: CarFormState, data
   // save, so the car is never saved with a cost the dealer did not mean.
   const cost = (await can("margins")) ? parseCost(String(data.get("costEur") ?? "")) : undefined;
   if (cost === "invalid") return { errors: { costEur: BAD_COST } };
-  const wasCost = cost === undefined ? undefined : (await costsStore.get(result.car.id))?.costEur;
-  await saveCar(result.car);
-  if (cost === null) await costsStore.remove(result.car.id);
-  else if (cost !== undefined) await costsStore.put({ id: result.car.id, costEur: cost });
-  await logActivity("stock", existing ? carEditSummary(existing, result.car) : "Added the car", carRef(result.car));
+  const wasCost = cost === undefined || !id ? undefined : (await costsStore.get(id))?.costEur;
+  const car = existing ? (await saveCar(result.car), result.car) : await addCar(result.car); // a new car takes the id still free as it is written
+  if (cost === null) await costsStore.remove(car.id);
+  else if (cost !== undefined) await costsStore.put({ id: car.id, costEur: cost });
+  await logActivity("stock", existing ? carEditSummary(existing, car) : "Added the car", carRef(car));
   const costChange = cost === undefined ? null : costText(wasCost, cost);
-  if (costChange) await logActivity("stock", costChange, carRef(result.car));
-  redirect(`/dashboard/stock?saved=${result.car.id}`);
+  if (costChange) await logActivity("stock", costChange, carRef(car));
+  redirect(`/dashboard/stock?saved=${car.id}`);
 }
 
 // The cost is the dealer's own figure, never DoneDeal's, so it can be set on synced stock too. Margins permission only; a bad figure saves nothing.
@@ -79,7 +79,7 @@ export async function toggleSoldAction(id: string) {
   const car = await adminCar(id);
   if (!car || (car.soldAt && (await salesStore.get(id)))) return;
   const { soldAt: was, ...rest } = car;
-  await saveCar(was ? rest : { ...car, soldAt: new Date().toISOString().slice(0, 10) });
+  await saveCar(was ? rest : { ...car, soldAt: dublinDay() });
   await logActivity("stock", was ? "Put back on sale" : "Marked sold", carRef(car));
   redirect("/dashboard/stock");
 }
@@ -114,9 +114,11 @@ export async function deleteCarAction(id: string) {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   if ((await readOnly()) || !(await can("settings")) || heldFor(await reservationsStore.list(), id)) return;
   const car = await adminCar(id);
-  await removeCar(id);
-  await costsStore.remove(id); // the cost and the prep go with the car
-  await prepStore.remove(id);
+  await removeCar(id, car);
+  if (!(await salesStore.get(id))) {
+    await costsStore.remove(id); // the cost and the prep go with the car, unless it was sold: they stay with the sale for the reports
+    await prepStore.remove(id);
+  }
   if (car) await logActivity("stock", "Deleted the car", carRef(car));
   redirect("/dashboard/stock?deleted=1");
 }
@@ -138,7 +140,8 @@ export async function bulkStockAction(data: FormData): Promise<BulkResult> {
   const { ids, op, amount, unit } = parsed.data;
   if (op === "delete" && !(await can("settings"))) return { error: "Only owners and managers can delete cars." };
   if (op === "price" && !droppedPrice({ priceEur: 1_000_000 }, amount ?? 0, unit ?? "eur")) return { error: "Enter the drop in whole euros, or a percentage up to 50." };
-  const [cars, deposits] = await Promise.all([adminCars(), reservationsStore.list()]);
+  const [cars, deposits, sales] = await Promise.all([adminCars(), reservationsStore.list(), salesStore.list()]);
+  const soldIds = new Set(sales.map((s) => s.id));
   const byId = new Map(cars.map((c) => [c.id, c]));
   let changed = 0;
   for (const id of ids) {
@@ -156,9 +159,11 @@ export async function bulkStockAction(data: FormData): Promise<BulkResult> {
       await logActivity("stock", "Marked sold", carRef(car));
     } else {
       if (heldFor(deposits, id)) continue;
-      await removeCar(id);
-      await costsStore.remove(id);
-      await prepStore.remove(id);
+      await removeCar(id, car);
+      if (!soldIds.has(id)) {
+        await costsStore.remove(id);
+        await prepStore.remove(id);
+      }
       await logActivity("stock", "Deleted the car", carRef(car));
     }
     changed++;

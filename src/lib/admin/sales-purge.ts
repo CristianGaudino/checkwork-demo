@@ -1,4 +1,4 @@
-import { and, eq, lt, sql } from "drizzle-orm";
+import { and, eq, lt, sql, type SQL } from "drizzle-orm";
 import type { BaseSQLiteDatabase } from "drizzle-orm/sqlite-core";
 import { adminDocs } from "../db/schema";
 import type * as schema from "../db/schema";
@@ -8,6 +8,11 @@ import { SALE_KEEP_YEARS } from "../leads/constants";
 // after that the daily job (worker.mjs) removes the link to the buyer and keeps the figures (price, day, salesperson) for the reports.
 // Each collection, with the field that dates it.
 const DATED = [["sales", "$.soldOn"], ["reservations", "$.paidOn"], ["claims", "$.openedOn"], ["orders", "$.orderedOn"]] as const;
+// A claim and an order also lose their lead and their words (the fault and the notes may name the buyer), as an erasure does.
+const CLEARED: Record<string, SQL> = {
+  claims: sql`json_set(json_remove(${adminDocs.data}, '$.customerId', '$.leadId'), '$.fault', 'Removed after six years', '$.notes', json('[]'))`,
+  orders: sql`json_set(json_remove(${adminDocs.data}, '$.customerId', '$.leadId'), '$.notes', json('[]'))`,
+};
 // Relative imports only: wrangler bundles this outside Next's "@/" alias.
 
 export async function anonymiseOldSales(db: BaseSQLiteDatabase<"async", unknown, typeof schema>, now = new Date()): Promise<number> {
@@ -18,7 +23,7 @@ export async function anonymiseOldSales(db: BaseSQLiteDatabase<"async", unknown,
   for (const [collection, dated] of DATED) {
     const rows = await db
       .update(adminDocs)
-      .set({ data: sql`json_remove(${adminDocs.data}, '$.customerId')`, updatedAt: now })
+      .set({ data: CLEARED[collection] ?? sql`json_remove(${adminDocs.data}, '$.customerId')`, updatedAt: now })
       .where(and(eq(adminDocs.collection, collection), lt(sql`json_extract(${adminDocs.data}, ${dated})`, day), sql`json_extract(${adminDocs.data}, '$.customerId') IS NOT NULL`))
       .returning({ id: adminDocs.id });
     done += rows.length;

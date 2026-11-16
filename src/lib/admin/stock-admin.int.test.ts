@@ -6,7 +6,7 @@ vi.mock("server-only", () => ({}));
 vi.mock("@/lib/db", () => import("@/test/sqlite-db"));
 vi.mock("@/lib/leads/bindings", () => ({ getBindings: () => ({ DB: {} }) }));
 vi.mock("@/lib/stock/d1-provider", () => ({ invalidateStockSnapshot: vi.fn() }));
-const { adminCar, adminCars, removeCar, saveCar } = await import("./stock-admin");
+const { addCar, adminCar, adminCars, removeCar, saveCar } = await import("./stock-admin");
 
 const car = (id: string, price: number): Car => ({ id, slug: `make-model-2020-${id}`, make: "Make", makeSlug: "make", model: "Model", modelSlug: "model", year: 2020, priceEur: price, photos: [] });
 
@@ -24,5 +24,13 @@ describe("stock admin (D1 path, on SQLite)", () => {
     await removeCar("10");
     expect(await adminCar("10")).toBeUndefined();
     expect(await adminCars()).toHaveLength(1);
+  });
+
+  it("two cars added at once get different ids, neither replacing the other", async () => {
+    await saveCar(car("10", 5000));
+    const [a, b] = await Promise.all([addCar(car("0", 7000)), addCar(car("0", 8000))]);
+    expect(a.id).not.toBe(b.id);
+    expect(a.slug).toBe(`make-model-2020-${a.id}`);
+    expect((await adminCars()).map((c) => c.priceEur).sort()).toEqual([5000, 7000, 8000]);
   });
 });

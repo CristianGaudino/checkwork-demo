@@ -44,6 +44,36 @@ describe("defineCollection (D1 path, on SQLite)", () => {
     expect((err as Error).cause).toBeUndefined();
   });
 
+  it("update applies the change to the record as it is now, and a write in between makes it read again, not overwrite", async () => {
+    const c = defineCollection<Item & { notes: string[] }>("i-update", () => [{ id: "a", n: 1, notes: [] }]);
+    let calls = 0;
+    const out = await c.update("a", async (d) => {
+      if (++calls === 1) await c.put({ ...d, notes: ["written meanwhile"] }); // another request writes between the read and the write
+      return { ...d, n: 2 };
+    });
+    expect(calls).toBe(2);
+    expect(out).toEqual({ id: "a", n: 2, notes: ["written meanwhile"] });
+    expect(await c.get("a")).toEqual({ id: "a", n: 2, notes: ["written meanwhile"] });
+    // Two quick updates in a row both land.
+    await c.update("a", (d) => ({ ...d, notes: [...d.notes, "x"] }));
+    await c.update("a", (d) => ({ ...d, notes: [...d.notes, "y"] }));
+    expect((await c.get("a"))!.notes).toEqual(["written meanwhile", "x", "y"]);
+  });
+
+  it("update never brings back a record that is gone, and gives up after one retry", async () => {
+    const c = defineCollection<Item>("i-gone", () => [{ id: "a", n: 1 }]);
+    expect(await c.update("missing", (d) => d)).toBeUndefined();
+    const out = await c.update("a", async (d) => {
+      await c.remove("a"); // erased between the read and the write
+      return { ...d, n: 2 };
+    });
+    expect(out).toBeUndefined();
+    expect(await c.get("a")).toBeUndefined();
+    await c.put({ id: "b", n: 1 });
+    const err = await c.update("b", async (d) => (await c.put({ ...d }), { ...d, n: 3 })).catch((e: Error) => e);
+    expect(String(err)).toContain("admin_docs i-gone update clashed");
+  });
+
   it("reset brings the seed back, and collections stay apart", async () => {
     const x = defineCollection<Item>("i-x", () => [{ id: "s", n: 1 }]);
     const y = defineCollection<Item>("i-y", () => []);

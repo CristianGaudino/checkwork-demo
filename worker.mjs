@@ -27,7 +27,10 @@ async function runAppJob({ job, path }, env, ctx) {
   if (!env.CRON_KEY) return;
   const res = await handler.fetch(new Request(`${SITE_URL}${path}`, { method: "POST", headers: { authorization: `Bearer ${env.CRON_KEY}` } }), env, ctx);
   if (res.status === 404) return;
-  console.log(JSON.stringify({ job, status: res.status, ...(await res.json().catch(() => ({}))) }));
+  const line = JSON.stringify({ job, status: res.status, ...(await res.json().catch(() => ({}))) });
+  if (res.ok) return console.log(line);
+  console.error(line);
+  throw new Error(`${job} failed`); // so Cloudflare marks the cron run failed, as for the nightly jobs
 }
 
 const worker = {
