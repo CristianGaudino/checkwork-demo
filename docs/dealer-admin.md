@@ -210,10 +210,19 @@ cars are added, changed and sold on DoneDeal only. The dashboard never edits the
 
 Until both are set the admin answers 404 for everyone. The Worker checks Access's signed token itself (`src/lib/access.ts`), so a missing policy fails closed instead of open.
 
+## Marketing formats, media and AI writing
+
+- **Formats** (#177): a post is a Post, Story (9:16 with a ready layout: Just in, Price drop, Sold, Collected today, drawn over the car photo), Reel or video, or Carousel (2 to 10 photos). The composer previews each at phone size. Limits live in `src/lib/admin/networks.ts` (`FORMAT_LIMITS`, `FORMATS_FOR`) and the server checks the same numbers. `PUBLISH_MODE` there says which formats a network's API can publish ("auto") and which are prepared here and posted from the phone ("prepare": Facebook and Instagram stories, all TikTok). Publishing stays simulated.
+- **Media library** (`mediaStore`, tab Media): photos (JPEG, PNG, WebP; shrunk to 1,600px on the device) and videos (MP4, MOV, up to 15 MB and 90 seconds on the demo; length read in the browser and checked loosely on the server), optionally tagged to a car. Stored in R2 under `media/` in the `LEAD_PHOTOS` bucket and served by `/media-files`; with no bucket a data URL is kept in memory. Rules in `src/lib/admin/media-rules.ts`. No range requests yet, so add them before real video use.
+- **Calendar**: a week of scheduled and posted posts and started ads (`calendarWeek`); drafts are not on it.
+- **Modules**: posts, calendar and media need Social and ads, newsletters need Newsletter and alerts; the page needs one of them.
+- **AI writing** (#179): `writeAction` (`src/lib/ai/actions.ts`) checks the `ai` module, then the monthly cap, builds the facts from the records (the browser sends ids only), writes, then counts a draft or adjustment. On the demo `writeWithAI` is the mock in `src/lib/ai/mock.ts` (deterministic, facts only, dashes stripped, 700 ms pause). The real Claude adapter goes at `ADAPTER GOES HERE` in `src/lib/ai/write.ts`. `AIWriter` / `AITextarea` show the button, adjust chips, Undo and an "AI draft" label, and hide with the module off. Used in the post composer, newsletters, the car description, the lead page (Draft a reply) and review replies.
+
 ## Where things are
 
 | What | Where |
 |---|---|
+| AI writing (mock on the demo), media library | `src/lib/ai/`, `src/lib/admin/media.ts` |
 | Record store (one D1 table, `admin_docs`; memory with no D1) | `src/lib/admin/docs.ts` |
 | The dealer's collections, types and seeds | `src/lib/admin/collections.ts`, `seed-data.ts` |
 | Roles and permissions | `src/lib/permissions.ts`, `permission-rules.ts` |

@@ -6,6 +6,7 @@ import { RegLookup } from "@/components/leads/RegLookup";
 import { useLeaveGuard } from "@/components/admin/useLeaveGuard";
 import { Select } from "@/components/Select";
 import { Field, Panel, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
+import { AITextarea } from "@/components/admin/AIWriter";
 import { saveCarAction, type CarFormState } from "@/app/dashboard/stock/actions";
 import { lookupRegStaffAction } from "@/app/dashboard/reg-action";
 import { CAR_FIELDS, FIELD_GROUPS } from "@/lib/admin/car-fields";
@@ -61,7 +62,14 @@ export function CarForm({ car, cost, reg: startReg = "" }: { car?: Car; cost?: {
       {FIELD_GROUPS.map((group) => (
         <Panel key={group} title={group}>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {CAR_FIELDS.filter((f) => f.group === group).map((f) => (
+            {CAR_FIELDS.filter((f) => f.group === group).map((f) => f.name === "description" ? (
+              // The description has the AI writer under it, so it is not inside the label the other boxes use.
+              <div key={f.name} className="flex min-w-0 flex-col gap-1 sm:col-span-2 lg:col-span-3">
+                <span className="text-meta font-semibold">{f.label}</span>
+                <AITextarea name={f.name} label={f.label} task="carDescription" defaultValue={value(f.name)} rows={5} request={(box) => box?.form ? { task: "carDescription", fields: Object.fromEntries(CAR_FIELDS.map((c) => [c.name, String(new FormData(box.form!).get(c.name) ?? "")])) } : null} />
+                {errors[f.name] && <span className="text-meta text-bad">{errors[f.name]}</span>}
+              </div>
+            ) : (
               <Field key={f.name} label={f.label} hint={f.hint} error={errors[f.name]} className={f.wide ? "sm:col-span-2 lg:col-span-3" : ""}>
                 {f.type === "select" ? (
                   <Select name={f.name} defaultValue={value(f.name)} options={[["", f.name === "condition" ? "Used" : "Not set"], ...f.options!.filter(([v]) => !(f.name === "condition" && v === "used"))]} />

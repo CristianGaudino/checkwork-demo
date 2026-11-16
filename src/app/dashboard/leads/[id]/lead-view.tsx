@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { ChoiceAct } from "@/components/admin/ActButton";
 import { LeadStatusBadge } from "@/components/admin/badges";
 import { RegLookup } from "@/components/leads/RegLookup";
+import { AITextarea } from "@/components/admin/AIWriter";
+import { IfModule } from "@/components/IfModule";
 import { lookupRegStaffAction } from "@/app/dashboard/reg-action";
 import { Avatar, Badge, Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput, rowButton } from "@/components/admin/kit";
 import { LEAD_STATUS_LABELS, LEAD_TYPE_LABELS, LOST_REASONS, getSettings, leadsStore } from "@/lib/admin/collections";
@@ -88,6 +90,12 @@ export async function LeadView({ id }: { id: string }) {
               </p>
             )}
           </Panel>
+          {/* A reply to copy into email or WhatsApp: written from their message and the car, never from their phone or email. */}
+          <IfModule id="ai">
+            <Panel title="Draft a reply" className="max-lg:order-2">
+              <AITextarea label="Reply draft" task="leadReply" rows={6} copy request={{ task: "leadReply", leadId: lead.id }} />
+            </Panel>
+          </IfModule>
           {photos.length > 0 && (
             <Panel title="Photos" className="max-lg:order-7">
               <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">

@@ -3,7 +3,9 @@ import { priceInfo } from "@/lib/stock/price";
 import { FUEL_LABELS, GEARBOX_LABELS, forSale, type Car } from "@/lib/stock/types";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { DAY } from "@/lib/time";
-import type { DealerSettings, Network, SocialPost } from "./collections";
+import type { Ad, DealerSettings, Network, SocialPost } from "./collections";
+import { addDays, dublinDay } from "./format";
+import type { PostFormat } from "./networks";
 
 // The writers for posts and newsletters. Plain templates over the car's own facts and the dealer's voice settings: the same car and
 // settings always give the same text, and nothing is invented (no claims, no offers). The dealer edits the text before it goes anywhere.
@@ -15,14 +17,33 @@ const priceText = (c: Car) => {
   return [p.headline, p.vatLine].filter(Boolean).join(" ");
 };
 
-export function writePost(car: Car, network: Network, voice: Voice): string {
-  const head = `Just in: ${carName(car)}${car.variant ? ` ${car.variant}` : ""}.`;
+export function writePost(car: Car, network: Network, voice: Voice, format: PostFormat = "post"): string {
+  const lead = { post: "Just in", story: "Just in", reel: "Walkaround", carousel: "More photos" }[format];
+  const head = `${lead}: ${carName(car)}${car.variant ? ` ${car.variant}` : ""}.`;
   const line = [facts(car), priceText(car)].filter(Boolean).join(". ");
   const link = network === "Instagram" || network === "TikTok" ? "Link in bio." : `${SITE_URL}${carHref(car.slug)}`;
   const tags = voice.hashtags.trim();
-  // TikTok captions stay short: no sign-off line.
+  // A story is a few words on a photo: no specs, sign-off or hashtags. TikTok captions stay short too: no sign-off line.
+  if (format === "story") return [head, priceText(car)].filter(Boolean).join("\n");
   const parts = network === "TikTok" ? [head, line, tags] : [head, line, voice.signOff.trim(), link, network === "Instagram" ? tags : ""];
   return parts.filter(Boolean).join("\n");
+}
+
+// The calendar's week (#177): the Monday to Sunday that holds `day` (an Irish YYYY-MM-DD), and what falls on each day. A post is on the day
+// it is set for or went out; an ad on the day it started. Drafts have no day, so they are not on it.
+export const weekDays = (day: string) => Array.from({ length: 7 }, (_, i) => addDays(day, i - ((new Date(`${day}T12:00:00Z`).getUTCDay() + 6) % 7)));
+export type CalendarItem = { id: string; kind: "post" | "ad"; at: number; title: string; sub: string; status: "scheduled" | "posted" | "running" | "paused" | "ended" };
+export function calendarWeek(posts: SocialPost[], ads: Ad[], days: string[]): Record<string, CalendarItem[]> {
+  const out: Record<string, CalendarItem[]> = Object.fromEntries(days.map((d) => [d, []]));
+  const add = (i: CalendarItem) => out[dublinDay(i.at)]?.push(i);
+  for (const p of posts) {
+    if (p.status === "draft") continue;
+    const at = p.status === "scheduled" ? p.scheduledFor : (p.postedAt ?? p.createdAt);
+    if (at) add({ id: p.id, kind: "post", at, title: `${p.network} ${p.format ?? "post"}`, sub: p.carTitle ?? "", status: p.status });
+  }
+  for (const a of ads) if (a.status !== "draft") add({ id: a.id, kind: "ad", at: a.createdAt, title: `${a.platform} ad`, sub: a.carTitle, status: a.status });
+  for (const d of days) out[d].sort((x, y) => x.at - y.at);
+  return out;
 }
 
 export function writeNewsletter(cars: Car[], voice: Voice): { subject: string; body: string } {

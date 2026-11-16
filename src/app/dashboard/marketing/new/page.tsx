@@ -2,7 +2,9 @@ import Link from "next/link";
 import { PageHeader, adminButtonQuiet } from "@/components/admin/kit";
 import { PostComposer } from "@/components/admin/PostComposer";
 import { carCards } from "@/lib/admin/car-cards";
-import { postsStore } from "@/lib/admin/collections";
+import { mediaStore, postsStore } from "@/lib/admin/collections";
+import { POST_FORMATS, STORY_LAYOUTS } from "@/lib/admin/networks";
+import { requireModule } from "@/lib/modules";
 import { worthPosting } from "@/lib/admin/marketing";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { isUsable } from "@/lib/integrations";
@@ -12,9 +14,10 @@ import { composeAction, composerCarAction } from "../actions";
 export const metadata = { title: "New post" };
 
 // The composer on its own page, so the Marketing list stays short on a phone. ?car= starts on that car ("Write a post" on an idea).
-export default async function Page({ searchParams }: { searchParams: Promise<{ car?: string }> }) {
+export default async function Page({ searchParams }: { searchParams: Promise<{ car?: string; format?: string; layout?: string }> }) {
+  await requireModule("social");
   const sp = await searchParams;
-  const [cars, posts] = await Promise.all([adminCars(), postsStore.list()]);
+  const [cars, posts, library] = await Promise.all([adminCars(), postsStore.list(), mediaStore.list()]);
   const onSale = cars.filter(forSale).sort((a, b) => Number(b.id) - Number(a.id));
   // The cars worth a post come first, with the reason on their card.
   const ideas = new Map<string, string>(worthPosting(onSale, posts).map((i) => [i.car.slug, i.reason]));
@@ -22,7 +25,15 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ c
   return (
     <>
       <PageHeader title="New post" text={isUsable("social") ? undefined : "Facebook and Instagram are not connected, so posts are kept as drafts."} actions={<Link href="/dashboard/marketing" className={adminButtonQuiet}>Marketing</Link>} />
-      <PostComposer cars={cards} initialSlug={sp.car ?? ""} action={composeAction} load={composerCarAction} />
+      <PostComposer
+        cars={cards}
+        initialSlug={sp.car ?? ""}
+        initialFormat={POST_FORMATS.find((f) => f === sp.format)}
+        initialLayout={STORY_LAYOUTS.find((l) => l === sp.layout)}
+        library={library.map(({ id, kind, src, name, durationSec, carSlug }) => ({ id, kind, src, name, durationSec, carSlug }))}
+        action={composeAction}
+        load={composerCarAction}
+      />
     </>
   );
 }
