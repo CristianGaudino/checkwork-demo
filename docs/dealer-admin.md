@@ -210,6 +210,23 @@ cars are added, changed and sold on DoneDeal only. The dashboard never edits the
 
 Until both are set the admin answers 404 for everyone. The Worker checks Access's signed token itself (`src/lib/access.ts`), so a missing policy fails closed instead of open.
 
+## Billing and Help
+
+`/dashboard/billing` is for the Owner and Manager (`can("billing")`; anyone else gets a 404, and so does every action). It has three sections:
+the plan and this month's usage (with the founding dealer discount, which is taken off the plan, not the usage, and an "Estimate" for the
+month end), the limits and alerts (a euro limit per service and for all usage, never above ours; the 80% alert; "tell me when X passes
+EUR N"; the AI plan), and the bills. Every change is written to the activity log. Rules and maths: `src/lib/billing/bills-rules.ts`
+(unit tested); the bills are a seeded collection, `src/lib/billing/bills.ts`. There is no PDF and no download: invoices come from the
+payment provider chosen at clone time and are emailed when issued. Billing details (company, VAT number, address, email) are the
+Owner's, stored in settings as `billingDetails`. "Ask us to add" sends a Help request of type "Add a module"; it switches nothing on.
+
+`/dashboard/help` is for every team member: our phone, email and WhatsApp, a message form (Question, Something isn't working with steps
+and an optional screenshot, Request a change, Feedback or an idea, Billing and Add a module for the Owner and Manager), their own requests
+with our status and reply, and a quarterly one-question feedback. The "Need help?" link in the menu foot passes `?from=<page>`, which is
+saved with the request (a dashboard path only, `safeFrom`). Requests are the `help-requests` collection (`src/lib/admin/help.ts`). On
+the demo nothing is sent outside (`ADAPTER GOES HERE`: the email to support and the owner's program, #174). Screenshots are checked by
+their bytes and kept in the private bucket under `help/`, or as a data URL with no bucket.
+
 ## Where things are
 
 | What | Where |
@@ -224,6 +241,8 @@ Until both are set the admin answers 404 for everyone. The Worker checks Access'
 | Admin kit (tables, stat cards, forms, charts) | `src/components/admin/` |
 | Stock the admin edits (the table the site reads) | `src/lib/admin/stock-admin.ts` |
 | Navigation of each area | `src/lib/admin/nav.ts` |
+| Billing page, bills and their maths | `src/app/dashboard/billing/`, `src/lib/billing/bills.ts`, `bills-rules.ts` |
+| Help requests | `src/app/dashboard/help/`, `src/lib/admin/help.ts`, `help-rules.ts` |
 
 ## Connecting a service
 
