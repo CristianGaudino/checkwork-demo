@@ -29,7 +29,7 @@ Hard rules:
 - Return only the text itself: no preamble, no quotes around it, no markdown, no headings.`;
 
 const PROMPTS: Record<Task, string> = {
-  post: `Write a social media post for the car in the facts, for the network and format named there. Open with the most interesting true thing about the car (low mileage, one owner, a long NCT, a price drop, a spec people search for), not with "Check out" or "Just arrived".
+  post: `Write a social media post for the car in the facts, for the network and format named there. For a post, reel or carousel, open with the most interesting true thing about the car (low mileage, one owner, a long NCT, a price drop, a spec people search for), not with "Check out" or "Just arrived".
 - format "post": a few short lines: the car, its main specs, the price if given, then voice.signOff, then the link if given (on Instagram and TikTok write "Link in bio." instead of the link), then voice.hashtags. No hashtags at all on Facebook.
 - format "story": a few words on a photo, one or two short lines. Start with "Just in" or, for layout "price-drop", "Price drop" with the price now and the price it was. No hashtags, no link.
 - format "reel": a caption for a walkaround video of the car, as for a post.
@@ -39,9 +39,9 @@ const PROMPTS: Record<Task, string> = {
 - Two or three short paragraphs. Lead with what a buyer weighs first: the year, mileage, owners, NCT and anything in the dealer's notes about service history or condition.
 - Then the equipment that makes a difference day to day, in a sentence or two, not a list of every item.
 - If the facts point to who it suits (seven seats, an automatic, low running costs), say so plainly, once.
-- The dealer's notes are their own words and the best source: keep every fact in them.
+- The dealer's notes are their own words and the best source: keep every fact in them (when asked for shorter text, keep the ones a buyer weighs most).
 - Do not repeat the price, do not end with "contact us" or "book a test drive" (the page has buttons for that), and do not mention the dealer's name.`,
-  leadReply: `Write the dealer's reply to a customer's enquiry, as one person at the dealership writing back. Address the customer by first name ("Hi there" if there is none). Answer what they actually asked first, using only the facts; if the facts do not hold the answer, say you will check and come back to them rather than guess. Then offer the one next step that fits the kind of enquiry: a day for a test drive, a valuation of their car, or a time for a call. Three to five sentences. No "Thank you for your enquiry" or "We appreciate your interest" opener. Sign off with the dealer's name.`,
+  leadReply: `Write the dealer's reply to a customer's enquiry, as one person at the dealership writing back. Address the customer by first name ("Hi there" if there is none). Answer what they actually asked first, using only the facts (carDetails, when given, is the car they asked about; if its forSale is false, say plainly it has gone and offer to help find something similar); if the facts do not hold the answer, say you will check and come back to them rather than guess. Then offer the one next step that fits the kind of enquiry: a day for a test drive, a valuation of their car, or a time for a call. Three to five sentences. No "Thank you for your enquiry" or "We appreciate your interest" opener. Sign off with the dealer's name.`,
   reviewReply: `Write the dealer's public reply to a customer review. Other buyers read these, so it should sound like a person who read the review, not a template. Thank the customer by first name. If they said something specific, pick up on it; if the review has no text, keep it to a short thanks and never guess what they meant. Two or three sentences at most. For a rating of 3 or lower, say sorry, do not argue or go into details, and ask them to call or visit so the team can look into it. Sign off as "The team at" and the dealer's name.`,
 };
 

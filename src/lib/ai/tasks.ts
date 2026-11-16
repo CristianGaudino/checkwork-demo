@@ -35,7 +35,7 @@ export type FactsOf = {
   post: { dealer: string; car: CarFacts; network: Network; format: PostFormat; layout?: StoryLayout; voice: Voice };
   newsletter: { dealer: string; cars: CarFacts[]; voice: Voice };
   carDescription: { dealer: string; car: CarFacts; notes?: string };
-  leadReply: { dealer: string; firstName: string; kind: string; message: string; car?: string };
+  leadReply: { dealer: string; firstName: string; kind: string; message: string; car?: string; carDetails?: CarFacts & { forSale: boolean } };
   reviewReply: { dealer: string; firstName: string; rating: number; text: string };
 };
 
