@@ -298,7 +298,7 @@ export async function reserveAction(carId: string, _prev: FormState, data: FormD
   if (!r.success) return { errors: fieldErrors(r.error) };
   const d = r.data;
   const today = dublinDay();
-  if (d.depositEur > car.priceEur) return { errors: { depositEur: "A deposit cannot be more than the price" } };
+  if (car.priceEur && d.depositEur > car.priceEur) return { errors: { depositEur: "A deposit cannot be more than the price" } };
   if (d.paidOn > today) return { errors: { paidOn: "Choose a day that has passed or today" } };
   if (d.until < today || d.until > addMonths(today, 3)) return { errors: { until: "Choose a day in the next three months" } };
   const who = await buyerOf(d, "Deposit");

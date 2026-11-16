@@ -82,14 +82,14 @@ describe("alertStaff", () => {
 describe("the morning job", () => {
   it("raises a slow car and a new review once, and the summary on a Monday", async () => {
     db.cars = [
-      { id: "old", listedAt: "2026-09-01", priceEur: 9000 }, // 76 days
+      { id: "old", listedAt: "2026-07-01", priceEur: 9000 }, // 138 days
       { id: "new", listedAt: "2026-11-01", priceEur: 9000 },
       { id: "sold", listedAt: "2026-08-01", priceEur: 9000, soldAt: "2026-11-10" },
     ];
     db.reviews = [{ id: "r1", author: "Orla R.", rating: 5, text: "Great", createdAt: MONDAY_NOON - 3_600_000 }, { id: "r0", author: "Sean B.", rating: 4, text: "Fine", createdAt: MONDAY_NOON - 10 * 86_400_000 }];
     await sendDailyAlerts();
     expect(db.msgs.map((m) => `${m.event}:${m.ref ?? ""}`)).toEqual(["slow-stock:old", "review:r1", "monday:"]);
-    expect(db.msgs[0].text).toMatch(/in stock 76 days/);
+    expect(db.msgs[0].text).toMatch(/in stock 138 days/);
     expect(db.msgs[2].text).toMatch(/4 new leads, 2 test drives, 1 sale\./);
     vi.setSystemTime(MONDAY_NOON + 86_400_000); // Tuesday: nothing new
     await sendDailyAlerts();

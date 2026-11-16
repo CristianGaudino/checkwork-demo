@@ -1,6 +1,6 @@
 import { fold } from "./format";
 import { searchOptions } from "./search-options";
-import { FUEL_LABELS, GEARBOX_LABELS, SOLD_VISIBLE_DAYS, isSold } from "./types";
+import { FUEL_LABELS, GEARBOX_LABELS, SOLD_VISIBLE_DAYS, isSold, onRequest } from "./types";
 import type { Car, FacetGroup, FacetOption, SortKey, StockProvider, StockQuery, StockResult } from "./types";
 import { PARTNERS } from "@/lib/partners";
 import { DAY } from "@/lib/time";
@@ -21,8 +21,9 @@ const partnersFirst = (q: StockQuery, makes: FacetOption[]): FacetOption[] => {
 // date; a car without one (stock from before dates were kept) keeps its id order among the others without one.
 const SORTS: Record<SortKey, (a: Car, b: Car) => number> = {
   newest: (a, b) => (b.listedAt ?? "").localeCompare(a.listedAt ?? ""),
-  "price-asc": (a, b) => a.priceEur - b.priceEur,
-  "price-desc": (a, b) => b.priceEur - a.priceEur,
+  // Price on request last either way: it has no figure to sort by.
+  "price-asc": (a, b) => Number(onRequest(a)) - Number(onRequest(b)) || a.priceEur - b.priceEur,
+  "price-desc": (a, b) => Number(onRequest(a)) - Number(onRequest(b)) || b.priceEur - a.priceEur,
   "year-desc": (a, b) => b.year - a.year,
   "km-asc": (a, b) => (a.mileageKm ?? Number.MAX_SAFE_INTEGER) - (b.mileageKm ?? Number.MAX_SAFE_INTEGER),
 };
@@ -57,6 +58,7 @@ export function createStockEngine(input: Car[], { now = () => new Date() }: { no
     if (skip !== "gearbox" && q.gearbox && c.gearbox !== q.gearbox) return false;
     if (q.yearFrom !== undefined && c.year < q.yearFrom) return false;
     if (q.yearTo !== undefined && c.year > q.yearTo) return false;
+    if ((q.priceMin !== undefined || q.priceMax !== undefined) && onRequest(c)) return false; // a budget needs a price
     if (q.priceMin !== undefined && c.priceEur < q.priceMin) return false;
     if (q.priceMax !== undefined && c.priceEur > q.priceMax) return false;
     if (q.kmMax !== undefined && (c.mileageKm === undefined || c.mileageKm > q.kmMax)) return false;

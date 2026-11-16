@@ -32,7 +32,7 @@ describe("summarise", () => {
       lead("2026-03-31T21:30:00Z"), // 22:30 Irish time on the 31st: March, out of hours, never answered
       lead("2026-03-31T23:30:00Z"), // 00:30 Irish time on 1 April: April, not March
     ],
-    cars: [car("a", { listedAt: "2026-03-05", soldAt: "2026-03-20" }), car("b", { listedAt: "2026-02-01" }), car("c", { listedAt: "2026-04-01", wasPriceEur: 11000 })],
+    cars: [car("a", { listedAt: "2026-03-05", soldAt: "2026-03-20" }), car("b", { listedAt: "2025-12-01" }), car("c", { listedAt: "2026-04-01", wasPriceEur: 11000 })],
     sales: [{ id: "a", priceEur: 9000, soldOn: "2026-03-20" }, { id: "x", priceEur: 5000, soldOn: "2026-03-21", returnedOn: "2026-03-25" }] as Sale[],
     reviews: [{ rating: 5, createdAt: Date.parse("2026-03-10T10:00:00Z") }, { rating: 4, createdAt: Date.parse("2026-03-11T10:00:00Z") }, { rating: 1, createdAt: Date.parse("2026-04-02T10:00:00Z") }] as AdminReview[],
   };
@@ -87,8 +87,8 @@ describe("compare, median and advice", () => {
   });
   it("gives one line from the first rule that applies", () => {
     const base = summarise(empty, "2026-03-01", "2026-03-31", 0);
-    expect(advice({ ...base, stock: { ...base.stock, oldStock: 6 } })).toBe("6 cars for sale 60 days or more: a price drop on these could move them.");
-    expect(advice({ ...base, stock: { ...base.stock, oldStock: 1 } })).toBe("1 car for sale 60 days or more: a price drop on this one could move it.");
+    expect(advice({ ...base, stock: { ...base.stock, oldStock: 6 } })).toBe("6 cars for sale 120 days or more: a price drop on these could move them.");
+    expect(advice({ ...base, stock: { ...base.stock, oldStock: 1 } })).toBe("1 car for sale 120 days or more: a price drop on this one could move it.");
     expect(advice({ ...base, replies: { ...base.replies, none: 2 } })).toMatch(/^2 leads had no reply/);
     expect(advice(base)).toMatch(/^Nothing needs attention/);
   });

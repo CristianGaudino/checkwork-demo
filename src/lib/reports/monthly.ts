@@ -1,7 +1,7 @@
 import type { AdminReview, Lead, Sale } from "@/lib/admin/collections";
 import { addDays, addMonths, daysSince, dublinMs } from "@/lib/admin/format";
 import { OPENING_HOURS, TIME_ZONE } from "@/lib/site";
-import { forSale, isSold, type Car } from "@/lib/stock/types";
+import { forSale, isReduced, isSold, type Car } from "@/lib/stock/types";
 import { DAY } from "@/lib/time";
 import { OLD_STOCK_DAYS, isOldStock } from "@/lib/admin/overview";
 
@@ -79,7 +79,7 @@ export function summarise(data: ReportData, from: string, to: string, now: numbe
       sold: new Set([...data.cars.filter((c) => isSold(c) && c.soldAt! >= from && c.soldAt! <= to).map((c) => c.id), ...sales.map((s) => s.id)]).size,
       avgDaysInStock: ages.length ? Math.round(ages.reduce((n, d) => n + d, 0) / ages.length) : null,
       oldStock: data.cars.filter((c) => isOldStock(c, now)).length, // the dashboard's own rule
-      priceDrops: live.filter((c) => c.wasPriceEur !== undefined).length,
+      priceDrops: live.filter(isReduced).length,
     },
     sales: { count: sales.length, ...(opts.money && { valueEur: sales.reduce((n, s) => n + s.priceEur, 0) }) },
     reviews: { count: reviews.length, average: reviews.length ? Math.round((reviews.reduce((n, r) => n + r.rating, 0) / reviews.length) * 10) / 10 : null },

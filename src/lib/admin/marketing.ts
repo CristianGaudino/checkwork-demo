@@ -1,6 +1,6 @@
 import { carName, carHref, fmtEur } from "@/lib/stock/format";
 import { priceInfo } from "@/lib/stock/price";
-import { FUEL_LABELS, GEARBOX_LABELS, forSale, type Car } from "@/lib/stock/types";
+import { FUEL_LABELS, GEARBOX_LABELS, forSale, isReduced, type Car } from "@/lib/stock/types";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { DAY } from "@/lib/time";
 import type { Ad, DealerSettings, Network, SocialPost } from "./collections";
@@ -25,7 +25,7 @@ export function carFacts(c: Car): CarFacts {
     year: c.year, mileageKm: c.mileageKm, fuel: c.fuel && FUEL_LABELS[c.fuel], gearbox: c.gearbox && GEARBOX_LABELS[c.gearbox], body: c.bodyType, engineLitres: c.engineLitres,
     colour: c.colour, doors: c.doors, seats: c.seats, owners: c.owners, nctExpiry: c.nctExpiry,
     price: priceText(c),
-    was: c.wasPriceEur !== undefined && c.wasPriceEur > c.priceEur ? fmtEur(c.wasPriceEur) : undefined,
+    was: isReduced(c) ? fmtEur(c.wasPriceEur!) : undefined,
     features: c.features?.slice(0, 12),
     link: `${SITE_URL}${carHref(c.slug)}`,
   };
@@ -95,6 +95,6 @@ export function worthPosting(cars: Car[], posts: Pick<SocialPost, "carSlug" | "c
   const posted = new Set(posts.filter((p) => p.carSlug && now - p.createdAt < RECENT_POST).map((p) => p.carSlug));
   const open = cars.filter((c) => forSale(c) && !posted.has(c.slug));
   const fresh = open.filter((c) => c.listedAt && now - Date.parse(`${c.listedAt}T00:00:00Z`) < NEW_FOR).sort((a, b) => b.listedAt!.localeCompare(a.listedAt!));
-  const reduced = open.filter((c) => !fresh.includes(c) && c.wasPriceEur !== undefined && c.wasPriceEur > c.priceEur);
+  const reduced = open.filter((c) => !fresh.includes(c) && isReduced(c));
   return [...fresh.map((car) => ({ car, reason: "New this week" as const })), ...reduced.map((car) => ({ car, reason: "Price dropped" as const }))].slice(0, 3);
 }

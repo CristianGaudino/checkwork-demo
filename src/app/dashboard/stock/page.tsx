@@ -11,7 +11,7 @@ import { adminCars } from "@/lib/admin/stock-admin";
 import { can } from "@/lib/permissions";
 import { daysSince, fmtDate, fmtEur, fmtNum } from "@/lib/admin/format";
 import { carName, carHref } from "@/lib/stock/format";
-import { FUEL_LABELS, FUELS, GEARBOXES, GEARBOX_LABELS, forSale, isSold, type Car } from "@/lib/stock/types";
+import { FUEL_LABELS, FUELS, GEARBOXES, GEARBOX_LABELS, forSale, isReduced, isSold, type Car } from "@/lib/stock/types";
 import { stockSource } from "@/lib/stock-source";
 import { LISTING_SITE, DONEDEAL_DEALER_URL, listingHref } from "@/lib/stock-source-rules";
 import { SyncPanel } from "@/components/admin/SyncPanel";
@@ -121,14 +121,14 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
           {isSold(c) && sales.has(c.id) ? (
             <span className="text-meta text-text-2">sold for {fmtEur(sales.get(c.id)!.priceEur)}</span>
           ) : (
-            c.wasPriceEur !== undefined && c.wasPriceEur > c.priceEur && <span className="text-meta text-ok">was {fmtEur(c.wasPriceEur)}</span>
+            isReduced(c) && <span className="text-meta text-ok">was {fmtEur(c.wasPriceEur!)}</span>
           )}
         </span>
       ),
     },
     ...(costs ? [{ key: "margin", header: "Margin", align: "right" as const, hide: "md" as const, nowrap: true, sort: (c: Car) => (costs.has(c.id) ? marginOf(c.priceEur, costs.get(c.id)!).eur : undefined), cell: (c: Car) => (costs.has(c.id) ? fmtEur(marginOf(c.priceEur, costs.get(c.id)!).eur) : <span className="text-text-2">Not set</span>) }] : []),
     // How long a car has been for sale: what a dealer watches to decide on a price drop.
-    // The days, and a bar to 90 days that turns amber at 60 (the 60 days or more view): which cars are ageing, down the column at a glance.
+    // The days, and a bar that turns amber at OLD_STOCK_DAYS (the old stock view): which cars are ageing, down the column at a glance.
     {
       key: "age",
       header: "In stock",
@@ -139,7 +139,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
       cell: (c) =>
         c.listedAt && !isSold(c) ? (
           <span className="inline-flex items-center gap-2">
-            {/* Amber exactly for the cars the 60 days or more view counts (for sale: not reserved or hidden). */}
+            {/* Amber exactly for the cars the old stock view counts (for sale: not reserved or hidden). */}
             <AgeBar days={daysSince(c.listedAt)} late={forSale(c) ? OLD_STOCK_DAYS : Infinity} />
             <span className={forSale(c) && daysSince(c.listedAt) >= OLD_STOCK_DAYS ? "font-medium text-warn" : ""}>{daysIn(c.listedAt)}</span>
           </span>

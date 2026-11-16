@@ -1,6 +1,7 @@
 import type { ModuleId } from "@/lib/modules-rules";
 import type { Role } from "@/lib/permission-rules";
 import { fmtEur, plural } from "@/lib/admin/format";
+import { DEALER_RULES } from "@/lib/dealer.config";
 
 // WhatsApp (#178), the rules without the storage: what each message says, which module it belongs to, how a typed price is read, and
 // where a message goes. Plain data and pure functions, so the page, the sender and the tests agree.
@@ -30,7 +31,7 @@ export const BUTTON_LABELS: Record<ButtonId, string> = {
 // is never sent past the cap, an alert goes by email instead). `does`: the line on the page that explains it.
 export const EVENTS: Record<EventId, { module: ModuleId; label: string; does: string; kind: "alert" | "marketing"; buttons: ButtonId[] }> = {
   enquiry: { module: "dashboard", label: "New enquiry", does: "Every new enquiry reaches your phone with the car. Tap a quick reply and the buyer is answered.", kind: "alert", buttons: ["available", "saturday", "call", "handled"] },
-  "slow-stock": { module: "dashboard", label: "A car 60 days in stock", does: "A car that has sat for 60 days, with a suggested price drop you can apply with one tap.", kind: "alert", buttons: ["drop"] },
+  "slow-stock": { module: "dashboard", label: `A car ${DEALER_RULES.oldStockDays} days in stock`, does: `A car that has sat for ${DEALER_RULES.oldStockDays} days, with a suggested price drop you can apply with one tap.`, kind: "alert", buttons: ["drop"] },
   "trade-in": { module: "tradeIn", label: "Trade-in or sell request", does: "The car, the registration and the photos. Reply with a price and the buyer gets your offer.", kind: "alert", buttons: ["price", "photos", "decline"] },
   "test-drive": { module: "testDrives", label: "Test drive booking", does: "A new booking to confirm, or a new time to suggest.", kind: "alert", buttons: ["confirm", "other"] },
   service: { module: "service", label: "Service booking", does: "A service booking or a claim. Confirm a slot from your phone.", kind: "alert", buttons: ["slot"] },
@@ -41,8 +42,8 @@ export const EVENTS: Record<EventId, { module: ModuleId; label: string; does: st
   monday: { module: "margins", label: "The Monday summary", does: "Last week in a few lines, with a link to the full report.", kind: "alert", buttons: ["report"] },
 };
 export const EVENT_IDS = Object.keys(EVENTS) as EventId[];
-export { OLD_STOCK_DAYS as SLOW_DAYS } from "@/lib/admin/overview"; // slow is old stock, as the dashboard and reports count it
-export const SLOW_DROP_EUR = 500; // the drop a slow-stock alert suggests, and Drop the price applies
+export const SLOW_DAYS = DEALER_RULES.oldStockDays; // slow is old stock, as the dashboard and reports count it
+export const SLOW_DROP_EUR = DEALER_RULES.slowDropEur; // the drop a slow-stock alert suggests, and Drop the price applies
 
 export const eventsFor = (modules: ReadonlySet<ModuleId>): EventId[] => EVENT_IDS.filter((e) => modules.has(EVENTS[e].module));
 

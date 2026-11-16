@@ -12,7 +12,7 @@ import { newestForSale, simulatedAd, simulatedLetter, simulatedPost, writeNewsle
 import { publishPost, sendNewsletter, startAd } from "@/lib/admin/publishers";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { carName } from "@/lib/stock/format";
-import { forSale } from "@/lib/stock/types";
+import { forSale, isReduced } from "@/lib/stock/types";
 import { priceInfo } from "@/lib/stock/price";
 import { newId } from "@/lib/admin/ids";
 import { logActivity } from "@/lib/admin/activity";
@@ -159,7 +159,7 @@ export async function composerCarAction(slug: string): Promise<ComposerCar | nul
   const { marketing } = await getSettings();
   const p = priceInfo(car);
   const text = (format: (typeof POST_FORMATS)[number]) => Object.fromEntries(NETWORKS.map((n) => [n, writePost(car, n, marketing, format)])) as ComposerCar["text"];
-  return { slug: car.slug, title: carName(car), photos: car.photos.slice(0, 10), text: text("post"), byFormat: Object.fromEntries(POST_FORMATS.map((f) => [f, text(f)])) as ComposerCar["byFormat"], price: p.headline, was: car.wasPriceEur !== undefined && car.wasPriceEur > car.priceEur ? fmtEur(car.wasPriceEur) : undefined };
+  return { slug: car.slug, title: carName(car), photos: car.photos.slice(0, 10), text: text("post"), byFormat: Object.fromEntries(POST_FORMATS.map((f) => [f, text(f)])) as ComposerCar["byFormat"], price: p.headline, was: isReduced(car) ? fmtEur(car.wasPriceEur!) : undefined };
 }
 
 // "Write from the newest cars" fills the letter from the stock; otherwise the dealer's own subject and text are used.

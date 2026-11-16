@@ -5,11 +5,11 @@ import { isOpenDrive } from "./drives";
 import { dublinDay } from "./format";
 import { followUpDue, pastReplyTarget } from "./follow-ups";
 import { LISTING_SITE } from "@/lib/stock-source-rules";
+import { DEALER_RULES } from "@/lib/dealer.config";
 
-// A car for sale this long is worth a look at its price (the stock list's "60 days or more" view).
-export const OLD_STOCK_DAYS = 60;
-// A car sold in this many days with no sale recorded is asked about; older ones were sold before sales were kept.
-export const SALE_NUDGE_DAYS = 90;
+// The dealer's settings (dealer.config.ts): old stock, and the sold cars asked about.
+export const OLD_STOCK_DAYS = DEALER_RULES.oldStockDays;
+export const SALE_NUDGE_DAYS = DEALER_RULES.saleNudgeDays;
 export const isOldStock = (c: Car, now: number) => forSale(c) && c.listedAt !== undefined && now - Date.parse(`${c.listedAt}T00:00:00Z`) >= OLD_STOCK_DAYS * DAY;
 
 // The numbers on the dealer's overview, worked out from the records. Pure, so the rules are tested.

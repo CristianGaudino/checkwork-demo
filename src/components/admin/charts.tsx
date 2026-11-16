@@ -1,6 +1,7 @@
 import { Meter } from "@/components/admin/kit";
 import { fmtNum, threeLetter } from "@/lib/admin/format";
 import { TIME_ZONE } from "@/lib/site";
+import { DEALER_RULES } from "@/lib/dealer.config";
 
 // Charts drawn by hand in SVG and HTML: no library, nothing to load. Colours come from the tokens, so both themes work. Each chart
 // carries its numbers as text for a screen reader, and never relies on colour alone.
@@ -128,7 +129,7 @@ export function LeadsByWeek({ weeks, starts, usual }: { weeks: number[]; starts:
 export function AgeBar({ days, late }: { days: number; late: number }) {
   return (
     <span aria-hidden className="block h-1.5 w-16 overflow-hidden rounded-full bg-hairline">
-      <span className={`block h-full rounded-full ${days >= late ? "bg-warn" : "bg-control"}`} style={{ width: `${Math.min(100, (days / 90) * 100)}%` }} />
+      <span className={`block h-full rounded-full ${days >= late ? "bg-warn" : "bg-control"}`} style={{ width: `${Math.min(100, (days / (DEALER_RULES.oldStockDays * 1.5)) * 100)}%` }} />
     </span>
   );
 }

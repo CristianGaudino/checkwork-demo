@@ -35,6 +35,7 @@ export function CarForm({ car, cost, reg: startReg = "" }: { car?: Car; cost?: {
   const [found, setFound] = useState<Record<string, string>>({});
   const [drawn, setDrawn] = useState(0);
   const [reg, setReg] = useState(startReg);
+  const [onRequest, setOnRequest] = useState(car?.priceEur === 0); // a price of 0 says so as it is typed
   useLeaveGuard(form); // a menu tap would throw the edits away
   const value = (name: string): string => {
     if (found[name] !== undefined) return found[name];
@@ -80,13 +81,13 @@ export function CarForm({ car, cost, reg: startReg = "" }: { car?: Car; cost?: {
                 {errors[f.name] && <span className="text-meta text-destructive">{errors[f.name]}</span>}
               </div>
             ) : (
-              <Field key={f.name} label={f.label} hint={f.hint} error={errors[f.name]} className={f.wide ? "sm:col-span-2 lg:col-span-3" : ""}>
+              <Field key={f.name} label={f.label} hint={f.name === "priceEur" && onRequest ? "A price of 0 shows as Price on request on the website, with no finance estimate." : f.hint} error={errors[f.name]} className={f.wide ? "sm:col-span-2 lg:col-span-3" : ""}>
                 {f.type === "select" ? (
                   <Select name={f.name} defaultValue={value(f.name)} options={[["", f.name === "condition" ? "Used" : "Not set"], ...f.options!.filter(([v]) => !(f.name === "condition" && v === "used"))]} />
                 ) : f.type === "textarea" ? (
                   <textarea name={f.name} defaultValue={value(f.name)} rows={f.name === "features" ? 6 : 5} className={`${adminInput} h-auto py-2`} />
                 ) : (
-                  <input name={f.name} type={f.type} step={f.step} inputMode={f.type === "number" ? "decimal" : undefined} defaultValue={value(f.name)} aria-invalid={errors[f.name] ? true : undefined} className={adminInput} />
+                  <input name={f.name} type={f.type} step={f.step} inputMode={f.type === "number" ? "decimal" : undefined} defaultValue={value(f.name)} onInput={f.name === "priceEur" ? (e) => setOnRequest(e.currentTarget.value.trim() === "0") : undefined} aria-invalid={errors[f.name] ? true : undefined} className={adminInput} />
                 )}
               </Field>
             ))}

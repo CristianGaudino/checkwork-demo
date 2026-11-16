@@ -11,6 +11,9 @@ describe("priceInfo", () => {
     expect(p.was).toBeUndefined();
     expect(p.financeFrom).toMatch(/^Estimate from €\d+ a month$/);
   });
+  it("says Price on request and nothing else for a price of 0, an earlier price included", () => {
+    expect(priceInfo({ priceEur: 0, wasPriceEur: 15000, vat: "inc" })).toEqual({ headline: "Price on request" });
+  });
   it("says Sold and nothing else for a sold car", () => {
     expect(priceInfo({ priceEur: 15000, soldAt: "2026-10-01" })).toEqual({ headline: "Sold" });
   });

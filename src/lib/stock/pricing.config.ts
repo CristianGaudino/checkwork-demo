@@ -6,6 +6,7 @@ export const PRICING = {
     vatEx: "Ex. VAT, reclaimable",
     incVatSuffix: "inc. VAT",
     sold: "Sold",
+    onRequest: "Price on request",
     reduced: "Reduced by",
     financeFrom: "Estimate from",
     perMonth: "a month",
