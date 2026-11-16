@@ -2,7 +2,7 @@ import "server-only";
 import { logActivity } from "@/lib/admin/activity";
 import { drivesStore, leadsStore, reviewsStore, type Lead, type LeadStatus } from "@/lib/admin/collections";
 import { fmtEur } from "@/lib/admin/format";
-import { adminCar, saveCar } from "@/lib/admin/stock-admin";
+import { adminCar, adminCars, saveCar } from "@/lib/admin/stock-admin";
 import { droppedPrice } from "@/lib/admin/stock-admin-pure";
 import { carEditSummary } from "@/lib/admin/activity-text";
 import { postReviewReply } from "@/lib/admin/publishers";
@@ -114,6 +114,11 @@ export async function tap(me: string, msgId: string, button: ButtonId): Promise<
     return void (await say(me, { text: `Done. The ${carTitleOf(car)} is now ${fmtEur(drop.priceEur)}.`, href: `/dashboard/stock/${car.id}` }));
   }
 
+  // Never tell a buyer a car is there to see when it has sold since the alert.
+  if (lead?.carSlug && (button === "available" || button === "saturday")) {
+    const car = (await adminCars()).find((c) => c.slug === lead.carSlug);
+    if (car && isSold(car)) return void (await say(me, { leadId: lead.id, href: `/dashboard/leads/${lead.id}`, text: `That car is sold, so I did not tell ${first}. Call them on ${lead.phone || "the number on the lead"}.` }));
+  }
   const act = ACTS[button === "confirm" ? (msg.event === "deposit" ? "confirm-deposit" : "confirm-test-drive") : button];
   if (!act) return;
   if (!act.activity) {

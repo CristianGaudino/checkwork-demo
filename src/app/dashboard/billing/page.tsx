@@ -9,7 +9,7 @@ import { enabledModules } from "@/lib/modules";
 import { can, currentMember } from "@/lib/permissions";
 import { billingDetails, listBills } from "@/lib/billing/bills";
 import { AI_PLAN_LABELS, FOUNDING, afterDiscount, eur, fmtMonth, foundingEnd, itemise, nextBillDate, scopeName, billedServices } from "@/lib/billing/bills-rules";
-import { AI_ASSISTANT, BASE_EUR, MODULE_EUR, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, capOf, monthEndEstimate, planEur, round2, withVat, type AiPlan, type Scope, type Service, SERVICES } from "@/lib/billing/rules";
+import { AI_ASSISTANT, BASE_EUR, MODULE_EUR, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, capOf, planEur, usageEstimate, round2, withVat, type BillingSettings, type Scope, type Service, SERVICES } from "@/lib/billing/rules";
 import { billingSettings, monthUsage } from "@/lib/billing/usage";
 import { askModuleAction, removeAlertAction, saveAiPlanAction } from "./actions";
 import { dublinDay } from "@/lib/admin/format";
@@ -40,7 +40,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
       <PageHeader title="Billing" />
       <Segmented label="Billing sections" items={SECTIONS.map(([k, label]) => ({ label, href: k === "plan" ? "/dashboard/billing" : `/dashboard/billing?section=${k}`, active: k === section }))} />
 
-      {section === "plan" && <PlanAndUsage modules={modules} services={services} usage={usage} aiPlan={b.aiPlan} cap={capOf(b, "total")} now={today()} />}
+      {section === "plan" && <PlanAndUsage modules={modules} services={services} usage={usage} b={b} now={today()} />}
 
       {section === "limits" && (
         <>
@@ -111,15 +111,15 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
   );
 }
 
-function PlanAndUsage({ modules, services, usage, aiPlan, cap, now }: { modules: Modules; services: Service[]; usage: Usage; aiPlan: AiPlan; cap?: number; now: Date }) {
+function PlanAndUsage({ modules, services, usage, b, now }: { modules: Modules; services: Service[]; usage: Usage; b: BillingSettings; now: Date }) {
+  const { aiPlan } = b;
   const mine = MODULES.filter((m) => modules.has(m.id) && MODULE_EUR[m.id] > 0);
   const others = MODULES.filter((m) => !modules.has(m.id) && MODULE_EUR[m.id] > 0);
   const assistant = aiPlan === "assistant" && modules.has("ai");
   const plan = planEur(modules, assistant ? "assistant" : "perAction");
   const planNet = afterDiscount(plan);
   const sofar = usage.totalEur;
-  // Usage stops at the limit, and is never less than what is already spent (a limit lowered mid-month).
-  const estimate = Math.max(sofar, Math.min(monthEndEstimate(sofar, dublinDay(now.getTime())), cap ?? Infinity));
+  const estimate = usageEstimate(usage, b, dublinDay(now.getTime()));
   const bill = round2(planNet + estimate);
   const lines: (readonly [string, number])[] = [["Website", BASE_EUR], ...mine.map((m) => [m.label, MODULE_EUR[m.id]] as const), ...(assistant ? [["AI assistant", AI_ASSISTANT.monthlyEur] as const] : [])];
   return (

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { logActivity } from "@/lib/admin/activity";
 import { alertsStore, subscribersStore } from "@/lib/admin/collections";
+import { requireModule } from "@/lib/modules";
 import { requireStaff } from "@/lib/staff";
 
 // Consent only goes one way here: staff can stop an alert or the newsletter (the person asked, by phone or in person), never start one
@@ -10,6 +11,7 @@ import { requireStaff } from "@/lib/staff";
 
 export async function pauseAlertAction(id: string) {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
+  await requireModule("sales"); // and only while the dealer has it
   const a = await alertsStore.get(id);
   if (!a?.active) return;
   await alertsStore.put({ ...a, active: false });
@@ -19,6 +21,7 @@ export async function pauseAlertAction(id: string) {
 
 export async function removeAlertAction(id: string) {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
+  await requireModule("sales"); // and only while the dealer has it
   if (!(await alertsStore.get(id))) return;
   await alertsStore.remove(id);
   await logActivity("customers", "Removed a stock alert", { kind: "alert", id });
@@ -27,6 +30,7 @@ export async function removeAlertAction(id: string) {
 
 export async function unsubscribeAction(id: string) {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
+  await requireModule("sales"); // and only while the dealer has it
   const s = await subscribersStore.get(id);
   if (s?.status !== "subscribed") return;
   await subscribersStore.put({ ...s, status: "unsubscribed" });

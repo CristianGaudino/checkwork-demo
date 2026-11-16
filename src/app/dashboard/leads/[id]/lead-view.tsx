@@ -126,7 +126,7 @@ export async function LeadView({ id }: { id: string }) {
               <p className="text-body text-text-2">No notes yet.</p>
             ) : (
               <ul className="flex flex-col divide-y divide-hairline">
-                {lead.notes.map((n) => (
+                {[...lead.notes].sort((a, b) => a.at - b.at).map((n) => ( // by time: a buyer's WhatsApp answer is written before the question that caused it
                   <li key={n.at} className="flex flex-col gap-0.5 py-2">
                     <span className="whitespace-pre-line text-body">{n.text}</span>
                     <span className="text-meta text-text-2">{fmtDateTime(n.at)}</span>

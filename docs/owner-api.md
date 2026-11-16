@@ -47,7 +47,7 @@ Send `Authorization: Bearer <OWNER_API_TOKEN>`. No token or a wrong one: `404`, 
 
 ## Counters
 
-`POST /api/count` with `{"event": "<name>"}`, from `src/lib/count-client.ts` (`navigator.sendBeacon`, at most once per event per page load). Only names in `src/lib/owner-api/counter-rules.ts` are stored: one record a day per event, no cookie, no id, no IP. Every event is limited per IP with its own limiter (`COUNT_LIMITER`, 20 a minute), and a body over 200 bytes or of no stated size is refused. Dashboard opens are not sent here: the dashboard counts them itself, behind Access.
+`POST /api/count` with `{"event": "<name>"}`, from `src/lib/count-client.ts` (`navigator.sendBeacon`, at most once per event per page load). Only names in `src/lib/owner-api/counter-rules.ts` are stored: one record a day per event, no cookie, no id, no IP. Every event is limited per IP with its own limiter (`COUNT_LIMITER`, 20 a minute), and a body over 200 bytes is refused, whether or not its size is stated. Dashboard opens are not sent here: the dashboard counts them itself, behind Access.
 
 ## One set of figures
 

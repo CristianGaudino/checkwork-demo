@@ -116,6 +116,13 @@ export function monthEndEstimate(sofarEur: number, today: string): number {
   const days = new Date(Date.UTC(y, m, 0)).getUTCDate();
   return round2((sofarEur / day) * days);
 }
+
+// The month's usage at month end: each service at its pace, stopped at its own limit, then all of it at the total limit; never less than
+// what is already spent (a limit lowered mid-month).
+export function usageEstimate(costs: Record<Service, ServiceCost> & { totalEur: number }, b: BillingSettings, today: string): number {
+  const each = SERVICES.reduce((sum, s) => sum + Math.max(costs[s].costEur, Math.min(monthEndEstimate(costs[s].costEur, today), capOf(b, s) ?? Infinity)), 0);
+  return round2(Math.max(costs.totalEur, Math.min(each, capOf(b, "total") ?? Infinity)));
+}
 // The plan's monthly price for these modules, the AI assistant's flat fee included when chosen.
 export function planEur(modules: Iterable<ModuleId>, aiPlan: AiPlan): number {
   let n = BASE_EUR;

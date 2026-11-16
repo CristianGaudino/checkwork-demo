@@ -17,7 +17,7 @@ vi.mock("@/lib/admin/collections", () => ({
   drivesStore: { get: async () => undefined, put: async () => {} },
   reviewsStore: { get: async () => undefined, put: async () => {} },
 }));
-vi.mock("@/lib/admin/stock-admin", () => ({ adminCar: async () => db.car, saveCar: async (c: Record<string, unknown>) => void db.saved.push(c) }));
+vi.mock("@/lib/admin/stock-admin", () => ({ adminCar: async () => db.car, adminCars: async () => [db.car], saveCar: async (c: Record<string, unknown>) => void db.saved.push(c) }));
 vi.mock("@/lib/stock-source", () => ({ stockSource: async () => db.source }));
 const sent = vi.hoisted(() => [] as Record<string, unknown>[]);
 vi.mock("./send", () => ({ sendWhatsApp: async (m: Record<string, unknown>) => (sent.push(m), m) }));
@@ -125,6 +125,19 @@ describe("asking for more photos, then making an offer", () => {
     await tap("Aoife", "a2", "price");
     await typed("Aoife", "9,000");
     expect(sent.some((m) => String(m.text).includes("9,000"))).toBe(false);
+  });
+});
+
+describe("an enquiry about a car that has sold since", () => {
+  it("tells the buyer nothing and leaves the alert open", async () => {
+    db.car = { id: "c1", slug: "audi-a3-c1", soldAt: "2026-11-01" };
+    db.leads.set("real-1", { ...lead("new"), type: "enquiry", carSlug: "audi-a3-c1" });
+    alert("a1", ["available"], { leadId: "real-1", event: "enquiry" });
+    sent.length = 0;
+    await tap("Aoife", "a1", "available");
+    expect(sent).toHaveLength(0);
+    expect(db.leads.get("real-1")?.status).toBe("new");
+    expect([...db.msgs.values()].some((m) => String(m.text).includes("That car is sold"))).toBe(true);
   });
 });
 

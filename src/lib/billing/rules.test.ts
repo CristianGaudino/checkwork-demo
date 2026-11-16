@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BILLING_DEFAULT, alertsCrossed, capOf, monthEndEstimate, planEur, usageCosts, withinCaps, type BillingSettings, type UsageCount } from "./rules";
+import { BILLING_DEFAULT, alertsCrossed, capOf, monthEndEstimate, planEur, usageCosts, usageEstimate, withinCaps, type BillingSettings, type UsageCount } from "./rules";
 
 const c = (service: UsageCount["service"], kind: string, count: number): UsageCount => ({ id: `m:${service}:${kind}`, month: "2026-11", service, kind, count });
 
@@ -57,5 +57,12 @@ describe("the plan and the estimate", () => {
   it("takes the month to date to a whole month at the same pace", () => {
     expect(monthEndEstimate(10, "2026-11-10")).toBe(30); // 10 of 30 days
     expect(monthEndEstimate(1, "2026-12-01")).toBe(31); // the 1st in Dublin, whatever the UTC day
+  });
+  it("stops each service at its own limit, then all of it at the total limit, and never below what is spent", () => {
+    const costs = (lookup: number, ai: number) => ({ ...usageCosts([], "perAction"), lookup: { count: 0, costEur: lookup, kinds: [] }, ai: { count: 0, costEur: ai, kinds: [] }, totalEur: lookup + ai });
+    const b = (caps: BillingSettings["caps"]): BillingSettings => ({ ...BILLING_DEFAULT, caps, ceilings: {} });
+    expect(usageEstimate(costs(9, 1), b({ lookup: 10 }), "2026-11-10")).toBe(13); // lookups stop at 10, AI goes on to 3
+    expect(usageEstimate(costs(9, 1), b({ total: 12 }), "2026-11-10")).toBe(12);
+    expect(usageEstimate(costs(9, 1), b({ lookup: 5 }), "2026-11-10")).toBe(12); // a limit lowered below the spend: 9 spent, AI to 3
   });
 });
