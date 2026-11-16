@@ -8,6 +8,7 @@ import { monthLabel } from "@/lib/admin/reports";
 import { simulating } from "@/lib/integrations";
 import { hasModule } from "@/lib/modules";
 import { can, currentMember } from "@/lib/permissions";
+import { roleCan } from "@/lib/permission-rules";
 import { loadReportData } from "@/lib/reports/load";
 import { advice, bounds, compare, fmtWait, monthBefore, monthRange, summarise } from "@/lib/reports/monthly";
 import { OLD_STOCK_DAYS } from "@/lib/admin/overview";
@@ -30,9 +31,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ m
   const months = Array.from({ length: 12 }, (_, i) => addMonths(`${last}-01`, -i).slice(0, 7));
   const month = isIsoMonth(asked) && months.includes(asked) ? asked : last;
   const [all, seeMargins, me, hasSales, hasReviews, hasAnalytics, hasMargins] = await Promise.all([loadReportData(), can("margins"), currentMember(), hasModule("sales"), hasModule("reviews"), hasModule("analytics"), hasModule("margins")]);
-  // As on Reports (owner's decision): the margins roles see the dealership; a salesperson sees their own leads and sales, and nothing of
-  // the stock, visitors or reviews.
-  const data = seeMargins ? all : { leads: all.leads.filter((l) => l.assignedTo === me.name), sales: all.sales.filter((x) => x.salesperson === me.name), cars: [], reviews: [] };
+  // As on Reports (owner's decision): the roles allowed margins see the dealership; a salesperson sees their own leads and sales, and
+  // nothing of the stock, visitors or reviews. By role, not by `can`: with the Margins module off an owner still sees the dealership (only
+  // the money goes, `seeMargins`).
+  const whole = roleCan(me.role, "margins");
+  const data = whole ? all : { leads: all.leads.filter((l) => l.assignedTo === me.name), sales: all.sales.filter((x) => x.salesperson === me.name), cars: [], reviews: [] };
   const { from, to } = monthRange(month);
   const prevMonth = monthBefore(month);
   const prevRange = monthRange(prevMonth);
@@ -46,14 +49,14 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ m
   }
 
   // shortcut: the demo's visitor figures are generated for the 30 days to the month's end, not the calendar month; real analytics replaces it.
-  const a = seeMargins && hasAnalytics && simulating() ? buildAnalytics({ range: 30, cars: data.cars.filter(forSale).map((c) => ({ slug: c.slug, title: carName(c) })), now: bounds(from, to)[1] - 1, leadTimes: data.leads.map((l) => l.createdAt) }) : undefined;
+  const a = whole && hasAnalytics && simulating() ? buildAnalytics({ range: 30, cars: data.cars.filter(forSale).map((c) => ({ slug: c.slug, title: carName(c) })), now: bounds(from, to)[1] - 1, leadTimes: data.leads.map((l) => l.createdAt) }) : undefined;
   const topTypes = Object.entries(s.leads.byType).sort((x, y) => y[1] - x[1]);
 
   return (
     <>
       {/* Printing leaves out the menu, the demo bar and the picker: the page alone, in the browser's own PDF. */}
       <style>{"@media print { aside, [data-demo-bar], .no-print { display: none !important; } main { padding: 0 !important; } * { box-shadow: none !important; } }"}</style>
-      <PageHeader title="Monthly report" text={`${seeMargins ? "" : `${me.name}, `}${monthLabel(month)}, compared with ${monthLabel(prevMonth)}.`} actions={<PrintButton />} />
+      <PageHeader title="Monthly report" text={`${whole ? "" : `${me.name}, `}${monthLabel(month)}, compared with ${monthLabel(prevMonth)}.`} actions={<PrintButton />} />
       <form method="get" className="no-print flex flex-wrap items-end gap-2">
         <label className="flex flex-col gap-1 text-meta font-semibold">
           Month
@@ -104,7 +107,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ m
         </>
       )}
 
-      {seeMargins && (
+      {whole && (
         <>
           <h2 className="text-heading font-semibold">Stock</h2>
           <StatGrid>
@@ -127,7 +130,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ m
         </>
       )}
 
-      {seeMargins && hasReviews && (
+      {whole && hasReviews && (
         <>
           <h2 className="text-heading font-semibold">Reviews</h2>
           <StatGrid>
