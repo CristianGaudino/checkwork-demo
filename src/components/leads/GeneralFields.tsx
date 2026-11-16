@@ -69,16 +69,19 @@ export function GeneralFields({ bind, step, cars = [], fixed }: { bind(name: str
       ) : (
         <fieldset hidden={at !== 0} className="flex flex-col gap-3">
           <legend className="mb-3 text-body text-text-2">What can we help with?</legend>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {cards.map((t) => (
-              <label key={t.id} className={`${chip} min-h-14 rounded-card px-4 font-semibold`}>
-                <input type="radio" name="topic" value={t.id} checked={topic === t.id} onChange={() => {
-                      topicBind.onChange(t.id);
-                      count("contact-topic");
-                    }} className="sr-only" />
-                {t.label}
-              </label>
-            ))}
+          {/* Two across only when the form is wide enough (not the screen): beside the contact page's map a label would wrap to three lines. */}
+          <div className="@container">
+            <div className="grid grid-cols-1 gap-2 @md:grid-cols-2">
+              {cards.map((t) => (
+                <label key={t.id} className={`${chip} min-h-14 rounded-card px-4 font-semibold`}>
+                  <input type="radio" name="topic" value={t.id} checked={topic === t.id} onChange={() => {
+                        topicBind.onChange(t.id);
+                        count("contact-topic");
+                      }} className="sr-only" />
+                  {t.label}
+                </label>
+              ))}
+            </div>
           </div>
           {topicBind.error && (
             <p role="alert" className="text-meta text-destructive">

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { FeatureCard } from "@/components/Feature";
 import { CallButton, InfoSection } from "@/components/InfoPage";
-import { LayersIcon, ShieldCheckIcon } from "@/components/stock/icons";
 import { card, pageMain, secondaryButton, subTitle } from "@/components/ui";
 import { LeadPageForm } from "@/components/leads/LeadPageForm";
 import { CLAIM_SENT } from "@/lib/leads/constants";
@@ -28,9 +27,9 @@ export default function WarrantyPage() {
 
       <section className="mt-12 flex flex-col gap-4">
         <h2 className={subTitle}>What you get</h2>
-        <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          <FeatureCard badge={<ShieldCheckIcon className="size-6" />} title={WARRANTY.title} text={`${WARRANTY.text} It's included in the price of the car.`} />
-          <FeatureCard badge={<LayersIcon className="size-6" />} title="Extended warranty" text="Longer cover is available. Ask us what it covers and what it costs for the car you're looking at." />
+        <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8">
+          <FeatureCard title={WARRANTY.title} text={`${WARRANTY.text} It's included in the price of the car.`} />
+          <FeatureCard title="Extended warranty" text="Longer cover is available. Ask us what it covers and what it costs for the car you're looking at." />
         </ul>
       </section>
 

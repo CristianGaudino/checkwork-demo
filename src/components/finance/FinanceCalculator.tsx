@@ -49,8 +49,8 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
 
   return (
     <>
-      {/* The inputs on the left and the result on the right from 1024px (the mockup); stacked below that. */}
-      <div data-wells className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      {/* The inputs on the left and the result on the right from 1024px (the mockup); stacked below that. Each card keeps its own height. */}
+      <div data-wells className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
         <div className={`flex flex-col gap-4 ${card} p-4 sm:p-6`}>
           <div className="grid grid-cols-1 gap-4">
             {car ? (

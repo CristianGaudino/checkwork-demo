@@ -91,3 +91,20 @@ The look was redone so the demo reads as its own site. Direction: a lit showroom
   (`FeatureCard`) sit open on the page, not in cards: cards are for things to press and for forms. Contact keeps its map as its picture.
   The owner's own photography (service bay, showroom, team) replaces these pictures when it comes.
 - **Make logos:** shown beside the make in the filter, the search drop-down, the chips, the cards and the make page heading (`MakeLogo`).
+
+## Inner pages, second pass (#52, 2026-11)
+An audit with the unslop, frontend-design and apple-design skills found these pages clean but templated. Polish only: the Showroom
+direction, the picture beside the title and the order of sections stay.
+- **Reasons are words, not badges.** "Why choose us" on Service and About and the warranty facts had the same three icons in tinted circles
+  for different things, the commonest template tell. A reason is now a title and a line under a hairline (`FeatureCard`, no icon). Icons are kept
+  where they say something (the trust strip's warranty, finance and trade-in marks on home).
+- **Numbers only for sequences.** The tinted number (`IconBadge`) stays for real steps: the form pages' "how it works", About's visit, home's
+  finance band.
+- **"How it works" is open, not cards.** On the form pages the three steps were cards with a chevron, which read as drop-downs beside the
+  form's own stepper. Now a plain list under a hairline, with the detail (`more`) shown as quiet lines: nothing to open, nothing that looks pressable.
+  Cards stay for forms and for things to press.
+  On a phone the steps go after the form (with a "How it works" heading), so the form starts under the title and every line of detail stays.
+- **No stretched panels.** The finance calculator's input card keeps its own height instead of matching the result card.
+- **Choices fit their column.** The contact form's topic buttons go two across only when the form is wide enough (a container query), so a label
+  never wraps to three lines.
+- **Footer:** the desktop link columns use 32px rows (above the 24px WCAG target); the phone keeps 44px rows.

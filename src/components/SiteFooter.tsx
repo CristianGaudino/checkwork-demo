@@ -92,7 +92,7 @@ export function SiteFooter() {
                     {g.links.map((l) => (
                       <IfModule key={l.href} href={l.href}>
                         <li>
-                          <Link href={l.href} className={`${link} text-body`}>
+                          <Link href={l.href} className={`${link} text-body lg:min-h-8`}>
                             {l.long ?? l.label}
                           </Link>
                         </li>

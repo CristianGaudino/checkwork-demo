@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { FeatureCard, IconBadge, TitleText } from "@/components/Feature";
-import { CheckIcon, ShieldCheckIcon, SwapIcon } from "@/components/stock/icons";
 import { DirectionsButton } from "@/components/DirectionsButton";
 import { OpeningHours } from "@/components/OpeningHours";
 import { pageMain, subTitle } from "@/components/ui";
@@ -12,9 +11,9 @@ export const metadata: Metadata = { title: "About us", description: `${SITE_NAME
 
 // The dealer's own story replaces this copy: no history, awards, years trading or staff names are invented here.
 const WHY = [
-  { Icon: CheckIcon, title: "Carefully selected cars", text: "A range of used cars chosen with care, each shown with its details and photos." },
-  { Icon: ShieldCheckIcon, title: "Straightforward buying", text: "Plain answers and no pressure. Ask us anything about a car before you decide." },
-  { Icon: SwapIcon, title: "Finance and trade-ins", text: "Estimate your monthly payment online, and get a valuation on the car you're trading in." },
+  { title: "Carefully selected cars", text: "A range of used cars chosen with care, each shown with its details and photos." },
+  { title: "Straightforward buying", text: "Plain answers and no pressure. Ask us anything about a car before you decide." },
+  { title: "Finance and trade-ins", text: "Estimate your monthly payment online, and get a valuation on the car you're trading in." },
 ];
 const EXPECT = [
   { title: "Browse", text: "Look through the stock online, save the cars you like and compare them." },
@@ -35,9 +34,9 @@ export default function AboutPage() {
         <div className="flex flex-col gap-10 lg:order-1">
           <section className="flex flex-col gap-4">
             <h2 className={subTitle}>Why choose us</h2>
-            <ul className="grid grid-cols-1 gap-6">
-              {WHY.map(({ Icon, ...f }) => (
-                <FeatureCard key={f.title} badge={<Icon className="size-6" />} {...f} />
+            <ul className="grid grid-cols-1 gap-4">
+              {WHY.map((f) => (
+                <FeatureCard key={f.title} {...f} />
               ))}
             </ul>
           </section>

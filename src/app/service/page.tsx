@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { CallButton } from "@/components/InfoPage";
 import { FeatureCard, FeatureSection } from "@/components/Feature";
 import { ServiceMenu } from "@/components/service/ServiceMenu";
-import { ShieldCheckIcon, SwapIcon, CheckIcon } from "@/components/stock/icons";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { pageMain, subTitle } from "@/components/ui";
 import { DEALER_LOCATION, DEALER_PHONE, SERVICES, SITE_NAME } from "@/lib/site";
@@ -12,9 +11,9 @@ export const metadata: Metadata = { title: "Service", description: `Servicing, r
 
 // PLACEHOLDER copy: the dealer confirms what is offered (DEALER_FACTS_CONFIRMED). What is offered lives in SERVICES in site.ts.
 const WHY = [
-  { Icon: CheckIcon, title: "Straight answers", text: "We tell you what your car needs now and what can wait." },
-  { Icon: ShieldCheckIcon, title: "Agreed before we start", text: "You know what the work involves and what it will cost before we begin." },
-  { Icon: SwapIcon, title: "Booked in properly", text: "Call or message us and we find a time that suits you." },
+  { title: "Straight answers", text: "We tell you what your car needs now and what can wait." },
+  { title: "Agreed before we start", text: "You know what the work involves and what it will cost before we begin." },
+  { title: "Booked in properly", text: "Call or message us and we find a time that suits you." },
 ];
 
 export default function ServicePage() {
@@ -40,8 +39,8 @@ export default function ServicePage() {
 
       <div className="mt-12">
         <FeatureSection title="Why choose us">
-          {WHY.map(({ Icon, ...f }) => (
-            <FeatureCard key={f.title} badge={<Icon className="size-6" />} {...f} />
+          {WHY.map((f) => (
+            <FeatureCard key={f.title} {...f} />
           ))}
         </FeatureSection>
       </div>
