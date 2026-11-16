@@ -3,9 +3,8 @@ import { FINANCE } from "@/lib/finance/finance.config";
 import { PRICE_STOPS } from "@/lib/stock/types";
 import { BAD_DRIVE_DAY, BAD_DRIVE_TIME, BAD_KM, driveDays, driveTimes, phoneError, BAD_REG, CONTACT_ERROR, EMPLOYMENT, KM_PATTERN, LIMITS, REG_PATTERN, SOURCING_BODIES, SOURCING_CAR_ERROR } from "./constants";
 import { DAY } from "../time";
-import { dublinMs } from "../admin/format";
 import { regPeriods } from "./reg-periods";
-import { dublinDay } from "@/lib/admin/format";
+import { dublinDay, dublinMs } from "@/lib/admin/format";
 import { CHOICES, TOPIC_IDS } from "./contact-topics";
 
 // The lead validation, run on the server. Client components import ./constants, never this file (it brings zod).

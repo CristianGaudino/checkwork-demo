@@ -43,7 +43,7 @@ export async function openClaimAction(_prev: FormState, data: FormData): Promise
   const id = newId("claim");
   const carId = sale.carId ?? sale.id;
   await claimsStore.put({ id, saleId: sale.id, carId, carTitle: sale.carTitle, customerId: sale.customerId, openedOn: d.openedOn, fault: d.fault, inCover: d.openedOn <= coverEnds(sale), status: "open", ...(lead && { leadId: lead.id }), notes: [], createdAt: Date.now() });
-  if (lead) await leadsStore.put({ ...lead, status: lead.status === "new" ? "contacted" : lead.status, notes: [...lead.notes, { at: Date.now(), text: "Opened a warranty claim." }] });
+  if (lead) await leadsStore.update(lead.id, (l) => ({ ...l, status: l.status === "new" ? "contacted" : l.status, notes: [...l.notes, { at: Date.now(), text: "Opened a warranty claim." }] }));
   await logActivity("customers", "Opened a warranty claim", carRef({ carId, carTitle: sale.carTitle }));
   redirect(`/dashboard/aftersales/${id}`);
 }

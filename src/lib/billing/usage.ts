@@ -1,7 +1,7 @@
 import "server-only";
 import { defineCollection } from "@/lib/admin/docs";
 import { dublinDay } from "@/lib/admin/format";
-import { getSettings, settingsStore } from "@/lib/admin/collections";
+import { SETTINGS_DEFAULT, getSettings, settingsStore, type DealerSettings } from "@/lib/admin/collections";
 import { notify } from "@/lib/admin/notifications";
 import { BILLING_DEFAULT, alertsCrossed, usageCosts, usageId, withinCaps, type BillingSettings, type Kind, type Service, type UsageCount } from "./rules";
 import { hasModule } from "@/lib/modules";
@@ -70,8 +70,9 @@ export async function recordUsage<S extends Service>(service: S, kind: Kind<S>, 
 
 // Saves the dealer's limits and alerts. Ours (the ceilings) are set from the owner's program, never here.
 export async function saveBilling(change: Partial<Pick<BillingSettings, "caps" | "alerts" | "alertAt80" | "aiPlan">>) {
-  const s = await getSettings();
-  await settingsStore.put({ ...s, billing: { ...BILLING_DEFAULT, ...s.billing, ...change }, updatedAt: Date.now() });
+  // On the settings as they are now, so a team change saved at the same moment is never undone.
+  const apply = (s: Partial<DealerSettings>) => ({ ...SETTINGS_DEFAULT, ...s, billing: { ...BILLING_DEFAULT, ...s.billing, ...change }, updatedAt: Date.now() });
+  if (!(await settingsStore.update("dealer", apply))) await settingsStore.put(apply({}));
 }
 
 // The demo's month so far: steady daily use, so the Billing page shows a lived-in month on any day, well under the demo's limits.

@@ -6,9 +6,10 @@ import { driveDays, driveTimes } from "@/lib/leads/constants";
 import { LIMITS } from "@/lib/leads/constants";
 import { ContactFields, Field } from "./Field";
 import type { FieldBinding } from "./LeadForm";
+import { threeLetter } from "@/lib/admin/format";
 
 // "Tue 11 Nov", read at noon UTC so no time zone can move the day.
-const dayLabel = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-IE", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" }).replace("Sept", "Sep");
+const dayLabel = (iso: string) => threeLetter(new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-IE", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" }));
 
 const noop = () => () => {};
 

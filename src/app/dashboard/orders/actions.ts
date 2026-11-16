@@ -78,7 +78,7 @@ export async function placeOrderAction(_prev: FormState, data: FormData): Promis
   };
   await ordersStore.put(o);
   if (lead && lead.status !== "won") {
-    await leadsStore.put({ ...lead, status: "won", followUpOn: undefined, notes: [...lead.notes, { at: Date.now(), text: "Placed a factory order." }] });
+    await leadsStore.update(lead.id, (l) => ({ ...l, status: "won", followUpOn: undefined, notes: [...l.notes, { at: Date.now(), text: "Placed a factory order." }] }));
     await logActivity("leads", "Marked the lead won, with a factory order", { kind: "lead", id: lead.id });
   }
   await logActivity("stock", `Placed a factory order: ${title(o)}${o.depositEur ? `, ${fmtEur(o.depositEur)} deposit` : ""}`);
@@ -97,6 +97,10 @@ export async function setOrderStatusAction(id: string, data: FormData) {
   if (!to.success || !o || !orderOpen(o.status) || o.status === "arrived" || o.status === to.data || !(await theirs())) return;
   let carId = o.carId;
   if (to.data === "arrived" && !carId) {
+    // Claimed first: a second tap (or a colleague) at the same moment finds it arrived and adds no second car.
+    let claimed = false;
+    await ordersStore.update(id, (cur) => (cur.status === "arrived" || cur.carId ? cur : ((claimed = true), { ...cur, status: "arrived" as const })));
+    if (!claimed) return paths(id);
     carId = await freeCarId();
     const base = { id: carId, make: o.make, model: o.model, year: 2000 + Number(o.regPeriod.slice(0, 2)) };
     const car: Car = { ...base, slug: carSlug(base), makeSlug: slugify(o.make), modelSlug: slugify(o.model), ...(o.spec && { variant: o.spec }), ...(o.colour && { colour: o.colour }), priceEur: o.priceEur, condition: "new", photos: [], listing: "hidden", ...(o.depositEur && { reserved: true }) };
@@ -106,7 +110,7 @@ export async function setOrderStatusAction(id: string, data: FormData) {
       await reservationsStore.put({ id: newId("res"), carId, carTitle: title(o), customerId: o.customerId, depositEur: o.depositEur, method: o.depositMethod ?? "Card", paidOn: o.orderedOn, until: addDays(today, 30), salesperson: o.salesperson, status: "held", createdAt: Date.now() });
     }
   }
-  await ordersStore.put({ ...o, status: to.data, ...(carId && { carId }) });
+  await ordersStore.update(id, (cur) => ({ ...cur, status: to.data, ...(carId && { carId }) }));
   await logActivity("stock", `Moved the factory order ${title(o)} from ${ORDER_STATUS_LABELS[o.status]} to ${ORDER_STATUS_LABELS[to.data]}`, carId ? { kind: "car", id: carId, label: title(o) } : undefined);
   paths(id);
 }

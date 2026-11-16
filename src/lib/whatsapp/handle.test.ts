@@ -31,7 +31,17 @@ vi.mock("@/lib/admin/collections", () => ({
       return next;
     },
   },
-  drivesStore: { get: async (id: string) => db.drives.get(id), put: async (d: { id: string }) => void db.drives.set(d.id, d) },
+  drivesStore: {
+    get: async (id: string) => db.drives.get(id),
+    put: async (d: { id: string }) => void db.drives.set(d.id, d),
+    update: async (id: string, fn: (d: never) => unknown) => {
+      const cur = db.drives.get(id);
+      if (!cur) return undefined;
+      const next = (await fn(cur as never)) as { id: string };
+      db.drives.set(id, next);
+      return next;
+    },
+  },
   reviewsStore: { get: async (id: string) => db.reviews.get(id), put: async (r: { id: string }) => void db.reviews.set(r.id, r) },
   reservationsStore: { get: async (id: string) => db.deposits.get(id) },
 }));

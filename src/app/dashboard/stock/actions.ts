@@ -52,7 +52,7 @@ export async function saveCarAction(id: string | null, _prev: FormState, data: F
   if (cost === null) await costsStore.remove(car.id);
   else if (cost !== undefined) await costsStore.put({ id: car.id, costEur: cost });
   await logActivity("stock", existing ? carEditSummary(existing, car) : "Added the car", carRef(car));
-  if (!car.listing && (!existing || existing.listing === "draft")) await alertNewIn(car); // on the website for the first time
+  if (!car.listing && (!existing || (existing.listing && !existing.listedAt))) await alertNewIn(car); // on the website for the first time
   const costChange = cost === undefined ? null : costText(wasCost, cost);
   if (costChange) await logActivity("stock", costChange, carRef(car));
   redirect(`/dashboard/stock?saved=${car.id}`);
@@ -96,7 +96,7 @@ export async function setListingAction(id: string, to: string) {
   if (!car || car.listing === listing) return;
   await saveCar({ ...car, listing, listedAt: listedOn(car, !listing, dublinDay()) });
   await logActivity("stock", LISTINGS[to as keyof typeof LISTINGS], carRef(car));
-  if (!listing && car.listing === "draft") await alertNewIn(car); // a draft published: on the website for the first time
+  if (!listing && car.listing && !car.listedAt) await alertNewIn(car); // on the website for the first time (a draft, or an arrived order)
   revalidatePath("/dashboard/stock");
 }
 
@@ -255,7 +255,7 @@ export async function recordSaleAction(carId: string, _prev: FormState, data: Fo
   const lead = d.leadId ? await leadsStore.get(d.leadId) : undefined;
   const leadId = lead?.carSlug === car.slug && lead.status !== "lost" ? lead.id : undefined;
   if (lead && leadId && lead.status !== "won") {
-    await leadsStore.put({ ...lead, status: "won", followUpOn: undefined, notes: [...lead.notes, { at: Date.now(), text: "Bought the car." }] });
+    await leadsStore.update(lead.id, (l) => ({ ...l, status: "won", followUpOn: undefined, notes: [...l.notes, { at: Date.now(), text: "Bought the car." }] }));
     await logActivity("leads", "Marked the lead won, with the sale", { kind: "lead", id: lead.id });
   }
   await salesStore.put({

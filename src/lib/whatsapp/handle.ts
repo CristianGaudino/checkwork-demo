@@ -163,11 +163,10 @@ export async function tap(me: string, msgId: string, button: ButtonId): Promise<
     if (button !== "confirm") await logActivity("leads", act.activity, { kind: "lead", id: lead.id });
   }
   // The diary last, once the buyer has been told.
-  const booked = drive?.status === "requested";
-  if (drive && booked) {
-    await drivesStore.put({ ...drive, status: "confirmed" });
-    await logActivity("test-drives", act.activity, { kind: "drive", id: drive.id });
-  }
+  // Only a booking still requested as it is written: one cancelled in the dashboard meanwhile stays cancelled.
+  let booked = false;
+  if (drive?.status === "requested") await drivesStore.update(drive.id, (d) => (d.status === "requested" ? ((booked = true), { ...d, status: "confirmed" as const }) : d));
+  if (drive && booked) await logActivity("test-drives", act.activity, { kind: "drive", id: drive.id });
   await say(me, { text: `${lead ? act.site(first, by) : "Confirmed."}${booked ? " The booking is in the diary." : ""}`, ...(lead && { leadId: lead.id, href: `/dashboard/leads/${lead.id}` }) });
 }
 

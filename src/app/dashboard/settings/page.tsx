@@ -23,7 +23,6 @@ const GRANTS: Record<Role, string> = { Owner: "Everything", Manager: "Everything
 
 export const metadata = { title: "Settings" };
 
-const hours = formatHours;
 
 // The page in sections, one at a time (?section=), so it is never one long scroll on a phone: a list down the side from 1024px, a row of
 // tabs above on a phone.
@@ -89,7 +88,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
               {OPENING_HOURS.map((h) => (
                 <li key={h.day} className="flex justify-between gap-4 border-b border-hairline py-1.5">
                   <span>{h.day}</span>
-                  <span className="tabular-nums text-text-2">{hours(h)}</span>
+                  <span className="tabular-nums text-text-2">{formatHours(h)}</span>
                 </li>
               ))}
               {/* As on the public site: no test drive is offered on one (src/lib/bank-holidays.ts). */}

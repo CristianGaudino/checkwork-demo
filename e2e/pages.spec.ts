@@ -57,7 +57,8 @@ test("/terms is the dealer's full terms: no draft banner, the sections, and a wa
     "Law",
     "Contact",
   ]);
-  await expect(main(page).getByRole("link", { name: "contact page" })).toHaveAttribute("href", "/contact");
+  // The dealer's email once it is confirmed (DEALER_FACTS_CONFIRMED), until then the contact page.
+  await expect(main(page).getByRole("link", { name: /@|contact page/ })).toHaveAttribute("href", /^mailto:|^\/contact$/);
   await expect(main(page).getByRole("link", { name: "Privacy policy" })).toHaveAttribute("href", "/privacy");
 });
 

@@ -47,7 +47,10 @@ const worker = {
   // fails if any did, so it shows as failed and the next night tries again.
   async scheduled(controller, env, ctx) {
     if (APP_JOBS[controller.cron]) {
-      for (const job of [APP_JOBS[controller.cron]].flat()) await runAppJob(job, env, ctx);
+      // Each runs whatever the other does (mail down must not stop the WhatsApp alerts); then the run fails if any did.
+      let failed = 0;
+      for (const job of [APP_JOBS[controller.cron]].flat()) await runAppJob(job, env, ctx).catch(() => failed++);
+      if (failed) throw new Error(`${failed} app job(s) failed`);
       return;
     }
     const db = drizzle(env.DB);

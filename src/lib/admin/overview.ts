@@ -10,7 +10,7 @@ import { LISTING_SITE } from "@/lib/stock-source-rules";
 export const OLD_STOCK_DAYS = 60;
 // A car sold in this many days with no sale recorded is asked about; older ones were sold before sales were kept.
 export const SALE_NUDGE_DAYS = 90;
-export const isOldStock = (c: Car, now: number) => !isSold(c) && c.listedAt !== undefined && now - Date.parse(`${c.listedAt}T00:00:00Z`) >= OLD_STOCK_DAYS * DAY;
+export const isOldStock = (c: Car, now: number) => forSale(c) && c.listedAt !== undefined && now - Date.parse(`${c.listedAt}T00:00:00Z`) >= OLD_STOCK_DAYS * DAY;
 
 // The numbers on the dealer's overview, worked out from the records. Pure, so the rules are tested.
 // How soon it needs doing, which is what its colour says: now (red, filled), soon (amber), or worth knowing (grey). Most urgent first.

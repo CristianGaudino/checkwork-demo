@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { logActivity } from "@/lib/admin/activity";
-import { getSettings, settingsStore } from "@/lib/admin/collections";
+import { SETTINGS_DEFAULT, getSettings, settingsStore, type DealerSettings } from "@/lib/admin/collections";
 import { addRequest, helpStore } from "@/lib/admin/help";
 import { MODULES, type ModuleId } from "@/lib/modules-rules";
 import { enabledModules } from "@/lib/modules";
@@ -80,8 +80,8 @@ export async function saveDetailsAction(_p: BillingState, data: FormData): Promi
   if ((await currentMember()).role !== "Owner") return { errors: { company: "Only the owner can change the billing details" } };
   const r = details.safeParse(Object.fromEntries(data));
   if (!r.success) return { errors: fieldErrors(r.error) };
-  const s = await getSettings();
-  await settingsStore.put({ ...s, billingDetails: r.data, updatedAt: Date.now() });
+  const apply = (s: Partial<DealerSettings>) => ({ ...SETTINGS_DEFAULT, ...s, billingDetails: r.data, updatedAt: Date.now() });
+  if (!(await settingsStore.update("dealer", apply))) await settingsStore.put(apply({})); // never over a change saved meanwhile
   await logActivity("settings", "Changed the billing details");
   return done();
 }

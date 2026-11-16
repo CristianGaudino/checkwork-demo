@@ -17,9 +17,10 @@ type Op = "price" | "sold" | "delete";
 
 export function StockPick({ id, name }: { id: string; name: string }) {
   return (
-    <span className="relative z-10 -m-3 flex size-11 items-center justify-center">
+    <label className="relative z-10 -m-3 flex size-11 cursor-pointer items-center justify-center">
+      {/* A label, so a tap anywhere in the 44px ring ticks the box (a span would swallow it, above the row's link). */}
       <input type="checkbox" form={FORM} name="ids" value={id} aria-label={`Select ${name}`} className="size-5 accent-accent" />
-    </span>
+    </label>
   );
 }
 

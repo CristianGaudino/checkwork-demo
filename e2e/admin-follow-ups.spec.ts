@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { BASE } from "./open";
 
 // Follow-ups on leads, and the sales the DoneDeal sync leaves to record.
 test("a follow-up set on a lead shows on the lead and in the list's Follow-ups due once due, and can be cleared", async ({ page }) => {
@@ -28,7 +29,7 @@ test("a follow-up set on a lead shows on the lead and in the list's Follow-ups d
 
 test("in the DoneDeal version a sold car's sale is asked for and recorded with a customer on file", async ({ page, context }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
-  await context.addCookies([{ name: "checkwork-demo-stock", value: "donedeal", url: "http://localhost:3000" }]);
+  await context.addCookies([{ name: "checkwork-demo-stock", value: "donedeal", url: BASE }]);
   await page.goto("/dashboard");
   await expect(page.getByRole("link", { name: /Sold cars with no sale recorded/ })).toBeVisible();
   await page.goto("/dashboard/stock?view=sold");

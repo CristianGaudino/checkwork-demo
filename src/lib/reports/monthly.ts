@@ -3,7 +3,7 @@ import { addDays, addMonths, daysSince, dublinMs } from "@/lib/admin/format";
 import { OPENING_HOURS, TIME_ZONE } from "@/lib/site";
 import { forSale, isSold, type Car } from "@/lib/stock/types";
 import { DAY } from "@/lib/time";
-import { OLD_STOCK_DAYS } from "@/lib/admin/overview";
+import { OLD_STOCK_DAYS, isOldStock } from "@/lib/admin/overview";
 
 // The dealer's figures for a range of Irish days, worked out from the records. One module for the monthly report, its email and the owner
 // API (#174, #175), so the three never disagree. Pure, so every figure is tested. Counts only: nothing here holds a name, phone or email.
@@ -78,7 +78,7 @@ export function summarise(data: ReportData, from: string, to: string, now: numbe
       // A car sold in the range: marked sold on the stock, or with a sale recorded (a live sale's id is its car's id), counted once.
       sold: new Set([...data.cars.filter((c) => isSold(c) && c.soldAt! >= from && c.soldAt! <= to).map((c) => c.id), ...sales.map((s) => s.id)]).size,
       avgDaysInStock: ages.length ? Math.round(ages.reduce((n, d) => n + d, 0) / ages.length) : null,
-      oldStock: ages.filter((d) => d >= OLD_STOCK_DAYS).length,
+      oldStock: data.cars.filter((c) => isOldStock(c, now)).length, // the dashboard's own rule
       priceDrops: live.filter((c) => c.wasPriceEur !== undefined).length,
     },
     sales: { count: sales.length, ...(opts.money && { valueEur: sales.reduce((n, s) => n + s.priceEur, 0) }) },
