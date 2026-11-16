@@ -15,7 +15,12 @@ async function open(page: Page, path = "/contact") {
   await page.goto(path);
   await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
 }
-const next = (page: Page) => page.getByRole("button", { name: "Next", exact: true }).click();
+// Next, then wait for the step to change: a second tap too soon lands on the step that is still leaving.
+async function next(page: Page) {
+  const [, at, of] = (await page.getByText(/^Step \d+ of \d+$/).first().textContent())?.match(/(\d+) of (\d+)/) ?? [];
+  await page.getByRole("button", { name: "Next", exact: true }).click();
+  await expect(page.getByText(`Step ${Number(at) + 1} of ${of}`)).toBeVisible();
+}
 const pick = (page: Page, label: string) => page.getByRole("main").getByText(label, { exact: true }).click();
 
 // The last step: details, consent, send.
@@ -47,8 +52,6 @@ for (const [where, viewport] of [["on a phone", undefined], ["on a computer", { 
         await open(page);
         await pick(page, t.card);
         await next(page);
-        // Wait for the step to change before the next tap: a second tap too soon lands on the step that is still leaving.
-        await expect(page.getByText("Step 2 of 3")).toBeVisible();
         if ("message" in t) await page.getByLabel("How can we help?").fill(t.message);
         for (const tap of t.taps) await pick(page, tap);
         await next(page);
