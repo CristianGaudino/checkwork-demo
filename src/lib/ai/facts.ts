@@ -42,7 +42,11 @@ export async function buildFacts(req: WriteRequest, dealer: string): Promise<Bui
     }
     case "leadReply": {
       const lead = await leadsStore.get(req.leadId);
-      return lead ? { task: "leadReply", facts: { dealer, firstName: firstName(lead.name, ""), kind: LEAD_TYPE_LABELS[lead.type], message: noContacts(lead.message).slice(0, 600), car: lead.carTitle } } : null;
+      if (!lead) return null;
+      // The car's own details, so the reply can answer "is it still there, what mileage" instead of "I'll check".
+      const car = lead.carSlug ? (await adminCars()).find((c) => c.slug === lead.carSlug) : undefined;
+      const carDetails = car && { ...carFacts(car), forSale: forSale(car) };
+      return { task: "leadReply", facts: { dealer, firstName: firstName(lead.name, ""), kind: LEAD_TYPE_LABELS[lead.type], message: noContacts(lead.message).slice(0, 600), car: lead.carTitle, carDetails } };
     }
     case "reviewReply": {
       const r = await reviewsStore.get(req.reviewId);
