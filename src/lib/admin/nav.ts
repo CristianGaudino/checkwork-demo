@@ -6,7 +6,7 @@ import type { ModuleId } from "@/lib/modules-rules";
 // every item names its own, so a role that cannot see the first item of a group still sees the rest under the right heading.
 export type NavIcon = "home" | "inbox" | "car" | "calendar" | "users" | "megaphone" | "chart" | "percent" | "star" | "cog" | "history" | "report" | "shield" | "wrench" | "truck" | "whatsapp" | "receipt" | "help";
 // `ours`: only for a dealer whose stock is kept here (not on DoneDeal). `module`: only with that module (#173); most follow from the
-// address (MODULES in src/lib/modules-rules.ts), this is for a page shared by modules (Marketing: social or the newsletter).
+// address (MODULES in src/lib/modules-rules.ts), this is for a page shared by modules (Marketing: social or the newsletter; Customers: sales or the newsletter).
 export type NavItem = { href: string; label: string; icon: NavIcon; group?: string; permission?: Permission; ours?: true; module?: ModuleId | readonly ModuleId[] };
 
 export const DEALER_NAV: NavItem[] = [
@@ -17,7 +17,7 @@ export const DEALER_NAV: NavItem[] = [
   { href: "/dashboard/orders", label: "Orders", icon: "truck", group: "Sales", ours: true },
   { href: "/dashboard/margins", label: "Margins", icon: "percent", group: "Sales", permission: "margins" },
   { href: "/dashboard/whatsapp", label: "WhatsApp", icon: "whatsapp", group: "Sales" },
-  { href: "/dashboard/customers", label: "Customers", icon: "users", group: "Customers" },
+  { href: "/dashboard/customers", label: "Customers", icon: "users", group: "Customers", module: ["sales", "newsletter"] },
   { href: "/dashboard/aftersales", label: "Aftersales", icon: "wrench", group: "Customers" },
   { href: "/dashboard/reviews", label: "Reviews", icon: "star", group: "Customers" },
   { href: "/dashboard/marketing", label: "Marketing", icon: "megaphone", group: "Growth", module: ["social", "newsletter"] },

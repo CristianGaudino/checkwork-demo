@@ -11,7 +11,7 @@ import { COVER_MONTHS, DEPOSIT_METHODS, type DepositMethod } from "./deposits";
 import { ALERT_KINDS } from "@/lib/leads/schema";
 import { regPeriods } from "@/lib/leads/reg-periods";
 import type { Car } from "@/lib/stock/types";
-import type { Role } from "@/lib/permission-rules";
+import { roleCan, type Role } from "@/lib/permission-rules";
 import type { PrepLine } from "./prep";
 import { carTitleOf, livePicks, person, rng } from "./seed-data";
 import { BILLING_DEFAULT, type BillingSettings } from "@/lib/billing/rules";
@@ -293,7 +293,7 @@ export type TeamMember = { id: string; name: string; email: string; role: Role }
 // Who the dealer's own warnings go to: the owners and managers on the team, and the owners named in ADMIN_OWNER_EMAILS (a new dealer may
 // have no team yet). Lower case, each once. Never a customer address.
 export const leaderEmails = (team: TeamMember[]): string[] => [
-  ...new Set([...team.filter((t) => t.role === "Owner" || t.role === "Manager").map((t) => t.email), ...(process.env.ADMIN_OWNER_EMAILS ?? "").split(",")].map((e) => e.trim().toLowerCase()).filter(Boolean)),
+  ...new Set([...team.filter((t) => roleCan(t.role, "billing")).map((t) => t.email), ...(process.env.ADMIN_OWNER_EMAILS ?? "").split(",")].map((e) => e.trim().toLowerCase()).filter(Boolean)),
 ];
 export type DealerSettings = {
   id: "dealer";

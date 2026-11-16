@@ -67,6 +67,7 @@ export async function addClaimNoteAction(id: string, data: FormData) {
   const claim = await claimsStore.get(id);
   if (!text || !claim) return;
   await claimsStore.put({ ...claim, notes: [...claim.notes, { at: Date.now(), text }] });
+  await logActivity("customers", "Added a note to the warranty claim", carRef(claim)); // never the note itself
   paths(id);
 }
 

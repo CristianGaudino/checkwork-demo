@@ -237,6 +237,8 @@ export async function recordSaleAction(carId: string, _prev: SaleFormState, data
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const car = await adminCar(carId);
   if (!car) return { errors: { priceEur: "This car no longer exists" } };
+  // Changing a sale already recorded rewrites the figures: owners and managers only, as undoing one is.
+  if ((await salesStore.get(car.id)) && !(await can("settings"))) return { errors: { priceEur: "Only owners and managers can change a sale" } };
   const r = sale.safeParse(Object.fromEntries(data));
   if (!r.success) return { errors: fieldErrors(r.error) };
   const d = r.data;
@@ -253,7 +255,10 @@ export async function recordSaleAction(carId: string, _prev: SaleFormState, data
   // The lead it came from (one on this car, still open or already won) is marked won with it.
   const lead = d.leadId ? await leadsStore.get(d.leadId) : undefined;
   const leadId = lead?.carSlug === car.slug && lead.status !== "lost" ? lead.id : undefined;
-  if (lead && leadId && lead.status !== "won") await leadsStore.put({ ...lead, status: "won", followUpOn: undefined, notes: [...lead.notes, { at: Date.now(), text: "Bought the car." }] });
+  if (lead && leadId && lead.status !== "won") {
+    await leadsStore.put({ ...lead, status: "won", followUpOn: undefined, notes: [...lead.notes, { at: Date.now(), text: "Bought the car." }] });
+    await logActivity("leads", "Marked the lead won, with the sale", { kind: "lead", id: lead.id });
+  }
   await salesStore.put({
     id: car.id,
     carTitle: carTitleOf(car),

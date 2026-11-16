@@ -27,7 +27,7 @@ Send `Authorization: Bearer <OWNER_API_TOKEN>`. No token or a wrong one: `404`, 
   "range": { "from": "2026-10-01", "to": "2026-10-31" },
   "leads": { "total": 42, "byType": { "enquiry": 30, "finance": 4 }, "bySource": { "Website": 35, "Phone": 7 }, "byWeekday": [6, 7, 5, 8, 6, 7, 3], "outOfHours": 15 },
   "replies": { "medianInHoursMin": 35, "medianOutOfHoursMin": 610, "none": 3 },
-  "stock": { "inStock": 38, "added": 12, "sold": 9, "avgDaysInStock": 31, "over45Days": 6, "priceDrops": 4 },
+  "stock": { "inStock": 38, "added": 12, "sold": 9, "avgDaysInStock": 31, "oldStock": 6, "priceDrops": 4 },
   "sales": { "count": 9, "valueEur": 118000 },
   "reviews": { "count": 3, "average": 4.7 },
   "features": { "saved": 120, "compare": 31, "finance": 18, "units": 9, "no-results": 14, "filter:fuel": 52 },
@@ -40,7 +40,7 @@ Send `Authorization: Bearer <OWNER_API_TOKEN>`. No token or a wrong one: `404`, 
 
 - `leads.byWeekday`: Monday first. `bySource` is the channel (Website, Phone, WhatsApp...). `outOfHours` uses the opening hours in `src/lib/site.ts`, Irish time.
 - `replies`: minutes from a lead arriving to the first note on it, by when it arrived. `none`: leads with no note within 24 hours, once those 24 hours have passed. `null` when there are none.
-- `stock`: `added` and `sold` are in the range. `inStock`, `avgDaysInStock`, `over45Days` and `priceDrops` are the stock now (the site keeps no daily history).
+- `stock`: `added` and `sold` are in the range. `inStock`, `avgDaysInStock`, `oldStock` (for sale 60 days or more) and `priceDrops` are the stock now (the site keeps no daily history).
 - `sales.valueEur` appears only with `OWNER_API_MONEY=1`. Orders and deposits are not counted yet.
 - `features`: anonymous daily counters (`saved`, `compare`, `finance`, `units` for km or miles, `no-results`, `contact-topic`, `filter:<make|model|body|fuel|price|year|km|gearbox>`). `dashboard`: page opens per dashboard area, counted by the dashboard itself behind Access. Neither says who.
 - No visitor numbers yet: they come from the `analytics` integration once connected. Errors in the last 24 hours are not included yet.

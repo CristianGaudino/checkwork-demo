@@ -37,6 +37,8 @@ const NOTICES: Record<string, { tone: "good" | "warn"; text: string }> = {
   "letter-sent": { tone: "good", text: "Newsletter sent." },
   deleted: { tone: "good", text: "Deleted." },
   invalid: { tone: "warn", text: "That did not go through. Check the details and try again." },
+  "car-gone": { tone: "warn", text: "That car is no longer for sale, so nothing was posted." },
+  "no-subscribers": { tone: "warn", text: "Nobody is subscribed yet, so nothing was sent." },
   "invalid-time": { tone: "warn", text: "Choose a time that has not passed." },
   "social-not-connected": { tone: "warn", text: "Facebook and Instagram are not connected, so nothing was posted. The draft is kept. Connect them under Settings." },
   "ads-not-connected": { tone: "warn", text: "Ads are not connected, so the ad was not started. Connect them under Settings." },
@@ -234,14 +236,18 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                       <span className="font-medium">{n.subject}</span>
                       <Badge tone={n.status === "sent" ? "good" : "neutral"}>{n.status === "sent" ? "Sent" : "Draft"}</Badge>
                       <span className="text-meta text-text-2">{fmtDate(n.sentAt ?? n.createdAt)}</span>
-                      {n.status === "sent" && n.recipients !== undefined && (
+                      {n.status === "sent" && n.recipients !== undefined && n.recipients > 0 && (
                         <span className="text-meta text-text-2 sm:ml-auto">{fmtNum(n.recipients)} sent · {fmtPct(((n.opens ?? 0) / n.recipients) * 100)} opened · {fmtPct(((n.clicks ?? 0) / n.recipients) * 100)} clicked</span>
                       )}
                     </div>
                     <p className="line-clamp-2 max-w-measure whitespace-pre-line text-body text-text-2">{n.body}</p>
                     {n.status === "draft" && (
                       <div className="flex flex-wrap items-center gap-2">
-                        <ActButton act={sendNewsletterAction.bind(null, n.id)} confirm={{ title: `Send "${n.subject}"?`, text: `It goes to ${plural(live, "subscriber")} and cannot be taken back.`, yes: "Send" }} className={rowButton}>Send to {fmtNum(live)}</ActButton>
+                        {live > 0 ? (
+                          <ActButton act={sendNewsletterAction.bind(null, n.id)} confirm={{ title: `Send "${n.subject}"?`, text: `It goes to ${plural(live, "subscriber")} and cannot be taken back.`, yes: "Send" }} className={rowButton}>Send to {fmtNum(live)}</ActButton>
+                        ) : (
+                          <span className="text-meta text-text-2">No subscribers to send to yet</span>
+                        )}
                         <ActButton act={deleteNewsletterAction.bind(null, n.id)} confirm={{ title: `Delete this newsletter?`, text: "This cannot be undone.", yes: "Delete" }} className={`${rowButton} text-bad`}>Delete</ActButton>
                       </div>
                     )}

@@ -9,6 +9,7 @@ import { fmtDate, fmtDateTime, fmtEur } from "@/lib/admin/format";
 import { monthLabel } from "@/lib/admin/reports";
 import { regPeriodLabel } from "@/lib/leads/reg-periods";
 import { can } from "@/lib/permissions";
+import { hasModule } from "@/lib/modules";
 import { stockSource } from "@/lib/stock-source";
 import { addOrderNoteAction, setOrderStatusAction } from "../actions";
 import { SubmitButton } from "@/components/admin/SubmitButton";
@@ -33,7 +34,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
           <Panel title="The order">
             <Facts
               items={[
-                ["Customer", buyer ? <Link key="b" href={`/dashboard/customers/${buyer.id}`} className="underline">{buyer.name}</Link> : "Not on file"],
+                ["Customer", buyer ? ((await hasModule("sales")) ? <Link key="b" href={`/dashboard/customers/${buyer.id}`} className="underline">{buyer.name}</Link> : buyer.name) : "Not on file"],
                 ["Spec", [o.spec, o.colour].filter(Boolean).join(", ") || "Not given"],
                 ["Price", fmtEur(o.priceEur)],
                 ["Deposit", o.depositEur ? `${fmtEur(o.depositEur)}, ${o.depositMethod?.toLowerCase()}${o.refundEur ? `, ${fmtEur(o.refundEur)} refunded` : ""}` : "None"],

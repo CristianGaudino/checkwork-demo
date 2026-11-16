@@ -54,6 +54,7 @@ export async function composeAction(data: FormData) {
   const r = compose.safeParse(Object.fromEntries(data));
   const car = r.success ? (await adminCars()).find((c) => c.slug === r.data.carSlug) : undefined;
   if (!r.success || !car) return go("posts", "invalid");
+  if (!forSale(car)) return go("posts", "car-gone"); // sold or hidden while the composer was open
   const d = r.data;
   const later = d.intent === "publish" && d.timing === "later";
   // The time is typed in Irish time (datetime-local has no zone), like the test drive form.
@@ -102,7 +103,7 @@ export async function publishPostAction(id: string) {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   await requireModule("social");
   const post = await postsStore.get(id);
-  if (!post) return go("posts", "invalid");
+  if (!post || post.status === "posted") return go("posts", "invalid"); // a draft or a scheduled post only: never the same post twice
   const r = await publishPost(post);
   if (r.ok) {
     await postsStore.put({ ...post, status: "posted", postedAt: Date.now(), ...(r.simulated && { simulated: true, ...simulatedPost(post.id) }) });
@@ -132,7 +133,7 @@ export async function startAdAction(id: string) {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   await requireModule("social");
   const a = await adsStore.get(id);
-  if (!a) return go("posts", "invalid");
+  if (!a || a.status !== "draft") return go("posts", "invalid"); // a draft only: a running ad is never started again
   const r = await startAd(a);
   if (r.ok) {
     await adsStore.put({ ...a, status: "running", startedAt: Date.now(), ...(r.simulated && simulatedAd(a.id)) });
@@ -188,9 +189,11 @@ export async function sendNewsletterAction(id: string) {
   await requireModule("newsletter");
   const n = await newslettersStore.get(id);
   if (!n || n.status !== "draft") return go("newsletters", "invalid");
+  const subscribers = (await subscribersStore.list()).filter((x) => x.status === "subscribed").length;
+  if (!subscribers) return go("newsletters", "no-subscribers");
   const r = await sendNewsletter(n);
   if (r.ok) {
-    await newslettersStore.put({ ...n, status: "sent", sentAt: Date.now(), ...(r.simulated && simulatedLetter(n.id, (await subscribersStore.list()).filter((x) => x.status === "subscribed").length)) });
+    await newslettersStore.put({ ...n, status: "sent", sentAt: Date.now(), ...(r.simulated && simulatedLetter(n.id, subscribers)) });
     await logActivity("marketing", "Sent the newsletter", letterRef(n));
   }
   outcome("newsletters", "newsletters", r, "letter-sent");

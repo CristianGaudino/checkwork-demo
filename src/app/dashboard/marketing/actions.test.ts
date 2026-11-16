@@ -9,7 +9,7 @@ vi.mock("@/lib/admin/media", async (orig) => ({ ...(await orig<typeof import("@/
 vi.mock("next/navigation", () => ({ redirect: (to: string) => { throw new Error(`redirect:${to}`); } }));
 const { composeAction, composerCarAction, createNewsletterAction, deleteAdAction, deleteNewsletterAction, deletePostAction, publishPostAction, sendNewsletterAction, startAdAction } = await import("./actions");
 const { addNoteAction, setStatusAction, assignLeadAction, setFollowUpAction, setLostReasonAction } = await import("../leads/actions");
-const { adsStore, getSettings, leadsStore, mediaStore, newslettersStore, postsStore, settingsStore } = await import("@/lib/admin/collections");
+const { adsStore, getSettings, leadsStore, mediaStore, newslettersStore, postsStore, settingsStore, subscribersStore } = await import("@/lib/admin/collections");
 const { NETWORKS } = await import("@/lib/admin/networks");
 const { forSale } = await import("@/lib/stock/types");
 const { addDays, dublinDay } = await import("@/lib/admin/format");
@@ -31,7 +31,7 @@ describe("the post composer action", () => {
   });
 
   it("keeps only photos of the chosen car, and drafts without publishing", async () => {
-    const [car, other] = await adminCars();
+    const [car, other] = (await adminCars()).filter(forSale);
     const mine = car.photos[0].src;
     const theirs = other.photos[0].src;
     const n = await notice(() => composeAction(form({ carSlug: car.slug, network: "Facebook", text: "Hello", intent: "draft", timing: "now", photos: [mine, theirs, "/etc/passwd"] })));
@@ -42,14 +42,14 @@ describe("the post composer action", () => {
   });
 
   it("refuses a time that has passed, and saves nothing", async () => {
-    const [car] = await adminCars();
+    const [car] = (await adminCars()).filter(forSale);
     const n = await notice(() => composeAction(form({ carSlug: car.slug, network: "Facebook", text: "Hello", intent: "publish", timing: "later", when: "2020-01-01T10:00" })));
     expect(n).toBe("invalid-time");
     expect(await postsStore.list()).toHaveLength(0);
   });
 
   it("makes no ad for a scheduled post, and an ad draft with a post draft", async () => {
-    const [car] = await adminCars();
+    const [car] = (await adminCars()).filter(forSale);
     const base = { carSlug: car.slug, network: "Facebook", text: "Hello", ad: "on", platform: "Meta", budgetEur: "100" };
     await notice(() => composeAction(form({ ...base, intent: "publish", timing: "later", when: "2031-01-01T10:00" })));
     expect(await adsStore.list()).toHaveLength(0);
@@ -58,7 +58,7 @@ describe("the post composer action", () => {
   });
 
   it("refuses an empty text or an unknown car", async () => {
-    const [car] = await adminCars();
+    const [car] = (await adminCars()).filter(forSale);
     expect(await notice(() => composeAction(form({ carSlug: car.slug, network: "Facebook", text: " ", intent: "draft", timing: "now" })))).toBe("invalid");
     expect(await notice(() => composeAction(form({ carSlug: "nope-1", network: "Facebook", text: "x", intent: "draft", timing: "now" })))).toBe("invalid");
   });
@@ -103,6 +103,8 @@ describe("publishing, ads and newsletters", () => {
     expect((await postsStore.get(post.id))!.status).toBe("posted");
     expect(await notice(() => startAdAction(ad.id))).toBe("ad-started");
     expect((await adsStore.get(ad.id))!.status).toBe("running");
+    expect(await notice(() => publishPostAction(post.id))).toBe("invalid"); // never the same post twice
+    expect(await notice(() => startAdAction(ad.id))).toBe("invalid"); // nor a running ad again
     expect(await notice(() => publishPostAction("nope"))).toBe("invalid");
     expect(await notice(() => startAdAction("nope"))).toBe("invalid");
     expect(await notice(() => deletePostAction(post.id))).toBe("deleted");
@@ -143,6 +145,21 @@ describe("publishing, ads and newsletters", () => {
     expect(await notice(() => sendNewsletterAction(first.id))).toBe("invalid"); // never twice
     expect(await notice(() => deleteNewsletterAction(first.id))).toBe("deleted");
     expect(await newslettersStore.get(first.id)).toBeUndefined();
+  });
+
+  it("refuses a post for a car no longer for sale", async () => {
+    const gone = (await adminCars()).find((c) => !forSale(c))!;
+    expect(await notice(() => composeAction(form({ carSlug: gone.slug, network: "Facebook", text: "Hello", intent: "draft", timing: "now" })))).toBe("car-gone");
+    expect(await postsStore.list()).toHaveLength(0);
+  });
+
+  it("sends no newsletter to nobody", async () => {
+    for (const s of await subscribersStore.list()) await subscribersStore.put({ ...s, status: "unsubscribed" });
+    await notice(() => createNewsletterAction(form({ intent: "save", subject: "Hi", body: "News" })));
+    const draft = (await newslettersStore.list()).find((n) => n.status === "draft")!;
+    expect(await notice(() => sendNewsletterAction(draft.id))).toBe("no-subscribers");
+    expect((await newslettersStore.get(draft.id))!.status).toBe("draft");
+    await subscribersStore.reset();
   });
 });
 

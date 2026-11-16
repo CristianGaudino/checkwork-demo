@@ -133,18 +133,20 @@ describe("recording a sale", () => {
 
   it("with DoneDeal stock, records the sale of a car the sync marked sold, and never marks one sold itself", async () => {
     stockCookie = "donedeal";
-    const sold = (await adminCars()).find((c) => c.soldAt)!;
+    const recorded = new Set((await salesStore.list()).map((x) => x.id)); // changing a recorded sale is for owners and managers
+    const sold = (await adminCars()).find((c) => c.soldAt && !recorded.has(c.id))!;
     const customer = (await customersStore.list())[0];
     await expect(recordSaleAction(sold.id, undefined, form({ priceEur: "9000", soldOn: sold.soldAt!, customerId: customer.id }))).rejects.toThrow(/redirect/);
     expect((await salesStore.get(sold.id))?.customerId).toBe(customer.id);
-    const forSale = (await adminCars()).find((c) => !c.soldAt)!;
+    const forSale = (await adminCars()).find((c) => !c.soldAt && !recorded.has(c.id))!;
     await expect(recordSaleAction(forSale.id, undefined, form({ priceEur: "9000", soldOn: today, customerId: customer.id }))).rejects.toThrow(/redirect/);
     expect((await adminCar(forSale.id))?.soldAt).toBeUndefined(); // the sync marks it, from DoneDeal
   });
 
   it("records the cover, the trade-in and the lead it came from, which is marked won", async () => {
     stockCookie = "checkwork";
-    const car = (await adminCars()).find((c) => !c.soldAt && !c.listing && !c.reserved)!;
+    const recorded = new Set((await salesStore.list()).map((x) => x.id)); // a car with a sale already would be a change of it
+    const car = (await adminCars()).find((c) => !c.soldAt && !c.listing && !c.reserved && !recorded.has(c.id))!;
     const customer = (await customersStore.list())[3];
     await leadsStore.put({ id: "lead-sale", type: "enquiry", status: "contacted", name: "Kim", email: "k@example.com", phone: "", message: "", source: "Website", carSlug: car.slug, notes: [], createdAt: 0, followUpOn: today });
     expect((await recordSaleAction(car.id, undefined, form({ priceEur: "9000", soldOn: today, customerId: customer.id, tradeReg: "151-D-1234" })))?.errors?.tradeEur).toMatch(/allowance/);
@@ -152,6 +154,18 @@ describe("recording a sale", () => {
     await expect(recordSaleAction(car.id, undefined, form({ priceEur: "9000", soldOn: today, customerId: customer.id, coverMonths: "36", tradeReg: "151-d-1234", tradeEur: "2500", leadId: "lead-sale" }))).rejects.toThrow(/redirect/);
     expect(await salesStore.get(car.id)).toMatchObject({ coverMonths: 36, tradeIn: { reg: "151-D-1234", allowanceEur: 2500 }, leadId: "lead-sale" });
     expect(await leadsStore.get("lead-sale")).toMatchObject({ status: "won", followUpOn: undefined });
+  });
+
+  it("lets only owners and managers change a sale already recorded", async () => {
+    stockCookie = "checkwork";
+    const was = (await salesStore.list()).find((x) => !x.returnedOn && x.customerId)!;
+    const changed = form({ priceEur: "1", soldOn: was.soldOn, customerId: was.customerId! });
+    role = "Sales";
+    expect((await recordSaleAction(was.id, undefined, changed))?.errors?.priceEur).toMatch(/owners and managers/);
+    expect((await salesStore.get(was.id))?.priceEur).toBe(was.priceEur);
+    role = "Manager";
+    await expect(recordSaleAction(was.id, undefined, changed)).rejects.toThrow(/redirect/);
+    expect((await salesStore.get(was.id))?.priceEur).toBe(1);
   });
 
   it("refuses a missing buyer, a bad price and a day to come, and saves nothing", async () => {
@@ -176,7 +190,8 @@ describe("deposits and undoing a sale", () => {
   });
 
   it("takes a deposit: the car is reserved, and the sale that follows takes its buyer and ends it as sold", async () => {
-    const car = (await adminCars()).find((c) => !c.soldAt && !c.listing && !c.reserved)!;
+    const recorded = new Set((await salesStore.list()).map((x) => x.id)); // a car with a sale already would be a change of it
+    const car = (await adminCars()).find((c) => !c.soldAt && !c.listing && !c.reserved && !recorded.has(c.id))!;
     const customer = (await customersStore.list())[1];
     expect((await reserveAction(car.id, undefined, form({ depositEur: String(car.priceEur + 1), method: "Card", paidOn: today, until: inDays(7), customerId: customer.id })))?.errors?.depositEur).toMatch(/more than the price/);
     expect((await reserveAction(car.id, undefined, form({ depositEur: "500", method: "Card", paidOn: today, until: inDays(200), customerId: customer.id })))?.errors?.until).toMatch(/three months/);
@@ -205,7 +220,8 @@ describe("deposits and undoing a sale", () => {
   });
 
   it("undoes a sale and keeps its record: a car brought back comes back hidden, and the reports leave the sale out", async () => {
-    const car = (await adminCars()).find((c) => !c.soldAt && !c.listing && !c.reserved)!;
+    const sold = new Set((await salesStore.list()).flatMap((x) => [x.id, x.carId])); // a car with no sale, live or undone, before
+    const car = (await adminCars()).find((c) => !c.soldAt && !c.listing && !c.reserved && !sold.has(c.id))!;
     const customer = (await customersStore.list())[2];
     await expect(recordSaleAction(car.id, undefined, form({ priceEur: "12000", soldOn: today, customerId: customer.id }))).rejects.toThrow(/redirect/);
     expect((await undoSaleAction(car.id, undefined, form({ kind: "returned", returnedOn: today, refundEur: "12000", reason: "Gearbox fault" })))?.errors?.kind).toMatch(/owners and managers/);

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { IfModule } from "@/components/IfModule";
 import { useDemoRole, useStockSource } from "@/lib/demo-role";
 import { ExternalIcon, PencilIcon, ShareIcon } from "@/components/stock/icons";
 import { NEW_TAB, secondaryButton } from "@/components/ui";
@@ -23,16 +24,20 @@ export function CarControls({ id, slug, sold = false, listingUrl }: { id: string
           Edit on {LISTING_SITE}<span className="sr-only"> (opens in a new tab)</span>
         </a>
       ) : (
-        <Link href={`/dashboard/stock/${id}`} className={pill}>
-          <PencilIcon className="size-4" />
-          Edit car
-        </Link>
+        <IfModule id="dashboard">
+          <Link href={`/dashboard/stock/${id}`} className={pill}>
+            <PencilIcon className="size-4" />
+            Edit car
+          </Link>
+        </IfModule>
       )}
       {!sold && (
-        <Link href={`/dashboard/marketing/new?car=${encodeURIComponent(slug)}`} className={pill}>
-          <ShareIcon className="size-4" />
-          Post to social
-        </Link>
+        <IfModule id="social">
+          <Link href={`/dashboard/marketing/new?car=${encodeURIComponent(slug)}`} className={pill}>
+            <ShareIcon className="size-4" />
+            Post to social
+          </Link>
+        </IfModule>
       )}
     </div>
   );

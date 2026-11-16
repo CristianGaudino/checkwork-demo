@@ -8,6 +8,7 @@ import { CLAIM_STATUSES, CLAIM_STATUS_LABELS, claimsStore, coverEnds, customersS
 import { TimeLeft } from "@/components/admin/charts";
 import { dublinDay, fmtDate, fmtDateTime } from "@/lib/admin/format";
 import { can } from "@/lib/permissions";
+import { hasModule } from "@/lib/modules";
 import { addClaimNoteAction, setClaimStatusAction } from "../actions";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 
@@ -34,7 +35,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             <p className="max-w-measure whitespace-pre-line text-body">{claim.fault}</p>
             <Facts
               items={[
-                ["Customer", buyer ? <Link key="b" href={`/dashboard/customers/${buyer.id}`} className="underline">{buyer.name}</Link> : "Not on file"],
+                ["Customer", buyer ? ((await hasModule("sales")) ? <Link key="b" href={`/dashboard/customers/${buyer.id}`} className="underline">{buyer.name}</Link> : buyer.name) : "Not on file"],
                 ["Sold", sale ? day(sale.soldOn) : "Not on file"],
                 ["Cover until", sale ? day(coverEnds(sale)) : "Not known"],
                 ...(claim.leadId ? [["From", <Link key="l" href={`/dashboard/aftersales/requests/${claim.leadId}`} className="underline">The website request</Link>] as const] : []),

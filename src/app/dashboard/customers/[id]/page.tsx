@@ -8,6 +8,8 @@ import { monthLabel } from "@/lib/admin/reports";
 import { dublinDay, fmtDate, fmtEur } from "@/lib/admin/format";
 import { matchesAny, parsePersonQuery, type PersonQuery } from "@/lib/admin/person-match";
 import { telHref } from "@/lib/phone";
+import { hasModule, requireModule } from "@/lib/modules";
+import { stockSource } from "@/lib/stock-source";
 
 export const metadata = { title: "Customer" };
 
@@ -18,8 +20,12 @@ const item = "flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-3";
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  await requireModule("sales"); // the customer list is the sales module (src/lib/modules-rules.ts)
   const c = await customersStore.get(id);
   if (!c) notFound();
+  // Claims and orders are modules of their own: with one off, its records stay but its links go (#173).
+  const [service, newCars] = await Promise.all([hasModule("service"), hasModule("newCars")]);
+  const ordersOn = newCars && (await stockSource()) !== "donedeal";
   const [sales, reservations, claims, leads, drives, orders] = await Promise.all([salesStore.list(), reservationsStore.list(), claimsStore.list(), leadsStore.list(), drivesStore.list(), ordersStore.list()]);
   const today = dublinDay();
   const day = (d: string) => fmtDate(`${d}T12:00:00Z`);
@@ -55,7 +61,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                       {!s.returnedOn && (
                         <span className="flex flex-wrap items-center gap-2">
                           <CoverBadge inCover={coverEnds(s) >= today} />
-                          <Link href={`/dashboard/aftersales/new?sale=${s.id}`} className={rowButton}>Open a claim</Link>
+                          {service && <Link href={`/dashboard/aftersales/new?sale=${s.id}`} className={rowButton}>Open a claim</Link>}
                         </span>
                       )}
                     </li>
@@ -63,7 +69,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                 </ul>
               )}
           </Panel>
-          {theirOrders.length > 0 && (
+          {ordersOn && theirOrders.length > 0 && (
             <Panel title="Factory orders">
               <ul className={list}>
                 {theirOrders.map((o) => (
@@ -78,7 +84,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
               </ul>
             </Panel>
           )}
-          {theirClaims.length > 0 && (
+          {service && theirClaims.length > 0 && (
             <Panel title="Warranty claims">
               <ul className={list}>
                 {theirClaims.map((k) => (

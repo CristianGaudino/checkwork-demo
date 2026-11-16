@@ -111,6 +111,7 @@ with no D1). The actor is the signed-in person (`currentMember`), or a named one
   and the last day it is held. The car shows as Reserved on the website, listed after the cars for sale, with no enquiry or test drive
   buttons. Mark sold turns it into the sale (the sale keeps the deposit). Owners and managers end it with the deposit refunded (all or
   part) or kept, under the dealer's own terms. Overview flags one past its date.
+- **Change the sale** (owners and managers): a sale already recorded is changed from the car's page; anyone else is refused.
 - **Undo sale** (owners and managers): the sale fell through before handover, or the buyer brought the car back (with the refund and the
   reason; the page says when it is within the 30-day short-term right to reject). The record is kept under its own id with
   `returnedOn` and `kind`, and reports count it under Returns, not sales. In our version a car brought back is hidden for a look over; one
@@ -128,6 +129,9 @@ with no D1). The actor is the signed-in person (`currentMember`), or a named one
 
 A warranty message sent from the website is aftersales work, not a sale: it waits in Aftersales under Requests (left out of Leads, its counts,
 the overview and the reports) until a claim is opened from it or it is set aside. Aftersales opens on Requests while any wait.
+
+Customers has three lists: the customers (the Sales module) and the stock alerts and newsletter subscribers (the Newsletter module, where
+visitors sign up). Each list, its actions and its export answer only with its module on; the page answers with either.
 
 
 - **A customer's page** (`/dashboard/customers/[id]`): how to reach them, what they bought with the warranty on each (in cover or not),
@@ -233,7 +237,7 @@ their bytes and kept in the private bucket under `help/`, or as a data URL with 
 
 ## Monthly report and the owner API
 
-- **Monthly report** (`/dashboard/monthly-report`): last month by default, any of the twelve before it from the picker. Each section shows only for the modules on (Leads and Stock always, Visitors with Site analytics, Sales, Reviews). Each figure says how it compares with the month before, or "Too few to compare" under 5. Sales value and profit show only to staff with the margins permission. One "What to do" line comes from fixed rules. "Print or save as PDF" uses the browser's print, with the menu left out.
+- **Monthly report** (`/dashboard/monthly-report`): last month by default, any of the twelve before it from the picker. Each section shows only for the modules on (Leads and Stock always, Visitors with Site analytics, Sales, Reviews). Each figure says how it compares with the month before, or "Too few to compare" under 5. Sales value and profit show only to staff with the margins permission. As on Reports, staff without it (Sales) see their own leads and sales only, with no stock, visitors or reviews. One "What to do" line comes from fixed rules. "Print or save as PDF" uses the browser's print, with the menu left out.
 - **Email**: `/api/reports/monthly` (CRON_KEY, scheduled `0 7 1 * *` in `worker.mjs` and `wrangler.jsonc`) emails last month's summary to the owners and managers: counts only. On the demo it goes to the lead inbox like the follow-up digest.
 - **Owner API** and the anonymous feature counters: see `docs/owner-api.md`. The figures for the report and the API are one module, `src/lib/reports/monthly.ts`.
 

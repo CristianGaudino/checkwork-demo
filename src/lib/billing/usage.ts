@@ -5,6 +5,7 @@ import { getSettings, settingsStore } from "@/lib/admin/collections";
 import { notify } from "@/lib/admin/notifications";
 import { BILLING_DEFAULT, alertsCrossed, usageCosts, usageId, withinCaps, type BillingSettings, type Kind, type Service, type UsageCount } from "./rules";
 import { hasModule } from "@/lib/modules";
+import { roleCan } from "@/lib/permission-rules";
 
 // The meters for what is billed per use (#181): registration lookups, AI actions and WhatsApp messages. Every paid use is counted here,
 // once, by the code that makes it; the Billing page, the owner API (#174) and the bill all read these counts, so they never disagree.
@@ -56,7 +57,7 @@ export async function recordUsage<S extends Service>(service: S, kind: Kind<S>, 
     // Each owner and manager, by the name the bell knows them by (src/lib/permissions.ts): the team's, and an owner in ADMIN_OWNER_EMAILS who is
     // not on the team goes by their email. Only them, so Sales and Finance never see what the dealer pays; with nobody, no notice.
     const teamEmails = new Set(team.map((t) => t.email.toLowerCase()));
-    const leaders = [...team.filter((t) => t.role === "Owner" || t.role === "Manager").map((t) => t.name), ...(process.env.ADMIN_OWNER_EMAILS ?? "").split(",").map((e) => e.trim().toLowerCase()).filter((e) => e && !teamEmails.has(e))];
+    const leaders = [...team.filter((t) => roleCan(t.role, "billing")).map((t) => t.name), ...(process.env.ADMIN_OWNER_EMAILS ?? "").split(",").map((e) => e.trim().toLowerCase()).filter((e) => e && !teamEmails.has(e))];
     for (const a of alerts) {
       if (await sentAlertsStore.get(a.key)) continue;
       await sentAlertsStore.put({ id: a.key });

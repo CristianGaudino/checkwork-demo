@@ -79,7 +79,10 @@ export async function placeOrderAction(_prev: OrderFormState, data: FormData): P
     createdAt: Date.now(),
   };
   await ordersStore.put(o);
-  if (lead && lead.status !== "won") await leadsStore.put({ ...lead, status: "won", followUpOn: undefined, notes: [...lead.notes, { at: Date.now(), text: "Placed a factory order." }] });
+  if (lead && lead.status !== "won") {
+    await leadsStore.put({ ...lead, status: "won", followUpOn: undefined, notes: [...lead.notes, { at: Date.now(), text: "Placed a factory order." }] });
+    await logActivity("leads", "Marked the lead won, with a factory order", { kind: "lead", id: lead.id });
+  }
   await logActivity("stock", `Placed a factory order: ${title(o)}${o.depositEur ? `, ${fmtEur(o.depositEur)} deposit` : ""}`);
   redirect(`/dashboard/orders/${id}`);
 }
@@ -117,6 +120,7 @@ export async function addOrderNoteAction(id: string, data: FormData) {
   const o = await ordersStore.get(id);
   if (!text || !o) return;
   await ordersStore.put({ ...o, notes: [...o.notes, { at: Date.now(), text }] });
+  await logActivity("stock", `Added a note to the factory order ${title(o)}`, o.carId ? { kind: "car", id: o.carId, label: title(o) } : undefined); // never the note itself
   paths(id);
 }
 
