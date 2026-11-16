@@ -3,18 +3,24 @@ import { Badge, DataTable, EmptyState, PageHeader, SummaryTabs, TableFooter, Tab
 import { filterAlerts, filterCustomers, filterSubscribers } from "@/lib/admin/customer-lists";
 import { ActButton } from "@/components/admin/ActButton";
 import { can } from "@/lib/permissions";
+import { notFound } from "next/navigation";
+import { hasModule } from "@/lib/modules";
 import { ALERT_KINDS, ALERT_KIND_LABELS, alertsStore, customersStore, subscribersStore, type Customer, type StockAlert, type Subscriber } from "@/lib/admin/collections";
 import { fmtAgo, fmtDate, fmtNum } from "@/lib/admin/format";
 import { pauseAlertAction, removeAlertAction, unsubscribeAction } from "./actions";
 
 export const metadata = { title: "Customers" };
 
-const TABS = [["customers", "Customers"], ["alerts", "Stock alerts"], ["newsletter", "Newsletter"]] as const;
+// The customer list is the sales module; stock alerts and the newsletter are the newsletter module, where visitors sign up (#173).
+const TABS = [["customers", "Customers", "sales"], ["alerts", "Stock alerts", "newsletter"], ["newsletter", "Newsletter", "newsletter"]] as const;
 type Params = { tab?: string; q?: string; source?: string; consent?: string; kind?: string; state?: string; sort?: string; dir?: string; page?: string; per?: string };
 
 export default async function Page({ searchParams }: { searchParams: Promise<Params> }) {
   const sp = await searchParams;
-  const tab = TABS.some(([k]) => k === sp.tab) ? sp.tab! : "customers";
+  const [sales, newsletter] = await Promise.all([hasModule("sales"), hasModule("newsletter")]);
+  const tabs = TABS.filter(([, , m]) => (m === "sales" ? sales : newsletter));
+  if (!tabs.length) notFound();
+  const tab = tabs.find(([k]) => k === sp.tab)?.[0] ?? tabs[0][0];
   const q = (sp.q ?? "").trim().toLowerCase().slice(0, 60);
   const [customers, alerts, subs] = await Promise.all([customersStore.list(), alertsStore.list(), subscribersStore.list()]);
   const live = subs.filter((s) => s.status === "subscribed").length;
@@ -103,9 +109,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
       <SummaryTabs
         label="Customer lists"
         items={[
-          { label: "Customers", count: fmtNum(customers.length), hint: `${customers.filter((c) => c.marketingConsent).length} agreed to marketing`, href: "/dashboard/customers", active: tab === "customers" },
-          { label: "Stock alerts", count: fmtNum(alerts.filter((a) => a.active).length), hint: `${alerts.filter((a) => a.lastSentAt).length} sent at least once`, href: "/dashboard/customers?tab=alerts", active: tab === "alerts" },
-          { label: "Newsletter", count: fmtNum(live), hint: "subscribed", href: "/dashboard/customers?tab=newsletter", active: tab === "newsletter" },
+          ...(sales ? [{ label: "Customers", count: fmtNum(customers.length), hint: `${customers.filter((c) => c.marketingConsent).length} agreed to marketing`, href: "/dashboard/customers", active: tab === "customers" }] : []),
+          ...(newsletter
+            ? [
+                { label: "Stock alerts", count: fmtNum(alerts.filter((a) => a.active).length), hint: `${alerts.filter((a) => a.lastSentAt).length} sent at least once`, href: "/dashboard/customers?tab=alerts", active: tab === "alerts" },
+                { label: "Newsletter", count: fmtNum(live), hint: "subscribed", href: "/dashboard/customers?tab=newsletter", active: tab === "newsletter" },
+              ]
+            : []),
         ]}
       />
 

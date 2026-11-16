@@ -9,6 +9,7 @@ import { DRIVE_STATUS_LABELS, drivesStore, getSettings } from "@/lib/admin/colle
 import { DRIVE_LIMITS, clashes, parseDriveStatus } from "@/lib/admin/drives";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { carName } from "@/lib/stock/format";
+import { forSale } from "@/lib/stock/types";
 import { HOUR, MINUTE } from "@/lib/time";
 import { EMAIL_INVALID, NAME_REQUIRED } from "@/lib/copy";
 import { newId } from "@/lib/admin/ids";
@@ -101,6 +102,7 @@ export async function addDriveAction(_prev: DriveFormState, data: FormData): Pro
   const b = parsed.data;
   const car = (await adminCars()).find((c) => c.slug === b.carSlug);
   if (!car) return { errors: { carSlug: "That car is not in stock" } };
+  if (!forSale(car)) return { errors: { carSlug: "That car is no longer for sale" } }; // sold or hidden since the form opened
   const slot = await checkSlot(car.slug, carName(car), b.date, b.time);
   if ("errors" in slot) return slot;
   const startsAt = slot.startsAt;

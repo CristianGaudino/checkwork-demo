@@ -18,7 +18,7 @@ import { enabledModules } from "@/lib/modules";
 import type { ModuleId } from "@/lib/modules-rules";
 
 // What each role may see, in words, so the owner knows what a role change does.
-const GRANTS: Record<Role, string> = { Owner: "Everything", Manager: "Everything except changing an owner", Sales: "Everything except margins, the full reports, the team, settings, activity and data requests", Finance: "Margins and the full reports, and everything Sales sees" };
+const GRANTS: Record<Role, string> = { Owner: "Everything", Manager: "Everything except changing an owner", Sales: "Everything except margins, the full reports, the team, settings, activity, data requests and billing", Finance: "Margins and the full reports, and everything Sales sees" };
 
 export const metadata = { title: "Settings" };
 
@@ -184,7 +184,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
 
           <Panel title="Notifications">
             <Locked open={edit}>
-              <NotificationsForm settings={s} emailConnected={isUsable("newsletter")} />
+              <NotificationsForm settings={s} emailConnected={isUsable("email")} />
             </Locked>
           </Panel>
 

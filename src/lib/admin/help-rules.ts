@@ -1,4 +1,4 @@
-import type { Role } from "@/lib/permission-rules";
+import { roleCan, type Role } from "@/lib/permission-rules";
 
 // The Help area's pure rules (#182): who we are, the kinds of request, their statuses, and reading the form. No server code, so the form and
 // the tests use them too.
@@ -9,7 +9,7 @@ export const supportWhatsApp = `https://wa.me/${SUPPORT.phone.replace(/\D/g, "")
 export const HELP_TYPES = ["Question", "Something isn't working", "Request a change", "Feedback or an idea", "Billing", "Add a module"] as const;
 export type HelpType = (typeof HELP_TYPES)[number];
 // Billing and module requests are the Owner's and Manager's: they are the ones who see Billing.
-export const typesFor = (role: Role | null): HelpType[] => HELP_TYPES.filter((t) => (t !== "Billing" && t !== "Add a module") || role === "Owner" || role === "Manager");
+export const typesFor = (role: Role | null): HelpType[] => HELP_TYPES.filter((t) => (t !== "Billing" && t !== "Add a module") || roleCan(role, "billing"));
 
 export const HELP_STATUSES = ["received", "inProgress", "done"] as const;
 export type HelpStatus = (typeof HELP_STATUSES)[number];

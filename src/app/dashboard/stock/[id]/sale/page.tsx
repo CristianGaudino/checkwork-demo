@@ -5,7 +5,7 @@ import { SaleForm } from "@/components/admin/SaleForm";
 import { LEAD_TYPE_LABELS, customersStore, getSettings, heldFor, leadsStore, reservationsStore, salesStore } from "@/lib/admin/collections";
 import { dublinDay, fmtDate, fmtEur } from "@/lib/admin/format";
 import { adminCar } from "@/lib/admin/stock-admin";
-import { currentMember } from "@/lib/permissions";
+import { can, currentMember } from "@/lib/permissions";
 import { stockSource } from "@/lib/stock-source";
 import { carName } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
@@ -18,6 +18,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const { id } = await params;
   const [car, was, customers, { team }, me, source, reservations, leads] = await Promise.all([adminCar(id), salesStore.get(id), customersStore.list(), getSettings(), currentMember(), stockSource(), reservationsStore.list(), leadsStore.list()]);
   if (!car || (source === "donedeal" && !isSold(car) && !was && !car.takenDownAt)) notFound();
+  if (was && !(await can("settings"))) notFound(); // changing a sale is for owners and managers (actions.ts)
   const today = dublinDay();
   const title = was ? "Change the sale" : isSold(car) ? "Record the sale" : "Mark sold";
   // A deposit on the car: its buyer and salesperson start the form, and it becomes part of the sale.

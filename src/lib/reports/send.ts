@@ -6,6 +6,7 @@ import { sendTo } from "@/lib/leads/mail";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { loadReportData } from "./load";
 import { hasModule } from "@/lib/modules";
+import { OLD_STOCK_DAYS } from "@/lib/admin/overview";
 import { advice, compare, fmtWait, monthBefore, monthRange, summarise } from "./monthly";
 
 // The email on the 1st (worker.mjs, /api/reports/monthly): last month's figures to the owners and managers. Counts only, never a customer.
@@ -26,7 +27,7 @@ export async function sendMonthlyReport(now = Date.now()): Promise<{ month: stri
     "",
     `Leads: ${fmtNum(s.leads.total)} (${compare(s.leads.total, p.leads.total)}), ${fmtNum(s.leads.outOfHours)} out of hours`,
     `First reply, median: ${fmtWait(s.replies.medianInHoursMin)} in hours, ${fmtWait(s.replies.medianOutOfHoursMin)} out of hours; ${fmtNum(s.replies.none)} with no reply in 24 hours`,
-    `Cars: ${fmtNum(s.stock.added)} added, ${fmtNum(s.stock.sold)} sold, ${fmtNum(s.stock.over45Days)} over 45 days`,
+    `Cars: ${fmtNum(s.stock.added)} added, ${fmtNum(s.stock.sold)} sold, ${fmtNum(s.stock.oldStock)} for sale ${OLD_STOCK_DAYS} days or more`,
     ...(reviews ? [`Reviews: ${fmtNum(s.reviews.count)} new`] : []),
     "",
     advice(s),

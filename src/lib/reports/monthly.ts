@@ -3,6 +3,7 @@ import { addDays, addMonths, daysSince, dublinMs } from "@/lib/admin/format";
 import { OPENING_HOURS, TIME_ZONE } from "@/lib/site";
 import { forSale, isSold, type Car } from "@/lib/stock/types";
 import { DAY } from "@/lib/time";
+import { OLD_STOCK_DAYS } from "@/lib/admin/overview";
 
 // The dealer's figures for a range of Irish days, worked out from the records. One module for the monthly report, its email and the owner
 // API (#174, #175), so the three never disagree. Pure, so every figure is tested. Counts only: nothing here holds a name, phone or email.
@@ -37,8 +38,8 @@ export type Summary = {
   // Minutes from a lead arriving to the first note on it (a call or message logged), split by when the lead came in. `none` is the leads
   // that nobody wrote to within 24 hours, once those 24 hours have passed.
   replies: { medianInHoursMin: number | null; medianOutOfHoursMin: number | null; none: number };
-  // `inStock`, `avgDaysInStock`, `over45Days` and `priceDrops` are the stock now; `added` and `sold` are the range.
-  stock: { inStock: number; added: number; sold: number; avgDaysInStock: number | null; over45Days: number; priceDrops: number };
+  // `inStock`, `avgDaysInStock`, `oldStock` (for sale OLD_STOCK_DAYS or more) and `priceDrops` are the stock now; `added` and `sold` are the range.
+  stock: { inStock: number; added: number; sold: number; avgDaysInStock: number | null; oldStock: number; priceDrops: number };
   sales: { count: number; valueEur?: number };
   reviews: { count: number; average: number | null };
 };
@@ -76,7 +77,7 @@ export function summarise(data: ReportData, from: string, to: string, now: numbe
       // A car sold in the range: marked sold on the stock, or with a sale recorded (a live sale's id is its car's id), counted once.
       sold: new Set([...data.cars.filter((c) => isSold(c) && c.soldAt! >= from && c.soldAt! <= to).map((c) => c.id), ...sales.map((s) => s.id)]).size,
       avgDaysInStock: ages.length ? Math.round(ages.reduce((n, d) => n + d, 0) / ages.length) : null,
-      over45Days: ages.filter((d) => d > 45).length,
+      oldStock: ages.filter((d) => d >= OLD_STOCK_DAYS).length,
       priceDrops: live.filter((c) => c.wasPriceEur !== undefined).length,
     },
     sales: { count: sales.length, ...(opts.money && { valueEur: sales.reduce((n, s) => n + s.priceEur, 0) }) },
@@ -95,7 +96,7 @@ export function compare(now: number, before: number): string {
 // One plain line on what to do, from fixed rules: the first that applies.
 export function advice(s: Summary): string {
   const n = (k: number, one: string, many: string) => `${k} ${k === 1 ? one : many}`;
-  if (s.stock.over45Days) return `${n(s.stock.over45Days, "car", "cars")} over 45 days: a price drop on ${s.stock.over45Days === 1 ? "this one" : "these"} could move ${s.stock.over45Days === 1 ? "it" : "them"}.`;
+  if (s.stock.oldStock) return `${n(s.stock.oldStock, "car", "cars")} for sale ${OLD_STOCK_DAYS} days or more: a price drop on ${s.stock.oldStock === 1 ? "this one" : "these"} could move ${s.stock.oldStock === 1 ? "it" : "them"}.`;
   if (s.replies.none) return `${n(s.replies.none, "lead", "leads")} had no reply in 24 hours: set up a follow-up so none are missed.`;
   if (s.leads.total >= TOO_FEW && s.leads.outOfHours / s.leads.total >= 0.4) return "Many leads came in out of hours: an automatic first reply could win them.";
   return "Nothing needs attention. Keep the stock fresh and the replies quick.";

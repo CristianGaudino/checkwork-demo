@@ -21,6 +21,7 @@ import { followUpDue, isOpenLead } from "@/lib/admin/leads";
 import { signPhotoPath } from "@/lib/leads/photos";
 import { telHref, waHref } from "@/lib/phone";
 import { carHref } from "@/lib/stock/format";
+import { stockSource } from "@/lib/stock-source";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 
 // The quick actions on a lead: the steps it moves through. New is where it starts, so it has no button.
@@ -197,17 +198,21 @@ export async function LeadView({ id }: { id: string }) {
               </fieldset>
             )}
           </Panel>
-          {/* A factory order request from the website: place it, copying from what they asked for. */}
-          {lead.type === "order" && (
-            <Panel title="Factory order" className="max-lg:order-3">
-              <Link href={`/dashboard/orders/new?lead=${lead.id}`} className={`${adminButton} w-fit`}>Place the order</Link>
-            </Panel>
+          {/* A factory order request from the website: place it, copying from what they asked for. Orders are for stock kept here. */}
+          {lead.type === "order" && (await stockSource()) !== "donedeal" && (
+            <IfModule id="newCars">
+              <Panel title="Factory order" className="max-lg:order-3">
+                <Link href={`/dashboard/orders/new?lead=${lead.id}`} className={`${adminButton} w-fit`}>Place the order</Link>
+              </Panel>
+            </IfModule>
           )}
           {/* A warranty claim from the website: open it on the sale, with the buyer found from their details. */}
           {lead.type === "warranty" && (
-            <Panel title="Warranty" className="max-lg:order-3">
-              <Link href={`/dashboard/aftersales/new?lead=${lead.id}`} className={`${adminButton} w-fit`}>Open a claim</Link>
-            </Panel>
+            <IfModule id="service">
+              <Panel title="Warranty" className="max-lg:order-3">
+                <Link href={`/dashboard/aftersales/new?lead=${lead.id}`} className={`${adminButton} w-fit`}>Open a claim</Link>
+              </Panel>
+            </IfModule>
           )}
           {/* The day to get back to them. Only while the lead is open: won and lost need none. */}
           {isOpenLead(lead) && (

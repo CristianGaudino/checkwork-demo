@@ -107,7 +107,7 @@ async function Personal({ period, tabs }: { period: Period; tabs: React.ReactNod
         <StatCard label="Cars sold" value={fmtNum(r.totals.sold)} />
         <StatCard label="Leads" value={fmtNum(r.totals.leads)} />
         <StatCard label="Leads won" value={fmtNum(r.totals.won)} hint={`${r.totals.winRate}% of your leads`} />
-        <StatCard href="/dashboard/leads?due=1" label="Follow-ups due" value={fmtNum(r.totals.followUpsDue)} />
+        <StatCard href={`/dashboard/leads?due=1&with=${encodeURIComponent(me.name)}`} label="Follow-ups due" value={fmtNum(r.totals.followUpsDue)} />
       </StatGrid>
       <Panel title="By month">
         <DataTable

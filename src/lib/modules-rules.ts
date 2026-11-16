@@ -9,7 +9,7 @@ export const MODULES = [
   { id: "finance", label: "Finance", blurb: "Payment estimator with your lender's wording, and finance applications.", pages: ["/finance"], dashboard: [] },
   { id: "testDrives", label: "Test drives", blurb: "Slot booking on the site and a calendar in the dashboard.", pages: ["/test-drive"], dashboard: ["/dashboard/test-drives"], needs: ["dashboard"] },
   { id: "carFinder", label: "Car finder", blurb: "Requests for cars not in stock.", pages: ["/find-a-car"], dashboard: [] },
-  { id: "sales", label: "Sales and customers", blurb: "Deposits and reservations, sale records and a customer list.", pages: [], dashboard: ["/dashboard/customers"], needs: ["dashboard"] },
+  { id: "sales", label: "Sales and customers", blurb: "Deposits and reservations, sale records and a customer list.", pages: [], dashboard: [], needs: ["dashboard"] }, // /dashboard/customers is shared with the newsletter: the page checks both
   { id: "margins", label: "Margins and reports", blurb: "Cost prices, margins for the staff allowed, sales reports, targets.", pages: [], dashboard: ["/dashboard/margins", "/dashboard/reports"], needs: ["sales"] },
   { id: "service", label: "Service and aftersales", blurb: "Service booking, warranty claims and their progress.", pages: ["/service"], dashboard: ["/dashboard/aftersales"], needs: ["dashboard"] },
   { id: "reviews", label: "Reviews", blurb: "Google reviews on the site, and replies from the dashboard.", pages: ["/reviews"], dashboard: ["/dashboard/reviews"], needs: ["dashboard"] },

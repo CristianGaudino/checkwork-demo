@@ -11,7 +11,7 @@ import { requireStaff } from "@/lib/staff";
 
 export async function pauseAlertAction(id: string) {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
-  await requireModule("sales"); // and only while the dealer has it
+  await requireModule("newsletter"); // alerts and the newsletter are the newsletter module, where visitors sign up (#173)
   const a = await alertsStore.get(id);
   if (!a?.active) return;
   await alertsStore.put({ ...a, active: false });
@@ -21,7 +21,7 @@ export async function pauseAlertAction(id: string) {
 
 export async function removeAlertAction(id: string) {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
-  await requireModule("sales"); // and only while the dealer has it
+  await requireModule("newsletter"); // alerts and the newsletter are the newsletter module, where visitors sign up (#173)
   if (!(await alertsStore.get(id))) return;
   await alertsStore.remove(id);
   await logActivity("customers", "Removed a stock alert", { kind: "alert", id });
@@ -30,7 +30,7 @@ export async function removeAlertAction(id: string) {
 
 export async function unsubscribeAction(id: string) {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
-  await requireModule("sales"); // and only while the dealer has it
+  await requireModule("newsletter"); // alerts and the newsletter are the newsletter module, where visitors sign up (#173)
   const s = await subscribersStore.get(id);
   if (s?.status !== "subscribed") return;
   await subscribersStore.put({ ...s, status: "unsubscribed" });

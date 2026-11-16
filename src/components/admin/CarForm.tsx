@@ -12,6 +12,14 @@ import { saveCarAction, type CarFormState } from "@/app/dashboard/stock/actions"
 import { lookupRegStaffAction } from "@/app/dashboard/reg-action";
 import { CAR_FIELDS, FIELD_GROUPS } from "@/lib/admin/car-fields";
 import type { Car } from "@/lib/stock/types";
+import type { WriteRequest } from "@/lib/ai/tasks";
+
+// What Write with AI sends for the description: the form's boxes, or nothing until the make and model are in (the writer then says so).
+const carRequest = (form: HTMLFormElement | null | undefined): WriteRequest | null => {
+  if (!form) return null;
+  const fields = Object.fromEntries(CAR_FIELDS.map((c) => [c.name, String(new FormData(form).get(c.name) ?? "").trim()]));
+  return fields.make && fields.model ? { task: "carDescription", fields } : null;
+};
 
 // Add or edit a car. Every box comes from CAR_FIELDS; the server checks it again (car-form.ts), and a bad box comes back with its message.
 // `car` is the car being edited, or none for a new one.
@@ -67,7 +75,7 @@ export function CarForm({ car, cost, reg: startReg = "" }: { car?: Car; cost?: {
               // The description has the AI writer under it, so it is not inside the label the other boxes use.
               <div key={f.name} className="flex min-w-0 flex-col gap-1 sm:col-span-2 lg:col-span-3">
                 <span className="text-meta font-semibold">{f.label}</span>
-                <AITextarea name={f.name} label={f.label} task="carDescription" defaultValue={value(f.name)} rows={5} request={(box) => box?.form ? { task: "carDescription", fields: Object.fromEntries(CAR_FIELDS.map((c) => [c.name, String(new FormData(box.form!).get(c.name) ?? "")])) } : null} />
+                <AITextarea name={f.name} label={f.label} task="carDescription" defaultValue={value(f.name)} rows={5} request={(box) => carRequest(box?.form)} />
                 {errors[f.name] && <span className="text-meta text-bad">{errors[f.name]}</span>}
               </div>
             ) : (

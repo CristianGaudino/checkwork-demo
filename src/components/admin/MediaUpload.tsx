@@ -31,6 +31,11 @@ export function MediaUpload({ accept = MEDIA_ACCEPT, carSlug = "", label = "Add 
   const add = (files: File[]) =>
     start(async () => {
       let added = 0;
+      // A file that fails stops the rest, but the ones already added show at once, not after a reload.
+      const stop = (msg: string) => {
+        if (added) router.refresh();
+        setSaid(msg);
+      };
       for (const file of files.slice(0, 10)) {
         setSaid(`Adding ${added + 1} of ${Math.min(files.length, 10)}`);
         try {
@@ -38,9 +43,9 @@ export function MediaUpload({ accept = MEDIA_ACCEPT, carSlug = "", label = "Add 
           f.set("name", file.name);
           if (carSlug) f.set("carSlug", carSlug);
           if (file.type.startsWith("video/")) {
-            if (file.size > MEDIA_LIMITS.videoBytes) return setSaid("That video is too big. Videos can be up to 15 MB here.");
+            if (file.size > MEDIA_LIMITS.videoBytes) return stop("That video is too big. Videos can be up to 15 MB here.");
             const s = await seconds(file);
-            if (!(s > 0) || s > MEDIA_LIMITS.videoSeconds) return setSaid(`Videos can be up to ${MEDIA_LIMITS.videoSeconds} seconds.`);
+            if (!(s > 0) || s > MEDIA_LIMITS.videoSeconds) return stop(`Videos can be up to ${MEDIA_LIMITS.videoSeconds} seconds.`);
             f.set("file", file);
             f.set("seconds", String(s));
           } else {
@@ -52,11 +57,11 @@ export function MediaUpload({ accept = MEDIA_ACCEPT, carSlug = "", label = "Add 
             bmp.close();
           }
           const r = await uploadMediaAction(f);
-          if (!r.ok) return setSaid(r.error);
+          if (!r.ok) return stop(r.error);
           onAdded?.(r.item);
           added++;
         } catch {
-          return setSaid("That file could not be added. Try another.");
+          return stop("That file could not be added. Try another.");
         }
       }
       if (input.current) input.current.value = "";

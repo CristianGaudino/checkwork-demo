@@ -54,7 +54,7 @@ describe("summarise", () => {
     expect(s.replies).toEqual({ medianInHoursMin: 30, medianOutOfHoursMin: 120, none: 2 });
   });
   it("counts the stock, the sales (an undone one is not) and the reviews", () => {
-    expect(s.stock).toMatchObject({ inStock: 2, added: 1, sold: 1, over45Days: 1, priceDrops: 1 });
+    expect(s.stock).toMatchObject({ inStock: 2, added: 1, sold: 1, oldStock: 1, priceDrops: 1 });
     expect(s.sales).toEqual({ count: 1 });
     expect(summarise(data, "2026-03-01", "2026-03-31", now, { money: true }).sales.valueEur).toBe(9000);
     expect(s.reviews).toEqual({ count: 2, average: 4.5 });
@@ -84,8 +84,8 @@ describe("compare, median and advice", () => {
   });
   it("gives one line from the first rule that applies", () => {
     const base = summarise(empty, "2026-03-01", "2026-03-31", 0);
-    expect(advice({ ...base, stock: { ...base.stock, over45Days: 6 } })).toBe("6 cars over 45 days: a price drop on these could move them.");
-    expect(advice({ ...base, stock: { ...base.stock, over45Days: 1 } })).toBe("1 car over 45 days: a price drop on this one could move it.");
+    expect(advice({ ...base, stock: { ...base.stock, oldStock: 6 } })).toBe("6 cars for sale 60 days or more: a price drop on these could move them.");
+    expect(advice({ ...base, stock: { ...base.stock, oldStock: 1 } })).toBe("1 car for sale 60 days or more: a price drop on this one could move it.");
     expect(advice({ ...base, replies: { ...base.replies, none: 2 } })).toMatch(/^2 leads had no reply/);
     expect(advice(base)).toMatch(/^Nothing needs attention/);
   });
