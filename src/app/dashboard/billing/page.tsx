@@ -9,7 +9,7 @@ import { enabledModules } from "@/lib/modules";
 import { can, currentMember } from "@/lib/permissions";
 import { billingDetails, listBills } from "@/lib/billing/bills";
 import { AI_PLAN_LABELS, FOUNDING, afterDiscount, eur, fmtMonth, foundingEnd, itemise, nextBillDate, scopeName, billedServices } from "@/lib/billing/bills-rules";
-import { AI_ASSISTANT, BASE_EUR, MODULE_EUR, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, capOf, planEur, usageEstimate, round2, withVat, type BillingSettings, type Scope, type Service, SERVICES } from "@/lib/billing/rules";
+import { AI_ASSISTANT, BASE_EUR, MODULE_EUR, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, capOf, planEur, usageEstimate, round2, withVat, type BillingSettings, type Scope, type Service } from "@/lib/billing/rules";
 import { billingSettings, monthUsage } from "@/lib/billing/usage";
 import { askModuleAction, removeAlertAction, saveAiPlanAction } from "./actions";
 import { dublinDay } from "@/lib/admin/format";
