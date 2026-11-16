@@ -41,7 +41,7 @@ export function calendarWeek(posts: SocialPost[], ads: Ad[], days: string[]): Re
     const at = p.status === "scheduled" ? p.scheduledFor : (p.postedAt ?? p.createdAt);
     if (at) add({ id: p.id, kind: "post", at, title: `${p.network} ${p.format ?? "post"}`, sub: p.carTitle ?? "", status: p.status });
   }
-  for (const a of ads) if (a.status !== "draft") add({ id: a.id, kind: "ad", at: a.createdAt, title: `${a.platform} ad`, sub: a.carTitle, status: a.status });
+  for (const a of ads) if (a.status !== "draft") add({ id: a.id, kind: "ad", at: a.startedAt ?? a.createdAt, title: `${a.platform} ad`, sub: a.carTitle, status: a.status });
   for (const d of days) out[d].sort((x, y) => x.at - y.at);
   return out;
 }

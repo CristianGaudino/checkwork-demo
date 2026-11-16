@@ -71,6 +71,19 @@ describe("purgeOldLeads", () => {
     expect(left).toEqual(["drive-5b2e7d10", "lead-1000", "real-c-returning", "real-new"]); // the customer first seen long ago but in touch lately stays
   });
 
+  it("deletes WhatsApp messages of a lead that is gone or older than the period, and keeps the rest", async () => {
+    const old = monthsAgo(13).getTime();
+    const fresh = monthsAgo(0).getTime();
+    const wa = (id: string, at: number, leadId?: string) => ({ collection: "whatsapp", id, data: { id, at, leadId } });
+    await getDb().insert(adminDocs).values([
+      { collection: "leads", id: "real-here", data: { id: "real-here", createdAt: fresh } },
+      wa("m-gone", fresh, "real-gone"), wa("m-old", old, "real-here"), wa("m-keep", fresh, "real-here"), wa("m-seed", fresh, "lead-1000"), wa("m-staff", fresh),
+    ]);
+    await purgeOldLeads(getDb(), { delete: async () => {} }, NOW);
+    const left = (await getDb().select({ id: adminDocs.id }).from(adminDocs)).map((r) => r.id).sort();
+    expect(left).toEqual(["m-keep", "m-seed", "m-staff", "real-here"]);
+  });
+
   it("clears the registration lookup's cache after 30 days, and the past days' counts", async () => {
     const at = (days: number) => NOW.getTime() - days * 86_400_000;
     await getDb().insert(adminDocs).values([

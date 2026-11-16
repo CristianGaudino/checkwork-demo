@@ -40,7 +40,7 @@ const compose = z.object({
   timing: z.enum(["now", "later"]),
   format: z.enum(POST_FORMATS).default("post"),
   layout: z.enum(STORY_LAYOUTS).optional(),
-  video: z.string().max(300).optional(),
+  video: z.string().max(Math.ceil((MEDIA_LIMITS.videoBytes * 4) / 3) + 100).optional(), // a library video is a data: URL when there is no bucket (dev, E2E)
   when: z.string().optional(),
   ad: z.string().optional(),
   platform: z.enum(AD_PLATFORMS).optional(),
@@ -89,7 +89,7 @@ export async function composeAction(data: FormData) {
   if (!adDraft) return go("posts", "post-published");
   const started = await startAd(adDraft);
   if (started.ok) {
-    await adsStore.put({ ...adDraft, status: "running", ...(started.simulated && simulatedAd(adDraft.id)) });
+    await adsStore.put({ ...adDraft, status: "running", startedAt: Date.now(), ...(started.simulated && simulatedAd(adDraft.id)) });
     await logActivity("marketing", `Started a ${adDraft.platform} ad with a ${fmtEur(adDraft.budgetEur)} budget`, adRef(adDraft));
   }
   go("posts", started.ok ? "published-ad" : "published-ad-draft");
@@ -122,7 +122,7 @@ export async function startAdAction(id: string) {
   if (!a) return go("posts", "invalid");
   const r = await startAd(a);
   if (r.ok) {
-    await adsStore.put({ ...a, status: "running", ...(r.simulated && simulatedAd(a.id)) });
+    await adsStore.put({ ...a, status: "running", startedAt: Date.now(), ...(r.simulated && simulatedAd(a.id)) });
     await logActivity("marketing", `Started a ${a.platform} ad with a ${fmtEur(a.budgetEur)} budget`, adRef(a));
   }
   outcome("posts", "ads", r, "ad-started");
@@ -218,7 +218,9 @@ export async function deleteMediaAction(id: string) {
   const item = await mediaStore.get(id);
   if (!item) return;
   await mediaStore.remove(id);
-  await dropMedia(item.src);
+  // A post that uses the file still needs it, so the file is kept until no post does.
+  const used = (await postsStore.list()).some((p) => p.video === item.src || p.photos?.includes(item.src));
+  if (!used) await dropMedia(item.src);
   await logActivity("marketing", "Removed a file from the media library");
   revalidatePath("/dashboard/marketing");
 }

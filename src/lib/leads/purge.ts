@@ -1,4 +1,4 @@
-import { and, eq, inArray, like, lt, sql } from "drizzle-orm";
+import { and, eq, inArray, like, lt, or, sql } from "drizzle-orm";
 import type { BaseSQLiteDatabase } from "drizzle-orm/sqlite-core";
 import { adminDocs, leads } from "../db/schema";
 import type * as schema from "../db/schema";
@@ -24,6 +24,9 @@ export async function purgeOldLeads(
   // The admin's copies of website leads and alerts (src/lib/admin/real-leads.ts, the "real-" rows) go on the same day.
   const older = lt(sql`json_extract(${adminDocs.data}, '$.createdAt')`, cutoff.getTime());
   await db.delete(adminDocs).where(and(inArray(adminDocs.collection, ["leads", "alerts"]), like(adminDocs.id, "real-%"), older));
+  // The WhatsApp messages about those leads go with them (and any message older than the period), so a buyer's words do not outlive their lead.
+  const chat = sql`json_extract(${adminDocs.data}, '$.leadId')`;
+  await db.delete(adminDocs).where(and(eq(adminDocs.collection, "whatsapp"), or(lt(sql`json_extract(${adminDocs.data}, '$.at')`, cutoff.getTime()), and(like(chat, "real-%"), sql`${chat} NOT IN (SELECT l.id FROM admin_docs l WHERE l.collection = 'leads')`))));
   // Every test drive, not only the website's: one staff book on the dashboard (a phone booking, "drive-...") holds the same name and contact.
   await db.delete(adminDocs).where(and(eq(adminDocs.collection, "test-drives"), older));
   // A customer (from the website or typed in on the dashboard) goes once they have not been in touch for the same period and no sale,

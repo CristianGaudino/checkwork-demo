@@ -52,6 +52,10 @@ describe("the demo writer", () => {
   it("adds hashtags to the text it is given, and urgency, without losing it", () => {
     expect(mockText("post", post(), "hashtags", "My own words.")).toMatch(/^My own words\.\n#Ford #Focus/);
     expect(mockText("post", post(), "urgency", "My own words.")).toMatch(/^My own words\.\nMessage us today/);
+    for (const a of ["urgency", "hashtags"] as const) {
+      const once = mockText("post", post(), a, "My own words.");
+      expect(mockText("post", post(), a, once)).toBe(once); // not added a second time
+    }
   });
 
   it("writes the other tasks from their records and changes with each button", () => {

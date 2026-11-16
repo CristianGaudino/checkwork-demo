@@ -19,6 +19,7 @@ describe("upload checks", () => {
     expect(sniffVideo(video("isom"))?.ext).toBe("mp4");
     expect(sniffVideo(video("qt  "))?.ext).toBe("mov");
     expect(sniffVideo(jpeg())).toBeNull();
+    expect(sniffVideo(video("heic"))).toBeNull(); // an image or audio file in the same box format
   });
   it("takes a video only with a sensible length and size", () => {
     expect(checkUpload(video(), 30)).toMatchObject({ ok: true, kind: "video", ext: "mp4" });

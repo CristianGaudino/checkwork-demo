@@ -6,9 +6,12 @@ export const MEDIA_LIMITS = { imageBytes: 5 * 1024 * 1024, videoBytes: 15 * 1024
 export const MEDIA_ACCEPT = "image/jpeg,image/png,image/webp,video/mp4,video/quicktime";
 
 // MP4 and MOV both start with a box whose type at byte 4 is "ftyp"; "qt  " is a MOV.
+const VIDEO_BRANDS = ["isom", "iso2", "mp41", "mp42", "avc1", "qt  ", "M4V "];
 export function sniffVideo(b: Uint8Array): { ext: "mp4" | "mov"; contentType: string } | null {
   if (b.length < 12 || String.fromCharCode(b[4], b[5], b[6], b[7]) !== "ftyp") return null;
-  return String.fromCharCode(b[8], b[9], b[10], b[11]) === "qt  " ? { ext: "mov", contentType: "video/quicktime" } : { ext: "mp4", contentType: "video/mp4" };
+  const brand = String.fromCharCode(b[8], b[9], b[10], b[11]);
+  if (!VIDEO_BRANDS.includes(brand)) return null;
+  return brand === "qt  " ? { ext: "mov", contentType: "video/quicktime" } : { ext: "mp4", contentType: "video/mp4" };
 }
 
 export type Checked = { ok: true; kind: "image" | "video"; ext: "jpg" | "png" | "webp" | "mp4" | "mov"; contentType: string } | { ok: false; error: string };

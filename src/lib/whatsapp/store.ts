@@ -95,14 +95,9 @@ const strip = (m: Msg, photos?: string[]): Msg => {
 export async function viewFor(name: string, modules: ReadonlySet<ModuleId>, now = Date.now()): Promise<View> {
   const all = await messagesStore.list();
   // A message about a lead that is gone goes with it.
-  const ids = [...new Set(all.map((m) => m.leadId).filter((x): x is string => Boolean(x)))];
-  const gone = new Set<string>();
-  const found = new Map<string, string>();
-  for (const id of ids) {
-    const l = await leadsStore.get(id);
-    if (l) found.set(id, l.name);
-    else gone.add(id);
-  }
+  const names = new Map((await leadsStore.list()).map((l) => [l.id, l.name]));
+  const gone = new Set(all.flatMap((m) => (m.leadId && !names.has(m.leadId) ? [m.leadId] : [])));
+  const found = names;
   for (const m of all.filter((m) => m.leadId && gone.has(m.leadId))) await messagesStore.remove(m.id);
   const live = all.filter((m) => !(m.leadId && gone.has(m.leadId))).sort((a, b) => a.at - b.at);
   // A buyer's answer that has come in lands on the lead and in the bell, once.

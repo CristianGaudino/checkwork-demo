@@ -197,7 +197,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                   <li key={m.id} className="flex min-w-0 flex-col gap-2">
                     <div className="aspect-square overflow-hidden rounded-control bg-photo-bg">
                       {m.kind === "video" ? (
-                        <video src={m.src} muted playsInline preload="metadata" aria-label={m.name} className="size-full object-cover" />
+                        <video src={m.src} muted playsInline preload="none" aria-label={m.name} className="size-full object-cover" />
                       ) : (
                         // eslint-disable-next-line @next/next/no-img-element -- the dealer's own upload; images are unoptimized on this Worker
                         <img src={m.src} alt={m.name} className="size-full object-cover" />
@@ -205,7 +205,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                     </div>
                     <span className="truncate text-meta font-medium">{m.name}</span>
                     <span className="truncate text-meta text-text-2">{m.kind === "video" ? `Video, ${m.durationSec ?? 0} s` : "Photo"}{m.carTitle ? `, ${m.carTitle}` : ""}</span>
-                    <ActButton act={deleteMediaAction.bind(null, m.id)} confirm={{ title: "Delete this file?", text: "Posts that already use it keep their copy until they go out.", yes: "Delete" }} label={`Delete ${m.name}`} className={`${rowButton} w-fit text-bad`}>Delete</ActButton>
+                    <ActButton act={deleteMediaAction.bind(null, m.id)} confirm={{ title: "Delete this file?", text: "A post that uses it keeps the file. It leaves the library.", yes: "Delete" }} label={`Delete ${m.name}`} className={`${rowButton} w-fit text-bad`}>Delete</ActButton>
                   </li>
                 ))}
               </ul>

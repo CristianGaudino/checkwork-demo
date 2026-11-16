@@ -31,10 +31,15 @@ function post(f: FactsOf["post"], a: Adjust | undefined, current: string): strin
     case "friendlier": return lines(`Look what just came in! ${c.name}.`, specs(c) && `${specs(c)}.`, price, "Pop in and say hello.", link);
     case "shorter": return lines(`${c.name}. ${c.price ?? ""}`.trim(), link);
     case "detail": return lines(...base.slice(0, 3), extras(c) && `${extras(c)}.`, kit(c), ...base.slice(3));
-    case "urgency": return lines(current || lines(...base), "Message us today to book a viewing.");
+    case "urgency": {
+      const ask = "Message us today to book a viewing.";
+      const text = current || lines(...base);
+      return text.includes(ask) ? text : lines(text, ask);
+    }
     case "hashtags": {
       const tags = [...c.name.split(" ").filter((w) => /^[A-Za-z]/.test(w)).slice(0, 2), c.body, "UsedCars"].filter(Boolean).map((t) => tag(t as string));
-      return lines(current || lines(...base), tags.join(" "));
+      const text = current || lines(...base);
+      return text.includes(tags.join(" ")) ? text : lines(text, tags.join(" "));
     }
     default: return lines(...base);
   }
@@ -85,7 +90,7 @@ function reviewReply(f: FactsOf["reviewReply"], a: Adjust | undefined): string {
 }
 
 export function mockText<T extends Task>(task: T, facts: FactsOf[T], adjust?: Adjust, current = ""): string {
-  if (adjust && !(adjust in ADJUSTS)) adjust = undefined;
+  if (adjust && !Object.hasOwn(ADJUSTS, adjust)) adjust = undefined;
   switch (task) {
     case "post": return post(facts as FactsOf["post"], adjust, current);
     case "newsletter": return newsletter(facts as FactsOf["newsletter"], adjust);

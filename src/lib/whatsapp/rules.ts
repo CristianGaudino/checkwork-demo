@@ -77,7 +77,9 @@ export function channelFor(kind: "alert" | "reply" | "marketing", connected: boo
 // A typed price, as a dealer types it on a phone: "8,500", "€8.5k", "8500", "8 500", "8.500", "offer 8k euro". Whole euros from 100 to 500,000,
 // or null. A lone dot with three digits after it is a thousands dot (8.500), any other is a decimal (8.5k, 8.5).
 export function parsePrice(text: string): number | null {
-  const m = text.replace(/\s+(?=\d{3}\b)/g, "").match(/(\d[\d.,]*)\s*(k\b)?/i);
+  const joined = text.replace(/\s+(?=\d{3}\b)/g, "");
+  if ((joined.match(/\d[\d.,]*/g) ?? []).length > 1) return null; // two numbers (a year and a price) is a guess, so ask again
+  const m = joined.match(/(\d[\d.,]*)\s*(k\b)?/i);
   if (!m) return null;
   let n = m[1].replace(/[.,]$/, "");
   if (/^\d{1,3}([.,]\d{3})+$/.test(n) && !m[2]) n = n.replace(/[.,]/g, "");

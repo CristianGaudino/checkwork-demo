@@ -14,7 +14,7 @@ describe("parsePrice", () => {
     ["offer 8k euro", 8000],
     ["8,5k", 8500],
   ])("reads %s as %i", (text, eur) => expect(parsePrice(text)).toBe(eur));
-  it.each(["", "abc", "50", "8.5", "9999999", "Saturday at 11"])("refuses %s", (text) => expect(parsePrice(text)).toBeNull());
+  it.each(["", "abc", "50", "8.5", "9999999", "Saturday at 11", "for the 2019 one, 8,500", "8k or 9k"])("refuses %s", (text) => expect(parsePrice(text)).toBeNull());
 });
 
 describe("templates by module", () => {

@@ -4,6 +4,7 @@ import { getDb } from "@/lib/db";
 import { leads as formLeads } from "@/lib/db/schema";
 import { getBindings } from "@/lib/leads/bindings";
 import { alertsStore, claimsStore, customersStore, drivesStore, leadsStore, ordersStore, reservationsStore, salesStore, subscribersStore, type Claim, type Customer, type Lead, type Order, type Reservation, type Sale, type StockAlert, type Subscriber, type TestDrive } from "./collections";
+import { messagesStore, type Msg } from "@/lib/whatsapp/store";
 import { matchesAny, widen, type PersonQuery } from "./person-match";
 
 // A person's right to see, and to have erased, what the dealer holds about them (GDPR articles 15 and 17), by the email or phone they
@@ -12,7 +13,7 @@ import { matchesAny, widen, type PersonQuery } from "./person-match";
 // years (owner's decision, 2026-11-11): erasure removes the buyer from them. Google reviews are Google's, not ours to erase.
 // Owners and managers only (the "data" permission, checked by the callers).
 type FormLead = typeof formLeads.$inferSelect;
-export type Held = { formLeads: FormLead[]; leads: Lead[]; drives: TestDrive[]; alerts: StockAlert[]; subscribers: Subscriber[]; customers: Customer[]; sales: Sale[]; deposits: Reservation[]; claims: Claim[]; orders: Order[] };
+export type Held = { formLeads: FormLead[]; leads: Lead[]; drives: TestDrive[]; alerts: StockAlert[]; subscribers: Subscriber[]; customers: Customer[]; sales: Sale[]; deposits: Reservation[]; claims: Claim[]; orders: Order[]; messages: Msg[] };
 
 const hasDb = () => Boolean(getBindings().DB);
 
@@ -29,13 +30,16 @@ async function formLeadsOf(qs: PersonQuery[]): Promise<FormLead[]> {
 // By the email or phone given, then once more by the other details their customer record and leads hold, so a booking made with only a
 // phone is found from their email too. Once, not over and over: a shared family phone must not pull in everyone it ever touched.
 export async function findPerson(q: PersonQuery): Promise<Held> {
-  const [leads, drives, alerts, subscribers, customers, sales, deposits, claims, orders] = await Promise.all([leadsStore.list(), drivesStore.list(), alertsStore.list(), subscribersStore.list(), customersStore.list(), salesStore.list(), reservationsStore.list(), claimsStore.list(), ordersStore.list()]);
+  const [leads, drives, alerts, subscribers, customers, sales, deposits, claims, orders, messages] = await Promise.all([leadsStore.list(), drivesStore.list(), alertsStore.list(), subscribersStore.list(), customersStore.list(), salesStore.list(), reservationsStore.list(), claimsStore.list(), ordersStore.list(), messagesStore.list()]);
   const qs = widen([q], [...customers, ...leads].filter((r) => matchesAny(r, [q])));
   const mine = customers.filter((c) => matchesAny(c, qs));
   const ids = new Set(mine.map((c) => c.id));
+  const theirs = leads.filter((l) => matchesAny(l, qs));
+  const leadIds = new Set(theirs.map((l) => l.id));
   return {
     formLeads: await formLeadsOf(qs),
-    leads: leads.filter((l) => matchesAny(l, qs)),
+    leads: theirs,
+    messages: messages.filter((m) => m.leadId && leadIds.has(m.leadId)),
     drives: drives.filter((d) => matchesAny(d, qs)),
     alerts: alerts.filter((a) => matchesAny(a, qs)),
     subscribers: subscribers.filter((s) => matchesAny(s, qs)),
@@ -47,7 +51,7 @@ export async function findPerson(q: PersonQuery): Promise<Held> {
   };
 }
 
-export const heldCount = (h: Held) => h.formLeads.length + h.leads.length + h.drives.length + h.alerts.length + h.subscribers.length + h.customers.length + h.sales.length + h.deposits.length + h.claims.length + h.orders.length;
+export const heldCount = (h: Held) => h.formLeads.length + h.leads.length + h.drives.length + h.alerts.length + h.subscribers.length + h.customers.length + h.sales.length + h.deposits.length + h.claims.length + h.orders.length + h.messages.length;
 
 // What they get: everything above, readable, with the photos counted (copies are sent on request: they are files, not data in this file).
 export function exportOf(h: Held, at = new Date()) {
@@ -56,6 +60,7 @@ export function exportOf(h: Held, at = new Date()) {
     about: "Everything this dealer's website and dashboard hold about you, found by the email or phone you gave.",
     requests: h.formLeads.map(({ photoKeys, ...r }) => ({ ...r, photos: photoKeys.length })),
     leads: h.leads,
+    whatsappMessages: h.messages.map((m) => ({ at: new Date(m.at).toISOString(), from: m.from, text: m.text })),
     testDrives: h.drives,
     stockAlerts: h.alerts,
     newsletter: h.subscribers,
@@ -81,6 +86,7 @@ export async function erasePerson(q: PersonQuery): Promise<number> {
     }
     await getDb().delete(formLeads).where(inArray(formLeads.id, h.formLeads.map((r) => r.id)));
   }
+  for (const m of h.messages) await messagesStore.remove(m.id);
   for (const l of h.leads) await leadsStore.remove(l.id);
   for (const d of h.drives) await drivesStore.remove(d.id);
   for (const a of h.alerts) await alertsStore.remove(a.id);

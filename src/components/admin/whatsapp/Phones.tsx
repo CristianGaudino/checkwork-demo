@@ -119,7 +119,9 @@ export function Phones({ initial }: { initial: View }) {
   const [busy, start] = useTransition();
   // The buyer's answer arrives a few seconds after the offer, so look often while one is on its way and now and then otherwise.
   useEffect(() => {
-    const t = setInterval(() => void snapshotAction().then(setView).catch(() => undefined), view.typing ? 2000 : 15000);
+    const t = setInterval(() => {
+      if (!document.hidden) void snapshotAction().then(setView).catch(() => undefined);
+    }, view.typing ? 2000 : 15000);
     return () => clearInterval(t);
   }, [view.typing]);
   const run = (go: () => Promise<View>) => start(async () => setView(await go()));

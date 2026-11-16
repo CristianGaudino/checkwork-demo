@@ -6,7 +6,7 @@ import { requireModule } from "@/lib/modules";
 import { SITE_NAME } from "@/lib/site";
 import { POST_FORMATS, STORY_LAYOUTS, NETWORKS } from "@/lib/admin/networks";
 import { buildFacts } from "./facts";
-import { ADJUSTS, type Adjust, type WriteRequest, type WriteResult } from "./tasks";
+import { ADJUSTS, adjustsFor, type Adjust, type WriteRequest, type WriteResult } from "./tasks";
 import { writeWithAI } from "./write";
 
 const request = z.discriminatedUnion("task", [
@@ -21,9 +21,9 @@ const request = z.discriminatedUnion("task", [
 // left alone and the button says so), then the writer, then the count, so a failed write is never billed.
 export async function writeAction(req: WriteRequest, adjust?: Adjust, current = ""): Promise<WriteResult> {
   await requireModule("ai");
-  if (adjust && !(adjust in ADJUSTS)) return { ok: false, reason: "failed" };
   const parsed = request.safeParse(req);
   if (!parsed.success) return { ok: false, reason: "failed" };
+  if (adjust && !(Object.hasOwn(ADJUSTS, adjust) && adjustsFor(parsed.data.task).includes(adjust))) return { ok: false, reason: "failed" };
   if (!(await usageAllowed("ai"))) return { ok: false, reason: "limit" };
   const built = await buildFacts(parsed.data as WriteRequest, SITE_NAME);
   if (!built) return { ok: false, reason: "failed" };

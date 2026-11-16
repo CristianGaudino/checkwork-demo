@@ -8,6 +8,9 @@ import { carEditSummary } from "@/lib/admin/activity-text";
 import { postReviewReply } from "@/lib/admin/publishers";
 import { carTitleOf } from "@/lib/admin/seed-data";
 import { SITE_NAME } from "@/lib/site";
+import { stockSource } from "@/lib/stock-source";
+import { LISTING_SITE } from "@/lib/stock-source-rules";
+import { isSold } from "@/lib/stock/types";
 import { sendWhatsApp } from "./send";
 import { addMessage, messagesStore, staffStore, type Msg } from "./store";
 import { BUTTON_LABELS, firstName, parsePrice, type ButtonId } from "./rules";
@@ -69,11 +72,15 @@ export async function tap(me: string, msgId: string, button: ButtonId): Promise<
   if (button === "report") return void (await say(me, { text: "Here is the full report.", href: "/dashboard/reports" }));
   if (button === "post") return void (await say(me, { text: "Thanks. Approve the post in Marketing and it is scheduled.", href: "/dashboard/marketing" }));
   if (button === "drop") {
+    if (msg.done) return;
+    if ((await stockSource()) === "donedeal") return void (await say(me, { text: `The price comes from ${LISTING_SITE}. Change it there.` }));
     const car = msg.ref ? await adminCar(msg.ref) : undefined;
+    if (car && isSold(car)) return void (await say(me, { text: "That car is sold, so I left the price." }));
     const drop = car && droppedPrice(car, 500, "eur");
     if (!car || !drop) return void (await say(me, { text: "I could not change that price. Open the car to do it." }));
     const next = { ...car, ...drop };
     await saveCar(next);
+    await messagesStore.put({ ...msg, done: true });
     await logActivity("stock", carEditSummary(car, next), { kind: "car", id: car.id, label: carTitleOf(car) });
     return void (await say(me, { text: `Done. The ${carTitleOf(car)} is now ${fmtEur(drop.priceEur)}.`, href: `/dashboard/stock/${car.id}` }));
   }
