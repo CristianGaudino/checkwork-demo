@@ -212,9 +212,11 @@ export function EmptyState() {
   }
   return (
     <StateBlock title="No cars match these filters" text="Try removing a filter.">
-      <Link href={sourcingHref(query, facets)} className="mx-auto flex min-h-11 w-fit items-center text-body underline">
-        Can&apos;t find it? Ask us to find it for you.
-      </Link>
+      <IfModule href="/find-a-car">
+        <Link href={sourcingHref(query, facets)} className="mx-auto flex min-h-11 w-fit items-center text-body underline">
+          Can&apos;t find it? Ask us to find it for you.
+        </Link>
+      </IfModule>
       <button type="button" onClick={() => navigate(clearFilters(query))} className={stateButton}>
         Clear all filters
       </button>

@@ -183,8 +183,13 @@ export function LeadForm({
     start(async () => {
       let r: LeadResult;
       try {
-        fd.set("cf-turnstile-response", await turnstile.ready());
-        r = await submitLead(fd);
+        // The server's own field rules first, so a form with a mistake answers at once instead of waiting for the bot check.
+        const found = await check(values);
+        if (Object.keys(found).length) r = { status: "invalid", fieldErrors: found };
+        else {
+          fd.set("cf-turnstile-response", await turnstile.ready());
+          r = await submitLead(fd);
+        }
       } catch {
         r = { status: "failed", kind: "server" }; // network, a new deploy, a body the server refused
       }

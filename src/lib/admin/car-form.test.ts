@@ -43,6 +43,10 @@ describe("carFromForm", () => {
     if (r.ok) return;
     expect(Object.keys(r.errors).sort()).toEqual(["make", "nctExpiry", "priceEur", "year"]);
   });
+  it("refuses a price of 0", () => {
+    const r = carFromForm(form({ priceEur: "0" }), "1");
+    expect(!r.ok && r.errors.priceEur).toBe("Enter the price");
+  });
   it("keeps the photos and the sale of the car being edited: the form never sells or unsells a car", () => {
     const existing = { photos: [{ src: "/stock/a.webp", width: 1, height: 1 }], soldAt: "2026-01-02" } as Car;
     const r = carFromForm(form({ status: "for-sale" }), "1", existing, "2026-11-10");

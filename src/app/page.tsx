@@ -23,6 +23,7 @@ import { DEALER_ADDRESS, DEALER_ADDRESS_TEXT, DEALER_LOCATION, SITE_NAME } from 
 import { queryAllOrNull } from "@/lib/stock";
 import { searchOptions } from "@/lib/stock/search-options";
 import { IfModule } from "@/components/IfModule";
+import { hasModule } from "@/lib/modules";
 
 export const metadata: Metadata = {
   title: { absolute: `${SITE_NAME} | Used cars in ${DEALER_ADDRESS.town}` },
@@ -37,12 +38,14 @@ export default async function Home() {
   const [all, reviews, fresh, vans] = await Promise.all([queryAllOrNull(), getReviews(), queryAllOrNull({ condition: "new" }), queryAllOrNull({ condition: "commercial" })]);
   // Browse by type: new cars and vans, then each body type of the used stock, each with its newest car's photo and how many there are.
   const used = all?.cars ?? [];
+  // The module check is before the six are taken, so a module that is off does not leave the row short.
+  const [newOn, vansOn] = await Promise.all([hasModule("newCars"), hasModule("commercial")]);
   const typeTiles: TypeTile[] = [
-    ...(fresh?.total ? [{ key: "new", href: "/new-cars", label: "New cars", count: fresh.total, photo: fresh.cars[0]?.photos[0] }] : []),
-    ...(vans?.total ? [{ key: "commercial", href: "/commercial", label: "Vans", count: vans.total, photo: vans.cars[0]?.photos[0] }] : []),
+    ...(newOn && fresh?.total ? [{ key: "new", href: "/new-cars", label: "New cars", count: fresh.total, photo: fresh.cars[0]?.photos[0] }] : []),
+    ...(vansOn && vans?.total ? [{ key: "commercial", href: "/commercial", label: "Vans", count: vans.total, photo: vans.cars[0]?.photos[0] }] : []),
     ...searchOptions(used).bodies.map((b) => {
       const of = used.filter((c) => c.bodySlug === b.slug);
-      return { key: b.slug, href: `/used-cars?body=${b.slug}`, label: b.label, count: of.length, photo: of[0]?.photos[0] };
+      return { key: b.slug, href: `/used-cars/${b.slug}`, label: b.label, count: of.length, photo: of[0]?.photos[0] };
     }),
   ].slice(0, HOME.shopByTypeMax);
   const makes = await makeDirectory();
