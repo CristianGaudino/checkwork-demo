@@ -2,7 +2,7 @@ import "server-only";
 import demoCars from "@/lib/stock/demo-cars.json";
 import extraCars from "@/lib/stock/demo-cars-extra.json";
 import { defineCollection, seedsDemoRecords } from "./docs";
-import { AD_PLATFORMS, NETWORKS, type AdPlatform, type Network } from "./networks";
+import { AD_PLATFORMS, NETWORKS, type AdPlatform, type Network, type PostFormat, type StoryLayout } from "./networks";
 import { demoCost } from "./margins";
 import { DAY, HOUR } from "@/lib/time";
 import { dublinDay, dublinMs } from "./format";
@@ -320,7 +320,7 @@ export const settingsStore = defineCollection<DealerSettings>("settings", seedSe
 
 // ---- Marketing: social posts, ads, newsletters ----
 export { NETWORKS, type Network };
-export type SocialPost = { id: string; network: Network; carSlug?: string; carTitle?: string; text: string; photos?: string[]; status: "draft" | "scheduled" | "posted"; scheduledFor?: number; postedAt?: number; simulated?: boolean; claimedAt?: number; reach?: number; clicks?: number; createdAt: number };
+export type SocialPost = { id: string; network: Network; carSlug?: string; carTitle?: string; text: string; photos?: string[]; format?: PostFormat; layout?: StoryLayout; video?: string; status: "draft" | "scheduled" | "posted"; scheduledFor?: number; postedAt?: number; simulated?: boolean; claimedAt?: number; reach?: number; clicks?: number; createdAt: number };
 export type Ad = { id: string; platform: AdPlatform; name: string; carTitle: string; budgetEur: number; status: "draft" | "running" | "paused" | "ended"; impressions: number; clicks: number; leads: number; createdAt: number };
 export type Newsletter = { id: string; subject: string; body: string; status: "draft" | "sent"; sentAt?: number; recipients?: number; opens?: number; clicks?: number; createdAt: number };
 
@@ -335,7 +335,8 @@ function seedPosts(): SocialPost[] {
       network: r.pick(NETWORKS),
       carSlug: car.slug,
       carTitle: carTitleOf(car),
-      text: `Just in: ${carTitleOf(car)}, ${car.mileageKm?.toLocaleString("en-IE")} km. Come and see it.`,
+      text: i === 3 ? `Price drop: ${carTitleOf(car)}.` : `Just in: ${carTitleOf(car)}, ${car.mileageKm?.toLocaleString("en-IE")} km. Come and see it.`,
+      ...(i === 3 && { format: "story" as const, layout: "price-drop" as const }),
       status,
       scheduledFor: status === "scheduled" ? now + (i - 1) * DAY : undefined,
       postedAt: status === "posted" ? now - (i - 3) * 3 * DAY : undefined,
@@ -346,6 +347,10 @@ function seedPosts(): SocialPost[] {
   });
 }
 export const postsStore = defineCollection<SocialPost>("posts", seedPosts);
+
+// The dealer's media library (#177): photos and videos from their own devices, kept in R2 (src/lib/admin/media.ts), optionally tagged to a car.
+export type MediaItem = { id: string; kind: "image" | "video"; src: string; name: string; bytes: number; width?: number; height?: number; durationSec?: number; carSlug?: string; carTitle?: string; createdAt: number };
+export const mediaStore = defineCollection<MediaItem>("media", () => []);
 
 function seedAds(): Ad[] {
   const r = rng(83);
@@ -609,4 +614,4 @@ function seedPrep(): CarPrep[] {
 export const prepStore = defineCollection<CarPrep>("car-prep", seedPrep);
 
 // Every dealer collection, so "Reset demo data" puts the whole demo back to its seed.
-export const DEALER_COLLECTIONS = [leadsStore, drivesStore, customersStore, alertsStore, subscribersStore, reviewsStore, settingsStore, postsStore, adsStore, newslettersStore, costsStore, salesStore, prepStore, reservationsStore, claimsStore, ordersStore];
+export const DEALER_COLLECTIONS = [leadsStore, drivesStore, customersStore, alertsStore, subscribersStore, reviewsStore, settingsStore, postsStore, adsStore, newslettersStore, mediaStore, costsStore, salesStore, prepStore, reservationsStore, claimsStore, ordersStore];

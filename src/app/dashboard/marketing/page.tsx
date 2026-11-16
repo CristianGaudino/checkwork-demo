@@ -1,20 +1,27 @@
-import { Badge, EmptyState, Field, Notice, PageHeader, Panel, SummaryTabs, TableFooter, TableToolbar, pageOf, adminButton, adminButtonQuiet, adminInput, rowButton, type FilterGroup, type Tone } from "@/components/admin/kit";
+import { Badge, EmptyState, Notice, PageHeader, Panel, SummaryTabs, TableFooter, TableToolbar, pageOf, adminButton, adminButtonQuiet, rowButton, type FilterGroup, type Tone } from "@/components/admin/kit";
 import { PlusIcon } from "@/components/stock/icons";
 import { ActButton } from "@/components/admin/ActButton";
 import { sendDuePosts } from "@/lib/admin/scheduler";
-import { adsStore, newslettersStore, postsStore, subscribersStore } from "@/lib/admin/collections";
-import { fmtDate, fmtDateTime, fmtEur, fmtNum, fmtPct, plural } from "@/lib/admin/format";
+import { adsStore, mediaStore, newslettersStore, postsStore, subscribersStore } from "@/lib/admin/collections";
+import { LibraryUpload } from "@/components/admin/MediaUpload";
+import { NewsletterFields } from "@/components/admin/NewsletterFields";
+import { hasModule } from "@/lib/modules";
+import { notFound } from "next/navigation";
+import { TIME_ZONE } from "@/lib/site";
+import { FORMAT_LABELS } from "@/lib/admin/networks";
+import { addDays, dublinDay, fmtDate, fmtDateTime, fmtEur, fmtNum, fmtPct, isIsoDay, plural } from "@/lib/admin/format";
 import Link from "next/link";
-import { worthPosting } from "@/lib/admin/marketing";
+import { calendarWeek, weekDays, worthPosting } from "@/lib/admin/marketing";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { isUsable } from "@/lib/integrations";
 import { carName } from "@/lib/stock/format";
 import { forSale } from "@/lib/stock/types";
-import { createNewsletterAction, deleteAdAction, deleteNewsletterAction, deletePostAction, publishPostAction, sendNewsletterAction, startAdAction } from "./actions";
+import { createNewsletterAction, deleteAdAction, deleteMediaAction, deleteNewsletterAction, deletePostAction, publishPostAction, sendNewsletterAction, startAdAction } from "./actions";
 
 export const metadata = { title: "Marketing" };
 
-const TABS = [["posts", "Posts and ads"], ["newsletters", "Newsletters"]] as const;
+// Each tab belongs to a module (#173): posts, the calendar and the media library to Social and ads, newsletters to Newsletter and alerts.
+const TABS = [["posts", "Posts and ads", "social"], ["calendar", "Calendar", "social"], ["media", "Media", "social"], ["newsletters", "Newsletters", "newsletter"]] as const;
 
 // Every message the page can show. The URL carries only a code from this list.
 const NOTICES: Record<string, { tone: "good" | "warn"; text: string }> = {
@@ -47,12 +54,15 @@ const STATUS: Record<string, { tone: Tone; label: string }> = {
   ended: { tone: "neutral", label: "Ended" },
 };
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ tab?: string; notice?: string; show?: string; status?: string; page?: string; per?: string }> }) {
+export default async function Page({ searchParams }: { searchParams: Promise<{ tab?: string; notice?: string; show?: string; status?: string; page?: string; per?: string; week?: string }> }) {
   const sp = await searchParams;
-  const tab = TABS.some(([k]) => k === sp.tab) ? sp.tab! : "posts";
+  const [social, news] = await Promise.all([hasModule("social"), hasModule("newsletter")]);
+  const tabs = TABS.filter(([, , m]) => (m === "social" ? social : news));
+  if (!tabs.length) notFound(); // neither module: there is nothing to show
+  const tab = tabs.some(([k]) => k === sp.tab) ? sp.tab! : tabs[0][0];
   const notice = sp.notice ? NOTICES[sp.notice] : undefined;
   await sendDuePosts(); // posts whose time has come go out before the list is read
-  const [posts, ads, letters, subs, cars] = await Promise.all([postsStore.list(), adsStore.list(), newslettersStore.list(), subscribersStore.list(), adminCars()]);
+  const [posts, ads, letters, subs, cars, library] = await Promise.all([postsStore.list(), adsStore.list(), newslettersStore.list(), subscribersStore.list(), adminCars(), mediaStore.list()]);
   const onSale = cars.filter(forSale).sort((a, b) => Number(b.id) - Number(a.id));
   const live = subs.filter((s) => s.status === "subscribed").length;
   const ideas = worthPosting(onSale, posts);
@@ -73,7 +83,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
       <PageHeader
         title="Marketing"
         actions={
-          tab === "posts" && (
+          social && (tab === "posts" || tab === "calendar") && (
             <Link href="/dashboard/marketing/new" className={adminButton}>
               <PlusIcon className="size-4" />
               New post
@@ -87,9 +97,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
       <SummaryTabs
         label="Marketing"
         items={[
-          { label: "Posts and ads", count: fmtNum(posts.filter((p) => p.status === "posted").length), hint: `posted, ${ads.filter((a) => a.status === "running").length} ads running`, href: "/dashboard/marketing?tab=posts", active: tab === "posts" },
-          { label: "Newsletters", count: fmtNum(live), hint: "subscribers", href: "/dashboard/marketing?tab=newsletters", active: tab === "newsletters" },
-        ]}
+          social && { label: "Posts and ads", count: fmtNum(posts.filter((p) => p.status === "posted").length), hint: `posted, ${ads.filter((a) => a.status === "running").length} ads running`, href: "/dashboard/marketing?tab=posts", active: tab === "posts" },
+          social && { label: "Calendar", count: fmtNum(posts.filter((p) => p.status === "scheduled").length), hint: "scheduled", href: "/dashboard/marketing?tab=calendar", active: tab === "calendar" },
+          social && { label: "Media", count: fmtNum(library.length), hint: "photos and videos", href: "/dashboard/marketing?tab=media", active: tab === "media" },
+          news && { label: "Newsletters", count: fmtNum(live), hint: "subscribers", href: "/dashboard/marketing?tab=newsletters", active: tab === "newsletters" },
+        ].filter((i) => i !== false)}
       />
 
       {tab === "posts" && (
@@ -103,9 +115,14 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                       <span className="font-medium">{carName(car)}</span>
                       <span className="text-meta text-text-2">{reason}</span>
                     </span>
-                    <Link href={`/dashboard/marketing/new?car=${encodeURIComponent(car.slug)}`} className={`${rowButton} shrink-0`}>
-                      Write a post
-                    </Link>
+                    <span className="flex shrink-0 flex-wrap justify-end gap-2">
+                      <Link href={`/dashboard/marketing/new?car=${encodeURIComponent(car.slug)}`} className={rowButton}>
+                        Write a post
+                      </Link>
+                      <Link href={`/dashboard/marketing/new?car=${encodeURIComponent(car.slug)}&format=story&layout=${reason === "Price dropped" ? "price-drop" : "just-in"}`} className={rowButton}>
+                        Make a story
+                      </Link>
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -121,7 +138,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                   item.kind === "post" ? (
                     <li key={item.p.id} className="flex flex-col gap-2 px-5 py-3 even:bg-row-alt">
                       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                        <span className="font-medium">{item.p.network}</span>
+                        <span className="font-medium">{item.p.network}{item.p.format ? ` ${FORMAT_LABELS[item.p.format].toLowerCase()}` : ""}</span>
                         <Badge tone={STATUS[item.p.status].tone}>{STATUS[item.p.status].label}</Badge>
                         <span className="text-meta text-text-2">
                           {item.p.carTitle} · {item.p.status === "scheduled" && item.p.scheduledFor ? fmtDateTime(item.p.scheduledFor) : fmtDate(item.p.postedAt ?? item.p.createdAt)}
@@ -161,6 +178,39 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
             )}
           </Panel>
           <TableFooter page={paged.page} pageCount={paged.pageCount} total={paged.total} per={paged.per} />
+        </>
+      )}
+
+      {tab === "calendar" && <Calendar posts={posts} ads={ads} week={sp.week} />}
+
+      {tab === "media" && (
+        <>
+          <Panel title="Add photos and videos">
+            <LibraryUpload cars={onSale.map((c) => ({ slug: c.slug, title: carName(c) }))} />
+          </Panel>
+          <Panel title="Your library" count={library.length}>
+            {library.length === 0 ? (
+              <EmptyState title="Nothing here yet" />
+            ) : (
+              <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+                {[...library].sort((a, b) => b.createdAt - a.createdAt).map((m) => (
+                  <li key={m.id} className="flex min-w-0 flex-col gap-2">
+                    <div className="aspect-square overflow-hidden rounded-control bg-photo-bg">
+                      {m.kind === "video" ? (
+                        <video src={m.src} muted playsInline preload="metadata" aria-label={m.name} className="size-full object-cover" />
+                      ) : (
+                        // eslint-disable-next-line @next/next/no-img-element -- the dealer's own upload; images are unoptimized on this Worker
+                        <img src={m.src} alt={m.name} className="size-full object-cover" />
+                      )}
+                    </div>
+                    <span className="truncate text-meta font-medium">{m.name}</span>
+                    <span className="truncate text-meta text-text-2">{m.kind === "video" ? `Video, ${m.durationSec ?? 0} s` : "Photo"}{m.carTitle ? `, ${m.carTitle}` : ""}</span>
+                    <ActButton act={deleteMediaAction.bind(null, m.id)} confirm={{ title: "Delete this file?", text: "Posts that already use it keep their copy until they go out.", yes: "Delete" }} label={`Delete ${m.name}`} className={`${rowButton} w-fit text-bad`}>Delete</ActButton>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Panel>
         </>
       )}
 
@@ -204,8 +254,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
             <summary className="flex min-h-11 cursor-pointer list-none items-center text-meta font-medium text-accent-text underline [&::-webkit-details-marker]:hidden">Write your own</summary>
             <Panel className="mt-3">
               <form action={createNewsletterAction} className="flex flex-col gap-4">
-                <Field label="Subject"><input name="subject" className={adminInput} maxLength={120} /></Field>
-                <Field label="Text"><textarea name="body" rows={6} maxLength={4000} className={`${adminInput} h-auto py-2`} /></Field>
+                <NewsletterFields />
                 <button type="submit" name="intent" value="save" className={`${adminButtonQuiet} self-start`}>Save draft</button>
               </form>
             </Panel>
@@ -213,5 +262,45 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
         </>
       )}
     </>
+  );
+}
+
+// The week as seven days (a list on a phone), with what is set for each and what has gone out. ?week= is any day in the week wanted.
+function Calendar({ posts, ads, week }: { posts: Awaited<ReturnType<typeof postsStore.list>>; ads: Awaited<ReturnType<typeof adsStore.list>>; week?: string }) {
+  const today = dublinDay();
+  const anchor = week && isIsoDay(week) ? week : today;
+  const days = weekDays(anchor);
+  const items = calendarWeek(posts, ads, days);
+  const link = (day: string) => `/dashboard/marketing?tab=calendar&week=${day}`;
+  const label = (day: string) => new Date(`${day}T12:00:00Z`).toLocaleDateString("en-IE", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+  return (
+    <section aria-label="Week" className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <Link href={link(addDays(days[0], -7))} className={adminButtonQuiet}>Earlier</Link>
+        <Link href={link(today)} className={adminButtonQuiet}>This week</Link>
+        <Link href={link(addDays(days[0], 7))} className={adminButtonQuiet}>Later</Link>
+        <p className="text-meta text-text-2">{label(days[0])} to {label(days[6])}</p>
+      </div>
+      <ol className="grid grid-cols-1 gap-3 lg:grid-cols-7">
+        {days.map((d) => (
+          <li key={d} aria-label={label(d)} className={`flex min-w-0 flex-col gap-2 rounded-card border bg-card p-3 ${d === today ? "border-accent" : "border-hairline"}`}>
+            <h3 className="text-meta font-semibold">{label(d)}</h3>
+            {items[d].length === 0 ? (
+              <p className="text-meta text-text-2">Nothing set</p>
+            ) : (
+              <ul className="flex flex-col gap-2">
+                {items[d].map((i) => (
+                  <li key={i.id} data-calendar-item className="flex min-w-0 flex-col gap-0.5 rounded-control bg-row-alt p-2">
+                    <span className="truncate text-meta font-medium">{i.title}</span>
+                    {i.sub && <span className="truncate text-meta text-text-2">{i.sub}</span>}
+                    <span className="text-meta text-text-2">{new Date(i.at).toLocaleTimeString("en-IE", { hour: "2-digit", minute: "2-digit", timeZone: TIME_ZONE })} · {STATUS[i.status].label}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }

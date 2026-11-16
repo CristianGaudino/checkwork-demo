@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Car } from "@/lib/stock/types";
-import { worthPosting, writeNewsletter, writePost } from "./marketing";
+import { calendarWeek, weekDays, worthPosting, writeNewsletter, writePost } from "./marketing";
 
 const voice = { voice: "Plain.", hashtags: "#usedcars", signOff: "Call in to see it." };
 const car = { id: "1", slug: "ford-focus-2019-1", make: "Ford", model: "Focus", variant: "1.0 Titanium", year: 2019, priceEur: 13950, mileageKm: 129999, fuel: "petrol", gearbox: "manual", photos: [] } as unknown as Car;
@@ -72,5 +72,30 @@ describe("worthPosting", () => {
     const ideas = worthPosting(cars, [{ carSlug: "new-posted", createdAt: now - 3_600_000 }], now);
     expect(ideas.map((i) => [i.car.slug, i.reason])).toEqual([["new-b", "New this week"], ["new-a", "New this week"], ["reduced", "Price dropped"]]);
     expect(worthPosting([...cars, c("new-c", { listedAt: "2026-11-09" })], [], now)).toHaveLength(3);
+  });
+});
+
+describe("the calendar week", () => {
+  it("runs Monday to Sunday around any day", () => {
+    expect(weekDays("2026-11-18")).toEqual(["2026-11-16", "2026-11-17", "2026-11-18", "2026-11-19", "2026-11-20", "2026-11-21", "2026-11-22"]);
+    expect(weekDays("2026-11-22")[0]).toBe("2026-11-16"); // a Sunday belongs to the week before it
+    expect(weekDays("2026-11-16")[6]).toBe("2026-11-22");
+  });
+  it("puts scheduled and posted posts and started ads on their day, and leaves drafts off", () => {
+    const days = weekDays("2026-11-18");
+    const at = (d: string, h = 10) => Date.parse(`${d}T${String(h).padStart(2, "0")}:00:00Z`);
+    const base = { network: "Facebook" as const, text: "t", createdAt: 0 };
+    const posts = [
+      { ...base, id: "a", status: "scheduled" as const, scheduledFor: at("2026-11-19"), format: "story" as const },
+      { ...base, id: "b", status: "posted" as const, postedAt: at("2026-11-19", 8) },
+      { ...base, id: "c", status: "draft" as const },
+      { ...base, id: "d", status: "scheduled" as const, scheduledFor: at("2026-12-25") },
+    ];
+    const ads = [{ id: "x", platform: "Meta" as const, name: "n", carTitle: "Car", budgetEur: 100, status: "running" as const, impressions: 0, clicks: 0, leads: 0, createdAt: at("2026-11-17") }];
+    const week = calendarWeek(posts, ads, days);
+    expect(week["2026-11-19"].map((i) => i.id)).toEqual(["b", "a"]); // by time of day
+    expect(week["2026-11-19"][1].title).toBe("Facebook story");
+    expect(week["2026-11-17"].map((i) => i.id)).toEqual(["x"]);
+    expect(Object.values(week).flat()).toHaveLength(3);
   });
 });
