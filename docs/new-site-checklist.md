@@ -71,6 +71,8 @@ the two a real site needs before it takes a lead.
 Newsletters and stock alerts also need `UNSUBSCRIBE_SECRET` (a random secret, made like `PHOTO_LINK_SECRET` in
 `docs/lead-retention.md`): each email carries a signed link to `/unsubscribe` and the `List-Unsubscribe` headers (`src/lib/unsubscribe.ts`).
 Each subscription has one link that never changes. Changing the secret stops every link already sent, so set it once.
+AI writing uses Claude once `ANTHROPIC_API_KEY` is set as a Worker secret (`npx wrangler secret put ANTHROPIC_API_KEY`). Without it the
+demo uses the built-in writer (`src/lib/ai/mock.ts`), and a real site shows AI writing as not connected.
 
 ### Infrastructure names
 - `wrangler.jsonc`: `name`, the self-reference service, `routes`, the R2 bucket, the D1 database name and id

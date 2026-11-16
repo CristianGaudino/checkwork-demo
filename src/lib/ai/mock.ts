@@ -4,7 +4,7 @@ import { ADJUSTS, type Adjust, type CarFacts, type FactsOf, type Task } from "./
 // The demo's writer: no key, no cost. The same facts and button always give the same text, and it is built only from the facts it is
 // given (the car's fields, the lead's message, the review). It never states a history, a warranty or a finance term, and never a figure
 // the record does not hold. The real writer replaces this in write.ts.
-const clean = (s: string) => s.replace(/\s*[\u2014\u2013]\s*/g, ", "); // the house style: no em or en dashes, whatever came back
+export const clean = (s: string) => s.replace(/\s*[\u2014\u2013]\s*/g, ", "); // the house style: no em or en dashes, whatever came back
 const BR = "\n"; // a blank line between parts
 const lines = (...l: (string | number | false | undefined)[]) => clean(l.filter(Boolean).join("\n").replace(/\n{3,}/g, "\n\n").trim());
 const km = (c: CarFacts) => c.mileageKm !== undefined && `${c.mileageKm.toLocaleString("en-IE")} km`;
