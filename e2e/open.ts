@@ -25,7 +25,9 @@ export async function unfold(scope: Locator): Promise<Locator> {
 }
 
 // View the dashboard as a member of the team with this role (src/lib/permission-rules.ts).
-export const as = (context: BrowserContext, role: string) => context.addCookies([{ name: ROLE_COOKIE, value: role, url: "http://localhost:3000" }]);
+// The same address the run uses (playwright.config.ts), so it also works against E2E_BASE_URL.
+const BASE = process.env.E2E_BASE_URL ?? `http://localhost:${process.env.PORT ?? 3000}`;
+export const as = (context: BrowserContext, role: string) => context.addCookies([{ name: ROLE_COOKIE, value: role, url: BASE }]);
 
 // A number from text such as "€12,500" or "41 cars", and the prices on a page of stock as numbers.
 export const digits = (s: string | null) => Number((s ?? "").replace(/\D/g, ""));
