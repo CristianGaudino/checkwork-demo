@@ -33,7 +33,7 @@ vi.mock("./store", () => ({
 }));
 const { tap, typed } = await import("./handle");
 
-const lead = (status: string) => ({ id: "real-1", type: "trade-in", status, name: "Pat Byrne", email: "", phone: "", message: "", source: "Website", notes: [], createdAt: 1, whatsappOptIn: true });
+const lead = (status: string) => ({ id: "real-1", type: "trade-in", status, name: "Pat Byrne", email: "", phone: "+353 87 000 0000", message: "", source: "Website", notes: [], createdAt: 1, whatsappOptIn: true });
 const alert = (id: string, buttons: string[], extra = {}) => db.msgs.set(id, { id, at: 1, thread: "staff", from: "site", to: "Aoife", buttons, ...extra });
 
 beforeEach(() => {
@@ -125,6 +125,19 @@ describe("asking for more photos, then making an offer", () => {
     await tap("Aoife", "a2", "price");
     await typed("Aoife", "9,000");
     expect(sent.some((m) => String(m.text).includes("9,000"))).toBe(false);
+  });
+});
+
+describe("a buyer who can be reached neither way", () => {
+  it("gets nothing sent, the lead is left as it was, and the dealer is told to call", async () => {
+    db.leads.set("real-1", { ...lead("new"), whatsappOptIn: false, email: "", phone: "+353 87 000 0001" });
+    alert("a1", ["price"], { leadId: "real-1", event: "trade-in" });
+    await tap("Aoife", "a1", "price");
+    sent.length = 0;
+    await typed("Aoife", "8,500");
+    expect(sent).toHaveLength(0);
+    expect(db.leads.get("real-1")?.status).toBe("new");
+    expect([...db.msgs.values()].some((m) => String(m.text).includes("Call them on +353 87 000 0001"))).toBe(true);
   });
 });
 

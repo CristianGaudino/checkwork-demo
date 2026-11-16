@@ -21,14 +21,14 @@ export async function resetDemoRecords() {
   for (const car of await adminCars()) if (Boolean(car.reserved) !== held.has(car.id)) await saveCar({ ...car, reserved: held.has(car.id) || undefined });
   await resetActivity();
   await resetSyncStatus();
-  // The media library's uploaded files in R2 go too, best effort: the library's records are already back to the seed.
+  // The media library's uploads and the Help screenshots in R2 go too, best effort: their records are already back to the seed.
   try {
     const bucket = getBindings().LEAD_PHOTOS;
     let cursor: string | undefined;
-    if (bucket)
+    for (const prefix of bucket ? ["media/", "help/"] : [])
       do {
-        const page = await bucket.list({ prefix: "media/", cursor });
-        if (page.objects.length) await bucket.delete(page.objects.map((o) => o.key));
+        const page = await bucket!.list({ prefix, cursor });
+        if (page.objects.length) await bucket!.delete(page.objects.map((o) => o.key));
         cursor = page.truncated ? page.cursor : undefined;
       } while (cursor);
   } catch {}

@@ -45,10 +45,15 @@ async function say(to: string, m: Partial<Msg> & { text: string }, at = Date.now
   await addMessage({ thread: "staff", from: "site", to, at, ...m });
 }
 
-// A message to the buyer. WhatsApp if they ticked the box, else email. When it went by WhatsApp and an answer is given, the buyer's
-// answer comes back a few seconds later, into the buyer's phone, the dealer's phone and (when shown) the lead.
+// How a buyer can be reached: WhatsApp if they ticked the box and gave a number, email if they gave an address, or neither (only a phone,
+// no box): then nothing is sent and the dealer is told to call.
+const reach = (lead: Lead): "WhatsApp" | "email" | null => (lead.whatsappOptIn && lead.phone ? "WhatsApp" : lead.email ? "email" : null);
+const callThem = (lead: Lead) => `${firstName(lead.name)} gave no email and did not ask for WhatsApp, so nothing was sent. Call them on ${lead.phone || "the number on the lead"}.`;
+
+// A message to the buyer, by `reach`. When it went by WhatsApp and an answer is given, the buyer's answer comes back a few seconds later,
+// into the buyer's phone, the dealer's phone and (when shown) the lead.
 async function toBuyer(lead: Lead, to: string, text: string, answer?: string): Promise<"WhatsApp" | "email"> {
-  const sent = await sendWhatsApp({ thread: "buyer", from: "site", leadId: lead.id, text }, "reply", { email: !lead.whatsappOptIn });
+  const sent = await sendWhatsApp({ thread: "buyer", from: "site", leadId: lead.id, text }, "reply", { email: reach(lead) !== "WhatsApp" });
   const by = sent?.via === "email" ? "email" : "WhatsApp";
   if (answer && by === "WhatsApp") {
     const at = Date.now() + BUYER_ANSWER_MS;
@@ -120,6 +125,7 @@ export async function tap(me: string, msgId: string, button: ButtonId): Promise<
     return void (await say(me, { text: act.site("") }));
   }
   if (!lead && !(button === "confirm" && msg.ref)) return void (await say(me, { text: "I can't find that request any more." }));
+  if (lead && act.buyer && !reach(lead)) return void (await say(me, { leadId: lead.id, href: `/dashboard/leads/${lead.id}`, text: callThem(lead) }));
   if (lead) {
     const status = moved(lead.status, act.status);
     await leadsStore.put({ ...lead, status, ...(status === "lost" && !lead.lostReason && { lostReason: "Other" as const }), ...(act.note && { notes: [...lead.notes, { at: Date.now(), text: act.note }] }) });
@@ -151,6 +157,7 @@ export async function typed(me: string, raw: string): Promise<void> {
     if (eur === null) return void (await say(me, { text: "I could not read that as a price. Type an amount in euro, like 8,500." }));
     if (!lead) return void (await say(me, { text: "I can't find that request any more." }));
     if (lead.status === "won" || lead.status === "lost") return void (await say(me, { text: "That lead is closed." }));
+    if (!reach(lead)) return void (await say(me, { leadId: lead.id, href: `/dashboard/leads/${lead.id}`, text: callThem(lead) }));
     const by = await toBuyer(lead, me, `Hi ${firstName(lead.name)}, thank you for sending us your car. We can offer you ${fmtEur(eur)} for it, subject to seeing it. Reply here and we will book a time for you to bring it in. ${SITE_NAME}`, "That sounds good. Could I bring it in on Saturday morning?");
     const cur = (await leadsStore.get(lead.id)) ?? lead; // toBuyer may have added the buyer's answer
     await leadsStore.put({ ...cur, status: moved(cur.status, "contacted"), notes: [...cur.notes, { at: Date.now(), text: `Offer sent by ${by}: ${fmtEur(eur)}` }] });
@@ -162,6 +169,7 @@ export async function typed(me: string, raw: string): Promise<void> {
   if (q.expects === "time") {
     if (!lead) return void (await say(me, { text: "I can't find that request any more." }));
     if (lead.status === "won" || lead.status === "lost") return void (await say(me, { text: "That lead is closed." }));
+    if (!reach(lead)) return void (await say(me, { leadId: lead.id, href: `/dashboard/leads/${lead.id}`, text: callThem(lead) }));
     const by = await toBuyer(lead, me, `Hi ${firstName(lead.name)}, could we do ${text} instead? Let us know if that suits.`);
     await leadsStore.put({ ...lead, notes: [...lead.notes, { at: Date.now(), text: `Suggested another time by ${by}: ${text}` }] });
     await logActivity("leads", "Suggested another time, from WhatsApp", { kind: "lead", id: lead.id });

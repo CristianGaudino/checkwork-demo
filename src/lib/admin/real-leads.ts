@@ -63,7 +63,7 @@ export function mirrorOf(row: LeadRow, emailed = true, service = true): Mirror {
     ...(typeof row.details.reg === "string" && { reg: row.details.reg }),
     ...(typeof row.details.topic === "string" && { topic: row.details.topic, answers: Object.fromEntries(ANSWER_KEYS.filter((k) => typeof row.details[k] === "string").map((k) => [k, String(row.details[k])])) }),
     ...(row.photoKeys.length > 0 && { photoKeys: row.photoKeys }),
-    ...(row.details.whatsappOptIn === "yes" && { whatsappOptIn: true }), // the schema takes only "yes"
+    ...(row.details.whatsappOptIn === "yes" && row.phone && { whatsappOptIn: true }), // the schema takes only "yes"; WhatsApp needs a number
     notes: emailed ? [] : [{ at, text: "The email about this lead didn't reach you. Reply from here." }],
     createdAt: at,
   };

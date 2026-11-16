@@ -4,6 +4,7 @@ import { dublinDay } from "@/lib/admin/format";
 import { getSettings, settingsStore } from "@/lib/admin/collections";
 import { notify } from "@/lib/admin/notifications";
 import { BILLING_DEFAULT, alertsCrossed, usageCosts, usageId, withinCaps, type BillingSettings, type Kind, type Service, type UsageCount } from "./rules";
+import { hasModule } from "@/lib/modules";
 
 // The meters for what is billed per use (#181): registration lookups, AI actions and WhatsApp messages. Every paid use is counted here,
 // once, by the code that makes it; the Billing page, the owner API (#174) and the bill all read these counts, so they never disagree.
@@ -14,9 +15,11 @@ export const sentAlertsStore = defineCollection<{ id: string }>("usage-alerts", 
 
 export const monthOf = (t: number = Date.now()) => dublinDay(t).slice(0, 7);
 
+// The assistant plan counts only while the dealer has the AI module, so the Billing page, the meters and the owner API agree.
 export async function billingSettings(): Promise<BillingSettings> {
   const s = await getSettings();
-  return { ...BILLING_DEFAULT, ...s.billing };
+  const b = { ...BILLING_DEFAULT, ...s.billing };
+  return b.aiPlan === "assistant" && !(await hasModule("ai")) ? { ...b, aiPlan: "perAction" } : b;
 }
 export async function monthCounts(month = monthOf()): Promise<UsageCount[]> {
   return (await usageStore.list()).filter((c) => c.month === month);

@@ -24,7 +24,7 @@ export async function alertStaffOnWhatsApp(lead: Lead): Promise<void> {
     const drafts: Omit<Msg, "id" | "at" | "via">[] = (await staffStore.list())
       .filter((p) => team.has(p.id) && p.phone && p.alerts.includes(event) && !inQuiet(now, p.quietFrom, p.quietTo))
       .map((p) => ({ thread: "staff", from: "site", to: p.name, leadId: lead.id, ref: lead.id, event, text, buttons: EVENTS[event].buttons, ...(lead.photoKeys?.length && { photoKeys: lead.photoKeys }) }));
-    if (lead.whatsappOptIn) drafts.push({ thread: "buyer", from: "site", leadId: lead.id, text: `Hi ${firstName(lead.name)}, thanks for your message to ${SITE_NAME}. We have it and will be in touch soon.` });
+    if (lead.whatsappOptIn && lead.phone) drafts.push({ thread: "buyer", from: "site", leadId: lead.id, text: `Hi ${firstName(lead.name)}, thanks for your message to ${SITE_NAME}. We have it and will be in touch soon.` });
     // One cap check and one count for the whole batch, so the visitor's submit is not many round trips; over the cap they all go by email.
     // shortcut: one lead's alerts (a few, one per linked phone) can pass the cap by those few cents; check per message if it ever matters.
     const viaWhatsApp = modeOf("whatsapp") === "simulated" && (await usageAllowed("whatsapp"));
