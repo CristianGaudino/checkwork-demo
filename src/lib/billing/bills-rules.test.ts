@@ -39,7 +39,7 @@ describe("parseAlert", () => {
 describe("itemise", () => {
   const bill: Bill = {
     id: "2026-10", issuedOn: "2026-11-01", dueOn: "2026-12-01", status: "due", base: 200, modules: [{ label: "Finance", eur: 29 }], aiAssistantEur: 0, discountPct: 30,
-    usage: [{ service: "ai", kind: "draft", count: 10, unitEur: 0.05 }, { service: "whatsapp", kind: "alert", count: 0, unitEur: 0.05 }],
+    usage: [{ service: "ai", kind: "opus", count: 10, unitEur: 0.05 }, { service: "whatsapp", kind: "alert", count: 0, unitEur: 0.05 }],
   };
   it("takes the discount off the plan only, then adds VAT", () => {
     const t = itemise(bill);

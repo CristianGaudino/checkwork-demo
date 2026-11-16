@@ -10,30 +10,41 @@ export type Service = (typeof SERVICES)[number];
 export const SERVICE_LABELS: Record<Service, string> = { lookup: "Registration lookup", ai: "AI writing", whatsapp: "WhatsApp" };
 export type Scope = Service | "total"; // a cap or an alert is on one service, or on all usage together
 
-// What each use is, and its price. A lookup is on the website or in the dashboard; an AI action is a draft or an adjust; a WhatsApp
+// What each use is, and its price. A lookup is on the website or in the dashboard; an AI action (a draft or an adjust) is counted by the
+// Claude model that wrote it, Opus or the cheaper Sonnet, the dealer's choice (BillingSettings.aiModel); a WhatsApp
 // message is an alert or confirmation, a reply inside the 24 hours after a buyer writes, or a marketing message.
 export const KINDS = {
   lookup: { website: "On the website", dashboard: "In the dashboard" },
-  ai: { draft: "Drafts", adjust: "Adjustments" },
+  ai: { opus: "Claude Opus", sonnet: "Claude Sonnet" },
   whatsapp: { alert: "Alerts and confirmations", reply: "Replies to buyers", marketing: "Marketing messages" },
 } as const satisfies Record<Service, Record<string, string>>;
 export type Kind<S extends Service = Service> = keyof (typeof KINDS)[S] & string;
 export const UNIT_PRICE_EUR: { [S in Service]: Record<Kind<S>, number> } = {
   lookup: { website: 0.3, dashboard: 0.3 },
-  ai: { draft: 0.05, adjust: 0.05 },
+  ai: { opus: 0.08, sonnet: 0.04 }, // Sonnet costs us about half what Opus does, so the margin is the same
   whatsapp: { alert: 0.05, reply: 0.02, marketing: 0.12 },
 };
 // The other way to pay for AI: a flat fee a month with a set number of actions, then per action over it.
 export const AI_PLANS = ["perAction", "assistant"] as const;
 export type AiPlan = (typeof AI_PLANS)[number];
 export const AI_ASSISTANT = { monthlyEur: 19, actions: 300 } as const;
+export const AI_MODELS = ["opus", "sonnet"] as const;
+export type AiModel = (typeof AI_MODELS)[number];
 
-// The plan: the base site and each module, a month, before VAT. WhatsApp's and new cars' setups are one-off and not shown here.
+// The plan: the base site and each module, a month, before VAT.
 export const BASE_EUR = 200;
 export const MODULE_EUR: Record<ModuleId, number> = {
   dashboard: 49, tradeIn: 49, finance: 29, testDrives: 29, carFinder: 19, sales: 59, margins: 49, service: 49, reviews: 29, social: 99, newsletter: 59,
   commercial: 29, newCars: 99, analytics: 19, whatsapp: 49, ai: 0, lookupWebsite: 0, lookupDashboard: 0,
 };
+// One-off fees at launch, before VAT: the site's design and launch, and the modules set up with outside accounts.
+export const BASE_SETUP_EUR = 1200;
+export const MODULE_SETUP_EUR: Partial<Record<ModuleId, number>> = { social: 150, newCars: 400, whatsapp: 150 };
+export function setupLines(modules: Iterable<ModuleId>): { label: string; eur: number }[] {
+  const set = new Set(modules);
+  return [{ label: "Website", eur: BASE_SETUP_EUR }, ...MODULES.filter((m) => set.has(m.id) && MODULE_SETUP_EUR[m.id]).map((m) => ({ label: m.label, eur: MODULE_SETUP_EUR[m.id]! }))];
+}
+export const setupEur = (modules: Iterable<ModuleId>) => setupLines(modules).reduce((n, l) => n + l.eur, 0);
 export const VAT_PCT = 23;
 export const withVat = (eur: number) => round2(eur * (1 + VAT_PCT / 100));
 export const round2 = (n: number) => Math.round(n * 100) / 100;
@@ -45,7 +56,8 @@ export type UsageCount = { id: string; month: string; service: Service; kind: st
 export const usageId = (month: string, service: Service, kind: string) => `${month}:${service}:${kind}`;
 
 export type ServiceCost = { count: number; costEur: number; kinds: { kind: string; label: string; count: number; costEur: number }[] };
-// What the month's usage costs. AI on the assistant plan: the first AI_ASSISTANT.actions are in the flat fee (charged with the plan).
+// What the month's usage costs. AI on the assistant plan: the first AI_ASSISTANT.actions, of either model, are in the flat fee (charged with
+// the plan).
 export function usageCosts(counts: UsageCount[], aiPlan: AiPlan): Record<Service, ServiceCost> & { totalEur: number } {
   const out = Object.fromEntries(SERVICES.map((s) => [s, { count: 0, costEur: 0, kinds: [] as ServiceCost["kinds"] }])) as Record<Service, ServiceCost>;
   let aiFree = aiPlan === "assistant" ? AI_ASSISTANT.actions : 0;
@@ -74,10 +86,11 @@ export type BillingSettings = {
   alerts: { scope: Scope; amountEur: number }[];
   alertAt80: boolean;
   aiPlan: AiPlan;
+  aiModel: AiModel;
 };
 // Every site starts with our AI ceiling, so a live key never runs without a limit; the owner's program can set another per dealer.
 export const AI_CEILING_EUR = 50;
-export const BILLING_DEFAULT: BillingSettings = { caps: {}, ceilings: { ai: AI_CEILING_EUR }, alerts: [], alertAt80: true, aiPlan: "perAction" };
+export const BILLING_DEFAULT: BillingSettings = { caps: {}, ceilings: { ai: AI_CEILING_EUR }, alerts: [], alertAt80: true, aiPlan: "perAction", aiModel: "opus" };
 // A stored record over the defaults, the ceilings merged one level down: a record saved before a default ceiling existed still gets it.
 export const withBillingDefaults = (b?: Partial<BillingSettings>): BillingSettings => ({ ...BILLING_DEFAULT, ...b, ceilings: { ...BILLING_DEFAULT.ceilings, ...b?.ceilings } });
 

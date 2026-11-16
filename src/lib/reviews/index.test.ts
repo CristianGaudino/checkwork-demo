@@ -66,10 +66,10 @@ describe("getReviews", () => {
 });
 
 describe("DEMO_REVIEWS", () => {
-  it("are five clearly fictional reviews whose summary matches them", async () => {
+  it("are ten clearly fictional reviews whose summary matches them", async () => {
     const { DEMO_REVIEWS: d } = await load();
     expect(d.source).toBe("demo");
-    expect(d.reviews.map((r) => r.rating)).toEqual([5, 5, 5, 4, 5]);
+    expect(d.reviews.map((r) => r.rating)).toEqual([5, 5, 5, 4, 5, 5, 5, 5, 5, 5]);
     expect(d.count).toBe(d.reviews.length);
     expect(d.rating).toBe(d.reviews.reduce((s, r) => s + r.rating, 0) / d.reviews.length);
     for (const r of d.reviews) {

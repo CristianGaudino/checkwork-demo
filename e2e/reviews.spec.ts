@@ -2,13 +2,13 @@ import { expect, test } from "@playwright/test";
 
 const strip = (page: import("@playwright/test").Page) => page.getByRole("group", { name: "Google reviews" });
 
-test("the home page shows five demo reviews, with no Demo label, with Google Maps attribution", async ({ page }) => {
+test("the home page shows ten demo reviews, with no Demo label, with Google Maps attribution", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "What customers say" })).toBeVisible();
   await expect(page.getByText("Demo reviews")).toHaveCount(0);
   await expect(page.getByText("Showing the most relevant reviews from Google Maps.")).toBeVisible();
   const cards = strip(page).locator("article");
-  await expect(cards).toHaveCount(5);
+  await expect(cards).toHaveCount(10);
   for (const card of await cards.all()) {
     await expect(card).toContainText("Google Maps");
     const link = card.locator('a[href^="https://www.google.com/maps/"]');
@@ -19,7 +19,7 @@ test("the home page shows five demo reviews, with no Demo label, with Google Map
 
 test("the aggregate rating, See all and the review policy link", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByText("Rated 4.8 out of 5 from 5 Google reviews")).toBeAttached();
+  await expect(page.getByText("Rated 4.9 out of 5 from 10 Google reviews")).toBeAttached();
   const all = page.getByRole("link", { name: "See all on Google Maps" });
   await expect(all).toHaveAttribute("href", "https://www.google.com/maps/search/?api=1&query=D00%200000%2C%20Ireland");
   await expect(all).toHaveAttribute("target", "_blank");

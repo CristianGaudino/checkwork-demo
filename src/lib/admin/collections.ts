@@ -260,17 +260,28 @@ export const subscribersStore = defineCollection<Subscriber>("subscribers", seed
 
 // ---- Reviews ----
 export type AdminReview = { id: string; author: string; rating: 1 | 2 | 3 | 4 | 5; text: string; createdAt: number; reply?: string; repliedAt?: number };
+// 19 at five stars and one at three: 4.9, with one low review to show the reply that says sorry.
 const REVIEW_TEXT: [number, string][] = [
   [5, "Easy to deal with from the first call. The car was ready when we came to collect it."],
   [5, "No pressure at all. They answered every question and let us take our time."],
   [5, "Straightforward buying and a fair price on my trade-in. Would go back."],
-  [4, "Good choice of cars. Took a while to get the paperwork done but they kept us posted."],
-  [4, "Friendly team, clean car. The finance explanation was clear."],
+  [5, "Good choice of cars. The paperwork took a while but they kept us posted."],
+  [5, "Friendly team, clean car. The finance explanation was clear."],
   [3, "Car was fine, but I waited a while for a callback."],
-  [2, "The listing said full service history and the book had two gaps. They sorted it, but I had to ask."],
+  [5, "They found the exact spec I wanted within a week."],
   [5, "Second car from here. Same great service."],
-  [1, "Booked a test drive and nobody was expecting me."],
+  [5, "The test drive was booked for the time I asked and the car was ready."],
   [5, "Brilliant. Fair, honest and quick."],
+  [5, "Collected from the station and dropped back after the test drive. Great touch."],
+  [5, "Every question answered by WhatsApp the same evening."],
+  [5, "Got a fair valuation on my old car with no messing."],
+  [5, "The car was valeted and full of fuel at the handover."],
+  [5, "Clear on the price from the start. No surprises."],
+  [5, "Helped us pick a family car that fits the budget."],
+  [5, "Called a week after to check all was well with the car."],
+  [5, "Quick, friendly and honest. Highly recommend."],
+  [5, "They sorted the NCT before we collected it."],
+  [5, "Great experience from the first message to the keys."],
 ];
 function seedReviews(): AdminReview[] {
   const r = rng(67);

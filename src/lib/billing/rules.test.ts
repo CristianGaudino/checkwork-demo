@@ -1,21 +1,29 @@
 import { describe, expect, it } from "vitest";
 import { MODULE_IDS } from "@/lib/modules-rules";
-import { BILLING_DEFAULT, alertsCrossed, capOf, monthEndEstimate, planEur, planFor, planLines, presetName, usageCosts, usageEstimate, withinCaps, type BillingSettings, type UsageCount } from "./rules";
+import { BILLING_DEFAULT, alertsCrossed, setupEur, setupLines, capOf, monthEndEstimate, planEur, planFor, planLines, presetName, usageCosts, usageEstimate, withinCaps, type BillingSettings, type UsageCount } from "./rules";
 
 const c = (service: UsageCount["service"], kind: string, count: number): UsageCount => ({ id: `m:${service}:${kind}`, month: "2026-11", service, kind, count });
 
 describe("usage costs", () => {
   it("prices each line, and adds them up", () => {
-    const u = usageCosts([c("lookup", "website", 10), c("whatsapp", "alert", 20), c("whatsapp", "reply", 50), c("ai", "draft", 4)], "perAction");
+    const u = usageCosts([c("lookup", "website", 10), c("whatsapp", "alert", 20), c("whatsapp", "reply", 50), c("ai", "opus", 4), c("ai", "sonnet", 5)], "perAction");
     expect(u.lookup.costEur).toBe(3);
     expect(u.whatsapp.costEur).toBe(2); // 20 x 0.05 + 50 x 0.02
-    expect(u.ai.costEur).toBe(0.2);
-    expect(u.totalEur).toBe(5.2);
+    expect(u.ai.costEur).toBe(0.52); // 4 x 0.08 + 5 x 0.04
+    expect(u.totalEur).toBe(5.52);
   });
 
   it("puts the assistant plan's allowance against AI first, then bills per action over it", () => {
-    expect(usageCosts([c("ai", "draft", 250), c("ai", "adjust", 40)], "assistant").ai.costEur).toBe(0);
-    expect(usageCosts([c("ai", "draft", 250), c("ai", "adjust", 70)], "assistant").ai.costEur).toBe(1); // 20 over x 0.05
+    expect(usageCosts([c("ai", "opus", 250), c("ai", "sonnet", 50)], "assistant").ai.costEur).toBe(0);
+    expect(usageCosts([c("ai", "opus", 250), c("ai", "sonnet", 70)], "assistant").ai.costEur).toBe(0.8); // 20 Sonnet over x 0.04
+  });
+});
+
+describe("setup fees", () => {
+  it("are the website's, plus each module on that is set up with an outside account", () => {
+    expect(setupLines([])).toEqual([{ label: "Website", eur: 1200 }]);
+    expect(setupEur(["dashboard", "finance"])).toBe(1200);
+    expect(setupEur(MODULE_IDS)).toBe(1900); // 1,200 + social 150 + new cars 400 + WhatsApp 150
   });
 });
 
@@ -27,8 +35,8 @@ describe("caps", () => {
     expect(capOf(b, "lookup")).toBeUndefined();
   });
   it("stops a service at its own cap or at the total cap", () => {
-    expect(withinCaps(usageCosts([c("ai", "draft", 159)], "perAction"), b, "ai")).toBe(true); // 7.95
-    expect(withinCaps(usageCosts([c("ai", "draft", 160)], "perAction"), b, "ai")).toBe(false); // 8.00
+    expect(withinCaps(usageCosts([c("ai", "opus", 99)], "perAction"), b, "ai")).toBe(true); // 7.92
+    expect(withinCaps(usageCosts([c("ai", "opus", 100)], "perAction"), b, "ai")).toBe(false); // 8.00
     expect(withinCaps(usageCosts([c("lookup", "website", 100)], "perAction"), b, "lookup")).toBe(false); // 30, the total
   });
 });

@@ -29,7 +29,7 @@ export type ReviewsProvider = { get(): Promise<Reviews | null> };
 
 const DEMO_PLACE = "https://www.google.com/maps/search/?api=1&query=D00%200000%2C%20Ireland";
 // Made-up names, first name and initial as a review site shows them. Real ones come from the Places provider.
-const DEMO_AUTHORS = ["Aoife M.", "Conor D.", "Niamh K.", "Sean B.", "Orla R."];
+const DEMO_AUTHORS = ["Aoife M.", "Conor D.", "Niamh K.", "Sean B.", "Orla R.", "Ciara L.", "Darragh F.", "Emma W.", "Fionn H.", "Grainne T."];
 const demo = (n: number, rating: number, text: string, relativeTime: string): Review => ({
   id: `demo-${n}`,
   author: DEMO_AUTHORS[n - 1],
@@ -43,8 +43,8 @@ const demo = (n: number, rating: number, text: string, relativeTime: string): Re
 // Fictional names, shown without a label until the Places provider is configured, outside production only.
 export const DEMO_REVIEWS: Reviews = {
   source: "demo",
-  rating: 4.8,
-  count: 5,
+  rating: 4.9,
+  count: 10,
   placeUri: DEMO_PLACE,
   reviews: [
     demo(1, 5, "Easy to deal with from the first call. The car was ready when we came to collect it.", "a month ago"),
@@ -52,6 +52,11 @@ export const DEMO_REVIEWS: Reviews = {
     demo(3, 5, "Straightforward buying a car here. Would go back.", "3 months ago"),
     demo(4, 4, "Good choice of cars. Took a while to decide, and nobody rushed me.", "5 months ago"),
     demo(5, 5, "Friendly people and a simple process from start to finish.", "6 months ago"),
+    demo(6, 5, "Traded in my old car and the offer was fair. Done in an afternoon.", "7 months ago"),
+    demo(7, 5, "They sorted the finance quickly and explained every step.", "8 months ago"),
+    demo(8, 5, "The car was exactly as described. Spotless when we picked it up.", "9 months ago"),
+    demo(9, 5, "Helpful from the test drive to the handover. Would recommend.", "10 months ago"),
+    demo(10, 5, "Honest people. Followed up a week later to check all was well.", "a year ago"),
   ],
 };
 

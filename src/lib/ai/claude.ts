@@ -1,11 +1,12 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
+import type { AiModel } from "@/lib/billing/rules";
 import { clean } from "./mock";
 import { ADJUSTS, type Adjust, type FactsOf, type Task } from "./tasks";
 
 // The real writer (#179): one Claude call per draft or adjust, used by write.ts when ANTHROPIC_API_KEY is set. Every prompt lives here.
 // The house rules are fixed; the user turn carries only the facts (and, for an adjust, the button and the text).
-const MODEL = "claude-opus-5-5";
+const MODELS: Record<AiModel, string> = { opus: "claude-opus-5-5", sonnet: "claude-sonnet-5-5" };
 
 const RULES = `You write short copy for a car dealer's staff, who check it before it is used.
 - Plain, short and human. Irish English. Prices in euros, as given.
@@ -37,13 +38,13 @@ function userTurn(facts: unknown, adjust?: Adjust, current = ""): string {
 }
 
 // Returns the text, or null for a refusal, a cut-off answer, an empty answer or any error. Never logs the facts or the text (personal data).
-export async function claudeText<T extends Task>(task: T, facts: FactsOf[T], adjust?: Adjust, current = ""): Promise<string | null> {
+export async function claudeText<T extends Task>(model: AiModel, task: T, facts: FactsOf[T], adjust?: Adjust, current = ""): Promise<string | null> {
   try {
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, timeout: 30_000, maxRetries: 0 }); // the dealer is waiting on the button
     const res = await client.beta.messages.create({
-      model: MODEL,
+      model: MODELS[model],
       max_tokens: 2048,
-      output_config: { effort: "low" }, // short copy: thinking stays at its lightest (it cannot be turned off on this model)
+      output_config: { effort: "low" }, // short copy: thinking stays at its lightest
       betas: ["server-side-fallback-2026-07-01"],
       fallbacks: "default", // a safety decline is retried on another model before it counts as a refusal
       system: [

@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import { setDemoModules, useModules } from "@/lib/demo-role";
 import { MODULES, withModule, withoutModule, type ModuleId } from "@/lib/modules-rules";
-import { BASE_EUR, BUNDLES, MODULE_EUR, eur, planFor, presetName } from "@/lib/billing/rules";
+import { BASE_EUR, BUNDLES, MODULE_EUR, eur, planFor, presetName, setupEur } from "@/lib/billing/rules";
 import { press } from "@/components/ui";
 
 // The presets: the base site alone, then each bundle. Prices a month, before VAT, as the Billing page shows them.
@@ -73,6 +73,7 @@ export function ModuleSwitches({ chip, inline = false }: { chip: string; inline?
           ))}
           <p className="border-t border-hairline px-2 pt-2 text-meta">
             <span className="font-medium">{plan.name}</span>, {eur(plan.eur)} a month before VAT
+            <span className="block text-text-2">Plus {eur(setupEur(on))} setup, once</span>
             {plan.saving > 0 && <span className="block text-ok">Saves {eur(plan.saving)} on single prices</span>}
           </p>
         </div>

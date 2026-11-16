@@ -9,9 +9,9 @@ import { enabledModules } from "@/lib/modules";
 import { can, currentMember } from "@/lib/permissions";
 import { billingDetails, listBills } from "@/lib/billing/bills";
 import { AI_PLAN_LABELS, FOUNDING, afterDiscount, eur, fmtMonth, foundingEnd, itemise, nextBillDate, scopeName, billedServices } from "@/lib/billing/bills-rules";
-import { AI_ASSISTANT, MODULE_EUR, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, capOf, planEur, planFor, planLines, usageEstimate, round2, withVat, type BillingSettings, type Scope, type Service } from "@/lib/billing/rules";
+import { AI_ASSISTANT, AI_MODELS, KINDS, MODULE_EUR, setupEur, setupLines, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, capOf, planEur, planFor, planLines, usageEstimate, round2, withVat, type BillingSettings, type Scope, type Service } from "@/lib/billing/rules";
 import { billingSettings, monthUsage } from "@/lib/billing/usage";
-import { askModuleAction, removeAlertAction, saveAiPlanAction } from "./actions";
+import { askModuleAction, removeAlertAction, saveAiModelAction, saveAiPlanAction } from "./actions";
 import { dublinDay } from "@/lib/admin/format";
 
 export const metadata = { title: "Billing" };
@@ -101,6 +101,15 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
                   </ActButton>
                 ))}
               </div>
+              <h3 className="text-body font-semibold">Model</h3>
+              <p className="max-w-measure text-body text-text-2">Opus writes the best copy. Sonnet is quick and costs less.</p>
+              <div className="flex flex-wrap gap-2">
+                {AI_MODELS.map((m) => (
+                  <ActButton key={m} act={saveAiModelAction.bind(null, m)} pressed={b.aiModel === m} done="AI model changed" className={`${adminButtonQuiet} aria-pressed:border-text aria-pressed:bg-text aria-pressed:text-ink`}>
+                    {KINDS.ai[m]}, {eur(UNIT.ai[m])} an action
+                  </ActButton>
+                ))}
+              </div>
             </Panel>
           )}
         </>
@@ -122,6 +131,9 @@ function PlanAndUsage({ modules, services, usage, b, now }: { modules: Modules; 
   const sofar = usage.totalEur;
   const estimate = usageEstimate(usage, b, dublinDay(now.getTime()));
   const bill = round2(planNet + estimate);
+  const setup = setupLines(modules);
+  const setupFull = setupEur(modules);
+  const setupNet = round2(setupFull * (1 - FOUNDING.setupPct / 100));
   const lines: (readonly [string, number])[] = [...planLines(modules).map((l) => [l.label, l.eur] as const), ...(assistant ? [["AI assistant", AI_ASSISTANT.monthlyEur] as const] : [])];
   return (
     <>
@@ -162,6 +174,25 @@ function PlanAndUsage({ modules, services, usage, b, now }: { modules: Modules; 
             </ul>
           </details>
         )}
+      </Panel>
+
+      <Panel title="Setup fees">
+        <dl className="flex flex-col divide-y divide-hairline text-body">
+          {setup.map((l) => (
+            <div key={l.label} className="flex justify-between gap-4 py-2">
+              <dt>{l.label}</dt>
+              <dd className="tabular-nums">{eur(l.eur)}</dd>
+            </div>
+          ))}
+          <div className="flex justify-between gap-4 py-2 text-ok">
+            <dt>Founding dealer: {FOUNDING.setupPct}% off</dt>
+            <dd className="whitespace-nowrap tabular-nums">-{eur(round2(setupFull - setupNet))}</dd>
+          </div>
+          <div className="flex justify-between gap-4 py-2 font-semibold">
+            <dt>Paid once at launch, before VAT</dt>
+            <dd className="tabular-nums">{eur(setupNet)}</dd>
+          </div>
+        </dl>
       </Panel>
 
       <Panel title="Usage this month">

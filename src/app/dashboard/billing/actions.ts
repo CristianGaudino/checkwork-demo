@@ -11,7 +11,7 @@ import { can, currentMember } from "@/lib/permissions";
 import { fieldErrors } from "@/lib/admin/validation";
 import { billingSettings, saveBilling, monthUsage } from "@/lib/billing/usage";
 import { eur, parseAlert, parseLimits, billedServices } from "@/lib/billing/bills-rules";
-import { AI_PLANS, SERVICE_LABELS, type AiPlan, type Scope } from "@/lib/billing/rules";
+import { AI_MODELS, AI_PLANS, KINDS, SERVICE_LABELS, type AiModel, type AiPlan, type Scope } from "@/lib/billing/rules";
 import { requireStaff } from "@/lib/staff";
 
 export type BillingState = { errors?: Record<string, string>; saved?: boolean } | undefined;
@@ -66,6 +66,15 @@ export async function saveAiPlanAction(plan: AiPlan) {
   if ((await billingSettings()).aiPlan === plan) return;
   await saveBilling({ aiPlan: plan });
   await logActivity("settings", `Changed the AI plan to ${plan === "assistant" ? "the AI assistant" : "pay per action"}`);
+  revalidatePath("/dashboard/billing");
+}
+
+export async function saveAiModelAction(model: AiModel) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
+  if (!(await can("billing")) || !AI_MODELS.includes(model) || !(await enabledModules()).has("ai")) return;
+  if ((await billingSettings()).aiModel === model) return;
+  await saveBilling({ aiModel: model });
+  await logActivity("settings", `Changed the AI model to ${KINDS.ai[model]}`);
   revalidatePath("/dashboard/billing");
 }
 

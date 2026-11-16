@@ -70,7 +70,7 @@ export async function recordUsage<S extends Service>(service: S, kind: Kind<S>, 
 
 // Saves the dealer's limits and alerts. Ours (the ceilings) are set from the owner's program, never here.
 // `change` may be worked out from the billing as it is when written (adding or removing one alert), so two saves at once both land.
-type BillingChange = Partial<Pick<BillingSettings, "caps" | "alerts" | "alertAt80" | "aiPlan">>;
+type BillingChange = Partial<Pick<BillingSettings, "caps" | "alerts" | "alertAt80" | "aiPlan" | "aiModel">>;
 export async function saveBilling(change: BillingChange | ((now: BillingSettings) => BillingChange)) {
   // On the settings as they are now, so a team change saved at the same moment is never undone.
   const apply = (s: Partial<DealerSettings>) => {
@@ -87,8 +87,8 @@ function seedUsage(): UsageCount[] {
   const lines: [Service, string, number][] = [
     ["lookup", "website", 2 * day],
     ["lookup", "dashboard", day],
-    ["ai", "draft", 4 * day],
-    ["ai", "adjust", 3 * day],
+    ["ai", "opus", 4 * day],
+    ["ai", "sonnet", 3 * day],
     ["whatsapp", "alert", 6 * day],
     ["whatsapp", "reply", 4 * day],
     ["whatsapp", "marketing", day > 7 ? 40 : 0],

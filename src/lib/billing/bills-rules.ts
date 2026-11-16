@@ -13,8 +13,8 @@ export const OUR_DETAILS = { name: "Checkwork Ltd", vat: "IE 3456789 TH", addres
 
 export type BillingDetails = { company: string; vatNumber: string; address: string; email: string };
 
-// The founding dealer's discount: a share off the plan (not the usage) until a month some time ahead.
-export const FOUNDING = { pct: 30, months: 20 } as const;
+// The founding dealer's discount: a share off the plan (not the usage) until a month some time ahead, and half the setup fees.
+export const FOUNDING = { pct: 30, months: 20, setupPct: 50 } as const;
 export function foundingEnd(now: Date): string {
   return new Intl.DateTimeFormat("en-IE", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + FOUNDING.months, 1)));
 }
@@ -73,7 +73,7 @@ export type BillLine = { label: string; detail?: string; eur: number };
 export function itemise(b: Bill) {
   // `base` is 0 when a bundle's line (which has the base in it) is among the modules.
   const plan: BillLine[] = [...(b.base ? [{ label: "Website", eur: b.base }] : []), ...b.modules, ...(b.aiAssistantEur ? [{ label: "AI assistant", eur: b.aiAssistantEur }] : [])];
-  const usage: BillLine[] = b.usage.filter((u) => u.count > 0).map((u) => ({ label: `${SERVICE_LABELS[u.service]}: ${(KINDS[u.service] as Record<string, string>)[u.kind]}`, detail: `${u.count} x ${eur(u.unitEur)}`, eur: round2(u.count * u.unitEur) }));
+  const usage: BillLine[] = b.usage.filter((u) => u.count > 0).map((u) => ({ label: `${SERVICE_LABELS[u.service]}: ${(KINDS[u.service] as Record<string, string>)[u.kind] ?? u.kind}`, detail: `${u.count} x ${eur(u.unitEur)}`, eur: round2(u.count * u.unitEur) }));
   const planEur = round2(plan.reduce((n, l) => n + l.eur, 0));
   const discountEur = round2((planEur * b.discountPct) / 100);
   const usageEur = round2(usage.reduce((n, l) => n + l.eur, 0));

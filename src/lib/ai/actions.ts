@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { usageAllowed, recordUsage } from "@/lib/billing/usage";
+import { billingSettings, usageAllowed, recordUsage } from "@/lib/billing/usage";
 import { requireModule } from "@/lib/modules";
 import { SITE_NAME } from "@/lib/site";
 import { POST_FORMATS, STORY_LAYOUTS, NETWORKS } from "@/lib/admin/networks";
@@ -31,8 +31,9 @@ export async function writeAction(req: WriteRequest, adjust?: Adjust, current = 
   if (!built) return { ok: false, reason: "failed" };
   // The dealer's draft too: no phone or email reaches the AI provider, and theirs go back into the answer.
   const masked = maskContacts(current, true); // masked before it is cut, so a cut never leaves part of a number
-  const r = await writeWithAI(built.task, built.facts as never, adjust, masked.text.slice(0, 4000).replace(/\[[a-z]*( \d*)?$/, "")); // a tag cut in half is dropped
+  const { aiModel } = await billingSettings(); // the model the dealer pays for, counted as it
+  const r = await writeWithAI(aiModel, built.task, built.facts as never, adjust, masked.text.slice(0, 4000).replace(/\[[a-z]*( \d*)?$/, "")); // a tag cut in half is dropped
   if (!r.ok) return { ok: false, reason: "failed" };
-  await recordUsage("ai", adjust ? "adjust" : "draft");
+  await recordUsage("ai", aiModel);
   return { ...r, text: unmaskContacts(r.text, masked) };
 }
