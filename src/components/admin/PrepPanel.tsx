@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useKeptForm } from "@/components/admin/useKeptForm";
 import { Select } from "@/components/Select";
 import { Field, Panel, adminButton, adminInput, rowButton } from "@/components/admin/kit";
 import { ActButton } from "@/components/admin/ActButton";
@@ -12,7 +12,7 @@ const eur = new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR",
 // Prep costs on a car: a short list and its total, with adding a line folded away until it is wanted, so a dealer who does not track
 // prep sees one quiet line. Margins permission only (the page and the server both check).
 export function PrepPanel({ carId, lines }: { carId: string; lines: PrepLine[] }) {
-  const [state, action, pending] = useActionState<PrepFormState, FormData>(addPrepAction.bind(null, carId), undefined);
+  const [state, action, pending] = useKeptForm<PrepFormState>(addPrepAction.bind(null, carId), undefined);
   const e = state?.errors ?? {};
   const total = lines.reduce((s, l) => s + l.eur, 0);
   return (
@@ -40,7 +40,7 @@ export function PrepPanel({ carId, lines }: { carId: string; lines: PrepLine[] }
       <details className="group" open={Object.keys(e).length > 0}>
         <summary className="inline-flex min-h-11 cursor-pointer items-center text-meta font-medium text-accent-text underline">Add a prep cost</summary>
         {/* Keyed on the last line added, so the boxes clear for the next one. */}
-        <form key={state?.added ?? 0} action={action} className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-[10rem_8rem_minmax(0,1fr)_auto] sm:items-start" noValidate>
+        <form key={state?.added ?? 0} {...action} className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-[10rem_8rem_minmax(0,1fr)_auto] sm:items-start" noValidate>
           <Field label="For" error={e.kind}>
             <Select name="kind" defaultValue="" options={[["", "Choose"], ...PREP_KINDS.map((k) => [k, k] as const)]} />
           </Field>

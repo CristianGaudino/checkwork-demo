@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useKeptForm } from "@/components/admin/useKeptForm";
+import { useState } from "react";
 import { Select } from "@/components/Select";
 import { Field, adminButton, adminInput } from "@/components/admin/kit";
 import { BuyerFields } from "@/components/admin/BuyerFields";
@@ -28,10 +29,10 @@ function Choice({ name, options, value, onChange, legend, error }: { name: strin
 }
 
 export function ReserveForm({ carId, today, latest, team, me, customers }: { carId: string; today: string; latest: string; team: string[]; me?: string; customers: { id: string; label: string }[] }) {
-  const [state, action, pending] = useActionState<DepositFormState, FormData>(reserveAction.bind(null, carId), undefined);
+  const [state, action, pending] = useKeptForm<DepositFormState>(reserveAction.bind(null, carId), undefined);
   const e = state?.errors ?? {};
   return (
-    <form action={action} className={grid} noValidate>
+    <form {...action} className={grid} noValidate>
       <Field label="Deposit (€)" error={e.depositEur}>
         <input name="depositEur" inputMode="numeric" className={adminInput} />
       </Field>
@@ -56,11 +57,11 @@ export function ReserveForm({ carId, today, latest, team, me, customers }: { car
 }
 
 export function EndReservationForm({ carId, depositEur }: { carId: string; depositEur: number }) {
-  const [state, action, pending] = useActionState<DepositFormState, FormData>(endReservationAction.bind(null, carId), undefined);
+  const [state, action, pending] = useKeptForm<DepositFormState>(endReservationAction.bind(null, carId), undefined);
   const [outcome, setOutcome] = useState("refunded");
   const e = state?.errors ?? {};
   return (
-    <form action={action} className={grid} noValidate>
+    <form {...action} className={grid} noValidate>
       <Choice name="outcome" legend="The deposit was" value={outcome} onChange={setOutcome} error={e.outcome} options={[["refunded", "Refunded"], ["kept", "Kept, under our terms"]]} />
       {outcome === "refunded" && (
         <Field label="Refunded (€)" error={e.refundEur}>
@@ -75,11 +76,11 @@ export function EndReservationForm({ carId, depositEur }: { carId: string; depos
 }
 
 export function UndoSaleForm({ carId, soldOn, today }: { carId: string; soldOn: string; today: string }) {
-  const [state, action, pending] = useActionState<DepositFormState, FormData>(undoSaleAction.bind(null, carId), undefined);
+  const [state, action, pending] = useKeptForm<DepositFormState>(undoSaleAction.bind(null, carId), undefined);
   const [kind, setKind] = useState("returned");
   const e = state?.errors ?? {};
   return (
-    <form action={action} className={grid} noValidate>
+    <form {...action} className={grid} noValidate>
       <Choice
         name="kind"
         legend="What happened"

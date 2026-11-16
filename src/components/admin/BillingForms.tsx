@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useKeptForm } from "@/components/admin/useKeptForm";
 import { Select } from "@/components/Select";
 import { Field, adminButton, adminInput } from "@/components/admin/kit";
 import { addAlertAction, saveDetailsAction, saveLimitsAction, type BillingState } from "@/app/dashboard/billing/actions";
@@ -9,7 +9,7 @@ import { eur, scopeName, type BillingDetails } from "@/lib/billing/bills-rules";
 
 type Action = (prev: BillingState, data: FormData) => Promise<BillingState>;
 function useSave(action: Action) {
-  const [state, run, pending] = useActionState<BillingState, FormData>(action, undefined);
+  const [state, run, pending] = useKeptForm<BillingState>(action, undefined);
   return { state, run, pending, errors: state?.errors ?? {} };
 }
 function Save({ pending, saved, label = "Save" }: { pending: boolean; saved?: boolean; label?: string }) {
@@ -31,7 +31,7 @@ function Save({ pending, saved, label = "Save" }: { pending: boolean; saved?: bo
 export function LimitsForm({ scopes, caps, ceilings, alertAt80 }: { scopes: Scope[]; caps: Partial<Record<Scope, number>>; ceilings: Partial<Record<Scope, number>>; alertAt80: boolean }) {
   const f = useSave(saveLimitsAction);
   return (
-    <form action={f.run} className="flex flex-col gap-4" noValidate>
+    <form {...f.run} className="flex flex-col gap-4" noValidate>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {scopes.map((s) => {
           const ceiling = ceilings[s];
@@ -55,7 +55,7 @@ export function LimitsForm({ scopes, caps, ceilings, alertAt80 }: { scopes: Scop
 export function AlertForm({ scopes }: { scopes: Scope[] }) {
   const f = useSave(addAlertAction);
   return (
-    <form action={f.run} className="flex flex-wrap items-end gap-3" noValidate>
+    <form {...f.run} className="flex flex-wrap items-end gap-3" noValidate>
       <Field label="Tell me when" className="min-w-48">
         <Select name="scope" options={scopes.map((s) => [s, scopeName(s)] as const)} defaultValue={scopes[0]} label="Tell me when" />
       </Field>
@@ -72,7 +72,7 @@ export function AlertForm({ scopes }: { scopes: Scope[] }) {
 export function DetailsForm({ details, editable }: { details: BillingDetails; editable: boolean }) {
   const f = useSave(saveDetailsAction);
   return (
-    <form action={f.run} className="grid grid-cols-1 gap-4 sm:grid-cols-2" noValidate>
+    <form {...f.run} className="grid grid-cols-1 gap-4 sm:grid-cols-2" noValidate>
       <fieldset disabled={!editable} className="contents">
         <Field label="Company name" error={f.errors.company}>
           <input name="company" defaultValue={details.company} className={adminInput} />

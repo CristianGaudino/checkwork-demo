@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useKeptForm } from "@/components/admin/useKeptForm";
+import { useState } from "react";
 import { Select } from "@/components/Select";
 import { Field, adminButton, adminButtonQuiet, adminInput, choicePill } from "@/components/admin/kit";
 import { sendFeedbackAction, sendHelpAction, type HelpState } from "@/app/dashboard/help/actions";
@@ -8,11 +9,11 @@ import { MESSAGE_MAX, type HelpType } from "@/lib/admin/help-rules";
 
 // The message to us. "Something isn't working" asks for the steps and takes a screenshot. The server checks all of it again.
 export function HelpForm({ types, first, from }: { types: HelpType[]; first: HelpType; from: string }) {
-  const [state, run, pending] = useActionState<HelpState, FormData>(sendHelpAction, undefined);
+  const [state, run, pending] = useKeptForm<HelpState>(sendHelpAction, undefined);
   const [type, setType] = useState<string>(first);
   const errors = state?.errors ?? {};
   return (
-    <form action={run} className="flex max-w-2xl flex-col gap-4" noValidate>
+    <form {...run} className="flex max-w-2xl flex-col gap-4" noValidate>
       <input type="hidden" name="from" value={from} />
       <Field label="What is it about?" error={errors.type}>
         <Select name="type" label="What is it about?" value={type} onChange={setType} options={types.map((t) => [t, t] as const)} />

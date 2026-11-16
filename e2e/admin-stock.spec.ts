@@ -20,13 +20,19 @@ test.afterEach(async ({ page }) => {
   }
 });
 
-test("the form checks the car and says what is wrong", async ({ page }) => {
+test("the form checks the car, says what is wrong, and keeps what was typed", async ({ page }) => {
   await page.goto("/dashboard/stock/new");
+  await page.getByLabel("Model", { exact: true }).fill("Roadster");
   await page.getByLabel("Year", { exact: true }).fill("1850");
+  await page.getByLabel("Price (€)", { exact: true }).fill("19950");
   await page.getByRole("button", { name: "Add car" }).click();
   await expect(page.getByText("Enter the make")).toBeVisible();
   await expect(page.getByText("Enter a year from 1980")).toBeVisible();
   await expect(page).toHaveURL(/\/dashboard\/stock\/new$/);
+  // A refused save never throws away the rest of the form.
+  await expect(page.getByLabel("Model", { exact: true })).toHaveValue("Roadster");
+  await expect(page.getByLabel("Price (€)", { exact: true })).toHaveValue("19950");
+  await expect(page.locator("input[name=year]")).toHaveValue("1850");
 });
 
 test("add a car, see it on the site with its VAT line, change its price to a drop, mark it sold, delete it", async ({ page }) => {

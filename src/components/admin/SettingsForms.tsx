@@ -1,5 +1,6 @@
 "use client";
 
+import { useKeptForm } from "@/components/admin/useKeptForm";
 import { Select } from "@/components/Select";
 import { startTransition, useActionState, useState } from "react";
 import { Field, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
@@ -13,7 +14,7 @@ const ROLE_OPTIONS = ROLES.map((r) => [r, r] as const);
 type Action = (prev: SettingsState, data: FormData) => Promise<SettingsState>;
 
 function useSave(action: Action) {
-  const [state, run, pending] = useActionState<SettingsState, FormData>(action, undefined);
+  const [state, run, pending] = useKeptForm<SettingsState>(action, undefined);
   return { state, run, pending, errors: state?.errors ?? {} };
 }
 
@@ -35,7 +36,7 @@ function Save({ pending, saved }: { pending: boolean; saved?: boolean }) {
 export function TargetsForm({ settings }: { settings: DealerSettings }) {
   const f = useSave(saveTargetsAction);
   return (
-    <form action={f.run} className="grid grid-cols-1 gap-4 sm:grid-cols-2" noValidate>
+    <form {...f.run} className="grid grid-cols-1 gap-4 sm:grid-cols-2" noValidate>
       <Field label="Reply to a new lead within (hours)" hint="Leads waiting longer show on the overview" error={f.errors.leadSlaHours}>
         <input name="leadSlaHours" type="number" defaultValue={settings.leadSlaHours} className={adminInput} />
       </Field>
@@ -54,14 +55,14 @@ export function LeadEmailsForm({ settings, fallback }: { settings: DealerSetting
   const t = useSave(sendTestEmailAction as Action);
   return (
     <div className="flex flex-col gap-4">
-      <form action={f.run} className="flex flex-col gap-3" noValidate>
+      <form {...f.run} className="flex flex-col gap-3" noValidate>
         <Field label="Send new leads to" hint="One address per line. Leave empty to use the site's own address." error={f.errors.leadEmails}>
           <textarea name="leadEmails" rows={3} defaultValue={settings.leadEmails.join(String.fromCharCode(10))} className={`${adminInput} h-auto py-2`} />
         </Field>
         {settings.leadEmails.length === 0 && <p className="text-meta text-text-2">{fallback ? "Using the site's own address." : "No address is set, so new leads cannot be sent yet."}</p>}
         <Save pending={f.pending} saved={f.state?.saved} />
       </form>
-      <form action={t.run} className="flex items-center gap-4">
+      <form {...t.run} className="flex items-center gap-4">
         <button type="submit" disabled={t.pending} className={adminButtonQuiet}>
           {t.pending ? "Sending" : "Send a test email"}
         </button>
@@ -78,7 +79,7 @@ const NOTES: [keyof DealerSettings["notifications"], string][] = [["followUps", 
 export function NotificationsForm({ settings, emailConnected }: { settings: DealerSettings; emailConnected: boolean }) {
   const f = useSave(saveNotificationsAction);
   return (
-    <form action={f.run} className="flex flex-col gap-3">
+    <form {...f.run} className="flex flex-col gap-3">
       <fieldset className="flex flex-col gap-1">
         <legend className="mb-1 text-meta font-semibold">Email me when</legend>
         {NOTES.map(([k, label]) => (
@@ -98,7 +99,7 @@ export function NotificationsForm({ settings, emailConnected }: { settings: Deal
 export function MarketingForm({ settings }: { settings: DealerSettings }) {
   const f = useSave(saveMarketingAction);
   return (
-    <form action={f.run} className="grid grid-cols-1 gap-4" noValidate>
+    <form {...f.run} className="grid grid-cols-1 gap-4" noValidate>
       <Field label="How we sound" hint="Used when posts and newsletters are written" error={f.errors.voice}>
         <input name="voice" defaultValue={settings.marketing.voice} className={adminInput} />
       </Field>
@@ -119,7 +120,7 @@ export function MarketingForm({ settings }: { settings: DealerSettings }) {
 export function AddTeamForm({ owner }: { owner: boolean }) {
   const f = useSave(addTeamAction);
   return (
-    <form action={f.run} className="grid grid-cols-1 gap-4 sm:grid-cols-4 sm:items-start" noValidate>
+    <form {...f.run} className="grid grid-cols-1 gap-4 sm:grid-cols-4 sm:items-start" noValidate>
       <Field label="Name" error={f.errors.name}>
         <input name="name" className={adminInput} autoComplete="off" />
       </Field>
@@ -139,7 +140,9 @@ export function AddTeamForm({ owner }: { owner: boolean }) {
 // One person's role, saved as soon as it is picked, by an owner or manager (the server checks again). A refused change shows why and puts
 // the picker back to the role they still have.
 export function RoleForm({ member, owner }: { member: TeamMember; owner: boolean }) {
-  const f = useSave(setRoleAction.bind(null, member.id));
+  // No form here (it saves as soon as a role is picked), so the plain hook.
+  const [state, run, pending] = useActionState<SettingsState, FormData>(setRoleAction.bind(null, member.id), undefined);
+  const f = { state, run, pending, errors: state?.errors ?? {} };
   const [picked, setPicked] = useState<string>(member.role);
   const shown = f.state?.errors && !f.pending ? member.role : picked;
   return (

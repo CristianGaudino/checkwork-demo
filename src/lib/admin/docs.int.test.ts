@@ -24,6 +24,26 @@ describe("defineCollection (D1 path, on SQLite)", () => {
     expect(seed).toHaveBeenCalledTimes(1);
   });
 
+  it("after a reset in one isolate, another that already knew the collection still lists the seed", async () => {
+    const seed = () => [{ id: "s", n: 1 }];
+    const here = defineCollection<Item>("i-iso", seed);
+    expect(await here.list()).toHaveLength(1);
+    vi.resetModules(); // a second Worker isolate: its own memory of what is seeded
+    const there = (await import("./docs")).defineCollection<Item>("i-iso", seed);
+    expect(await there.list()).toHaveLength(1); // it now remembers the collection as seeded
+    await here.reset();
+    expect(await there.list()).toEqual([{ id: "s", n: 1 }]);
+  });
+
+  it("a failed query is rethrown with the collection's name, never the record's values", async () => {
+    const c = defineCollection<Item & { email?: string }>("i-quiet", () => []);
+    const err = await c.put({ id: null as unknown as string, n: 1, email: "pat@example.com" }).catch((e: Error) => e);
+    expect(err).toBeInstanceOf(Error);
+    expect(String((err as Error).message)).toBe("admin_docs i-quiet put failed");
+    expect(JSON.stringify(err)).not.toContain("pat@example.com");
+    expect((err as Error).cause).toBeUndefined();
+  });
+
   it("reset brings the seed back, and collections stay apart", async () => {
     const x = defineCollection<Item>("i-x", () => [{ id: "s", n: 1 }]);
     const y = defineCollection<Item>("i-y", () => []);

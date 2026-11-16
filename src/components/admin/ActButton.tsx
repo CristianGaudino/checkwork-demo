@@ -21,9 +21,12 @@ export function ActButton({ act, undo, done, confirm, label, pressed, className,
   const titleId = useId();
   const run = () =>
     start(async () => {
-      await act();
+      const r = await act();
       router.refresh();
-      if (done) showToast(done, undo && (() => start(async () => void (await undo(), router.refresh()))));
+      // An action that refused says why ({ error }); the toast says that, never `done`.
+      const error = r && typeof r === "object" && "error" in r && typeof r.error === "string" ? r.error : undefined;
+      if (error) showToast(error);
+      else if (done) showToast(done, undo && (() => start(async () => void (await undo(), router.refresh()))));
     });
   return (
     <>
@@ -37,8 +40,8 @@ export function ActButton({ act, undo, done, confirm, label, pressed, className,
             <h2 id={titleId} className="text-heading font-semibold">{confirm.title}</h2>
             {confirm.text && <p className="mt-2 text-body text-text-2">{confirm.text}</p>}
             <div className="mt-5 flex flex-wrap justify-end gap-3">
-              <button type="button" autoFocus onClick={() => setAsking(false)} className={adminButtonQuiet}>Cancel</button>
-              <button type="button" onClick={() => (setAsking(false), run())} className={danger}>{confirm.yes}</button>
+              <button type="button" autoFocus onClick={(e) => e.currentTarget.closest("dialog")?.close()} className={adminButtonQuiet}>Cancel</button>
+              <button type="button" onClick={(e) => (e.currentTarget.closest("dialog")?.close(), run())} className={danger}>{confirm.yes}</button>
             </div>
           </dialog>,
           document.body,

@@ -13,6 +13,7 @@ import { MediaUpload } from "@/components/admin/MediaUpload";
 import { PostPreview } from "@/components/admin/PostPreview";
 import type { MediaItem } from "@/lib/admin/collections";
 import { press } from "@/components/ui";
+import { SubmitButton } from "@/components/admin/SubmitButton";
 
 // The page sends the cars as small cards (CarPicker); the chosen car's photos and suggested text are asked for when it is chosen (`load`), so the page
 // stays small with any size of stock.
@@ -231,8 +232,8 @@ export function PostComposer({ cars, initialSlug, initialFormat = "post", initia
             )
           ) : (
             <>
-              <button type="submit" name="intent" value="publish" className={adminButton}>{later ? "Schedule" : "Publish"}</button>
-              <button type="submit" name="intent" value="draft" formNoValidate className={adminButtonQuiet}>Save draft</button>
+              <SubmitButton name="intent" value="publish" className={adminButton}>{later ? "Schedule" : "Publish"}</SubmitButton>
+              <SubmitButton name="intent" value="draft" formNoValidate className={adminButtonQuiet}>Save draft</SubmitButton>
             </>
           )}
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useKeptForm } from "@/components/admin/useKeptForm";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Select } from "@/components/Select";
 import { Stepper, useStepHeading } from "@/components/leads/Stepper";
@@ -27,7 +28,7 @@ export function BookDriveForm({ cars, team, me, slots, initialCar }: { cars: Car
   const start = cars.some((c) => c.slug === initialCar) ? initialCar : "";
   const [step, setStep] = useState(start ? 1 : 0);
   // A refused booking goes back to the step with the problem; a booking made opens the diary on its day.
-  const [state, action, pending] = useActionState<DriveFormState, FormData>(async (prev, data) => {
+  const [state, action, pending] = useKeptForm<DriveFormState>(async (prev, data) => {
     const r = await addDriveAction(prev, data);
     if (r?.errors) setStep(stepOf(r.errors));
     if (r?.done) {
@@ -45,7 +46,7 @@ export function BookDriveForm({ cars, team, me, slots, initialCar }: { cars: Car
 
   const picked = cars.find((c) => c.slug === car);
   return (
-    <form action={action} noValidate className="flex max-w-3xl flex-col gap-5">
+    <form {...action} noValidate className="flex max-w-3xl flex-col gap-5">
       <Stepper titles={STEPS} step={step} headingRef={heading} />
       <input type="hidden" name="carSlug" value={car} />
 
@@ -110,7 +111,7 @@ export function BookDriveForm({ cars, team, me, slots, initialCar }: { cars: Car
 export function MoveDriveForm({ id, carSlug, slots }: { id: string; carSlug: string; slots: Slots }) {
   const router = useRouter();
   const [when, setWhen] = useState({ date: "", time: "" });
-  const [state, action, pending] = useActionState<DriveFormState, FormData>(async (prev, data) => {
+  const [state, action, pending] = useKeptForm<DriveFormState>(async (prev, data) => {
     const r = await moveDriveAction(id, prev, data);
     if (r?.done) {
       showToast(r.done);
@@ -120,7 +121,7 @@ export function MoveDriveForm({ id, carSlug, slots }: { id: string; carSlug: str
     return r;
   }, undefined);
   return (
-    <form action={action} noValidate className="flex flex-col gap-4">
+    <form {...action} noValidate className="flex flex-col gap-4">
       <SlotPicker days={slots.days} taken={slots.taken[carSlug] ?? []} windowMin={slots.windowMin} now={slots.now} date={when.date} time={when.time} onChange={(date, time) => setWhen({ date, time })} errors={state?.errors} />
       <button type="submit" disabled={pending || !when.time} className={`${adminButton} self-start disabled:opacity-50`}>
         {pending ? "Moving" : "Move"}

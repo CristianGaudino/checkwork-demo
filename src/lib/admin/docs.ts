@@ -22,9 +22,18 @@ const hasDb = () => Boolean(getBindings().DB);
 // (APP_ENV=production) nothing is seeded, unless DEMO_RECORDS=on; DEMO_RECORDS=off turns them off anywhere. `always` is for a record a
 // site cannot run without (the settings), which seeds its defaults either way.
 export const seedsDemoRecords = () => (process.env.DEMO_RECORDS ? process.env.DEMO_RECORDS !== "off" : !isProduction());
+// The Settings reset button: only where there are made-up records, and never on production, where a showcase (DEMO_RECORDS=on) also
+// holds records staff entered. The weekly cron is stricter still (APP_ENV=demo only).
+export const mayResetDemo = () => seedsDemoRecords() && !isProduction();
 
 export function defineCollection<T extends Doc>(name: string, demoSeed: () => T[], { always = false }: { always?: boolean } = {}) {
   const seed = () => (always || seedsDemoRecords() ? demoSeed() : []);
+  // A failed query's error carries its values (a lead's name, email, phone), and an uncaught error is printed to Workers Logs. Rethrown
+  // with the collection's name only, so a D1 hiccup never puts a customer in the logs.
+  const quiet = <R,>(q: PromiseLike<R>, op: string): Promise<R> =>
+    Promise.resolve(q).catch(() => {
+      throw new Error(`admin_docs ${name} ${op} failed`);
+    });
   // `seedIfNew` false is for a public page: it never writes, so a visitor's page view cannot seed a collection. Returns whether it is ready.
   async function ready(seedIfNew = true): Promise<boolean> {
     if (!hasDb()) {
@@ -33,7 +42,7 @@ export function defineCollection<T extends Doc>(name: string, demoSeed: () => T[
     }
     if (seededHere.has(name)) return true;
     const db = getDb();
-    const done = await db.select({ id: adminDocs.id }).from(adminDocs).where(and(eq(adminDocs.collection, SEEDED), eq(adminDocs.id, name))).limit(1);
+    const done = await quiet(db.select({ id: adminDocs.id }).from(adminDocs).where(and(eq(adminDocs.collection, SEEDED), eq(adminDocs.id, name))).limit(1), "ready");
     if (done.length) {
       seededHere.add(name);
       return true;
@@ -42,8 +51,8 @@ export function defineCollection<T extends Doc>(name: string, demoSeed: () => T[
     // Twenty rows a statement (D1 allows 100 bound values, three a row), so a first visit is a few round trips, not one per record.
     // Conflicts are ignored, so two first visits cannot clash.
     const rows = seed().map((d) => ({ collection: name, id: d.id, data: d }));
-    for (let i = 0; i < rows.length; i += 20) await db.insert(adminDocs).values(rows.slice(i, i + 20)).onConflictDoNothing();
-    await db.insert(adminDocs).values({ collection: SEEDED, id: name, data: {} }).onConflictDoNothing();
+    for (let i = 0; i < rows.length; i += 20) await quiet(db.insert(adminDocs).values(rows.slice(i, i + 20)).onConflictDoNothing(), "seed");
+    await quiet(db.insert(adminDocs).values({ collection: SEEDED, id: name, data: {} }).onConflictDoNothing(), "seed");
     seededHere.add(name);
     return true;
   }
@@ -53,27 +62,30 @@ export function defineCollection<T extends Doc>(name: string, demoSeed: () => T[
     async list(opts?: { seed?: boolean }): Promise<T[]> {
       if (!(await ready(opts?.seed ?? true))) return [];
       if (!hasDb()) return [...memory.get(name)!.values()] as T[];
-      const rows = await getDb().select({ data: adminDocs.data }).from(adminDocs).where(eq(adminDocs.collection, name));
+      const rows = await quiet(getDb().select({ data: adminDocs.data }).from(adminDocs).where(eq(adminDocs.collection, name)), "list");
       return rows.map((r) => r.data as T);
     },
     async get(id: string): Promise<T | undefined> {
       await ready();
       if (!hasDb()) return memory.get(name)!.get(id) as T | undefined;
-      const rows = await getDb().select({ data: adminDocs.data }).from(adminDocs).where(and(eq(adminDocs.collection, name), eq(adminDocs.id, id))).limit(1);
+      const rows = await quiet(getDb().select({ data: adminDocs.data }).from(adminDocs).where(and(eq(adminDocs.collection, name), eq(adminDocs.id, id))).limit(1), "get");
       return rows[0]?.data as T | undefined;
     },
     async put(doc: T): Promise<void> {
       await ready();
       if (!hasDb()) return void memory.get(name)!.set(doc.id, doc);
-      await getDb()
-        .insert(adminDocs)
-        .values({ collection: name, id: doc.id, data: doc })
-        .onConflictDoUpdate({ target: [adminDocs.collection, adminDocs.id], set: { data: doc, updatedAt: new Date() } });
+      await quiet(
+        getDb()
+          .insert(adminDocs)
+          .values({ collection: name, id: doc.id, data: doc })
+          .onConflictDoUpdate({ target: [adminDocs.collection, adminDocs.id], set: { data: doc, updatedAt: new Date() } }),
+        "put",
+      );
     },
     async remove(id: string): Promise<void> {
       await ready();
       if (!hasDb()) return void memory.get(name)!.delete(id);
-      await getDb().delete(adminDocs).where(and(eq(adminDocs.collection, name), eq(adminDocs.id, id)));
+      await quiet(getDb().delete(adminDocs).where(and(eq(adminDocs.collection, name), eq(adminDocs.id, id))), "remove");
     },
     // Back to the seed: used by "Reset demo data". Records that came from visitors (ids starting "real-") are never touched.
     async reset(): Promise<void> {
@@ -85,6 +97,8 @@ export function defineCollection<T extends Doc>(name: string, demoSeed: () => T[
       seededHere.delete(name);
       await db.delete(adminDocs).where(and(eq(adminDocs.collection, name), notLike(adminDocs.id, "real-%")));
       await db.delete(adminDocs).where(and(eq(adminDocs.collection, SEEDED), eq(adminDocs.id, name)));
+      // Seeded again at once: other Worker isolates still remember this collection as seeded and would otherwise list nothing.
+      await ready();
     },
   };
 }

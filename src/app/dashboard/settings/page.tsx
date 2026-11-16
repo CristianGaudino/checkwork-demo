@@ -6,7 +6,7 @@ import { getSettings } from "@/lib/admin/collections";
 import { INTEGRATIONS, type IntegrationId, isUsable, missingEnv, modeOf } from "@/lib/integrations";
 import { DEALER_ADDRESS_TEXT, DEALER_EMAIL, DEALER_PHONE, OPENING_HOURS, SITE_NAME } from "@/lib/site";
 import { removeTeamAction, resetDemoAction } from "./actions";
-import { seedsDemoRecords } from "@/lib/admin/docs";
+import { mayResetDemo } from "@/lib/admin/docs";
 import { syncLine } from "@/components/admin/SyncPanel";
 import { syncStatus } from "@/lib/donedeal/sync";
 import { stockSource } from "@/lib/stock-source";
@@ -53,7 +53,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
   // A manager changes everyone but an owner.
   const mayChange = (t: { role: Role }) => team && (owner || t.role !== "Owner");
   // Demo data only where there are made-up records to put back: a real dealer's dashboard has no demo, and the server refuses it there too.
-  const sections = SECTIONS.filter(([k]) => (k !== "demo" || (seedsDemoRecords() && edit)) && (k !== "marketing" || mods.has("social") || mods.has("newsletter")));
+  const sections = SECTIONS.filter(([k]) => (k !== "demo" || (mayResetDemo() && edit)) && (k !== "marketing" || mods.has("social") || mods.has("newsletter")));
   const section: Section = sections.find(([k]) => k === sp.section)?.[0] ?? "business";
   return (
     <>

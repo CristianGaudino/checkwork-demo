@@ -17,6 +17,7 @@ import { isUsable } from "@/lib/integrations";
 import { carName } from "@/lib/stock/format";
 import { forSale } from "@/lib/stock/types";
 import { createNewsletterAction, deleteAdAction, deleteMediaAction, deleteNewsletterAction, deletePostAction, publishPostAction, sendNewsletterAction, startAdAction } from "./actions";
+import { SubmitButton } from "@/components/admin/SubmitButton";
 
 export const metadata = { title: "Marketing" };
 
@@ -218,7 +219,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
         <>
           <div className="flex flex-wrap items-center gap-3">
             <form action={createNewsletterAction}>
-              <button type="submit" name="intent" value="write" className={adminButton}>Write from the newest cars</button>
+              <SubmitButton name="intent" value="write" className={adminButton}>Write from the newest cars</SubmitButton>
             </form>
             <p className="text-meta text-text-2">{fmtNum(live)} subscribers{isUsable("newsletter") ? "" : ", sending not connected"}</p>
           </div>
@@ -255,7 +256,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
             <Panel className="mt-3">
               <form action={createNewsletterAction} className="flex flex-col gap-4">
                 <NewsletterFields />
-                <button type="submit" name="intent" value="save" className={`${adminButtonQuiet} self-start`}>Save draft</button>
+                <SubmitButton name="intent" value="save" className={`${adminButtonQuiet} self-start`}>Save draft</SubmitButton>
               </form>
             </Panel>
           </details>

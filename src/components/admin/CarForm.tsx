@@ -1,7 +1,8 @@
 "use client";
 
+import { useKeptForm } from "@/components/admin/useKeptForm";
 import Link from "next/link";
-import { useActionState, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { RegLookup } from "@/components/leads/RegLookup";
 import { useLeaveGuard } from "@/components/admin/useLeaveGuard";
 import { Select } from "@/components/Select";
@@ -17,14 +18,14 @@ import type { Car } from "@/lib/stock/types";
 // `cost` is only given to staff with the margins permission, and the box is not in the page without it.
 // `reg`: a registration to start a new car from (a trade-in taken on a sale).
 export function CarForm({ car, cost, reg: startReg = "" }: { car?: Car; cost?: { eur?: number }; reg?: string }) {
-  const [state, action, pending] = useActionState<CarFormState, FormData>(saveCarAction.bind(null, car?.id ?? null), undefined);
+  const form = useRef<HTMLFormElement>(null);
+  const [state, action, pending] = useKeptForm<CarFormState>(saveCarAction.bind(null, car?.id ?? null), undefined, form);
   const errors = state?.errors ?? {};
   // What the registration lookup filled in. The boxes are uncontrolled, so a lookup redraws them (`drawn`) from what was typed plus what
   // was found; a box already typed in keeps its value.
   const [found, setFound] = useState<Record<string, string>>({});
   const [drawn, setDrawn] = useState(0);
   const [reg, setReg] = useState(startReg);
-  const form = useRef<HTMLFormElement>(null);
   useLeaveGuard(form); // a menu tap would throw the edits away
   const value = (name: string): string => {
     if (found[name] !== undefined) return found[name];
@@ -40,7 +41,7 @@ export function CarForm({ car, cost, reg: startReg = "" }: { car?: Car; cost?: {
   };
 
   return (
-    <form ref={form} action={action} className="flex flex-col gap-6" noValidate>
+    <form {...action} className="flex flex-col gap-6" noValidate>
       {/* Adding a car starts from its registration: the lookup fills the basics and details, and every box can still be changed. */}
       {!car && (
         <Panel title="Registration">

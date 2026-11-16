@@ -54,6 +54,7 @@ export async function assignLeadAction(id: string, data: FormData) {
   if (!lead) return;
   const { team } = await getSettings();
   const to = team.some((t) => t.name === name) ? name : undefined;
+  if (name && !to) return { error: `${name} is no longer on the team.` }; // a stale page: never take the lead off its person by mistake
   if (to === lead.assignedTo) return;
   await leadsStore.put({ ...lead, assignedTo: to });
   await logActivity("leads", to ? `Gave the lead to ${to}` : `Took the lead off ${lead.assignedTo}`, ref(id));

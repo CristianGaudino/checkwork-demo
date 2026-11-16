@@ -9,6 +9,7 @@ import { TimeLeft } from "@/components/admin/charts";
 import { dublinDay, fmtDate, fmtDateTime } from "@/lib/admin/format";
 import { can } from "@/lib/permissions";
 import { addClaimNoteAction, setClaimStatusAction } from "../actions";
+import { SubmitButton } from "@/components/admin/SubmitButton";
 
 export const metadata = { title: "Warranty claim" };
 
@@ -57,7 +58,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
               <Field label="Add a note">
                 <textarea name="note" rows={3} maxLength={500} required className={`${adminInput} h-auto py-2`} />
               </Field>
-              <button type="submit" className={`${adminButton} self-start`}>Add note</button>
+              <SubmitButton className={`${adminButton} self-start`}>Add note</SubmitButton>
             </form>
           </Panel>
         </div>

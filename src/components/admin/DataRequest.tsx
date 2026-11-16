@@ -1,12 +1,14 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useKeptForm } from "@/components/admin/useKeptForm";
+import { useState } from "react";
 import { Field, Panel, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
 import { eraseAction, exportAction, findAction, type FindState } from "@/app/dashboard/data-requests/actions";
+import { SubmitButton } from "@/components/admin/SubmitButton";
 
 // Find what is held about a person, then send them a copy or erase it. The email or phone stays in the page, never in the address.
 export function DataRequest() {
-  const [state, find, pending] = useActionState<FindState, FormData>(findAction, undefined);
+  const [state, find, pending] = useKeptForm<FindState>(findAction, undefined);
   // The tick is for the person on screen: a new search clears it.
   const [checkedFor, setCheckedFor] = useState<string>();
   const found = state?.groups;
@@ -14,7 +16,7 @@ export function DataRequest() {
   return (
     <>
       <Panel title="Find a person">
-        <form action={find} className="flex flex-wrap items-start gap-3" noValidate>
+        <form {...find} className="flex flex-wrap items-start gap-3" noValidate>
           <Field label="Their email or phone number" error={state?.error} className="w-full sm:max-w-sm">
             <input name="q" defaultValue={state?.q ?? ""} autoComplete="off" className={adminInput} />
           </Field>
@@ -53,9 +55,9 @@ export function DataRequest() {
                     <input type="checkbox" name="checked" checked={checked} onChange={(e) => setCheckedFor(e.target.checked ? state.q : undefined)} className="size-5 accent-accent" />
                     I have checked this is the person asking
                   </label>
-                  <button type="submit" disabled={!checked} className="inline-flex h-11 items-center rounded-control border border-bad px-4 text-meta font-semibold text-bad disabled:opacity-50">
+                  <SubmitButton disabled={!checked} className="inline-flex h-11 items-center rounded-control border border-bad px-4 text-meta font-semibold text-bad disabled:opacity-50">
                     Erase everything above
-                  </button>
+                  </SubmitButton>
                 </form>
               </div>
             </>

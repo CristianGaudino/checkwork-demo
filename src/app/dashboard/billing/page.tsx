@@ -78,7 +78,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
                     <span>
                       Tell me when {scopeName(a.scope).toLowerCase()} passes {eur(a.amountEur)}
                     </span>
-                    <ActButton act={removeAlertAction.bind(null, a.scope, a.amountEur)} done="Alert removed" label={`Remove the ${scopeName(a.scope)} alert at ${eur(a.amountEur)}`} className={rowButton}>
+                    <ActButton act={removeAlertAction.bind(null, a.scope, a.amountEur)} done="Alert removed" confirm={{ title: "Remove this alert?", text: `You will no longer be told when this passes ${eur(a.amountEur)}.`, yes: "Remove" }} label={`Remove the ${scopeName(a.scope)} alert at ${eur(a.amountEur)}`} className={rowButton}>
                       Remove
                     </ActButton>
                   </li>

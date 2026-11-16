@@ -78,7 +78,8 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
   }, [open]);
 
   const chip = "flex h-9 shrink-0 items-center rounded-full border px-3 text-meta";
-  const controls = (
+  // `phone`: the controls in the pill's panel, where the row wraps and the module list opens in place; else the slim bar.
+  const controls = (phone: boolean) => (
     <>
       <nav aria-label="View the demo as" className="flex items-center">
         <span className="pl-2 pr-1 text-text-2">View as</span>
@@ -102,7 +103,7 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
         ))}
       </nav>
       {role === "dealer" && showAreas && (
-        <div className="flex items-center gap-2">
+        <div className={`flex items-center gap-2 ${phone ? "w-full flex-wrap" : ""}`}>
           {/* Which member of the team the demo acts as: the role decides what they may see (src/lib/permissions.ts). The browser's own
               select, not the site's Combobox: one compact control in a bar fixed to the foot of the screen, where a list would open off it. */}
           <label className={`${chip} border-hairline pr-0`}>
@@ -136,7 +137,7 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
             {LISTING_SITE} sync<span className="ml-1">{donedeal ? "on" : "off"}</span>
           </button>
           {/* Which modules the dealer has (#173), so a smaller site can be shown. */}
-          <ModuleSwitches chip={chip} />
+          <ModuleSwitches chip={chip} inline={phone} />
         </div>
       )}
       <button type="button" aria-pressed={theme === "dark"} onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className={`flex h-11 items-center px-2 text-text-2 ${press}`}>
@@ -152,7 +153,7 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
       <div className={`fixed right-3 z-40 flex flex-col items-end gap-2 ${inApp ? "bottom-[calc(4rem+env(safe-area-inset-bottom))] lg:hidden" : "bottom-[calc(0.75rem+env(safe-area-inset-bottom))] sm:hidden"}`}>
         {open && (
           <div id={panelId} className="flex w-[min(20rem,calc(100vw-1.5rem))] flex-col items-start gap-1 rounded-card border border-hairline bg-band p-2 shadow-panel">
-            {controls}
+            {controls(true)}
           </div>
         )}
         <button
@@ -170,7 +171,7 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
       </div>
       {/* From 640px (1024px in the dashboard): one slim line at the foot of the screen, the theme at its right end. */}
       <div ref={barRoom} className={`fixed inset-x-0 bottom-0 z-40 hidden border-t border-hairline bg-band pb-[env(safe-area-inset-bottom)] ${inApp ? "lg:block" : "sm:block"}`}>
-        <div className="mx-auto flex min-h-11 max-w-page items-center gap-x-3 px-6 lg:px-8 [&>:last-child]:ml-auto">{controls}</div>
+        <div className="mx-auto flex min-h-11 max-w-page items-center gap-x-3 px-6 lg:px-8 [&>:last-child]:ml-auto">{controls(false)}</div>
       </div>
     </div>
   );

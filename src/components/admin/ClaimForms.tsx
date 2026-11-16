@@ -1,16 +1,16 @@
 "use client";
 
-import { useActionState } from "react";
+import { useKeptForm } from "@/components/admin/useKeptForm";
 import { Select } from "@/components/Select";
 import { Field, adminButton, adminInput } from "@/components/admin/kit";
 import { openClaimAction, setClaimCostAction, type ClaimFormState, type CostState } from "@/app/dashboard/aftersales/actions";
 
 // Opening a warranty claim on a car the dealer sold, and (margins only) what the repair cost. The server checks every box again.
 export function OpenClaimForm({ sales, today, defaults }: { sales: { id: string; label: string }[]; today: string; defaults: { saleId?: string; fault?: string; leadId?: string } }) {
-  const [state, action, pending] = useActionState<ClaimFormState, FormData>(openClaimAction, undefined);
+  const [state, action, pending] = useKeptForm<ClaimFormState>(openClaimAction, undefined);
   const e = state?.errors ?? {};
   return (
-    <form action={action} className="grid grid-cols-1 gap-4 sm:grid-cols-2" noValidate>
+    <form {...action} className="grid grid-cols-1 gap-4 sm:grid-cols-2" noValidate>
       {defaults.leadId && <input type="hidden" name="leadId" value={defaults.leadId} />}
       <Field label="Car they bought" error={e.saleId} className="sm:col-span-2">
         <Select name="saleId" defaultValue={defaults.saleId ?? ""} options={[["", "Choose a sale"], ...sales.map((s) => [s.id, s.label] as const)]} />
@@ -29,9 +29,9 @@ export function OpenClaimForm({ sales, today, defaults }: { sales: { id: string;
 }
 
 export function ClaimCostForm({ id, costEur }: { id: string; costEur?: number }) {
-  const [state, action, pending] = useActionState<CostState, FormData>(setClaimCostAction.bind(null, id), undefined);
+  const [state, action, pending] = useKeptForm<CostState>(setClaimCostAction.bind(null, id), undefined);
   return (
-    <form action={action} className="flex flex-wrap items-end gap-3">
+    <form {...action} className="flex flex-wrap items-end gap-3">
       <Field label="Repair cost to us (€)" hint="Counts against the car's margin. Leave empty to clear it." error={state?.error} className="sm:max-w-xs">
         <input name="costEur" inputMode="numeric" defaultValue={costEur ?? ""} className={adminInput} />
       </Field>
