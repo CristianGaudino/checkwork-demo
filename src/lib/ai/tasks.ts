@@ -44,7 +44,7 @@ export type FactsOf = {
 // shortcut: a price range with no commas ("15000-20000") is taken for a phone number; fine while it only loses a figure from a draft.
 const EMAIL = /[^\s@(<]+@[^\s@]+\.[^\s@]*[^\s@.,;:!?)>]/gu;
 const PHONE = /\+?\(?\d[\d\s()./-]{6,}\d/g;
-const DATE = /\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}/;
+const DATE = /(?<!\d)\d{1,2}[/.-]\d{1,2}[/.-](?:\d{4}|\d{2})(?!\d)/; // whole, so a date is never found inside a phone number
 const YEARS = /^(19|20)\d\d([\s/-]+(19|20)\d\d)+$/;
 const isPhone = (m: string) => m.replace(new RegExp(DATE, "g"), "").replace(/\D/g, "").length >= 9 && !YEARS.test(m.trim()); // a date beside a number does not hide it
 // `numbered`: the dealer's own draft, whose contacts go back in after an adjust: "[phone 1]", "[email 1]", each put back by its number, so a

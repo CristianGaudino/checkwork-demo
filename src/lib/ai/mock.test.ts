@@ -101,5 +101,6 @@ describe("what goes to the AI provider", () => {
   });
   it("takes out a number that follows a date", () => {
     expect(noContacts("Viewing 14/06/2025 087 123 4567")).not.toContain("123 4567");
+    for (const t of ["Ring 087-12-34567", "Mob 087-1-234567", "01.23.45678"]) expect(noContacts(t)).toContain("[phone]");
   });
 });

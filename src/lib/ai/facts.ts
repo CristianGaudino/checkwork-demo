@@ -38,7 +38,7 @@ export async function buildFacts(req: WriteRequest, dealer: string): Promise<Bui
     }
     case "carDescription": {
       const car = formCarFacts(req.fields);
-      return car ? { task: "carDescription", facts: { dealer, car, notes: text(req.fields.description, 600) } } : null;
+      return car ? { task: "carDescription", facts: { dealer, car, notes: text(noContacts(req.fields.description ?? ""), 600) } } : null;
     }
     case "leadReply": {
       const lead = await leadsStore.get(req.leadId);
