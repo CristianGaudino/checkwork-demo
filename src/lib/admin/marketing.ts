@@ -1,4 +1,4 @@
-import { carName, carHref } from "@/lib/stock/format";
+import { carName, carHref, fmtEur } from "@/lib/stock/format";
 import { priceInfo } from "@/lib/stock/price";
 import { FUEL_LABELS, GEARBOX_LABELS, forSale, type Car } from "@/lib/stock/types";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
@@ -6,25 +6,44 @@ import { DAY } from "@/lib/time";
 import type { Ad, DealerSettings, Network, SocialPost } from "./collections";
 import { addDays, dublinDay } from "./format";
 import type { PostFormat } from "./networks";
+import type { CarFacts } from "@/lib/ai/tasks";
 
 // The writers for posts and newsletters. Plain templates over the car's own facts and the dealer's voice settings: the same car and
 // settings always give the same text, and nothing is invented (no claims, no offers). The dealer edits the text before it goes anywhere.
-type Voice = DealerSettings["marketing"];
+// The AI writer's plain draft (src/lib/ai/mock.ts) is this text too, so only its adjust buttons write differently.
+type Voice = Pick<DealerSettings["marketing"], "signOff" | "hashtags">;
 
-const facts = (c: Car) => [c.mileageKm !== undefined && `${c.mileageKm.toLocaleString("en-IE")} km`, c.fuel && FUEL_LABELS[c.fuel], c.gearbox && GEARBOX_LABELS[c.gearbox]].filter(Boolean).join(", ");
 const priceText = (c: Car) => {
   const p = priceInfo(c);
   return [p.headline, p.vatLine].filter(Boolean).join(" ");
 };
 
-export function writePost(car: Car, network: Network, voice: Voice, format: PostFormat = "post"): string {
+// What a writer may say about a car: its own fields, its price as the site shows it, and its link.
+export function carFacts(c: Car): CarFacts {
+  return {
+    name: `${carName(c)}${c.variant ? ` ${c.variant}` : ""}`,
+    year: c.year, mileageKm: c.mileageKm, fuel: c.fuel && FUEL_LABELS[c.fuel], gearbox: c.gearbox && GEARBOX_LABELS[c.gearbox], body: c.bodyType, engineLitres: c.engineLitres,
+    colour: c.colour, doors: c.doors, seats: c.seats, owners: c.owners, nctExpiry: c.nctExpiry,
+    price: priceText(c),
+    was: c.wasPriceEur !== undefined && c.wasPriceEur > c.priceEur ? fmtEur(c.wasPriceEur) : undefined,
+    features: c.features?.slice(0, 12),
+    link: `${SITE_URL}${carHref(c.slug)}`,
+  };
+}
+
+// The cars for sale, newest first (the highest id was added last): the first `n`, or all of them.
+export const newestForSale = (cars: Car[], n?: number) => cars.filter(forSale).sort((a, b) => Number(b.id) - Number(a.id)).slice(0, n);
+
+export const writePost = (car: Car, network: Network, voice: Voice, format: PostFormat = "post") => postText(carFacts(car), network, voice, format);
+export function postText(c: CarFacts, network: Network, voice: Voice, format: PostFormat = "post"): string {
   const lead = { post: "Just in", story: "Just in", reel: "Walkaround", carousel: "More photos" }[format];
-  const head = `${lead}: ${carName(car)}${car.variant ? ` ${car.variant}` : ""}.`;
-  const line = [facts(car), priceText(car)].filter(Boolean).join(". ");
-  const link = network === "Instagram" || network === "TikTok" ? "Link in bio." : `${SITE_URL}${carHref(car.slug)}`;
+  const head = `${lead}: ${c.name}.`;
+  const facts = [c.mileageKm !== undefined && `${c.mileageKm.toLocaleString("en-IE")} km`, c.fuel, c.gearbox].filter(Boolean).join(", ");
+  const line = [facts, c.price].filter(Boolean).join(". ");
+  const link = network === "Instagram" || network === "TikTok" ? "Link in bio." : c.link;
   const tags = voice.hashtags.trim();
   // A story is a few words on a photo: no specs, sign-off or hashtags. TikTok captions stay short too: no sign-off line.
-  if (format === "story") return [head, priceText(car)].filter(Boolean).join("\n");
+  if (format === "story") return [head, c.price].filter(Boolean).join("\n");
   const parts = network === "TikTok" ? [head, line, tags] : [head, line, voice.signOff.trim(), link, network === "Instagram" ? tags : ""];
   return parts.filter(Boolean).join("\n");
 }
@@ -47,11 +66,14 @@ export function calendarWeek(posts: SocialPost[], ads: Ad[], days: string[]): Re
 }
 
 export function writeNewsletter(cars: Car[], voice: Voice): { subject: string; body: string } {
-  const list = cars.map((c) => `- ${carName(c)}, ${priceText(c)}. ${SITE_URL}${carHref(c.slug)}`);
   return {
     subject: cars.length ? `New arrivals at ${SITE_NAME}` : `News from ${SITE_NAME}`,
-    body: [cars.length ? "New in this week:" : "", ...list, "", voice.signOff.trim()].filter((l, i, a) => l !== "" || (i > 0 && a[i - 1] !== "")).join("\n").trim(),
+    body: newsletterText(cars.map((c) => ({ name: carName(c), price: priceText(c), link: `${SITE_URL}${carHref(c.slug)}` })), voice),
   };
+}
+export function newsletterText(cars: Pick<CarFacts, "name" | "price" | "link">[], voice: Voice): string {
+  const list = cars.map((c) => `- ${c.name}, ${c.price ?? "ask for the price"}. ${c.link ?? ""}`.trim());
+  return [cars.length ? "New in this week:" : "", ...list, "", voice.signOff.trim()].filter((l, i, a) => l !== "" || (i > 0 && a[i - 1] !== "")).join("\n").trim();
 }
 
 // What a send or a publish returns. A service that is not connected is a message, never a thrown error and never a pretend success.

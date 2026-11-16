@@ -11,11 +11,10 @@ import { TIME_ZONE } from "@/lib/site";
 import { FORMAT_LABELS } from "@/lib/admin/networks";
 import { addDays, dublinDay, fmtDate, fmtDateTime, fmtEur, fmtNum, fmtPct, isIsoDay, plural, threeLetter } from "@/lib/admin/format";
 import Link from "next/link";
-import { calendarWeek, weekDays, worthPosting } from "@/lib/admin/marketing";
+import { calendarWeek, newestForSale, weekDays, worthPosting } from "@/lib/admin/marketing";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { isUsable } from "@/lib/integrations";
 import { carName } from "@/lib/stock/format";
-import { forSale } from "@/lib/stock/types";
 import { createNewsletterAction, deleteAdAction, deleteMediaAction, deleteNewsletterAction, deletePostAction, publishPostAction, sendNewsletterAction, startAdAction } from "./actions";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 
@@ -66,7 +65,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
   const notice = sp.notice ? NOTICES[sp.notice] : undefined;
   await sendDuePosts(); // posts whose time has come go out before the list is read
   const [posts, ads, letters, subs, cars, library] = await Promise.all([postsStore.list(), adsStore.list(), newslettersStore.list(), subscribersStore.list(), adminCars(), mediaStore.list()]);
-  const onSale = cars.filter(forSale).sort((a, b) => Number(b.id) - Number(a.id));
+  const onSale = newestForSale(cars);
   const live = subs.filter((s) => s.status === "subscribed").length;
   const ideas = worthPosting(onSale, posts);
   // Posts and ads in one list, newest first, filtered by what it is and where it stands.
@@ -202,7 +201,6 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                       {m.kind === "video" ? (
                         <video src={m.src} muted playsInline preload="none" aria-label={m.name} className="size-full object-cover" />
                       ) : (
-                        // eslint-disable-next-line @next/next/no-img-element -- the dealer's own upload; images are unoptimized on this Worker
                         <img src={m.src} alt={m.name} className="size-full object-cover" />
                       )}
                     </div>

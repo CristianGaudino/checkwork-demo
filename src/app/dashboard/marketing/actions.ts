@@ -8,13 +8,12 @@ import { dropMedia, storeMedia } from "@/lib/admin/media";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { NETWORKS, adsStore, getSettings, mediaStore, newslettersStore, postsStore, subscribersStore, type Ad, type MediaItem, type SocialPost } from "@/lib/admin/collections";
-import { simulatedAd, simulatedLetter, simulatedPost, writeNewsletter, writePost, type SendResult } from "@/lib/admin/marketing";
+import { newestForSale, simulatedAd, simulatedLetter, simulatedPost, writeNewsletter, writePost, type SendResult } from "@/lib/admin/marketing";
 import { publishPost, sendNewsletter, startAd } from "@/lib/admin/publishers";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { carName } from "@/lib/stock/format";
 import { forSale } from "@/lib/stock/types";
 import { priceInfo } from "@/lib/stock/price";
-import { formatPrice } from "@/lib/stock/format";
 import { newId } from "@/lib/admin/ids";
 import { logActivity } from "@/lib/admin/activity";
 import { fmtEur } from "@/lib/admin/format";
@@ -160,7 +159,7 @@ export async function composerCarAction(slug: string): Promise<ComposerCar | nul
   const { marketing } = await getSettings();
   const p = priceInfo(car);
   const text = (format: (typeof POST_FORMATS)[number]) => Object.fromEntries(NETWORKS.map((n) => [n, writePost(car, n, marketing, format)])) as ComposerCar["text"];
-  return { slug: car.slug, title: carName(car), photos: car.photos.slice(0, 10), text: text("post"), byFormat: Object.fromEntries(POST_FORMATS.map((f) => [f, text(f)])) as ComposerCar["byFormat"], price: p.headline, was: car.wasPriceEur !== undefined && car.wasPriceEur > car.priceEur ? formatPrice(car.wasPriceEur) : undefined };
+  return { slug: car.slug, title: carName(car), photos: car.photos.slice(0, 10), text: text("post"), byFormat: Object.fromEntries(POST_FORMATS.map((f) => [f, text(f)])) as ComposerCar["byFormat"], price: p.headline, was: car.wasPriceEur !== undefined && car.wasPriceEur > car.priceEur ? fmtEur(car.wasPriceEur) : undefined };
 }
 
 // "Write from the newest cars" fills the letter from the stock; otherwise the dealer's own subject and text are used.
@@ -171,7 +170,7 @@ export async function createNewsletterAction(data: FormData) {
   const { marketing } = await getSettings();
   let { subject, body } = { subject: "", body: "" };
   if (data.get("intent") === "write") {
-    const cars = (await adminCars()).filter(forSale).sort((a, b) => Number(b.id) - Number(a.id)).slice(0, 5);
+    const cars = newestForSale(await adminCars(), 5);
     ({ subject, body } = writeNewsletter(cars, marketing));
   } else {
     const r = letter.safeParse(Object.fromEntries(data));
