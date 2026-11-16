@@ -4,7 +4,7 @@ import extraCars from "@/lib/stock/demo-cars-extra.json";
 import { defineCollection, seedsDemoRecords } from "./docs";
 import { AD_PLATFORMS, NETWORKS, type AdPlatform, type Network, type PostFormat, type StoryLayout } from "./networks";
 import { demoCost } from "./margins";
-import { DAY, HOUR } from "@/lib/time";
+import { DAY, HOUR, MINUTE } from "@/lib/time";
 import { dublinDay, dublinMs } from "./format";
 import { newId } from "./ids";
 import { COVER_MONTHS, DEPOSIT_METHODS, type DepositMethod } from "./deposits";
@@ -158,16 +158,25 @@ const PAST_LEADS = (now: number): Lead[] => {
         carTitle: car && carTitleOf(car),
         assignedTo: r.pick(TEAM_SEED).name,
         ...(status === "lost" && { lostReason }),
-        notes: [],
-        createdAt: now - (week * 7 + r.int(0, 6)) * DAY - r.int(1, 10) * HOUR,
+        // Sent during the day in Dublin, and answered within a few hours, as most are (from the index, so the random sequence is unchanged).
+        ...(() => {
+          const at = irishAt(now - (week * 7 + r.int(0, 6)) * DAY - r.int(1, 10) * HOUR, 9 + ((out.length * 7) % 10), (out.length * 13) % 60);
+          return { createdAt: at, notes: out.length % 9 === 4 ? [] : [{ at: at + (20 + ((out.length * 37) % 220)) * MINUTE, text: "Called back." }] };
+        })(),
       });
     }
   }
   return out;
 };
+// Messages from the guided contact form (#176), so the leads list shows its tags ("Buying · this week · trade-in") on the demo.
+const GUIDED_LEADS = (now: number): Lead[] => [
+  { id: "lead-4000", type: "general", status: "new", name: "Fiona Byrne", email: "fiona.byrne@example.com", phone: "+353 87 000 4000", source: "Website", message: "", topic: "buying", answers: { timing: "this-week", hasTradeIn: "yes", contactVia: "whatsapp", contactWhen: "evening" }, notes: [], createdAt: now - 3 * HOUR },
+  { id: "lead-4001", type: "service", status: "new", name: "Declan Moore", email: "declan.moore@example.com", phone: "+353 86 000 4001", source: "Website", message: "The engine light came on this morning.", topic: "service", answers: { serviceNeed: "warning-light", urgency: "this-week", contactVia: "call", contactWhen: "morning" }, notes: [], createdAt: now - 6 * HOUR },
+  { id: "lead-4002", type: "general", status: "contacted", name: "Sorcha Daly", email: "sorcha.daly@example.com", phone: "+353 85 000 4002", source: "Website", message: "", topic: "finance", answers: { contactVia: "email" }, assignedTo: "Niamh Kavanagh", notes: [{ at: now - 26 * HOUR, text: "Sent the finance options." }], createdAt: now - 28 * HOUR },
+];
 function seedLeadsWithEdges(): Lead[] {
   const now = Date.now();
-  return [...seedLeads(), ...EDGE_LEADS(now), ...STORY_LEADS(now), ...PAST_LEADS(now)];
+  return [...seedLeads(), ...EDGE_LEADS(now), ...STORY_LEADS(now), ...PAST_LEADS(now), ...GUIDED_LEADS(now)];
 }
 export const leadsStore = defineCollection<Lead>("leads", seedLeadsWithEdges);
 // The seeded leads, for the notifications' own seed (notifications.ts), so the bell tells of the same requests.

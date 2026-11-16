@@ -5,6 +5,7 @@ import { fmtDateTime } from "@/lib/admin/format";
 import { feedbackStore, requestsOf } from "@/lib/admin/help";
 import { STATUS_LABELS, SUPPORT, feedbackDue, safeFrom, supportTel, supportWhatsApp, typesFor, type HelpStatus } from "@/lib/admin/help-rules";
 import { currentMember } from "@/lib/permissions";
+import { DEALER_NAV } from "@/lib/admin/nav";
 
 export const metadata = { title: "Help" };
 
@@ -16,7 +17,10 @@ const CONTACTS = [
 ] as const;
 const today = () => Date.now();
 
-// Every team member can reach us from here. `from` is the page they came from (the Need help link and the Billing page set it).
+// The page a request came from, as the menu names it ("Margins", "Settings"); a page deeper in an area takes its area's name.
+const pageName = (from: string) => DEALER_NAV.filter((i) => from === i.href || from.startsWith(`${i.href}/`)).sort((a, b) => b.href.length - a.href.length)[0]?.label ?? "the dashboard";
+
+// Every team member can reach us from here. `from` is the page they came from, when a link sets it (the Billing page does).
 export default async function Page({ searchParams }: { searchParams: Promise<{ from?: string; type?: string }> }) {
   const [me, sp] = await Promise.all([currentMember(), searchParams]);
   const types = typesFor(me.role);
@@ -54,7 +58,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ f
                   <span className="text-meta text-text-2">{fmtDateTime(r.at)}</span>
                   {r.from !== "/dashboard" && (
                     <Link href={r.from} className="text-meta text-text-2 underline-offset-2 hover:underline">
-                      From {r.from.replace("/dashboard/", "").replace("/dashboard", "overview")}
+                      From {pageName(r.from)}
                     </Link>
                   )}
                 </div>

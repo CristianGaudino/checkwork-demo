@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { NotificationBell } from "@/components/admin/NotificationBell";
@@ -22,7 +21,6 @@ const save = (name: string, value: string) => {
 // left on its own surface, folding to a rail of icons and back, and the page beside it. Under 1024px: the dealership's name and the bell on
 // top, the page, and a tab bar at the foot of the screen.
 export function AdminShell({ title, subtitle, nav, navLabel, openGroups, rail: railAtFirst, compact: compactAtFirst, children }: { title: string; subtitle: string; nav: NavItem[]; navLabel: string; openGroups: string[]; rail: boolean; compact: boolean; children: React.ReactNode }) {
-  const path = usePathname();
   const [rail, setRail] = useState(railAtFirst);
   const [compact, setCompactNow] = useState(compactAtFirst);
   const setCompact = (v: boolean) => {
@@ -60,14 +58,9 @@ export function AdminShell({ title, subtitle, nav, navLabel, openGroups, rail: r
           <AdminNav items={nav} label={navLabel} openGroups={openGroups} rail={rail} />
           <div className={`hidden items-center border-t border-hairline lg:mx-3 lg:flex lg:min-h-14 ${rail ? "lg:justify-center" : "lg:justify-between lg:gap-2 lg:pl-3"}`}>
             {!rail && (
-              <span className="flex min-w-0 flex-col">
-                <Link href="/" className="inline-flex min-h-11 items-center truncate text-meta text-text-2 underline">
-                  View the public site
-                </Link>
-                <Link href={`/dashboard/help?from=${encodeURIComponent(path)}`} className="inline-flex min-h-11 items-center truncate text-meta text-text-2 underline">
-                  Need help?
-                </Link>
-              </span>
+              <Link href="/" className="truncate py-3 text-meta text-text-2 underline">
+                View the public site
+              </Link>
             )}
             <button type="button" onClick={toggleRail} aria-label={rail ? "Expand the menu" : "Collapse the menu"} title={rail ? "Expand the menu" : "Collapse the menu"} className={`inline-flex size-11 shrink-0 items-center justify-center rounded-control text-text-2 transition-colors hover:bg-card hover:text-text ${press}`}>
               {rail ? <ChevronRightIcon className="size-5" /> : <ChevronLeftIcon className="size-5" />}

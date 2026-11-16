@@ -9,7 +9,7 @@ test("the owner sees the plan, sets a limit and an alert, and opens a bill", asy
   await expect(page.getByText(/Founding dealer: 30% off until/)).toBeVisible();
   await expect(page.getByText("Estimate").first()).toBeVisible();
 
-  await page.getByRole("link", { name: "Limits and alerts" }).click();
+  await page.getByRole("link", { name: "Limits", exact: true }).click();
   // High enough that the other specs' lookups, on the same server, never reach it.
   await page.getByLabel("Registration lookup limit (€ a month)").fill("120.50");
   await page.getByRole("button", { name: "Save limits" }).click();
@@ -44,7 +44,7 @@ test("a help request is sent and shows in the list with its page", async ({ page
   await as(context, "Sales");
   await page.goto("/dashboard/stock");
   await page.setViewportSize({ width: 1280, height: 900 });
-  await page.getByRole("link", { name: "Need help?" }).click();
+  await page.getByRole("navigation", { name: "Dealer dashboard" }).getByRole("link", { name: "Help" }).click();
   await expect(page).toHaveURL(/\/dashboard\/help\?from=%2Fdashboard%2Fstock/);
   await expect(page.getByRole("link", { name: /Call/ })).toHaveAttribute("href", "tel:+35319060099");
   const text = `Where do I change a price ${Date.now()}`;

@@ -16,7 +16,7 @@ import { dublinDay } from "@/lib/admin/format";
 
 export const metadata = { title: "Billing" };
 
-const SECTIONS = [["plan", "Plan and usage"], ["limits", "Limits and alerts"], ["bills", "Bills"]] as const;
+const SECTIONS = [["plan", "Plan"], ["limits", "Limits"], ["bills", "Bills"]] as const; // short, so the three fit a phone on one line
 const AT_LIMIT: Record<Service, string> = {
   lookup: "The lookup button says the limit is reached, and the details are typed in.",
   ai: "The AI button says the limit is reached, and the text is left as it was.",

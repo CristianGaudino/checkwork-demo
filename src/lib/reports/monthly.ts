@@ -73,7 +73,8 @@ export function summarise(data: ReportData, from: string, to: string, now: numbe
     stock: {
       inStock: live.length,
       added: data.cars.filter((c) => c.listedAt && c.listedAt >= from && c.listedAt <= to).length,
-      sold: data.cars.filter((c) => isSold(c) && c.soldAt! >= from && c.soldAt! <= to).length,
+      // A car sold in the range: marked sold on the stock, or with a sale recorded (a live sale's id is its car's id), counted once.
+      sold: new Set([...data.cars.filter((c) => isSold(c) && c.soldAt! >= from && c.soldAt! <= to).map((c) => c.id), ...sales.map((s) => s.id)]).size,
       avgDaysInStock: ages.length ? Math.round(ages.reduce((n, d) => n + d, 0) / ages.length) : null,
       over45Days: ages.filter((d) => d > 45).length,
       priceDrops: live.filter((c) => c.wasPriceEur !== undefined).length,

@@ -46,7 +46,7 @@ export default async function Page({ params }: { params: Promise<{ month: string
           columns={[
             { key: "label", header: "Item", cell: (r) => <span className={r.strong ? "font-semibold" : ""}>{r.label}</span> },
             { key: "detail", header: "Uses", hide: "sm", cell: (r) => r.detail ?? "" },
-            { key: "eur", header: "Amount", align: "right", cell: (r) => <span className={r.strong ? "font-semibold" : ""}>{r.eur < 0 ? "-" : ""}{eur(Math.abs(r.eur))}</span> },
+            { key: "eur", header: "Amount", align: "right", cell: (r) => <span className={r.strong ? "font-semibold" : ""}>{r.eur < 0 ? "-" : ""}{eur(Math.abs(r.eur), true)}</span> },
           ]}
         />
         <p className="text-meta text-text-2">The invoice was emailed as a PDF when this bill was issued.</p>

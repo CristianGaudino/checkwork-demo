@@ -37,8 +37,8 @@ export const MODULE_EUR: Record<ModuleId, number> = {
 export const VAT_PCT = 23;
 export const withVat = (eur: number) => round2(eur * (1 + VAT_PCT / 100));
 export const round2 = (n: number) => Math.round(n * 100) / 100;
-// "€20", "€20.50": whole euros without cents, as the Billing page writes them.
-export const eur = (n: number) => `€${n.toLocaleString("en-IE", { minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2 })}`;
+// "€20", "€20.50": whole euros without cents, as the Billing page writes them; `cents` always shows them, as a bill does ("€200.00").
+export const eur = (n: number, cents = !Number.isInteger(n)) => `€${n.toLocaleString("en-IE", { minimumFractionDigits: cents ? 2 : 0, maximumFractionDigits: 2 })}`;
 
 // One count a month per service, kind and place: a record per line of the bill, not one per use, so it never grows with traffic.
 export type UsageCount = { id: string; month: string; service: Service; kind: string; count: number };
