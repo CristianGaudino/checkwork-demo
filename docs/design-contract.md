@@ -103,6 +103,7 @@ direction, the picture beside the title and the order of sections stay.
 - **"How it works" is open, not cards.** On the form pages the three steps were cards with a chevron, which read as drop-downs beside the
   form's own stepper. Now a plain list under a hairline, with the detail (`more`) shown as quiet lines: nothing to open, nothing that looks pressable.
   Cards stay for forms and for things to press.
+  On a phone the steps go after the form (with a "How it works" heading), so the form starts under the title and every line of detail stays.
 - **No stretched panels.** The finance calculator's input card keeps its own height instead of matching the result card.
 - **Choices fit their column.** The contact form's topic buttons go two across only when the form is wide enough (a container query), so a label
   never wraps to three lines.
