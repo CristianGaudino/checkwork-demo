@@ -210,12 +210,24 @@ cars are added, changed and sold on DoneDeal only. The dashboard never edits the
 
 Until both are set the admin answers 404 for everyone. The Worker checks Access's signed token itself (`src/lib/access.ts`), so a missing policy fails closed instead of open.
 
+## WhatsApp (#178)
+
+The `whatsapp` module. On the demo it is simulated (integration `whatsapp`): `/dashboard/whatsapp` shows the dealer's WhatsApp as a phone, and a smaller buyer's phone, and nothing leaves the site.
+
+- Each new website request is added to the conversation of every team member who has that alert on and a linked number, outside their quiet hours (`alertStaffOnWhatsApp`, called once from `real-leads.ts`). The template is the request's own module's, or the plain enquiry when the dealer lacks that module (`eventOfLead`). A buyer who ticked the WhatsApp box (`whatsappOptIn` on the lead, read from the form's detail of the same name) gets a confirmation.
+- A tap or a typed reply goes through `src/lib/whatsapp/handle.ts`: it writes the lead (status, note), the activity log (never a name), and the buyer's message. Reply with a price reads "8,500", "€8.5k", "8500" (`parsePrice`), sends the offer, and the buyer's simulated answer lands six seconds later on both phones and the lead.
+- Only a team member with a linked phone can act, in their own conversation. Margins are never in a message.
+- Every message to a phone or a buyer checks `usageAllowed("whatsapp")` and records `alert`, `reply` or `marketing`. Past the cap an alert or reply is stored as "Sent by email instead" and not counted; marketing is not sent. A buyer without the opt-in gets email, also uncounted. The site's acknowledgements to the dealer inside a conversation are free replies and not counted.
+- Messages about a lead are removed once the lead is gone (purge, data request), on the next read of the page.
+- The real Cloud API goes where `ADAPTER GOES HERE` is, in `src/lib/whatsapp/send.ts`: approved templates outside the 24 hour window, and a webhook that checks Meta's signature and ignores unknown numbers.
+
 ## Where things are
 
 | What | Where |
 |---|---|
 | Record store (one D1 table, `admin_docs`; memory with no D1) | `src/lib/admin/docs.ts` |
 | The dealer's collections, types and seeds | `src/lib/admin/collections.ts`, `seed-data.ts` |
+| WhatsApp: templates, price parser, sender, handlers, conversation | `src/lib/whatsapp/`, `src/app/dashboard/whatsapp/` |
 | Roles and permissions | `src/lib/permissions.ts`, `permission-rules.ts` |
 | DoneDeal sync (feed, plan, run, route) | `src/lib/donedeal/`, `src/app/api/donedeal/sync/route.ts` |
 | Activity history (write, list, purge) | `src/lib/admin/activity.ts`, `activity-refs.ts`, `activity-purge.ts` |

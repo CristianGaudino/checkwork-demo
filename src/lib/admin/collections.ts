@@ -53,6 +53,7 @@ export type Lead = {
   carTitle?: string;
   reg?: string; // the registration of the car a person wants to sell or trade in
   photoKeys?: string[]; // their car's photos, in the private bucket; the lead page signs short links to them
+  whatsappOptIn?: boolean; // the buyer ticked the box on the form: they may be messaged on WhatsApp (#178)
   assignedTo?: string;
   followUpOn?: string; // YYYY-MM-DD, the Irish day to get back to them; cleared once the lead is won or lost
   lostReason?: LostReason; // only on a lost lead
@@ -104,6 +105,7 @@ function seedLeads(): Lead[] {
       // A plate for the cars people want to sell or trade in, from the index (not the random sequence, so the rest of the seed is unchanged).
       ...((type === "trade-in" || type === "sell") && { reg: `${15 + (i % 9)}${1 + (i % 2)}-${["D", "C", "KY", "G", "L", "WX"][i % 6]}-${1000 + i * 37}` }),
       assignedTo: status === "new" ? undefined : r.pick(TEAM_SEED).name,
+      ...((i % 2 === 0 || type === "trade-in") && { whatsappOptIn: true }), // by index, so the random sequence is unchanged
       // A few open leads with a follow-up: one overdue, one today, two coming (by index, so the random sequence above is unchanged).
       ...((status === "contacted" || status === "appointment") && i % 3 === 0 && { followUpOn: dublinDay(now + ((i % 4) - 1) * DAY) }),
       ...(status === "lost" && { lostReason: LOST_REASONS[i % LOST_REASONS.length] }), // by index, so the random sequence is unchanged
@@ -271,6 +273,7 @@ function seedReviews(): AdminReview[] {
   }));
 }
 export const reviewsStore = defineCollection<AdminReview>("reviews", seedReviews);
+export const demoReviews = seedReviews; // for the WhatsApp conversation's own seed (src/lib/whatsapp/store.ts)
 
 // ---- Settings: one record ----
 // Only what the admin itself uses. The business details (name, phone, hours) live in the site configuration and change with a deploy.
