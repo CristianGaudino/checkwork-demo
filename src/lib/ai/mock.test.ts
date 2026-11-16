@@ -85,5 +85,10 @@ describe("the demo writer", () => {
 describe("what goes to the AI provider", () => {
   it("takes phone numbers and emails out of a customer's message", () => {
     expect(noContacts("Call 087 123 4567 or +353 87 765 4321, or mail pat.b@example.ie. Is the 2019 car still there?")).toBe("Call [phone] or [phone], or mail [email]. Is the 2019 car still there?");
+    expect(noContacts("Ring 087/1234567 or (087) 123 4567, mail seán.óg@example.ie")).toBe("Ring [phone] or [phone], mail [email]");
+  });
+  it("keeps registrations, dates, times, budgets, mileage and prices", () => {
+    const kept = "191-D-12345, 06-D-1234567, 22-11-2026, 23.11.2026, Saturday 10.30 - 11.30, 2019 2020 model, 85,000 km, 120 000 km, €12,500";
+    expect(noContacts(kept)).toBe(kept);
   });
 });

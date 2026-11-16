@@ -323,7 +323,7 @@ export const SETTINGS_DEFAULT: DealerSettings = {
 const seedSettings = (): DealerSettings[] => {
   const demo = seedsDemoRecords();
   // The demo's limits: well above a month of its seeded use plus visitors trying things, so nothing on the demo stops; a ceiling of ours.
-  const billing: BillingSettings | undefined = demo ? { ...BILLING_DEFAULT, caps: { ai: 25, whatsapp: 80, total: 140 }, ceilings: { total: 150 }, alerts: [{ scope: "total", amountEur: 25 }] } : undefined;
+  const billing: BillingSettings | undefined = demo ? { ...BILLING_DEFAULT, caps: { ai: 25, whatsapp: 80, total: 140 }, ceilings: { ai: 25, total: 150 }, alerts: [{ scope: "total", amountEur: 25 }] } : undefined;
   return [{ ...SETTINGS_DEFAULT, team: demo ? SETTINGS_DEFAULT.team : [], notifications: { ...SETTINGS_DEFAULT.notifications, followUps: demo }, billing, updatedAt: Date.now() }];
 };
 export const settingsStore = defineCollection<DealerSettings>("settings", seedSettings, { always: true });

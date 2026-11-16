@@ -75,7 +75,9 @@ export type BillingSettings = {
   alertAt80: boolean;
   aiPlan: AiPlan;
 };
-export const BILLING_DEFAULT: BillingSettings = { caps: {}, ceilings: {}, alerts: [], alertAt80: true, aiPlan: "perAction" };
+// Every site starts with our AI ceiling, so a live key never runs without a limit; the owner's program can set another per dealer.
+export const AI_CEILING_EUR = 50;
+export const BILLING_DEFAULT: BillingSettings = { caps: {}, ceilings: { ai: AI_CEILING_EUR }, alerts: [], alertAt80: true, aiPlan: "perAction" };
 
 // The cap in force: the lower of the dealer's and ours, or none.
 export function capOf(b: BillingSettings, scope: Scope): number | undefined {
@@ -132,7 +134,8 @@ export const BUNDLES: { id: string; label: string; modules: readonly ModuleId[];
 ];
 export type Bundle = (typeof BUNDLES)[number];
 
-// The cheapest way to pay for these modules: base and each module, or the best bundle they contain and the rest at module prices.
+// The cheapest way to pay for these modules: base and each module, or a bundle and the modules on outside it at module prices. A bundle
+// counts even with some of its modules off: the dealer never pays more for fewer modules than a bundle that holds them all.
 // `name`: the bundle's, else "Base only" with no modules, else "Custom". `saving`: against the base and every module bought separately.
 export function planFor(modules: Iterable<ModuleId>): { bundle?: Bundle; extras: ModuleId[]; eur: number; separateEur: number; saving: number; name: string } {
   const set = new Set(modules);
@@ -141,17 +144,18 @@ export function planFor(modules: Iterable<ModuleId>): { bundle?: Bundle; extras:
   const separateEur = BASE_EUR + sum(on);
   let best: { bundle?: Bundle; extras: ModuleId[]; eur: number } = { extras: on, eur: separateEur };
   for (const bundle of BUNDLES) {
-    if (!bundle.modules.every((m) => set.has(m))) continue;
     const extras = on.filter((m) => !bundle.modules.includes(m));
     const eur = bundle.eur + sum(extras);
     if (eur < best.eur) best = { bundle, extras, eur };
   }
   return { ...best, separateEur, saving: separateEur - best.eur, name: best.bundle?.label ?? (on.length ? "Custom" : "Base only") };
 }
-// The plan's name when the modules are exactly a preset (a bundle, or the base only), else "Custom".
+// The plan's name when the paid modules are exactly a preset (a bundle, or the base only), else "Custom". Per-use modules (€0) do not count.
+const paid = (ms: Iterable<ModuleId>) => [...new Set(ms)].filter((m) => MODULE_EUR[m] > 0).sort().join(",");
 export function presetName(modules: Iterable<ModuleId>): string {
-  const p = planFor(modules);
-  return p.extras.length ? "Custom" : p.name;
+  const mine = paid(modules);
+  if (!mine) return "Base only";
+  return BUNDLES.find((b) => paid(b.modules) === mine)?.label ?? "Custom";
 }
 // The plan as bill lines: the bundle as one line, or the website, then each extra module that costs a month.
 export function planLines(modules: Iterable<ModuleId>): { label: string; eur: number }[] {

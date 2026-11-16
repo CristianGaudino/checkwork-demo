@@ -6,7 +6,7 @@ import { requireModule } from "@/lib/modules";
 import { SITE_NAME } from "@/lib/site";
 import { POST_FORMATS, STORY_LAYOUTS, NETWORKS } from "@/lib/admin/networks";
 import { buildFacts } from "./facts";
-import { ADJUSTS, adjustsFor, type Adjust, type WriteRequest, type WriteResult } from "./tasks";
+import { ADJUSTS, adjustsFor, noContacts, type Adjust, type WriteRequest, type WriteResult } from "./tasks";
 import { writeWithAI } from "./write";
 import { requireStaff } from "@/lib/staff";
 
@@ -29,7 +29,7 @@ export async function writeAction(req: WriteRequest, adjust?: Adjust, current = 
   if (!(await usageAllowed("ai"))) return { ok: false, reason: "limit" };
   const built = await buildFacts(parsed.data as WriteRequest, SITE_NAME);
   if (!built) return { ok: false, reason: "failed" };
-  const r = await writeWithAI(built.task, built.facts as never, adjust, current.slice(0, 4000));
+  const r = await writeWithAI(built.task, built.facts as never, adjust, noContacts(current.slice(0, 4000))); // the dealer's draft too: no phone or email reaches the AI provider
   if (!r.ok) return { ok: false, reason: "failed" };
   await recordUsage("ai", adjust ? "adjust" : "draft");
   return r;

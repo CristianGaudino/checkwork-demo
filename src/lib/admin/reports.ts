@@ -80,7 +80,12 @@ export function fullReport(input: { sales: Sale[]; cars: Car[]; leads: Lead[]; t
     .sort((a, b) => b.won - a.won || b.leads - a.leads);
 
   // Cars for sale now, by how long they have been listed.
-  const BANDS: [string, number, number][] = [["Under 30 days", 0, 30], ["30 to 59 days", 30, 60], [`60 to ${OLD_STOCK_DAYS - 1} days`, 60, OLD_STOCK_DAYS], [`${OLD_STOCK_DAYS} days or more`, OLD_STOCK_DAYS, Infinity]] // the last band is old stock;
+  // The last band is old stock, whatever the dealer set it to; the bands before it stop short of it.
+  const edges = [...[0, 30, 60].filter((d) => d < OLD_STOCK_DAYS), OLD_STOCK_DAYS];
+  const BANDS: [string, number, number][] = [
+    ...edges.slice(0, -1).map((from, i): [string, number, number] => [from === 0 ? `Under ${edges[i + 1]} days` : `${from} to ${edges[i + 1] - 1} days`, from, edges[i + 1]]),
+    [`${OLD_STOCK_DAYS} days or more`, OLD_STOCK_DAYS, Infinity],
+  ];
   const ageOf = (c: Car) => daysSince(c.listedAt!, input.now);
   const forSale = input.cars.filter((c) => !isSold(c) && c.listedAt);
   const stockAge = BANDS.map(([band, from, to]) => {

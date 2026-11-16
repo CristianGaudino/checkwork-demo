@@ -4,7 +4,7 @@ import { clean } from "./mock";
 import { ADJUSTS, type Adjust, type FactsOf, type Task } from "./tasks";
 
 // The real writer (#179): one Claude call per draft or adjust, used by write.ts when ANTHROPIC_API_KEY is set. Every prompt lives here.
-// The house rules are fixed and marked for caching; the user turn carries only the facts (and, for an adjust, the button and the text).
+// The house rules are fixed; the user turn carries only the facts (and, for an adjust, the button and the text).
 const MODEL = "claude-opus-5-5";
 
 const RULES = `You write short copy for a car dealer's staff, who check it before it is used.
@@ -48,7 +48,7 @@ export async function claudeText<T extends Task>(task: T, facts: FactsOf[T], adj
       fallbacks: "default", // a safety decline is retried on another model before it counts as a refusal
       system: [
         { type: "text", text: RULES },
-        { type: "text", text: PROMPTS[task], cache_control: { type: "ephemeral" } }, // the breakpoint closes the fixed prefix: rules plus this task's prompt
+        { type: "text", text: PROMPTS[task] }, // too short to cache (under the minimum): no cache_control
       ],
       messages: [{ role: "user", content: userTurn(facts, adjust, current) }],
     });

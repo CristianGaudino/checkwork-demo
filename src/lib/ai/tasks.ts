@@ -40,7 +40,11 @@ export type FactsOf = {
 };
 
 // A customer's phone number or email never goes to the AI provider: it is not needed to draft a reply.
-export const noContacts = (s: string) => s.replace(/[\w.+-]+@[\w-]+(\.[\w-]+)+/g, "[email]").replace(/\+?\d[\d\s().-]{6,}\d/g, "[phone]");
+export const noContacts = (s: string) =>
+  s
+    .replace(/[^\s@]+@[^\s@]+\.[^\s@]*[^\s@.,;:!?)]/gu, "[email]") // a full stop after the address stays
+    // 9 digits or more is a phone number; a date, a time, a year pair or a price range has fewer.
+    .replace(/\+?\(?\d[\d\s()./-]{6,}\d/g, (m) => (m.replace(/\D/g, "").length >= 9 ? "[phone]" : m));
 
 // What the browser sends: ids and the form's own fields. The server builds the facts from the records, so the browser never supplies them.
 export type WriteRequest =

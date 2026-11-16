@@ -64,7 +64,14 @@ describe("the plan and the estimate", () => {
     expect(planFor(["finance"])).toMatchObject({ name: "Custom", eur: 229, saving: 0 });
     expect(planFor([]).name).toBe("Base only");
     expect(presetName(dealer)).toBe("Dealer");
-    expect(presetName([...dealer, "ai"])).toBe("Custom");
+    expect(presetName([...dealer, "ai"])).toBe("Dealer"); // a per-use module (€0) is not part of the plan's name
+    expect(presetName([...dealer, "carFinder"])).toBe("Custom");
+    // A free module off never makes Everything dearer, and adding a module never makes the plan cheaper.
+    expect(planEur(MODULE_IDS.filter((m) => m !== "ai"), "perAction")).toBe(619);
+    for (const m of MODULE_IDS) {
+      const without = MODULE_IDS.filter((x) => x !== m);
+      expect(planFor(MODULE_IDS).eur - planFor(without).eur).toBeGreaterThanOrEqual(0);
+    }
     expect(planLines([...leads, "carFinder", "ai"])).toEqual([{ label: "Leads plan", eur: 319 }, { label: "Car finder", eur: 19 }]);
     expect(planLines([])).toEqual([{ label: "Website", eur: 200 }]);
   });

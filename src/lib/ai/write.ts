@@ -1,5 +1,6 @@
 import "server-only";
 import { modeOf } from "@/lib/integrations";
+import { getBindings } from "@/lib/leads/bindings";
 import { claudeText } from "./claude";
 import { mockText } from "./mock";
 import type { Adjust, FactsOf, Task } from "./tasks";
@@ -17,7 +18,12 @@ export async function writeWithAI<T extends Task>(task: T, facts: FactsOf[T], ad
   const mode = modeOf("ai");
   if (mode === "off") return { ok: false };
   let text: string | null;
-  if (mode === "live") text = await claudeText(task, facts, adjust, current);
+  if (mode === "live") {
+    // A backstop on top of the monthly cap: at most AI_LIMITER's calls a minute for the whole site (wrangler.jsonc), so nothing can run up a bill.
+    const limiter = getBindings().AI_LIMITER;
+    if (limiter && !(await limiter.limit({ key: "ai" })).success) return { ok: false };
+    text = await claudeText(task, facts, adjust, current);
+  }
   else {
     await new Promise((r) => setTimeout(r, PAUSE_MS));
     text = mockText(task, facts, adjust, current);

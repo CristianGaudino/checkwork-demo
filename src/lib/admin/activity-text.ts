@@ -1,5 +1,6 @@
 import { CAR_FIELDS } from "./car-fields";
 import { fmtEur } from "./format";
+import { priceLabel } from "@/lib/stock/format";
 
 // The words an activity entry uses for a car edit: the price in full (the change people ask about), the rest by name.
 // "Changed the price from €17,950 to €16,950, and the mileage and colour". Pure, so it is tested.
@@ -12,7 +13,7 @@ export function carEditSummary(was: object, now: object): string {
   const price = changed.find((f) => f.name === "priceEur");
   const photos = JSON.stringify(before.photos ?? []) !== JSON.stringify(after.photos ?? []) ? ["photos"] : []; // not a form field, but synced
   const rest = list([...changed.filter((f) => f !== price).map((f) => name(f.label)), ...photos]);
-  const priceText = price ? `the price from ${fmtEur(Number(before.priceEur))} to ${fmtEur(Number(after.priceEur))}` : "";
+  const priceText = price ? `the price from ${priceLabel({ priceEur: Number(before.priceEur) })} to ${priceLabel({ priceEur: Number(after.priceEur) })}` : "";
   if (!priceText && !rest) return "Saved the car with no changes";
   return `Changed ${priceText}${priceText && rest ? ", and the " : rest ? "the " : ""}${rest}`;
 }

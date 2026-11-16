@@ -2,6 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 const create = vi.fn();
+const limit = vi.fn();
+vi.mock("@/lib/leads/bindings", () => ({ getBindings: () => ({ AI_LIMITER: { limit } }) }));
 vi.mock("@anthropic-ai/sdk", () => {
   class APIError extends Error { status = 500; }
   class Anthropic { static APIError = APIError; beta = { messages: { create } }; }
@@ -13,7 +15,13 @@ const facts = { dealer: "Checkwork Motors", firstName: "Aoife", kind: "Test driv
 const reply = (text: string, stop_reason = "end_turn") => ({ stop_reason, content: [{ type: "thinking", thinking: "" }, { type: "text", text }] });
 
 describe("writeWithAI with a key (Claude)", () => {
-  beforeEach(() => { process.env.ANTHROPIC_API_KEY = "test-key"; create.mockReset(); });
+  beforeEach(() => { process.env.ANTHROPIC_API_KEY = "test-key"; create.mockReset(); limit.mockReset().mockResolvedValue({ success: true }); });
+
+  it("never calls Claude past the site-wide rate limit", async () => {
+    limit.mockResolvedValueOnce({ success: false });
+    expect(await writeWithAI("leadReply", facts)).toEqual({ ok: false });
+    expect(create).not.toHaveBeenCalled();
+  });
   afterEach(() => { delete process.env.ANTHROPIC_API_KEY; });
 
   it("returns the text with dashes stripped", async () => {
@@ -35,12 +43,11 @@ describe("writeWithAI with a key (Claude)", () => {
     log.mockRestore();
   });
 
-  it("sends the fixed system prompt for caching and only the facts (plus the adjust) in the user turn", async () => {
+  it("sends the fixed system prompt and only the facts (plus the adjust) in the user turn", async () => {
     create.mockResolvedValue(reply("Dear Aoife, thank you."));
     await writeWithAI("leadReply", facts, "formal", "Hi Aoife");
     const req = create.mock.calls[0][0];
     expect(req.model).toBe("claude-opus-5-5");
-    expect(req.system.at(-1).cache_control).toEqual({ type: "ephemeral" });
     expect(JSON.stringify(req.system)).not.toContain("Aoife");
     expect(req.messages).toHaveLength(1);
     const user = req.messages[0].content as string;

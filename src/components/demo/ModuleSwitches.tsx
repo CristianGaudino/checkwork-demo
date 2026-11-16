@@ -17,6 +17,7 @@ export function ModuleSwitches({ chip, inline = false }: { chip: string; inline?
   const router = useRouter();
   const on = useModules();
   const [open, setOpen] = useState(false);
+  const toggle = useRef<HTMLButtonElement>(null);
   const root = useRef<HTMLDivElement>(null);
   const panelId = useId();
   const plan = planFor(on);
@@ -29,7 +30,11 @@ export function ModuleSwitches({ chip, inline = false }: { chip: string; inline?
   useEffect(() => {
     if (!open) return;
     const away = (e: PointerEvent) => !root.current?.contains(e.target as Node) && setOpen(false);
-    const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    const esc = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      setOpen(false);
+      toggle.current?.focus(); // the panel goes, so focus goes back to its button rather than the page
+    };
     document.addEventListener("pointerdown", away);
     document.addEventListener("keydown", esc);
     return () => {
@@ -40,7 +45,7 @@ export function ModuleSwitches({ chip, inline = false }: { chip: string; inline?
 
   return (
     <div ref={root} className={inline && open ? "basis-full" : "relative"}>
-      <button type="button" aria-expanded={open} aria-controls={panelId} onClick={() => setOpen((o) => !o)} className={`${chip} border-hairline text-text-2 ${press}`}>
+      <button ref={toggle} type="button" aria-expanded={open} aria-controls={panelId} onClick={() => setOpen((o) => !o)} className={`${chip} border-hairline text-text-2 ${press}`}>
         Plan<span className="ml-1 font-medium text-text">{preset}</span>
       </button>
       {open && (

@@ -113,6 +113,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
 
 function PlanAndUsage({ modules, services, usage, b, now }: { modules: Modules; services: Service[]; usage: Usage; b: BillingSettings; now: Date }) {
   const { aiPlan } = b;
+  // What adding a module costs: with what it needs, and a bundle it completes. 0 when the plan already pays for it.
+  const addEur = (id: (typeof MODULES)[number]["id"]) => planFor(withModule(modules, id)).eur - planFor(modules).eur;
   const others = MODULES.filter((m) => !modules.has(m.id) && MODULE_EUR[m.id] > 0);
   const assistant = aiPlan === "assistant" && modules.has("ai");
   const plan = planEur(modules, assistant ? "assistant" : "perAction");
@@ -150,7 +152,7 @@ function PlanAndUsage({ modules, services, usage, b, now }: { modules: Modules; 
               {others.map((m) => (
                 <li key={m.id} className="flex flex-wrap items-center justify-between gap-3 py-2">
                   <span>
-                    {m.label} <span className="text-text-2">{eur(planFor(withModule(modules, m.id)).eur - planFor(modules).eur)} a month</span>
+                    {m.label} <span className="text-text-2">{addEur(m.id) ? `${eur(addEur(m.id))} a month` : "Included in your plan"}</span>
                   </span>
                   <ActButton act={askModuleAction.bind(null, m.id)} done="We have your request. Our reply will show in Help." label={`Ask us to add ${m.label}`} className={rowButton}>
                     Ask us to add
