@@ -312,8 +312,8 @@ export const SETTINGS_DEFAULT: DealerSettings = {
 // The demo has the morning follow-up email on, so it can be shown (the made-up team's mail goes to the lead inbox, src/lib/leads/mail.ts).
 const seedSettings = (): DealerSettings[] => {
   const demo = seedsDemoRecords();
-  // The demo's limits: AI near its cap, so the Billing page can show the 80% alert and a limit; a ceiling of ours on all usage.
-  const billing: BillingSettings | undefined = demo ? { ...BILLING_DEFAULT, caps: { ai: 9, whatsapp: 40, total: 60 }, ceilings: { total: 150 }, alerts: [{ scope: "total", amountEur: 25 }] } : undefined;
+  // The demo's limits: well above a month of its seeded use plus visitors trying things, so nothing on the demo stops; a ceiling of ours.
+  const billing: BillingSettings | undefined = demo ? { ...BILLING_DEFAULT, caps: { ai: 25, whatsapp: 80, total: 140 }, ceilings: { total: 150 }, alerts: [{ scope: "total", amountEur: 25 }] } : undefined;
   return [{ ...SETTINGS_DEFAULT, team: demo ? SETTINGS_DEFAULT.team : [], notifications: { ...SETTINGS_DEFAULT.notifications, followUps: demo }, billing, updatedAt: Date.now() }];
 };
 export const settingsStore = defineCollection<DealerSettings>("settings", seedSettings, { always: true });

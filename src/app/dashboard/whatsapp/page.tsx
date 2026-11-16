@@ -36,8 +36,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ n
     <>
       <PageHeader title="WhatsApp" text="Your leads on your phone. Tap a reply and the site does the rest." />
       {note && <Notice tone={note.tone}>{note.text}</Notice>}
-      <div className="grid items-start gap-6 lg:grid-cols-[22rem_minmax(0,1fr)]">
-        <div className="lg:sticky lg:top-24">
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[22rem_minmax(0,1fr)]">
+        <div className="min-w-0 lg:sticky lg:top-24">
           <Phones initial={view} />
         </div>
         <div className="flex flex-col gap-6">
