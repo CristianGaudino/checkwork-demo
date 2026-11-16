@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useKeptForm } from "@/components/admin/useKeptForm";
+import { useState } from "react";
 import { Select } from "@/components/Select";
 import { Field, adminButton, adminInput } from "@/components/admin/kit";
 import { BuyerFields } from "@/components/admin/BuyerFields";
@@ -13,10 +14,10 @@ const grid = "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3";
 const full = "sm:col-span-2 lg:col-span-3";
 
 export function PlaceOrderForm({ periods, month, lastMonth, team, me, customers, leadId }: { periods: string[]; month: string; lastMonth: string; team: string[]; me?: string; customers: { id: string; label: string }[]; leadId?: string }) {
-  const [state, action, pending] = useActionState<OrderFormState, FormData>(placeOrderAction, undefined);
+  const [state, action, pending] = useKeptForm<OrderFormState>(placeOrderAction, undefined);
   const e = state?.errors ?? {};
   return (
-    <form action={action} className={grid} noValidate>
+    <form {...action} className={grid} noValidate>
       {leadId && <input type="hidden" name="leadId" value={leadId} />}
       <Field label="Make" error={e.make}>
         <input name="make" maxLength={40} className={adminInput} autoComplete="off" />
@@ -57,11 +58,11 @@ export function PlaceOrderForm({ periods, month, lastMonth, team, me, customers,
 }
 
 export function CancelOrderForm({ id, depositEur }: { id: string; depositEur?: number }) {
-  const [state, action, pending] = useActionState<OrderFormState, FormData>(cancelOrderAction.bind(null, id), undefined);
+  const [state, action, pending] = useKeptForm<OrderFormState>(cancelOrderAction.bind(null, id), undefined);
   const [outcome, setOutcome] = useState(depositEur ? "refunded" : "none");
   const e = state?.errors ?? {};
   return (
-    <form action={action} className="flex flex-col gap-4" noValidate>
+    <form {...action} className="flex flex-col gap-4" noValidate>
       {depositEur ? (
         <fieldset className="flex flex-col gap-2">
           <legend className="mb-1 text-meta font-medium">The deposit was</legend>

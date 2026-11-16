@@ -9,6 +9,7 @@ import { can, currentMember } from "@/lib/permissions";
 import { EVENTS, EVENT_IDS, eventsFor, type EventId } from "@/lib/whatsapp/rules";
 import { staffStore, viewFor } from "@/lib/whatsapp/store";
 import { saveStaffAction } from "./actions";
+import { SubmitButton } from "@/components/admin/SubmitButton";
 
 export const metadata = { title: "WhatsApp" };
 
@@ -121,9 +122,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ n
                               <input name="quietTo" type="time" defaultValue={p?.quietTo ?? ""} className={adminInput} />
                             </Field>
                           </div>
-                          <button type="submit" className={`${adminButton} self-start`}>
+                          <SubmitButton className={`${adminButton} self-start`}>
                             Save
-                          </button>
+                          </SubmitButton>
                         </form>
                       ) : (
                         <p className="pb-2 pt-3 text-meta text-text-2">Only {t.name} or an owner or manager can change this.</p>

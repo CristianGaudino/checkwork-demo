@@ -155,4 +155,6 @@ export async function resetActivity(): Promise<void> {
   await db.delete(activity);
   await db.delete(adminDocs).where(and(eq(adminDocs.collection, SEEDED), eq(adminDocs.id, "activity")));
   seededHere = false;
+  await ready(); // at once: other Worker isolates still remember the log as seeded
+
 }

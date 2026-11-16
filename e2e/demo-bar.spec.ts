@@ -52,6 +52,20 @@ test("on a phone the demo bar folds into a small pill that opens its controls an
   await expect(dealer).toBeHidden();
 });
 
+test("on the narrowest phone the dealer's module switches open inside the panel and can be used", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 640 });
+  await page.goto("/dashboard");
+  await demoBar(page);
+  const bar = page.locator("[data-demo-bar]");
+  const modules = bar.getByRole("button", { name: /^Modules/ });
+  await expect(modules).toBeInViewport({ ratio: 1 });
+  await modules.click();
+  const base = bar.getByRole("button", { name: "Base site only" });
+  await expect(base).toBeInViewport({ ratio: 1 });
+  await base.click();
+  await expect(modules).toContainText(/0 of/);
+});
+
 test("light is the default, dark is a choice that sticks and does not flash", async ({ page }) => {
   await page.goto("/");
   const html = page.locator("html");

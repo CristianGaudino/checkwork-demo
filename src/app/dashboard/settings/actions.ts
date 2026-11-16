@@ -7,7 +7,7 @@ import { getSettings, leadsStore, settingsStore, type DealerSettings, drivesStor
 import { resetDemoRecords } from "@/lib/admin/demo-reset";
 import { EMAIL_INVALID, NAME_REQUIRED } from "@/lib/copy";
 import { newId } from "@/lib/admin/ids";
-import { seedsDemoRecords } from "@/lib/admin/docs";
+import { mayResetDemo } from "@/lib/admin/docs";
 import { fieldErrors } from "@/lib/admin/validation";
 import { can, currentMember } from "@/lib/permissions";
 import { ROLES, type Role } from "@/lib/permission-rules";
@@ -154,9 +154,12 @@ export async function setRoleAction(id: string, _p: SettingsState, data: FormDat
 export async function removeTeamAction(id: string) {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const { team } = await getSettings();
-  const gone = team.length > 1 ? team.find((t) => t.id === id) : undefined;
-  if (!gone || (await mayTouch(gone.role))) return;
-  if (hasOwner(team) && !hasOwner(team.filter((t) => t.id !== id))) return;
+  const gone = team.find((t) => t.id === id);
+  if (!gone) return;
+  if (team.length === 1) return { error: "The team cannot be empty." };
+  const no = await mayTouch(gone.role);
+  if (no) return { error: no };
+  if (hasOwner(team) && !hasOwner(team.filter((t) => t.id !== id))) return { error: "Make someone else an Owner first. The team always has one." };
   await change((s) => ({ ...s, team: s.team.filter((t) => t.id !== id) }));
   for (const l of await leadsStore.list()) if (l.assignedTo === gone.name) await leadsStore.put({ ...l, assignedTo: undefined });
   for (const d of await drivesStore.list()) if (d.assignedTo === gone.name) await drivesStore.put({ ...d, assignedTo: undefined });
@@ -166,7 +169,7 @@ export async function removeTeamAction(id: string) {
 
 export async function resetDemoAction() {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
-  if (!seedsDemoRecords() || !(await can("settings"))) return; // a real dealer's records are never wiped from a button
+  if (!mayResetDemo() || !(await can("settings"))) return; // a real dealer's records are never wiped from a button
   await resetDemoRecords();
   await logActivity("settings", "Reset the demo data");
   revalidatePath("/dashboard", "layout");

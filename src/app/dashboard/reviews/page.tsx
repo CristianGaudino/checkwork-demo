@@ -7,6 +7,7 @@ import { fmtDate, plural } from "@/lib/admin/format";
 import { SITE_NAME } from "@/lib/site";
 import { REVIEW_FILTERS, filterReviews, parseReviewFilter, ratingSummary } from "@/lib/admin/reviews";
 import { replyAction } from "./actions";
+import { SubmitButton } from "@/components/admin/SubmitButton";
 
 // What a reply came back as (replyAction). Only these codes are ever shown.
 const NOTICES: Record<string, { tone: "good" | "warn"; text: string }> = {
@@ -60,7 +61,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ f
                   <summary className={`${r.reply ? rowButton : `${rowButton} border-accent text-accent-text`} w-fit cursor-pointer list-none [&::-webkit-details-marker]:hidden`}>{r.reply ? "Edit reply" : "Reply"}</summary>
                   <form action={replyAction.bind(null, r.id)} className="mt-2 flex max-w-measure flex-col gap-2">
                     <AITextarea id={`reply-${r.id}`} name="reply" label={`Reply to ${r.author}`} rows={3} maxLength={500} defaultValue={r.reply ?? ""} task="reviewReply" request={{ task: "reviewReply", reviewId: r.id }} />
-                    <button type="submit" className={`${adminButton} self-start`}>{r.reply ? "Update reply" : "Post reply"}</button>
+                    <SubmitButton className={`${adminButton} self-start`}>{r.reply ? "Update reply" : "Post reply"}</SubmitButton>
                   </form>
                 </details>
               </div>

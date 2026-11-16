@@ -4,6 +4,7 @@ import { syncNowAction } from "@/app/dashboard/stock/actions";
 import { fmtAgo } from "@/lib/admin/format";
 import type { SyncStatus } from "@/lib/donedeal/sync";
 import { LISTING_SITE } from "@/lib/stock-source-rules";
+import { SubmitButton } from "@/components/admin/SubmitButton";
 
 // How the DoneDeal sync is doing, and Sync now. On Stock, Overview and Settings for a dealer whose stock comes from DoneDeal.
 // `canForce`: owners and managers may apply a sync that was held because DoneDeal's answer looked wrong (it can take many cars off the site).
@@ -24,16 +25,16 @@ export function SyncPanel({ status, canForce, title = `${LISTING_SITE} sync` }: 
       </p>
       <div className="flex flex-wrap gap-2">
         <form action={syncNowAction.bind(null, false)}>
-          <button type="submit" className={adminButtonQuiet}>
+          <SubmitButton className={adminButtonQuiet}>
             <SyncIcon className="size-4" />
             Sync now
-          </button>
+          </SubmitButton>
         </form>
         {status.held && canForce && (
           <form action={syncNowAction.bind(null, true)}>
-            <button type="submit" className={adminButtonQuiet}>
+            <SubmitButton className={adminButtonQuiet}>
               Apply anyway
-            </button>
+            </SubmitButton>
           </form>
         )}
       </div>

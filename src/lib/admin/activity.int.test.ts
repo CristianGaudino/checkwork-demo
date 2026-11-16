@@ -31,8 +31,8 @@ describe("activity history (D1 path, on SQLite)", () => {
 
   it("two first visits at once seed the history once", async () => {
     const [a] = await Promise.all([listActivity({}, 1, 1), listActivity({}, 1, 1)]);
-    await resetActivity();
     await truncate("activity", "admin_docs");
+    await resetActivity(); // seeds once, on its own
     const alone = await listActivity({}, 1, 1);
     expect(a.total).toBe(alone.total);
   });

@@ -8,7 +8,8 @@ import { press } from "@/components/ui";
 
 // The demo bar's module switches (#173): show the site as a dealer with only some modules, so each version can be shown. A real site has
 // none: its modules are the build setting NEXT_PUBLIC_SITE_MODULES. Turning one on brings what it needs; turning one off takes what needs it.
-export function ModuleSwitches({ chip }: { chip: string }) {
+// `inline`: in the phone panel the list opens in place, under the button, rather than as a popup that would run off a narrow screen.
+export function ModuleSwitches({ chip, inline = false }: { chip: string; inline?: boolean }) {
   const router = useRouter();
   const on = useModules();
   const [open, setOpen] = useState(false);
@@ -32,12 +33,12 @@ export function ModuleSwitches({ chip }: { chip: string }) {
   }, [open]);
 
   return (
-    <div ref={root} className="relative">
+    <div ref={root} className={inline && open ? "basis-full" : "relative"}>
       <button type="button" aria-expanded={open} aria-controls={panelId} onClick={() => setOpen((o) => !o)} className={`${chip} border-hairline text-text-2 ${press}`}>
         Modules<span className="ml-1 font-medium text-text">{on.size === MODULE_IDS.length ? "All" : `${on.size} of ${MODULE_IDS.length}`}</span>
       </button>
       {open && (
-        <div id={panelId} role="group" aria-label="Modules" className="absolute bottom-full left-0 z-50 mb-2 flex max-h-[70vh] w-72 flex-col gap-1 overflow-y-auto rounded-card border border-hairline bg-band p-2 shadow-panel">
+        <div id={panelId} role="group" aria-label="Modules" className={`flex flex-col gap-1 overflow-y-auto rounded-card border border-hairline bg-band p-2 ${inline ? "mt-2 max-h-[50vh] w-full" : "absolute bottom-full left-0 z-50 mb-2 max-h-[70vh] w-72 shadow-panel"}`}>
           <div className="flex gap-2 p-1">
             <button type="button" onClick={() => apply(MODULE_IDS)} className={`${chip} flex-1 justify-center border-hairline ${press}`}>
               All

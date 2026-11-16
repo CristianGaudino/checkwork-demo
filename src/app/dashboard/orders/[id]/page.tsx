@@ -11,6 +11,7 @@ import { regPeriodLabel } from "@/lib/leads/reg-periods";
 import { can } from "@/lib/permissions";
 import { stockSource } from "@/lib/stock-source";
 import { addOrderNoteAction, setOrderStatusAction } from "../actions";
+import { SubmitButton } from "@/components/admin/SubmitButton";
 
 export const metadata = { title: "Order" };
 
@@ -59,7 +60,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
               <Field label="Add a note">
                 <textarea name="note" rows={3} maxLength={500} required className={`${adminInput} h-auto py-2`} />
               </Field>
-              <button type="submit" className={`${adminButton} self-start`}>Add note</button>
+              <SubmitButton className={`${adminButton} self-start`}>Add note</SubmitButton>
             </form>
           </Panel>
           {/* At the end, out of the way: it cannot be taken back. Owners and managers only; the server refuses anyone else. */}

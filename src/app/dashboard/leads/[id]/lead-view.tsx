@@ -21,6 +21,7 @@ import { followUpDue, isOpenLead } from "@/lib/admin/leads";
 import { signPhotoPath } from "@/lib/leads/photos";
 import { telHref, waHref } from "@/lib/phone";
 import { carHref } from "@/lib/stock/format";
+import { SubmitButton } from "@/components/admin/SubmitButton";
 
 // The quick actions on a lead: the steps it moves through. New is where it starts, so it has no button.
 const STATUS_ACTIONS: { status: LeadStatus; Icon: typeof PhoneIcon }[] = [
@@ -138,9 +139,9 @@ export async function LeadView({ id }: { id: string }) {
               <Field label="Add a note">
                 <textarea name="note" rows={3} maxLength={500} required className={`${adminInput} h-auto py-2`} />
               </Field>
-              <button type="submit" className={`${adminButton} self-start`}>
+              <SubmitButton className={`${adminButton} self-start`}>
                 Add note
-              </button>
+              </SubmitButton>
             </form>
           </Panel>
         </div>
@@ -222,9 +223,9 @@ export async function LeadView({ id }: { id: string }) {
                 <Field label="Or a day" className="w-44">
                   <input type="date" name="on" min={today} defaultValue={lead.followUpOn ?? ""} required className={adminInput} />
                 </Field>
-                <button type="submit" className={adminButtonQuiet}>
+                <SubmitButton className={adminButtonQuiet}>
                   Set
-                </button>
+                </SubmitButton>
               </form>
               {lead.followUpOn && (
                 <ChoiceAct action={setFollowUpAction.bind(null, lead.id)} set={{ clear: "1" }} back={followUpBack} active={false} done="Follow-up cleared" className={`${rowButton} w-fit text-bad`}>
