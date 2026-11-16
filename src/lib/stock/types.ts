@@ -115,8 +115,8 @@ export interface StockResult {
 // Days a sold car stays visible after its sale date (D-02). One setting: confirm with the dealer.
 export const SOLD_VISIBLE_DAYS = 30;
 export const isSold = (car: Pick<Car, "soldAt">) => car.soldAt !== undefined;
-// On the website and for sale: not sold, not a draft, not hidden. Where a car must be offered (posts, test drives); "not sold" alone is
-// the stock the dealer owns (margins, stock age), hidden cars included.
+// On the website and for sale: not sold, not a draft, not hidden, not reserved. Where a car must be offered (posts, test drives) and old
+// stock (a price to look at); "not sold" alone is the stock the dealer owns (margins), hidden cars included.
 export const forSale = (car: Pick<Car, "soldAt" | "listing" | "reserved">) => !isSold(car) && !car.listing && !car.reserved;
 
 // live: in stock or sold inside the period. gone: sold past the period (the URL answers 410). null: never known (404).

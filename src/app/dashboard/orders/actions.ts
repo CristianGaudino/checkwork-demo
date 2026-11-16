@@ -97,20 +97,30 @@ export async function setOrderStatusAction(id: string, data: FormData) {
   if (!to.success || !o || !orderOpen(o.status) || o.status === "arrived" || o.status === to.data || !(await theirs())) return;
   let carId = o.carId;
   if (to.data === "arrived" && !carId) {
-    // Claimed first: a second tap (or a colleague) at the same moment finds it arrived and adds no second car.
+    // Claimed first: a second tap (or a colleague) at the same moment finds it arrived and adds no second car. Set on every run of the
+    // update (it runs again on a clash), so only the run that wrote counts.
     let claimed = false;
-    await ordersStore.update(id, (cur) => (cur.status === "arrived" || cur.carId ? cur : ((claimed = true), { ...cur, status: "arrived" as const })));
+    await ordersStore.update(id, (cur) => ((claimed = orderOpen(cur.status) && cur.status !== "arrived" && !cur.carId) ? { ...cur, status: "arrived" as const } : cur));
     if (!claimed) return paths(id);
-    carId = await freeCarId();
-    const base = { id: carId, make: o.make, model: o.model, year: 2000 + Number(o.regPeriod.slice(0, 2)) };
-    const car: Car = { ...base, slug: carSlug(base), makeSlug: slugify(o.make), modelSlug: slugify(o.model), ...(o.spec && { variant: o.spec }), ...(o.colour && { colour: o.colour }), priceEur: o.priceEur, condition: "new", photos: [], listing: "hidden", ...(o.depositEur && { reserved: true }) };
-    carId = (await addCar(car)).id; // the id still free as it is written
+    try {
+      carId = await freeCarId();
+      const base = { id: carId, make: o.make, model: o.model, year: 2000 + Number(o.regPeriod.slice(0, 2)) };
+      const car: Car = { ...base, slug: carSlug(base), makeSlug: slugify(o.make), modelSlug: slugify(o.model), ...(o.spec && { variant: o.spec }), ...(o.colour && { colour: o.colour }), priceEur: o.priceEur, condition: "new", photos: [], listing: "hidden", ...(o.depositEur && { reserved: true }) };
+      carId = (await addCar(car)).id; // the id still free as it is written
+      const added = carId;
+      await ordersStore.update(id, (cur) => ({ ...cur, carId: added })); // the order points at its car at once
+    } catch (e) {
+      // No car was added: the order goes back to where it was, so Arrived can be tapped again.
+      await ordersStore.update(id, (cur) => (cur.carId ? cur : { ...cur, status: o.status }));
+      throw e;
+    }
     if (o.depositEur) {
       const today = dublinDay();
       await reservationsStore.put({ id: newId("res"), carId, carTitle: title(o), customerId: o.customerId, depositEur: o.depositEur, method: o.depositMethod ?? "Card", paidOn: o.orderedOn, until: addDays(today, 30), salesperson: o.salesperson, status: "held", createdAt: Date.now() });
     }
   }
-  await ordersStore.update(id, (cur) => ({ ...cur, status: to.data, ...(carId && { carId }) }));
+  // Never over a cancel or a hand-over landed meanwhile.
+  await ordersStore.update(id, (cur) => (orderOpen(cur.status) ? { ...cur, status: to.data, ...(carId && { carId }) } : cur));
   await logActivity("stock", `Moved the factory order ${title(o)} from ${ORDER_STATUS_LABELS[o.status]} to ${ORDER_STATUS_LABELS[to.data]}`, carId ? { kind: "car", id: carId, label: title(o) } : undefined);
   paths(id);
 }

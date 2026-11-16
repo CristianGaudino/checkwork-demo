@@ -14,7 +14,7 @@ vi.mock("next/headers", () => ({
 const { cancelOrderAction, placeOrderAction, setOrderStatusAction } = await import("./actions");
 const { recordSaleAction } = await import("../stock/actions");
 const { customersStore, ordersStore, reservationsStore, salesStore } = await import("@/lib/admin/collections");
-const { adminCar } = await import("@/lib/admin/stock-admin");
+const { adminCar, adminCars } = await import("@/lib/admin/stock-admin");
 const { regPeriods } = await import("@/lib/leads/reg-periods");
 
 const form = (o: Record<string, string>) => Object.entries(o).reduce((f, [k, v]) => (f.set(k, v), f), new FormData());
@@ -60,6 +60,23 @@ describe("factory orders", () => {
     await expect(recordSaleAction(car.id, undefined, form({ priceEur: "38000", soldOn: today, customerId }))).rejects.toThrow(/redirect/);
     expect((await ordersStore.get(o.id))?.status).toBe("handed-over");
     expect(await salesStore.get(car.id)).toMatchObject({ depositEur: 1000, customerId });
+  });
+
+  it("Arrived tapped twice at once adds one car: a claim retried after a clash sees it arrived and stops", async () => {
+    const o = await placed({ customerId: (await customersStore.list())[1].id });
+    const cars = (await adminCars()).length;
+    const real = ordersStore.update.bind(ordersStore);
+    // The first run of the claim sees the order still open, then its write clashes: a colleague's Arrived landed first.
+    const spy = vi.spyOn(ordersStore, "update").mockImplementationOnce(async (id, fn) => {
+      const was = (await ordersStore.get(id))!;
+      await fn(was);
+      await ordersStore.put({ ...was, status: "arrived", carId: "someone-else" });
+      return real(id, fn);
+    });
+    await setOrderStatusAction(o.id, form({ status: "arrived" }));
+    spy.mockRestore();
+    expect((await adminCars()).length).toBe(cars);
+    expect((await ordersStore.get(o.id))?.carId).toBe("someone-else");
   });
 
   it("is cancelled by owners and managers only, with the deposit refunded or kept", async () => {

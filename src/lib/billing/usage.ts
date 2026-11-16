@@ -69,9 +69,14 @@ export async function recordUsage<S extends Service>(service: S, kind: Kind<S>, 
 }
 
 // Saves the dealer's limits and alerts. Ours (the ceilings) are set from the owner's program, never here.
-export async function saveBilling(change: Partial<Pick<BillingSettings, "caps" | "alerts" | "alertAt80" | "aiPlan">>) {
+// `change` may be worked out from the billing as it is when written (adding or removing one alert), so two saves at once both land.
+type BillingChange = Partial<Pick<BillingSettings, "caps" | "alerts" | "alertAt80" | "aiPlan">>;
+export async function saveBilling(change: BillingChange | ((now: BillingSettings) => BillingChange)) {
   // On the settings as they are now, so a team change saved at the same moment is never undone.
-  const apply = (s: Partial<DealerSettings>) => ({ ...SETTINGS_DEFAULT, ...s, billing: { ...BILLING_DEFAULT, ...s.billing, ...change }, updatedAt: Date.now() });
+  const apply = (s: Partial<DealerSettings>) => {
+    const b = { ...BILLING_DEFAULT, ...s.billing };
+    return { ...SETTINGS_DEFAULT, ...s, billing: { ...b, ...(typeof change === "function" ? change(b) : change) }, updatedAt: Date.now() };
+  };
   if (!(await settingsStore.update("dealer", apply))) await settingsStore.put(apply({}));
 }
 

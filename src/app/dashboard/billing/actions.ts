@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { logActivity } from "@/lib/admin/activity";
-import { SETTINGS_DEFAULT, getSettings, settingsStore, type DealerSettings } from "@/lib/admin/collections";
+import { SETTINGS_DEFAULT, settingsStore, type DealerSettings } from "@/lib/admin/collections";
 import { addRequest, helpStore } from "@/lib/admin/help";
 import { MODULES, type ModuleId } from "@/lib/modules-rules";
 import { enabledModules } from "@/lib/modules";
@@ -43,7 +43,8 @@ export async function addAlertAction(_p: BillingState, data: FormData): Promise<
   const b = await billingSettings();
   const r = parseAlert(String(data.get("scope") ?? ""), String(data.get("amount") ?? ""), await scopesOf(), b.alerts);
   if (!r.alert) return { errors: { alert: r.error ?? "That alert could not be added" } };
-  await saveBilling({ alerts: [...b.alerts, r.alert] });
+  const added = r.alert;
+  await saveBilling((now) => ({ alerts: [...now.alerts.filter((a) => !(a.scope === added.scope && a.amountEur === added.amountEur)), added] }));
   await logActivity("settings", `Added an alert for when ${scopeLabel(r.alert.scope)} passes ${eur(r.alert.amountEur)}`);
   return done();
 }
@@ -52,9 +53,9 @@ export async function removeAlertAction(scope: Scope, amountEur: number) {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   if (!(await can("billing"))) return;
   const b = await billingSettings();
-  const alerts = b.alerts.filter((a) => !(a.scope === scope && a.amountEur === amountEur));
-  if (alerts.length === b.alerts.length) return;
-  await saveBilling({ alerts });
+  const gone = (a: { scope: Scope; amountEur: number }) => a.scope === scope && a.amountEur === amountEur;
+  if (!b.alerts.some(gone)) return;
+  await saveBilling((now) => ({ alerts: now.alerts.filter((a) => !gone(a)) }));
   await logActivity("settings", `Removed the alert for when ${scopeLabel(scope)} passes ${eur(amountEur)}`);
   revalidatePath("/dashboard/billing");
 }

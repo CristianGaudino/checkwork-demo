@@ -139,8 +139,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
       cell: (c) =>
         c.listedAt && !isSold(c) ? (
           <span className="inline-flex items-center gap-2">
-            <AgeBar days={daysSince(c.listedAt)} late={OLD_STOCK_DAYS} />
-            <span className={daysSince(c.listedAt) >= OLD_STOCK_DAYS ? "font-medium text-warn" : ""}>{daysIn(c.listedAt)}</span>
+            {/* Amber exactly for the cars the 60 days or more view counts (for sale: not reserved or hidden). */}
+            <AgeBar days={daysSince(c.listedAt)} late={forSale(c) ? OLD_STOCK_DAYS : Infinity} />
+            <span className={forSale(c) && daysSince(c.listedAt) >= OLD_STOCK_DAYS ? "font-medium text-warn" : ""}>{daysIn(c.listedAt)}</span>
           </span>
         ) : (
           <span className="text-text-2">-</span>
