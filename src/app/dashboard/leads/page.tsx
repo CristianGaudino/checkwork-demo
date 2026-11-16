@@ -4,11 +4,12 @@ import { Avatar, Badge, DataTable, EmptyState, PageHeader, SummaryTabs, TableFoo
 import { can } from "@/lib/permissions";
 import { LEAD_SOURCES, LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_TYPE_LABELS, getSettings, leadsStore, type Lead } from "@/lib/admin/collections";
 import { dublinDay, fmtAgo, fmtDate } from "@/lib/admin/format";
-import { SALES_LEAD_TYPES, countByStatus, filterLeads, followUpDue, isOpenLead, isSalesLead, parseLeadFilter } from "@/lib/admin/leads";
+import { SALES_LEAD_TYPES, countByStatus, filterLeads, followUpDue, isOpenLead, isSalesLead, parseLeadFilter, urgentFirst } from "@/lib/admin/leads";
+import { TOPICS, isUrgent, leadTags } from "@/lib/leads/contact-topics";
 
 export const metadata = { title: "Leads" };
 
-type Params = { status?: string; type?: string; q?: string; due?: string; late?: string; need?: string; with?: string; source?: string; sort?: string; dir?: string; page?: string; per?: string };
+type Params = { status?: string; type?: string; topic?: string; q?: string; due?: string; late?: string; need?: string; with?: string; source?: string; sort?: string; dir?: string; page?: string; per?: string };
 
 export default async function Page({ searchParams }: { searchParams: Promise<Params> }) {
   const sp = await searchParams;
@@ -35,6 +36,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
           <span className="truncate text-meta text-text-2">
             {LEAD_TYPE_LABELS[l.type]} · {l.source}
           </span>
+          {l.topic && (
+            <span className={`truncate text-meta ${l.status === "new" && isUrgent(l.answers ?? {}) ? "font-medium text-warn" : "text-text-2"}`}>{leadTags(l.topic, l.answers ?? {}).join(" · ")}</span>
+          )}
         </span>
       ),
       className: "max-w-[14rem]",
@@ -72,12 +76,16 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
     { key: "owner", header: "With", hide: "lg", nowrap: true, sort: (l) => l.assignedTo, cell: (l) => (l.assignedTo ? <span className="inline-flex items-center gap-2"><Avatar name={l.assignedTo} />{l.assignedTo.split(" ")[0]}</span> : <span className="text-text-2">Nobody</span>) },
     { key: "when", header: "Received", sort: (l) => l.createdAt, cell: (l) => fmtAgo(l.createdAt), align: "right", nowrap: true },
   ];
-  const { rows: sorted, sort } = sortRows(filterLeads(all, f, today, leadSlaHours), columns, sp, { key: "when", dir: "desc" });
+  const ordered = sortRows(filterLeads(all, f, today, leadSlaHours), columns, sp, { key: "when", dir: "desc" });
+  // Unless a column was chosen, the urgent new ones come first.
+  const sorted = sp.sort ? ordered.rows : urgentFirst(ordered.rows);
+  const sort = ordered.sort;
   const paged = pageOf(sorted, sp);
   const rows = paged.rows;
   // Every filter in one panel: what kind of lead, whether it needs a reply, who has it, where it came from.
   const filters: FilterGroup[] = [
     { name: "type", label: "Type", any: "Every type", options: SALES_LEAD_TYPES.map((t) => [t, LEAD_TYPE_LABELS[t]] as const) },
+    { name: "topic", label: "About", any: "Any topic", options: TOPICS.map((t) => [t.id, t.label] as const) },
     { name: "need", label: "Needs a reply", any: "Any", options: [["due", `Follow-ups due (${due})`], ["late", `Past reply target (${late})`]] },
     { name: "with", label: "Who has it", any: "Anyone", options: [["none", "Nobody"], ...team.map((t) => [t.name, t.name] as const)] },
     { name: "source", label: "Where it came from", any: "Any source", options: LEAD_SOURCES.map((s) => [s, s] as const) },

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 // A stepped form: the fields each step owns, and an optional extra check for what is not a typed field (the photos). The typed fields are
 // checked with the server's own rules (validate.ts).
-export type FormStep = { title: string; fields: string[]; check?(ctx: { photos: number }): Record<string, string[]> | undefined };
+export type FormStep = { title: string; fields: string[]; check?(ctx: { photos: number; values: Record<string, string> }): Record<string, string[]> | undefined };
 
 // The step a stepped form is on, and how to move. One step or none is an ordinary form (`wizard` false, `last` true).
 // `validate` says what is wrong with a step; Next only moves on when nothing is. `onBlocked` hears the problems when Next is refused, with the

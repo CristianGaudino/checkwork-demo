@@ -25,8 +25,8 @@ test("a claim opens from a customer's purchase, in cover, and moves to Booked in
 test("the website's Warranty page has a claim form, and a lost lead asks why", async ({ page }) => {
   await page.goto("/warranty");
   const claim = page.locator("#claim");
-  await expect(claim.getByLabel(/registration, the fault/)).toBeVisible();
-  await expect(claim.getByRole("button", { name: "Send claim" })).toBeVisible();
+  await expect(claim.getByLabel("Registration")).toBeVisible();
+  await expect(claim.getByRole("button", { name: "Next", exact: true })).toBeVisible(); // the claim is two short steps, Send claim on the last
 
   await page.goto("/dashboard/leads/lead-edge-2"); // the seed's own edge case, which no other test changes
   await page.getByRole("button", { name: "Lost" }).click();

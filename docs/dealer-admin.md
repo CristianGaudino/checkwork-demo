@@ -210,6 +210,22 @@ cars are added, changed and sold on DoneDeal only. The dashboard never edits the
 
 Until both are set the admin answers 404 for everyone. The Worker checks Access's signed token itself (`src/lib/access.ts`), so a missing policy fails closed instead of open.
 
+## The contact form (guided)
+
+The public `/contact` form asks what the buyer needs, then a few taps, then how to reach them (#176). The topics, their tap answers and
+the words for them are in `src/lib/leads/contact-topics.ts`; the steps and cards in `src/components/leads/GeneralFields.tsx`.
+
+- Cards follow the modules: no Service card without `service`, no Selling card without `tradeIn`, no Finance card without `finance`. That
+  need goes to "Something else".
+- The server (`general` in `src/lib/leads/schema.ts`) takes the topic and answers as optional fields. With no topic, or with "Something
+  else", the message is still required, so the old free-text path stays valid.
+- A lead keeps `topic` and `answers`. The leads list shows them as tags ("Buying · this week · trade-in"), filters by topic, and puts
+  new leads answered "can't be driven" or "this week" first until a column is chosen. The dealer's email subject says the same
+  ("Service: warning light, this week"), built from fixed words only, never the registration.
+- A "A car I bought from you" message is filed as a warranty request (Aftersales), and "Service or repair" as a Service lead, like the
+  pages they come from. `/service` and `/warranty` open the same form on their topic.
+- The optional "Send me updates on WhatsApp" switch (with the `whatsapp` module) is stored on the lead as `whatsappOptIn`.
+
 ## Where things are
 
 | What | Where |
@@ -224,6 +240,7 @@ Until both are set the admin answers 404 for everyone. The Worker checks Access'
 | Admin kit (tables, stat cards, forms, charts) | `src/components/admin/` |
 | Stock the admin edits (the table the site reads) | `src/lib/admin/stock-admin.ts` |
 | Navigation of each area | `src/lib/admin/nav.ts` |
+| Contact form topics, tags and subject | `src/lib/leads/contact-topics.ts`, `src/components/leads/GeneralFields.tsx` |
 
 ## Connecting a service
 

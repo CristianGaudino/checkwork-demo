@@ -69,4 +69,16 @@ describe("buildLeadEmail", () => {
     expect(text).not.toContain("Car:");
     expect(text).not.toContain("Price:");
   });
+
+  it("says the topic and urgency in the subject of a guided message", () => {
+    const g = (details: LeadRow["details"]) => buildLeadEmail({ ...row, type: "general", carId: null, carSlug: null, carTitle: null, carPriceEur: null, details }, { demo: false });
+    expect(g({ topic: "service", serviceNeed: "warning-light", urgency: "this-week" }).subject).toBe("Service: warning light, this week");
+    expect(g({ topic: "buying", timing: "this-week", hasTradeIn: "yes" }).subject).toBe("Buying: this week, trade-in");
+    expect(g({ topic: "other" }).subject).toBe("Message");
+    const bought = g({ topic: "bought", reg: "191-KY-1234", concern: "fault", urgency: "cant-drive" });
+    expect(bought.subject).toBe("Aftersales: a fault, can't be driven");
+    expect(bought.subject).not.toContain("191"); // never the registration
+    expect(bought.text).toContain("Registration: 191-KY-1234");
+    expect(g({}).subject).toBe("Message from the website");
+  });
 });
