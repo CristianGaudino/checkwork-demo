@@ -64,8 +64,7 @@ async function toBuyer(lead: Lead, to: string, text: string, answer?: string): P
     const at = Date.now() + BUYER_ANSWER_MS;
     await addMessage({ thread: "buyer", from: "buyer", leadId: lead.id, text: answer, at });
     // The answer lands on the lead and in the bell now, dated when it arrives, so reading the conversation never writes.
-    const fresh = (await leadsStore.get(lead.id)) ?? lead;
-    await leadsStore.put({ ...fresh, notes: [...fresh.notes, { at, text: `Replied on WhatsApp: "${answer}"`, auto: true }] });
+    await leadsStore.update(lead.id, (cur) => ({ ...cur, notes: [...cur.notes, { at, text: `Replied on WhatsApp: "${answer}"`, auto: true }] }));
     await notify({ kind: "whatsapp", text: "A buyer replied on WhatsApp", href: `/dashboard/leads/${lead.id}` }, at);
     await say(to, { leadId: lead.id, text: `${firstName(lead.name)} replied: "${answer}"`, buttons: ["call", "handled"] }, at);
   }
@@ -114,7 +113,7 @@ export async function tap(me: string, msgId: string, button: ButtonId): Promise<
   if (button === "call") {
     if (!lead) return void (await say(me, { text: "I can't find that request any more." }));
     await markDone(all);
-    await leadsStore.put({ ...lead, followUpOn: dublinDay(), assignedTo: me, notes: [...lead.notes, { at: Date.now(), text: "Call back asked for from WhatsApp.", auto: true }] });
+    await leadsStore.update(lead.id, (cur) => ({ ...cur, followUpOn: dublinDay(), assignedTo: me, notes: [...cur.notes, { at: Date.now(), text: "Call back asked for from WhatsApp.", auto: true }] }));
     await logActivity("leads", "Set the lead to call back today, from WhatsApp", { kind: "lead", id: lead.id });
     return void (await say(me, { leadId: lead.id, href: `/dashboard/leads/${lead.id}`, text: "Noted. It is yours to call back today." }));
   }
@@ -156,9 +155,11 @@ export async function tap(me: string, msgId: string, button: ButtonId): Promise<
       return void (await say(me, { leadId: lead.id, href: `/dashboard/leads/${lead.id}`, text: callThem(lead) }));
     }
     by = sent;
-    const fresh = (await leadsStore.get(lead.id)) ?? lead; // the buyer's answer may be on it now
-    const status = moved(fresh.status, act.status);
-    await leadsStore.put({ ...fresh, status, ...(status === "lost" && !fresh.lostReason && { lostReason: "Other" as const }), ...(act.note && { notes: [...fresh.notes, { at: Date.now(), text: act.note(by) }] }) });
+    // On the lead as it is now (the buyer's answer may be on it), never over a change made meanwhile.
+    await leadsStore.update(lead.id, (cur) => {
+      const status = moved(cur.status, act.status);
+      return { ...cur, status, ...(status === "lost" && !cur.lostReason && { lostReason: "Other" as const }), ...(act.note && { notes: [...cur.notes, { at: Date.now(), text: act.note(by) }] }) };
+    });
     if (button !== "confirm") await logActivity("leads", act.activity, { kind: "lead", id: lead.id });
   }
   // The diary last, once the buyer has been told.
@@ -199,8 +200,7 @@ export async function typed(me: string, raw: string): Promise<void> {
     if (!reach(lead)) return void (await say(me, { leadId: lead.id, href: `/dashboard/leads/${lead.id}`, text: callThem(lead) }));
     const by = await toBuyer(lead, me, `Hi ${firstName(lead.name)}, thank you for sending us your car. We can offer you ${fmtEur(eur)} for it, subject to seeing it. Reply here and we will book a time for you to bring it in. ${SITE_NAME}`, "That sounds good. Could I bring it in on Saturday morning?");
     if (!by) return void (await say(me, { leadId: lead.id, href: `/dashboard/leads/${lead.id}`, text: callThem(lead) }));
-    const cur = (await leadsStore.get(lead.id)) ?? lead; // toBuyer may have added the buyer's answer
-    await leadsStore.put({ ...cur, status: moved(cur.status, "contacted"), notes: [...cur.notes, { at: Date.now(), text: `Offer sent by ${by}: ${fmtEur(eur)}` }] });
+    await leadsStore.update(lead.id, (cur) => ({ ...cur, status: moved(cur.status, "contacted"), notes: [...cur.notes, { at: Date.now(), text: `Offer sent by ${by}: ${fmtEur(eur)}` }] }));
     await logActivity("leads", `Sent an offer of ${fmtEur(eur)}, from WhatsApp`, { kind: "lead", id: lead.id });
     await messagesStore.put({ ...q, done: true });
     await markDone(all); // the alert is answered, for every copy
@@ -212,7 +212,7 @@ export async function typed(me: string, raw: string): Promise<void> {
     if (!reach(lead)) return void (await say(me, { leadId: lead.id, href: `/dashboard/leads/${lead.id}`, text: callThem(lead) }));
     const by = await toBuyer(lead, me, `Hi ${firstName(lead.name)}, could we do ${text} instead? Let us know if that suits.`);
     if (!by) return void (await say(me, { leadId: lead.id, href: `/dashboard/leads/${lead.id}`, text: callThem(lead) }));
-    await leadsStore.put({ ...lead, notes: [...lead.notes, { at: Date.now(), text: `Suggested another time by ${by}: ${text}` }] });
+    await leadsStore.update(lead.id, (cur) => ({ ...cur, notes: [...cur.notes, { at: Date.now(), text: `Suggested another time by ${by}: ${text}` }] }));
     await logActivity("leads", "Suggested another time, from WhatsApp", { kind: "lead", id: lead.id });
     await messagesStore.put({ ...q, done: true }); // the alert stays open: the booking is confirmed once they agree
     return void (await say(me, { leadId: lead.id, href: "/dashboard/test-drives", text: `Sent to ${firstName(lead.name)} by ${by}. Move the booking in Test drives once they agree.` }));

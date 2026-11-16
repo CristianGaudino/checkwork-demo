@@ -82,7 +82,7 @@ function seedMessages(): Msg[] {
     };
     alert("monday", 50 * HOUR, {}, alertText("monday", week));
     alert("review", 26 * HOUR, { ref: review.id }, alertText("review", { stars: review.rating, author: review.author, text: review.text }));
-    if (slow && slowDays > SLOW_DAYS) alert("slow-stock", 22 * HOUR, { ref: slow.id }, alertText("slow-stock", { car: carTitleOf(slow), days: slowDays, dropEur: SLOW_DROP_EUR }));
+    if (slow && slowDays >= SLOW_DAYS) alert("slow-stock", 22 * HOUR, { ref: slow.id }, alertText("slow-stock", { car: carTitleOf(slow), days: slowDays, dropEur: SLOW_DROP_EUR }));
     if (held) alert("deposit", Math.max(now - held.createdAt, 5 * HOUR), { ref: held.id }, alertText("deposit", { car: held.carTitle, eur: held.depositEur }));
     alert("enquiry", 3 * HOUR, { leadId: enq.id }, alertText("enquiry", { first: firstName(enq.name), car: enq.carTitle ?? carTitleOf(buyerCar), text: enq.message }));
     // From a website booking (a test-drive lead), as a real alert is, so every button reaches the buyer.

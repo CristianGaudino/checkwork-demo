@@ -20,7 +20,17 @@ vi.mock("@/lib/admin/activity-text", () => ({ carEditSummary: () => "Changed a c
 vi.mock("@/lib/admin/seed-data", () => ({ carTitleOf: () => "2019 Ford Focus" }));
 vi.mock("@/lib/admin/publishers", () => ({ postReviewReply: async () => ({ ok: true }) }));
 vi.mock("@/lib/admin/collections", () => ({
-  leadsStore: { get: async (id: string) => db.leads.get(id), put: async (l: { id: string }) => void db.leads.set(l.id, l) },
+  leadsStore: {
+    get: async (id: string) => db.leads.get(id),
+    put: async (l: { id: string }) => void db.leads.set(l.id, l),
+    update: async (id: string, fn: (l: never) => unknown) => {
+      const cur = db.leads.get(id);
+      if (!cur) return undefined;
+      const next = (await fn(cur as never)) as { id: string };
+      db.leads.set(id, next);
+      return next;
+    },
+  },
   drivesStore: { get: async (id: string) => db.drives.get(id), put: async (d: { id: string }) => void db.drives.set(d.id, d) },
   reviewsStore: { get: async (id: string) => db.reviews.get(id), put: async (r: { id: string }) => void db.reviews.set(r.id, r) },
   reservationsStore: { get: async (id: string) => db.deposits.get(id) },

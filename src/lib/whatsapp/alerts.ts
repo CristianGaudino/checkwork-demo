@@ -70,7 +70,7 @@ export async function alertStaff(event: EventId, facts: Facts, extra: Partial<Dr
 // A car going on the website for the first time (added, or a draft published): a nudge to post it.
 export const alertNewIn = (car: Car) => alertStaff("new-in", { car: carTitleOf(car) }, { ref: car.id });
 
-// The morning job (worker.mjs, /api/whatsapp/daily): each car over 45 days in stock and each review from the last two days, once while its
+// The morning job (worker.mjs, /api/whatsapp/daily): each car 60 days or more in stock and each review from the last two days, once while its
 // alert is kept (30 days, so a car still unsold a month on is raised again), and on a Monday last week's summary.
 export async function sendDailyAlerts(now = Date.now()): Promise<{ sent: number }> {
   if (!(await enabledModules()).has("whatsapp")) return { sent: 0 };
@@ -79,7 +79,7 @@ export async function sendDailyAlerts(now = Date.now()): Promise<{ sent: number 
   let sent = 0;
   for (const c of cars) {
     const days = c.listedAt ? daysSince(c.listedAt, now) : 0;
-    if (forSale(c) && days > SLOW_DAYS && !said.has(`slow-stock:${c.id}`)) sent += await alertStaff("slow-stock", { car: carTitleOf(c), days, dropEur: SLOW_DROP_EUR }, { ref: c.id });
+    if (forSale(c) && days >= SLOW_DAYS && !said.has(`slow-stock:${c.id}`)) sent += await alertStaff("slow-stock", { car: carTitleOf(c), days, dropEur: SLOW_DROP_EUR }, { ref: c.id });
   }
   for (const r of reviews) if (r.createdAt > now - 2 * DAY && !said.has(`review:${r.id}`)) sent += await alertStaff("review", { stars: r.rating, author: r.author, text: r.text }, { ref: r.id });
   if (new Date(`${dublinDay(now)}T12:00:00Z`).getUTCDay() === 1) {
