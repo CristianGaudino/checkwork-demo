@@ -11,6 +11,7 @@ import { dealerDirectionsUrl, dealerJsonLd, mapEmbedUrl } from "@/lib/dealer";
 import { CopyPhone } from "@/components/CopyPhone";
 import { DirectionsButton } from "@/components/DirectionsButton";
 import { getReviews } from "@/lib/reviews";
+import { carChoices } from "@/lib/stock/options";
 import { DEALER_ADDRESS, DEALER_EMAIL, DEALER_FACTS_CONFIRMED, DEALER_LOCATION, DEALER_PHONE, SITE_NAME } from "@/lib/site";
 import { card, pageMain, subTitle } from "@/components/ui";
 import { PageHeading } from "@/components/PageHeading";
@@ -47,7 +48,7 @@ export default async function ContactPage() {
           )}
           <section data-wells className={`order-3 flex flex-col gap-4 ${card} p-5 sm:p-6`}>
             <h2 className={subTitle}>Send us a message</h2>
-            <LeadPageForm form="general" submitLabel="Send message" success={MESSAGE_SENT} />
+            <LeadPageForm form="general" cars={await carChoices()} submitLabel="Send message" success={MESSAGE_SENT} />
           </section>
         </div>
         <div className="flex flex-col gap-6 max-lg:contents">

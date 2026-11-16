@@ -84,35 +84,48 @@ test("the find-a-car page explains how it works and fits a 320px screen", async 
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
 });
 
-for (const [path, heading] of [
-  ["/contact", "Contact"],
-  ["/service", "Service"],
-] as const) {
-  test(`${path}: a message needs the message text, then ends on the thanks`, async ({ page }) => {
-    await open(page, path);
-    await expect(page.getByRole("heading", { level: 1, name: heading })).toBeVisible();
-    if (path === "/service") {
-      // The form is closed until a service is opened; it opens beside the checks with a line already in it.
-      await expect(page.getByLabel("Name")).toHaveCount(0);
-      await page.getByRole("button", { name: /^Servicing/ }).click();
-      await expect(page.getByLabel("How can we help?")).toHaveValue("I'd like to ask about servicing.");
-      await page.getByLabel("How can we help?").fill("");
-    }
-    await page.getByLabel("Name").fill("Test buyer");
-    await page.getByLabel("Phone").fill("087 123 4567");
-    await page.getByRole("checkbox").check();
-    await page.getByRole("button", { name: "Send message" }).click();
-    await expect(page.locator("p", { hasText: "Tell us how we can help." })).toBeVisible();
-    await page.getByLabel("How can we help?").fill("Do you service Fords?");
-    await page.getByRole("button", { name: "Send message" }).click();
-    await expect(page.getByRole("heading", { name: "Thanks, we have your message." })).toBeFocused();
-  });
+// The guided contact form: pick what you need, answer, give your details. "Something else" needs the message; /service opens on its topic.
+async function next(page: Page) {
+  await page.getByRole("button", { name: "Next", exact: true }).click();
 }
+test("/contact: Something else needs the message text, then ends on the thanks", async ({ page }) => {
+  await open(page, "/contact");
+  await expect(page.getByRole("heading", { level: 1, name: "Contact" })).toBeVisible();
+  await page.getByText("Something else", { exact: true }).click();
+  await next(page);
+  await next(page); // nothing typed yet
+  await expect(page.locator("p", { hasText: "Tell us how we can help." })).toBeVisible();
+  await page.getByLabel("How can we help?").fill("Do you service Fords?");
+  await next(page);
+  await page.getByLabel("Name").fill("Test buyer");
+  await page.getByLabel("Phone", { exact: true }).fill("087 123 4567");
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Send message" }).click();
+  await expect(page.getByRole("heading", { name: "Thanks, we have your message." })).toBeFocused();
+});
+
+test("/service: a service opens the form on its topic, with no message needed", async ({ page }) => {
+  await open(page, "/service");
+  await expect(page.getByRole("heading", { level: 1, name: "Service" })).toBeVisible();
+  await expect(page.getByLabel("Name")).toHaveCount(0);
+  await page.getByRole("button", { name: /^Servicing/ }).click();
+  await expect(page.getByLabel("Anything else?")).toHaveValue("I'd like to ask about servicing.");
+  await expect(page.getByRole("radio", { name: "Service due" })).toBeChecked();
+  await next(page);
+  await page.getByLabel("Name").fill("Test buyer");
+  await page.getByLabel("Phone", { exact: true }).fill("087 123 4567");
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Send message" }).click();
+  await expect(page.getByRole("heading", { name: "Thanks, we have your message." })).toBeFocused();
+});
 
 test("after a general message the button goes home, not to the stock list", async ({ page }) => {
   await open(page, "/contact");
+  await page.getByText("Something else", { exact: true }).click();
+  await next(page);
   await page.getByLabel("How can we help?").fill("Hello");
-  await page.getByLabel("Phone").fill("087 123 4567");
+  await next(page);
+  await page.getByLabel("Phone", { exact: true }).fill("087 123 4567");
   await page.getByLabel("Name").fill("Test buyer");
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Send message" }).click();

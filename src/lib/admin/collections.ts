@@ -53,6 +53,8 @@ export type Lead = {
   carSlug?: string;
   carTitle?: string;
   reg?: string; // the registration of the car a person wants to sell or trade in
+  topic?: string; // a contact form's guided topic (src/lib/leads/contact-topics.ts) and the tap answers, shown as tags
+  answers?: Record<string, string>;
   photoKeys?: string[]; // their car's photos, in the private bucket; the lead page signs short links to them
   assignedTo?: string;
   followUpOn?: string; // YYYY-MM-DD, the Irish day to get back to them; cleared once the lead is won or lost

@@ -233,6 +233,22 @@ their bytes and kept in the private bucket under `help/`, or as a data URL with 
 - **Email**: `/api/reports/monthly` (CRON_KEY, scheduled `0 7 1 * *` in `worker.mjs` and `wrangler.jsonc`) emails last month's summary to the owners and managers: counts only. On the demo it goes to the lead inbox like the follow-up digest.
 - **Owner API** and the anonymous feature counters: see `docs/owner-api.md`. The figures for the report and the API are one module, `src/lib/reports/monthly.ts`.
 
+## The contact form (guided)
+
+The public `/contact` form asks what the buyer needs, then a few taps, then how to reach them (#176). The topics, their tap answers and
+the words for them are in `src/lib/leads/contact-topics.ts`; the steps and cards in `src/components/leads/GeneralFields.tsx`.
+
+- Cards follow the modules: no Service card without `service`, no Selling card without `tradeIn`, no Finance card without `finance`. That
+  need goes to "Something else".
+- The server (`general` in `src/lib/leads/schema.ts`) takes the topic and answers as optional fields. With no topic, or with "Something
+  else", the message is still required, so the old free-text path stays valid.
+- A lead keeps `topic` and `answers`. The leads list shows them as tags ("Buying · this week · trade-in"), filters by topic, and puts
+  new leads answered "can't be driven" or "this week" first until a column is chosen. The dealer's email subject says the same
+  ("Service: warning light, this week"), built from fixed words only, never the registration.
+- A "A car I bought from you" message is filed as a warranty request (Aftersales), and "Service or repair" as a Service lead, like the
+  pages they come from. `/service` and `/warranty` open the same form on their topic.
+- The optional "Send me updates on WhatsApp" switch (with the `whatsapp` module) is stored on the lead as `whatsappOptIn`.
+
 ## Where things are
 
 | What | Where |
@@ -250,6 +266,7 @@ their bytes and kept in the private bucket under `help/`, or as a data URL with 
 | Billing page, bills and their maths | `src/app/dashboard/billing/`, `src/lib/billing/bills.ts`, `bills-rules.ts` |
 | Help requests | `src/app/dashboard/help/`, `src/lib/admin/help.ts`, `help-rules.ts` |
 | Monthly report maths, page and email; owner API and counters | `src/lib/reports/`, `src/app/dashboard/monthly-report/`, `src/lib/owner-api/`, `docs/owner-api.md` |
+| Contact form topics, tags and subject | `src/lib/leads/contact-topics.ts`, `src/components/leads/GeneralFields.tsx` |
 
 ## Connecting a service
 

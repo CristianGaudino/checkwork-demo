@@ -85,10 +85,41 @@ describe("sourcing and general messages", () => {
     expect(errors({ ...find, bodyType: "Tractor" }).bodyType).toBeDefined();
   });
 
-  it("needs a general message and takes no car", () => {
-    const hello = { ...base, type: "general", message: "Do you service Fords?", carId: "123" };
+  it("needs a general message when there is no topic", () => {
+    const hello = { ...base, type: "general", message: "Do you service Fords?", carId: undefined };
     expect(errors({ ...hello, message: " " }).message).toEqual(["Tell us how we can help."]);
-    expect(leadSchema.parse(hello)).not.toHaveProperty("carId");
+    expect(errors({ ...hello, message: undefined }).message).toEqual(["Tell us how we can help."]);
+    expect(errors(hello)).toEqual({});
+  });
+});
+
+// The guided contact form (#176): a topic and tap answers, with the free-text path still valid.
+describe("guided contact", () => {
+  const hello = { ...base, type: "general", carId: undefined };
+  const topic = (t: string, more: Record<string, unknown> = {}) => errors({ ...hello, topic: t, ...more });
+  it("takes each topic with its answers and no message", () => {
+    expect(topic("buying", { carId: "123", timing: "this-week", hasTradeIn: "yes" })).toEqual({});
+    expect(topic("selling")).toEqual({});
+    expect(topic("finance", { carId: "123" })).toEqual({});
+    expect(topic("service", { serviceNeed: "warning-light", reg: "191-KY-1234", urgency: "this-week" })).toEqual({});
+    expect(topic("bought", { reg: "191-KY-1234", boughtWhen: "month", concern: "fault", urgency: "cant-drive", contactVia: "whatsapp", contactWhen: "evening" })).toEqual({});
+  });
+  it("needs the message only for Something else", () => {
+    expect(topic("other").message).toEqual(["Tell us how we can help."]);
+    expect(topic("other", { message: "A question" })).toEqual({});
+  });
+  it("refuses values that are not options", () => {
+    expect(topic("towing").topic).toBeDefined();
+    expect(topic("buying", { timing: "tomorrow" }).timing).toBeDefined();
+    expect(topic("service", { urgency: "asap" }).urgency).toBeDefined();
+    expect(topic("service", { reg: "!!" }).reg).toBeDefined();
+    expect(topic("buying", { carId: "abc" }).carId).toBeDefined();
+    expect(topic("buying", { contactVia: "post" }).contactVia).toBeDefined();
+  });
+  it("keeps the WhatsApp opt-in only as yes", () => {
+    expect(topic("buying", { whatsappOptIn: "yes" })).toEqual({});
+    expect(topic("buying", { whatsappOptIn: "maybe" }).whatsappOptIn).toBeDefined();
+    expect(leadSchema.parse({ ...hello, topic: "buying", whatsappOptIn: "" }).whatsappOptIn).toBeUndefined();
   });
 });
 

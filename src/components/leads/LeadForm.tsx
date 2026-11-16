@@ -89,7 +89,7 @@ export function LeadForm({
       const all = await check(values);
       const found: Record<string, string[]> = {};
       for (const f of s.fields) if (all[f]) found[f] = all[f];
-      return { ...found, ...s.check?.({ photos: photos.length }) };
+      return { ...found, ...s.check?.({ photos: photos.length, values }) };
     },
     (found, names) => {
       setErrors((prev) => ({ ...prev, ...found }));

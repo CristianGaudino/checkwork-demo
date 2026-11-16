@@ -14,10 +14,13 @@ export type Service = { readonly name: string; readonly blurb: string; readonly 
 // two is ever mounted, so there is never a second form on the page.
 const WIDE = "(min-width: 640px)";
 
+const NEED: Record<string, string> = { Servicing: "service-due", Tyres: "tyres" };
+
 // What a service covers, as ruled rows with a call prompt under them, and the message form beside them.
 function Panel({ service }: { service: Service }) {
   // One object per service, so the form is not told to refill its message on every render.
-  const prefill = useMemo(() => ({ message: `I'd like to ask about ${service.name.toLowerCase()}.` }), [service.name]);
+  // The form opens on its topic, with what the card says already chosen.
+  const prefill = useMemo(() => ({ topic: "service", ...(NEED[service.name] && { serviceNeed: NEED[service.name] }), message: `I'd like to ask about ${service.name.toLowerCase()}.` }), [service.name]);
   return (
     <div className={`grid grid-cols-1 gap-6 ${card} p-5 sm:p-6 lg:grid-cols-2 lg:gap-10`}>
       <div className="flex flex-col gap-6">
@@ -37,7 +40,7 @@ function Panel({ service }: { service: Service }) {
       </div>
       <div data-wells className={`flex flex-col gap-4 ${card} p-4 sm:p-5`}>
         <h4 className="text-body font-semibold">Tell us what your car needs</h4>
-        <LeadPageForm form="general" prefill={prefill} submitLabel="Send message" success={MESSAGE_SENT} />
+        <LeadPageForm form="service" prefill={prefill} submitLabel="Send message" success={MESSAGE_SENT} />
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import "server-only";
 import { DETAIL_LABELS } from "@/lib/leads/schema";
+import { ANSWER_KEYS, readable } from "@/lib/leads/contact-topics";
 import type { LeadRow } from "@/lib/leads/process";
 import { clashes } from "./drives";
 import { ALERT_KINDS, alertsStore, getSettings, customersStore, drivesStore, leadsStore, type AlertKind, type Customer, type Lead, type LeadType, type StockAlert, type TestDrive } from "./collections";
@@ -12,7 +13,8 @@ import { MINUTE } from "@/lib/time";
 // are marked by an id starting "real-" and are deleted with the lead by the daily purge (src/lib/leads/purge.ts).
 const LEAD_TYPE: Record<Exclude<LeadRow["type"], "alert">, LeadType> = { enquiry: "enquiry", sourcing: "find-a-car", trade_in: "trade-in", finance: "finance", general: "general", test_drive: "test-drive", order: "order" };
 // A general message is a warranty claim or a service request when it was sent from that page.
-const pageType = (path: string): LeadType => (path.startsWith("/warranty") ? "warranty" : path.startsWith("/service") ? "service" : "general");
+// The guided form's topic says the same when it is sent from /contact.
+const pageType = (path: string, topic?: string | number): LeadType => (path.startsWith("/warranty") || topic === "bought" ? "warranty" : path.startsWith("/service") || topic === "service" ? "service" : "general");
 
 // The answers they gave (a make and model, a trade-in's reg), then their own words: both, so a find-a-car or a factory order keeps the car.
 // A factory order reads as the car it is ("Hyundai Tucson, 1.6 Hybrid, 271"), not as a list of form fields.
@@ -21,7 +23,7 @@ function messageOf(row: LeadRow): string {
   const given =
     row.type === "order"
       ? [[d.make, d.model].filter(Boolean).join(" "), d.spec, d.regPeriod].filter(Boolean).map(String)
-      : Object.entries(DETAIL_LABELS).filter(([k]) => d[k] !== undefined).map(([k, label]) => `${label}: ${d[k]}`);
+      : Object.entries(DETAIL_LABELS).filter(([k]) => d[k] !== undefined).map(([k, label]) => `${label}: ${readable(k, String(d[k]))}`);
   return [given.join(row.type === "order" ? ", " : ". "), row.message].filter(Boolean).join("\n\n");
 }
 
@@ -44,7 +46,7 @@ export function mirrorOf(row: LeadRow, emailed = true): Mirror {
   const drive = row.type === "test_drive" && row.carSlug && row.carTitle ? { id, name: row.name, email: row.email ?? "", phone: row.phone ?? "", carSlug: row.carSlug, carTitle: row.carTitle, startsAt: dublinMs(String(row.details.driveDate), String(row.details.driveTime)), status: "requested" as const, notes: row.message ?? "", createdAt: at } : undefined;
   const lead: Lead = {
     id,
-    type: row.type === "trade_in" && row.details.intent === "sell" ? "sell" : row.type === "general" ? pageType(row.sourcePath) : LEAD_TYPE[row.type],
+    type: row.type === "trade_in" && row.details.intent === "sell" ? "sell" : row.type === "general" ? pageType(row.sourcePath, row.details.topic) : LEAD_TYPE[row.type],
     status: "new",
     name: row.name,
     email: row.email ?? "",
@@ -54,6 +56,7 @@ export function mirrorOf(row: LeadRow, emailed = true): Mirror {
     carSlug: row.carSlug ?? undefined,
     carTitle: row.carTitle ?? undefined,
     ...(typeof row.details.reg === "string" && { reg: row.details.reg }),
+    ...(typeof row.details.topic === "string" && { topic: row.details.topic, answers: Object.fromEntries(ANSWER_KEYS.filter((k) => typeof row.details[k] === "string").map((k) => [k, String(row.details[k])])) }),
     ...(row.photoKeys.length > 0 && { photoKeys: row.photoKeys }),
     notes: emailed ? [] : [{ at, text: "The email about this lead didn't reach you. Reply from here." }],
     createdAt: at,
