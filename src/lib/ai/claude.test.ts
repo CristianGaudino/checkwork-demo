@@ -1,0 +1,66 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("server-only", () => ({}));
+const create = vi.fn();
+vi.mock("@anthropic-ai/sdk", () => {
+  class APIError extends Error { status = 500; }
+  class Anthropic { static APIError = APIError; beta = { messages: { create } }; }
+  return { default: Anthropic };
+});
+const { writeWithAI } = await import("./write");
+
+const facts = { dealer: "Checkwork Motors", firstName: "Aoife", kind: "Test drive", message: "Can I see it Saturday? Call 087 123 4567", car: "2021 Skoda Octavia" };
+const reply = (text: string, stop_reason = "end_turn") => ({ stop_reason, content: [{ type: "thinking", thinking: "" }, { type: "text", text }] });
+
+describe("writeWithAI with a key (Claude)", () => {
+  beforeEach(() => { process.env.ANTHROPIC_API_KEY = "test-key"; create.mockReset(); });
+  afterEach(() => { delete process.env.ANTHROPIC_API_KEY; });
+
+  it("returns the text with dashes stripped", async () => {
+    create.mockResolvedValue(reply("Hi Aoife — Saturday suits us – see you then."));
+    expect(await writeWithAI("leadReply", facts)).toEqual({ ok: true, text: "Hi Aoife, Saturday suits us, see you then." });
+  });
+
+  it("gives { ok: false } for a refusal, a max_tokens cut, an empty answer and a thrown error", async () => {
+    create.mockResolvedValueOnce(reply("", "refusal"));
+    expect(await writeWithAI("leadReply", facts)).toEqual({ ok: false });
+    create.mockResolvedValueOnce(reply("Hi Aoife, thanks for", "max_tokens"));
+    expect(await writeWithAI("leadReply", facts)).toEqual({ ok: false });
+    create.mockResolvedValueOnce(reply("   "));
+    expect(await writeWithAI("leadReply", facts)).toEqual({ ok: false });
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    create.mockRejectedValueOnce(new Error("timed out"));
+    expect(await writeWithAI("leadReply", facts)).toEqual({ ok: false });
+    expect(JSON.stringify(log.mock.calls)).not.toContain("Aoife"); // personal data never reaches the logs
+    log.mockRestore();
+  });
+
+  it("sends the fixed system prompt for caching and only the facts (plus the adjust) in the user turn", async () => {
+    create.mockResolvedValue(reply("Dear Aoife, thank you."));
+    await writeWithAI("leadReply", facts, "formal", "Hi Aoife");
+    const req = create.mock.calls[0][0];
+    expect(req.model).toBe("claude-opus-5-5");
+    expect(req.system.at(-1).cache_control).toEqual({ type: "ephemeral" });
+    expect(JSON.stringify(req.system)).not.toContain("Aoife");
+    expect(req.messages).toHaveLength(1);
+    const user = req.messages[0].content as string;
+    expect(user).toContain(JSON.stringify(facts));
+    expect(user).toContain("<current_text>\nHi Aoife\n</current_text>");
+    expect(user).toContain("More formal");
+  });
+
+  it("keeps the newsletter subject rule", async () => {
+    create.mockResolvedValue(reply("Here is what is new."));
+    const r = await writeWithAI("newsletter", { dealer: "Checkwork Motors", cars: [{ name: "2021 Skoda Octavia" }], voice: { signOff: "", hashtags: "" } });
+    expect(r).toEqual({ ok: true, text: "Here is what is new.", subject: "New arrivals at Checkwork Motors" });
+  });
+});
+
+describe("writeWithAI without a key (demo)", () => {
+  it("still uses the mock and never calls Claude", async () => {
+    create.mockReset();
+    const r = await writeWithAI("leadReply", facts);
+    expect(r).toMatchObject({ ok: true, text: expect.stringContaining("Hi Aoife,") });
+    expect(create).not.toHaveBeenCalled();
+  });
+});
