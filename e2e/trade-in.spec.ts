@@ -72,6 +72,18 @@ async function encodeTo(page: Page, bytes: number, ms = 0) {
   );
 }
 
+// The phone is the default device here: the form starts under the title, and How it works follows it. From 640px the steps sit above.
+test("on a phone the form comes first and How it works follows it; from 640px the steps sit above the form", async ({ page }) => {
+  await open(page);
+  const form = page.locator("main form").first();
+  const how = page.locator("ol", { hasText: "Send some photos" });
+  const top = async (l: typeof form) => (await l.boundingBox())!.y;
+  await expect(page.getByRole("heading", { level: 2, name: "How it works" })).toBeVisible();
+  expect(await top(form)).toBeLessThan(await top(how));
+  await page.setViewportSize({ width: 1024, height: 900 });
+  expect(await top(how)).toBeLessThan(await top(form));
+});
+
 test("it is a trade-in valuation page that explains itself, in four steps, with a lookup beside the registration", async ({ page }) => {
   await open(page);
   await expect(page.getByRole("heading", { level: 1, name: "Sell your car" })).toBeVisible();

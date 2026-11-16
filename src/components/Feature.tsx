@@ -1,6 +1,6 @@
 import { subTitle } from "@/components/ui";
 
-// The round red-tinted badge that holds an icon or a step number. One look for every "reason" and "step" on the site.
+// The round tinted badge that holds a step number (or, on home, an icon that says what the item is).
 export function IconBadge({ children, size = "md" }: { children: React.ReactNode; size?: "sm" | "md" }) {
   return (
     <span className={`flex shrink-0 items-center justify-center rounded-full bg-info-soft font-medium text-info ${size === "md" ? "size-12" : "size-10"}`}>{children}</span>
