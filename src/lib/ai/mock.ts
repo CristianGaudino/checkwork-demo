@@ -51,7 +51,7 @@ function newsletter(f: FactsOf["newsletter"], a: Adjust | undefined): string {
   const list = f.cars.map((c) => `- ${c.name}, ${c.price ?? "ask for the price"}. ${c.link ?? ""}`.trim());
   const sign = f.voice.signOff.trim();
   if (a === "shorter") return lines(...list, sign);
-  if (a === "friendlier") return lines("Hi there!", `Here is what has just come in at ${f.dealer}.`, BR, ...list, BR, "Pop in and say hello.", sign);
+  if (a === "friendlier") return lines("Hi there,", `Here is what has just come in at ${f.dealer}.`, BR, ...list, BR, "Pop in and say hello.", sign);
   if (a === "professional") return lines("Dear subscriber,", `These cars are now available at ${f.dealer}.`, BR, ...list, BR, "Please contact us to arrange a viewing.", sign);
   return clean(newsletterText(f.cars, f.voice)); // the free writer's text (src/lib/admin/marketing.ts): only the buttons write differently
 }
@@ -78,7 +78,7 @@ function leadReply(f: FactsOf["leadReply"], a: Adjust | undefined): string {
   const ask = f.kind === "Test drive" ? "We would be glad to set up a test drive. What day suits you?" : f.kind === "Trade-in" || f.kind === "Selling a car" ? "We will look at your car and come back to you with a valuation." : "We would be happy to help. What time suits you for a call?";
   switch (a) {
     case "formal": return lines(`Dear ${f.firstName},`, `Thank you for contacting ${f.dealer}${about}.`, ask, BR, "Yours sincerely,", f.dealer);
-    case "friendlier": return lines(`Hi ${f.firstName}, thanks so much for getting in touch${about}!`, ask, BR, "Speak soon,", f.dealer);
+    case "friendlier": return lines(`Hi ${f.firstName}, thanks so much for getting in touch${about}.`, ask, BR, "Speak soon,", f.dealer);
     case "shorter": return lines(`Hi ${f.firstName}, thanks for your message${about}.`, ask);
     default: return lines(`Hi ${f.firstName},`, `Thank you for your message${about}.`, ask, BR, "Kind regards,", f.dealer);
   }

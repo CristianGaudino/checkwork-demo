@@ -56,6 +56,14 @@ describe("writeWithAI with a key (Claude)", () => {
     expect(user).toContain("More formal");
   });
 
+  it("an urgency button never licenses a made-up deadline, and the prompts hold no dashes", async () => {
+    create.mockResolvedValue(reply("Fresh in."));
+    await writeWithAI("opus", "leadReply", facts, "urgency");
+    const req = create.mock.calls[0][0];
+    expect(req.messages[0].content).toContain("never invent a deadline");
+    expect(JSON.stringify(req)).not.toMatch(/[—–]/);
+  });
+
   it("asks for the dealer's model, with the refusal fallback on both", async () => {
     create.mockResolvedValue(reply("Hi Aoife."));
     await writeWithAI("opus", "leadReply", facts);
