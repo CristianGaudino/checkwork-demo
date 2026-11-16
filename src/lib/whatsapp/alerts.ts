@@ -28,7 +28,8 @@ export async function alertStaffOnWhatsApp(lead: Lead): Promise<void> {
     // One cap check and one count for the whole batch, so the visitor's submit is not many round trips; over the cap they all go by email.
     // shortcut: one lead's alerts (a few, one per linked phone) can pass the cap by those few cents; check per message if it ever matters.
     const viaWhatsApp = modeOf("whatsapp") === "simulated" && (await usageAllowed("whatsapp"));
-    for (const d of drafts) await addMessage({ ...d, ...(!viaWhatsApp && { via: "email" as const }) });
+    // By email instead only where there is an address: a buyer with only a phone gets nothing rather than an email nobody receives.
+    for (const d of drafts) if (viaWhatsApp || d.thread !== "buyer" || lead.email) await addMessage({ ...d, ...(!viaWhatsApp && { via: "email" as const }) });
     if (viaWhatsApp && drafts.length) await recordUsage("whatsapp", "alert", drafts.length);
   } catch {
     // shortcut: a lost alert is still in the bell and the leads list; add a retry with the adapter

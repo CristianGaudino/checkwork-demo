@@ -141,6 +141,26 @@ describe("a buyer who can be reached neither way", () => {
   });
 });
 
+describe("a buyer with only a phone, and more photos asked twice", () => {
+  it("changes nothing on a decline the buyer cannot be told about", async () => {
+    db.leads.set("real-1", { ...lead("new"), whatsappOptIn: false });
+    alert("a1", ["decline"], { leadId: "real-1", event: "trade-in" });
+    await tap("Aoife", "a1", "decline");
+    expect(db.leads.get("real-1")?.status).toBe("new");
+    expect(db.msgs.get("a1")?.done).toBeFalsy();
+  });
+  it("asks the buyer for more photos once, with one note", async () => {
+    db.leads.set("real-1", lead("new"));
+    alert("a1", ["photos"], { leadId: "real-1", event: "trade-in" });
+    alert("a2", ["photos"], { leadId: "real-1", event: "trade-in" });
+    sent.length = 0;
+    await tap("Aoife", "a1", "photos");
+    await tap("Aoife", "a2", "photos");
+    expect(sent.filter((m) => m.thread === "buyer")).toHaveLength(1);
+    expect((db.leads.get("real-1")?.notes as { text: string }[]).filter((n) => /more photos/.test(n.text))).toHaveLength(1);
+  });
+});
+
 describe("two people asked to reply to one alert", () => {
   it("sends the first offer only, and tells the second it is done", async () => {
     db.leads.set("real-1", lead("new"));

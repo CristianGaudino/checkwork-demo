@@ -50,6 +50,7 @@ function seedMessages(): Msg[] {
   const trade = lead("trade-in");
   const enq = lead("enquiry");
   const drive = demoDrives().find((d) => d.status === "requested")!;
+  const tdLead = leads.find((l) => l.type === "test-drive" && l.status === "new");
   const review = demoReviews().find((r) => r.rating >= 4) ?? demoReviews()[0];
   const slow = car(6);
   const buyerCar = car(2);
@@ -72,7 +73,9 @@ function seedMessages(): Msg[] {
       add({ at: now - 3 * HOUR + 2 * MINUTE, from: "staff", text: "Yes, it's available", leadId: enq.id });
       add({ at: now - 3 * HOUR + 2 * MINUTE + 4000, from: "site", text: `Sent to ${firstName(enq.name)}: yes, the car is still available.`, leadId: enq.id });
     }
-    alert("test-drive", 70 * MINUTE, { ref: drive.id }, alertText("test-drive", { first: firstName(drive.name), car: drive.carTitle, text: drive.notes }));
+    // From a website booking (a test-drive lead), as a real alert is, so every button reaches the buyer.
+    if (tdLead) alert("test-drive", 70 * MINUTE, { leadId: tdLead.id }, alertText("test-drive", { first: firstName(tdLead.name), car: tdLead.carTitle ?? drive.carTitle, text: tdLead.message }));
+    else alert("test-drive", 70 * MINUTE, { ref: drive.id }, alertText("test-drive", { first: firstName(drive.name), car: drive.carTitle, text: drive.notes }));
     alert("trade-in", 20 * MINUTE, { leadId: trade.id, photos }, alertText("trade-in", { first: firstName(trade.name), car: trade.carTitle, reg: trade.reg, text: trade.message, sell: trade.type === "sell" }));
   }
   // What the buyer of the trade-in was last told, so the buyer's phone is not empty before anything is sent.

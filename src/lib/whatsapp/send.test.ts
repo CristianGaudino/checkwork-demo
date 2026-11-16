@@ -34,4 +34,10 @@ describe("sendWhatsApp", () => {
     expect((await sendWhatsApp(draft, "reply", { email: true }))?.via).toBe("email");
     expect(usage.recorded).toEqual([]);
   });
+
+  it("sends nothing, rather than an email nobody gets, when there is no address to fall back to", async () => {
+    usage.allowed = false;
+    expect(await sendWhatsApp({ thread: "buyer", from: "site", text: "Hi" }, "reply", { canEmail: false })).toBeNull();
+    expect(stored).toEqual([]);
+  });
 });

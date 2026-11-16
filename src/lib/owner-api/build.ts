@@ -1,7 +1,7 @@
 import "server-only";
 import pkg from "../../../package.json";
 import { addMonths } from "@/lib/admin/format";
-import { monthCounts, billingSettings } from "@/lib/billing/usage";
+import { monthCounts, billingSettings, monthOf } from "@/lib/billing/usage";
 import { planEur, usageCosts } from "@/lib/billing/rules";
 import { syncStatus } from "@/lib/donedeal/sync";
 import { MODULE_IDS } from "@/lib/modules-rules";
@@ -18,7 +18,8 @@ export async function modulesBody() {
   return { version: API_VERSION, appVersion: pkg.version, modules: MODULE_IDS.filter((m) => on.has(m)), planEur: planEur(on, on.has("ai") ? aiPlan : "perAction") }; // the assistant fee only with the AI module, as the Billing page
 }
 
-// Each month the range touches (at most 13), with its counts and costs by service and kind.
+// Each month the range touches (at most 13), with its counts by service and kind. Costs only for the month in progress: a past month may
+// have been on another AI plan, and its bill (from the owner's billing program) is what counts for it.
 export async function usageBody(from: string, to: string) {
   const { aiPlan } = await billingSettings();
   const months: string[] = [];
@@ -29,7 +30,8 @@ export async function usageBody(from: string, to: string) {
       months.map(async (month) => {
         const c = usageCosts(await monthCounts(month), aiPlan);
         const { totalEur, ...services } = c;
-        return { month, totalEur, services: Object.fromEntries(Object.entries(services).map(([s, v]) => [s, { count: v.count, costEur: v.costEur, kinds: v.kinds.map(({ kind, count, costEur }) => ({ kind, count, costEur })) }])) };
+        const now = month === monthOf();
+        return { month, ...(now && { totalEur }), services: Object.fromEntries(Object.entries(services).map(([s, v]) => [s, { count: v.count, ...(now && { costEur: v.costEur }), kinds: v.kinds.map(({ kind, count, costEur }) => ({ kind, count, ...(now && { costEur }) })) }])) };
       }),
     ),
   };

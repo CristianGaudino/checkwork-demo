@@ -18,10 +18,11 @@ import { channelFor } from "./rules";
 export type Draft = Omit<Msg, "id" | "at" | "via"> & { at?: number };
 
 // `email`: the person chose email (a buyer who did not tick the WhatsApp box), so it never counts as WhatsApp.
-export async function sendWhatsApp(draft: Draft, kind: "alert" | "reply" | "marketing", { email = false }: { email?: boolean } = {}): Promise<Msg | null> {
+// `canEmail` false: there is no address to fall back to, so when WhatsApp cannot send, nothing is sent (null) rather than an email nobody gets.
+export async function sendWhatsApp(draft: Draft, kind: "alert" | "reply" | "marketing", { email = false, canEmail = true }: { email?: boolean; canEmail?: boolean } = {}): Promise<Msg | null> {
   // Only a simulated service sends here until the adapter exists, so a connected one with no adapter falls back too, never pretends.
   const channel = email ? "email" : channelFor(kind, modeOf("whatsapp") === "simulated", await usageAllowed("whatsapp"));
-  if (channel === "none") return null;
+  if (channel === "none" || (channel === "email" && !canEmail)) return null;
   if (channel === "whatsapp") await recordUsage("whatsapp", kind);
   return addMessage({ ...draft, ...(channel === "email" && { via: "email" as const }) });
 }

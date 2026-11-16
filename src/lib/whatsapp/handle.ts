@@ -52,9 +52,10 @@ const callThem = (lead: Lead) => `${firstName(lead.name)} gave no email and did 
 
 // A message to the buyer, by `reach`. When it went by WhatsApp and an answer is given, the buyer's answer comes back a few seconds later,
 // into the buyer's phone, the dealer's phone and (when shown) the lead.
-async function toBuyer(lead: Lead, to: string, text: string, answer?: string): Promise<"WhatsApp" | "email"> {
-  const sent = await sendWhatsApp({ thread: "buyer", from: "site", leadId: lead.id, text }, "reply", { email: reach(lead) !== "WhatsApp" });
-  const by = sent?.via === "email" ? "email" : "WhatsApp";
+async function toBuyer(lead: Lead, to: string, text: string, answer?: string): Promise<"WhatsApp" | "email" | null> {
+  const sent = await sendWhatsApp({ thread: "buyer", from: "site", leadId: lead.id, text }, "reply", { email: reach(lead) !== "WhatsApp", canEmail: Boolean(lead.email) });
+  if (!sent) return null; // WhatsApp could not send and there is no address
+  const by = sent.via === "email" ? "email" : "WhatsApp";
   if (answer && by === "WhatsApp") {
     const at = Date.now() + BUYER_ANSWER_MS;
     await addMessage({ thread: "buyer", from: "buyer", leadId: lead.id, text: answer, at });
@@ -95,6 +96,8 @@ export async function tap(me: string, msgId: string, button: ButtonId): Promise<
   if (closed) return void (await say(me, { text: "That lead is closed." }));
   // The rest answer the alert once, for everyone it went to: one offer, one decline, one confirm. Asking for more photos keeps it open.
   if (msg.done || all.some((m) => m.done)) return void (await say(me, { text: "Already done." }));
+  // Nothing changes until the buyer can be told: a buyer with no email and no WhatsApp is called instead.
+  if (lead && button !== "drop" && button !== "call" && button !== "handled" && !reach(lead)) return void (await say(me, { leadId: lead.id, href: `/dashboard/leads/${lead.id}`, text: callThem(lead) }));
   if (button === "price") return void (await say(me, { leadId: msg.leadId, ref: msg.id, text: `What price do you want to offer${first ? ` ${first}` : ""}? Type it, like 8,500.`, expects: "price" }));
   if (button === "other") return void (await say(me, { leadId: msg.leadId, ref: msg.id, text: "What time suits? Type it, like Saturday at 11.", expects: "time" }));
   if (button === "drop") {
@@ -125,12 +128,14 @@ export async function tap(me: string, msgId: string, button: ButtonId): Promise<
     return void (await say(me, { text: act.site("") }));
   }
   if (!lead && !(button === "confirm" && msg.ref)) return void (await say(me, { text: "I can't find that request any more." }));
-  if (lead && act.buyer && !reach(lead)) return void (await say(me, { leadId: lead.id, href: `/dashboard/leads/${lead.id}`, text: callThem(lead) }));
   if (lead) {
-    const status = moved(lead.status, act.status);
-    await leadsStore.put({ ...lead, status, ...(status === "lost" && !lead.lostReason && { lostReason: "Other" as const }), ...(act.note && { notes: [...lead.notes, { at: Date.now(), text: act.note }] }) });
+    // A request kept open (more photos) is asked once, whoever taps it: a second tap adds nothing.
+    if (act.keepOpen && act.note && lead.notes.some((n) => n.text === act.note)) return void (await say(me, { leadId: lead.id, text: "Already asked." }));
+    if (act.buyer && !(await toBuyer(lead, me, act.buyer(first, lead.carTitle ?? "car"), act.answer))) return void (await say(me, { leadId: lead.id, href: `/dashboard/leads/${lead.id}`, text: callThem(lead) }));
+    const fresh = (await leadsStore.get(lead.id)) ?? lead; // the buyer's answer may be on it now
+    const status = moved(fresh.status, act.status);
+    await leadsStore.put({ ...fresh, status, ...(status === "lost" && !fresh.lostReason && { lostReason: "Other" as const }), ...(act.note && { notes: [...fresh.notes, { at: Date.now(), text: act.note }] }) });
     if (button !== "confirm") await logActivity("leads", act.activity, { kind: "lead", id: lead.id });
-    if (act.buyer && !(act.keepOpen && act.note && lead.notes.some((n) => n.text === act.note))) await toBuyer(lead, me, act.buyer(first, lead.carTitle ?? "car"), act.answer); // a request kept open is sent once
   }
   if (!act.keepOpen) await markDone(all);
   await say(me, { text: act.site(first), ...(lead && { leadId: lead.id, href: `/dashboard/leads/${lead.id}` }) });
@@ -159,6 +164,7 @@ export async function typed(me: string, raw: string): Promise<void> {
     if (lead.status === "won" || lead.status === "lost") return void (await say(me, { text: "That lead is closed." }));
     if (!reach(lead)) return void (await say(me, { leadId: lead.id, href: `/dashboard/leads/${lead.id}`, text: callThem(lead) }));
     const by = await toBuyer(lead, me, `Hi ${firstName(lead.name)}, thank you for sending us your car. We can offer you ${fmtEur(eur)} for it, subject to seeing it. Reply here and we will book a time for you to bring it in. ${SITE_NAME}`, "That sounds good. Could I bring it in on Saturday morning?");
+    if (!by) return void (await say(me, { leadId: lead.id, href: `/dashboard/leads/${lead.id}`, text: callThem(lead) }));
     const cur = (await leadsStore.get(lead.id)) ?? lead; // toBuyer may have added the buyer's answer
     await leadsStore.put({ ...cur, status: moved(cur.status, "contacted"), notes: [...cur.notes, { at: Date.now(), text: `Offer sent by ${by}: ${fmtEur(eur)}` }] });
     await logActivity("leads", `Sent an offer of ${fmtEur(eur)}, from WhatsApp`, { kind: "lead", id: lead.id });
@@ -171,6 +177,7 @@ export async function typed(me: string, raw: string): Promise<void> {
     if (lead.status === "won" || lead.status === "lost") return void (await say(me, { text: "That lead is closed." }));
     if (!reach(lead)) return void (await say(me, { leadId: lead.id, href: `/dashboard/leads/${lead.id}`, text: callThem(lead) }));
     const by = await toBuyer(lead, me, `Hi ${firstName(lead.name)}, could we do ${text} instead? Let us know if that suits.`);
+    if (!by) return void (await say(me, { leadId: lead.id, href: `/dashboard/leads/${lead.id}`, text: callThem(lead) }));
     await leadsStore.put({ ...lead, notes: [...lead.notes, { at: Date.now(), text: `Suggested another time by ${by}: ${text}` }] });
     await logActivity("leads", "Suggested another time, from WhatsApp", { kind: "lead", id: lead.id });
     await messagesStore.put({ ...q, done: true });
