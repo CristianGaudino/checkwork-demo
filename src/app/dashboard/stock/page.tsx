@@ -24,6 +24,7 @@ import { salesStore } from "@/lib/admin/collections";
 import { syncStatus } from "@/lib/donedeal/sync";
 import { SEARCH_MAKE_MODEL } from "@/lib/copy";
 import { setListingAction, toggleSoldAction, withdrawnAction } from "./actions";
+import { hasModule } from "@/lib/modules";
 
 export const metadata = { title: "Stock" };
 
@@ -38,7 +39,7 @@ const daysIn = (listedAt: string) => {
 export default async function Page({ searchParams }: { searchParams: Promise<{ view?: string; status?: string; q?: string; make?: string; fuel?: string; gearbox?: string; sort?: string; dir?: string; per?: string; saved?: string; deleted?: string; sale?: string; reserved?: string; undone?: string; page?: string }> }) {
   const sp = await searchParams;
   const { view, q, make, fuel, gearbox } = parseStockList(sp);
-  const [all, source] = await Promise.all([adminCars(), stockSource()]);
+  const [all, source, deposits] = await Promise.all([adminCars(), stockSource(), hasModule("sales")]);
   const synced = source === "donedeal";
   const sync = synced ? await syncStatus() : null;
   const sales = new Map((await salesStore.list()).map((s) => [s.id, s]));
@@ -177,7 +178,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
             )}
             <RowMenu label={`More for ${carName(c)}`}>
               {listingButton(c)}
-              {(forSale(c) || c.reserved) && !isSold(c) && (
+              {deposits && (forSale(c) || c.reserved) && !isSold(c) && (
                 <Link href={`/dashboard/stock/${c.id}/reserve`} className={rowButton}>
                   {c.reserved ? "Deposit" : "Reserve"}
                 </Link>

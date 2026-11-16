@@ -3,6 +3,7 @@ import { cache } from "react";
 import { cookies, headers } from "next/headers";
 import { getSettings } from "@/lib/admin/collections";
 import { demoCookiesCount } from "@/lib/demo";
+import { hasModule } from "@/lib/modules";
 import { ROLE_COOKIE, emailHas, parseRole, roleCan, type Permission, type Role } from "./permission-rules";
 
 // Who is making this request, as the team knows them. Checked on the server, in every page and action that shows or changes something
@@ -27,6 +28,8 @@ export const currentMember = cache(async (): Promise<Member> => {
   return { name: m?.name ?? email, email, role };
 });
 
+// Margins are also a module (#173): without it nobody has the permission, so every cost, margin and profit figure goes in one place.
 export async function can(permission: Permission): Promise<boolean> {
+  if (permission === "margins" && !(await hasModule("margins"))) return false;
   return roleCan((await currentMember()).role, permission);
 }
