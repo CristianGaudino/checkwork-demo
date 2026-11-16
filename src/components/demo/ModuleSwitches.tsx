@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import { setDemoModules, useModules } from "@/lib/demo-role";
 import { MODULES, withModule, withoutModule, type ModuleId } from "@/lib/modules-rules";
-import { BASE_EUR, BUNDLES, MODULE_EUR, eur, planFor, presetName, setupEur } from "@/lib/billing/rules";
+import { BASE_EUR, BUNDLES, MODULE_EUR, SHOW_PRICING, eur, planFor, presetName, setupEur } from "@/lib/billing/rules";
 import { press } from "@/components/ui";
 
 // The presets: the base site alone, then each bundle. Prices a month, before VAT, as the Billing page shows them.
@@ -60,7 +60,7 @@ export function ModuleSwitches({ chip, inline = false }: { chip: string; inline?
                 className={`flex min-h-11 flex-col items-start justify-center rounded-control border px-3 py-1.5 text-left text-meta leading-tight ${preset === p.label ? "border-accent bg-accent text-on-accent" : "border-hairline"} ${press}`}
               >
                 <span className="font-medium whitespace-nowrap">{p.label}</span>
-                <span className="tabular-nums">{eur(p.eur)} a month</span>
+                {SHOW_PRICING && <span className="tabular-nums">{eur(p.eur)} a month</span>}
               </button>
             ))}
           </div>
@@ -68,14 +68,16 @@ export function ModuleSwitches({ chip, inline = false }: { chip: string; inline?
             <label key={m.id} className="flex min-h-11 cursor-pointer items-center gap-3 rounded-control px-2 hover:bg-hairline/50">
               <input type="checkbox" checked={on.has(m.id)} onChange={(e) => apply(e.target.checked ? withModule(on, m.id) : withoutModule(on, m.id))} className="size-4 accent-[var(--color-accent)]" />
               <span className="flex-1 text-meta">{m.label}</span>
-              <span className="text-meta tabular-nums text-text-2">{MODULE_EUR[m.id] ? eur(MODULE_EUR[m.id]) : "Per use"}</span>
+              {SHOW_PRICING && <span className="text-meta tabular-nums text-text-2">{MODULE_EUR[m.id] ? eur(MODULE_EUR[m.id]) : "Per use"}</span>}
             </label>
           ))}
-          <p className="border-t border-hairline px-2 pt-2 text-meta">
-            <span className="font-medium">{plan.name}</span>, {eur(plan.eur)} a month before VAT
-            <span className="block text-text-2">Plus {eur(setupEur(on))} setup, once</span>
-            {plan.saving > 0 && <span className="block text-ok">Saves {eur(plan.saving)} on single prices</span>}
-          </p>
+          {SHOW_PRICING && (
+            <p className="border-t border-hairline px-2 pt-2 text-meta">
+              <span className="font-medium">{plan.name}</span>, {eur(plan.eur)} a month before VAT
+              <span className="block text-text-2">Plus {eur(setupEur(on))} setup, once</span>
+              {plan.saving > 0 && <span className="block text-ok">Saves {eur(plan.saving)} on single prices</span>}
+            </p>
+          )}
         </div>
       )}
     </div>

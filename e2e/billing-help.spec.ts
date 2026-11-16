@@ -1,9 +1,11 @@
 import { expect, test } from "@playwright/test";
 import { as } from "./open";
+import { SHOW_PRICING } from "@/lib/billing/rules";
 
 // Billing is for the owner and manager; Help is for everyone. The demo bar's role is a cookie (see admin-margins.spec.ts).
 
 test("the owner sees the plan, sets a limit and an alert, and opens a bill", async ({ page }) => {
+  test.skip(!SHOW_PRICING, "pricing is hidden for now (SHOW_PRICING)");
   await page.goto("/dashboard/billing");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Billing");
   await expect(page.getByText(/Founding dealer: 30% off until/)).toBeVisible();

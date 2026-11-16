@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Field, Notice, PageHeader, Panel, adminButton, adminInput, rowButton } from "@/components/admin/kit";
 import { ActButton } from "@/components/admin/ActButton";
 import { askModuleAction } from "@/app/dashboard/billing/actions";
+import { SHOW_PRICING } from "@/lib/billing/rules";
 import { Phones } from "@/components/admin/whatsapp/Phones";
 import { WhatsAppIcon } from "@/components/stock/icons";
 import { getSettings } from "@/lib/admin/collections";
@@ -79,7 +80,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ n
             <p className="max-w-measure text-meta text-text-2">
               Buyers who tick the WhatsApp box on a form get a confirmation and your replies on WhatsApp, and can stop at any time. Everyone else gets email. If WhatsApp is over its
               monthly cap, alerts and replies go by email instead.{" "}
-              {mayBill && (
+              {mayBill && SHOW_PRICING && (
                 <Link href="/dashboard/billing" className="font-medium text-accent-text underline underline-offset-2">
                   Set the cap
                 </Link>

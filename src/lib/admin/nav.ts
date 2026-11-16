@@ -1,5 +1,6 @@
 import type { Permission } from "@/lib/permission-rules";
 import type { ModuleId } from "@/lib/modules-rules";
+import { SHOW_PRICING } from "@/lib/billing/rules";
 
 // The dealer area's navigation, as data. `permission` hides an entry (and the page refuses) unless the dealer has it (src/lib/permissions.ts).
 // `icon` names a line icon (AdminNav maps it), so this file stays plain data the tests can import. `group` is the menu block an item sits in:
@@ -27,7 +28,7 @@ export const DEALER_NAV: NavItem[] = [
   { href: "/dashboard/activity", label: "Activity", icon: "history", group: "Dealership", permission: "activity" },
   { href: "/dashboard/data-requests", label: "Data requests", icon: "shield", group: "Dealership", permission: "data" },
   { href: "/dashboard/settings", label: "Settings", icon: "cog", group: "Dealership" },
-  { href: "/dashboard/billing", label: "Billing", icon: "receipt", group: "Dealership", permission: "billing" },
+  ...(SHOW_PRICING ? [{ href: "/dashboard/billing", label: "Billing", icon: "receipt", group: "Dealership", permission: "billing" } as NavItem] : []),
   { href: "/dashboard/help", label: "Help", icon: "help", group: "Dealership" },
 ];
 

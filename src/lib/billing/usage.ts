@@ -3,7 +3,7 @@ import { defineCollection } from "@/lib/admin/docs";
 import { dublinDay } from "@/lib/admin/format";
 import { SETTINGS_DEFAULT, getSettings, settingsStore, type DealerSettings } from "@/lib/admin/collections";
 import { notify } from "@/lib/admin/notifications";
-import { alertsCrossed, usageCosts, usageId, withinCaps, type BillingSettings, type Kind, type Service, type UsageCount, withBillingDefaults } from "./rules";
+import { SHOW_PRICING, alertsCrossed, usageCosts, usageId, withinCaps, type BillingSettings, type Kind, type Service, type UsageCount, withBillingDefaults } from "./rules";
 import { hasModule } from "@/lib/modules";
 import { roleCan } from "@/lib/permission-rules";
 
@@ -52,7 +52,7 @@ export async function recordUsage<S extends Service>(service: S, kind: Kind<S>, 
     await usageStore.put(next);
     const after = [...before.filter((c) => c.id !== id), next];
     const alerts = alertsCrossed(usageCosts(before, b.aiPlan), usageCosts(after, b.aiPlan), b, month);
-    if (!alerts.length) return;
+    if (!alerts.length || !SHOW_PRICING) return; // no limit notices while pricing is hidden, and none marked sent
     const { team } = await getSettings();
     // Each owner and manager, by the name the bell knows them by (src/lib/permissions.ts): the team's, and an owner in ADMIN_OWNER_EMAILS who is
     // not on the team goes by their email. Only them, so Sales and Finance never see what the dealer pays; with nobody, no notice.

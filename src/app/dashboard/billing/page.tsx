@@ -1,3 +1,4 @@
+import { SHOW_PRICING } from "@/lib/billing/rules";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ActButton } from "@/components/admin/ActButton";
@@ -29,7 +30,7 @@ type Usage = Awaited<ReturnType<typeof monthUsage>>;
 
 // Owners and managers only (the "billing" permission): without it the page is not there, whatever the menu showed.
 export default async function Page({ searchParams }: { searchParams: Promise<{ section?: string }> }) {
-  if (!(await can("billing"))) notFound();
+  if (!SHOW_PRICING || !(await can("billing"))) notFound(); // hidden for now (SHOW_PRICING)
   const sp = await searchParams;
   const section = SECTIONS.find(([k]) => k === sp.section)?.[0] ?? "plan";
   const [modules, b, usage, me] = await Promise.all([enabledModules(), billingSettings(), monthUsage(), currentMember()]);

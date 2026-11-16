@@ -1,3 +1,4 @@
+import { SHOW_PRICING } from "@/lib/billing/rules";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge, DataTable, Facts, PageHeader, Panel, adminButtonQuiet } from "@/components/admin/kit";
@@ -11,7 +12,7 @@ export const metadata = { title: "Bill" };
 
 // One bill, itemised: the plan, the discount, each usage line, VAT and the total. The invoice itself is emailed as a PDF when it is issued.
 export default async function Page({ params }: { params: Promise<{ month: string }> }) {
-  if (!(await can("billing"))) notFound();
+  if (!SHOW_PRICING || !(await can("billing"))) notFound(); // hidden for now (SHOW_PRICING)
   const { month } = await params;
   const bill = /^\d{4}-\d{2}$/.test(month) ? await billsStore.get(month) : undefined;
   if (!bill) notFound();
