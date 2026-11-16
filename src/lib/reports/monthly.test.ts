@@ -49,6 +49,9 @@ describe("summarise", () => {
     const at = "2026-03-03T10:00:00Z";
     const told = summarise({ ...empty, leads: [lead(at, { notes: [{ at: Date.parse(at), text: "The email about this lead didn't reach you" }] })] }, "2026-03-01", "2026-03-31", now);
     expect(told.replies).toEqual({ medianInHoursMin: null, medianOutOfHoursMin: null, none: 1 });
+    const later = Date.parse(at) + 600_000; // a call-back reminder or a buyer's answer, written by the site
+    const auto = summarise({ ...empty, leads: [lead(at, { notes: [{ at: later, text: "Call back asked for from WhatsApp.", auto: true }] })] }, "2026-03-01", "2026-03-31", now);
+    expect(auto.replies.none).toBe(1);
   });
   it("works out the replies", () => {
     expect(s.replies).toEqual({ medianInHoursMin: 30, medianOutOfHoursMin: 120, none: 2 });

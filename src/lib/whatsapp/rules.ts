@@ -1,6 +1,6 @@
 import type { ModuleId } from "@/lib/modules-rules";
 import type { Role } from "@/lib/permission-rules";
-import { fmtEur } from "@/lib/admin/format";
+import { fmtEur, plural } from "@/lib/admin/format";
 
 // WhatsApp (#178), the rules without the storage: what each message says, which module it belongs to, how a typed price is read, and
 // where a message goes. Plain data and pure functions, so the page, the sender and the tests agree.
@@ -35,14 +35,25 @@ export const EVENTS: Record<EventId, { module: ModuleId; label: string; does: st
   "test-drive": { module: "testDrives", label: "Test drive booking", does: "A new booking to confirm, or a new time to suggest.", kind: "alert", buttons: ["confirm", "other"] },
   service: { module: "service", label: "Service booking", does: "A service booking or a claim. Confirm a slot from your phone.", kind: "alert", buttons: ["slot"] },
   finance: { module: "finance", label: "Finance application", does: "A new application, so nobody waits to hear it was received.", kind: "alert", buttons: ["ack"] },
-  deposit: { module: "sales", label: "Deposit taken", does: "A deposit or a reservation, to confirm.", kind: "alert", buttons: ["confirm"] },
+  deposit: { module: "sales", label: "Deposit taken", does: "A deposit taken on a car. Confirm it and it is in the activity log.", kind: "alert", buttons: ["confirm"] },
   review: { module: "reviews", label: "New Google review", does: "A new review as it lands. Reply and it is posted on Google.", kind: "alert", buttons: ["review"] },
   "new-in": { module: "social", label: "A new car in stock", does: "A car just added, with a nudge to post it.", kind: "marketing", buttons: ["post"] },
   monday: { module: "margins", label: "The Monday summary", does: "Last week in a few lines, with a link to the full report.", kind: "alert", buttons: ["report"] },
 };
 export const EVENT_IDS = Object.keys(EVENTS) as EventId[];
+export const SLOW_DAYS = 45; // over this many days in stock is slow, as the reports count it
+export const SLOW_DROP_EUR = 500; // the drop a slow-stock alert suggests, and Drop the price applies
 
 export const eventsFor = (modules: ReadonlySet<ModuleId>): EventId[] => EVENT_IDS.filter((e) => modules.has(EVENTS[e].module));
+
+// The module a message needs: an alert's own, and a question's (a price or a new time asks from an alert, `from`; a review reply is Reviews).
+// None for the rest. With that module off, the message is hidden and acting on it is refused.
+type Moduled = { event?: EventId; expects?: string };
+export function moduleOf(m: Moduled, from?: Moduled): ModuleId | undefined {
+  if (m.event) return EVENTS[m.event].module;
+  if (m.expects === "review-reply") return "reviews";
+  return m.expects && from?.event ? EVENTS[from.event].module : undefined;
+}
 
 // The template a website request uses: its own when the dealer has that module, else the plain enquiry (which is the base site's).
 const LEAD_EVENT: Partial<Record<string, EventId>> = { "trade-in": "trade-in", sell: "trade-in", "test-drive": "test-drive", finance: "finance", service: "service", warranty: "service" };
@@ -117,6 +128,6 @@ Reg ${f.reg}.` : ""}${quoted(f.text)}`;
     case "new-in":
       return `New in: ${f.car}. Post it to Facebook and Instagram?`;
     case "monday":
-      return `Last week: ${f.leads} new leads, ${f.drives} test drives, ${f.sales} sales. The full report is a tap away.`;
+      return `Last week: ${plural(f.leads ?? 0, "new lead")}, ${plural(f.drives ?? 0, "test drive")}, ${plural(f.sales ?? 0, "sale")}. The full report is a tap away.`;
   }
 }
