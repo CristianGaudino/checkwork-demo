@@ -80,6 +80,7 @@ export function missedMake(q: { q?: string; make: string[] }): string {
 }
 
 // "Website, from Facebook": a lead's source, and for a website lead the channel its visit came from.
-export const sourceText = (l: { source: string; channel?: string }) => (l.channel ? `${l.source}, from ${l.channel}` : l.source);
+export const sourceText = (l: { source: string; channel?: string }) =>
+  !l.channel ? l.source : l.channel === CHANNEL_LABELS.direct ? `${l.source}, typed in` : `${l.source}, from ${l.channel}`;
 
 export const VISIT_EVENTS = [...CHANNELS.map((c) => `visit:${c}`), ...PRICE_BANDS.map((b) => `band:${b}`), ...MISSED_MAKES.map((m) => `missed:${m}`)];

@@ -44,5 +44,6 @@ export function startVisit() {
   } catch {
     return; // storage blocked: the visit is not counted, rather than counted on every page
   }
-  count(`visit:${channel}`);
+  // A crawler or scraper that runs scripts is not a visitor: it keeps the channel (its forms still say where it came from) but is not counted.
+  if (!/bot|crawl|spider|slurp|headless|lighthouse/i.test(navigator.userAgent)) count(`visit:${channel}`);
 }

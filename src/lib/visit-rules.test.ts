@@ -56,5 +56,6 @@ describe("missedMake", () => {
 
 it("sourceText says where a website lead came from", () => {
   expect(sourceText({ source: "Website", channel: "Facebook" })).toBe("Website, from Facebook");
+  expect(sourceText({ source: "Website", channel: "Typed in or bookmarked" })).toBe("Website, typed in");
   expect(sourceText({ source: "Phone" })).toBe("Phone");
 });
