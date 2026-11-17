@@ -43,11 +43,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
         <StatCard label="Visitors" value={fmtNum(a.totals.visitors)} hint={arrow(dv)} tone={dv >= 0 ? "good" : "bad"} />
         <StatCard label="Page views" value={fmtNum(a.totals.pageviews)} hint={arrow(dp)} tone={dp >= 0 ? "good" : "bad"} />
         <StatCard label="Leads" value={fmtNum(a.totals.leads)} hint={arrow(dl)} tone={dl >= 0 ? "good" : "bad"} />
-        <StatCard label="Visitors who became leads" value={fmtPct(a.totals.conversion)} />
+        <StatCard label="Visitors who became leads" value={fmtPct(a.totals.conversion)} hint={arrow(c(a.totals.conversion, a.previous.visitors ? (a.previous.leads / a.previous.visitors) * 100 : 0))} tone={c(a.totals.conversion, a.previous.visitors ? (a.previous.leads / a.previous.visitors) * 100 : 0) >= 0 ? "good" : "bad"} />
       </StatGrid>
 
       <Panel title="Visitors each day">
-        <AreaChart data={a.days.map((d) => ({ label: threeLetter(shortDate.format(new Date(d.date))), value: d.visitors }))} summary={`Visitors each day over the last ${range} days, from ${fmtNum(Math.min(...a.days.map((d) => d.visitors)))} to ${fmtNum(Math.max(...a.days.map((d) => d.visitors)))}.`} />
+        <AreaChart data={a.days.map((d) => ({ label: threeLetter(shortDate.format(new Date(d.date))), value: d.visitors }))} format={(n) => `${fmtNum(n)} visitors`} summary={`Visitors each day over the last ${range} days, from ${fmtNum(Math.min(...a.days.map((d) => d.visitors)))} to ${fmtNum(Math.max(...a.days.map((d) => d.visitors)))}.`} />
       </Panel>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -62,8 +62,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
             columns={[
               { key: "name", header: "Source", cell: (s) => <span className="font-medium">{s.name}</span> },
               { key: "v", header: "Visitors", align: "right", cell: (s) => fmtNum(s.visitors) },
-              { key: "l", header: "Leads", align: "right", cell: (s) => fmtNum(s.leads), hide: "sm" },
-              { key: "c", header: "Rate", align: "right", cell: (s) => fmtPct(s.visitors ? (s.leads / s.visitors) * 100 : 0) },
+              { key: "l", header: "Leads", align: "right", cell: (s) => fmtNum(s.leads) },
+              { key: "c", header: "Became leads", align: "right", cell: (s) => fmtPct(s.visitors ? (s.leads / s.visitors) * 100 : 0), hide: "sm" },
             ]}
           />
         </Panel>
@@ -89,7 +89,6 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
         />
       </Panel>
 
-      <p className="text-meta text-text-2">Figures update with real visitor numbers once site analytics is connected, under Settings, Connected services.</p>
     </>
   );
 }
@@ -125,7 +124,7 @@ async function RealAnalytics({ range }: { range: Range }) {
               { key: "name", header: "Source", cell: (s) => <span className="font-medium">{s.name}</span> },
               { key: "v", header: "Visits", align: "right", cell: (s) => fmtNum(s.visits) },
               { key: "l", header: "Leads", align: "right", cell: (s) => fmtNum(s.leads) },
-              { key: "c", header: "Rate", align: "right", cell: (s) => (s.visits ? fmtPct((s.leads / s.visits) * 100) : ""), hide: "sm" },
+              { key: "c", header: "Became leads", align: "right", cell: (s) => (s.visits ? fmtPct((s.leads / s.visits) * 100) : ""), hide: "sm" },
             ]}
           />
         ) : (
