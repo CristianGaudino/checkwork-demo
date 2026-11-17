@@ -1,7 +1,7 @@
 import { DAY } from "@/lib/time";
 import { rng } from "./seed-data";
 
-// The numbers on the Analytics page. Until real site analytics is connected (integrations.ts, "analytics"), they are generated here from a
+// The demo's numbers on the Analytics page (a real site shows its own counts, ./visitor-figures.ts). They are generated here from a
 // fixed seed: the same range always gives the same figures, and the figures agree with each other (the days add up to the totals, the
 // sources add up to the visitors, each funnel step is no bigger than the one before). One function, so swapping in real data changes one place.
 export type Car = { slug: string; title: string };

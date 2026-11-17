@@ -7,6 +7,7 @@ import { submitLead } from "@/app/actions/lead";
 import { CheckIcon } from "@/components/stock/icons";
 import { PHOTO_LIMITS, PHOTO_TOTAL_ERROR, PHOTO_TOTAL_MAX_BYTES } from "@/lib/leads/constants";
 import { readDraft, saveDraft } from "@/lib/leads/draft";
+import { visitChannel } from "@/lib/count-client";
 import { SITE_SLUG } from "@/lib/site";
 import type { LeadType } from "@/lib/leads/schema";
 import type { LeadResult } from "@/lib/leads/process";
@@ -179,6 +180,8 @@ export function LeadForm({
     fd.set("type", type);
     if (car) fd.set("carId", car.id);
     fd.set("sourcePath", location.pathname);
+    const channel = visitChannel();
+    if (channel) fd.set("channel", channel);
     fd.set("clientRef", (clientRef.current ??= crypto.randomUUID()));
     start(async () => {
       let r: LeadResult;

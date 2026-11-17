@@ -50,6 +50,7 @@ export type Lead = {
   phone: string;
   message: string;
   source: (typeof LEAD_SOURCES)[number];
+  channel?: string; // a website lead: where the visit came from, as its label (src/lib/visit-rules.ts)
   carSlug?: string;
   carTitle?: string;
   reg?: string; // the registration of the car a person wants to sell or trade in

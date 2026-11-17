@@ -7,6 +7,7 @@ import { Tween } from "@/components/Tween";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useId, useOptimistic, useRef, useState, useTransition } from "react";
 import { count, countFilters } from "@/lib/count-client";
+import { missedMake } from "@/lib/visit-rules";
 import { countLabel } from "@/lib/stock/format";
 import { appliedFilters, clearFilters, sourcingHref, stockHref } from "@/lib/stock/query";
 import { SORT_KEYS } from "@/lib/stock/types";
@@ -198,6 +199,10 @@ export function EmptyState() {
   useEffect(() => {
     if (filtered) count("no-results");
   }, [filtered]);
+  const missed = filtered ? missedMake(query) : null;
+  useEffect(() => {
+    if (missed) count(`missed:${missed}`);
+  }, [missed]);
   // With nothing applied there is no filter to remove: the stock itself is empty.
   if (appliedFilters(query, null).length === 0) {
     return (

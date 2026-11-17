@@ -1,3 +1,4 @@
+import { sourceText } from "@/lib/visit-rules";
 import Link from "next/link";
 import { LeadStatusBadge } from "@/components/admin/badges";
 import { Avatar, Badge, DataTable, EmptyState, PageHeader, SummaryTabs, TableFooter, TableToolbar, pageOf, sortRows, type Column, type FilterGroup } from "@/components/admin/kit";
@@ -35,7 +36,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
             {l.name}
           </Link>
           <span className="truncate text-meta text-text-2">
-            {LEAD_TYPE_LABELS[l.type]} · {l.source}
+            {LEAD_TYPE_LABELS[l.type]} · {sourceText(l)}
           </span>
           {l.topic && (
             <span className={`truncate text-meta ${l.status === "new" && isUrgent(l.answers ?? {}) ? "font-medium text-warn" : "text-text-2"}`}>{leadTags(l.topic, l.answers ?? {}).join(" · ")}</span>

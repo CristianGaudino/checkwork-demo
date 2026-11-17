@@ -270,7 +270,7 @@ test("an empty reg stops the first step with a short note, and the typed mileage
 
 test("arriving at the last step sends nothing and shows no errors", async ({ page }) => {
   const posts: string[] = [];
-  page.on("request", (r) => r.method() === "POST" && posts.push(r.url()));
+  page.on("request", (r) => r.method() === "POST" && !r.url().endsWith("/api/count") && posts.push(r.url())); // the visit count is not a send
   await open(page);
   await toStep(page, 4);
   await page.waitForTimeout(500); // long enough for a send, and the errors it would bring, to have shown

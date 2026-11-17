@@ -1,3 +1,4 @@
+import { sourceText } from "@/lib/visit-rules";
 import { NEW_TAB } from "@/components/ui";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -57,7 +58,7 @@ export async function LeadView({ id }: { id: string }) {
     <>
       <PageHeader
         title={lead.name}
-        text={`${LEAD_TYPE_LABELS[lead.type]} · ${lead.source} · ${fmtDateTime(lead.createdAt)}`}
+        text={`${LEAD_TYPE_LABELS[lead.type]} · ${sourceText(lead)} · ${fmtDateTime(lead.createdAt)}`}
         actions={
           // A warranty request is aftersales work: it is listed there, so the way back is there.
           lead.type === "warranty" ? (

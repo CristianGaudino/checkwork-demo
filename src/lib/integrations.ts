@@ -6,7 +6,7 @@ import { LISTING_SITE } from "@/lib/stock-source-rules";
 // Every outside service the site can use, in one list. A service is "connected" when all its settings are present. Nothing here holds a
 // secret: `env` names the variables to set (Cloudflare dashboard, or `.dev.vars` for local work). The admin shows this list, and any
 // feature that needs a service asks `isConnected(id)` first, so a missing key is a clear message and never an error.
-export type IntegrationId = "reviews" | "social" | "ads" | "newsletter" | "email" | "botcheck" | "analytics" | "reglookup" | "donedeal" | "gbp" | "whatsapp" | "ai";
+export type IntegrationId = "reviews" | "social" | "ads" | "newsletter" | "email" | "botcheck" | "reglookup" | "donedeal" | "gbp" | "whatsapp" | "ai";
 
 export type Integration = {
   id: IntegrationId;
@@ -34,7 +34,6 @@ export const INTEGRATIONS: readonly Integration[] = [
   { id: "donedeal", demoAccount: `${SITE_NAME} on ${LISTING_SITE}`, name: `${LISTING_SITE} stock`, purpose: `Brings the dealer's ${LISTING_SITE} ads onto the site every 15 minutes.`, env: ["DONEDEAL_API_KEY"], where: `${LISTING_SITE}, an API key for the dealer's own site, given with the dealer's written consent (DoneDeal and CarsIreland work the same way)` },
   { id: "whatsapp", demoAccount: `${SITE_NAME} on WhatsApp`, name: "WhatsApp Business", purpose: "Sends leads to staff phones and buyers' updates, and takes replies from WhatsApp (#178).", env: ["WHATSAPP_PHONE_NUMBER_ID", "WHATSAPP_ACCESS_TOKEN", "WHATSAPP_APP_SECRET"], where: "Meta for developers, the WhatsApp Business Platform (Cloud API), for the dealer's own business number" },
   { id: "ai", demoAccount: "Included with your site", name: "AI writing", purpose: "Writes drafts of posts, car descriptions and replies for staff to check (#179).", env: ["ANTHROPIC_API_KEY"], where: "The Claude Console, an API key for the dealer's site" },
-  { id: "analytics", name: "Site analytics", purpose: "Real visitor numbers in Analytics instead of the sample figures.", env: ["CF_ANALYTICS_TOKEN", "CF_ZONE_ID"], where: "Cloudflare dashboard, an API token with analytics read" },
 ];
 
 // The demo shows every feature working. With no keys, a simulated service does its work in the admin's own records and sends nothing

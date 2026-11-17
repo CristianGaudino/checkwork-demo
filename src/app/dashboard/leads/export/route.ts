@@ -1,3 +1,4 @@
+import { sourceText } from "@/lib/visit-rules";
 import { logActivity } from "@/lib/admin/activity";
 import { LEAD_STATUS_LABELS, LEAD_TYPE_LABELS, getSettings, leadsStore } from "@/lib/admin/collections";
 import { csvResponse, toCsv } from "@/lib/admin/csv";
@@ -20,7 +21,7 @@ export async function GET(req: Request) {
       ["Email", (l) => l.email],
       ["Phone", (l) => l.phone],
       ["Type", (l) => LEAD_TYPE_LABELS[l.type]],
-      ["Source", (l) => l.source],
+      ["Source", sourceText],
       ["Status", (l) => LEAD_STATUS_LABELS[l.status]],
       ["Car", (l) => l.carTitle],
       ["Registration", (l) => l.reg],

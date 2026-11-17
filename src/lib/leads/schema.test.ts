@@ -206,3 +206,13 @@ describe("a factory order request", () => {
     expect(errors({ ...order, model: undefined, regPeriod: period }).model).toEqual(["Enter the model."]);
   });
 });
+
+describe("the channel a visit came from", () => {
+  it("is stored as its label, and an unknown one is dropped without failing the form", () => {
+    const ok = leadSchema.safeParse({ ...base, channel: "facebook" });
+    expect(ok.success && ok.data.channel).toBe("Facebook");
+    const odd = leadSchema.safeParse({ ...base, channel: "<script>" });
+    expect(odd.success).toBe(true);
+    expect(odd.success && odd.data.channel).toBeUndefined();
+  });
+});

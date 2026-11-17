@@ -3,7 +3,9 @@ import { DataTable, PageHeader, Panel, StatCard, StatGrid, adminButton, adminInp
 import { LEAD_TYPE_LABELS, type LeadType } from "@/lib/admin/collections";
 import { buildAnalytics } from "@/lib/admin/analytics";
 import { carCosts } from "@/lib/admin/costs";
-import { addMonths, dublinDay, fmtEur, fmtNum, isIsoMonth, plural } from "@/lib/admin/format";
+import { addMonths, dublinDay, fmtEur, fmtNum, fmtPct, isIsoMonth, plural } from "@/lib/admin/format";
+import { visitorFigures } from "@/lib/admin/visitor-figures";
+import { countsBetween } from "@/lib/owner-api/counters";
 import { monthLabel } from "@/lib/admin/reports";
 import { simulating } from "@/lib/integrations";
 import { hasModule } from "@/lib/modules";
@@ -50,6 +52,15 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ m
 
   // shortcut: the demo's visitor figures are generated for the 30 days to the month's end, not the calendar month; real analytics replaces it.
   const a = whole && hasAnalytics && simulating() ? buildAnalytics({ range: 30, cars: data.cars.filter(forSale).map((c) => ({ slug: c.slug, title: carName(c) })), now: bounds(from, to)[1] - 1, leadTimes: data.leads.map((l) => l.createdAt) }) : undefined;
+  // A dealer's own site: the visits its visitors really made, from the site's anonymous counts, and where its website leads came from.
+  const inMonth = (r: { from: string; to: string }) => data.leads.filter((l) => l.createdAt >= bounds(r.from, r.to)[0] && l.createdAt < bounds(r.from, r.to)[1]);
+  const real =
+    whole && hasAnalytics && !simulating()
+      ? await Promise.all([countsBetween(from, to), countsBetween(prevRange.from, prevRange.to)]).then(([c, pc]) => ({
+          now: visitorFigures({ counts: c.features, leads: inMonth({ from, to }), alerts: [] }),
+          before: visitorFigures({ counts: pc.features, leads: inMonth(prevRange), alerts: [] }),
+        }))
+      : undefined;
   const topTypes = Object.entries(s.leads.byType).sort((x, y) => y[1] - x[1]);
 
   return (
@@ -104,6 +115,21 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ m
           <Panel title="Top 5 cars viewed">
             <DataTable bare rows={a.topCars.slice(0, 5)} rowKey={(c) => c.slug} columns={[{ key: "t", header: "Car", cell: (c) => <span className="font-medium">{c.title}</span> }, { key: "v", header: "Views", align: "right", cell: (c) => fmtNum(c.views) }]} />
           </Panel>
+        </>
+      )}
+
+      {real && (
+        <>
+          <h2 className="text-heading font-semibold">Visitors</h2>
+          <StatGrid>
+            <StatCard label="Visits" value={fmtNum(real.now.totals.visits)} hint={compare(real.now.totals.visits, real.before.totals.visits)} />
+            <StatCard label="Visits that became leads" value={fmtPct(real.now.totals.conversion)} />
+          </StatGrid>
+          {real.now.sources.length > 0 && (
+            <Panel title="Where visitors came from">
+              <DataTable bare rows={real.now.sources.slice(0, 6)} rowKey={(c) => c.name} columns={[{ key: "n", header: "Source", cell: (c) => <span className="font-medium">{c.name}</span> }, { key: "v", header: "Visits", align: "right", cell: (c) => fmtNum(c.visits) }, { key: "l", header: "Leads", align: "right", cell: (c) => fmtNum(c.leads) }]} />
+            </Panel>
+          )}
         </>
       )}
 

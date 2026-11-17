@@ -26,6 +26,10 @@ describe("mirrorOf", () => {
     expect(m.lead).toMatchObject({ id: "real-abc", type: "enquiry", status: "new", message: "Hello", carTitle: "2020 Audi A3", source: "Website" });
     expect(m.drive).toBeUndefined();
   });
+  it("keeps the channel a website lead came from", () => {
+    expect(mirrorOf(row({ details: { channel: "Facebook" } })).lead?.channel).toBe("Facebook");
+    expect(mirrorOf(row({})).lead).not.toHaveProperty("channel");
+  });
   it("makes a booking and a lead from a test drive", () => {
     const m = mirrorOf(row({ type: "test_drive", message: null, details: { driveDate: "2026-11-12", driveTime: "10:30" } }));
     expect(m.drive).toMatchObject({ id: "real-abc", status: "requested", carSlug: "x-1" });

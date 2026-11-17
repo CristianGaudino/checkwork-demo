@@ -3,7 +3,7 @@ import localFont from "next/font/local";
 import { Suspense } from "react";
 import { NavProgress } from "@/components/NavProgress";
 import { CompareBar } from "@/components/compare/CompareBar";
-import { SiteChrome } from "@/components/SiteChrome";
+import { SiteChrome, VisitStart } from "@/components/SiteChrome";
 import { Toaster } from "@/components/Toaster";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -47,6 +47,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {DEMO_BAR_ENABLED && <DemoBar showAreas={adminReachable() || process.env.NEXT_PUBLIC_ACCESS_ENABLED === "1"} />}
         <SiteChrome>
           <SiteHeader />
+          <VisitStart />
         </SiteChrome>
         {children}
         <SiteChrome>
