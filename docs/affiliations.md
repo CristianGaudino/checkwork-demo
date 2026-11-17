@@ -34,7 +34,7 @@ Each is optional. Only show what the dealer really holds, and check it.
 ### Memberships (`membership`)
 - **SIMI** (Society of the Irish Motor Industry). The trade body; members follow its code of ethics, which includes checking used cars
   and putting right problems that arise. Buyers can check a member on SIMI's site. Link: `https://www.simi.ie/en/find-a-member`.
-  Suggested text: "We're a member of SIMI and follow its code of practice. You can check us on simi.ie."
+  Suggested text: "We're a member of SIMI and follow its code of practice."
 - **SIMI Autosure Professional Register** (garages with a workshop). Only qualified technicians sign off service work, to the
   manufacturer's standard. Suggested text: "Our servicing is signed off by qualified technicians, on the SIMI Autosure Professional Register."
 
@@ -55,8 +55,9 @@ A warranty never replaces the buyer's rights under consumer law; the Warranty pa
 
 ### Finance lenders (`finance`)
 The lenders the dealer arranges finance through, if the dealer wants them named. Irish examples: **Close Brothers Motor Finance**,
-**PTSB Asset Finance**, **First Citizen**, **Bank of Ireland Finance**, or a manufacturer's own finance company. Check the dealer's
-own required wording first (a credit intermediary has to say it is one); that wording goes in `text` and is the dealer's, never made up.
+**PTSB Asset Finance**, **First Citizen**, **Bank of Ireland Finance**, or a manufacturer's own finance company. The dealer's required
+credit wording (a credit intermediary has to say it is one) stays in `src/lib/finance/finance.config.ts`, not here. `text` is one plain
+sentence, such as "All finance is subject to approval.", and is left out when there are several lenders.
 
 ### History checks (`history`)
 - **Cartell** or **Motorcheck**, if the dealer checks every car. Suggested text: "Every car is history checked with Cartell before we sell it."
