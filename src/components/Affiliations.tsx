@@ -6,8 +6,8 @@ import { AFFILIATIONS, BADGE_KINDS, affiliationsOf, type Affiliation, type Affil
 // demo, whose list is empty, shows none of it. `list` is for the tests.
 
 // A body's mark as it supplies it, never recoloured (its terms usually say so); its name where there is no logo.
-function Mark({ a, className }: { a: Affiliation; className: string }) {
-  return a.logo ? <Image src={a.logo.src} width={a.logo.width} height={a.logo.height} alt={a.name} unoptimized className={`${className} w-auto`} /> : <span className="text-body font-semibold">{a.name}</span>;
+function Mark({ a, className, alt = a.name }: { a: Affiliation; className: string; alt?: string }) {
+  return a.logo ? <Image src={a.logo.src} width={a.logo.width} height={a.logo.height} alt={alt} unoptimized className={`${className} w-auto`} /> : <span className="text-body font-semibold">{a.name}</span>;
 }
 
 // A link to the body's page when there is one, so a buyer can check the claim there.
@@ -49,10 +49,10 @@ export function AffiliationList({ list = AFFILIATIONS }: { list?: readonly Affil
       <ul className="grid grid-cols-1 gap-4">
         {list.map((a) => (
           <li key={a.name} className="flex items-start gap-4 border-t border-hairline pt-4">
-            {/* The logo beside it when there is one; without one the name below says it, once. */}
+            {/* The logo beside it when there is one, silent to a screen reader since the name follows; without one the name says it, once. */}
             {a.logo && (
               <span className="flex h-10 w-24 shrink-0 items-center">
-                <Mark a={a} className="max-h-10" />
+                <Mark a={a} className="max-h-10" alt="" />
               </span>
             )}
             <span className="flex flex-col gap-1">

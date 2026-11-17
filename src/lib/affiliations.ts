@@ -30,7 +30,7 @@ export type Affiliation = {
 // { kind: "approved", name: "AA Approved Dealer", text: "We're an AA Approved Dealer, audited by the AA.",
 //   href: "https://www.theaa.ie/aa-approved-cars/dealer-network/" },
 // Listing site badges (link to the dealer's own DoneDeal page)
-// { kind: "listing", name: "DoneDeal Trusted Dealer", text: "We're a DoneDeal Trusted Dealer.", href: "https://www.donedeal.ie/dealer/<their page>" },
+// { kind: "listing", name: "DoneDeal Trusted Dealer", text: "We're a DoneDeal Trusted Dealer.", href: "<the dealer's DoneDeal page, the same as NEXT_PUBLIC_DONEDEAL_DEALER_URL>" },
 // Warranty provider, one of: CarSimple, MAPFRE Warranty, MAWDY, AA Warranty
 // { kind: "warranty", name: "MAPFRE Warranty", text: "To claim, contact them directly or call us and we'll help.",
 //   href: "https://www.mapfrewarranty.ie/project/vehicle-warranty/" },

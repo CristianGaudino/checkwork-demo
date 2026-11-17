@@ -34,6 +34,7 @@ describe("the affiliation pieces", () => {
     const out = html(AffiliationList, { list: LIST });
     for (const a of LIST) expect(out).toContain(a.text);
     expect(out).toContain(">simi.ie<");
+    expect(out).toContain('alt=""'); // the logo, not read out as well as the name beside it
   });
 
   it("a page's line names its kind only, with the dealer's sentence when there is one, and joins several", () => {
