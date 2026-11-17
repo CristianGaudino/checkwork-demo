@@ -36,8 +36,8 @@ export function Stepper({ titles, step, headingRef, rail = false }: { titles: st
       <h2 ref={headingRef} tabIndex={-1} className="text-heading font-semibold outline-none">
         <span className="text-text-2">
           Step {step + 1} of {titles.length}
-        </span>{" "}
-        {titles[step]}
+        </span>
+        : {titles[step]}
       </h2>
     </>
   );

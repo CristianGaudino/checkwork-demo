@@ -11,7 +11,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
   if ((await stockSource()) === "donedeal") {
     return (
       <>
-        <PageHeader title="Add a car" />
+        <PageHeader title="Add a car" back={{ href: "/dashboard/stock", label: "Stock" }} />
         <SyncedNotice />
       </>
     );
@@ -19,7 +19,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
   const cost = (await can("margins")) ? {} : undefined;
   return (
     <>
-      <PageHeader title="Add a car" />
+      <PageHeader title="Add a car" back={{ href: "/dashboard/stock", label: "Stock" }} />
       <CarForm cost={cost} reg={((await searchParams).reg ?? "").toUpperCase().replace(/[^A-Z0-9-]/g, "").slice(0, 12)} />
     </>
   );

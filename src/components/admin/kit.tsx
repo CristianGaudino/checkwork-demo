@@ -5,16 +5,24 @@ import { Tween } from "@/components/Tween";
 import { AppliedFilters, DensityToggle, Filters, LiveSearch, SortHeader, type FilterGroup } from "./TableTools";
 import { PER_PAGE_DEFAULT, perPage } from "@/lib/admin/paging";
 import { fmtNum } from "@/lib/admin/format";
+import { ChevronLeftIcon } from "@/components/stock/icons";
 export { TableFooter, type FilterGroup } from "./TableTools";
 
 // The admin kit: the few pieces every admin page is made of. Same tokens as the site, denser and calmer.
 
 // The page's own bar: its title and its actions. From 1024px it stays at the top while the page scrolls, so where you are and what you can
 // do are always in view; the title is sized as a working tool's, not a headline.
-export function PageHeader({ title, text, actions }: { title: string; text?: string; actions?: React.ReactNode }) {
+// `back` is the way up from an inner page: one small link above the title, the same on every page, never a button among the actions.
+export function PageHeader({ title, text, actions, back }: { title: string; text?: string; actions?: React.ReactNode; back?: { href: string; label: string } }) {
   return (
     <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 lg:sticky lg:top-0 lg:z-20 lg:-mx-10 lg:min-h-20 lg:border-b lg:border-hairline lg:bg-surface lg:px-10 lg:py-4">
       <div className="min-w-0">
+        {back && (
+          <Link href={back.href} className="-ml-1 mb-1 inline-flex min-h-11 items-center gap-0.5 rounded-control pr-2 text-meta font-medium text-text-2 hover:text-text lg:min-h-8">
+            <ChevronLeftIcon aria-hidden="true" className="size-4" />
+            {back.label}
+          </Link>
+        )}
         <h1 className="text-title font-bold">{title}</h1>
         {text && <p className="mt-0.5 max-w-measure text-meta text-text-2">{text}</p>}
       </div>
@@ -187,7 +195,7 @@ export function SummaryTabs({ items, label = "Filter" }: { items: SummaryTab[]; 
           key={i.label}
           href={i.href}
           aria-current={i.active ? "true" : undefined}
-          className={`flex min-w-32 shrink-0 flex-col gap-0.5 rounded-card border bg-card px-4 py-3 text-text transition-colors ${i.active ? "border-accent ring-1 ring-inset ring-accent" : "border-hairline hover:border-control"} ${press}`}
+          className={`flex min-w-28 shrink-0 flex-col gap-0.5 rounded-card border bg-card px-4 py-3 text-text transition-colors ${i.active ? "border-accent ring-1 ring-inset ring-accent" : "border-hairline hover:border-control"} ${press}`}
         >
           <span className="text-meta text-text-2">{i.label}</span>
           {i.count !== undefined && <span className={`text-heading font-semibold tabular-nums ${i.active ? "text-accent-text" : ""}`}>{typeof i.count === "number" ? fmtNum(i.count) : i.count}</span>}

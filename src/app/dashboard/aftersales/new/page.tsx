@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { PageHeader, Panel, adminButtonQuiet } from "@/components/admin/kit";
+import { PageHeader, Panel } from "@/components/admin/kit";
 import { OpenClaimForm } from "@/components/admin/ClaimForms";
 import { coverEnds, customersStore, leadsStore, salesStore } from "@/lib/admin/collections";
 import { dublinDay, fmtDate } from "@/lib/admin/format";
@@ -21,7 +20,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
     [s.carTitle, s.customerId && names.get(s.customerId)?.name, `sold ${fmtDate(`${s.soldOn}T12:00:00Z`)}`, coverEnds(s) >= today ? "in cover" : "out of cover"].filter(Boolean).join(", ");
   return (
     <>
-      <PageHeader title="Open a claim" actions={<Link href="/dashboard/aftersales" className={adminButtonQuiet}>Aftersales</Link>} />
+      <PageHeader title="Open a claim" back={{ href: "/dashboard/aftersales", label: "Aftersales" }} />
       <Panel>
         {lead && !theirs && <p className="max-w-measure text-body text-warn">No purchase on file matches {lead.name}&apos;s email or phone. Choose the sale.</p>}
         <OpenClaimForm sales={sold.map((s) => ({ id: s.id, label: label(s) }))} today={today} defaults={{ saleId: sp.sale ?? theirs?.id, fault: lead?.message, leadId: lead?.id }} />

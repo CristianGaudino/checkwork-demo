@@ -3,7 +3,7 @@ import { AddTeamForm, RoleForm, LeadEmailsForm, MarketingForm, NotificationsForm
 import { Badge, DataTable, PageHeader, Panel, adminButtonQuiet, rowButton } from "@/components/admin/kit";
 import { ActButton } from "@/components/admin/ActButton";
 import { getSettings } from "@/lib/admin/collections";
-import { INTEGRATIONS, type IntegrationId, isUsable, missingEnv, modeOf } from "@/lib/integrations";
+import { INTEGRATIONS, type IntegrationId, isUsable, modeOf } from "@/lib/integrations";
 import { formatHours } from "@/lib/dealer";
 import { DEALER_ADDRESS_TEXT, DEALER_EMAIL, DEALER_PHONE, OPENING_HOURS, SITE_NAME } from "@/lib/site";
 import { removeTeamAction, resetDemoAction } from "./actions";
@@ -30,9 +30,9 @@ const SECTIONS = [
   ["business", "Business"],
   ["team", "Team"],
   ["emails", "Emails"],
-  ["marketing", "Marketing voice"],
-  ["services", "Connected services"],
-  ["demo", "Demo data"],
+  ["marketing", "Voice"],
+  ["services", "Services"],
+  ["demo", "Start again"],
 ] as const;
 type Section = (typeof SECTIONS)[number][0];
 // The module each outside service belongs to; a service without one is the base site's (lead email, the bot check).
@@ -75,6 +75,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
           {section === "business" && (
           <>
 
+          {/* The one thing here a dealer changes, first; the details we keep for them after it. */}
+          <Panel title="Targets">
+            <Locked open={edit}>
+              <TargetsForm settings={s} />
+            </Locked>
+          </Panel>
+
           <Panel title="Business details">
             <dl className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
               {[["Name", SITE_NAME], ["Phone", DEALER_PHONE], ["Email", DEALER_EMAIL], ["Address", DEALER_ADDRESS_TEXT]].map(([k, v]) => (
@@ -97,13 +104,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
                 <span className="text-text-2">Closed</span>
               </li>
             </ul>
-            <p className="text-meta text-text-2">These appear across the public site. They change with a site update, so ask us to change them.</p>
-          </Panel>
-
-          <Panel title="Targets">
-            <Locked open={edit}>
-              <TargetsForm settings={s} />
-            </Locked>
+            <p className="text-meta text-text-2">
+              These show across the public site.{" "}
+              <Link href={`/dashboard/help?type=${encodeURIComponent("Request a change")}&from=/dashboard/settings`} className="font-medium text-accent-text underline underline-offset-2">Ask us to change them</Link>
+            </p>
           </Panel>
           </>
           )}
@@ -209,18 +213,18 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
                 { key: "name", header: "Service", cell: (i) => <span className="font-medium">{i.name}</span> },
                 { key: "purpose", header: "What it does", hide: "md", cell: (i) => i.purpose, className: "max-w-[20rem]" },
                 { key: "status", header: "Status", cell: (i) => (isUsable(i.id) ? <Badge tone="good">Connected</Badge> : <Badge tone="warn">Not connected</Badge>) },
-                { key: "missing", header: "Account or still needed", hide: "sm", cell: (i) => <span className="break-words text-meta text-text-2">{modeOf(i.id) === "off" ? (i.id === "ai" ? "An API key" : missingEnv(i).join(", ")) : modeOf(i.id) === "simulated" ? i.demoAccount : "Nothing"}</span> },
+                // A dealer never sees setting names: we connect a service for them (the names are in .env.example and docs/new-site-checklist.md).
+                { key: "account", header: "Account", hide: "sm", cell: (i) => (modeOf(i.id) === "off" ? <Link href={`/dashboard/help?type=${encodeURIComponent("Request a change")}&from=/dashboard/settings`} className="text-meta font-medium text-accent-text underline underline-offset-2">Ask us to connect it</Link> : <span className="break-words text-meta text-text-2">{modeOf(i.id) === "simulated" ? i.demoAccount : "Nothing to do"}</span>) },
               ]}
             />
-            <p className="text-meta text-text-2">Add a missing setting in the Cloudflare dashboard (Workers, Settings, Variables and secrets) and the service connects on the next request.</p>
           </Panel>
           )}
 
           {section === "demo" && (
-          <Panel title="Demo data">
-            <p className="max-w-measure text-body">Put the leads, bookings, reviews, marketing and settings back to how they started.</p>
-            <ActButton act={resetDemoAction} confirm={{ title: "Reset the demo data?", text: "Every change made in the dashboard is lost.", yes: "Reset" }} className={`${adminButtonQuiet} w-fit`}>
-              Reset demo data
+          <Panel title="Start again">
+            <p className="max-w-measure text-body">Put the leads, bookings, reviews, marketing and settings back as they started.</p>
+            <ActButton act={resetDemoAction} confirm={{ title: "Start again from the beginning?", text: "Every change made in the dashboard is lost.", yes: "Start again" }} className={`${adminButtonQuiet} w-fit`}>
+              Start again
             </ActButton>
           </Panel>
           )}

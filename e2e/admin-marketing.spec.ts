@@ -84,7 +84,7 @@ test("the ad switch adds a budget, and publishing starts the ad with the post", 
   await page.getByLabel("Budget (€)").fill("150");
   await page.getByRole("button", { name: "Publish", exact: true }).click();
   await expect(page.getByRole("status")).toContainText("Post published and ad started");
-  await expect(page.getByRole("listitem").filter({ hasText: "Meta ad" }).filter({ hasText: "Running" }).filter({ hasText: "€150" }).first()).toBeVisible();
+  await expect(page.getByRole("listitem").filter({ hasText: "Facebook and Instagram ad" }).filter({ hasText: "Running" }).filter({ hasText: "€150" }).first()).toBeVisible();
 });
 
 test("an idea starts the composer on its car, and the list filters to ads", async ({ page }) => {

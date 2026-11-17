@@ -27,7 +27,7 @@ export default async function Page({ params, searchParams }: { params: Promise<{
   const [car, deposits] = await Promise.all([adminCar(id), hasModule("sales")]);
   if (!car) notFound();
   // A hidden car or a draft has no page on the website to view.
-  const view = car.listing ? undefined : <Link href={carHref(car.slug)} className={adminButtonQuiet}>View on the site</Link>;
+  const view = car.listing ? undefined : <Link href={carHref(car.slug)} className={adminButtonQuiet}>On the site</Link>;
   const [margins, canDelete] = await Promise.all([can("margins"), can("settings")]);
   const cost = margins ? { eur: (await costsStore.get(id))?.costEur } : undefined;
   // Prep, for staff who see margins: in both versions, since it is the dealer's own spend.
@@ -64,7 +64,7 @@ export default async function Page({ params, searchParams }: { params: Promise<{
   if (synced) {
     return (
       <>
-        <PageHeader title={carName(car)} actions={steps} />
+        <PageHeader title={carName(car)} actions={steps} back={{ href: "/dashboard/stock", label: "Stock" }} />
         <SyncedNotice car={car} />
         {/* DoneDeal has the car; the cost is the dealer's own, so it is still entered here. */}
         {cost && (
@@ -85,9 +85,10 @@ export default async function Page({ params, searchParams }: { params: Promise<{
   }
   return (
     <>
-      <PageHeader title={carName(car)} actions={steps} />
-      <CarForm car={car} cost={cost} />
+      <PageHeader title={carName(car)} actions={steps} back={{ href: "/dashboard/stock", label: "Stock" }} />
+      {/* Photos first: they are the job on the forecourt, and they save on their own, apart from the form's Save changes. */}
       <CarPhotos carId={car.id} photos={car.photos} max={CAR_PHOTOS_MAX} />
+      <CarForm car={car} cost={cost} />
       {prep}
       {history}
       {/* Out of the way, at the end: marking a car sold is nearly always what is wanted, and it keeps the car's page as Sold for a while.

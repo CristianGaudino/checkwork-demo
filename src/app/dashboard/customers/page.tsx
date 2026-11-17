@@ -112,8 +112,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
           ...(sales ? [{ label: "Customers", count: fmtNum(customers.length), hint: `${customers.filter((c) => c.marketingConsent).length} agreed to marketing`, href: "/dashboard/customers", active: tab === "customers" }] : []),
           ...(newsletter
             ? [
-                { label: "Stock alerts", count: fmtNum(alerts.filter((a) => a.active).length), hint: `${alerts.filter((a) => a.lastSentAt).length} sent at least once`, href: "/dashboard/customers?tab=alerts", active: tab === "alerts" },
-                { label: "Newsletter", count: fmtNum(live), hint: "subscribed", href: "/dashboard/customers?tab=newsletter", active: tab === "newsletter" },
+                { label: "Stock alerts", count: fmtNum(alerts.filter((a) => a.active).length), hint: `${alerts.filter((a) => a.lastSentAt).length} have had an email`, href: "/dashboard/customers?tab=alerts", active: tab === "alerts" },
+                { label: "Subscribers", count: fmtNum(live), hint: "to the newsletter", href: "/dashboard/customers?tab=newsletter", active: tab === "newsletter" },
               ]
             : []),
         ]}

@@ -5,7 +5,7 @@ describe("the sidebar's groups", () => {
   it("puts Overview on its own, then each heading with the items under it, every item once", () => {
     const { top, groups } = navGroups(DEALER_NAV);
     expect(top.map((i) => i.label)).toEqual(["Overview"]);
-    expect(groups.map((g) => g.name)).toEqual(["Sales", "Customers", "Growth", "Dealership"]);
+    expect(groups.map((g) => g.name)).toEqual(["Sales", "After the sale", "Marketing and reports", "Dealership"]);
     expect(groups[0].items.map((i) => i.label)).toEqual(["Leads", "Test drives", "Stock", "Orders", "Margins", "WhatsApp"]);
     expect(top.length + groups.reduce((n, g) => n + g.items.length, 0)).toBe(DEALER_NAV.length);
   });
@@ -19,8 +19,8 @@ describe("the sidebar's groups", () => {
 describe("which groups are open", () => {
   it("starts with Sales open, and reads back what was saved, an empty choice included", () => {
     expect(parseOpenGroups(undefined)).toEqual(DEFAULT_OPEN);
-    const saved = openGroupsCookie(["Sales", "Growth"]).split(";")[0].split("=")[1];
-    expect(parseOpenGroups(saved)).toEqual(["Sales", "Growth"]);
+    const saved = openGroupsCookie(["Sales", "Marketing and reports"]).split(";")[0].split("=")[1];
+    expect(parseOpenGroups(saved)).toEqual(["Sales", "Marketing and reports"]);
     expect(parseOpenGroups("")).toEqual([]);
     expect(parseOpenGroups("%E0%A4%A")).toEqual(DEFAULT_OPEN); // does not decode
   });

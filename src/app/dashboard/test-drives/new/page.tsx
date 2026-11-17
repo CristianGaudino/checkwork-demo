@@ -1,6 +1,5 @@
 import { BookDriveForm } from "@/components/admin/AddDriveForm";
-import Link from "next/link";
-import { PageHeader, adminButtonQuiet } from "@/components/admin/kit";
+import { PageHeader } from "@/components/admin/kit";
 import { carCards } from "@/lib/admin/car-cards";
 import { drivesStore, getSettings } from "@/lib/admin/collections";
 import { slotData } from "@/lib/admin/drives";
@@ -17,7 +16,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ c
   const onSale = cars.filter(forSale).sort((a, b) => Number(b.id) - Number(a.id));
   return (
     <>
-      <PageHeader title="Book a test drive" actions={<Link href="/dashboard/test-drives" className={adminButtonQuiet}>Test drives</Link>} />
+      <PageHeader title="Book a test drive" back={{ href: "/dashboard/test-drives", label: "Test drives" }} />
       <BookDriveForm cars={carCards(onSale)} team={settings.team.map((t) => t.name)} me={me.name} slots={{ ...slotData(drives), windowMin: settings.driveSlotMinutes }} initialCar={sp.car ?? ""} />
     </>
   );

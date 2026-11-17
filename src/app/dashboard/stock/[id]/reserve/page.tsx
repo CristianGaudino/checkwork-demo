@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Facts, PageHeader, Panel, adminButton, adminButtonQuiet } from "@/components/admin/kit";
+import { Facts, PageHeader, Panel, adminButton } from "@/components/admin/kit";
 import { EndReservationForm, ReserveForm } from "@/components/admin/DepositForms";
 import { customersStore, getSettings, heldFor, reservationsStore } from "@/lib/admin/collections";
 import { addMonths, dublinDay, fmtDate, fmtEur } from "@/lib/admin/format";
@@ -22,11 +22,11 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const held = car && heldFor(reservations, car.id);
   if (!car || source === "donedeal" || (!held && !forSale(car))) notFound();
   const today = dublinDay();
-  const back = <Link href="/dashboard/stock" className={adminButtonQuiet}>Stock</Link>;
+  const back = { href: "/dashboard/stock", label: "Stock" };
   if (!held) {
     return (
       <>
-        <PageHeader title="Take a deposit" text={`${carName(car)}, ${priceLabel(car)}. It shows as Reserved on the website until the day you choose.`} actions={back} />
+        <PageHeader title="Take a deposit" text={`${carName(car)}, ${priceLabel(car)}. It shows as Reserved on the website until the day you choose.`} back={back} />
         <Panel>
           <ReserveForm carId={car.id} today={today} latest={addMonths(today, 3)} team={team.map((t) => t.name)} me={team.some((t) => t.name === me.name) ? me.name : undefined} customers={[...customers].sort((a, b) => a.name.localeCompare(b.name, "en-IE")).map((c) => ({ id: c.id, label: c.phone ? `${c.name}, ${c.phone}` : c.name }))} />
         </Panel>
@@ -37,7 +37,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const late = held.until < today;
   return (
     <>
-      <PageHeader title="Reserved" text={carName(car)} actions={back} />
+      <PageHeader title="Reserved" text={carName(car)} back={back} />
       <Panel title="The deposit">
         <Facts
           items={[

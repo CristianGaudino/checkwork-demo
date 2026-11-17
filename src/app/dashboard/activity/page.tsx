@@ -48,9 +48,20 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
   const view = await refViews(result.rows);
   const total = Object.values(result.byArea).reduce((s, n) => s + (n ?? 0), 0);
 
+  const record = (e: ActivityEntry) => {
+    const r = view(e);
+    if (!r) return null;
+    return r.href ? (
+      <Link href={r.href} className="underline-offset-2 hover:underline">
+        {r.label}
+      </Link>
+    ) : (
+      <span className="text-text-2">{r.label}</span>
+    );
+  };
   return (
     <>
-      <PageHeader title="Activity" text="Every change made in the dashboard, kept for 12 months. Only owners and managers see this." />
+      <PageHeader title="Activity" text="Every change made in the dashboard, kept for 12 months." />
       <SummaryTabs
         label="Area"
         items={[
@@ -88,6 +99,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
                 <span className="text-meta text-text-2 sm:hidden">
                   {e.actor}, <When at={e.at} />
                 </span>
+                {/* On a phone the record is here too, on its own line, instead of a squeezed column. */}
+                <span className="text-meta [overflow-wrap:anywhere] sm:hidden">{record(e)}</span>
               </span>
             ),
             className: "min-w-[11rem]",
@@ -95,17 +108,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
           {
             key: "ref",
             header: "Record",
-            cell: (e) => {
-              const r = view(e);
-              if (!r) return null;
-              return r.href ? (
-                <Link href={r.href} className="underline-offset-2 hover:underline">
-                  {r.label}
-                </Link>
-              ) : (
-                <span className="text-text-2">{r.label}</span>
-              );
-            },
+            hide: "sm",
+            cell: record,
             className: "sm:min-w-[14rem] [overflow-wrap:anywhere]", // an alert or subscriber is an email, which would otherwise widen the table
           },
           { key: "area", header: "Area", cell: (e) => AREA_LABELS[e.area], hide: "lg", nowrap: true },

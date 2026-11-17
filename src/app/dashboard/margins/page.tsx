@@ -75,12 +75,12 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ q
 
   return (
     <>
-      <PageHeader title="Margins" text="What each car cost, prep included, and what it makes: the price less the cost, before VAT and running costs. A sold car uses what it sold for. Only owners, managers and finance see this." />
+      <PageHeader title="Margins" text="Price less cost, prep included, before VAT. A sold car uses what it sold for." />
       <StatGrid>
-        <StatCard label="Stock cost" value={fmtEur(stockCost)} hint={`${plural(stock.length, "unsold car")} with a cost`} />
+        <StatCard label="Stock cost" value={fmtEur(stockCost)} hint={`${plural(stock.length, "car")} in stock`} />
         <StatCard label="Stock value" value={fmtEur(stockPrice)} hint="At the advertised prices" />
         <StatCard label="Expected margin" value={fmtEur(stockMargin.eur)} hint={`${fmtPct(stockMargin.pct)} of the value`} />
-        <StatCard label="Margin on sold cars" value={fmtEur(soldMargin)} hint={`${plural(sold.length, "sold car")}, at what they sold for where recorded`} />
+        <StatCard label="Margin on sold cars" value={fmtEur(soldMargin)} hint={`${plural(sold.length, "car")} sold`} />
       </StatGrid>
       <Panel title="Every car">
         <TableToolbar search={{ placeholder: "Search", label: "Search cars" }} filters={[{ name: "state", label: "Which cars", any: "Every car", options: [["stock", "In stock"], ["sold", "Sold"], ["no-cost", "No cost price yet"]] }]} />

@@ -28,7 +28,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const open = orderOpen(o.status);
   return (
     <>
-      <PageHeader title={`${o.make} ${o.model}`} text={`Ordered ${fmtDate(`${o.orderedOn}T12:00:00Z`)} for ${regPeriodLabel(o.regPeriod)}`} actions={<Link href="/dashboard/orders" className={adminButtonQuiet}>Orders</Link>} />
+      <PageHeader title={`${o.make} ${o.model}`} text={`Ordered ${fmtDate(`${o.orderedOn}T12:00:00Z`)} for ${regPeriodLabel(o.regPeriod)}`} back={{ href: "/dashboard/orders", label: "Orders" }} />
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="flex min-w-0 flex-col gap-6">
           <Panel title="The order">

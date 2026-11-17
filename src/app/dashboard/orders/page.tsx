@@ -3,8 +3,7 @@ import { notFound } from "next/navigation";
 import { DataTable, EmptyState, PageHeader, SummaryTabs, TableFooter, TableToolbar, adminButton, pageOf, sortRows, type Column, type FilterGroup } from "@/components/admin/kit";
 import { OrderBadge } from "@/components/admin/badges";
 import { PlusIcon } from "@/components/stock/icons";
-import { ORDER_PATH, ORDER_STATUSES, ORDER_STATUS_LABELS, customersStore, orderOpen, ordersStore, type Order } from "@/lib/admin/collections";
-import { StepDots } from "@/components/admin/charts";
+import { ORDER_STATUSES, customersStore, orderOpen, ordersStore, type Order } from "@/lib/admin/collections";
 import { fmtDate } from "@/lib/admin/format";
 import { monthLabel } from "@/lib/admin/reports";
 import { stockSource } from "@/lib/stock-source";
@@ -14,7 +13,7 @@ export const metadata = { title: "Orders" };
 // New cars ordered from the factory for customers, due first. Our version only.
 const VIEWS = {
   open: { label: "On order", test: (o: Order) => orderOpen(o.status) && o.status !== "arrived" },
-  arrived: { label: "To hand over", test: (o: Order) => o.status === "arrived" },
+  arrived: { label: "Arrived", test: (o: Order) => o.status === "arrived" },
   done: { label: "Handed over", test: (o: Order) => o.status === "handed-over" },
   cancelled: { label: "Cancelled", test: (o: Order) => o.status === "cancelled" },
 } as const;
@@ -53,7 +52,6 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
       sort: (o) => ORDER_STATUSES.indexOf(o.status),
       cell: (o) => (
         <span className="inline-flex items-center gap-3">
-          {o.status !== "cancelled" && <StepDots className="max-sm:hidden" steps={ORDER_PATH.map((s) => ORDER_STATUS_LABELS[s])} at={ORDER_PATH.indexOf(o.status)} />}
           <OrderBadge status={o.status} />
         </span>
       ),
@@ -73,7 +71,6 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
     <>
       <PageHeader
         title="Orders"
-        text="New cars ordered from the factory for customers."
         actions={
           <Link href="/dashboard/orders/new" className={adminButton}>
             <PlusIcon className="size-4" />

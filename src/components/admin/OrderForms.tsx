@@ -1,9 +1,10 @@
 "use client";
 
 import { useKeptForm } from "@/components/admin/useKeptForm";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { ConfirmDialog } from "@/components/admin/ActButton";
 import { Select } from "@/components/Select";
-import { Choice, Field, adminButton, adminInput } from "@/components/admin/kit";
+import { Choice, Field, adminButton, adminInput, dangerButton } from "@/components/admin/kit";
 import { BuyerFields } from "@/components/admin/BuyerFields";
 import { cancelOrderAction, placeOrderAction } from "@/app/dashboard/orders/actions";
 import { DEPOSIT_METHODS } from "@/lib/admin/deposits";
@@ -41,7 +42,7 @@ export function PlaceOrderForm({ periods, month, lastMonth, team, me, customers,
       <Field label="Deposit paid by" error={e.depositMethod}>
         <Select name="depositMethod" defaultValue="" options={[["", "No deposit"], ...DEPOSIT_METHODS.map((m) => [m, m] as const)]} />
       </Field>
-      <Field label="Registration" error={e.regPeriod}>
+      <Field label="Reg period" error={e.regPeriod}>
         <Select name="regPeriod" defaultValue={periods[1]} options={periods.map((p) => [p, regPeriodLabel(p)] as const)} />
       </Field>
       <Field label="Due" hint="The month the maker gave" error={e.expected}>
@@ -61,9 +62,12 @@ export function PlaceOrderForm({ periods, month, lastMonth, team, me, customers,
 export function CancelOrderForm({ id, depositEur }: { id: string; depositEur?: number }) {
   const [state, action, pending] = useKeptForm<FormState>(cancelOrderAction.bind(null, id), undefined);
   const [outcome, setOutcome] = useState(depositEur ? "refunded" : "none");
+  const [asking, setAsking] = useState(false);
+  const sure = useRef(false);
   const e = state?.errors ?? {};
   return (
-    <form {...action} className="flex flex-col gap-4" noValidate>
+    // Cancelling cannot be undone, so it asks first in the dashboard's own dialog, as deleting a car does; yes sends the form as it is.
+    <form {...action} onSubmit={(ev) => (sure.current ? ((sure.current = false), action.onSubmit(ev)) : (ev.preventDefault(), setAsking(true)))} className="flex flex-col gap-4" noValidate>
       {depositEur ? (
         <Choice name="outcome" legend="The deposit was" value={outcome} onChange={setOutcome} error={e.outcome} options={[["refunded", "Refunded"], ["kept", "Kept, under our terms"]]} />
       ) : (
@@ -74,7 +78,8 @@ export function CancelOrderForm({ id, depositEur }: { id: string; depositEur?: n
           <input name="refundEur" inputMode="numeric" defaultValue={depositEur} className={adminInput} />
         </Field>
       )}
-      <button type="submit" disabled={pending} className={`${adminButton} self-start`}>{pending ? "Saving" : "Cancel the order"}</button>
+      <button type="submit" disabled={pending} className={`${dangerButton} self-start`}>{pending ? "Saving" : "Cancel the order"}</button>
+      {asking && <ConfirmDialog confirm={{ title: "Cancel this order?", text: "This cannot be undone.", yes: "Cancel the order" }} onYes={() => ((sure.current = true), action.ref.current?.requestSubmit())} onClose={() => setAsking(false)} />}
     </form>
   );
 }

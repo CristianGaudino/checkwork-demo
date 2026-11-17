@@ -97,7 +97,7 @@ test.describe("DoneDeal stock", () => {
 
   test("the stock page is read only and points to DoneDeal", async ({ page }) => {
     await page.goto("/dashboard/stock");
-    await expect(page.getByText(/Synced from DoneDeal/)).toBeVisible();
+    await expect(page.getByText(/Your cars come from DoneDeal/)).toBeVisible();
     await expect(page.getByRole("link", { name: /Add a car/ })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Mark sold" })).toHaveCount(0);
     await expect(page.getByRole("link", { name: /^Open DoneDeal/ })).toHaveAttribute("target", "_blank");
@@ -107,20 +107,20 @@ test.describe("DoneDeal stock", () => {
     await expect(page.getByLabel("Make", { exact: true })).toHaveCount(0);
   });
 
-  test("the sync shows how it is doing, and Sync now runs it", async ({ page }) => {
+  test("the sync shows how it is doing, and Check now runs it", async ({ page }) => {
     await page.goto("/dashboard/stock");
-    const panel = page.getByRole("region", { name: "DoneDeal sync" });
-    await expect(panel.getByRole("status")).toContainText(/Last synced .+\. /);
-    await panel.getByRole("button", { name: "Sync now" }).click();
+    const panel = page.getByRole("region", { name: "Cars from DoneDeal" });
+    await expect(panel.getByRole("status")).toContainText(/Last checked .+\. /);
+    await panel.getByRole("button", { name: "Check now" }).click();
     await expect(page).toHaveURL(/\/dashboard\/stock\?synced=1$/);
     // The demo's feed is the stock itself, so a sync finds nothing to change.
-    await expect(page.getByRole("region", { name: "DoneDeal sync" }).getByRole("status")).toContainText("Nothing had changed.");
+    await expect(page.getByRole("region", { name: "Cars from DoneDeal" }).getByRole("status")).toContainText("Nothing had changed.");
   });
 
   test("the overview has no Add car, and shows the sync; Settings shows the DoneDeal connection", async ({ page }) => {
     await page.goto("/dashboard");
-    await expect(page.getByRole("link", { name: "Add car" })).toHaveCount(0);
-    await expect(page.getByRole("region", { name: "DoneDeal sync" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Add a car" })).toHaveCount(0);
+    await expect(page.getByRole("region", { name: "Cars from DoneDeal" })).toBeVisible();
     await page.goto("/dashboard/settings?section=services");
     await expect(page.getByRole("region", { name: "DoneDeal" })).toContainText("Connected");
     await expect(page.getByRole("cell", { name: "DoneDeal stock" })).toBeVisible();
@@ -135,8 +135,8 @@ test.describe("DoneDeal stock", () => {
 
 test("our own stock has Add car, no sync and no DoneDeal service", async ({ page }) => {
   await page.goto("/dashboard");
-  await expect(page.getByRole("link", { name: "Add car" })).toBeVisible();
-  await expect(page.getByRole("region", { name: "DoneDeal sync" })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Add a car" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Cars from DoneDeal" })).toHaveCount(0);
   await page.goto("/dashboard/settings?section=services");
   await expect(page.getByRole("cell", { name: "DoneDeal stock" })).toHaveCount(0);
   expect((await page.request.post("/api/donedeal/sync")).status()).toBe(404); // the cron's route needs its key

@@ -14,7 +14,7 @@ export function OpenClaimForm({ sales, today, defaults }: { sales: { id: string;
     <form {...action} className="grid grid-cols-1 gap-4 sm:grid-cols-2" noValidate>
       {defaults.leadId && <input type="hidden" name="leadId" value={defaults.leadId} />}
       <Field label="Car they bought" error={e.saleId} className="sm:col-span-2">
-        <Select name="saleId" defaultValue={defaults.saleId ?? ""} options={[["", "Choose a sale"], ...sales.map((s) => [s.id, s.label] as const)]} />
+        <Select name="saleId" defaultValue={defaults.saleId ?? ""} options={[["", "Choose the car"], ...sales.map((s) => [s.id, s.label] as const)]} />
       </Field>
       <Field label="The fault" hint="What it is and when it started" error={e.fault} className="sm:col-span-2">
         <textarea name="fault" maxLength={1000} defaultValue={defaults.fault} className={`${adminInput} h-auto min-h-28 py-2`} />
@@ -23,7 +23,7 @@ export function OpenClaimForm({ sales, today, defaults }: { sales: { id: string;
         <input name="openedOn" type="date" max={today} defaultValue={today} className={adminInput} />
       </Field>
       <div className="sm:col-span-2">
-        <button type="submit" disabled={pending} className={adminButton}>{pending ? "Saving" : "Open claim"}</button>
+        <button type="submit" disabled={pending} className={adminButton}>{pending ? "Saving" : "Open the claim"}</button>
       </div>
     </form>
   );

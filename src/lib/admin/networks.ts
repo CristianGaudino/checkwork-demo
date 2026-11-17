@@ -3,6 +3,8 @@ export const NETWORKS = ["Facebook", "Instagram", "TikTok"] as const;
 export type Network = (typeof NETWORKS)[number];
 // Where an ad runs, and the composer's limits: the form shows them and the server checks the same numbers.
 export const AD_PLATFORMS = ["Meta", "Google"] as const;
+// What a dealer calls them: a Meta ad runs on Facebook and Instagram.
+export const AD_PLATFORM_LABELS: Record<(typeof AD_PLATFORMS)[number], string> = { Meta: "Facebook and Instagram", Google: "Google" };
 export type AdPlatform = (typeof AD_PLATFORMS)[number];
 export const POST_LIMITS = { text: 1000, photos: 4, budgetMin: 20, budgetMax: 5000, budgetDefault: 100 } as const;
 

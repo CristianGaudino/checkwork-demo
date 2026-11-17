@@ -212,7 +212,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
     <>
       <PageHeader
         title="Stock"
-        text={synced ? `Synced from ${LISTING_SITE}. Add, edit and sell cars there; they update here within 15 minutes.` : undefined}
+        text={synced ? `Your cars come from ${LISTING_SITE}. Add, change and sell them there; changes show here within 15 minutes.` : undefined}
         actions={
           <>
             {synced ? (

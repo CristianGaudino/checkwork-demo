@@ -53,13 +53,17 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
       nowrap: true,
       // A new lead waiting past the reply target says so, filled: it is the one to answer now.
       cell: (l) => (
-        <span className="inline-flex items-center gap-1.5">
-          <LeadStatusBadge status={l.status} />
-          {lateIds.has(l.id) && (
-            <Badge tone="bad" strong>
-              Late
-            </Badge>
-          )}
+        <span className="flex flex-col items-start gap-1">
+          <span className="inline-flex items-center gap-1.5">
+            <LeadStatusBadge status={l.status} />
+            {lateIds.has(l.id) && (
+              <Badge tone="bad" strong>
+                Late
+              </Badge>
+            )}
+          </span>
+          {/* On a phone the Received column is hidden; when it came in sits here, under its status. */}
+          <span className="text-meta text-text-2 sm:hidden">{fmtAgo(l.createdAt)}</span>
         </span>
       ),
     },
@@ -72,11 +76,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
       // Overdue is late (red), today is due (amber), later is just a date.
       cell: (l) =>
         l.followUpOn && isOpenLead(l) ? (
-          <span className={l.followUpOn < today ? "font-medium text-bad" : followUpDue(l, today) ? "font-medium text-warn" : ""}>{l.followUpOn === today ? "Today" : l.followUpOn < today ? `Overdue, ${fmtDate(`${l.followUpOn}T12:00:00Z`)}` : fmtDate(`${l.followUpOn}T12:00:00Z`)}</span>
+          <span className={l.followUpOn < today ? "font-medium text-bad" : followUpDue(l, today) ? "font-medium text-warn" : ""}>{l.followUpOn === today ? "Today" : l.followUpOn < today ? "Overdue" : fmtDate(`${l.followUpOn}T12:00:00Z`)}</span>
         ) : null,
     },
-    { key: "owner", header: "With", hide: "2xl", nowrap: true, sort: (l) => l.assignedTo, cell: (l) => (l.assignedTo ? <span className="inline-flex items-center gap-2"><Avatar name={l.assignedTo} />{l.assignedTo.split(" ")[0]}</span> : <span className="text-text-2">Nobody</span>) },
-    { key: "when", header: "Received", sort: (l) => l.createdAt, cell: (l) => fmtAgo(l.createdAt), align: "right", nowrap: true },
+    { key: "owner", header: "Who has it", hide: "2xl", nowrap: true, sort: (l) => l.assignedTo, cell: (l) => (l.assignedTo ? <span className="inline-flex items-center gap-2"><Avatar name={l.assignedTo} />{l.assignedTo.split(" ")[0]}</span> : <span className="text-text-2">Nobody</span>) },
+    { key: "when", header: "Received", sort: (l) => l.createdAt, cell: (l) => fmtAgo(l.createdAt), align: "right", nowrap: true, hide: "sm" }, // on a phone it is in the Who column
   ];
   const ordered = sortRows(filterLeads(all, f, today, leadSlaHours), columns, sp, { key: "when", dir: "desc" });
   // Unless a column was chosen, the urgent new ones come first.
@@ -110,7 +114,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
         items={[{ label: "All", href: href({ status: undefined }), active: !f.status, count: all.length }, ...LEAD_STATUSES.map((s) => ({ label: LEAD_STATUS_LABELS[s], href: href({ status: s }), active: f.status === s, count: counts[s] }))]}
       />
       <TableToolbar search={{ placeholder: "Search", label: "Search leads" }} filters={filters} />
-      <DataTable label="Leads" linkRows rows={rows} rowKey={(l) => l.id} columns={columns} sort={sort} empty={<EmptyState title="No leads match" text="Try another filter or search." />} />
+      <DataTable label="Leads" linkRows rows={rows} rowKey={(l) => l.id} columns={columns} sort={sp.sort ? sort : { key: "", dir: "desc" }} empty={<EmptyState title="No leads match" text="Try another filter or search." />} />
       {/* The list as it is filtered now, as a CSV: owners and managers only. */}
       <TableFooter page={paged.page} pageCount={paged.pageCount} total={paged.total} per={paged.per} exportHref={canExport ? "/dashboard/leads/export" : undefined} />
     </>

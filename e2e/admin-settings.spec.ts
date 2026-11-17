@@ -18,26 +18,26 @@ test("a team member is added, shows in the lead owner choices, and cannot be add
   const add = page.locator("form").filter({ has: page.locator('input[name="email"]') });
   await add.locator('input[name="name"]').fill(name);
   await add.locator('input[name="email"]').fill("tester@example.com");
-  await add.getByRole("button", { name: "Save" }).click();
+  await add.getByRole("button", { name: "Add", exact: true }).click();
   await expect(page.getByRole("cell", { name })).toBeVisible();
   await add.locator('input[name="name"]').fill(name);
   await add.locator('input[name="email"]').fill("tester@example.com");
-  await add.getByRole("button", { name: "Save" }).click();
+  await add.getByRole("button", { name: "Add", exact: true }).click();
   await expect(page.getByText("already on the team")).toBeVisible();
   await page.goto("/dashboard/leads");
   await page.getByRole("row").nth(1).getByRole("link").first().click();
   await expect(page.getByRole("region", { name: "Who has it" }).getByRole("button", { name })).toHaveCount(1);
 });
 
-test("the sections are one at a time; connected services list what is still needed, and the business details are shown", async ({ page }) => {
+test("the sections are one at a time; services say what is connected and how to ask for the rest, and the business details are shown", async ({ page }) => {
   await page.goto("/dashboard/settings");
   await expect(page.getByRole("main").getByText("Checkwork Motors").first()).toBeVisible(); // the business details, not the menu
   await expect(page.getByRole("region", { name: "Team" })).toHaveCount(0); // one section at a time
-  await page.getByRole("navigation", { name: "Settings" }).getByRole("link", { name: "Connected services" }).click();
+  await page.getByRole("navigation", { name: "Settings" }).getByRole("link", { name: "Services", exact: true }).click();
   await expect(page).toHaveURL(/section=services/);
   const social = page.getByRole("row", { name: /Facebook and Instagram posting/ });
   // The three outward services are simulated on the demo, so they read as connected; lead email shows its true state.
   await expect(social).toContainText("Connected");
   await expect(social).toContainText("@checkworkmotors");
-  await expect(page.getByRole("row", { name: /Lead email/ })).toContainText("LEAD_TO_EMAIL");
+  await expect(page.getByRole("row", { name: /Lead email/ })).toContainText("Ask us to connect it");
 });

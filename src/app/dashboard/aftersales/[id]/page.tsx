@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ClaimStatusBadge, CoverBadge } from "@/components/admin/badges";
 import { ChoiceAct } from "@/components/admin/ActButton";
-import { Facts, PageHeader, Panel, adminButtonQuiet } from "@/components/admin/kit";
+import { Facts, PageHeader, Panel } from "@/components/admin/kit";
 import { ClaimCostForm } from "@/components/admin/ClaimForms";
 import { CLAIM_STATUSES, CLAIM_STATUS_LABELS, claimsStore, coverEnds, customersStore, salesStore } from "@/lib/admin/collections";
 import { TimeLeft } from "@/components/admin/charts";
@@ -28,7 +28,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const coverText = !ends ? "" : left <= 0 ? `Ended ${day(ends)}` : `${left === 1 ? "About a month" : `About ${left} months`} left, until ${day(ends)}`;
   return (
     <>
-      <PageHeader title={claim.carTitle} text={`Warranty claim opened ${day(claim.openedOn)}`} actions={<Link href="/dashboard/aftersales" className={adminButtonQuiet}>Aftersales</Link>} />
+      <PageHeader title={claim.carTitle} text={`Warranty claim opened ${day(claim.openedOn)}`} back={{ href: "/dashboard/aftersales", label: "Aftersales" }} />
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="flex min-w-0 flex-col gap-6">
           <Panel title="The fault" action={<CoverBadge inCover={claim.inCover} />}>
