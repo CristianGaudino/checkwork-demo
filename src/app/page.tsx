@@ -9,6 +9,7 @@ import { SocialStrip } from "@/components/home/SocialStrip";
 import { BrowseByType, type TypeTile } from "@/components/home/BrowseByType";
 import { makeDirectory } from "@/lib/stock/makes";
 import { TrustStrip } from "@/components/home/TrustStrip";
+import { AffiliationBadges } from "@/components/Affiliations";
 import { VisitUs } from "@/components/home/VisitUs";
 import { JsonLd } from "@/components/JsonLd";
 import { ReviewsStrip } from "@/components/reviews/ReviewsStrip";
@@ -121,6 +122,7 @@ export default async function Home() {
         </section>
 
         <TrustStrip />
+        <AffiliationBadges />
 
         {/* All about finance: only with the module (#173). */}
         <IfModule id="finance">
