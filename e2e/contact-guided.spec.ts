@@ -128,6 +128,20 @@ test("a message sent by only typing is still valid, so the old free-text path st
   await finish(page, name);
 });
 
+test("a visit from a tagged Facebook post: the lead says it came from Facebook", async ({ page }) => {
+  const name = who("Channel");
+  await page.goto("/?utm_source=facebook&utm_medium=social");
+  await page.waitForFunction(() => sessionStorage.getItem("visit-channel") === "facebook");
+  await open(page); // a later page of the same visit keeps the channel
+  await pick(page, "Something else");
+  await next(page);
+  await page.getByLabel("How can we help?").fill("Is the blue Golf still there?");
+  await next(page);
+  await finish(page, name);
+  await page.goto(`/dashboard/leads?q=${encodeURIComponent(name)}`);
+  await expect(page.getByRole("row").filter({ hasText: name })).toContainText("Website, from Facebook");
+});
+
 test.describe("modules", () => {
   const without = (...off: string[]) => MODULE_IDS.filter((m) => !off.includes(m)).join(",");
 

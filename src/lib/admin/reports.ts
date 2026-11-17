@@ -5,6 +5,7 @@ import { DAY } from "@/lib/time";
 import { daysSince, dublinDay, threeLetter } from "./format";
 import { followUpDue } from "./follow-ups";
 import { OLD_STOCK_DAYS } from "./overview";
+import { sourceText } from "@/lib/visit-rules";
 
 // The Reports page's figures, worked out from the records. Pure, so every figure is tested.
 // A period is the last 3, 6 or 12 months, counted in whole Irish calendar months, this one included.
@@ -71,9 +72,9 @@ export function fullReport(input: { sales: Sale[]; cars: Car[]; leads: Lead[]; t
     .filter((p) => p.sold || p.leads)
     .sort((a, b) => b.sold - a.sold || b.won - a.won || a.name.localeCompare(b.name));
 
-  const sources = [...new Set(leads.map((l) => l.source))]
+  const sources = [...new Set(leads.map(sourceText))]
     .map((source) => {
-      const of = leads.filter((l) => l.source === source);
+      const of = leads.filter((l) => sourceText(l) === source);
       const won = of.filter((l) => l.status === "won").length;
       return { source, leads: of.length, won, winRate: rate(won, of.length) };
     })

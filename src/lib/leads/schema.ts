@@ -6,6 +6,7 @@ import { DAY } from "../time";
 import { regPeriods } from "./reg-periods";
 import { dublinDay, dublinMs } from "@/lib/admin/format";
 import { CHOICES, TOPIC_IDS } from "./contact-topics";
+import { CHANNELS, CHANNEL_LABELS } from "@/lib/visit-rules";
 
 // The lead validation, run on the server. Client components import ./constants, never this file (it brings zod).
 
@@ -18,6 +19,8 @@ const given = <T extends z.ZodType>(s: T) => z.preprocess((v) => (typeof v === "
 const contact = {
   clientRef: z.uuid(),
   sourcePath: z.string().regex(/^\/[A-Za-z0-9._~\-/]{0,200}$/),
+  // Where the visit came from (src/lib/visit-rules.ts), stored as its label. Anything unknown is dropped, never an error for the buyer.
+  channel: z.enum(CHANNELS).transform((c) => CHANNEL_LABELS[c]).optional().catch(undefined),
   name: given(oneLine(z.string({ error: "Enter your name." }).trim().max(LIMITS.name, tooLong(LIMITS.name)))),
   // Loose on purpose (digits, spaces, plus, hyphens and brackets), but a +353 number must be the right length for Ireland.
   phone: given(
@@ -214,4 +217,5 @@ export const DETAIL_LABELS: Record<string, string> = {
   contactVia: "Reach by",
   contactWhen: "Best time",
   whatsappOptIn: "WhatsApp updates",
+  channel: "Came from",
 };

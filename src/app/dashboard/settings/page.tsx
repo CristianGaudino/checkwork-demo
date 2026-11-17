@@ -37,7 +37,7 @@ const SECTIONS = [
 type Section = (typeof SECTIONS)[number][0];
 // The module each outside service belongs to; a service without one is the base site's (lead email, the bot check).
 const SERVICE_MODULE: Partial<Record<IntegrationId, ModuleId | ModuleId[]>> = {
-  reviews: "reviews", gbp: "reviews", social: "social", ads: "social", newsletter: "newsletter", analytics: "analytics", whatsapp: "whatsapp", ai: "ai", reglookup: ["lookupWebsite", "lookupDashboard"],
+  reviews: "reviews", gbp: "reviews", social: "social", ads: "social", newsletter: "newsletter", whatsapp: "whatsapp", ai: "ai", reglookup: ["lookupWebsite", "lookupDashboard"],
 };
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ section?: string }> }) {

@@ -30,6 +30,10 @@ export default function PrivacyPage() {
           number or email. Recently viewed cars can be cleared from the list.
         </p>
         <p>We also keep anonymous counts of how often features of the site are used, such as saving a car or using a filter. They are kept without cookies and say nothing about you.</p>
+        <p>
+          When you arrive, the site notes where you came from, such as Google or Facebook, and keeps it in your browser until you close the tab.
+          If you send us a request, it goes with it, so we know which ways of finding us work.
+        </p>
       </InfoSection>
       <InfoSection title="Why we use it">
         <p>Only to reply to your request. We don&apos;t use it for marketing, and we don&apos;t sell it.</p>

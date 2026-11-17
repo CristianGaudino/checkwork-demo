@@ -67,7 +67,7 @@ deploy fails its tests while it is false.
 
 ### Outside services
 Each is optional and listed in the dashboard (Settings, Connected services) with the variables still missing: lead email, bot check,
-Google reviews, registration lookup (Cartell), Facebook and Instagram, ads, newsletters, analytics. Lead email and the bot check are
+Google reviews, registration lookup (Cartell), Facebook and Instagram, ads, newsletters. Lead email and the bot check are
 the two a real site needs before it takes a lead.
 Newsletters and stock alerts also need `UNSUBSCRIBE_SECRET` (a random secret, made like `PHOTO_LINK_SECRET` in
 `docs/lead-retention.md`): each email carries a signed link to `/unsubscribe` and the `List-Unsubscribe` headers (`src/lib/unsubscribe.ts`).

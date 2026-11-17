@@ -60,6 +60,7 @@ export function mirrorOf(row: LeadRow, emailed = true, service = true): Mirror {
     source: "Website",
     carSlug: row.carSlug ?? undefined,
     carTitle: row.carTitle ?? undefined,
+    ...(typeof row.details.channel === "string" && { channel: row.details.channel }),
     ...(typeof row.details.reg === "string" && { reg: row.details.reg }),
     ...(typeof row.details.topic === "string" && { topic: row.details.topic, answers: Object.fromEntries(ANSWER_KEYS.filter((k) => typeof row.details[k] === "string").map((k) => [k, String(row.details[k])])) }),
     ...(row.photoKeys.length > 0 && { photoKeys: row.photoKeys }),

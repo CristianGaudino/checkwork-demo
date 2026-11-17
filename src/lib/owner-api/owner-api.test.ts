@@ -27,8 +27,8 @@ describe("ownerAuth", () => {
 
 describe("the counter allow-list", () => {
   it("takes the named buyer events on the public endpoint, never a dashboard area, and nothing else", () => {
-    for (const e of ["saved", "compare", "finance", "units", "no-results", "contact-topic", "filter:fuel", "filter:km"]) expect(isCountEvent(e)).toBe(true);
-    for (const e of ["dash:leads", "dash:overview", "filter:colour", "dash:secret", "dash:", "saved ", "SAVED", "", "a@b.ie", 7, null, undefined, { event: "saved" }]) expect(isCountEvent(e)).toBe(false);
+    for (const e of ["saved", "compare", "finance", "units", "no-results", "contact-topic", "filter:fuel", "filter:km", "visit:facebook", "band:over-50k", "missed:tesla", "missed:other"]) expect(isCountEvent(e)).toBe(true);
+    for (const e of ["dash:leads", "dash:overview", "filter:colour", "dash:secret", "dash:", "visit:myspace", "missed:087 123 4567", "saved ", "SAVED", "", "a@b.ie", 7, null, undefined, { event: "saved" }]) expect(isCountEvent(e)).toBe(false);
     expect(isDashArea("leads")).toBe(true);
     expect(isDashArea("secret")).toBe(false);
     expect(DASH_EVENTS).toContain("dash:monthly-report");
