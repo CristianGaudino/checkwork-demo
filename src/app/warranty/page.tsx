@@ -6,6 +6,7 @@ import { LeadPageForm } from "@/components/leads/LeadPageForm";
 import { CLAIM_SENT } from "@/lib/leads/constants";
 import { DEALER_LOCATION, DEALER_PHONE, SITE_NAME, WARRANTY } from "@/lib/site";
 import { PageHeading } from "@/components/PageHeading";
+import { AffiliationLine } from "@/components/Affiliations";
 
 export const metadata: Metadata = { title: "Warranty", description: `The warranty that comes with a used car from ${SITE_NAME} in ${DEALER_LOCATION}, and the longer cover you can add.` };
 
@@ -31,6 +32,7 @@ export default function WarrantyPage() {
           <FeatureCard title={WARRANTY.title} text={`${WARRANTY.text} It's included in the price of the car.`} />
           <FeatureCard title="Extended warranty" text="Longer cover is available. Ask us what it covers and what it costs for the car you're looking at." />
         </ul>
+        <AffiliationLine kind="warranty" lead="Your warranty is provided by" />
       </section>
 
       <div className="mt-12 grid max-w-5xl grid-cols-1 gap-x-10 gap-y-8 text-body md:grid-cols-2">

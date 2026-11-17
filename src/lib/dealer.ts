@@ -1,4 +1,5 @@
 import type { Reviews } from "@/lib/reviews";
+import { AFFILIATIONS, affiliationsOf, type Affiliation } from "@/lib/affiliations";
 import { DEALER_ADDRESS, DEALER_FACTS_CONFIRMED, DEALER_TEL, OPENING_HOURS, SITE_NAME, SITE_URL } from "@/lib/site";
 
 // "09:00" -> "9am", "17:30" -> "5:30pm", "12:00" -> "12pm".
@@ -32,7 +33,7 @@ export const mapEmbedUrl = () => `https://maps.google.com/maps?q=${encodeURIComp
 
 // schema.org AutoDealer (D-07). Street, postcode and hours only once confirmed; a rating only from real Google reviews.
 // No geo, priceRange, sameAs, review or areaServed: there are no confirmed facts for them.
-export function dealerJsonLd(reviews: Reviews | null, confirmed = DEALER_FACTS_CONFIRMED): Record<string, unknown> {
+export function dealerJsonLd(reviews: Reviews | null, confirmed = DEALER_FACTS_CONFIRMED, affiliations: readonly Affiliation[] = AFFILIATIONS): Record<string, unknown> {
   const data: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "AutoDealer",
@@ -63,6 +64,9 @@ export function dealerJsonLd(reviews: Reviews | null, confirmed = DEALER_FACTS_C
   if (reviews?.source === "google" && reviews.rating !== undefined && reviews.count !== undefined) {
     data.aggregateRating = { "@type": "AggregateRating", ratingValue: reviews.rating, reviewCount: reviews.count };
   }
+  // The bodies the dealer is a member of (src/lib/affiliations.ts), none on the demo.
+  const members = affiliationsOf(["membership"], affiliations);
+  if (members.length) data.memberOf = members.map((a) => ({ "@type": "Organization", name: a.name, ...(a.href && { url: a.href }) }));
   return data;
 }
 

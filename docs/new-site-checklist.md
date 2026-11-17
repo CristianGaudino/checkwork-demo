@@ -30,6 +30,7 @@ Everything above, then:
 | Consent wording | `CONSENT` in `src/lib/leads/constants.ts`. New wording is a new version: add it to the frozen list in `src/lib/leads/consent.test.ts`. |
 | Home page words and counts | `src/lib/home.config.ts` |
 | New car franchises | `src/lib/partners.ts` |
+| Memberships and partners (SIMI, AA Approved Dealer, warranty provider, lenders), with their logos and permission | `src/lib/affiliations.ts` and `public/affiliations/`. Empty on the demo. How, the Irish options and the wording: `docs/affiliations.md` |
 | Business rules: days before a car is old stock (120), the price drop the slow-stock alert suggests, how long a sold car stays on the site | `src/lib/dealer.config.ts`. Agreed with the dealer at launch; the dashboard cannot change them, so a later change is ours to make (and charge for). |
 | Font | `src/app/layout.tsx` and `src/app/fonts/` (Sora for headings, Inter for text, both kept in the repo) |
 

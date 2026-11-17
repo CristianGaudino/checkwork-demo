@@ -6,6 +6,7 @@ import { pageMain, subTitle } from "@/components/ui";
 import { dealerDirectionsUrl } from "@/lib/dealer";
 import { DEALER_ADDRESS, DEALER_LOCATION, SITE_NAME } from "@/lib/site";
 import { PageHeading, PagePhoto } from "@/components/PageHeading";
+import { AffiliationList } from "@/components/Affiliations";
 
 export const metadata: Metadata = { title: "About us", description: `${SITE_NAME} is a used car dealer in ${DEALER_LOCATION}: a carefully selected range of used cars, finance help and trade-ins.` };
 
@@ -52,6 +53,7 @@ export default function AboutPage() {
               ))}
             </ol>
           </section>
+          <AffiliationList />
         </div>
       </div>
     </main>

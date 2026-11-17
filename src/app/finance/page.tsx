@@ -5,6 +5,7 @@ import { pageMain } from "@/components/ui";
 import { connection } from "next/server";
 import { PageCar, PageHeading } from "@/components/PageHeading";
 import { showroomPhoto } from "@/lib/stock/showroom";
+import { AffiliationLine } from "@/components/Affiliations";
 
 export const metadata: Metadata = {
   title: "Car finance estimator",
@@ -19,6 +20,7 @@ export default async function FinancePage() {
       <PageHeading title="Finance estimator" intro="Type a price and choose a deposit and a term to see roughly what a monthly payment could be." picture={<PageCar photo={photo} />} />
       <div className="mt-8 flex flex-col gap-4">
         <FinanceCalculator />
+        <AffiliationLine kind="finance" lead="Finance is arranged through" />
       </div>
     </main>
   );

@@ -1,3 +1,4 @@
+import { AffiliationBadges } from "@/components/Affiliations";
 import { pageWidth, NEW_TAB } from "@/components/ui";
 import Image from "next/image";
 import Link from "next/link";
@@ -105,6 +106,7 @@ export function SiteFooter() {
             </div>
           </nav>
         </div>
+        <AffiliationBadges size="sm" />
         <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-1 text-meta text-text-2 lg:border-t lg:border-hairline lg:pt-6">
           <ul aria-label="Legal" className="flex gap-x-6 max-lg:w-full">
             {LEGAL_LINKS.map((l) => (
