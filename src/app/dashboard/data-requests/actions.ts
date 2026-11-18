@@ -5,6 +5,7 @@ import { logActivity } from "@/lib/admin/activity";
 import { erasePerson, exportOf, findPerson, heldCount } from "@/lib/admin/data-requests";
 import { LEAD_TYPE_LABELS } from "@/lib/admin/collections";
 import { fmtDate } from "@/lib/admin/format";
+import { TYPE_LABELS } from "@/lib/leads/schema";
 import { parsePersonQuery } from "@/lib/admin/person-match";
 import { can } from "@/lib/permissions";
 import { requireStaff } from "@/lib/staff";
@@ -33,7 +34,7 @@ export async function findAction(_prev: FindState, data: FormData): Promise<Find
   const h = await findPerson(q);
   const day = (t: number | Date | string) => fmtDate(typeof t === "string" ? `${t}T12:00:00Z` : t instanceof Date ? t.getTime() : t);
   const groups = [
-    { label: "Requests sent from the website", items: h.formLeads.map((r) => `${r.type.replace(/_/g, " ")}, ${day(r.createdAt)}${r.photoKeys.length ? `, ${r.photoKeys.length} photos` : ""}`) },
+    { label: "Requests sent from the website", items: h.formLeads.map((r) => `${TYPE_LABELS[r.type]}, ${day(r.createdAt)}${r.photoKeys.length ? `, ${r.photoKeys.length} photos` : ""}`) },
     // With the name, so staff can spot a record of someone else's found through a shared phone or email before erasing.
     { label: "Leads", items: h.leads.map((l) => `${l.name}, ${LEAD_TYPE_LABELS[l.type]}, ${day(l.createdAt)}`) },
     { label: "WhatsApp messages", items: h.messages.map((m) => `${m.from === "buyer" ? "From the buyer" : "To the buyer"}, ${day(m.at)}`) },
@@ -41,10 +42,10 @@ export async function findAction(_prev: FindState, data: FormData): Promise<Find
     { label: "Stock alerts", items: h.alerts.map((a) => `${a.criteria}${a.active ? "" : ", paused"}`) },
     { label: "Newsletter", items: h.subscribers.map((s) => (s.status === "subscribed" ? "Subscribed" : "Unsubscribed")) },
     { label: "Customer record", items: h.customers.map((c) => `${c.name}, since ${day(c.createdAt)}`) },
-    { label: "Purchases (kept for the books, without them, if erased)", items: h.sales.map((s) => `${s.carTitle}, ${day(s.soldOn)}${s.returnedOn ? `, undone ${day(s.returnedOn)}` : ""}`) },
-    { label: "Deposits (kept for the books, without them, if erased)", items: h.deposits.map((r) => `${r.carTitle}, ${day(r.paidOn)}`) },
-    { label: "Factory orders (kept for the books, without them, if erased)", items: h.orders.map((o) => `${o.regPeriod} ${o.make} ${o.model}, ${day(o.orderedOn)}`) },
-    { label: "Warranty claims (kept for the books, without them or the fault, if erased)", items: h.claims.map((k) => `${k.carTitle}, ${day(k.openedOn)}`) },
+    { label: "Purchases", items: h.sales.map((s) => `${s.carTitle}, ${day(s.soldOn)}${s.returnedOn ? `, undone ${day(s.returnedOn)}` : ""}`) },
+    { label: "Deposits", items: h.deposits.map((r) => `${r.carTitle}, ${day(r.paidOn)}`) },
+    { label: "Factory orders", items: h.orders.map((o) => `${o.regPeriod} ${o.make} ${o.model}, ${day(o.orderedOn)}`) },
+    { label: "Warranty claims", items: h.claims.map((k) => `${k.carTitle}, ${day(k.openedOn)}`) },
   ].filter((g) => g.items.length);
   return { q: raw, groups, total: heldCount(h) };
 }

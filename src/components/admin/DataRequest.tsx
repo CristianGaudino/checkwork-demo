@@ -50,6 +50,7 @@ export function DataRequest() {
                   Download a copy for them
                 </button>
                 <form action={eraseAction} className="flex flex-col items-start gap-3">
+                  <p className="max-w-measure text-meta text-text-2">Purchases, deposits, orders and claims stay for the books, without their name.</p>
                   <input type="hidden" name="q" value={state.q} />
                   <label className="flex min-h-11 items-center gap-3 text-body">
                     <input type="checkbox" name="checked" checked={checked} onChange={(e) => setCheckedFor(e.target.checked ? state.q : undefined)} className="size-5 accent-accent" />

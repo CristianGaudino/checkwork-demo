@@ -1,4 +1,4 @@
-import { daysSince, fmtEur } from "@/lib/admin/format";
+import { daysSince } from "@/lib/admin/format";
 import { carName, priceLabel } from "@/lib/stock/format";
 import type { Car } from "@/lib/stock/types";
 

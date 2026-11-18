@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ClaimStatusBadge, CoverBadge, DriveStatusBadge, LeadStatusBadge, OrderBadge } from "@/components/admin/badges";
-import { Badge, PageHeader, Panel, adminButtonQuiet, rowButton } from "@/components/admin/kit";
+import { Badge, PageHeader, Panel, rowButton } from "@/components/admin/kit";
 import { PhoneIcon } from "@/components/stock/icons";
 import { LEAD_TYPE_LABELS, claimsStore, coverEnds, customersStore, drivesStore, leadsStore, ordersStore, reservationsStore, salesStore } from "@/lib/admin/collections";
 import { monthLabel } from "@/lib/admin/reports";
@@ -41,7 +41,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 
   return (
     <>
-      <PageHeader title={c.name} text={`Customer since ${fmtDate(c.createdAt)} · ${c.source}`} actions={<Link href="/dashboard/customers" className={adminButtonQuiet}>Customers</Link>} />
+      <PageHeader title={c.name} text={`Customer since ${fmtDate(c.createdAt)} · ${c.source}`} back={{ href: "/dashboard/customers", label: "Customers" }} />
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="flex min-w-0 flex-col gap-6">
           <Panel title="Purchases">
@@ -117,7 +117,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
           )}
           <Panel title="Leads">
             {theirLeads.length === 0
-              ? none("No leads with their email or phone.")
+              ? none("No leads from them yet.")
               : (
                 <ul className={list}>
                   {theirLeads.map((l) => (

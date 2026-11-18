@@ -104,6 +104,6 @@ export async function askModuleAction(id: ModuleId) {
   const me = await currentMember();
   const message = `Please add ${m.label} to our site.`;
   if ((await helpStore.list()).some((r) => r.name === me.name && r.message === message && r.status !== "done")) return;
-  await addRequest({ type: "Add a module", message, from: "/dashboard/billing", name: me.name, role: me.role ?? "" });
+  await addRequest({ type: "Add to my plan", message, from: "/dashboard/billing", name: me.name, role: me.role ?? "" });
   revalidatePath("/dashboard/help");
 }

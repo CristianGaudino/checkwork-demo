@@ -18,15 +18,16 @@ function useSave(action: Action) {
   return { state, run, pending, errors: state?.errors ?? {} };
 }
 
-function Save({ pending, saved }: { pending: boolean; saved?: boolean }) {
+// The form's button. `add` for a form that adds something (a person), so the button says what it does.
+function Save({ pending, saved, add = false }: { pending: boolean; saved?: boolean; add?: boolean }) {
   return (
     <div className="flex items-center gap-4">
       <button type="submit" disabled={pending} className={adminButton}>
-        {pending ? "Saving" : "Save"}
+        {pending ? (add ? "Adding" : "Saving") : add ? "Add" : "Save"}
       </button>
       {saved && !pending && (
         <p role="status" className="text-meta text-ok">
-          Saved
+          {add ? "Added" : "Saved"}
         </p>
       )}
     </div>
@@ -56,7 +57,7 @@ export function LeadEmailsForm({ settings, fallback }: { settings: DealerSetting
   return (
     <div className="flex flex-col gap-4">
       <form {...f.run} className="flex flex-col gap-3" noValidate>
-        <Field label="Send new leads to" hint="One address per line. Leave empty to use the site's own address." error={f.errors.leadEmails}>
+        <Field label="Send new leads to" hint="One address per line." error={f.errors.leadEmails}>
           <textarea name="leadEmails" rows={3} defaultValue={settings.leadEmails.join(String.fromCharCode(10))} className={`${adminInput} h-auto py-2`} />
         </Field>
         {settings.leadEmails.length === 0 && <p className="text-meta text-text-2">{fallback ? "Using the site's own address." : "No address is set, so new leads cannot be sent yet."}</p>}
@@ -74,14 +75,14 @@ export function LeadEmailsForm({ settings, fallback }: { settings: DealerSetting
 }
 
 // Only what is sent: the morning follow-up email. A new lead's email is set under Lead emails; the dashboard's own bell needs no setting.
-const NOTES: [keyof DealerSettings["notifications"], string][] = [["followUps", "Each morning, each salesperson's follow-ups that are due"]];
+const NOTES: [keyof DealerSettings["notifications"], string][] = [["followUps", "Each morning, email each salesperson the follow-ups due that day"]];
 
 export function NotificationsForm({ settings, emailConnected }: { settings: DealerSettings; emailConnected: boolean }) {
   const f = useSave(saveNotificationsAction);
   return (
     <form {...f.run} className="flex flex-col gap-3">
       <fieldset className="flex flex-col gap-1">
-        <legend className="mb-1 text-meta font-semibold">Email me when</legend>
+        <legend className="mb-1 text-meta font-semibold">Emails</legend>
         {NOTES.map(([k, label]) => (
           <label key={k} className="flex min-h-11 items-center gap-3">
             <input type="checkbox" name={k} defaultChecked={settings.notifications[k]} className="size-5 accent-accent" />
@@ -89,7 +90,7 @@ export function NotificationsForm({ settings, emailConnected }: { settings: Deal
           </label>
         ))}
       </fieldset>
-      {!emailConnected && <p className="text-meta text-text-2">Email sending is not connected yet. See Connected services below.</p>}
+      {!emailConnected && <p className="text-meta text-text-2">Email is not set up yet. Ask us in Help and we will connect it.</p>}
       {f.errors.notifications && !f.pending && <p role="alert" className="text-meta text-destructive">{f.errors.notifications}</p>}
       <Save pending={f.pending} saved={f.state?.saved} />
     </form>
@@ -131,7 +132,7 @@ export function AddTeamForm({ owner }: { owner: boolean }) {
         <Select name="role" defaultValue="Sales" options={owner ? ROLE_OPTIONS : ROLE_OPTIONS.filter(([r]) => r !== "Owner")} />
       </Field>
       <div className="sm:pt-6">
-        <Save pending={f.pending} saved={f.state?.saved} />
+        <Save pending={f.pending} saved={f.state?.saved} add />
       </div>
     </form>
   );

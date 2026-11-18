@@ -108,7 +108,7 @@ test("a draft and a hidden car are off the website and their link is not found; 
   await expect(page.getByTestId("toast")).toContainText("Published 2020 Zztest Draft");
   await page.goto("/dashboard/stock?q=" + MAKE);
   await page.getByRole("row", { name: new RegExp(MAKE) }).getByRole("link").first().click();
-  const href = await page.getByRole("link", { name: "View on the site" }).getAttribute("href");
+  const href = await page.getByRole("link", { name: "On the site" }).getAttribute("href");
   expect((await page.request.get(href!)).status()).toBe(200);
 
   // Hide: not found on the website. Undo in the toast puts it back.

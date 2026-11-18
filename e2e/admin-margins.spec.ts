@@ -9,7 +9,7 @@ test("without the permission there is no Margins screen, no margin column or sta
   await as(context, "Sales");
   await page.goto("/dashboard");
   await expect(await sideLink(page, "Margins")).toHaveCount(0);
-  await expect(page.getByText("Stock margin")).toHaveCount(0);
+  await expect(page.getByText("Expected margin")).toHaveCount(0);
   expect((await page.request.get("/dashboard/margins")).status()).toBe(404);
   await page.goto("/dashboard/stock");
   await expect(page.getByRole("columnheader", { name: "Margin" })).toHaveCount(0);
@@ -21,7 +21,7 @@ test("with the permission the Margins screen, the column, the stat and the cost 
   await page.setViewportSize({ width: 1280, height: 800 }); // the margin columns are from 768px
   await as(context, "Finance");
   await page.goto("/dashboard");
-  await expect(page.getByText("Stock margin")).toBeVisible();
+  await expect(page.getByText("Expected margin")).toBeVisible();
   await (await sideLink(page, "Margins")).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Margins");
   await expect(page.getByRole("row").nth(1)).toContainText("€");
@@ -70,7 +70,7 @@ test("an owner changes a role as soon as it is picked, and the team cannot be le
   const add = page.locator("form").filter({ has: page.getByLabel("Name", { exact: true }) });
   await add.getByLabel("Name", { exact: true }).fill(name);
   await add.getByLabel("Email", { exact: true }).fill(`${Date.now()}@example.com`);
-  await add.getByRole("button", { name: "Save" }).click();
+  await add.getByRole("button", { name: "Add", exact: true }).click();
   const picker = page.getByLabel(`Role for ${name}`);
   await expect(picker).toHaveValue("Sales");
   await picker.click();

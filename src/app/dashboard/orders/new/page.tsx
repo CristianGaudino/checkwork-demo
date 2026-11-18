@@ -1,6 +1,5 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PageHeader, Panel, adminButtonQuiet } from "@/components/admin/kit";
+import { PageHeader, Panel } from "@/components/admin/kit";
 import { PlaceOrderForm } from "@/components/admin/OrderForms";
 import { customersStore, getSettings, leadsStore } from "@/lib/admin/collections";
 import { addMonths, dublinDay } from "@/lib/admin/format";
@@ -18,7 +17,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ l
   const today = dublinDay();
   return (
     <>
-      <PageHeader title="Place an order" text="A new car from the factory, for a customer." actions={<Link href="/dashboard/orders" className={adminButtonQuiet}>Orders</Link>} />
+      <PageHeader title="Place an order" back={{ href: "/dashboard/orders", label: "Orders" }} />
       {lead && (
         <Panel title={`What ${lead.name} asked for`}>
           <p className="max-w-measure whitespace-pre-line text-body">{lead.message}</p>

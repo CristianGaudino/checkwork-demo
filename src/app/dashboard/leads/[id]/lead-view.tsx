@@ -15,16 +15,17 @@ import { fmtDateTime } from "@/lib/admin/format";
 
 import { adminCars } from "@/lib/admin/stock-admin";
 import { isSold } from "@/lib/stock/types";
-import { CalendarIcon, CheckIcon, CloseIcon, PhoneIcon, WhatsAppIcon } from "@/components/stock/icons";
+import { CalendarIcon, CheckIcon, CloseIcon, PhoneIcon } from "@/components/stock/icons";
 import type { LeadStatus } from "@/lib/admin/collections";
 import { addNoteAction, assignLeadAction, setFollowUpAction, setLostReasonAction, setStatusAction } from "../actions";
 import { dublinDay, fmtDate } from "@/lib/admin/format";
 import { followUpDue, isOpenLead } from "@/lib/admin/leads";
 import { signPhotoPath } from "@/lib/leads/photos";
-import { telHref, waHref } from "@/lib/phone";
 import { carHref } from "@/lib/stock/format";
 import { stockSource } from "@/lib/stock-source";
 import { NotesPanel } from "@/components/admin/NotesPanel";
+import { ContactButtons } from "@/components/admin/ContactButtons";
+import { leadTags } from "@/lib/leads/contact-topics";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 
 // The quick actions on a lead: the steps it moves through. New is where it starts, so it has no button.
@@ -48,8 +49,6 @@ export async function LeadView({ id }: { id: string }) {
   // And the status as it was, with the follow-up day and the lost reason a move clears.
   const statusBack = { status: lead.status, ...(lead.followUpOn && { on: lead.followUpOn }), ...(lead.lostReason && { reason: lead.lostReason }) };
   const followUpBack: Record<string, string> | undefined = !lead.followUpOn ? { clear: "1" } : lead.followUpOn >= today ? { on: lead.followUpOn } : undefined;
-  const tel = telHref(lead.phone);
-  const wa = waHref(lead.phone);
   // Their car's photos, on links that last an hour: the email's links expire after 7 days, the photos are kept 12 months.
   const secret = process.env.PHOTO_LINK_SECRET;
   const photos = secret ? await Promise.all((lead.photoKeys ?? []).map((k) => signPhotoPath(k, secret, 3600))) : [];
@@ -59,24 +58,16 @@ export async function LeadView({ id }: { id: string }) {
       <PageHeader
         title={lead.name}
         text={`${LEAD_TYPE_LABELS[lead.type]} · ${sourceText(lead)} · ${fmtDateTime(lead.createdAt)}`}
-        actions={
-          // A warranty request is aftersales work: it is listed there, so the way back is there.
-          lead.type === "warranty" ? (
-            <Link href="/dashboard/aftersales?view=requests" className={adminButtonQuiet}>
-              Aftersales
-            </Link>
-          ) : (
-            <Link href="/dashboard/leads" className={adminButtonQuiet}>
-              All leads
-            </Link>
-          )
-        }
+        // A warranty request is aftersales work: it is listed there, so the way back is there.
+        back={lead.type === "warranty" ? { href: "/dashboard/aftersales?view=requests", label: "Aftersales" } : { href: "/dashboard/leads", label: "Leads" }}
       />
       {/* On a phone the two columns become one list, in the order a call goes: who, what they said, then what to do. */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <div className="flex min-w-0 flex-col gap-6 max-lg:contents">
           <Panel title="Message" className="max-lg:order-2">
-            <p className="max-w-measure whitespace-pre-line text-body">{lead.message}</p>
+            {/* A guided contact form's taps say what they want, often with no words typed: the same tags as the list. */}
+            {lead.topic && <p className="text-body font-medium">{leadTags(lead.topic, lead.answers ?? {}).join(" · ")}</p>}
+            {lead.message && <p className="max-w-measure whitespace-pre-line text-body">{lead.message}</p>}
             {lead.carTitle && lead.carSlug && (
               <p className="text-meta text-text-2">
                 About{" "}
@@ -135,26 +126,7 @@ export async function LeadView({ id }: { id: string }) {
               <span className="break-all">{lead.email}</span>
               <span>{lead.phone}</span>
             </p>
-            {/* Only the ways this person can be reached: a website lead may give a phone or an email, not both. */}
-            <div className="grid grid-cols-3 gap-2">
-              {tel && (
-                <a href={tel} className={rowButton}>
-                  <PhoneIcon className="size-4" />
-                  Call
-                </a>
-              )}
-              {lead.email && (
-                <a href={`mailto:${lead.email}`} className={rowButton}>
-                  Email
-                </a>
-              )}
-              {wa && (
-                <a href={wa} {...NEW_TAB} className={rowButton}>
-                  <WhatsAppIcon className="size-4 text-whatsapp" />
-                  WhatsApp<span className="sr-only"> (opens in a new tab)</span>
-                </a>
-              )}
-            </div>
+            <ContactButtons phone={lead.phone} email={lead.email} />
             {/* They ticked the WhatsApp box on the form: the site's messages reach them there until someone stops it. */}
             {lead.whatsappOptIn && (
               <IfModule id="whatsapp">

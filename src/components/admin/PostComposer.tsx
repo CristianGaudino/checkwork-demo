@@ -7,7 +7,7 @@ import { Select } from "@/components/Select";
 import { Stepper, useStepHeading } from "@/components/leads/Stepper";
 import { CheckIcon } from "@/components/stock/icons";
 import type { CarCard } from "@/lib/admin/car-cards";
-import { AD_PLATFORMS, FORMATS_FOR, FORMAT_LABELS, FORMAT_LIMITS, LAYOUT_LABELS, NETWORKS, POST_LIMITS, PUBLISH_MODE, STORY_LAYOUTS, type Network, type PostFormat, type StoryLayout } from "@/lib/admin/networks";
+import { AD_PLATFORMS, AD_PLATFORM_LABELS, FORMATS_FOR, FORMAT_LABELS, FORMAT_LIMITS, LAYOUT_LABELS, NETWORKS, POST_LIMITS, PUBLISH_MODE, STORY_LAYOUTS, type Network, type PostFormat, type StoryLayout } from "@/lib/admin/networks";
 import { AIWriter } from "@/components/admin/AIWriter";
 import { MediaUpload } from "@/components/admin/MediaUpload";
 import { PostPreview } from "@/components/admin/PostPreview";
@@ -21,7 +21,7 @@ export type ComposerCar = { slug: string; title: string; photos: { src: string; 
 // What the composer needs of a library file.
 export type LibraryFile = Pick<MediaItem, "id" | "kind" | "src" | "name" | "durationSec" | "carSlug">;
 
-const STEPS = ["Car", "Where", "Post", "When"];
+const STEPS = ["Choose a car", "Where to post", "Write it", "When to post"];
 // Now, as datetime-local wants it (this device's time). Only read once "Later" is picked, so never on the server.
 const localNow = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
 const card = (on: boolean) => `rounded-card border bg-card text-left ${on ? "border-accent ring-2 ring-accent" : "border-hairline"} ${press}`;
@@ -208,7 +208,7 @@ export function PostComposer({ cars, initialSlug, initialFormat = "post", initia
           {ad && !later && (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label="Ad platform">
-                <Select name="platform" label="Ad platform" defaultValue={AD_PLATFORMS[0]} options={AD_PLATFORMS.map((p) => [p, p] as const)} />
+                <Select name="platform" label="Ad platform" defaultValue={AD_PLATFORMS[0]} options={AD_PLATFORMS.map((p) => [p, AD_PLATFORM_LABELS[p]] as const)} />
               </Field>
               <Field label="Budget (€)">
                 <input name="budgetEur" type="number" min={POST_LIMITS.budgetMin} max={POST_LIMITS.budgetMax} defaultValue={POST_LIMITS.budgetDefault} className={adminInput} />

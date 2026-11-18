@@ -160,7 +160,7 @@ function PlanAndUsage({ modules, services, usage, b, now }: { modules: Modules; 
         <p className="text-meta text-text-2">Next bill: {nextBillDate(now)}</p>
         {others.length > 0 && (
           <details className="rounded-control border border-hairline px-3">
-            <summary className="min-h-11 cursor-pointer py-2.5 text-body font-medium">Ask us to add</summary>
+            <summary className="min-h-11 cursor-pointer py-2.5 text-body font-medium">Add more to your plan</summary>
             <ul className="flex flex-col divide-y divide-hairline pb-2">
               {others.map((m) => (
                 <li key={m.id} className="flex flex-wrap items-center justify-between gap-3 py-2">
@@ -242,19 +242,24 @@ async function WithoutPrices() {
       <PageHeader title="Billing" />
       <Panel title={`Your plan: ${presetName(modules)}`}>
         {on.length > 0 ? (
-          <ul className="flex flex-col divide-y divide-hairline text-body">
-            {on.map((m) => (
-              <li key={m.id} className="py-2">
-                <span className="font-medium">{m.label}</span> <span className="text-text-2">{m.blurb}</span>
-              </li>
-            ))}
-          </ul>
+          // Folded: a long list would bury the billing details below it on a phone.
+          <details className="rounded-control border border-hairline px-3">
+            <summary className="min-h-11 cursor-pointer py-2.5 text-body font-medium">What is included ({on.length})</summary>
+            <ul className="flex flex-col divide-y divide-hairline pb-2 text-body">
+              {on.map((m) => (
+                <li key={m.id} className="py-2">
+                  <span className="font-medium">{m.label}</span>
+                  <span className="block text-text-2">{m.blurb}</span>
+                </li>
+              ))}
+            </ul>
+          </details>
         ) : (
           <p className="text-body text-text-2">The website, with your stock and the enquiry and contact forms.</p>
         )}
         {off.length > 0 && (
           <details className="rounded-control border border-hairline px-3">
-            <summary className="min-h-11 cursor-pointer py-2.5 text-body font-medium">Ask us to add</summary>
+            <summary className="min-h-11 cursor-pointer py-2.5 text-body font-medium">Add more to your plan</summary>
             <ul className="flex flex-col divide-y divide-hairline pb-2">
               {off.map((m) => (
                 <li key={m.id} className="flex flex-wrap items-center justify-between gap-3 py-2">

@@ -40,6 +40,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
   };
   const onDay = (iso: string) => drives.filter((d) => dublinDay(d.startsAt) === iso).sort((a, b) => a.startsAt - b.startsAt);
   const waiting = waitingDrives(drives);
+  const later = waiting.filter((d) => dublinDay(d.startsAt) !== today);
 
   return (
     <>
@@ -72,10 +73,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
           <Panel title={`Today, ${fmtDay(today)}`} count={onDay(today).length}>
             <Agenda drives={onDay(today)} gone={gone} empty={driveTimes(today).length ? "Nothing booked today." : "We're closed today."} />
           </Panel>
-          {waiting.length > 0 && (
-            <Panel title="Waiting to be confirmed" count={waiting.length}>
-              <Agenda drives={waiting.slice(0, 8)} gone={gone} withDay />
-              {waiting.length > 8 && <Link href={link({ view: "list", status: "requested", when: "ahead", day: undefined })} className="w-fit text-meta font-medium underline">See all {waiting.length}</Link>}
+          {/* Today's are listed above with their buttons; this is the rest, so no booking shows twice. */}
+          {later.length > 0 && (
+            <Panel title="Still to confirm" count={later.length}>
+              <Agenda drives={later.slice(0, 8)} gone={gone} withDay />
+              {later.length > 8 && <Link href={link({ view: "list", status: "requested", when: "ahead", day: undefined })} className="w-fit text-meta font-medium underline">See all {later.length}</Link>}
             </Panel>
           )}
         </>

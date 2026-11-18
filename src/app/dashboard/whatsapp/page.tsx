@@ -45,6 +45,62 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ n
           <Phones initial={view} />
         </div>
         <div className="flex flex-col gap-6">
+          {/* The setting each person comes here to change, first; how it works after it. */}
+          <Panel title="Staff phones">
+            <p className="max-w-measure text-meta text-text-2">Link a number and choose the alerts it gets. Only a linked number can act on an alert.</p>
+            <ul className="flex flex-col divide-y divide-hairline">
+              {team.map((t) => {
+                const p = phones.find((x) => x.id === t.id);
+                const mine = new Set<EventId>(p?.alerts ?? []);
+                const canEdit = mayEditAll || t.name === me.name;
+                return (
+                  <li key={t.id} data-wa-person={t.name} className="py-2">
+                    <details>
+                      <summary className="flex min-h-11 cursor-pointer list-none flex-wrap items-center justify-between gap-x-4 gap-y-0.5 [&::-webkit-details-marker]:hidden">
+                        <span className="text-body font-medium">
+                          {t.name} <span className="font-normal text-text-2">{t.role}</span>
+                        </span>
+                        <span className="flex items-center gap-3 text-meta text-text-2">
+                          {p?.phone ? `${p.phone}, ${allowed.filter((e) => mine.has(e)).length} alerts` : "Not linked"}
+                          <span className="font-medium text-accent-text underline underline-offset-2">{canEdit ? "Change" : "See"}</span>
+                        </span>
+                      </summary>
+                      {canEdit ? (
+                        <form action={saveStaffAction.bind(null, t.id)} className="flex flex-col gap-4 pb-2 pt-3">
+                          <Field label="WhatsApp number" hint="With the country code. Leave empty to unlink.">
+                            <input name="phone" type="tel" inputMode="tel" defaultValue={p?.phone ?? ""} maxLength={18} className={adminInput} />
+                          </Field>
+                          <fieldset className="flex flex-col gap-2">
+                            <legend className="mb-1 text-meta font-semibold">Alerts</legend>
+                            {allowed.map((e) => (
+                              <label key={e} className="flex min-h-9 items-center gap-2.5 text-body">
+                                <input type="checkbox" name="alert" value={e} defaultChecked={mine.has(e)} className="size-5" />
+                                {EVENTS[e].label}
+                              </label>
+                            ))}
+                          </fieldset>
+                          <div className="grid max-w-sm grid-cols-2 gap-3">
+                            <Field label="Quiet from">
+                              <input name="quietFrom" type="time" defaultValue={p?.quietFrom ?? ""} className={adminInput} />
+                            </Field>
+                            <Field label="Quiet until">
+                              <input name="quietTo" type="time" defaultValue={p?.quietTo ?? ""} className={adminInput} />
+                            </Field>
+                          </div>
+                          <SubmitButton className={`${adminButton} self-start`}>
+                            Save
+                          </SubmitButton>
+                        </form>
+                      ) : (
+                        <p className="pb-2 pt-3 text-meta text-text-2">Only {t.name} or an owner or manager can change this.</p>
+                      )}
+                    </details>
+                  </li>
+                );
+              })}
+            </ul>
+          </Panel>
+
           <Panel title="What WhatsApp does for you">
             <p className="max-w-measure text-body text-text-2">
               <WhatsAppIcon className="mr-1.5 inline size-5 align-text-bottom text-whatsapp" />
@@ -86,58 +142,6 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ n
                 </Link>
               )}
             </p>
-          </Panel>
-
-          <Panel title="Staff phones">
-            <p className="max-w-measure text-meta text-text-2">Link a number and choose the alerts it gets. Only a linked number can act on an alert.</p>
-            <ul className="flex flex-col divide-y divide-hairline">
-              {team.map((t) => {
-                const p = phones.find((x) => x.id === t.id);
-                const mine = new Set<EventId>(p?.alerts ?? []);
-                const canEdit = mayEditAll || t.name === me.name;
-                return (
-                  <li key={t.id} data-wa-person={t.name} className="py-2">
-                    <details>
-                      <summary className="flex min-h-11 cursor-pointer list-none flex-wrap items-center justify-between gap-x-4 gap-y-0.5 [&::-webkit-details-marker]:hidden">
-                        <span className="text-body font-medium">
-                          {t.name} <span className="font-normal text-text-2">{t.role}</span>
-                        </span>
-                        <span className="text-meta text-text-2">{p?.phone ? `${p.phone}, ${allowed.filter((e) => mine.has(e)).length} alerts` : "Not linked"}</span>
-                      </summary>
-                      {canEdit ? (
-                        <form action={saveStaffAction.bind(null, t.id)} className="flex flex-col gap-4 pb-2 pt-3">
-                          <Field label="WhatsApp number" hint="With the country code. Leave empty to unlink.">
-                            <input name="phone" type="tel" inputMode="tel" defaultValue={p?.phone ?? ""} maxLength={18} className={adminInput} />
-                          </Field>
-                          <fieldset className="flex flex-col gap-2">
-                            <legend className="mb-1 text-meta font-semibold">Alerts</legend>
-                            {allowed.map((e) => (
-                              <label key={e} className="flex min-h-9 items-center gap-2.5 text-body">
-                                <input type="checkbox" name="alert" value={e} defaultChecked={mine.has(e)} className="size-5" />
-                                {EVENTS[e].label}
-                              </label>
-                            ))}
-                          </fieldset>
-                          <div className="grid max-w-sm grid-cols-2 gap-3">
-                            <Field label="Quiet from">
-                              <input name="quietFrom" type="time" defaultValue={p?.quietFrom ?? ""} className={adminInput} />
-                            </Field>
-                            <Field label="Quiet until">
-                              <input name="quietTo" type="time" defaultValue={p?.quietTo ?? ""} className={adminInput} />
-                            </Field>
-                          </div>
-                          <SubmitButton className={`${adminButton} self-start`}>
-                            Save
-                          </SubmitButton>
-                        </form>
-                      ) : (
-                        <p className="pb-2 pt-3 text-meta text-text-2">Only {t.name} or an owner or manager can change this.</p>
-                      )}
-                    </details>
-                  </li>
-                );
-              })}
-            </ul>
           </Panel>
         </div>
       </div>

@@ -28,7 +28,7 @@ test("a change shows at the top, by the person who made it, and the filters narr
   const add = page.locator("form").filter({ has: page.getByLabel("Name", { exact: true }) });
   await add.getByLabel("Name", { exact: true }).fill(name);
   await add.getByLabel("Email", { exact: true }).fill(`${Date.now()}@example.com`);
-  await add.getByRole("button", { name: "Save" }).click();
+  await add.getByRole("button", { name: "Add", exact: true }).click();
   await expect(page.getByLabel(`Role for ${name}`)).toBeVisible();
 
   await page.goto("/dashboard/activity?area=settings");

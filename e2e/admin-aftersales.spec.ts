@@ -9,7 +9,7 @@ test("a claim opens from a customer's purchase, in cover, and moves to Booked in
   await purchases.getByRole("link", { name: "Open a claim" }).first().click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Open a claim");
   await page.getByLabel("The fault").fill("Engine light on since Monday");
-  await page.getByRole("button", { name: "Open claim" }).click();
+  await page.getByRole("button", { name: "Open the claim" }).click();
   await expect(page).toHaveURL(/\/dashboard\/aftersales\/claim-/);
   await expect(page.getByRole("region", { name: "The fault" })).toContainText("Engine light on since Monday");
   await expect(page.getByText("In cover", { exact: true })).toBeVisible();

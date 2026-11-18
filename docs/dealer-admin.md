@@ -229,10 +229,10 @@ an action or Standard (Claude Sonnet) at EUR 0.04, each action counted under the
 or provider's name), and the bills. Every change is written to the activity log. Rules and maths: `src/lib/billing/bills-rules.ts`
 (unit tested); the bills are a seeded collection, `src/lib/billing/bills.ts`. There is no PDF and no download: invoices come from the
 payment provider chosen at clone time and are emailed when issued. Billing details (company, VAT number, address, email) are the
-Owner's, stored in settings as `billingDetails`. "Ask us to add" sends a Help request of type "Add a module"; it switches nothing on.
+Owner's, stored in settings as `billingDetails`. "Ask us to add" sends a Help request of type "Add to my plan"; it switches nothing on.
 
 `/dashboard/help` is for every team member: our phone, email and WhatsApp, a message form (Question, Something isn't working with steps
-and an optional screenshot, Request a change, Feedback or an idea, Billing and Add a module for the Owner and Manager), their own requests
+and an optional screenshot, Request a change, Feedback or an idea, Billing and Add to my plan for the Owner and Manager), their own requests
 with our status and reply, and a quarterly one-question feedback. The "Need help?" link in the menu foot passes `?from=<page>`, which is
 saved with the request (a dashboard path only, `safeFrom`). Requests are the `help-requests` collection (`src/lib/admin/help.ts`). On
 the demo nothing is sent outside (`ADAPTER GOES HERE`: the email to support and the owner's program, #174). Screenshots are checked by

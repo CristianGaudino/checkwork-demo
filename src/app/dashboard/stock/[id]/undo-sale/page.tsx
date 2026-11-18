@@ -1,6 +1,5 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PageHeader, Panel, adminButtonQuiet } from "@/components/admin/kit";
+import { PageHeader, Panel } from "@/components/admin/kit";
 import { UndoSaleForm } from "@/components/admin/DepositForms";
 import { customersStore, salesStore } from "@/lib/admin/collections";
 import { withinReturnWindow, RETURN_WINDOW_DAYS } from "@/lib/admin/deposits";
@@ -23,7 +22,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const inWindow = withinReturnWindow(sale.soldOn, today);
   return (
     <>
-      <PageHeader title="Undo the sale" text={sale.carTitle} actions={<Link href="/dashboard/stock?view=sold" className={adminButtonQuiet}>Sold cars</Link>} />
+      <PageHeader title="Undo the sale" text={sale.carTitle} back={{ href: "/dashboard/stock?view=sold", label: "Sold cars" }} />
       <Panel>
         <p className="max-w-measure text-body">
           Sold for {fmtEur(sale.priceEur)} on {fmtDate(`${sale.soldOn}T12:00:00Z`)}

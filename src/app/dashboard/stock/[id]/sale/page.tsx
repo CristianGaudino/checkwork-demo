@@ -1,6 +1,5 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PageHeader, Panel, adminButtonQuiet } from "@/components/admin/kit";
+import { PageHeader, Panel } from "@/components/admin/kit";
 import { SaleForm } from "@/components/admin/SaleForm";
 import { LEAD_TYPE_LABELS, customersStore, getSettings, heldFor, leadsStore, reservationsStore, salesStore } from "@/lib/admin/collections";
 import { dublinDay, fmtDate, fmtEur } from "@/lib/admin/format";
@@ -25,7 +24,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const held = heldFor(reservations, car.id);
   return (
     <>
-      <PageHeader title={title} text={carName(car)} actions={<Link href="/dashboard/stock?view=sold" className={adminButtonQuiet}>Sold cars</Link>} />
+      <PageHeader title={title} text={carName(car)} back={{ href: "/dashboard/stock?view=sold", label: "Sold cars" }} />
       <Panel>
         {held && <p className="max-w-measure text-body">A deposit of {fmtEur(held.depositEur)} was paid on this car. It is recorded as part of this sale.</p>}
         <SaleForm

@@ -51,7 +51,7 @@ export function FeedbackForm() {
   return (
     <form action={sendFeedbackAction} className="flex flex-col gap-3">
       <fieldset className="flex flex-wrap items-center gap-2">
-        <legend className="mb-2 text-body font-semibold">How is the dashboard working for you?</legend>
+        <legend className="mb-2 text-body font-semibold">How is the dashboard working for you? 1 is poor, 5 is great.</legend>
         {[1, 2, 3, 4, 5].map((n) => (
           <label key={n} className={`${choicePill(score === n)} cursor-pointer has-[:focus-visible]:outline has-[:focus-visible]:outline-2`}>
             <input type="radio" name="score" value={n} checked={score === n} onChange={() => setScore(n)} className="sr-only" />

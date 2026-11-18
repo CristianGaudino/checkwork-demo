@@ -12,14 +12,14 @@ const counts = (r: NonNullable<SyncStatus["result"]>) =>
   [r.added && `${r.added} added`, r.changed && `${r.changed} changed`, r.takenDown && `${r.takenDown} taken down`].filter(Boolean).join(", ") || "Nothing had changed";
 
 export function syncLine(s: SyncStatus) {
-  if (!s.lastRunAt) return "Not synced yet.";
-  if (!s.problem) return `Last synced ${fmtAgo(s.lastOkAt!)}. ${counts(s.result ?? { added: 0, changed: 0, takenDown: 0 })}.`;
-  return `${s.problem} ${s.lastOkAt ? `The site shows the stock from the last good sync, ${fmtAgo(s.lastOkAt)}.` : "Nothing has synced yet."}`;
+  if (!s.lastRunAt) return "Not checked yet.";
+  if (!s.problem) return `Last checked ${fmtAgo(s.lastOkAt!)}. ${counts(s.result ?? { added: 0, changed: 0, takenDown: 0 })}.`;
+  return `${s.problem} ${s.lastOkAt ? `The site shows the cars from the last good check, ${fmtAgo(s.lastOkAt)}.` : "No cars have come through yet."}`;
 }
 
 export function SyncPanel({ status, canForce }: { status: SyncStatus; canForce: boolean }) {
   return (
-    <Panel title={`${LISTING_SITE} sync`}>
+    <Panel title={`Cars from ${LISTING_SITE}`}>
       <p role="status" className={`max-w-measure text-body ${status.problem ? "rounded-control bg-warn-soft px-4 py-3 text-warn" : "text-text-2"}`}>
         {syncLine(status)}
       </p>
@@ -27,7 +27,7 @@ export function SyncPanel({ status, canForce }: { status: SyncStatus; canForce: 
         <form action={syncNowAction.bind(null, false)}>
           <SubmitButton className={adminButtonQuiet}>
             <SyncIcon className="size-4" />
-            Sync now
+            Check now
           </SubmitButton>
         </form>
         {status.held && canForce && (

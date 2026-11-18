@@ -28,7 +28,7 @@ export function CarPicker({ cars, value, onPick }: { cars: CarCard[]; value: str
       {shown.length === 0 ? (
         <p className="text-body text-text-2">No car for sale matches.</p>
       ) : (
-        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {shown.map((c) => (
             <li key={c.slug}>
               <button

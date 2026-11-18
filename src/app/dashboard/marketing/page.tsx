@@ -8,7 +8,7 @@ import { NewsletterFields } from "@/components/admin/NewsletterFields";
 import { hasModule } from "@/lib/modules";
 import { notFound } from "next/navigation";
 import { TIME_ZONE } from "@/lib/site";
-import { FORMAT_LABELS } from "@/lib/admin/networks";
+import { AD_PLATFORM_LABELS, FORMAT_LABELS } from "@/lib/admin/networks";
 import { addDays, dublinDay, fmtDate, fmtDateTime, fmtEur, fmtNum, fmtPct, isIsoDay, plural, threeLetter } from "@/lib/admin/format";
 import Link from "next/link";
 import { calendarWeek, newestForSale, weekDays, worthPosting } from "@/lib/admin/marketing";
@@ -99,7 +99,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
       <SummaryTabs
         label="Marketing"
         items={[
-          social && { label: "Posts and ads", count: fmtNum(posts.filter((p) => p.status === "posted").length), hint: `posted, ${ads.filter((a) => a.status === "running").length} ads running`, href: "/dashboard/marketing?tab=posts", active: tab === "posts" },
+          social && { label: "Posts and ads", count: fmtNum(posts.length + ads.length), hint: `${posts.filter((p) => p.status === "posted").length} posted, ${ads.filter((a) => a.status === "running").length} ads running`, href: "/dashboard/marketing?tab=posts", active: tab === "posts" },
           social && { label: "Calendar", count: fmtNum(posts.filter((p) => p.status === "scheduled").length), hint: "scheduled", href: "/dashboard/marketing?tab=calendar", active: tab === "calendar" },
           social && { label: "Media", count: fmtNum(library.length), hint: "photos and videos", href: "/dashboard/marketing?tab=media", active: tab === "media" },
           news && { label: "Newsletters", count: fmtNum(live), hint: "subscribers", href: "/dashboard/marketing?tab=newsletters", active: tab === "newsletters" },
@@ -112,7 +112,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
             <Panel title="Worth posting">
               <ul className="-mx-5 flex flex-col">
                 {ideas.map(({ car, reason }) => (
-                  <li key={car.id} className="flex items-center justify-between gap-4 px-5 py-2 even:bg-row-alt">
+                  <li key={car.id} className="flex flex-col items-start gap-2 px-5 py-2 even:bg-row-alt sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                     <span className="flex min-w-0 flex-1 flex-col">
                       <span className="font-medium">{carName(car)}</span>
                       <span className="text-meta text-text-2">{reason}</span>
@@ -145,7 +145,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                         <span className="text-meta text-text-2">
                           {item.p.carTitle} · {item.p.status === "scheduled" && item.p.scheduledFor ? fmtDateTime(item.p.scheduledFor) : fmtDate(item.p.postedAt ?? item.p.createdAt)}
                         </span>
-                        {item.p.status === "posted" && <span className="text-meta text-text-2 sm:ml-auto">{fmtNum(item.p.reach ?? 0)} reached · {fmtNum(item.p.clicks ?? 0)} clicks</span>}
+                        {item.p.status === "posted" && <span className="text-meta text-text-2 sm:ml-auto">{fmtNum(item.p.reach ?? 0)} saw it · {fmtNum(item.p.clicks ?? 0)} clicks</span>}
                       </div>
                       <p className="line-clamp-2 max-w-measure whitespace-pre-line text-body text-text-2">{item.p.text}</p>
                       {item.p.status !== "posted" && (
@@ -158,18 +158,18 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                   ) : (
                     <li key={item.a.id} className="flex flex-col gap-2 px-5 py-3 even:bg-row-alt">
                       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                        <span className="font-medium">{item.a.platform} ad</span>
+                        <span className="font-medium">{AD_PLATFORM_LABELS[item.a.platform]} ad</span>
                         <Badge tone={STATUS[item.a.status].tone}>{STATUS[item.a.status].label}</Badge>
                         <span className="text-meta text-text-2">{item.a.carTitle} · {fmtEur(item.a.budgetEur)}</span>
                         {item.a.status !== "draft" && (
                           <span className="text-meta text-text-2 sm:ml-auto">
-                            {fmtNum(item.a.impressions)} seen · {item.a.impressions ? fmtPct((item.a.clicks / item.a.impressions) * 100) : "0%"} clicked · {fmtNum(item.a.leads)} leads
+                            {fmtNum(item.a.impressions)} saw it · {fmtNum(item.a.clicks)} clicks · {fmtNum(item.a.leads)} leads
                           </span>
                         )}
                       </div>
                       {item.a.status === "draft" && (
                         <div className="flex flex-wrap items-center gap-2">
-                          <ActButton act={startAdAction.bind(null, item.a.id)} confirm={{ title: "Start this ad?", text: `It runs on ${item.a.platform} with a budget of ${fmtEur(item.a.budgetEur)}.`, yes: "Start ad" }} className={rowButton}>Start ad</ActButton>
+                          <ActButton act={startAdAction.bind(null, item.a.id)} confirm={{ title: "Start this ad?", text: `It runs on ${AD_PLATFORM_LABELS[item.a.platform]} with a budget of ${fmtEur(item.a.budgetEur)}.`, yes: "Start ad" }} className={rowButton}>Start ad</ActButton>
                           <ActButton act={deleteAdAction.bind(null, item.a.id)} confirm={{ title: `Delete this ad?`, text: "This cannot be undone.", yes: "Delete" }} className={`${rowButton} text-bad`}>Delete</ActButton>
                         </div>
                       )}

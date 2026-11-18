@@ -1,7 +1,6 @@
 import { SHOW_PRICING } from "@/lib/billing/rules";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Badge, DataTable, Facts, PageHeader, Panel, adminButtonQuiet } from "@/components/admin/kit";
+import { Badge, DataTable, Facts, PageHeader, Panel } from "@/components/admin/kit";
 import { fmtDay } from "@/lib/admin/format";
 import { can } from "@/lib/permissions";
 import { billingDetails, billsStore } from "@/lib/billing/bills";
@@ -28,7 +27,7 @@ export default async function Page({ params }: { params: Promise<{ month: string
   ];
   return (
     <>
-      <PageHeader title={`Bill for ${fmtMonth(bill.id)}`} actions={<Link href="/dashboard/billing?section=bills" className={adminButtonQuiet}>All bills</Link>} />
+      <PageHeader title={`Bill for ${fmtMonth(bill.id)}`} back={{ href: "/dashboard/billing?section=bills", label: "All bills" }} />
       <Panel>
         <Facts
           items={[

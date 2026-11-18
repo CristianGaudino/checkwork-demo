@@ -42,3 +42,27 @@ test("an order is placed, arrives into stock held for the buyer, and is handed o
   await page.goto("/dashboard/orders?view=done");
   await expect(page.getByRole("row").filter({ hasText: "Zzorder Tourer" })).toContainText("Handed over");
 });
+
+test("cancelling an order asks first: Cancel leaves it as it was, yes cancels it", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/dashboard/orders/new");
+  await page.getByLabel("Make", { exact: true }).fill("Zzcancel");
+  await page.getByLabel("Model", { exact: true }).fill("Estate");
+  await page.getByLabel("Price (€)").fill("38000");
+  await page.getByLabel("Due").fill(new Date().toISOString().slice(0, 7));
+  await page.getByLabel("Name", { exact: true }).fill("Una Kelly");
+  await page.getByLabel("Phone", { exact: true }).fill("+353 83 000 7777");
+  await page.getByRole("button", { name: "Place order" }).click();
+  await expect(page).toHaveURL(/\/dashboard\/orders\/order-/);
+
+  await page.getByRole("button", { name: "Cancel the order" }).click();
+  const dialog = page.getByRole("dialog", { name: "Cancel this order?" });
+  await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "Where it is" })).toContainText("Ordered");
+
+  await page.getByRole("button", { name: "Cancel the order" }).click();
+  await dialog.getByRole("button", { name: "Cancel the order" }).click();
+  await page.goto("/dashboard/orders?view=cancelled");
+  await expect(page.getByRole("row").filter({ hasText: "Zzcancel Estate" })).toBeVisible();
+});

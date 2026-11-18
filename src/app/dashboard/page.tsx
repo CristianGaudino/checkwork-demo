@@ -46,13 +46,13 @@ export default async function Page() {
             {!synced && (
               <Link href="/dashboard/stock/new" className={adminButtonQuiet}>
                 <CarIcon className="size-4" />
-                Add car
+                Add a car
               </Link>
             )}
             {mods.has("testDrives") && (
               <Link href="/dashboard/test-drives/new" className={adminButtonQuiet}>
                 <CalendarIcon className="size-4" />
-                Test drive
+                Book a drive
               </Link>
             )}
             {mods.has("social") && (
@@ -68,7 +68,7 @@ export default async function Page() {
       <StatGrid>
         <StatCard href="/dashboard/leads?status=new" label="Leads to answer" value={fmtNum(o.newLeads)} hint={o.lateLeads ? `${o.lateLeads} past your reply target` : "All within your reply target"} tone={o.lateLeads ? "bad" : "good"} />
         <StatCard href="/dashboard/stock" label="Cars for sale" value={fmtNum(cars.filter(forSale).length)} hint={o.oldStock ? `${o.oldStock} for sale ${OLD_STOCK_DAYS} days or more` : undefined} tone={o.oldStock ? "warn" : undefined} />
-        {costs && <StatCard href="/dashboard/margins" label="Stock margin" value={fmtEur(margin)} />}
+        {costs && <StatCard href="/dashboard/margins" label="Expected margin" value={fmtEur(margin)} />}
         {mods.has("reviews") && <StatCard href="/dashboard/reviews" label="Review rating" value={o.reviewCount ? o.averageRating.toFixed(1) : "None"} hint={plural(o.reviewCount, "review")} />}
       </StatGrid>
 
@@ -102,7 +102,8 @@ export default async function Page() {
         </Panel>
         </div>
 
-        <div className="flex min-w-0 flex-col gap-6">
+        {/* On a phone and a laptop the to-do list comes first, above the chart: it is what the day starts with. */}
+        <div className="flex min-w-0 flex-col gap-6 max-xl:order-first">
           {sync && <SyncPanel status={sync} canForce={await can("settings")} />}
           <Panel title="Needs attention">
             {attention.length === 0 ? (

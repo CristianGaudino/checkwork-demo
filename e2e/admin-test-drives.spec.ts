@@ -5,7 +5,7 @@ test("a request is confirmed from the list, and Undo puts it back", async ({ pag
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/dashboard/test-drives");
   await expect(page.getByRole("link", { name: "Today", exact: true })).toHaveAttribute("aria-current", "page");
-  const waiting = page.getByRole("region", { name: /^Waiting to be confirmed/ });
+  const waiting = page.getByRole("region", { name: /^Still to confirm/ });
   const first = waiting.getByRole("listitem").first();
   const who = (await first.locator("[data-name]").textContent())!.trim();
   await first.getByRole("button", { name: "Confirm" }).click();

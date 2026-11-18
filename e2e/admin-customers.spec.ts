@@ -13,7 +13,7 @@ test("customers, stock alerts and newsletter each have a table, and an alert can
   // Consent only goes one way: staff can stop an alert or the newsletter, never start one again for the person.
   await expect(paused.getByRole("button", { name: "Pause" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: /Resume|Turn on/ })).toHaveCount(0);
-  await page.getByRole("link", { name: "Newsletter" }).click();
+  await page.getByRole("link", { name: /^Subscribers/ }).click();
   await expect(page.getByRole("button", { name: "Unsubscribe" }).first()).toBeVisible();
   await expect(page.getByRole("button", { name: /^(Resubscribe|Subscribe|Subscribe again)$/ })).toHaveCount(0);
   await expect(page.getByRole("row").filter({ hasText: "Unsubscribed" }).first().getByRole("button")).toHaveCount(0);

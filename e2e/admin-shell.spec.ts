@@ -27,7 +27,7 @@ test("the sidebar stays in place while the page scrolls, and its groups fold, re
   // The page you are on opens its group; Sales starts open.
   await expect(side.getByRole("button", { name: "Dealership", exact: true })).toHaveAttribute("aria-expanded", "true");
   await expect(side.getByRole("button", { name: "Sales", exact: true })).toHaveAttribute("aria-expanded", "true");
-  await expect(side.getByRole("button", { name: "Growth", exact: true })).toHaveAttribute("aria-expanded", "false");
+  await expect(side.getByRole("button", { name: "Marketing and reports", exact: true })).toHaveAttribute("aria-expanded", "false");
   await expect(side.getByRole("link", { name: "Marketing", exact: true })).toBeHidden(); // shut: out of reach, not only out of sight
   // Fold Sales, and it stays folded on the next page, drawn that way by the server.
   await side.getByRole("button", { name: "Sales", exact: true }).click();
