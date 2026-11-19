@@ -57,9 +57,8 @@ export const OPENING_HOURS: { day: string; opens?: string; closes?: string }[] =
   { day: "Sunday" },
 ];
 
-// PLACEHOLDER (issue #97): these point at each network's home page until the dealer gives us the real profile links.
-export const SOCIAL_LINKS = [
-  { name: "Facebook", href: "https://www.facebook.com/" },
-  { name: "Instagram", href: "https://www.instagram.com/" },
-  { name: "TikTok", href: "https://www.tiktok.com/" },
-] as const;
+// The dealer's own page on each network, such as "https://www.facebook.com/theirpage" (issue #97). One left unset is not shown, so a dealer
+// with none (the made-up demo dealer) shows no social links at all.
+type SocialLink = { name: "Facebook" | "Instagram" | "TikTok"; href: string };
+const SOCIAL_PROFILES: { name: SocialLink["name"]; href?: string }[] = [{ name: "Facebook" }, { name: "Instagram" }, { name: "TikTok" }];
+export const SOCIAL_LINKS = SOCIAL_PROFILES.filter((l): l is SocialLink => Boolean(l.href));

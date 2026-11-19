@@ -64,12 +64,14 @@ test.describe("the drop-down", () => {
   });
 });
 
-test("Follow us tiles open the dealer's page on that network", async ({ page }) => {
+// The demo dealer has no social pages (SOCIAL_LINKS is empty), so the posts open their car and nothing asks to follow.
+test("posted tiles open their car while the dealer has no social pages", async ({ page }) => {
   await page.goto("/");
-  const tiles = page.getByRole("region", { name: "Follow us" }).getByRole("listitem").getByRole("link");
+  await expect(page.getByRole("region", { name: "Follow us" })).toHaveCount(0);
+  const tiles = page.getByRole("region", { name: "Latest posts" }).getByRole("listitem").getByRole("link");
   if ((await tiles.count()) === 0) test.skip(true, "no posted posts in this run");
-  await expect(tiles.first()).toHaveAttribute("href", /^https:\/\/www\.(facebook|instagram|tiktok)\.com\//);
-  await expect(tiles.first()).toHaveAttribute("target", "_blank");
+  await expect(tiles.first()).toHaveAttribute("href", /^\/used-cars\//);
+  await expect(tiles.first()).not.toHaveAttribute("target", "_blank");
 });
 
 test.describe("price drop on a card", () => {

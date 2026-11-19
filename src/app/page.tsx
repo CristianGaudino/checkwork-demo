@@ -27,7 +27,7 @@ import { IfModule } from "@/components/IfModule";
 import { hasModule } from "@/lib/modules";
 
 export const metadata: Metadata = {
-  title: { absolute: `${SITE_NAME} | Used cars in ${DEALER_ADDRESS.town}` },
+  title: { absolute: `${SITE_NAME} | Car dealer in ${DEALER_ADDRESS.town}` },
   description: `Browse the used cars in stock at our dealership in ${DEALER_LOCATION}.`,
 };
 

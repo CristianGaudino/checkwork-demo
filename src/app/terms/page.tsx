@@ -12,7 +12,7 @@ export default function TermsPage() {
     <InfoPage title="Terms of use" intro={`Last updated November 2026. By using this website you agree to these terms. If you don't agree, please don't use it.`}>
       <InfoSection title="Who we are">
         <p>
-          This website is run by {SITE_NAME}, a used car dealer in {DEALER_LOCATION}. In these terms, &quot;we&quot; and &quot;us&quot; mean {SITE_NAME}, and &quot;you&quot; means anyone using the website.
+          This website is run by {SITE_NAME}, a car dealer in {DEALER_LOCATION}. In these terms, &quot;we&quot; and &quot;us&quot; mean {SITE_NAME}, and &quot;you&quot; means anyone using the website.
         </p>
       </InfoSection>
       <InfoSection title="Using the site">

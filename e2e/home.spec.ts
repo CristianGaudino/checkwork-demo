@@ -11,7 +11,7 @@ const newest = inStock[0];
 
 test("title, one h1 and a search that lands on used cars", async ({ page }) => {
   await page.goto("/");
-  await expect(page).toHaveTitle(`${SITE_NAME} | Used cars in ${DEALER_ADDRESS.town}`);
+  await expect(page).toHaveTitle(`${SITE_NAME} | Car dealer in ${DEALER_ADDRESS.town}`);
   await expect(page.getByRole("heading", { level: 1, name: "Find your next car" })).toHaveCount(1);
   await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
   await choose(page.getByLabel("Make", { exact: true }), newest.make);
