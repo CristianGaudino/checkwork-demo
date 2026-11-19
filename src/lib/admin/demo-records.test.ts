@@ -49,6 +49,19 @@ describe("the demo's stories", () => {
     // Every stage but Arrived, which puts a car in stock (orders/actions.ts), so the demo would need a car made for it.
     expect([...new Set(orders.map((o) => o.status))].sort()).toEqual(c.ORDER_STATUSES.filter((s) => s !== "arrived").sort());
   });
+
+  it("look right at any hour: no open drive in the past, ads claim no more leads than came from ads, each reply its own", async () => {
+    const now = Date.UTC(2026, 10, 19, 18, 0); // 18:00 in Dublin, after the day's last seeded drive
+    vi.useFakeTimers({ toFake: ["Date"], now });
+    const c = await fresh();
+    const [drives, ads, leads, reviews] = await Promise.all([c.drivesStore.list(), c.adsStore.list(), c.leadsStore.list(), c.reviewsStore.list()]);
+    vi.useRealTimers();
+    expect(drives.filter((d) => (d.status === "requested" || d.status === "confirmed") && d.startsAt <= now)).toEqual([]);
+    const sum = (n: number[]) => n.reduce((a, b) => a + b, 0);
+    expect(sum(ads.map((a) => a.leads))).toBeLessThanOrEqual(leads.filter((l) => l.source === "Facebook" || l.source === "Google").length);
+    const replies = reviews.flatMap((r) => (r.reply ? [r.reply] : []));
+    expect(new Set(replies).size).toBe(replies.length);
+  });
 });
 
 describe("reset demo data", () => {

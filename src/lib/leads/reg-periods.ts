@@ -12,4 +12,4 @@ export function regPeriods(today: string): string[] {
   });
 }
 
-export const regPeriodLabel = (p: string) => `${p}, ${p.endsWith("1") ? "January to June" : "July to December"} 20${p.slice(0, 2)}`;
+export const regPeriodLabel = (p: string) => `${p} reg, ${p.endsWith("1") ? "January to June" : "July to December"} 20${p.slice(0, 2)}`;
