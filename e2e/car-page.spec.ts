@@ -93,7 +93,9 @@ test.describe("a car for sale", () => {
     await page.goto(await firstCarHref(page));
     const bar = page.locator("[data-sticky-actions]");
     await expect(bar).toBeHidden();
-    await page.getByRole("heading", { level: 2, name: "Specifications" }).scrollIntoViewIfNeeded();
+    // One jump from above the buttons to well past them, after the page is watching: the bar must still notice.
+    await page.waitForLoadState("networkidle");
+    await page.mouse.wheel(0, 2000);
     await expect(bar.getByRole("link", { name: "Call us" })).toHaveAttribute("href", "tel:+35319060045");
     for (const b of await bar.locator("a, button").all()) expect((await b.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     await bar.getByRole("button", { name: "Enquire" }).click();

@@ -274,7 +274,7 @@ const REVIEW_TEXT: [number, string, string?][] = [
   [5, "No pressure at all. They answered every question and let us take our time."],
   [5, "Straightforward buying and a fair price on my trade-in. Would go back.", "Thanks for that. Good to hear the trade-in worked out for you."],
   [5, "Good choice of cars. The paperwork took a while but they kept us posted."],
-  [5, "Friendly team, clean car. The finance explanation was clear.", "Thank you. Niamh will be delighted the finance made sense."],
+  [5, "Friendly team, clean car. The finance explanation was clear.", "Thank you. Glad the finance made sense."],
   [3, "Car was fine, but I waited a while for a callback."],
   [5, "They found the exact spec I wanted within a week.", "Glad we tracked it down for you. Safe driving."],
   [5, "Second car from here. Same great service."],

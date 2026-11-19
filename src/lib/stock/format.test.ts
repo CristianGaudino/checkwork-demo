@@ -125,6 +125,7 @@ describe("withoutInvitation", () => {
     expect(withoutInvitation(`${facts}\n\nCall in to see it, or book a test drive. Part exchange welcome and finance available.`)).toBe(facts);
     expect(withoutInvitation(facts)).toBe(facts);
     expect(withoutInvitation("Call in to see it.")).toBe("Call in to see it."); // one paragraph only: never empties the text
+    expect(withoutInvitation("One owner.\nCall in to see it.")).toBe("One owner."); // a feed's <p> or <br> becomes one line break
   });
 });
 

@@ -65,7 +65,8 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
   const row = useRef<HTMLDivElement>(null);
   const [gone, setGone] = useState(false);
   useEffect(() => {
-    const o = new IntersectionObserver(([e]) => setGone(!e.isIntersecting && e.boundingClientRect.top < 0));
+    // The area reaches far below the screen, so "out of it" means scrolled off the top: a jump from below the fold past the row still fires.
+    const o = new IntersectionObserver(([e]) => setGone(!e.isIntersecting), { rootMargin: "0px 0px 100000px 0px" });
     o.observe(row.current!);
     return () => o.disconnect();
   }, []);

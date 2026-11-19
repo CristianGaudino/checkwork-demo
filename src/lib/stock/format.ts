@@ -81,7 +81,7 @@ export const plainText = (s: string) =>
 
 // A sold car's text without its closing invitation ("Call in to see it, or book a test drive..."): only a last paragraph of its own that
 // asks for a visit or a drive goes, so the facts about the car stay.
-export const withoutInvitation = (s: string) => s.replace(/\n\n[^\n]*\b(?:call in|test drive)\b[^\n]*$/i, "");
+export const withoutInvitation = (s: string) => s.replace(/\s*\n[^\n]*\b(?:call in|test drive)\b[^\n]*$/i, "");
 
 // Search ignores case and accents, so "skoda" finds "Škoda" and "citroen" finds "Citroën". The one rule for every search on the site.
 export const fold = (s: string) => s.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
