@@ -55,7 +55,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
       cell: (l) => (
         <span className="flex flex-col items-start gap-1">
           <span className="inline-flex items-center gap-1.5">
-            <LeadStatusBadge status={l.status} />
+            <LeadStatusBadge status={l.status} type={l.type} />
             {/* Why it sits at the top of the list: urgentFirst pins these. */}
             {isHotLead(l) && <Badge tone="warn">Urgent</Badge>}
             {lateIds.has(l.id) && (

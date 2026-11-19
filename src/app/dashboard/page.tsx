@@ -94,7 +94,7 @@ export default async function Page() {
                         <span className="shrink-0">{(l.carTitle ?? l.message.trim()) && "· "}{fmtAgo(l.createdAt)}</span>
                       </span>
                     </span>
-                    <LeadStatusBadge status={l.status} />
+                    <LeadStatusBadge status={l.status} type={l.type} />
                   </Link>
                 </li>
               ))}
