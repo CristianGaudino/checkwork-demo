@@ -38,8 +38,9 @@ export const SERVICES = [
 // Confirmed by the dealer, 2026-11-07.
 export const DEALER_ADDRESS = { street: "Long Mile Road", town: "Dublin 12", county: "Co. Dublin", eircode: "D12 AF77" };
 // PLACEHOLDER until the dealer confirms the warranty (owner decision, 2026-11-07): shown on the home page and every car for sale.
-export const WARRANTY = { title: "12 month warranty", text: "Engine and gearbox cover on every used car." };
-// A new car is covered by its maker, not by the dealer's used-car warranty.
+// Said of any used vehicle, car or van, and read after "12 month warranty:" in the FAQ, so it names neither.
+export const WARRANTY = { title: "12 month warranty", text: "Covers the engine and gearbox from the day you collect it." };
+// A new car or van is covered by its maker, not by the dealer's used warranty.
 export const NEW_CAR_WARRANTY = { title: "Manufacturer's warranty", text: "Covered by the manufacturer's warranty from the day you collect it." };
 export const DEALER_ADDRESS_LINES = [DEALER_ADDRESS.street, DEALER_ADDRESS.town, DEALER_ADDRESS.county, DEALER_ADDRESS.eircode];
 // The address on one line, for reading: the eircode never splits over two lines.
