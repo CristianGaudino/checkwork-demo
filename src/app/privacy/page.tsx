@@ -68,8 +68,8 @@ export default function PrivacyPage() {
         </IfModule>
         <IfModule id="newsletter">
           <p>
-            If you ask us to tell you when a car comes back, drops in price or a new one arrives, we keep your email and what you asked for, and email you when it
-            happens. Every alert and newsletter email has a link to stop them, with no login.
+            If you ask us to tell you when a car comes back or drops in price, we keep your email and what you asked for, only to tell you. Any email we send you
+            about it has a link to stop them, with no login.
           </p>
         </IfModule>
         <p>

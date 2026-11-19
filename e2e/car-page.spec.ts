@@ -102,6 +102,18 @@ test.describe("a car for sale", () => {
     await expect(page.getByRole("dialog", { name: "Enquire" })).toBeVisible();
   });
 
+  test("on a phone the compare pill rises above the call bar instead of covering it", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 700 });
+    await page.goto(await firstCarHref(page));
+    await page.waitForLoadState("networkidle");
+    await page.getByTestId("buy-box").getByRole("button", { name: /^Compare / }).click();
+    await page.mouse.wheel(0, 2000);
+    const bar = page.locator("[data-sticky-actions]");
+    await expect(bar.getByRole("button", { name: "Enquire" })).toBeVisible();
+    const pill = page.getByRole("region", { name: "Compare cars" });
+    await expect(async () => expect((await pill.boundingBox())!.y + (await pill.boundingBox())!.height).toBeLessThanOrEqual((await bar.boundingBox())!.y)).toPass();
+  });
+
   test("Save this car beside Share saves the car and counts it in the header", async ({ page }) => {
     await page.goto(await firstCarHref(page));
     const save = buyBox(page).getByRole("button", { name: "Save this car" });

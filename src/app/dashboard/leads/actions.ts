@@ -5,7 +5,7 @@ import { z } from "zod";
 import { logActivity } from "@/lib/admin/activity";
 import { addDays, dublinDay, fmtDate, isIsoDay } from "@/lib/admin/format";
 import { isOpenLead } from "@/lib/admin/leads";
-import { LEAD_STATUSES, LEAD_TYPE_LABELS, LOST_REASONS, getSettings, leadStatusLabel, leadsStore } from "@/lib/admin/collections";
+import { LEAD_STATUSES, LEAD_TYPE_LABELS, LOST_REASONS, getSettings, leadStatusLabel, leadStatusSteps, leadsStore } from "@/lib/admin/collections";
 import { appendNote } from "@/lib/admin/notes";
 import { notify } from "@/lib/admin/notifications";
 import { currentMember } from "@/lib/permissions";
@@ -24,6 +24,7 @@ export async function setStatusAction(id: string, data: FormData) {
   const parsed = status.safeParse(data.get("status"));
   const lead = await leadsStore.get(id);
   if (!parsed.success || !lead || lead.status === parsed.data) return;
+  if (parsed.data !== "new" && !leadStatusSteps(lead.type).includes(parsed.data)) return; // a warranty request is never won, even posted by hand
   const on = String(data.get("on") ?? "");
   const why = reason.safeParse(data.get("reason"));
   // A won or lost lead needs no follow-up. The reason belongs to a lost lead only: moving it on clears it.
