@@ -58,6 +58,7 @@ test("add a car, see it on the site with its VAT line, change its price to a dro
   await page.getByLabel("Price (€)", { exact: true }).fill("18500");
   await page.locator('[name="wasPriceEur"]').fill("19950");
   await page.getByRole("button", { name: "Save changes" }).click();
+  await expect(page).toHaveURL(/saved=/); // saved before the site is looked at
   await page.goto(`/used-cars?q=${MAKE}`);
   await expect(page.locator("article").filter({ hasText: "Roadster" }).getByText("Reduced by €1,450")).toBeVisible();
 
