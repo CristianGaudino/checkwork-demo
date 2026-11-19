@@ -7,7 +7,7 @@ import { CalendarIcon } from "@/components/stock/icons";
 import { card, press, secondaryButton } from "@/components/ui";
 
 // Every car in stock with a Book button. One dialog, one form: choosing another car re-keys the form so it never books the wrong car.
-export function TestDrivePicker({ cars }: { cars: CarSummary[] }) {
+export function TestDrivePicker({ cars }: { cars: (CarSummary & { vatLine?: string })[] }) {
   const [car, setCar] = useState<CarSummary | null>(null);
   const [open, setOpen] = useState(false);
   const opener = useRef<HTMLButtonElement | null>(null);
@@ -25,7 +25,10 @@ export function TestDrivePicker({ cars }: { cars: CarSummary[] }) {
               {/* The name already says the make and model: the line under it is what tells two of them apart. */}
               {c.variant && <p className="text-meta text-text-2">{c.variant}</p>}
               <div className="mt-auto flex items-end justify-between gap-2 pt-2">
-                <p className="text-meta font-semibold whitespace-nowrap">{c.price}</p>
+                <p className="text-meta font-semibold whitespace-nowrap">
+                  {c.price}
+                  {c.vatLine && <span className="block font-normal text-text-2">{c.vatLine}</span>}
+                </p>
                 <button
                   type="button"
                   onClick={(e) => {

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useVehicleHint } from "@/components/vehicleHint";
 import { useDemoRole, useModules } from "@/lib/demo-role";
+import { isAppPath } from "@/lib/demo";
 import { DASHBOARD_LINK, HEADER_LINKS, VEHICLE_TYPES } from "@/lib/nav";
 import { pathAllowed } from "@/lib/modules-rules";
 
@@ -24,7 +25,7 @@ export function HeaderLinks() {
   return (
     <div className="hidden items-center gap-4 lg:flex xl:gap-6">
       {[...vehicles, ...others].map((l) => (
-        <Link key={l.href} href={l.href} aria-current={l.current ? "page" : undefined} className={`${item} ${l.current ? bar : ""}`}>
+        <Link key={l.href} href={l.href} prefetch={isAppPath(l.href) ? false : undefined} aria-current={l.current ? "page" : undefined} className={`${item} ${l.current ? bar : ""}`}>
           {l.label}
         </Link>
       ))}

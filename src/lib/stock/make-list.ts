@@ -8,10 +8,11 @@ import type { Condition } from "@/lib/stock/types";
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 const NAMES: Record<Exclude<Condition, "used">, (make: string) => string> = { new: (m) => `New ${m}`, commercial: (m) => `${m} vans and commercials` };
 
-export async function makeListParams(slug: string, searchParams: SearchParams): Promise<Awaited<SearchParams> | null> {
+// The list's params with the make set, and its heading, which names the make as the page title does ("New Kia").
+export async function makeList(kind: Exclude<Condition, "used">, slug: string, searchParams: SearchParams): Promise<{ params: Awaited<SearchParams>; title: string } | null> {
   const make = await findMake(slug);
   if (!make) return null;
-  return { ...(await searchParams), make: make.slug };
+  return { params: { ...(await searchParams), make: make.slug }, title: NAMES[kind](make.label) };
 }
 
 export async function makeListMetadata(kind: Exclude<Condition, "used">, slug: string): Promise<Metadata> {

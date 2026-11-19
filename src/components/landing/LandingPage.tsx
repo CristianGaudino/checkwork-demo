@@ -130,7 +130,7 @@ export function LandingPage({ data }: { data: LandingData }) {
           {landing.kind === "body" ? (
             <LinkChips heading="Body types in stock" options={facets.body} href={toPage} />
           ) : (
-            <LinkChips heading="Makes in stock" options={facets.make} href={toPage} logos />
+            <LinkChips heading="Used makes in stock" options={facets.make} href={toPage} logos />
           )}
           {sold.length > 0 && (
             <section className="mt-8">

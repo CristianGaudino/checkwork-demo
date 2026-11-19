@@ -63,6 +63,8 @@ test("cancelling an order asks first: Cancel leaves it as it was, yes cancels it
 
   await page.getByRole("button", { name: "Cancel the order" }).click();
   await dialog.getByRole("button", { name: "Cancel the order" }).click();
+  // Saved before the list is opened: under load the list could otherwise load first.
+  await expect(page.getByRole("region", { name: "Where it is" })).toContainText("Cancelled");
   await page.goto("/dashboard/orders?view=cancelled");
   await expect(page.getByRole("row").filter({ hasText: "Zzcancel Estate" })).toBeVisible();
 });

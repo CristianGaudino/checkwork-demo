@@ -73,6 +73,7 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
           <Link
             key={r.id}
             href={r.href}
+            prefetch={isAppPath(r.href) ? false : undefined} // the dealer area sits behind Cloudflare Access: a prefetch from a public page gets its login page
             onClick={(e) => {
               setDemoRole(r.id);
               // From a public page, Dealer changes that page (a Dashboard link in the header, and stock and social links on a car) instead of leaving it.
