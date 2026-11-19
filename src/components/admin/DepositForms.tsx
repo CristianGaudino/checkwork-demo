@@ -36,7 +36,7 @@ export function ReserveForm({ carId, today, latest, team, me, customers }: { car
       </Field>
       <BuyerFields customers={customers} errors={e} />
       <div className={full}>
-        <button type="submit" disabled={pending} className={adminButton}>{pending ? "Saving" : "Take deposit"}</button>
+        <button type="submit" disabled={pending} className={adminButton}>{pending ? "Saving" : "Reserve"}</button>
       </div>
     </form>
   );

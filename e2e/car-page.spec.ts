@@ -88,6 +88,32 @@ test.describe("a car for sale", () => {
     expect(save.y).toBeLessThan(price.y + price.height);
   });
 
+  test("a slim bar offers Call us, Enquire and Test drive once the buy box buttons scroll away on a phone", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 700 });
+    await page.goto(await firstCarHref(page));
+    const bar = page.locator("[data-sticky-actions]");
+    await expect(bar).toBeHidden();
+    // One jump from above the buttons to well past them, after the page is watching: the bar must still notice.
+    await page.waitForLoadState("networkidle");
+    await page.mouse.wheel(0, 2000);
+    await expect(bar.getByRole("link", { name: "Call us" })).toHaveAttribute("href", "tel:+35319060045");
+    for (const b of await bar.locator("a, button").all()) expect((await b.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    await bar.getByRole("button", { name: "Enquire" }).click();
+    await expect(page.getByRole("dialog", { name: "Enquire" })).toBeVisible();
+  });
+
+  test("on a phone the compare pill rises above the call bar instead of covering it", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 700 });
+    await page.goto(await firstCarHref(page));
+    await page.waitForLoadState("networkidle");
+    await page.getByTestId("buy-box").getByRole("button", { name: /^Compare / }).click();
+    await page.mouse.wheel(0, 2000);
+    const bar = page.locator("[data-sticky-actions]");
+    await expect(bar.getByRole("button", { name: "Enquire" })).toBeVisible();
+    const pill = page.getByRole("region", { name: "Compare cars" });
+    await expect(async () => expect((await pill.boundingBox())!.y + (await pill.boundingBox())!.height).toBeLessThanOrEqual((await bar.boundingBox())!.y)).toPass();
+  });
+
   test("Save this car beside Share saves the car and counts it in the header", async ({ page }) => {
     await page.goto(await firstCarHref(page));
     const save = buyBox(page).getByRole("button", { name: "Save this car" });
@@ -142,6 +168,9 @@ test.describe("a sold car", () => {
     await expect(box.getByText("Call now")).toHaveCount(0);
     await expect(box.getByRole("button", { name: "Save this car" })).toBeVisible();
     expect(await box.innerText()).not.toMatch(/€\d/);
+    // No invitation to call in under the Sold card, and no call bar.
+    await expect(page.getByText(/Call in to see it/)).toHaveCount(0);
+    await expect(page.locator("[data-sticky-actions]")).toHaveCount(0);
 
     const html = await (await request.get(`/used-cars/${slug}`)).text();
     expect(html).not.toContain(soldAt!);

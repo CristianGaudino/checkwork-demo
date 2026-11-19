@@ -15,6 +15,7 @@ import type { Mark } from "@/lib/compare/rank";
 import { payableEur, priceInfo } from "@/lib/stock/price";
 import { carTitle, specRows, carHref } from "@/lib/stock/format";
 import { Mileage } from "@/components/Mileage";
+import { UnitToggle } from "@/components/UnitToggle";
 import { isSold, onRequest } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 import { COMPARE_CLEARED } from "@/lib/copy";
@@ -50,6 +51,11 @@ function Marker({ mark, better, of }: { mark: Mark; better?: "low" | "high"; of:
       <span className="sr-only">{word}</span>
     </span>
   );
+}
+
+// km or miles, only once there is a mileage to show it on.
+export function CompareUnitToggle() {
+  return useCompareIds().length > 0 ? <UnitToggle className="self-start" /> : null;
 }
 
 const Empty = () => <EmptyCars title="Nothing to compare yet" text="Open a car and tap Compare. You can compare up to three." />;

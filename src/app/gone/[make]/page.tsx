@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ListingCard } from "@/components/stock/ListingCard";
 import { stock } from "@/lib/stock";
 import { findMake } from "@/lib/stock/makes";
-import { accentButton, pageMain } from "@/components/ui";
+import { DEFAULT_QUERY } from "@/lib/stock/query";
+import { accentButton, messagePage, pageTitle } from "@/components/ui";
 
 export const metadata: Metadata = { title: "Car no longer available", robots: { index: false } };
+
+// Three used cars for sale, of the given makes (none: any make). A stock failure shows none rather than failing the page.
+const few = (make: string[]) => stock.query({ ...DEFAULT_QUERY, make, pageSize: 3 }).then((r) => r.cars, () => []);
 
 export default async function GonePage({ params }: PageProps<"/gone/[make]">) {
   const { make: slug } = await params;
@@ -13,12 +18,15 @@ export default async function GonePage({ params }: PageProps<"/gone/[make]">) {
   const used = (await stock.taxonomy()).makes.find((m) => m.slug === slug);
   const make = used ?? (await findMake(slug));
   if (!make) notFound();
+  // Others of the same make first; with none left, the newest cars.
+  const sameMake = used ? await few([used.slug]) : [];
+  const cars = sameMake.length ? sameMake : await few([]);
 
   return (
-    <main className={pageMain}>
-      <h1 className="text-display font-semibold">This car is no longer available</h1>
-      <p className="mt-4 max-w-measure text-body text-text-2">It has been sold or taken off our site. Here is what else we have.</p>
-      <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2">
+    <main className={messagePage}>
+      <h1 className={pageTitle}>This car is no longer available</h1>
+      <p className="mt-4 max-w-measure text-body text-text-2">It has been sold or taken off our site.{cars.length > 0 && " Here is what else we have."}</p>
+      <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
         <Link
           href={`${used ? "/used-cars" : "/makes"}/${make.slug}`}
           className={`inline-flex items-center ${accentButton}`}
@@ -29,6 +37,13 @@ export default async function GonePage({ params }: PageProps<"/gone/[make]">) {
           See all used cars
         </Link>
       </div>
+      {cars.length > 0 && (
+        <div className="mt-10 grid w-full grid-cols-1 gap-6 text-left sm:grid-cols-2 xl:grid-cols-3">
+          {cars.map((car, i) => (
+            <ListingCard key={car.id} car={car} priority={i < 2} />
+          ))}
+        </div>
+      )}
     </main>
   );
 }

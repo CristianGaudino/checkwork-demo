@@ -5,7 +5,7 @@ import { Avatar, Badge, DataTable, EmptyState, PageHeader, SummaryTabs, TableFoo
 import { can } from "@/lib/permissions";
 import { LEAD_SOURCES, LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_TYPE_LABELS, getSettings, leadsStore, type Lead } from "@/lib/admin/collections";
 import { dublinDay, fmtAgo, fmtDate } from "@/lib/admin/format";
-import { SALES_LEAD_TYPES, countByStatus, filterLeads, followUpDue, isOpenLead, isSalesLead, parseLeadFilter, urgentFirst } from "@/lib/admin/leads";
+import { SALES_LEAD_TYPES, countByStatus, filterLeads, followUpDue, isHotLead, isOpenLead, isSalesLead, parseLeadFilter, urgentFirst } from "@/lib/admin/leads";
 import { TOPICS, isUrgent, leadTags } from "@/lib/leads/contact-topics";
 import { enabledModules } from "@/lib/modules";
 
@@ -55,7 +55,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
       cell: (l) => (
         <span className="flex flex-col items-start gap-1">
           <span className="inline-flex items-center gap-1.5">
-            <LeadStatusBadge status={l.status} />
+            <LeadStatusBadge status={l.status} type={l.type} />
+            {/* Why it sits at the top of the list: urgentFirst pins these. */}
+            {isHotLead(l) && <Badge tone="warn">Urgent</Badge>}
             {lateIds.has(l.id) && (
               <Badge tone="bad" strong>
                 Late
@@ -70,7 +72,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
     {
       key: "follow",
       header: "Follow up",
-      hide: "md",
+      hide: "xl", // mostly empty, so it gives way to Who has it on a laptop
       nowrap: true,
       sort: (l) => (l.followUpOn && isOpenLead(l) ? l.followUpOn : undefined),
       // Overdue is late (red), today is due (amber), later is just a date.
@@ -79,7 +81,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
           <span className={l.followUpOn < today ? "font-medium text-bad" : followUpDue(l, today) ? "font-medium text-warn" : ""}>{l.followUpOn === today ? "Today" : l.followUpOn < today ? "Overdue" : fmtDate(`${l.followUpOn}T12:00:00Z`)}</span>
         ) : null,
     },
-    { key: "owner", header: "Who has it", hide: "2xl", nowrap: true, sort: (l) => l.assignedTo, cell: (l) => (l.assignedTo ? <span className="inline-flex items-center gap-2"><Avatar name={l.assignedTo} />{l.assignedTo.split(" ")[0]}</span> : <span className="text-text-2">Nobody</span>) },
+    { key: "owner", header: "Who has it", hide: "lg", nowrap: true, sort: (l) => l.assignedTo, cell: (l) => (l.assignedTo ? <span className="inline-flex items-center gap-2"><Avatar name={l.assignedTo} />{l.assignedTo.split(" ")[0]}</span> : <span className="text-text-2">Nobody</span>) },
     { key: "when", header: "Received", sort: (l) => l.createdAt, cell: (l) => fmtAgo(l.createdAt), align: "right", nowrap: true, hide: "sm" }, // on a phone it is in the Who column
   ];
   const ordered = sortRows(filterLeads(all, f, today, leadSlaHours), columns, sp, { key: "when", dir: "desc" });

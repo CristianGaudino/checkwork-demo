@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { DEALER_ADDRESS } from "../site";
 
 vi.mock("server-only", () => ({}));
 
@@ -78,7 +79,7 @@ describe("DEMO_REVIEWS", () => {
       expect(r).not.toHaveProperty("photoUri");
       expect(r.reviewUri).toMatch(/^https:\/\//);
     }
-    expect(d.placeUri).toMatch(/^https:\/\//);
+    expect(d.placeUri).toContain(encodeURIComponent(DEALER_ADDRESS.street)); // the dealer's own address, never a made-up eircode
     expect(JSON.stringify(d)).not.toContain(String.fromCharCode(0x2014));
   });
 });

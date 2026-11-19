@@ -3,7 +3,7 @@ import { press, sectionTitle, NEW_TAB } from "@/components/ui";
 import { postsStore } from "@/lib/admin/collections";
 import { simulating } from "@/lib/integrations";
 import { SOCIAL_LINKS } from "@/lib/site";
-import { carName } from "@/lib/stock/format";
+import { carHref, carName } from "@/lib/stock/format";
 import type { Car } from "@/lib/stock/types";
 
 const ICONS = { Facebook: FacebookIcon, Instagram: InstagramIcon, TikTok: TikTokIcon };
@@ -11,6 +11,7 @@ const SHOWN = 4;
 
 // The posts the dealer has published, as tiles: the car's photo, the network and the first line. They come from the same record the admin
 // writes (Marketing), so what is posted there shows here. A post for a car no longer in stock is left out. No posts, no section.
+// A tile opens the dealer's page on that network; without one (none set in site.ts), the car itself, and the heading asks no one to follow.
 export async function SocialStrip({ cars }: { cars: Car[] }) {
   const posts = await postsStore.list({ seed: false }).catch(() => []); // a visitor never seeds the records
   const showSimulated = simulating(); // a simulated post was never sent anywhere, so only the demo shows it
@@ -24,28 +25,31 @@ export async function SocialStrip({ cars }: { cars: Car[] }) {
   return (
     <section aria-labelledby="socials" className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <h2 id="socials" className={sectionTitle}>Follow us</h2>
-        <ul aria-label="Our social media" className="-mr-3 flex">
-          {SOCIAL_LINKS.map(({ name, href }) => {
-            const Icon = ICONS[name];
-            return (
-              <li key={name}>
-                <a href={href} {...NEW_TAB} aria-label={`${name} (opens in a new tab)`} className="inline-flex size-11 items-center justify-center rounded-full transition-colors hover:text-text-2">
-                  <Icon className="size-6" />
-                </a>
-              </li>
-            );
-          })}
-        </ul>
+        <h2 id="socials" className={sectionTitle}>{SOCIAL_LINKS.length ? "Follow us" : "Latest posts"}</h2>
+        {SOCIAL_LINKS.length > 0 && (
+          <ul aria-label="Our social media" className="-mr-3 flex">
+            {SOCIAL_LINKS.map(({ name, href }) => {
+              const Icon = ICONS[name];
+              return (
+                <li key={name}>
+                  <a href={href} {...NEW_TAB} aria-label={`${name} (opens in a new tab)`} className="inline-flex size-11 items-center justify-center rounded-full transition-colors hover:text-text-2">
+                    <Icon className="size-6" />
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </div>
       <ul className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
         {tiles.map(({ post, car }) => {
           const Icon = ICONS[post.network];
+          const profile = SOCIAL_LINKS.find((l) => l.name === post.network)?.href;
           return (
             <li key={post.id} className="min-w-0">
               {/* The post lives on the network, so the tile opens the dealer's page there. shortcut: the profile, not the post itself, until a
                   live publisher stores each post's address. */}
-              <a href={SOCIAL_LINKS.find((l) => l.name === post.network)?.href} {...NEW_TAB} className={`group flex flex-col gap-2 ${press}`}>
+              <a href={profile ?? carHref(car.slug)} {...(profile && NEW_TAB)} className={`group flex flex-col gap-2 ${press}`}>
                 <span className="relative block aspect-square overflow-hidden rounded-tile bg-photo-bg">
                 <img src={car.photos[0].src} alt="" width={car.photos[0].width} height={car.photos[0].height} loading="lazy" className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none" />
                   <span className="absolute left-2 top-2 flex size-8 items-center justify-center rounded-full bg-card/90 text-text">
@@ -54,7 +58,7 @@ export async function SocialStrip({ cars }: { cars: Car[] }) {
                   </span>
                 </span>
                 <span className="line-clamp-2 text-meta text-text-2">{post.text.split("\n")[0] || carName(car)}</span>
-                <span className="sr-only"> on {post.network} (opens in a new tab)</span>
+                <span className="sr-only"> on {post.network}{profile && " (opens in a new tab)"}</span>
               </a>
             </li>
           );

@@ -27,11 +27,11 @@ test("the search runs as you type, the cross clears it, and a header sorts the w
   await expect(page).not.toHaveURL(/q=/);
   await expect(search).toHaveValue("");
   // Sorted by name: A first one way, Z first the other, and the header says which.
-  await page.getByRole("link", { name: /^Who/ }).click();
+  await page.getByRole("link", { name: /^Who\W*sort/ }).click();
   await expect(page).toHaveURL(/sort=who&dir=asc/);
-  await expect(page.getByRole("columnheader", { name: /Who/ })).toHaveAttribute("aria-sort", "ascending");
+  await expect(page.getByRole("columnheader", { name: /^Who\W*sort/ })).toHaveAttribute("aria-sort", "ascending");
   const first = await rows.nth(1).getByRole("link").first().textContent();
-  await page.getByRole("link", { name: /^Who/ }).click();
+  await page.getByRole("link", { name: /^Who\W*sort/ }).click();
   await expect(page).toHaveURL(/dir=desc/);
   expect(((await rows.nth(1).getByRole("link").first().textContent()) ?? "").localeCompare(first ?? "")).toBeGreaterThan(0);
 });

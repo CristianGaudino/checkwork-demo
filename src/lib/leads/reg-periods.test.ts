@@ -10,6 +10,6 @@ describe("registration periods", () => {
   it("offers this period and the next three, across the new year", () => {
     expect(regPeriods("2026-11-12")).toEqual(["262", "271", "272", "281"]);
     expect(regPeriods("2027-03-01")).toEqual(["271", "272", "281", "282"]);
-    expect(regPeriodLabel("271")).toBe("271, January to June 2027");
+    expect(regPeriodLabel("271")).toBe("271 reg, January to June 2027");
   });
 });

@@ -3,15 +3,37 @@ import { InfoPage, InfoSection } from "@/components/InfoPage";
 import { LEAD_RETENTION_MONTHS, SALE_KEEP_YEARS } from "@/lib/leads/constants";
 import Link from "next/link";
 import { IfModule } from "@/components/IfModule";
-import { DEALER_EMAIL, DEALER_FACTS_CONFIRMED, SITE_NAME } from "@/lib/site";
+import { NEW_TAB } from "@/components/ui";
+import { DEALER_ADDRESS_TEXT, DEALER_EMAIL, DEALER_FACTS_CONFIRMED, SITE_NAME } from "@/lib/site";
 
 export const metadata: Metadata = { title: "Privacy policy", description: `How ${SITE_NAME} uses the details you send us, how long we keep them, and how to ask for them to be deleted.` };
 
 // Phase 3 copy on the shared frame (Phase 4); only the dealer's final wording is outstanding.
 // The email is a placeholder until the dealer's domain forwards to the dealer (issue #54).
 export default function PrivacyPage() {
+  const askUs = DEALER_FACTS_CONFIRMED ? (
+    <>
+      email us at{" "}
+      <a href={`mailto:${DEALER_EMAIL}`} className="font-semibold underline">
+        {DEALER_EMAIL}
+      </a>
+    </>
+  ) : (
+    <>
+      send us a message from the{" "}
+      <Link href="/contact" className="font-semibold underline">
+        contact page
+      </Link>
+    </>
+  );
   return (
-    <InfoPage title="Privacy policy">
+    <InfoPage title="Privacy policy" intro="Last updated November 2026. What we keep about you, why, and what you can ask us to do with it.">
+      <InfoSection title="Who we are">
+        <p>
+          {SITE_NAME}, {DEALER_ADDRESS_TEXT}, decides how the details you send through this website are used. In law, we are the data controller.
+          To reach us about your details, {askUs}.
+        </p>
+      </InfoSection>
       <InfoSection title="What we collect">
         <p>
           When you send us a request, we keep what you type into the form: your name, phone number, email, your message and the other fields of that
@@ -44,6 +66,20 @@ export default function PrivacyPage() {
         <IfModule id="ai">
           <p>When our staff draft a reply to your request or review, its text goes to our AI provider, which writes a draft for them to check. Phone numbers and email addresses are taken out first.</p>
         </IfModule>
+        <IfModule id="newsletter">
+          <p>
+            If you ask us to tell you when a car comes back or drops in price, we keep your email and what you asked for, only to tell you. Any email we send you
+            about it has a link to stop them, with no login.
+          </p>
+        </IfModule>
+        <p>
+          The maps on this site come from Google Maps. When one loads, Google receives your IP address and may set its own cookies, as{" "}
+          <a href="https://policies.google.com/privacy" {...NEW_TAB} className="font-semibold underline">
+            Google&apos;s privacy policy
+            <span className="sr-only"> (opens in a new tab)</span>
+          </a>{" "}
+          describes.
+        </p>
         <IfModule id="whatsapp">
           <p>If you give us your WhatsApp number or message us there, your number and messages go to WhatsApp, which delivers them to us. We can also send you updates about your request on WhatsApp.</p>
         </IfModule>
@@ -52,24 +88,18 @@ export default function PrivacyPage() {
         <p>We keep each request for {LEAD_RETENTION_MONTHS} months, then delete it.</p>
         <p>If you buy a car from us, we keep the record of the sale for {SALE_KEEP_YEARS} years, as Irish law asks of business records, then remove your name from it.</p>
       </InfoSection>
-      <InfoSection title="How to ask us to delete it">
+      <InfoSection title="Your rights">
         <p>
-          {DEALER_FACTS_CONFIRMED ? (
-            <>
-              Email us at{" "}
-              <a href={`mailto:${DEALER_EMAIL}`} className="font-semibold underline">
-                {DEALER_EMAIL}
-              </a>
-            </>
-          ) : (
-            <>
-              Send us a message from the{" "}
-              <Link href="/contact" className="font-semibold underline">
-                contact page
-              </Link>
-            </>
-          )}{" "}
-          and we&apos;ll delete your details. Please write from the address you used on the form, so we can find your request.
+          You can ask to see the details we hold about you, to correct them, to delete them, or to object to how we use them. To ask, {askUs}. Please
+          write from the address you used on the form, so we can find your request.
+        </p>
+        <p>
+          If you are not happy with how we handle your details, you can complain to the Data Protection Commission at{" "}
+          <a href="https://www.dataprotection.ie" {...NEW_TAB} className="font-semibold underline">
+            dataprotection.ie
+            <span className="sr-only"> (opens in a new tab)</span>
+          </a>
+          .
         </p>
       </InfoSection>
     </InfoPage>

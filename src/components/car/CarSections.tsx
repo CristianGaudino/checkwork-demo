@@ -3,10 +3,11 @@ import Link from "next/link";
 import { CheckIcon } from "@/components/stock/icons";
 import { card, carSlide } from "@/components/ui";
 import { ListingCard } from "@/components/stock/ListingCard";
-import { featureLabel, plainText, specRows } from "@/lib/stock/format";
+import { featureLabel, plainText, specRows, withoutInvitation } from "@/lib/stock/format";
 import { FactLabel, FactValue } from "@/components/stock/CarMeta";
 import { UnitToggle } from "@/components/UnitToggle";
 import { DEFAULT_QUERY, stockHref } from "@/lib/stock/query";
+import { isSold } from "@/lib/stock/types";
 import type { Car, StockQuery } from "@/lib/stock/types";
 
 const VISIBLE_FEATURES = 12;
@@ -18,7 +19,9 @@ const h2 = "text-heading font-semibold";
 // Server components. Dealer text is rendered as React text only, never as HTML (T-02-14). Each returns nothing when it has nothing to show.
 export function AboutCar({ car }: { car: Car }) {
   // Feeds send HTML now and then ("<b>no accidents</b>"): it is shown as words, never as markup and never as raw tags.
-  const description = plainText(car.description ?? "");
+  const all = plainText(car.description ?? "");
+  // A sold car is no longer offered: its text stops before the invitation to call in.
+  const description = isSold(car) ? withoutInvitation(all) : all;
   if (!description) return null;
   return (
     <section>

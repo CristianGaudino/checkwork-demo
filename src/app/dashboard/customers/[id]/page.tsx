@@ -126,7 +126,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                         <span className="font-medium underline-offset-2 hover:underline">{LEAD_TYPE_LABELS[l.type]}{l.carTitle ? `, ${l.carTitle}` : ""}</span>
                         <span className="text-meta text-text-2">{fmtDate(l.createdAt)}</span>
                       </Link>
-                      <LeadStatusBadge status={l.status} />
+                      <LeadStatusBadge status={l.status} type={l.type} />
                     </li>
                   ))}
                 </ul>

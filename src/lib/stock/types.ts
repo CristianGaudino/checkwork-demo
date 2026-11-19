@@ -116,6 +116,8 @@ export interface StockResult {
 // Days a sold car stays visible after its sale date (D-02): the dealer's setting.
 export const SOLD_VISIBLE_DAYS = DEALER_RULES.soldVisibleDays;
 export const isSold = (car: Pick<Car, "soldAt">) => car.soldAt !== undefined;
+// New from the maker: a new car, or a van with no previous owner (vans are sold new and used under one condition).
+export const isNew = (car: Pick<Car, "condition" | "owners">) => car.condition === "new" || (car.condition === "commercial" && car.owners === 0);
 // On the website and for sale: not sold, not a draft, not hidden, not reserved. Where a car must be offered (posts, test drives) and old
 // stock (a price to look at); "not sold" alone is the stock the dealer owns (margins), hidden cars included.
 export const forSale = (car: Pick<Car, "soldAt" | "listing" | "reserved">) => !isSold(car) && !car.listing && !car.reserved;

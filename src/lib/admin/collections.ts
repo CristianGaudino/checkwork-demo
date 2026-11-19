@@ -35,6 +35,12 @@ export const LEAD_STATUS_LABELS: Record<LeadStatus, string> = { new: "New", cont
 // tells them apart by the page).
 export const LEAD_TYPES = ["enquiry", "test-drive", "finance", "trade-in", "sell", "find-a-car", "order", "warranty", "service", "general"] as const;
 export type LeadType = (typeof LEAD_TYPES)[number];
+// A warranty request is aftersales work, not a sale: nothing to win. Opening a claim deals with it, and Lost reads as Closed (set aside,
+// so it leaves the open requests). The same statuses underneath, so the lists and counts need nothing new.
+const WARRANTY_STATUS_LABELS: Record<LeadStatus, string> = { ...LEAD_STATUS_LABELS, appointment: "Booked in", lost: "Closed" };
+export const leadStatusLabel = (type: LeadType, s: LeadStatus) => (type === "warranty" ? WARRANTY_STATUS_LABELS : LEAD_STATUS_LABELS)[s];
+// The steps a lead can be moved to. New is where it starts, so it is not one.
+export const leadStatusSteps = (type: LeadType): LeadStatus[] => (type === "warranty" ? ["contacted", "appointment", "lost"] : ["contacted", "appointment", "won", "lost"]);
 export const LEAD_TYPE_LABELS: Record<LeadType, string> = { enquiry: "Car enquiry", "test-drive": "Test drive", finance: "Finance", "trade-in": "Trade-in", sell: "Selling a car", "find-a-car": "Find a car", order: "New car order", warranty: "Warranty request", service: "Service", general: "General" };
 // Why a lead was lost, so the reports can say where sales go. A fixed list, so they can be counted.
 export const LOST_REASONS = ["Bought elsewhere", "Price", "Finance declined", "Stopped replying", "Car sold to someone else", "Other"] as const;
@@ -81,7 +87,7 @@ const MESSAGES: Record<LeadType, string[]> = {
   "trade-in": ["I have a 2016 hatchback with 90,000 km to trade in against this.", "How much would you give me for my current car?"],
   sell: ["Selling my 2018 Golf, 110,000 km, full service history.", "Not buying right now, just want to sell my car."],
   "find-a-car": ["Looking for a diesel estate under 15k, low mileage.", "Want an automatic SUV, family car, around 20k."],
-  order: ["Looking at a new hybrid SUV for 271, mid spec, white.", "Want to order the estate in grey for July."],
+  order: ["Looking at a new hybrid SUV on a 271 reg, mid spec, white.", "Want to order the estate in grey for July."],
   warranty: ["The engine warning light came on this morning. Reg 191-D-4521.", "The gearbox is slipping into second. Bought it here in the summer."],
   service: ["Due a full service next month, can you fit me in?", "Need an NCT check before the test."],
   general: ["What time do you close on Saturday?", "Do you do servicing as well?"],
@@ -131,8 +137,8 @@ const STORY_LEADS = (now: number): Lead[] => {
   const r = rng(131);
   return [
     { id: "lead-2000", type: "warranty", status: "contacted", ...as("cust-300"), source: "Website", message: "The engine warning light came on at motorway speed. The car drives fine.", carTitle: seedSales()[0].carTitle, assignedTo: "Conor Doyle", notes: [{ at: now - 2 * DAY + 3 * HOUR, text: "Opened a claim and asked them to bring it in." }], createdAt: now - 2 * DAY },
-    { id: "lead-2001", type: "order", status: "won", ...as("cust-315"), source: "Website", message: "Toyota RAV4, 2.5 Hybrid Sol, white, 271\n\nLooking to order for the new year.", assignedTo: "Conor Doyle", notes: [{ at: now - 12 * DAY + 4 * HOUR, text: "Order placed with a €1,000 deposit." }], createdAt: now - 13 * DAY },
-    { id: "lead-2002", type: "order", status: "new", ...person(r), source: "Website", message: "Hyundai Tucson, 271\n\nWhat would the wait be for the hybrid?", notes: [], createdAt: now - 7 * HOUR },
+    { id: "lead-2001", type: "order", status: "won", ...as("cust-315"), source: "Website", message: "Toyota RAV4, 2.5 Hybrid Sol, white, 271 reg\n\nLooking to order for the new year.", assignedTo: "Conor Doyle", notes: [{ at: now - 12 * DAY + 4 * HOUR, text: "Order placed with a €1,000 deposit." }], createdAt: now - 13 * DAY },
+    { id: "lead-2002", type: "order", status: "new", ...person(r), source: "Website", message: "Hyundai Tucson, 271 reg\n\nWhat would the wait be for the hybrid?", notes: [], createdAt: now - 7 * HOUR },
     { id: "lead-2003", type: "warranty", status: "new", ...person(r), source: "Website", message: "The gearbox is slipping into second. Bought it here in the summer.", notes: [], createdAt: now - 4 * HOUR },
     { id: "lead-2004", type: "service", status: "new", ...person(r), source: "Phone", message: "Due a full service next month, can you fit me in?", notes: [], createdAt: now - 26 * HOUR },
     { id: "lead-2005", type: "service", status: "appointment", ...person(r), source: "Website", message: "Need an NCT check before the test.", assignedTo: "Ciara Walsh", followUpOn: dublinDay(now), notes: [{ at: now - 2 * DAY, text: "Booked in for Friday." }], createdAt: now - 3 * DAY },
@@ -186,7 +192,7 @@ export const demoLeads = seedLeadsWithEdges;
 
 // ---- Test drives ----
 // The statuses live with the pure drive rules (drives.ts), so the overview and the pages share them without the stores.
-import { DRIVE_STATUSES, DRIVE_STATUS_LABELS, type DriveStatus } from "./drives";
+import { DRIVE_STATUSES, DRIVE_STATUS_LABELS, settleSeededDrive, type DriveStatus } from "./drives";
 export { DRIVE_STATUSES, DRIVE_STATUS_LABELS, type DriveStatus };
 // assignedTo: the team member taking the customer out (a name, as on a lead). A website request has nobody until someone takes it.
 export type TestDrive = { id: string; name: string; email: string; phone: string; carSlug: string; carTitle: string; startsAt: number; status: DriveStatus; notes: string; assignedTo?: string; createdAt: number };
@@ -200,8 +206,8 @@ function seedDrives(): TestDrive[] {
     const car = livePicks(r);
     const upcoming = i < 9;
     const day = upcoming ? r.int(0, 9) : -r.int(1, 14);
-    const startsAt = irishAt(now + day * DAY, r.int(10, 17), r.pick([0, 30]));
-    const status: DriveStatus = upcoming ? r.pick(["requested", "confirmed", "confirmed"] as const) : r.pick(["completed", "completed", "completed", "no-show", "cancelled"] as const);
+    const at = irishAt(now + day * DAY, r.int(10, 17), r.pick([0, 30]));
+    const { startsAt, status } = settleSeededDrive(at, upcoming ? r.pick(["requested", "confirmed", "confirmed"] as const) : r.pick(["completed", "completed", "completed", "no-show", "cancelled"] as const), now);
     const notes = r.pick(["", "", "Bringing a partner.", "Wants to compare with another car."]);
     return { id: `drive-${200 + i}`, ...person(r), carSlug: car.slug, carTitle: carTitleOf(car), startsAt, status, notes, ...(status !== "requested" && { assignedTo: DRIVERS[i % 3] }), createdAt: now - (Math.abs(day) + 2) * DAY };
   });
@@ -211,10 +217,11 @@ function seedDiary(): TestDrive[] {
   const r = rng(137);
   const now = Date.now();
   const forSale = (demoCars as Car[]).filter((c) => !c.soldAt && !c.reserved);
-  return ([[0, 12, 30, "confirmed"], [0, 15, 0, "confirmed"], [0, 17, 0, "requested"], [1, 10, 0, "requested"], [1, 16, 30, "confirmed"]] as const).map(([day, h, m, status], i) => {
+  return ([[0, 12, 30, "confirmed"], [0, 15, 0, "confirmed"], [0, 17, 0, "requested"], [1, 10, 0, "requested"], [1, 16, 30, "confirmed"]] as const).map(([day, h, m, seeded], i) => {
     const car = r.pick(forSale);
+    const { startsAt, status } = settleSeededDrive(irishAt(now + day * DAY, h, m), seeded, now);
     // Booked in the last day: today's and tomorrow's diary was mostly filled lately.
-    return { id: `drive-${230 + i}`, ...person(r), carSlug: car.slug, carTitle: carTitleOf(car), startsAt: irishAt(now + day * DAY, h, m), status, notes: i === 1 ? "Bringing a partner." : "", ...(status === "confirmed" && { assignedTo: DRIVERS[i % 2] }), createdAt: now - (i + 1) * 5 * HOUR };
+    return { id: `drive-${230 + i}`, ...person(r), carSlug: car.slug, carTitle: carTitleOf(car), startsAt, status, notes: i === 1 ? "Bringing a partner." : "", ...(status !== "requested" && { assignedTo: DRIVERS[i % 2] }), createdAt: now - (i + 1) * 5 * HOUR };
   });
 }
 // The seeded bookings, for the notifications' own seed (notifications.ts), so the bell tells of the same requests.
@@ -261,40 +268,40 @@ export const subscribersStore = defineCollection<Subscriber>("subscribers", seed
 
 // ---- Reviews ----
 export type AdminReview = { id: string; author: string; rating: 1 | 2 | 3 | 4 | 5; text: string; createdAt: number; reply?: string; repliedAt?: number };
-// 19 at five stars and one at three: 4.9, with one low review to show the reply that says sorry.
-const REVIEW_TEXT: [number, string][] = [
-  [5, "Easy to deal with from the first call. The car was ready when we came to collect it."],
+// 19 at five stars and one at three: 4.9, with one low review to show the reply that says sorry. Half have the dealer's reply, each its own.
+const REVIEW_TEXT: [number, string, string?][] = [
+  [5, "Easy to deal with from the first call. The car was ready when we came to collect it.", "Thanks a million. Glad it was all ready for you, enjoy the car."],
   [5, "No pressure at all. They answered every question and let us take our time."],
-  [5, "Straightforward buying and a fair price on my trade-in. Would go back."],
+  [5, "Straightforward buying and a fair price on my trade-in. Would go back.", "Thanks for that. Good to hear the trade-in worked out for you."],
   [5, "Good choice of cars. The paperwork took a while but they kept us posted."],
-  [5, "Friendly team, clean car. The finance explanation was clear."],
+  [5, "Friendly team, clean car. The finance explanation was clear.", "Thank you. Glad the finance made sense."],
   [3, "Car was fine, but I waited a while for a callback."],
-  [5, "They found the exact spec I wanted within a week."],
+  [5, "They found the exact spec I wanted within a week.", "Glad we tracked it down for you. Safe driving."],
   [5, "Second car from here. Same great service."],
-  [5, "The test drive was booked for the time I asked and the car was ready."],
+  [5, "The test drive was booked for the time I asked and the car was ready.", "Thanks for taking the time to write this. Hope to see you again."],
   [5, "Brilliant. Fair, honest and quick."],
-  [5, "Collected from the station and dropped back after the test drive. Great touch."],
+  [5, "Collected from the station and dropped back after the test drive. Great touch.", "No bother at all. Thanks for the kind words."],
   [5, "Every question answered by WhatsApp the same evening."],
-  [5, "Got a fair valuation on my old car with no messing."],
+  [5, "Got a fair valuation on my old car with no messing.", "We try to keep it simple. Enjoy the new car."],
   [5, "The car was valeted and full of fuel at the handover."],
-  [5, "Clear on the price from the start. No surprises."],
+  [5, "Clear on the price from the start. No surprises.", "Thanks. That's how we like to do it."],
   [5, "Helped us pick a family car that fits the budget."],
-  [5, "Called a week after to check all was well with the car."],
+  [5, "Called a week after to check all was well with the car.", "Always glad to check in. Give us a shout if you need anything."],
   [5, "Quick, friendly and honest. Highly recommend."],
-  [5, "They sorted the NCT before we collected it."],
+  [5, "They sorted the NCT before we collected it.", "Thanks a million. See you for the first service."],
   [5, "Great experience from the first message to the keys."],
 ];
 function seedReviews(): AdminReview[] {
   const r = rng(67);
   const now = Date.now();
-  return REVIEW_TEXT.map(([rating, text], i) => ({
+  return REVIEW_TEXT.map(([rating, text, reply], i) => ({
     id: `review-${600 + i}`,
     author: person(r).name,
     rating: rating as AdminReview["rating"],
     text,
     createdAt: now - (i * 11 + r.int(1, 8)) * DAY,
-    reply: rating >= 4 && i % 2 === 0 ? "Thank you for the kind words. We are glad you are happy with the car." : undefined,
-    repliedAt: rating >= 4 && i % 2 === 0 ? now - (i * 11) * DAY : undefined,
+    reply,
+    repliedAt: reply ? now - i * 11 * DAY : undefined,
   }));
 }
 export const reviewsStore = defineCollection<AdminReview>("reviews", seedReviews);
@@ -374,6 +381,7 @@ export const postsStore = defineCollection<SocialPost>("posts", seedPosts);
 export type MediaItem = { id: string; kind: "image" | "video"; src: string; name: string; bytes: number; width?: number; height?: number; durationSec?: number; carSlug?: string; carTitle?: string; createdAt: number };
 export const mediaStore = defineCollection<MediaItem>("media", () => []);
 
+// Leads by ad, fixed: fewer than the seeded leads from Facebook and Google, so the ads never claim more leads than came in.
 function seedAds(): Ad[] {
   const r = rng(83);
   const now = Date.now();
@@ -382,7 +390,7 @@ function seedAds(): Ad[] {
     const status = (["running", "running", "paused", "ended", "draft"] as const)[i];
     const impressions = status === "draft" ? 0 : r.int(4000, 60000);
     const clicks = Math.round(impressions * (r.int(8, 30) / 1000));
-    return { id: `ad-${800 + i}`, platform: r.pick(AD_PLATFORMS), name: `${car.make} ${car.model} spring push`, carTitle: carTitleOf(car), budgetEur: r.pick([100, 150, 250, 400]), status, impressions, clicks, leads: Math.round(clicks * 0.06), createdAt: now - (i + 1) * 5 * DAY };
+    return { id: `ad-${800 + i}`, platform: r.pick(AD_PLATFORMS), name: `${car.make} ${car.model} spring push`, carTitle: carTitleOf(car), budgetEur: r.pick([100, 150, 250, 400]), status, impressions, clicks, leads: [3, 2, 3, 2, 0][i], createdAt: now - (i + 1) * 5 * DAY };
   });
 }
 export const adsStore = defineCollection<Ad>("ads", seedAds);

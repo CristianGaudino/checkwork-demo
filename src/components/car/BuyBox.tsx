@@ -10,7 +10,7 @@ import { rareMarker } from "@/lib/stock/markers";
 import { CarMeta, FactValue } from "@/components/stock/CarMeta";
 import { PriceBlock } from "@/components/stock/PriceBlock";
 import { carName, carSummary, keyFacts, carHref } from "@/lib/stock/format";
-import { isSold, onRequest } from "@/lib/stock/types";
+import { isNew, isSold, onRequest } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 import { accentButton, card } from "@/components/ui";
 import { IfModule } from "@/components/IfModule";
@@ -25,7 +25,7 @@ const FACT_ICONS: Record<string, typeof CarIcon> = { Year: CalendarIcon, Mileage
 export function BuyBox({ car }: { car: Car }) {
   const sold = isSold(car);
   const price = priceInfo(car);
-  const warranty = car.condition === "new" ? NEW_CAR_WARRANTY : WARRANTY;
+  const warranty = isNew(car) ? NEW_CAR_WARRANTY : WARRANTY;
   const marker = rareMarker(car);
   const url = `${SITE_URL}${carHref(car.slug)}`;
   const whatsapp = `${DEALER_WHATSAPP}?text=${encodeURIComponent(`Hi, I'm interested in the ${carName(car)}: ${url}`)}`;

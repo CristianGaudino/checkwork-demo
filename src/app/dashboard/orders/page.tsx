@@ -64,7 +64,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
   const rows = paged.rows;
   const takenBy = [...new Set(orders.map((o) => o.salesperson).filter((n): n is string => Boolean(n)))].sort();
   const filters: FilterGroup[] = [
-    { name: "period", label: "Registration period", any: "Every period", options: periods.map((p) => [p, p] as const) },
+    { name: "period", label: "Registration period", any: "Every period", options: periods.map((p) => [p, `${p} reg`] as const) },
     { name: "by", label: "Taken by", any: "Anyone", options: takenBy.map((n) => [n, n] as const) },
   ];
   return (

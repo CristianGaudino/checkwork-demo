@@ -58,6 +58,7 @@ test("add a car, see it on the site with its VAT line, change its price to a dro
   await page.getByLabel("Price (€)", { exact: true }).fill("18500");
   await page.locator('[name="wasPriceEur"]').fill("19950");
   await page.getByRole("button", { name: "Save changes" }).click();
+  await expect(page).toHaveURL(/saved=/); // saved before the site is looked at
   await page.goto(`/used-cars?q=${MAKE}`);
   await expect(page.locator("article").filter({ hasText: "Roadster" }).getByText("Reduced by €1,450")).toBeVisible();
 
@@ -139,7 +140,7 @@ test("a deposit reserves a car on the website; ending it puts it back; a sale br
   await page.getByLabel("Held until").fill(new Date(Date.now() + 7 * 86_400_000).toISOString().slice(0, 10));
   await page.getByLabel("Name", { exact: true }).fill("Sam Reid");
   await page.getByLabel("Phone", { exact: true }).fill("+353 83 000 5555");
-  await page.getByRole("button", { name: "Take deposit" }).click();
+  await page.getByRole("button", { name: "Reserve" }).click();
   await expect(page.getByRole("status")).toContainText("Deposit taken");
   await page.goto(`/used-cars?q=${MAKE}`);
   const card = page.locator("article").filter({ hasText: "Deposit" });

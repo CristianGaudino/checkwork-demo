@@ -136,7 +136,7 @@ test("the Test Drive page lists the cars, books the one chosen, and the dealer s
   await page.goto("/test-drive?q=Niro");
   await expect(page.getByRole("listitem").filter({ hasText: "Niro" })).toHaveCount(1); // new cars are bookable too
   await page.goto("/test-drive?q=Vito");
-  await expect(page.getByRole("listitem").filter({ hasText: "Vito" }).first()).toBeVisible(); // and vans
+  await expect(page.getByRole("listitem").filter({ hasText: "Vito" }).first()).toContainText("Ex. VAT, reclaimable"); // and vans, priced as on their stock card
   await page.goto("/test-drive");
   const row = page.getByRole("listitem").filter({ hasText: "€" }).first();
   await row.getByRole("button", { name: "Book" }).click();
@@ -239,7 +239,9 @@ test("the footer links the privacy page, which states the retention period", asy
   await expect(page.getByRole("heading", { level: 1, name: "Privacy policy" })).toBeVisible();
   await expect(page.getByText("We keep each request for 12 months")).toBeVisible();
   // Deleting your details is asked for in writing, not by phone: by email once the dealer's address is confirmed, until then the contact page.
-  await expect(page.getByRole("main").getByRole("link", { name: /@|contact page/ })).toHaveAttribute("href", /^mailto:|^\/contact$/);
+  const write = page.getByRole("main").getByRole("link", { name: /@|contact page/ });
+  await expect(write).toHaveCount(2); // who we are, and your rights
+  for (const l of await write.all()) await expect(l).toHaveAttribute("href", /^mailto:|^\/contact$/);
   await expect(page.getByRole("main").getByRole("link", { name: "+353 1 906 0045" })).toHaveCount(0);
 });
 

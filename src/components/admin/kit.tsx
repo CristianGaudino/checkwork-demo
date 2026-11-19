@@ -233,30 +233,6 @@ export function paginate<T>(rows: T[], asked: string | undefined, size = PER_PAG
 // A table's page from the URL (?page=, ?per=), ready for its footer: <TableFooter {...pageOf(rows, sp)} />.
 export const pageOf = <T,>(rows: T[], sp: { page?: string; per?: string }) => paginate(rows, sp.page, perPage(sp.per));
 
-// Previous and Next for a page that builds its own links (the public test drive list). The dashboard's tables have TableFooter.
-export function Pager({ page, pageCount, total, href }: { page: number; pageCount: number; total: number; href: (page: number) => string }) {
-  if (pageCount <= 1) return null;
-  return (
-    <nav aria-label="Pages" className="flex flex-wrap items-center justify-between gap-3">
-      <p className="text-meta text-text-2">
-        Page {page} of {pageCount}, {total} in all
-      </p>
-      <div className="flex gap-2">
-        {page > 1 && (
-          <Link href={href(page - 1)} className={rowButton}>
-            Previous
-          </Link>
-        )}
-        {page < pageCount && (
-          <Link href={href(page + 1)} className={rowButton}>
-            Next
-          </Link>
-        )}
-      </div>
-    </nav>
-  );
-}
-
 // A small button in a table row: always a word, sometimes an icon before it.
 export const rowButton = `inline-flex h-11 group-data-[density=compact]/shell:h-8 items-center justify-center gap-1.5 whitespace-nowrap rounded-control border border-hairline bg-card px-3 text-meta font-medium text-text transition-colors hover:border-control ${press}`;
 

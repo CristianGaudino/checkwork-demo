@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { DEALER_ADDRESS, DEALER_LOCATION, DEALER_TEL, SITE_NAME, SITE_URL } from "@/lib/site";
 import { carName, carTitle, formatKm, fmtEur, carHref } from "./format";
-import { FUEL_LABELS, GEARBOX_LABELS, isSold, onRequest } from "./types";
+import { FUEL_LABELS, GEARBOX_LABELS, isNew, isSold, onRequest } from "./types";
 import { PRICING } from "./pricing.config";
 import type { Car } from "./types";
 
@@ -38,7 +38,7 @@ export function carJsonLd(car: Car): Record<string, unknown> {
     brand: { "@type": "Brand", name: car.make },
     model: car.model,
     vehicleModelDate: String(car.year),
-    itemCondition: car.condition === "new" ? "https://schema.org/NewCondition" : "https://schema.org/UsedCondition",
+    itemCondition: isNew(car) ? "https://schema.org/NewCondition" : "https://schema.org/UsedCondition",
     mileageFromOdometer: car.mileageKm === undefined ? undefined : { "@type": "QuantitativeValue", value: car.mileageKm, unitCode: "KMT" },
     fuelType: car.fuel && FUEL_LABELS[car.fuel],
     vehicleTransmission: car.gearbox && GEARBOX_LABELS[car.gearbox],
@@ -51,7 +51,7 @@ export function carJsonLd(car: Car): Record<string, unknown> {
     offers: onRequest(car) ? undefined : { // no price, no offer Google can read
       "@type": "Offer",
       url,
-      itemCondition: car.condition === "new" ? "https://schema.org/NewCondition" : "https://schema.org/UsedCondition",
+      itemCondition: isNew(car) ? "https://schema.org/NewCondition" : "https://schema.org/UsedCondition",
       availability: sold ? "https://schema.org/SoldOut" : car.reserved ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
       price: sold ? undefined : car.priceEur,
       priceCurrency: sold ? undefined : "EUR",

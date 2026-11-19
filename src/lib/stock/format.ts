@@ -41,7 +41,7 @@ export function specRows(car: Car): SpecRow[] {
     ["Colour", car.colour],
     ["Doors", car.doors === undefined ? undefined : String(car.doors)],
     ["Seats", car.seats === undefined ? undefined : String(car.seats)],
-    ["Owners", car.owners === undefined ? undefined : String(car.owners)],
+    ["Owners", car.owners ? String(car.owners) : undefined], // 0 is a new vehicle: no row, not "Owners 0"
     ["NCT expires", car.nctExpiry && nctLabel(car.nctExpiry)],
     ["Max speed", mph === undefined ? undefined : `${Math.round(mph * KM_PER_MILE)} km/h`, { label: "Max speed", value: `${mph} mph` }],
     ["0 to 100 km/h", car.zeroTo62Secs === undefined ? undefined : `${car.zeroTo62Secs} s`, { label: "0 to 62 mph", value: `${car.zeroTo62Secs} s` }],
@@ -78,6 +78,10 @@ export const plainText = (s: string) =>
     .replace(/&#39;/g, "'")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
+
+// A sold car's text without its closing invitation ("Call in to see it, or book a test drive..."): only a last paragraph of its own that
+// asks for a visit or a drive goes, so the facts about the car stay.
+export const withoutInvitation = (s: string) => s.replace(/\s*\n\s*(?:call in|book a test drive)\b[^\n]*$/i, "");
 
 // Search ignores case and accents, so "skoda" finds "Škoda" and "citroen" finds "Citroën". The one rule for every search on the site.
 export const fold = (s: string) => s.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");

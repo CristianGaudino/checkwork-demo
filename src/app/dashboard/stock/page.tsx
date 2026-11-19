@@ -22,7 +22,6 @@ import { OLD_STOCK_DAYS } from "@/lib/admin/overview";
 import { FEW_PHOTOS, STOCK_VIEWS, parseStockList, stockList, type StockView } from "@/lib/admin/stock-views";
 import { salesStore } from "@/lib/admin/collections";
 import { syncStatus } from "@/lib/donedeal/sync";
-import { SEARCH_MAKE_MODEL } from "@/lib/copy";
 import { setListingAction, toggleSoldAction, withdrawnAction } from "./actions";
 import { hasModule } from "@/lib/modules";
 
@@ -284,7 +283,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
           .map((v) => [v, all.filter(STOCK_VIEWS[v].test).length] as const)
           .filter(([v, count]) => count > 0 || view === v || !["hidden", "drafts", "reserved"].includes(v))
           .map(([v, count]) => ({ label: STOCK_VIEWS[v].label, count, href: href(v), active: view === v }))} />
-      <TableToolbar search={{ placeholder: SEARCH_MAKE_MODEL, label: "Search stock" }} filters={filters} />
+      <TableToolbar search={{ placeholder: "Search", label: "Search stock" }} filters={filters} />
       {/* Keyed by the list's address: a new search or filter starts the bar again, counting the boxes that are really ticked. */}
       {!synced && <StockBulk key={new URLSearchParams(sp as Record<string, string>).toString()} canDelete={canUndo} />}
       <DataTable

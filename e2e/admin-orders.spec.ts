@@ -19,7 +19,7 @@ test("an order is placed, arrives into stock held for the buyer, and is handed o
   await page.getByLabel("Price (€)").fill("41000");
   await page.getByLabel("Deposit (€, optional)").fill("1500");
   await choose(page.getByLabel("Deposit paid by"), /Card/);
-  await page.getByLabel("Due").fill(new Date().toISOString().slice(0, 7));
+  await choose(page.getByLabel("Due"), 1); // the first month, after "Choose a month"
   await page.getByLabel("Name", { exact: true }).fill("Rory Byrne");
   await page.getByLabel("Phone", { exact: true }).fill("+353 83 000 6666");
   await page.getByRole("button", { name: "Place order" }).click();
@@ -49,7 +49,7 @@ test("cancelling an order asks first: Cancel leaves it as it was, yes cancels it
   await page.getByLabel("Make", { exact: true }).fill("Zzcancel");
   await page.getByLabel("Model", { exact: true }).fill("Estate");
   await page.getByLabel("Price (€)").fill("38000");
-  await page.getByLabel("Due").fill(new Date().toISOString().slice(0, 7));
+  await choose(page.getByLabel("Due"), 1); // the first month, after "Choose a month"
   await page.getByLabel("Name", { exact: true }).fill("Una Kelly");
   await page.getByLabel("Phone", { exact: true }).fill("+353 83 000 7777");
   await page.getByRole("button", { name: "Place order" }).click();
@@ -63,6 +63,8 @@ test("cancelling an order asks first: Cancel leaves it as it was, yes cancels it
 
   await page.getByRole("button", { name: "Cancel the order" }).click();
   await dialog.getByRole("button", { name: "Cancel the order" }).click();
+  // Saved before the list is opened: under load the list could otherwise load first.
+  await expect(page.getByRole("region", { name: "Where it is" })).toContainText("Cancelled");
   await page.goto("/dashboard/orders?view=cancelled");
   await expect(page.getByRole("row").filter({ hasText: "Zzcancel Estate" })).toBeVisible();
 });

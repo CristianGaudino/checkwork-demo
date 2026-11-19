@@ -38,7 +38,7 @@ test("a make page has its own heading, title, intro and cars", async ({ page }) 
   const res = await page.goto(`/used-cars/${topSlug}`);
   expect(res?.status()).toBe(200);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(`Used ${topMake}`);
-  await expect(page.getByText(`We have ${n} used ${topMake} in stock in ${DEALER_ADDRESS.town}`)).toBeVisible();
+  await expect(page.getByText(`We have ${n} used ${topMake} car${n === 1 ? "" : "s"} in stock in ${DEALER_ADDRESS.town}`)).toBeVisible();
   await expect(page).toHaveTitle(new RegExp(`^Used ${topMake} for sale in ${DEALER_ADDRESS.town}`));
   const links = page.locator("article h2 a");
   await expect(links).toHaveCount(Math.min(12, n));
@@ -110,7 +110,7 @@ test("a make with nothing in stock and nothing recently sold shows the empty sta
   expect(res?.status()).toBe(200);
   await expect(page.getByRole("heading", { name: `No ${expiredOnly.make} in stock right now` })).toBeVisible();
   await expect(page.getByText("Have a look at these instead.")).toBeVisible();
-  expect((await chipHrefs(page, "Makes in stock")).length).toBeGreaterThan(0);
+  expect((await chipHrefs(page, "Used makes in stock")).length).toBeGreaterThan(0);
   await expect(page.getByRole("link", { name: "Can't find it? Ask us to find it for you." })).toHaveAttribute("href", "/find-a-car");
   await expect(page.getByRole("link", { name: "See all used cars" })).toHaveCount(0); // D-15 replaced it
   await expect(page.getByText(/^Recently sold/)).toHaveCount(0);

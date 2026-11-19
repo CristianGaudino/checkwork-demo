@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { PageHeader, Panel } from "@/components/admin/kit";
 import { PlaceOrderForm } from "@/components/admin/OrderForms";
 import { customersStore, getSettings, leadsStore } from "@/lib/admin/collections";
-import { addMonths, dublinDay } from "@/lib/admin/format";
+import { dublinDay } from "@/lib/admin/format";
 import { regPeriods } from "@/lib/leads/reg-periods";
 import { currentMember } from "@/lib/permissions";
 import { stockSource } from "@/lib/stock-source";
@@ -27,7 +27,6 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ l
         <PlaceOrderForm
           periods={regPeriods(today)}
           month={today.slice(0, 7)}
-          lastMonth={addMonths(today, 24).slice(0, 7)}
           team={team.map((t) => t.name)}
           me={team.some((t) => t.name === me.name) ? me.name : undefined}
           customers={[...customers].sort((a, b) => a.name.localeCompare(b.name, "en-IE")).map((c) => ({ id: c.id, label: c.phone ? `${c.name}, ${c.phone}` : c.name }))}

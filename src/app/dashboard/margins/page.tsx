@@ -5,7 +5,7 @@ import { DataTable, EmptyState, PageHeader, Panel, StatCard, StatGrid, TableFoot
 import { carStatus } from "@/lib/admin/stock-admin-pure";
 import { salesStore } from "@/lib/admin/collections";
 import { carCosts } from "@/lib/admin/costs";
-import { fmtEur, fmtPct, plural } from "@/lib/admin/format";
+import { fmtEur, fmtNum, fmtPct, plural } from "@/lib/admin/format";
 import { marginOf } from "@/lib/admin/margins";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { can } from "@/lib/permissions";
@@ -38,6 +38,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ q
   const sold = known.filter((r) => isSold(r.car));
   const soldMargin = sold.reduce((s, r) => s + marginOf(r.price, r.cost).eur, 0);
   const stockMargin = marginOf(stockPrice, stockCost);
+  // What "in stock" counts here (every car not sold, so reserved and hidden ones too), as Stock and Overview name them: "35 for sale, 2 reserved".
+  const byStatus = new Map<string, number>();
+  for (const r of stock) byStatus.set(carStatus(r.car), (byStatus.get(carStatus(r.car)) ?? 0) + 1);
+  const stockHint = [...byStatus].sort((a, b) => b[1] - a[1]).map(([s, n]) => `${fmtNum(n)} ${s.toLowerCase()}`).join(", ") || "No cars in stock";
 
   const columns: Column<Row>[] = [
     {
@@ -56,6 +60,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ q
       key: "cost",
       header: "Cost",
       align: "right",
+      hide: "sm", // a phone keeps Car and Margin, so the margin is never cut off
       sort: (r) => r.cost,
       cell: (r) => {
         if (r.cost === undefined) return "Not set";
@@ -72,17 +77,19 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ q
   const shown = rows.filter((r) => (!q || carName(r.car).toLowerCase().includes(q)) && (!sp.state || (sp.state === "sold") === isSold(r.car)) && (sp.state !== "no-cost" || r.cost === undefined));
   const { rows: sorted, sort } = sortRows(shown, columns, sp, { key: "", dir: "asc" });
   const paged = pageOf(sorted, sp);
+  // The table's name says what it lists, so its "of 42" is not read as the stock count above.
+  const scope = ({ stock: "In stock", sold: "Sold", "no-cost": "No cost price yet" } as Record<string, string>)[sp.state ?? ""] ?? "Every car, in stock and sold";
 
   return (
     <>
       <PageHeader title="Margins" text="Price less cost, prep included, before VAT. A sold car uses what it sold for." />
       <StatGrid>
-        <StatCard label="Stock cost" value={fmtEur(stockCost)} hint={`${plural(stock.length, "car")} in stock`} />
+        <StatCard label="Stock cost" value={fmtEur(stockCost)} hint={stockHint} />
         <StatCard label="Stock value" value={fmtEur(stockPrice)} hint="At the advertised prices" />
         <StatCard label="Expected margin" value={fmtEur(stockMargin.eur)} hint={`${fmtPct(stockMargin.pct)} of the value`} />
         <StatCard label="Margin on sold cars" value={fmtEur(soldMargin)} hint={`${plural(sold.length, "car")} sold`} />
       </StatGrid>
-      <Panel title="Every car">
+      <Panel title={scope}>
         <TableToolbar search={{ placeholder: "Search", label: "Search cars" }} filters={[{ name: "state", label: "Which cars", any: "Every car", options: [["stock", "In stock"], ["sold", "Sold"], ["no-cost", "No cost price yet"]] }]} />
         <DataTable bare columns={columns} rows={paged.rows} rowKey={(r) => r.car.id} sort={sort} empty={<EmptyState title="No cars match" />} />
         <TableFooter page={paged.page} pageCount={paged.pageCount} total={paged.total} per={paged.per} />
