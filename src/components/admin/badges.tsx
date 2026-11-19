@@ -1,12 +1,13 @@
 import { Badge, type Tone } from "@/components/admin/kit";
 import type { Car } from "@/lib/stock/types";
 import { carStatus, type CarStatus } from "@/lib/admin/stock-admin-pure";
-import { CLAIM_STATUS_LABELS, DRIVE_STATUS_LABELS, LEAD_STATUS_LABELS, ORDER_STATUS_LABELS, type ClaimStatus, type DriveStatus, type LeadStatus, type OrderStatus } from "@/lib/admin/collections";
+import { CLAIM_STATUS_LABELS, DRIVE_STATUS_LABELS, ORDER_STATUS_LABELS, leadStatusLabel, type ClaimStatus, type DriveStatus, type LeadStatus, type LeadType, type OrderStatus } from "@/lib/admin/collections";
 
 const LEAD_TONE: Record<LeadStatus, Tone> = { new: "info", contacted: "neutral", appointment: "warn", won: "good", lost: "bad" };
 const DRIVE_TONE: Record<DriveStatus, Tone> = { requested: "warn", confirmed: "info", completed: "good", "no-show": "bad", cancelled: "neutral" };
 
-export const LeadStatusBadge = ({ status }: { status: LeadStatus }) => <Badge tone={LEAD_TONE[status]}>{LEAD_STATUS_LABELS[status]}</Badge>;
+// `type`: a warranty request reads its own words (leadStatusLabel).
+export const LeadStatusBadge = ({ status, type = "enquiry" }: { status: LeadStatus; type?: LeadType }) => <Badge tone={LEAD_TONE[status]}>{leadStatusLabel(type, status)}</Badge>;
 export const DriveStatusBadge = ({ status }: { status: DriveStatus }) => <Badge tone={DRIVE_TONE[status]}>{DRIVE_STATUS_LABELS[status]}</Badge>;
 const CLAIM_TONE: Record<ClaimStatus, Tone> = { open: "warn", booked: "info", approved: "info", declined: "neutral", repaired: "good", closed: "neutral" };
 export const ClaimStatusBadge = ({ status }: { status: ClaimStatus }) => <Badge tone={CLAIM_TONE[status]}>{CLAIM_STATUS_LABELS[status]}</Badge>;

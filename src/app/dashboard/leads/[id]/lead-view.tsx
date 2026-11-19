@@ -10,7 +10,7 @@ import { AITextarea } from "@/components/admin/AIWriter";
 import { IfModule } from "@/components/IfModule";
 import { lookupRegStaffAction } from "@/app/dashboard/reg-action";
 import { Avatar, Badge, Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput, rowButton } from "@/components/admin/kit";
-import { LEAD_STATUS_LABELS, LEAD_TYPE_LABELS, LOST_REASONS, getSettings, leadsStore } from "@/lib/admin/collections";
+import { LEAD_TYPE_LABELS, LOST_REASONS, getSettings, leadStatusLabel, leadStatusSteps, leadsStore } from "@/lib/admin/collections";
 import { fmtDateTime } from "@/lib/admin/format";
 
 import { adminCars } from "@/lib/admin/stock-admin";
@@ -28,13 +28,8 @@ import { ContactButtons } from "@/components/admin/ContactButtons";
 import { leadTags } from "@/lib/leads/contact-topics";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 
-// The quick actions on a lead: the steps it moves through. New is where it starts, so it has no button.
-const STATUS_ACTIONS: { status: LeadStatus; Icon: typeof PhoneIcon }[] = [
-  { status: "contacted", Icon: PhoneIcon },
-  { status: "appointment", Icon: CalendarIcon },
-  { status: "won", Icon: CheckIcon },
-  { status: "lost", Icon: CloseIcon },
-];
+// The quick actions on a lead: the steps it moves through (leadStatusSteps), each with its icon.
+const STATUS_ICONS: Record<LeadStatus, typeof PhoneIcon> = { new: PhoneIcon, contacted: PhoneIcon, appointment: CalendarIcon, won: CheckIcon, lost: CloseIcon };
 
 // One lead, worked from here: its message, contact, status, follow-up, who has it, notes. Shown at its own address under Leads, or, for a
 // warranty request, under Aftersales (where it is listed), so the menu marks the right place. The pages around it choose which.
@@ -139,17 +134,20 @@ export async function LeadView({ id }: { id: string }) {
               </IfModule>
             )}
           </Panel>
-          <Panel title="Status" className="max-lg:order-3" action={<LeadStatusBadge status={lead.status} />}>
+          <Panel title="Status" className="max-lg:order-3" action={<LeadStatusBadge status={lead.status} type={lead.type} />}>
             <div className="flex flex-wrap gap-2">
-              {STATUS_ACTIONS.map(({ status, Icon }) => (
-                <ChoiceAct key={status} action={setStatusAction.bind(null, lead.id)} set={{ status }} back={statusBack} active={lead.status === status} done={`${lead.name}: ${LEAD_STATUS_LABELS[status]}`}>
-                  <Icon className="size-4" />
-                  {LEAD_STATUS_LABELS[status]}
-                </ChoiceAct>
-              ))}
+              {leadStatusSteps(lead.type).map((status) => {
+                const Icon = STATUS_ICONS[status];
+                return (
+                  <ChoiceAct key={status} action={setStatusAction.bind(null, lead.id)} set={{ status }} back={statusBack} active={lead.status === status} done={`${lead.name}: ${leadStatusLabel(lead.type, status)}`}>
+                    <Icon className="size-4" />
+                    {leadStatusLabel(lead.type, status)}
+                  </ChoiceAct>
+                );
+              })}
             </div>
-            {/* Why it was lost, for the reports. Only on a lost lead. */}
-            {lead.status === "lost" && (
+            {/* Why it was lost, for the reports. Only on a lost lead, and not on a closed warranty request, which was no sale. */}
+            {lead.status === "lost" && lead.type !== "warranty" && (
               <fieldset className="flex flex-col gap-2">
                 <legend className="mb-2 text-meta font-medium">Why was it lost?</legend>
                 <div className="flex flex-wrap gap-2">

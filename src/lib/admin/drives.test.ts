@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
-const { DRIVE_NEXT, clashes, filterDrives, parseDriveStatus, slotData, waitingDrives } = await import("./drives");
+const { DRIVE_NEXT, clashes, filterDrives, parseDriveStatus, settleSeededDrive, slotData, waitingDrives } = await import("./drives");
 type D = import("./collections").TestDrive;
 
 const at = (day: number, hour: number) => new Date(2026, 10, day, hour, 0).getTime();
@@ -57,5 +57,14 @@ describe("test drive agenda", () => {
     const list = [drive("open", at(12, 9)), drive("over", at(12, 10), { status: "completed" }), drive("other", at(12, 11), { carSlug: "car-2" })];
     expect(filterDrives(list, { car: "gone" }, at(11, 9), new Set(["car-1"])).map((d) => d.id)).toEqual(["open"]);
     expect(filterDrives(list, { car: "gone" }, at(11, 9))).toEqual([]);
+  });
+  it("a seeded booking already past went ahead if confirmed, and a request moves to the same time the next day", () => {
+    const now = Date.UTC(2026, 10, 19, 18, 0); // Thursday 19 November, 18:00 in Dublin
+    const five = Date.UTC(2026, 10, 19, 17, 0);
+    expect(settleSeededDrive(five, "confirmed", now)).toEqual({ startsAt: five, status: "completed" });
+    expect(settleSeededDrive(five, "requested", now)).toEqual({ startsAt: Date.UTC(2026, 10, 20, 17, 0), status: "requested" });
+    expect(settleSeededDrive(five, "cancelled", now)).toEqual({ startsAt: five, status: "cancelled" });
+    const later = Date.UTC(2026, 10, 19, 19, 0);
+    expect(settleSeededDrive(later, "requested", now)).toEqual({ startsAt: later, status: "requested" });
   });
 });

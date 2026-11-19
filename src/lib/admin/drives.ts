@@ -1,7 +1,15 @@
 import type { TestDrive } from "./collections";
 import { HOUR } from "@/lib/time";
 import { TEST_DRIVE, driveTimes } from "@/lib/leads/constants";
-import { addDays, addMonths, dublinDateTime, dublinDay } from "./format";
+import { addDays, addMonths, dublinDateTime, dublinDay, dublinMs } from "./format";
+
+// A seeded booking whose time has passed: a confirmed one went ahead, a request moves to the same time the next day. So the demo, opened
+// at any hour, never shows a drive that already happened still waiting to be confirmed.
+export function settleSeededDrive(startsAt: number, status: DriveStatus, now: number): { startsAt: number; status: DriveStatus } {
+  if (startsAt > now || !isOpenDrive({ status })) return { startsAt, status };
+  if (status === "confirmed") return { startsAt, status: "completed" };
+  return { startsAt: dublinMs(addDays(dublinDay(startsAt), 1), dublinDateTime(startsAt).slice(11)), status };
+}
 
 // Agenda helpers for the test drive bookings. Pure, so the grouping and the checks are tested. How far ahead, and on which days and
 // times, is TEST_DRIVE and driveTimes (src/lib/leads/constants.ts), shared with the website's booking form.

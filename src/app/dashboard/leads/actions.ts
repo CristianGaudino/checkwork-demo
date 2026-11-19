@@ -5,7 +5,7 @@ import { z } from "zod";
 import { logActivity } from "@/lib/admin/activity";
 import { addDays, dublinDay, fmtDate, isIsoDay } from "@/lib/admin/format";
 import { isOpenLead } from "@/lib/admin/leads";
-import { LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_TYPE_LABELS, LOST_REASONS, getSettings, leadsStore } from "@/lib/admin/collections";
+import { LEAD_STATUSES, LEAD_TYPE_LABELS, LOST_REASONS, getSettings, leadStatusLabel, leadsStore } from "@/lib/admin/collections";
 import { appendNote } from "@/lib/admin/notes";
 import { notify } from "@/lib/admin/notifications";
 import { currentMember } from "@/lib/permissions";
@@ -30,7 +30,7 @@ export async function setStatusAction(id: string, data: FormData) {
   const followUpOn = isOpenLead({ status: parsed.data }) ? (lead.followUpOn ?? (isIsoDay(on) ? on : undefined)) : undefined;
   const lostReason = parsed.data === "lost" ? (lead.lostReason ?? (why.success ? why.data : undefined)) : undefined;
   if (!(await leadsStore.update(id, (l) => ({ ...l, status: parsed.data, followUpOn, lostReason })))) return;
-  await logActivity("leads", `Moved the lead from ${LEAD_STATUS_LABELS[lead.status]} to ${LEAD_STATUS_LABELS[parsed.data]}`, ref(id));
+  await logActivity("leads", `Moved the lead from ${leadStatusLabel(lead.type, lead.status)} to ${leadStatusLabel(lead.type, parsed.data)}`, ref(id));
   revalidatePath("/dashboard/leads");
   revalidatePath(`/dashboard/leads/${id}`);
   revalidatePath(`/dashboard/aftersales/requests/${id}`);
