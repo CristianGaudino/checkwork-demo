@@ -15,7 +15,7 @@ test("the Questions page answers from what the site says, one press opens an ans
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Questions");
   const q = page.getByText("Does a used car come with a warranty?");
   await q.click();
-  await expect(page.getByText(/12 month warranty: engine and gearbox cover/)).toBeVisible();
+  await expect(page.getByText(/12 month warranty: covers the engine and gearbox/)).toBeVisible();
   await page.getByText("Can I buy a car on finance?").click();
   await expect(page.getByText(/subject to status/)).toBeVisible();
   expect(await page.evaluate(() => document.body.innerText.includes("—"))).toBe(false); // no em dashes on the site
