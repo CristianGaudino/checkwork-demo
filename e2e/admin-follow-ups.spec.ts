@@ -35,7 +35,7 @@ test("in the DoneDeal version a sold car's sale is asked for and recorded with a
   await page.goto("/dashboard/stock?view=sold");
   const row = page.getByRole("row").filter({ has: page.getByRole("link", { name: "Record sale" }) }).first();
   await row.getByRole("link", { name: "Record sale" }).click();
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Record the sale");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Record sale");
   await page.getByLabel("Buyer").click();
   await page.getByRole("listbox").getByRole("option").nth(1).click(); // a customer on file
   await expect(page.getByLabel("Name", { exact: true })).toHaveCount(0); // no new-customer boxes

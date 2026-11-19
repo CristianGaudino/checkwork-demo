@@ -18,7 +18,8 @@ import { isSalesLead } from "@/lib/admin/leads";
 import { enabledModules } from "@/lib/modules";
 import type { ModuleId } from "@/lib/modules-rules";
 
-export const metadata = { title: "Overview" };
+// The layout's "%s | Dealer dashboard" template reaches only the pages under it, not this one beside it.
+export const metadata = { title: { absolute: "Overview | Dealer dashboard" } };
 
 const row = "flex min-h-14 items-center justify-between gap-3 px-1 py-3 transition-colors hover:bg-surface";
 
@@ -52,7 +53,7 @@ export default async function Page() {
             {mods.has("testDrives") && (
               <Link href="/dashboard/test-drives/new" className={adminButtonQuiet}>
                 <CalendarIcon className="size-4" />
-                Book a drive
+                Book a test drive
               </Link>
             )}
             {mods.has("social") && (
@@ -89,7 +90,7 @@ export default async function Page() {
                     <span className="flex min-w-0 flex-col">
                       <span className="truncate font-medium">{l.name}</span>
                       <span className="flex min-w-0 gap-1 text-meta text-text-2">
-                        <span className="truncate">{l.carTitle ?? l.message.trim().split("\n")[0]}</span>
+                        {(l.carTitle ?? l.message.trim()) && <span className="truncate">{l.carTitle ?? l.message.trim().split("\n")[0]}</span>}
                         <span className="shrink-0">{(l.carTitle ?? l.message.trim()) && "· "}{fmtAgo(l.createdAt)}</span>
                       </span>
                     </span>

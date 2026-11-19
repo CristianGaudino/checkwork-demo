@@ -16,7 +16,7 @@ import { DRIVE_LIMITS } from "@/lib/admin/drives";
 // What the slot picker is given (slotData on the server) and the length of a slot from Settings.
 export type Slots = { days: string[]; taken: Record<string, string[]>; now: string; windowMin: number };
 
-const STEPS = ["Car", "Time", "Customer"];
+const STEPS = ["Choose a car", "Choose a time", "Who is driving"]; // worded as the post wizard's steps
 // The step a server error belongs to, so a refused booking opens where it can be fixed.
 const stepOf = (e: Record<string, string>) => (e.carSlug ? 0 : e.date || e.time ? 1 : 2);
 
@@ -86,7 +86,8 @@ export function BookDriveForm({ cars, team, me, slots, initialCar }: { cars: Car
         </Field>
       </section>
 
-      <div className="flex flex-wrap items-center gap-3 border-t border-hairline pt-4">
+      {/* Step 1 has no buttons (picking a car moves on), so no empty divider either. */}
+      <div className={`${step > 0 ? "flex" : "hidden"} flex-wrap items-center gap-3 border-t border-hairline pt-4`}>
         {step > 0 && (
           <button type="button" onClick={() => setStep(step - 1)} className={adminButtonQuiet}>
             Back

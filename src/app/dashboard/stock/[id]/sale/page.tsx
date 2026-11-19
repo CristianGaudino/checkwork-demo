@@ -9,7 +9,13 @@ import { stockSource } from "@/lib/stock-source";
 import { carName } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
 
-export const metadata = { title: "Record a sale" };
+// One name for the action on its button, heading and tab: Mark sold, Record sale (a sold car with none), Change the sale.
+const titleOf = (was: unknown, sold: boolean) => (was ? "Change the sale" : sold ? "Record sale" : "Mark sold");
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const [car, was] = await Promise.all([adminCar(id), salesStore.get(id)]);
+  return { title: titleOf(was, Boolean(car && isSold(car))) };
+}
 
 // Mark sold in our version (the car is marked sold on the sale's day) and for a DoneDeal car whose ad came down, Record sale for a sold car
 // with none, and Change the sale for one already recorded. A DoneDeal car still for sale is sold on DoneDeal first: the ad coming down is what asks.
@@ -19,12 +25,12 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   if (!car || (source === "donedeal" && !isSold(car) && !was && !car.takenDownAt)) notFound();
   if (was && !(await can("settings"))) notFound(); // changing a sale is for owners and managers (actions.ts)
   const today = dublinDay();
-  const title = was ? "Change the sale" : isSold(car) ? "Record the sale" : "Mark sold";
+  const title = titleOf(was, isSold(car));
   // A deposit on the car: its buyer and salesperson start the form, and it becomes part of the sale.
   const held = heldFor(reservations, car.id);
   return (
     <>
-      <PageHeader title={title} text={carName(car)} back={{ href: "/dashboard/stock?view=sold", label: "Sold cars" }} />
+      <PageHeader title={title} text={carName(car)} back={isSold(car) ? { href: "/dashboard/stock?view=sold", label: "Sold cars" } : { href: "/dashboard/stock", label: "Stock" }} />
       <Panel>
         {held && <p className="max-w-measure text-body">A deposit of {fmtEur(held.depositEur)} was paid on this car. It is recorded as part of this sale.</p>}
         <SaleForm
