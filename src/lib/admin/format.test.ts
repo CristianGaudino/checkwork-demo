@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addMonths, daysSince, isIsoDay, isIsoMonth, fmtAgo, fmtDateTime, fmtDay, fmtEur, fmtPct, fmtTime, plural } from "./format";
+import { addMonths, daysSince, isIsoDay, isIsoMonth, fmtAgo, fmtDateTime, fmtDay, fmtEur, fmtPct, fmtTime, monthChoices, plural } from "./format";
 
 describe("admin format", () => {
   const now = new Date("2026-11-10T12:00:00Z").getTime();
@@ -19,6 +19,12 @@ describe("Irish time", () => {
   it("shows a summer moment an hour ahead of UTC, and a winter one the same", () => {
     expect(fmtDateTime(Date.UTC(2026, 6, 1, 10, 0))).toContain("11:00");
     expect(fmtDateTime(Date.UTC(2026, 0, 15, 10, 0))).toContain("10:00");
+  });
+});
+
+describe("monthChoices", () => {
+  it("lists months as YYYY-MM with their names, across the new year", () => {
+    expect(monthChoices("2026-11", 3)).toEqual([["2026-11", "November 2026"], ["2026-12", "December 2026"], ["2027-01", "January 2027"]]);
   });
 });
 

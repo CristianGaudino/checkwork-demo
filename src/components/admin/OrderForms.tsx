@@ -8,6 +8,7 @@ import { Choice, Field, adminButton, adminInput, dangerButton } from "@/componen
 import { BuyerFields } from "@/components/admin/BuyerFields";
 import { cancelOrderAction, placeOrderAction } from "@/app/dashboard/orders/actions";
 import { DEPOSIT_METHODS } from "@/lib/admin/deposits";
+import { monthChoices } from "@/lib/admin/format";
 import { regPeriodLabel } from "@/lib/leads/reg-periods";
 import type { FormState } from "@/lib/admin/validation";
 
@@ -15,7 +16,7 @@ import type { FormState } from "@/lib/admin/validation";
 const grid = "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3";
 const full = "sm:col-span-2 lg:col-span-3";
 
-export function PlaceOrderForm({ periods, month, lastMonth, team, me, customers, leadId }: { periods: string[]; month: string; lastMonth: string; team: string[]; me?: string; customers: { id: string; label: string }[]; leadId?: string }) {
+export function PlaceOrderForm({ periods, month, team, me, customers, leadId }: { periods: string[]; month: string; team: string[]; me?: string; customers: { id: string; label: string }[]; leadId?: string }) {
   const [state, action, pending] = useKeptForm<FormState>(placeOrderAction, undefined);
   const e = state?.errors ?? {};
   return (
@@ -46,7 +47,8 @@ export function PlaceOrderForm({ periods, month, lastMonth, team, me, customers,
         <Select name="regPeriod" defaultValue={periods[1]} options={periods.map((p) => [p, regPeriodLabel(p)] as const)} />
       </Field>
       <Field label="Due" hint="The month the maker gave" error={e.expected}>
-        <input name="expected" type="month" min={month} max={lastMonth} className={adminInput} />
+        {/* This month and the next 24, as the server allows. */}
+        <Select name="expected" defaultValue="" options={[["", "Choose a month"], ...monthChoices(month, 25)]} />
       </Field>
       <Field label="Taken by" error={e.salesperson}>
         <Select name="salesperson" defaultValue={me ?? ""} options={[["", "Not set"], ...team.map((t) => [t, t] as const)]} />

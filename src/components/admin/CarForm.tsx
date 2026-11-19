@@ -11,6 +11,7 @@ import { AITextarea } from "@/components/admin/AIWriter";
 import { saveCarAction } from "@/app/dashboard/stock/actions";
 import { lookupRegStaffAction } from "@/app/dashboard/reg-action";
 import { CAR_FIELDS, FIELD_GROUPS } from "@/lib/admin/car-fields";
+import { addMonths, dublinDay, fmtDay, isIsoMonth, monthChoices } from "@/lib/admin/format";
 import type { Car } from "@/lib/stock/types";
 import type { WriteRequest } from "@/lib/ai/tasks";
 import type { FormState } from "@/lib/admin/validation";
@@ -20,6 +21,12 @@ const carRequest = (form: HTMLFormElement | null | undefined): WriteRequest | nu
   if (!form) return null;
   const fields = Object.fromEntries(CAR_FIELDS.map((c) => [c.name, String(new FormData(form).get(c.name) ?? "").trim()]));
   return fields.make && fields.model ? { task: "carDescription", fields } : null;
+};
+
+// The NCT expiry choices: a year back (an expired NCT) to four years on (a new car's first test), plus the car's own month if outside that.
+const monthOptions = (current: string): (readonly [string, string])[] => {
+  const months = monthChoices(addMonths(dublinDay(), -12).slice(0, 7), 61);
+  return [["", "Not set"], ...(current && !months.some(([m]) => m === current) ? [[current, isIsoMonth(current) ? fmtDay(`${current}-01`, "monthYear") : current] as const] : []), ...months];
 };
 
 // Add or edit a car. Every box comes from CAR_FIELDS; the server checks it again (car-form.ts), and a bad box comes back with its message.
@@ -84,6 +91,8 @@ export function CarForm({ car, cost, reg: startReg = "" }: { car?: Car; cost?: {
               <Field key={f.name} label={f.label} hint={f.name === "priceEur" && onRequest ? "A price of 0 shows as Price on request on the website, with no finance estimate." : f.hint} error={errors[f.name]} className={f.wide ? "sm:col-span-2 lg:col-span-3" : ""}>
                 {f.type === "select" ? (
                   <Select name={f.name} defaultValue={value(f.name)} options={[["", f.name === "condition" ? "Used" : "Not set"], ...f.options!.filter(([v]) => !(f.name === "condition" && v === "used"))]} />
+                ) : f.type === "month" ? (
+                  <Select name={f.name} defaultValue={value(f.name)} options={monthOptions(value(f.name))} />
                 ) : f.type === "textarea" ? (
                   <textarea name={f.name} defaultValue={value(f.name)} rows={f.name === "features" ? 6 : 5} className={`${adminInput} h-auto py-2`} />
                 ) : (

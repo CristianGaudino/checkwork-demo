@@ -57,7 +57,5 @@ export function countByStatus(leads: Lead[]): Record<LeadStatus, number> {
 }
 
 // New leads that need an answer first: "this week" ("can't be driven" is a car bought here, filed in Aftersales). The rest keep their order.
-export const urgentFirst = (leads: Lead[]): Lead[] => {
-  const hot = (l: Lead) => l.status === "new" && Boolean(l.topic) && isUrgent(l.answers ?? {});
-  return [...leads.filter(hot), ...leads.filter((l) => !hot(l))];
-};
+export const isHotLead = (l: Lead) => l.status === "new" && Boolean(l.topic) && isUrgent(l.answers ?? {});
+export const urgentFirst = (leads: Lead[]): Lead[] => [...leads.filter(isHotLead), ...leads.filter((l) => !isHotLead(l))];

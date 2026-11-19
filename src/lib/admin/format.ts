@@ -19,6 +19,7 @@ const DAY_STYLES = {
   weekday: utc({ weekday: "short" }), // Thu
   day: utc({ day: "numeric" }), // 12
   month: utc({ month: "short" }), // Nov
+  monthYear: utc({ month: "long", year: "numeric" }), // November 2026
 } as const;
 
 // Some engines write September "Sept" beside "Oct": every short month is three letters.
@@ -54,6 +55,9 @@ export function addMonths(day: string, n: number) {
   const last = new Date(Date.UTC(y, m - 1 + n + 1, 0));
   return new Date(Date.UTC(last.getUTCFullYear(), last.getUTCMonth(), Math.min(d, last.getUTCDate()))).toISOString().slice(0, 10);
 }
+// `count` months from `from` (YYYY-MM) on, as [value, label] pairs for a drop-down: an empty month box reads "--------- ----" in Chrome.
+export const monthChoices = (from: string, count: number) =>
+  Array.from({ length: count }, (_, i) => addMonths(`${from}-01`, i).slice(0, 7)).map((m) => [m, fmtDay(`${m}-01`, "monthYear")] as const);
 export const fmtPct = (n: number) => `${(Math.round(n * 10) / 10).toString()}%`;
 
 const rtf = new Intl.RelativeTimeFormat("en-IE", { numeric: "auto" });

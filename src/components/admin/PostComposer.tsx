@@ -217,7 +217,8 @@ export function PostComposer({ cars, initialSlug, initialFormat = "post", initia
           )}
         </section>
 
-        <div className="flex flex-wrap items-center gap-3 border-t border-hairline pt-4">
+        {/* Step 1 has no buttons (picking a car moves on), so no empty divider either. */}
+        <div className={`${step > 0 ? "flex" : "hidden"} flex-wrap items-center gap-3 border-t border-hairline pt-4`}>
           {step > 0 && (
             <button type="button" onClick={() => setStep(step - 1)} className={adminButtonQuiet}>
               Back

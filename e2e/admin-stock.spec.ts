@@ -139,7 +139,7 @@ test("a deposit reserves a car on the website; ending it puts it back; a sale br
   await page.getByLabel("Held until").fill(new Date(Date.now() + 7 * 86_400_000).toISOString().slice(0, 10));
   await page.getByLabel("Name", { exact: true }).fill("Sam Reid");
   await page.getByLabel("Phone", { exact: true }).fill("+353 83 000 5555");
-  await page.getByRole("button", { name: "Take deposit" }).click();
+  await page.getByRole("button", { name: "Reserve" }).click();
   await expect(page.getByRole("status")).toContainText("Deposit taken");
   await page.goto(`/used-cars?q=${MAKE}`);
   const card = page.locator("article").filter({ hasText: "Deposit" });

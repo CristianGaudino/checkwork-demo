@@ -256,6 +256,8 @@ export function TableFooter({ page, pageCount, total, per, exportHref }: { page:
   }
   const pageHref = (n: number) => hrefWith({ page: n > 1 ? String(n) : undefined }, true);
   const step = `inline-flex h-11 min-w-11 items-center justify-center rounded-control border border-hairline bg-card px-3 text-meta font-medium text-text transition-colors hover:border-control ${press}`;
+  // An end with nowhere to go: muted text with no fill, not faded, so it still passes contrast.
+  const stepOff = "inline-flex h-11 min-w-11 items-center justify-center rounded-control border border-dashed border-hairline px-3 text-meta font-medium text-text-2";
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -280,7 +282,7 @@ export function TableFooter({ page, pageCount, total, per, exportHref }: { page:
                 Previous
               </Link>
             ) : (
-              <span aria-hidden className={`${step} opacity-40`}>Previous</span>
+              <span aria-hidden className={stepOff}>Previous</span>
             )}
             {/* Page numbers from a small tablet up; a phone says where it is between Previous and Next. */}
             <span className="hidden items-center gap-1 sm:flex">
@@ -304,7 +306,7 @@ export function TableFooter({ page, pageCount, total, per, exportHref }: { page:
                 Next
               </Link>
             ) : (
-              <span aria-hidden className={`${step} opacity-40`}>Next</span>
+              <span aria-hidden className={stepOff}>Next</span>
             )}
           </nav>
         )}
