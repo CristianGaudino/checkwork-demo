@@ -43,18 +43,20 @@ export function SiteFooter() {
               <Link href="/contact" className={`${link} underline max-lg:hidden`}>
                 Opening hours and directions
               </Link>
-              <ul aria-label="Social media" className="-mr-3 flex lg:-ml-3 lg:mr-0">
-                {SOCIAL_LINKS.map(({ name, href }) => {
-                  const Icon = SOCIAL_ICONS[name];
-                  return (
-                    <li key={name}>
-                      <a href={href} {...NEW_TAB} aria-label={`${name} (opens in a new tab)`} className="inline-flex size-11 items-center justify-center rounded-full transition-colors hover:text-text-2">
-                        <Icon className="size-6" />
-                      </a>
-                    </li>
-                  );
-                })}
-              </ul>
+              {SOCIAL_LINKS.length > 0 && (
+                <ul aria-label="Social media" className="-mr-3 flex lg:-ml-3 lg:mr-0">
+                  {SOCIAL_LINKS.map(({ name, href }) => {
+                    const Icon = SOCIAL_ICONS[name];
+                    return (
+                      <li key={name}>
+                        <a href={href} {...NEW_TAB} aria-label={`${name} (opens in a new tab)`} className="inline-flex size-11 items-center justify-center rounded-full transition-colors hover:text-text-2">
+                          <Icon className="size-6" />
+                        </a>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
             </div>
           </div>
           {/* Groups are divs, not sections, so section lookups on car pages stay unique. */}

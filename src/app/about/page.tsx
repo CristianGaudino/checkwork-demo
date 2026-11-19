@@ -7,14 +7,17 @@ import { dealerDirectionsUrl } from "@/lib/dealer";
 import { DEALER_ADDRESS, DEALER_LOCATION, SITE_NAME } from "@/lib/site";
 import { PageHeading, PagePhoto } from "@/components/PageHeading";
 import { AffiliationList } from "@/components/Affiliations";
+import { IfModule } from "@/components/IfModule";
 
-export const metadata: Metadata = { title: "About us", description: `${SITE_NAME} is a used car dealer in ${DEALER_LOCATION}: a carefully selected range of used cars, finance help and trade-ins.` };
+export const metadata: Metadata = { title: "About us", description: `${SITE_NAME} is a car dealer in ${DEALER_LOCATION}: carefully chosen cars, plain answers and no pressure.` };
 
 // The dealer's own story replaces this copy: no history, awards, years trading or staff names are invented here.
-const WHY = [
-  { title: "Carefully selected cars", text: "A range of used cars chosen with care, each shown with its details and photos." },
+// `href`: a point about a module's page shows only while the dealer has that module.
+const WHY: { title: string; text: string; href?: string }[] = [
+  { title: "Carefully selected cars", text: "Cars chosen with care, each shown with its details and photos." },
   { title: "Straightforward buying", text: "Plain answers and no pressure. Ask us anything about a car before you decide." },
-  { title: "Finance and trade-ins", text: "Estimate your monthly payment online, and get a valuation on the car you're trading in." },
+  { title: "Finance", text: "Estimate your monthly payment online before you call.", href: "/finance" },
+  { title: "Trade-ins", text: "Get a valuation on the car you're trading in.", href: "/trade-in" },
 ];
 const EXPECT = [
   { title: "Browse", text: "Look through the stock online, save the cars you like and compare them." },
@@ -25,7 +28,7 @@ const EXPECT = [
 export default function AboutPage() {
   return (
     <main className={pageMain}>
-      <PageHeading title="About us" intro={`${SITE_NAME} is a used car dealer in ${DEALER_LOCATION}. Call in, look around and ask us anything.`} picture={<PagePhoto src="/brand/about.webp" width={1200} height={900} />} />
+      <PageHeading title="About us" intro={`${SITE_NAME} is a car dealer in ${DEALER_LOCATION}. Call in, look around and ask us anything.`} picture={<PagePhoto src="/brand/about.webp" width={1200} height={900} />} />
       <div className="mt-12 grid grid-cols-1 gap-10 lg:grid-cols-[1fr_minmax(0,26rem)] lg:gap-12">
         {/* From 1024px the hours sit on the right; on a phone they come after the reasons. */}
         <div className="flex flex-col gap-6 lg:order-2">
@@ -36,8 +39,10 @@ export default function AboutPage() {
           <section className="flex flex-col gap-4">
             <h2 className={subTitle}>Why choose us</h2>
             <ul className="grid grid-cols-1 gap-4">
-              {WHY.map((f) => (
-                <FeatureCard key={f.title} {...f} />
+              {WHY.map(({ href, ...f }) => (
+                <IfModule key={f.title} href={href}>
+                  <FeatureCard {...f} />
+                </IfModule>
               ))}
             </ul>
           </section>

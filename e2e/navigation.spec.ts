@@ -98,14 +98,10 @@ test("at 320px the header holds the menu button, and the footer reaches every pa
   await expect(footer.getByText(`© ${SITE_NAME}`)).toBeVisible();
 });
 
-test("the footer has social icons and a Powered by Checkwork link that opens checkwork.ie", async ({ page }) => {
+test("the footer has no social icons while the dealer has no pages, and a Powered by Checkwork link that opens checkwork.ie", async ({ page }) => {
   await page.goto("/");
   const footer = page.getByRole("contentinfo");
-  for (const name of ["Facebook", "Instagram", "TikTok"]) {
-    const l = footer.getByRole("link", { name: new RegExp(`^${name}`) });
-    await expect(l).toHaveAttribute("href", new RegExp(`^https://www\\.${name.toLowerCase()}\\.com/`));
-    await expect(l).toHaveAttribute("target", "_blank");
-  }
+  await expect(footer.getByRole("list", { name: "Social media" })).toHaveCount(0); // SOCIAL_LINKS is empty for the made-up dealer
   const credit = footer.getByRole("link", { name: /^Powered by/ });
   await expect(credit).toHaveAttribute("href", "https://www.checkwork.ie");
   await expect(credit).toContainText("Powered by");
