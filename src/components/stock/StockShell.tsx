@@ -94,7 +94,7 @@ function ViewToggle() {
 }
 
 // `orderable`: new cars can be ordered from the factory here (our stock only), so the New cars page links to the order form.
-export function StockShell({ query, summary, orderable, children }: { query: StockQuery; summary: Summary; orderable?: boolean; children: React.ReactNode }) {
+export function StockShell({ query, title, summary, orderable, children }: { query: StockQuery; title?: string; summary: Summary; orderable?: boolean; children: React.ReactNode }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const view = useView();
@@ -136,7 +136,7 @@ export function StockShell({ query, summary, orderable, children }: { query: Sto
             start higher. Below that the count sits under the intro (sort is in the sticky bar). */}
         <div className="lg:flex lg:items-end lg:justify-between lg:gap-8">
           <div>
-            <h1 className="text-display font-bold lg:text-hero">{kind.title}</h1>
+            <h1 className="text-display font-bold lg:text-hero">{title ?? kind.title}</h1>
             <p className="mt-2 max-w-measure text-pretty text-body text-text-2">{kind.intro}</p>
             {orderable && kind.condition === "new" && (
               <IfModule href="/new-cars">

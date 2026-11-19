@@ -25,7 +25,8 @@ export async function stockListMetadata(condition: Condition, searchParams: Sear
 }
 
 // The list page for every kind of vehicle: the same filters, sort, grid and list view. The kind only decides which cars are in it.
-export async function StockListPage({ condition, searchParams }: { condition: Condition; searchParams: SearchParams }) {
+// `title`: a heading in place of the kind's own, for a list already narrowed to one make.
+export async function StockListPage({ condition, searchParams, title }: { condition: Condition; searchParams: SearchParams; title?: string }) {
   const query = parseStockQuery(await searchParams, condition);
   // No error.tsx: it would replace the whole segment and take Sort and the filters with it.
   // Log a constant message and the error name only: never the query, params or URL (T-01-29), they can hold search text.
@@ -36,7 +37,7 @@ export async function StockListPage({ condition, searchParams }: { condition: Co
   // Constant list path plus serialised params, never a user URL (T-01-14).
   if (result && result.pageCount > 0 && query.page > result.pageCount) redirect(stockHref({ ...query, page: result.pageCount }));
   return (
-    <StockShell query={query} summary={result && { total: result.total, facets: result.facets }} orderable={condition === "new" && (await stockSource()) !== "donedeal"}>
+    <StockShell query={query} title={title} summary={result && { total: result.total, facets: result.facets }} orderable={condition === "new" && (await stockSource()) !== "donedeal"}>
       {result ? <StockResults result={result} query={query} /> : <StockError />}
     </StockShell>
   );

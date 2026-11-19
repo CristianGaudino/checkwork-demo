@@ -25,7 +25,7 @@ export function CarControls({ id, slug, sold = false, listingUrl }: { id: string
         </a>
       ) : (
         <IfModule id="dashboard">
-          <Link href={`/dashboard/stock/${id}`} className={pill}>
+          <Link href={`/dashboard/stock/${id}`} prefetch={false} className={pill}>
             <PencilIcon className="size-4" />
             Edit car
           </Link>
@@ -33,7 +33,7 @@ export function CarControls({ id, slug, sold = false, listingUrl }: { id: string
       )}
       {!sold && (
         <IfModule id="social">
-          <Link href={`/dashboard/marketing/new?car=${encodeURIComponent(slug)}`} className={pill}>
+          <Link href={`/dashboard/marketing/new?car=${encodeURIComponent(slug)}`} prefetch={false} className={pill}>
             <ShareIcon className="size-4" />
             Post to social
           </Link>

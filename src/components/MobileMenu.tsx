@@ -4,6 +4,7 @@ import { Sheet, leaveSheet } from "@/components/Sheet";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useDemoRole, useModules } from "@/lib/demo-role";
+import { isAppPath } from "@/lib/demo";
 import { pathAllowed } from "@/lib/modules-rules";
 import { useVehicleHint } from "@/components/vehicleHint";
 import { DASHBOARD_LINK, VEHICLE_TYPES } from "@/lib/nav";
@@ -32,7 +33,7 @@ export function MobileMenu({ home, primary: allPrimary, groups: allGroups }: { h
   const row = (l: Item, size: string) => (
     <li key={l.href + l.label} className="relative">
       {here(l.href) && <span aria-hidden="true" className="absolute inset-y-3 -left-3 w-[3px] rounded-full bg-accent" />}
-      <Link href={l.href} aria-current={here(l.href) ? "page" : undefined} onClick={leaveSheet} className={`flex items-center ${size} ${here(l.href) ? "text-accent-text" : ""}`}>
+      <Link href={l.href} prefetch={isAppPath(l.href) ? false : undefined} aria-current={here(l.href) ? "page" : undefined} onClick={leaveSheet} className={`flex items-center ${size} ${here(l.href) ? "text-accent-text" : ""}`}>
         {l.long ?? l.label}
       </Link>
     </li>

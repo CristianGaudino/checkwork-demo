@@ -68,3 +68,10 @@ test("a new car shows the manufacturer's warranty, and a used car and a van keep
   await page.goto("/used-cars/ford-transit-connect-2026-5100004");
   await expect(page.getByTestId("buy-box").getByText("12 month warranty included")).toBeVisible();
 });
+
+test("a make's new and commercial lists name the make in the heading", async ({ page }) => {
+  await page.goto("/new-cars/kia");
+  await expect(page.getByRole("heading", { level: 1, name: "New Kia" })).toBeVisible();
+  await page.goto("/commercial/ford");
+  await expect(page.getByRole("heading", { level: 1, name: "Ford vans and commercials" })).toBeVisible();
+});
