@@ -61,10 +61,19 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
     setOpen(null);
     opener.current?.focus();
   };
+  // Once these buttons have scrolled up out of view, a slim bar at the foot of a phone offers them again (#205).
+  const row = useRef<HTMLDivElement>(null);
+  const [gone, setGone] = useState(false);
+  useEffect(() => {
+    const o = new IntersectionObserver(([e]) => setGone(!e.isIntersecting && e.boundingClientRect.top < 0));
+    o.observe(row.current!);
+    return () => o.disconnect();
+  }, []);
+  const bar = `flex h-11 items-center justify-center px-2 font-semibold ${press}`;
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-2 whitespace-nowrap">
+      <div ref={row} className="grid grid-cols-2 gap-2 whitespace-nowrap">
         <button type="button" onClick={(e) => show(e.currentTarget, "enquiry")} className={`col-span-2 flex h-12 w-full items-center justify-center gap-2 rounded-control bg-accent px-3 font-semibold text-on-accent ${drives ? "sm:col-span-1" : ""} ${press}`}>
           Enquire
         </button>
@@ -93,6 +102,25 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
       <LeadDialog title="Test drive" open={open === "drive"} onClose={close}>
         <TestDriveForm car={car} />
       </LeadDialog>
+      {/* Below 1024px, above the demo bar or its pill (--demo-bar-h). Hidden with visibility, so it is out of the tab order until it shows. */}
+      <div
+        data-sticky-actions
+        className={`fixed inset-x-0 bottom-[var(--demo-bar-h,0px)] z-20 border-t border-hairline bg-surface/90 px-4 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl transition-[translate,visibility] duration-200 reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none motion-reduce:transition-none lg:hidden ${gone ? "" : "invisible translate-y-full"}`}
+      >
+        <div className={`mx-auto grid max-w-page gap-2 whitespace-nowrap ${drives ? "grid-cols-3" : "grid-cols-2"}`}>
+          <a href={`tel:${DEALER_TEL}`} className={`${bar} text-text ${secondaryButton}`}>
+            Call us
+          </a>
+          <button type="button" onClick={(e) => show(e.currentTarget, "enquiry")} className={`${bar} rounded-control bg-accent text-on-accent`}>
+            Enquire
+          </button>
+          {drives && (
+            <button type="button" onClick={(e) => show(e.currentTarget, "drive")} className={`${bar} text-text ${secondaryButton}`}>
+              Test drive
+            </button>
+          )}
+        </div>
+      </div>
     </>
   );
 }

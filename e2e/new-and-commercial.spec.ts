@@ -61,10 +61,14 @@ test("the sitemap lists the new and commercial pages", async ({ request }) => {
   expect(body.length).toBeGreaterThan(0);
 });
 
-test("a new car shows the manufacturer's warranty, and a used car and a van keep the dealer's", async ({ page }) => {
+test("a new car and a new van show the manufacturer's warranty, and a used car keeps the dealer's", async ({ page }) => {
   await page.goto("/new-cars");
   await page.locator("article").first().getByRole("link").first().click();
   await expect(page.getByTestId("buy-box").getByText("Manufacturer's warranty included")).toBeVisible();
   await page.goto("/used-cars/ford-transit-connect-2026-5100004");
+  await expect(page.getByTestId("buy-box").getByText("Manufacturer's warranty included")).toBeVisible();
+  await expect(page.getByRole("main").getByText("Owners", { exact: true })).toHaveCount(0); // 0 owners is no row, not "Owners 0"
+  await page.goto("/used-cars");
+  await page.locator("article").first().getByRole("link").first().click();
   await expect(page.getByTestId("buy-box").getByText("12 month warranty included")).toBeVisible();
 });

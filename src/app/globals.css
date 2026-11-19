@@ -199,6 +199,12 @@
     background-image: var(--atmosphere);
     background-color: var(--color-surface);
   }
+  /* A car page's call bar (LeadActions) sits above the demo bar below 1024px: room for both, so the footer is never under it. */
+  @media (max-width: 1023.98px) {
+    body:has([data-sticky-actions]) {
+      padding-bottom: calc(var(--demo-bar-h, 0px) + 4rem + env(safe-area-inset-bottom));
+    }
+  }
   /* Car photos are studio shots on white. On the plinth the white is multiplied away, so the car stands on a lit floor, in both themes.
      Only a box that holds an image gets it; the "No photo yet" boxes keep the plain colour. */
   .bg-photo-bg:has(img) {

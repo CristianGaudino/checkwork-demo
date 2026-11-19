@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { carName, carTitle, countLabel, formatKm, fmtEur, keyFacts, specRows } from "./format";
+import { carName, carTitle, countLabel, formatKm, fmtEur, keyFacts, specRows, withoutInvitation } from "./format";
+import { isNew } from "./types";
 import type { Car } from "./types";
 
 const audi: Car = {
@@ -78,6 +79,10 @@ describe("specRows", () => {
     expect(specRows({ ...full, nctExpiry: "soon" }).some((r) => r.label === "NCT expires")).toBe(false);
   });
 
+  it("shows no Owners row for a new vehicle (0 owners)", () => {
+    expect(specRows({ ...full, owners: 0 }).some((r) => r.label === "Owners")).toBe(false);
+  });
+
   it("never shows a road tax row", () => {
     expect(specRows(full).some((r) => /tax/i.test(r.label))).toBe(false);
   });
@@ -111,5 +116,24 @@ describe("plainText", () => {
     expect(plainText("FULL HISTORY <b>no accidents</b> &amp; one owner<br>NCT 2027")).toBe("FULL HISTORY no accidents & one owner\nNCT 2027");
     expect(plainText("<p></p>")).toBe("");
     expect(plainText("Price &lt; 10k")).toBe("Price < 10k");
+  });
+});
+
+describe("withoutInvitation", () => {
+  it("drops a closing paragraph that invites a visit, and keeps the rest", () => {
+    const facts = "2017 Ford Fiesta, white.\n\nOne owner from new.";
+    expect(withoutInvitation(`${facts}\n\nCall in to see it, or book a test drive. Part exchange welcome and finance available.`)).toBe(facts);
+    expect(withoutInvitation(facts)).toBe(facts);
+    expect(withoutInvitation("Call in to see it.")).toBe("Call in to see it."); // one paragraph only: never empties the text
+  });
+});
+
+describe("isNew", () => {
+  it("is a new car, or a van with no previous owner", () => {
+    expect(isNew({ condition: "new" })).toBe(true);
+    expect(isNew({ condition: "commercial", owners: 0 })).toBe(true);
+    expect(isNew({ condition: "commercial", owners: 3 })).toBe(false);
+    expect(isNew({ condition: "commercial" })).toBe(false);
+    expect(isNew({ owners: 0 })).toBe(false); // a used car on delivery mileage is still sold as used
   });
 });
