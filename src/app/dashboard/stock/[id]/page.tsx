@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CarForm } from "@/components/admin/CarForm";
-import { Facts, Field, Notice, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput, dangerButton } from "@/components/admin/kit";
+import { Field, Notice, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput, dangerButton } from "@/components/admin/kit";
 import { ActButton } from "@/components/admin/ActButton";
 import { SyncedNotice } from "@/components/admin/SyncedNotice";
 import { AITextarea } from "@/components/admin/AIWriter";
@@ -18,15 +18,13 @@ import { adminCar } from "@/lib/admin/stock-admin";
 import { can } from "@/lib/permissions";
 import { carName, carHref } from "@/lib/stock/format";
 import { stockSource } from "@/lib/stock-source";
-import { deleteCarAction, historyCheckAction, saveCostAction } from "../actions";
-import { historyFor, historyProblems, historyRows } from "@/lib/history-check";
-import { isUsable } from "@/lib/integrations";
-import { forSale, isNew } from "@/lib/stock/types";
+import { forSale } from "@/lib/stock/types";
+import { deleteCarAction, saveCostAction } from "../actions";
 import { hasModule } from "@/lib/modules";
 
 export const metadata = { title: "Edit car" };
 
-export default async function Page({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ cost?: string; history?: string; photos?: string }> }) {
+export default async function Page({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ cost?: string; photos?: string }> }) {
   const { id } = await params;
   const sp = await searchParams;
   const costSaved = sp.cost === "saved";
@@ -51,24 +49,6 @@ export default async function Page({ params, searchParams }: { params: Promise<{
       <ul className="flex flex-col gap-2 text-body">
         {past.map((p, i) => <li key={i}>{p.text}</li>)}
       </ul>
-    </Panel>
-  );
-  // The history check on a used car, with the service on: its result, why a problem keeps it off the website, and Check again.
-  const check = isUsable("history") && !isNew(car) ? await historyFor(car) : undefined;
-  const problems = check ? historyProblems(check) : [];
-  const historyPanel = check !== undefined && (
-    <Panel title="History check">
-      {sp.history === "done" && <Notice>Checked.</Notice>}
-      {sp.history === "failed" && <Notice tone="warn">The check did not come back. Try again in a minute.</Notice>}
-      {sp.history === "reg" && <Notice tone="warn">Enter an Irish registration, like 191-D-12345.</Notice>}
-      {problems.length > 0 && <Notice tone="warn">{problems.join(". ")}. The website shows no history check for this car.</Notice>}
-      {check ? <Facts items={historyRows(check, true)} /> : <p className="text-body text-text-2">Not checked yet.</p>}
-      <form action={historyCheckAction.bind(null, car.id)} className="flex flex-wrap items-end gap-3">
-        <Field label="Registration" className="sm:max-w-xs">
-          <input name="reg" required defaultValue={check?.reg ?? ""} autoCapitalize="characters" className={adminInput} />
-        </Field>
-        <button type="submit" className={adminButtonQuiet}>{check ? "Check again" : "Check"}</button>
-      </form>
     </Panel>
   );
   // The sale's next steps, in the header so a phone has them too (the stock list's row buttons are a desktop table's).
@@ -112,7 +92,6 @@ export default async function Page({ params, searchParams }: { params: Promise<{
           </Panel>
         )}
         {prep}
-        {historyPanel}
         {history}
       </>
     );
@@ -125,7 +104,6 @@ export default async function Page({ params, searchParams }: { params: Promise<{
       <CarPhotos carId={car.id} photos={car.photos} max={CAR_PHOTOS_MAX} />
       <CarForm car={car} cost={cost} />
       {prep}
-      {historyPanel}
       {history}
       {/* Out of the way, at the end: marking a car sold is nearly always what is wanted, and it keeps the car's page as Sold for a while.
           Owners and managers only; the server refuses anyone else. */}

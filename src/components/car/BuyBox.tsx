@@ -22,8 +22,7 @@ const FACT_ICONS: Record<string, typeof CarIcon> = { Year: CalendarIcon, Mileage
 // Server component. A sold car shows no price and no Call Us, and never its sale date (owner instruction, 2026-11-06). A reserved car keeps
 // its price, and offers what a sold one does: more of the make, and a note if it comes back on sale.
 // Laid out as the mockup's car page: the title and a heart, the details line, the price, the buttons, four facts, the warranty.
-// `history`: the car's history check badge, under the warranty (only a used car with a clear check has one).
-export function BuyBox({ car, history }: { car: Car; history?: React.ReactNode }) {
+export function BuyBox({ car }: { car: Car }) {
   const sold = isSold(car);
   const price = priceInfo(car);
   const warranty = isNew(car) ? NEW_CAR_WARRANTY : WARRANTY;
@@ -124,7 +123,6 @@ export function BuyBox({ car, history }: { car: Car; history?: React.ReactNode }
           </div>
         </div>
       )}
-      {!sold && history}
     </div>
   );
 }

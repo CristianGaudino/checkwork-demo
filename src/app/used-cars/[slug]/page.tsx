@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import { JsonLd } from "@/components/JsonLd";
 import { BuyBox } from "@/components/car/BuyBox";
-import { HistoryBadge } from "@/components/car/HistoryBadge";
 import { Breadcrumb } from "@/components/car/Breadcrumb";
 import { CarGallery } from "@/components/car/CarGallery";
 import { AboutCar, Equipment, SimilarCars, Specifications } from "@/components/car/CarSections";
@@ -17,7 +16,6 @@ import { CarControls } from "@/components/demo/RoleControls";
 import { SoldBadge } from "@/components/stock/SoldBadge";
 import { pageMain } from "@/components/ui";
 import { financeable } from "@/lib/finance/payment";
-import { historyFor, publicHistory } from "@/lib/history-check";
 import { stock } from "@/lib/stock";
 import { carName, carSummary } from "@/lib/stock/format";
 import { payableEur, priceInfo } from "@/lib/stock/price";
@@ -60,7 +58,7 @@ export default async function CarPage({ params }: PageProps<"/used-cars/[slug]">
   if (!found) notFound();
   if (found.kind === "landing") return <LandingPage data={found.landing} />;
   const { car } = found;
-  const [similar, history] = await Promise.all([similarCars(car), historyFor(car).then(publicHistory)]);
+  const similar = await similarCars(car);
 
   return (
     <main className={pageMain}>
@@ -75,7 +73,7 @@ export default async function CarPage({ params }: PageProps<"/used-cars/[slug]">
           {(isSold(car) || car.reserved) && <SoldBadge hidden={isSold(car)} reserved={!isSold(car)} className="pointer-events-none absolute left-4 top-4 z-20" />}
         </div>
         <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:sticky lg:top-6 lg:self-start">
-          <BuyBox car={car} history={history && <HistoryBadge check={history} />} />
+          <BuyBox car={car} />
         </div>
         <div className="mt-6 flex flex-col gap-12 lg:col-start-1">
           <AboutCar car={car} />
