@@ -31,13 +31,15 @@
     ],
     "platform": null,
     "activity": "Stock live on own site (654 matching vehicles); Facebook linked.",
-    "glanceNotes": "654 is used only (the site's condition filter offers only 'used') but covers all seven locations, including Audi Approved :plus Kerry and Carmaxx; the location filter runs in the browser, so a Cork-only count isn't available from the page. Cork-county DoneDeal accounts: Cork 277 + Fermoy 208 + Skibbereen 75 = 560; the Cork branch's first page is mostly 2026/2027 cars at about 11 km (pre-reg or demo). Own stock search with monthly figures, 'Value My Vehicle' link, finance quote and reserve online. No enquiry form on the listing page, no reviews shown, no phone on the homepage or used page. No builder credit (WordPress). Review count is the Cork branch only. Typical price is a first-page median, skewed premium. Big enough for the dashboard even with a decent site.",
+    "glanceNotes": "654 is used only (the site's condition filter offers only 'used') but covers all seven locations, including Audi Approved :plus Kerry and Carmaxx; the location filter runs in the browser, so a Cork-only count isn't available from the page. Cork-county DoneDeal accounts: Cork 277 + Fermoy 208 + Skibbereen 75 = 560; the Cork branch's first page is mostly 2026/2027 cars at about 11 km (pre-reg or demo). Own stock search with monthly figures, 'Value My Vehicle' link, finance quote and reserve online. No enquiry form on the listing page, no reviews shown, no phone on the homepage or used page. No builder credit (WordPress). Review count is the Cork branch only. Typical price is a first-page median, skewed premium. Big enough for the dashboard even with a decent site. CarsIreland (2026-11-20) lists Blackwater's Cork branches separately: Cork 276 cars, Fermoy 199, Skibbereen 75, CarMaxx Fermoy 21, Van Centre 27, and Audi Cork (Bishopstown, audicork.ie, whose menu links to blackwatermotors.ie) 163.",
     "skip": null,
     "sources": [
       "https://www.blackwatermotors.ie/",
       "https://www.blackwatermotors.ie/used-cars/",
       "https://www.donedeal.ie/dealer/blackwater-motors-cork",
-      "https://www.donedeal.ie/dealer/blackwater-motors-cork/reviews"
+      "https://www.donedeal.ie/dealer/blackwater-motors-cork/reviews",
+      "https://www.carsireland.ie/car-dealers/county/cork/audi-cork",
+      "https://www.audicork.ie/"
     ],
     "validated": "2026-11-20"
   },
@@ -1224,8 +1226,8 @@
     ],
     "branches": 1,
     "stock": {
-      "count": null,
-      "source": null,
+      "count": 98,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/macroom-motors",
       "checkedAt": "2026-11-20"
     },
     "typicalPriceEur": null,
@@ -1237,10 +1239,11 @@
     "adSignals": [],
     "platform": "Toyota Ireland dealer platform",
     "activity": "Social: X, Instagram, YouTube, Facebook.",
-    "glanceNotes": "Toyota franchise since 1975 with body shop and NCT bay. Site shows 'View 0 Used Cars' and one featured used car; no DoneDeal dealer page found, so stock count unknown. Needs a manual check.",
+    "glanceNotes": "Toyota franchise since 1975 with body shop and NCT bay. Site shows 'View 0 Used Cars' and one featured used car; no DoneDeal dealer page found, so stock count unknown. Needs a manual check. Stock filled 2026-11-20 from CarsIreland: 98 cars (plus 2 vans).",
     "skip": null,
     "sources": [
-      "https://www.macroommotors.com/"
+      "https://www.macroommotors.com/",
+      "https://www.carsireland.ie/car-dealers/county/cork/macroom-motors"
     ]
   },
   {
@@ -1325,8 +1328,8 @@
     ],
     "branches": null,
     "stock": {
-      "count": null,
-      "source": null,
+      "count": 1388,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork",
       "checkedAt": "2026-11-20"
     },
     "typicalPriceEur": null,
@@ -1338,10 +1341,11 @@
     "adSignals": [],
     "platform": "mtc",
     "activity": "",
-    "glanceNotes": "CarStore claims 1,000+ cars across Dublin, Cork, Limerick and Galway on one central site. kearys.ie returned 403. Note: Kearys is Cork-headquartered, so it is the group itself rather than a branch; skip kept because its central site is agency-built (mtc), but its size could justify a dashboard pitch to head office.",
+    "glanceNotes": "CarStore claims 1,000+ cars across Dublin, Cork, Limerick and Galway on one central site. kearys.ie returned 403. Note: Kearys is Cork-headquartered, so it is the group itself rather than a branch; skip kept because its central site is agency-built (mtc), but its size could justify a dashboard pitch to head office. Cork stock filled 2026-11-20 from CarsIreland: Kearys CarStore Cork 286, Kearys Renault, Dacia & Nissan Cork 246, Kearys Hyundai Cork 163, Kearys Hyundai Mallow 131, BYD Cork Central 117, Kearys BMW 107, Kearys Hyundai Midleton 77, BYD Eastgate 66, Kearys Renault & Dacia Midleton 65, Kearys Hyundai Bandon 59, BYD Bandon 42, Kearys MINI 16, XPENG Eastgate Cork 10, Kearys Pro+ 3 (cars only; BYD Cork Central, BYD Eastgate and BYD Bandon list kearys.ie as their site).",
     "skip": "National group with one central site (CarStore in Dublin, Cork, Limerick, Galway; built by mtc).",
     "sources": [
-      "https://www.carstore.ie/"
+      "https://www.carstore.ie/",
+      "https://www.carsireland.ie/car-dealers/county/cork"
     ]
   },
   {
@@ -1356,8 +1360,8 @@
     ],
     "branches": null,
     "stock": {
-      "count": null,
-      "source": null,
+      "count": 159,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/mercedes-benz-cork",
       "checkedAt": "2026-11-20"
     },
     "typicalPriceEur": null,
@@ -1369,10 +1373,11 @@
     "adSignals": [],
     "platform": null,
     "activity": "",
-    "glanceNotes": "",
+    "glanceNotes": "Stock filled 2026-11-20 from CarsIreland: 159 cars.",
     "skip": "Part of MSL Motor Group (Dublin HQ, Dublin and Cork branches) on one central site.",
     "sources": [
-      "https://www.msl.ie/en"
+      "https://www.msl.ie/en",
+      "https://www.carsireland.ie/car-dealers/county/cork/mercedes-benz-cork"
     ]
   },
   {
@@ -1640,36 +1645,6 @@
     ]
   },
   {
-    "name": "Kyleford Motors",
-    "county": "Cork",
-    "town": null,
-    "website": null,
-    "businessPhone": null,
-    "type": "independent",
-    "brands": [],
-    "branches": 1,
-    "stock": {
-      "count": 46,
-      "source": "https://www.donedeal.ie/dealer/kyleford-motors",
-      "checkedAt": "2026-11-20"
-    },
-    "typicalPriceEur": null,
-    "reviews": {
-      "count": null,
-      "rating": null,
-      "source": null
-    },
-    "adSignals": [],
-    "platform": null,
-    "activity": "",
-    "glanceNotes": "46 DoneDeal ads; of the 10 visible, 5 campervans, 3 cars, 2 vans. Car count across all 46 unknown (likely around 14). Website not checked.",
-    "skip": "Mostly campervans and vans; cars likely under 15.",
-    "skipUnverified": true,
-    "sources": [
-      "https://www.donedeal.ie/dealer/kyleford-motors"
-    ]
-  },
-  {
     "name": "Kinsale Road Autos",
     "county": "Cork",
     "town": "Kinsale Road, Cork (T12 VR64)",
@@ -1697,5 +1672,1363 @@
     "sources": [
       "https://www.donedeal.ie/dealer/kinsale-road-autos"
     ]
+  },
+  {
+    "name": "Top Spec Motors",
+    "county": "Cork",
+    "town": "Newmarket",
+    "website": "https://www.topspecmotors.ie/",
+    "businessPhone": "(029) 61700",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 281,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/top-spec-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 22800,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 380 ads (281 cars, 69 vans, 27 motorhomes)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Large independent (281 cars plus 69 vans and 27 motorhomes on CarsIreland). Site is CarsIreland's own dealer product: stock search, finance calculator, trade-in, test drive and enquiry forms already there, so the opening is the dashboard, not the site. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/top-spec-motors",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.topspecmotors.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Great Island Motors",
+    "county": "Cork",
+    "town": "Cobh (Rushbrooke)",
+    "website": null,
+    "businessPhone": "(021) 481 1609",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 174,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/great-island-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 14675,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 190 ads (174 cars, 16 vans)"
+    ],
+    "platform": "none found (no website listed on CarsIreland; greatislandmotors.com only serves a 'Redirecting...' page, not confirmed as theirs)",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "174 cars and no own website listed: stock lives on CarsIreland only, the clearest website pitch in Cork. Trustpilot reviews widget on its CarsIreland page (count not in the page data). Prices mixed, 2016 to 2024. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/great-island-motors",
+      "https://www.carsireland.ie/car-dealers/county/cork"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Dan Seaman Motors",
+    "county": "Cork",
+    "town": "Cork city (Forge Hill, Kinsale Road)",
+    "website": "https://www.danseamanmotors.ie/",
+    "businessPhone": "(021) 432 0266",
+    "type": "franchise",
+    "brands": [
+      "Alfa Romeo",
+      "Chrysler",
+      "Fiat",
+      "Isuzu",
+      "Jeep",
+      "Mitsubishi",
+      "Subaru",
+      "Leapmotor"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 134,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/dan-seaman-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 37973,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 173 ads (134 cars, 37 vans)"
+    ],
+    "platform": "HappyDealer ('Website by HappyDealer')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Multi-franchise (Fiat, Alfa Romeo, Jeep, Chrysler, Mitsubishi, Subaru, Isuzu, Leapmotor). HappyDealer site with stock search and finance calculator; no trade-in or test drive form seen on the homepage. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/dan-seaman-motors",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.danseamanmotors.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Finbarr Galvin Bandon",
+    "county": "Cork",
+    "town": "Bandon (Clonakilty Road)",
+    "website": "https://www.finbarrgalvin.ie/",
+    "businessPhone": "(023) 882 0555",
+    "type": "franchise",
+    "brands": [
+      "SEAT",
+      "Skoda",
+      "Cupra"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 121,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/finbarr-galvin-bandon",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 36450,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 123 ads (121 cars, 2 vans)"
+    ],
+    "platform": "HappyDealer ('Website by HappyDealer')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Skoda, SEAT and Cupra dealer, family run since 1975 (site). HappyDealer site with stock and finance calculator; no trade-in or test drive form seen on the homepage. Separate from the Kevin O'Leary and Bandon Motors entries. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/finbarr-galvin-bandon",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.finbarrgalvin.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Midleton MotorStore",
+    "county": "Cork",
+    "town": "Midleton (Bailick Road)",
+    "website": "https://www.motorstorecork.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 78,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/midleton-motorstore",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 11600,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 90 ads (78 cars, 10 vans)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Independent; no link to Johnson & Perrott's MotorStore (motorstore.ie) found on its site despite the name. Budget stock (page 1 is 2014 to 2018). Full CarsIreland template. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/midleton-motorstore",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.motorstorecork.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "O'Flynn Motors",
+    "county": "Cork",
+    "town": "Mallow (Limerick Road)",
+    "website": "https://www.oflynnmotors.ie/",
+    "businessPhone": "(022) 20808",
+    "type": "franchise",
+    "brands": [
+      "Peugeot"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 70,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/o-flynn-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 28373,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 82 ads (70 cars, 12 vans)"
+    ],
+    "platform": "no credit shown (small custom site)",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Peugeot dealer (site title 'John O'Flynn Motors Peugeot dealership'). Small homepage (31 KB): stock link and test drive mention, no finance calculator, trade-in or reviews seen. Real opening. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/o-flynn-motors",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.oflynnmotors.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Clonakilty Car Centre",
+    "county": "Cork",
+    "town": "Clonakilty",
+    "website": "https://www.clonakiltycarcentre.com/",
+    "businessPhone": "(023) 883 4862",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 68,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/clonakilty-car-centre",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 10450,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 68 ads (68 cars)"
+    ],
+    "platform": "HappyDealer ('Website by HappyDealer')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Independent, budget stock. HappyDealer site with stock and finance calculator; no trade-in or test drive form seen. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/clonakilty-car-centre",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.clonakiltycarcentre.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Jimmy Barry Motors",
+    "county": "Cork",
+    "town": "Bantry (Colomane)",
+    "website": "https://www.jimmybarrymotors.ie/",
+    "businessPhone": "(027) 50709",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 68,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/jimmy-barry-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 20350,
+    "reviews": {
+      "count": 77,
+      "rating": 4.6,
+      "source": "https://www.jimmybarrymotors.ie/"
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 116 ads (68 cars, 47 vans)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Independent; also sells vans (47 on CarsIreland) and farm machinery (site title). Full CarsIreland template. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 6 car prices on page 1 of the CarsIreland dealer page. Review count and rating as shown on its own site's Google reviews widget.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/jimmy-barry-motors",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.jimmybarrymotors.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "McNamara Motors",
+    "county": "Cork",
+    "town": "Cork city (Commons Road)",
+    "website": "https://www.mcnamaramotors.ie/",
+    "businessPhone": "(021) 439 6104",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 67,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/mcnamara-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 14995,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 67 ads (67 cars)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Independent. Full CarsIreland template. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/mcnamara-motors",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.mcnamaramotors.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Cork City Ford Centre",
+    "county": "Cork",
+    "town": "Cork city (Forge Hill, Airport Road)",
+    "website": "https://www.corkcityford.ie/",
+    "businessPhone": "(021) 431 5650",
+    "type": "franchise",
+    "brands": [
+      "Ford"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 62,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/cork-city-ford-centre",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 30725,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 80 ads (62 cars, 18 vans)"
+    ],
+    "platform": "Ford Ireland dealer template (manufacturer platform)",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Official Ford dealer. Ford Ireland template covers stock, finance, trade-in and test drive. Opening is the used side or the dashboard. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 8 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/cork-city-ford-centre",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.corkcityford.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "CBC Motors",
+    "county": "Cork",
+    "town": "Cork city (Ballintemple)",
+    "website": "https://www.cbcmotorsltd.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 58,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/cbc-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 25450,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 59 ads (58 cars, 1 vans)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Independent. Full CarsIreland template. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/cbc-motors",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.cbcmotorsltd.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Greenhall Motors",
+    "county": "Cork",
+    "town": "Buttevant (Charleville Road)",
+    "website": "https://www.greenhallmotors.ie/",
+    "businessPhone": "(022) 23338",
+    "type": "franchise",
+    "brands": [
+      "Opel",
+      "Leapmotor"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 56,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/greenhall-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 37600,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 71 ads (56 cars, 15 vans)"
+    ],
+    "platform": "no credit shown (Next.js site)",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Opel and Leapmotor dealer; nearly-new stock (page 1 is 2023 to 2027). Stock and finance calculator on site; no trade-in or test drive form seen. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/greenhall-motors",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.greenhallmotors.com/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "D Canny Garage",
+    "county": "Cork",
+    "town": "Cork city (South Link Road)",
+    "website": "https://www.dcannygarage.ie/",
+    "businessPhone": "(021) 496 6320",
+    "type": "franchise",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 46,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/d-canny-garage",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 24325,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 48 ads (46 cars, 1 vans)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Used cars plus new KGM (site title). Full CarsIreland template. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 8 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/d-canny-garage",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.dcannygarage.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Blackpool Auto Centre",
+    "county": "Cork",
+    "town": "Cork city (Blackpool)",
+    "website": "https://www.blackpoolautocentre.ie/",
+    "businessPhone": "(021) 455 0400",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 45,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/blackpool-auto-centre",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 15873,
+    "reviews": {
+      "count": 108,
+      "rating": 4.3,
+      "source": "https://www.blackpoolautocentre.ie/"
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 46 ads (45 cars, 1 vans)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Independent, also repairs and servicing. Full CarsIreland template. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page. Review count and rating as shown on its own site's Google reviews widget.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/blackpool-auto-centre",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.blackpoolautocentre.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Fermoy Nissan",
+    "county": "Cork",
+    "town": "Fermoy (Dublin Road)",
+    "website": "https://www.fermoynissan.ie/",
+    "businessPhone": "(025) 67504",
+    "type": "franchise",
+    "brands": [
+      "Nissan"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 45,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/fermoy-nissan",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 23450,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 65 ads (45 cars, 20 vans)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Nissan dealer, family run (reviews on site). CarsIreland franchise template. Not linked to Cavanaghs of Fermoy (Ford). Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 6 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/fermoy-nissan",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.fermoynissan.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Abernethys",
+    "county": "Cork",
+    "town": "Midleton (Cork Road)",
+    "website": "https://www.abernethys.ie/",
+    "businessPhone": "(021) 463 3633",
+    "type": "franchise",
+    "brands": [
+      "Ford"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 43,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/abernethys",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 18950,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 47 ads (43 cars, 4 vans)"
+    ],
+    "platform": "Ford Ireland dealer template (manufacturer platform)",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Ford main dealer, business started 1928 (CarsIreland profile). Ford Ireland template; no reviews seen on homepage. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/abernethys",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.abernethys.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "E. Tarrant & Sons Ltd",
+    "county": "Cork",
+    "town": "Banteer",
+    "website": "https://www.etarrant.ie/",
+    "businessPhone": "(029) 56000",
+    "type": "franchise",
+    "brands": [
+      "MG",
+      "Skoda",
+      "KGM"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 39,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/e-tarrant-sons-ltd",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 34100,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 41 ads (39 cars, 2 vans)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "New MG and KGM, Skoda service, used cars (site title). CarsIreland franchise template. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 8 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/e-tarrant-sons-ltd",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.etarrant.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "H & H Autos",
+    "county": "Cork",
+    "town": "Kinsale (Garrettstown)",
+    "website": "https://www.handhautos.ie/",
+    "businessPhone": "(021) 477 8955",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 39,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/h-h-autos",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 42450,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 54 ads (39 cars, 15 vans)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Independent, imported used cars (site title); 15 vans too. Full CarsIreland template. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 6 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/h-h-autos",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.handhautos.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Kiely's of Mallow",
+    "county": "Cork",
+    "town": "Mallow (Blackwater Drive)",
+    "website": "https://www.kielysofmallow.ie/",
+    "businessPhone": "(022) 21069",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 39,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/kiely-s-of-mallow",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 16945,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 39 ads (39 cars)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Independent. Full CarsIreland template. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/kiely-s-of-mallow",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.kielysofmallow.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "O'Briens Garage Midleton",
+    "county": "Cork",
+    "town": "Midleton (Cork Road)",
+    "website": "https://www.obriensgarage.ie/",
+    "businessPhone": "(021) 463 1904",
+    "type": "franchise",
+    "brands": [
+      "Mazda"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 39,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/o-briens-garage-midleton",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 32900,
+    "reviews": {
+      "count": 191,
+      "rating": 4.5,
+      "source": "https://www.obriensgarage.ie/"
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 39 ads (39 cars)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Mazda dealer. CarsIreland franchise template. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page. Review count and rating as shown on its own site's Google reviews widget.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/o-briens-garage-midleton",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.obriensgarage.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Denis Cullinane Car Sales",
+    "county": "Cork",
+    "town": "Ballinhassig",
+    "website": "https://www.deniscullinane.com/",
+    "businessPhone": "(021) 488 5739",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 35,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/denis-cullinane-car-sales",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 35950,
+    "reviews": {
+      "count": 213,
+      "rating": 4.7,
+      "source": "https://www.deniscullinane.com/"
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 35 ads (35 cars)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Independent, also service and tyres. Full CarsIreland template. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page. Review count and rating as shown on its own site's Google reviews widget.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/denis-cullinane-car-sales",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.deniscullinane.com/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Direct Motors.ie",
+    "county": "Cork",
+    "town": "Cork city (Pauladuff Road)",
+    "website": "https://www.directmotors.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 35,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/direct-motors-ie",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 25950,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 36 ads (35 cars, 1 vans)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Independent. Full CarsIreland template. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/direct-motors-ie",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.directmotors.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Blackrock Motor Company",
+    "county": "Cork",
+    "town": "Cork city (Monahan Road)",
+    "website": "https://www.blackrockmotorcompany.com/",
+    "businessPhone": "(021) 496 8555",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 34,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/blackrock-motor-company",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 11950,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 35 ads (34 cars, 1 vans)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Independent, budget stock. Full CarsIreland template. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/blackrock-motor-company",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.blackrockmotorcompany.com/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "O'Leary's Lissarda",
+    "county": "Cork",
+    "town": "Lissarda (near Macroom)",
+    "website": "https://www.olearyslissarda.ie/",
+    "businessPhone": "(021) 733 6146",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 33,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/o-leary-s-lissarda",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 25700,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 38 ads (33 cars, 5 vans)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Independent. Full CarsIreland template. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/o-leary-s-lissarda",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.olearyslissarda.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "SB Motors",
+    "county": "Cork",
+    "town": "Whites Cross (north Cork city)",
+    "website": "https://www.sbmotors.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 30,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/sb-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 14245,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 30 ads (30 cars)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Independent. Full CarsIreland template. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/sb-motors",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.sbmotors.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Ben Henry Motors",
+    "county": "Cork",
+    "town": "Waterfall (near Cork city)",
+    "website": "https://www.benhenrymotors.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 28,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/ben-henry-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 25950,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 28 ads (28 cars)"
+    ],
+    "platform": "HappyDealer ('Website by HappyDealer')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Independent. HappyDealer site with stock and finance calculator; no trade-in or test drive form seen. Trustpilot widget on its CarsIreland page. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/ben-henry-motors",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.benhenrymotors.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Excellent Auto Choice",
+    "county": "Cork",
+    "town": "Midleton (Knockgriffin)",
+    "website": "https://www.excellentautochoice.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 28,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/excellent-auto-choice",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 30450,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 29 ads (28 cars, 1 motorhomes)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Independent. Full CarsIreland template. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/excellent-auto-choice",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.excellentautochoice.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Deerpark Motors Ltd",
+    "county": "Cork",
+    "town": "Charleville (Limerick Road)",
+    "website": "https://www.deerparkmotors.ie/",
+    "businessPhone": "(063) 89344",
+    "type": "franchise",
+    "brands": [
+      "Renault"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 26,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/deerpark-motors-ltd",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 16450,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 35 ads (26 cars, 9 vans)"
+    ],
+    "platform": "HappyDealer ('Website by HappyDealer')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Renault and Dacia dealer. HappyDealer site with stock and finance calculator; no trade-in or test drive form seen. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 8 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/deerpark-motors-ltd",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://deerparkmotors.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Kellehers of Macroom",
+    "county": "Cork",
+    "town": "Macroom (Cork Road)",
+    "website": "https://www.kellehersofmacroom.ie/",
+    "businessPhone": "(026) 41521",
+    "type": "franchise",
+    "brands": [
+      "Ford"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 23,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/kellehers-of-macroom",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 41000,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 31 ads (23 cars, 8 vans)"
+    ],
+    "platform": "Ford Ireland dealer template (manufacturer platform)",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Official Ford dealer; Ford Ireland template. Opening is the used side or the dashboard. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/kellehers-of-macroom",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.kellehersofmacroom.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "ASM Auto Sales Macroom Ltd",
+    "county": "Cork",
+    "town": "Macroom (Millstreet Road)",
+    "website": "https://www.asmmacroom.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 22,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/asm-auto-sales-macroom-ltd",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 12500,
+    "reviews": {
+      "count": 37,
+      "rating": 3.5,
+      "source": "https://www.asmmacroom.ie/"
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 23 ads (22 cars, 1 vans)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Independent, budget stock. Full CarsIreland template. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 9 car prices on page 1 of the CarsIreland dealer page. Review count and rating as shown on its own site's Google reviews widget.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/asm-auto-sales-macroom-ltd",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.asmmacroom.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "CH Car Source",
+    "county": "Cork",
+    "town": "Carrigtwohill",
+    "website": "https://www.chcarsource.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 21,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/ch-car-source",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 7875,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 21 ads (21 cars)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Independent, budget stock. Full CarsIreland template. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/ch-car-source",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.chcarsource.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Assured Autos",
+    "county": "Cork",
+    "town": "Cork city (Monahan Road)",
+    "website": "https://www.assuredautos.ie/",
+    "businessPhone": "(021) 601 9445",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 19,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/assured-autos",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 29900,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 19 ads (19 cars)"
+    ],
+    "platform": "DoneDeal dealer website ('Powered by DoneDeal, Developed by Square1')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Independent, newer stock (page 1 is 2019 to 2025). DoneDeal-built site: stock, finance link and trade-in; no finance calculator or test drive form seen. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/assured-autos",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.assuredautos.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Paddy Shanahan Cars Cork",
+    "county": "Cork",
+    "town": "Lombardstown (near Mallow)",
+    "website": "https://www.paddyshanahan.com/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 19,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/paddy-shanahan-cars-cork",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 9225,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 20 ads (19 cars, 1 vans)"
+    ],
+    "platform": null,
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Own site paddyshanahan.com answered with a bot check (403 'Just a moment'), so it was not read. Budget stock. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/paddy-shanahan-cars-cork",
+      "https://www.carsireland.ie/car-dealers/county/cork"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Blue Diamond Cars",
+    "county": "Cork",
+    "town": "Carrigaline (Crosshaven Road)",
+    "website": "https://www.bluediamondcars.ie/",
+    "businessPhone": "(021) 437 5115",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 18,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/blue-diamond-cars",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 13950,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 19 ads (18 cars, 1 vans)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Independent. Full CarsIreland template. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/blue-diamond-cars",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.bluediamondcars.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Proline Motors",
+    "county": "Cork",
+    "town": "Cork city (Mayfield)",
+    "website": "https://www.prolinemotors.ie/",
+    "businessPhone": "(021) 455 2347",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 16,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/proline-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 16995,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 18 ads (16 cars, 2 vans)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Independent. Full CarsIreland template. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 8 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/proline-motors",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.prolinemotors.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "SuroCars.ie",
+    "county": "Cork",
+    "town": "Cork city (Marina Commercial Park)",
+    "website": "https://www.surocars.ie/",
+    "businessPhone": "(021) 496 5388",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 15,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/surocars-ie",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 20390,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 15 ads (15 cars)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Independent, luxury cars (site title). Full CarsIreland template. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/surocars-ie",
+      "https://www.carsireland.ie/car-dealers/county/cork",
+      "https://www.surocars.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Eoin Dooley Cars",
+    "county": "Cork",
+    "town": "Glanmire (Riverstown)",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 15,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/eoin-dooley-cars",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 11995,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 15 ads (15 cars)"
+    ],
+    "platform": "none (no website listed on CarsIreland)",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Small independent, budget stock. No website listed: stock on CarsIreland only. Marginal at 15 cars. Added 2026-11-20 from the CarsIreland Cork dealer directory (https://www.carsireland.ie/car-dealers/county/cork). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/eoin-dooley-cars",
+      "https://www.carsireland.ie/car-dealers/county/cork"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Hertz Car Sales Cork (and Blarney)",
+    "county": "Cork",
+    "town": "Cork city (Lower Glanmire Road) and Blarney",
+    "website": "https://www.hertzcarsales.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 2,
+    "stock": {
+      "count": 45,
+      "source": "https://www.carsireland.ie/car-dealers/county/cork/hertz-car-sales-cork",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "CarsIreland 2026-11-20: Cork 21 cars, Blarney 24.",
+    "skip": "Rental brand's ex-fleet outlet (also Hertz Car Sales Blarney, 24 cars), not a dealer prospect.",
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/cork/hertz-car-sales-cork",
+      "https://www.carsireland.ie/car-dealers/county/cork/hertz-car-sales-blarney"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
   }
 ]

@@ -37,7 +37,7 @@
     ],
     "platform": "mtc (footer: 'Platform by mtc')",
     "activity": "Active: VW Waterford opened 2025 (new 20-ramp site), Fiat/Alfa/Jeep flagship showroom opened Dec 2024, BYD added; 2026 copyright.",
-    "glanceNotes": "Regional group, not national: group says 16 showrooms and 200+ staff (ul.ie careers page, undated); Boland family also runs Carlow and Wexford sites. Stock count is VW Waterford's DoneDeal ads only (cars.ie shows 58 for the same site); autoboland.ie search widget showed 'Search all 0 vehicles' with 4 new arrivals, so the group's total stock is unknown. Audi Waterford is Boland-owned (autobiz.ie 2012) with 326 Google reviews at 4.7 and 0 DoneDeal ads; Boland Citroën has 496 reviews at 4.6, its own site bolandscitroen.com (no finance or trade-in form seen), 0 DoneDeal ads. autoboland.ie: no finance calculator, no trade-in form, no enquiry form (links to contact page), no test drive booking, reviews heading with no content. Franchise brand sites are manufacturer templates. Typical price is the median of the first 10 VW Waterford DoneDeal ads (skewed by new vans). Big enough for the dashboard pitch; the opening is a single stock search and lead inbox across 10+ brands.",
+    "glanceNotes": "Regional group, not national: group says 16 showrooms and 200+ staff (ul.ie careers page, undated); Boland family also runs Carlow and Wexford sites. Stock count is VW Waterford's DoneDeal ads only (cars.ie shows 58 for the same site); autoboland.ie search widget showed 'Search all 0 vehicles' with 4 new arrivals, so the group's total stock is unknown. Audi Waterford is Boland-owned (autobiz.ie 2012) with 326 Google reviews at 4.7 and 0 DoneDeal ads; Boland Citroën has 496 reviews at 4.6, its own site bolandscitroen.com (no finance or trade-in form seen), 0 DoneDeal ads. autoboland.ie: no finance calculator, no trade-in form, no enquiry form (links to contact page), no test drive booking, reviews heading with no content. Franchise brand sites are manufacturer templates. Typical price is the median of the first 10 VW Waterford DoneDeal ads (skewed by new vans). Big enough for the dashboard pitch; the opening is a single stock search and lead inbox across 10+ brands. CarsIreland (2026-11-20) lists the Waterford branches separately: Bolands BMW 83, Bolands Waterford Citroen 75, Bolands Waterford Hyundai 46, Audi Waterford 114, Volkswagen Waterford 58, Auto Boland Jaguar & Land Rover 59, Auto Boland 141 cars (576 in all). Bolands BMW is at the same Butlerstown roundabout; assumed the same family, not confirmed.",
     "skip": null,
     "sources": [
       "https://www.autoboland.ie/",
@@ -52,7 +52,14 @@
       "https://www.donedeal.ie/dealer/boland-citroen/contact",
       "http://www.bolandscitroen.com/",
       "https://www.fiat.ie/news/AutoBoland-Celebrates-Official-Opening-of-New-Fiat-Dealership-in-Waterford",
-      "https://completecar.ie/car-news/article/12916/BYD-opens-two-more-Irish-dealers"
+      "https://completecar.ie/car-news/article/12916/BYD-opens-two-more-Irish-dealers",
+      "https://www.carsireland.ie/car-dealers/county/waterford/bolands-bmw",
+      "https://www.carsireland.ie/car-dealers/county/waterford/bolands-waterford-citroen",
+      "https://www.carsireland.ie/car-dealers/county/waterford/bolands-waterford-hyundai",
+      "https://www.carsireland.ie/car-dealers/county/waterford/audi-waterford",
+      "https://www.carsireland.ie/car-dealers/county/waterford/volkswagen-waterford",
+      "https://www.carsireland.ie/car-dealers/county/waterford/auto-boland-jaguar-land-rover",
+      "https://www.carsireland.ie/car-dealers/county/waterford/auto-boland"
     ],
     "validated": "2026-11-20"
   },
@@ -371,8 +378,8 @@
     ],
     "branches": 1,
     "stock": {
-      "count": null,
-      "source": "https://www.donedeal.ie/dealer/john-kelly-waterford-ltd",
+      "count": 144,
+      "source": "https://www.carsireland.ie/car-dealers/county/waterford/john-kelly-waterford",
       "checkedAt": "2026-11-20"
     },
     "typicalPriceEur": null,
@@ -386,13 +393,14 @@
     ],
     "platform": "Opel Ireland dealer template (footer 'developed by Carussel')",
     "activity": "Opel Aftersales Dealer of the Year 2022; DoneDeal listings of Opel, Kia, Ford, VW seen in search.",
-    "glanceNotes": "Website https://www.johnkellyopel.com/ found in validation (2026-11-20, linked from the DoneDeal dealer page). Opel Ireland dealer template site: new Opel cars and vans, offers, finance and test drive request; no used stock search seen on the homepage. Stock null: its DoneDeal dealer page showed 0 ads on the day, although search results show many of its listings (maybe a second account). Opel trading since 1979, garage dates to 1900. Worth a phone check.",
+    "glanceNotes": "Website https://www.johnkellyopel.com/ found in validation (2026-11-20, linked from the DoneDeal dealer page). Opel Ireland dealer template site: new Opel cars and vans, offers, finance and test drive request; no used stock search seen on the homepage. Stock null: its DoneDeal dealer page showed 0 ads on the day, although search results show many of its listings (maybe a second account). Opel trading since 1979, garage dates to 1900. Worth a phone check. Stock filled 2026-11-20 from CarsIreland: 144 cars (plus 48 vans).",
     "skip": null,
     "sources": [
       "https://www.donedeal.ie/dealer/john-kelly-waterford-ltd",
       "https://www.donedeal.ie/dealer/john-kelly-waterford-ltd/reviews",
       "https://www.opel.ie/about-opel/opel-news/john-kelly-waterford-awarded-opel-aftersales-dealer-of-the-year-.html",
-      "https://www.johnkellyopel.com/"
+      "https://www.johnkellyopel.com/",
+      "https://www.carsireland.ie/car-dealers/county/waterford/john-kelly-waterford"
     ]
   },
   {
@@ -809,26 +817,30 @@
     ],
     "branches": 1,
     "stock": {
-      "count": 0,
-      "source": "https://www.donedeal.ie/dealer/t-c-motors-ltd",
+      "count": 110,
+      "source": "https://www.carsireland.ie/car-dealers/county/waterford/t-c-motors-ltd",
       "checkedAt": "2026-11-20"
     },
-    "typicalPriceEur": null,
+    "typicalPriceEur": 17745,
     "reviews": {
       "count": 88,
       "rating": 4.3,
       "source": "https://www.donedeal.ie/dealer/t-c-motors-ltd"
     },
-    "adSignals": [],
-    "platform": null,
-    "activity": "",
-    "glanceNotes": "",
-    "skip": "DoneDeal dealer page shows 0 ads; no sign of current stock. But: DoneDeal labels it a Peugeot dealer (88 Google reviews at 4.3, account total 80 ads, 0 live), and its own Wix site tandcmotors.ie is live with Peugeot offers and a Used Cars page. Used stock not counted; check before ruling out.",
+    "adSignals": [
+      "CarsIreland dealer account: 119 ads (110 cars, 9 vans)"
+    ],
+    "platform": "GForces NetDirector (UK dealer website platform)",
+    "activity": "Stock live on CarsIreland at check (2026-11-20).",
+    "glanceNotes": "Re-checked 2026-11-20: the DoneDeal skip was wrong for its stock; CarsIreland lists 110 cars. Peugeot dealer. Own site is now on GForces NetDirector (no longer Wix): stock search, finance page (no calculator seen), trade-in, test drive and enquiry. Typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page. BYD Waterford (98 cars) is listed on the same Inner Ring Road; same owner not confirmed, so it has its own entry. Previous note: DoneDeal dealer page shows 0 ads; no sign of current stock. But: DoneDeal labels it a Peugeot dealer (88 Google reviews at 4.3, account total 80 ads, 0 live), and its own Wix site tandcmotors.ie is live with Peugeot offers and a Used Cars page. Used stock not counted; check before ruling out.",
+    "skip": null,
     "sources": [
       "https://www.donedeal.ie/dealer/t-c-motors-ltd",
-      "https://www.tandcmotors.ie/"
+      "https://www.tandcmotors.ie/",
+      "https://www.carsireland.ie/car-dealers/county/waterford/t-c-motors-ltd"
     ],
-    "skipUnverified": true
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
   },
   {
     "name": "Tom Dale Car Sales",
@@ -1567,5 +1579,112 @@
       "http://www.waterford.simonkavanaghmotors.ie"
     ],
     "validated": "2026-11-20"
+  },
+  {
+    "name": "M & B Motors Waterford",
+    "county": "Waterford",
+    "town": "Woodstown (Ballyloughmore)",
+    "website": "https://www.mandbmotorswaterford.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 16,
+      "source": "https://www.carsireland.ie/car-dealers/county/waterford/m-b-motors-waterford",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 9600,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 16 ads (16 cars)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Independent, budget stock. Full CarsIreland template. Marginal at 16 cars. Added 2026-11-20 from the CarsIreland Waterford dealer directory (https://www.carsireland.ie/car-dealers/county/waterford). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/waterford/m-b-motors-waterford",
+      "https://www.carsireland.ie/car-dealers/county/waterford",
+      "https://www.mandbmotorswaterford.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "McConnell Bros",
+    "county": "Waterford",
+    "town": "Waterford City (Cork Road)",
+    "website": "https://www.mcconnellswaterford.ie/",
+    "businessPhone": "(051) 874 037",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 16,
+      "source": "https://www.carsireland.ie/car-dealers/county/waterford/mcconnell-bros",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 19950,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 16 ads (16 cars)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Independent, serving Waterford since 1928 (site title). Full CarsIreland template. Marginal at 16 cars. Added 2026-11-20 from the CarsIreland Waterford dealer directory (https://www.carsireland.ie/car-dealers/county/waterford). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/waterford/mcconnell-bros",
+      "https://www.carsireland.ie/car-dealers/county/waterford",
+      "https://www.mcconnellswaterford.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "BYD Waterford",
+    "county": "Waterford",
+    "town": "Waterford City (Inner Ring Road)",
+    "website": "https://www.bydwaterford.ie/",
+    "businessPhone": "(051) 500 292",
+    "type": "franchise",
+    "brands": [
+      "BYD"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 98,
+      "source": "https://www.carsireland.ie/car-dealers/county/waterford/byd-waterford",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 36623,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 98 ads (98 cars)"
+    ],
+    "platform": "BYD dealer template (manufacturer platform, no credit shown)",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "BYD franchise; mostly new or nearly-new stock (page 1 is 2023 to 2027). Manufacturer-style site with stock and test drive; no finance calculator or trade-in seen on the homepage. Same Inner Ring Road as T & C Motors (Peugeot); same owner not confirmed. Added 2026-11-20 from the CarsIreland Waterford dealer directory (https://www.carsireland.ie/car-dealers/county/waterford). Typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/waterford/byd-waterford",
+      "https://www.carsireland.ie/car-dealers/county/waterford",
+      "https://www.bydwaterford.ie/en"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
   }
 ]

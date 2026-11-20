@@ -2634,5 +2634,112 @@
       "https://www.cars.ie/dealers/van-monster-galway-2356/",
       "https://www.cars.ie/dealers/?county=galway"
     ]
+  },
+  {
+    "name": "Fred Kilmartin Ltd",
+    "county": "Galway",
+    "town": "Ballinasloe (Athlone Road)",
+    "website": "https://www.fredkilmartinltd.ie/",
+    "businessPhone": "(090) 963 0800",
+    "type": "franchise",
+    "brands": [
+      "Ford"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 37,
+      "source": "https://www.carsireland.ie/car-dealers/county/galway/fred-kilmartin-ltd",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 17950,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 42 ads (37 cars, 5 vans)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Ford dealer (site title 'New Ford Galway'). CarsIreland franchise template. Added 2026-11-20 from the CarsIreland Galway dealer directory (https://www.carsireland.ie/car-dealers/county/galway). Stock is the directory's car count; typical price is the median of the 9 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/galway/fred-kilmartin-ltd",
+      "https://www.carsireland.ie/car-dealers/county/galway",
+      "https://www.fredkilmartinltd.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Cosgroves Garage",
+    "county": "Galway",
+    "town": "Tuam (Galway Road, Killaloonty)",
+    "website": "https://www.cosgrovesgaragetuam.com/",
+    "businessPhone": "(093) 24171",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 18,
+      "source": "https://www.carsireland.ie/car-dealers/county/galway/cosgroves-garage",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 38950,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 18 ads (18 cars)"
+    ],
+    "platform": "WordPress theme (ThemeMakers), no agency credit",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Independent with an Audi focus (site title 'Audi Tuam Galway'); newer stock. Stock and finance mention on site; no finance calculator, trade-in or test drive form seen. Added 2026-11-20 from the CarsIreland Galway dealer directory (https://www.carsireland.ie/car-dealers/county/galway). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/galway/cosgroves-garage",
+      "https://www.carsireland.ie/car-dealers/county/galway",
+      "https://www.cosgrovesgaragetuam.com/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Kylemore Service Station",
+    "county": "Galway",
+    "town": "Renvyle (Kylemore)",
+    "website": "https://www.kylemoreservicestation.ie/",
+    "businessPhone": "(095) 41147",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 16,
+      "source": "https://www.carsireland.ie/car-dealers/county/galway/kylemore-service-station",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 8225,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 20 ads (16 cars, 4 vans)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Service station that also sells budget used cars and runs 24-hour recovery. Full CarsIreland template. Marginal at 16 cars. Added 2026-11-20 from the CarsIreland Galway dealer directory (https://www.carsireland.ie/car-dealers/county/galway). Stock is the directory's car count; typical price is the median of the 8 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/galway/kylemore-service-station",
+      "https://www.carsireland.ie/car-dealers/county/galway",
+      "https://www.kylemoreservicestation.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
   }
 ]

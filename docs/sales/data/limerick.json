@@ -109,12 +109,13 @@
     ],
     "platform": "CarsIreland (footer: Powered by CarsIreland)",
     "activity": "DoneDeal ads aged 7 hours to 22 days (median about 8 days); named team page; Instagram, Facebook, X, LinkedIn",
-    "glanceNotes": "132 cars on own site, monthly-budget filter (not a full calculator), finance apply page, valuation form with lorem ipsum text, enquiry and WhatsApp, test drive booking, Google reviews shown. Polish issues: lorem ipsum, 'Accesories' typo, 'Social feed' placeholder. Second branch in Charleville, Co. Cork (Nissan).",
+    "glanceNotes": "132 cars on own site, monthly-budget filter (not a full calculator), finance apply page, valuation form with lorem ipsum text, enquiry and WhatsApp, test drive booking, Google reviews shown. Polish issues: lorem ipsum, 'Accesories' typo, 'Social feed' placeholder. Second branch in Charleville, Co. Cork (Nissan). CarsIreland (2026-11-20) lists the Charleville branch under Cork: 83 cars (https://www.carsireland.ie/car-dealers/county/cork/james-barry-charleville), own site jamesbarrymotorscharleville.ie on CarsIreland's template.",
     "skip": null,
     "sources": [
       "https://www.donedeal.ie/dealer/james-barry-motors",
       "https://www.donedeal.ie/dealer/james-barry-motors/reviews",
-      "https://www.jamesbarrymotors.ie/"
+      "https://www.jamesbarrymotors.ie/",
+      "https://www.carsireland.ie/car-dealers/county/cork/james-barry-charleville"
     ],
     "validated": "2026-11-20"
   },
@@ -772,9 +773,9 @@
     "brands": [],
     "branches": null,
     "stock": {
-      "count": null,
-      "source": null,
-      "checkedAt": null
+      "count": 255,
+      "source": "https://www.carsireland.ie/car-dealers/county/limerick/kearys-carstore-limerick",
+      "checkedAt": "2026-11-20"
     },
     "typicalPriceEur": null,
     "reviews": {
@@ -785,10 +786,11 @@
     "adSignals": [],
     "platform": null,
     "activity": "",
-    "glanceNotes": "",
+    "glanceNotes": "Stock filled 2026-11-20 from CarsIreland: 255 cars (plus 1 vans).",
     "skip": "National group (Kearys Motor Group): one carstore.ie site for Dublin, Cork, Limerick, Galway.",
     "sources": [
-      "https://www.carstore.ie/"
+      "https://www.carstore.ie/",
+      "https://www.carsireland.ie/car-dealers/county/limerick/kearys-carstore-limerick"
     ],
     "seeAlso": "galway.json: Kearys Carstore Galway"
   },
@@ -808,9 +810,9 @@
     ],
     "branches": null,
     "stock": {
-      "count": null,
-      "source": null,
-      "checkedAt": null
+      "count": 42,
+      "source": "https://www.carsireland.ie/car-dealers/county/limerick/sheils-of-limerick",
+      "checkedAt": "2026-11-20"
     },
     "typicalPriceEur": null,
     "reviews": {
@@ -821,12 +823,13 @@
     "adSignals": [],
     "platform": null,
     "activity": "",
-    "glanceNotes": "",
+    "glanceNotes": "Stock filled 2026-11-20 from CarsIreland: 42 cars (plus 1 vans).",
     "skip": "Group run from Ennis, Co. Clare: one sheils.ie site for Galway, Ennis, Limerick (site by CRD Media). Limerick branch had 43 DoneDeal ads, 147 Google reviews 4.5.",
     "sources": [
       "https://www.sheils.ie/",
       "https://www.donedeal.ie/dealer/sheils-motor-group-limerick",
-      "https://www.donedeal.ie/dealer/sheils-motor-group-limerick/reviews"
+      "https://www.donedeal.ie/dealer/sheils-motor-group-limerick/reviews",
+      "https://www.carsireland.ie/car-dealers/county/limerick/sheils-of-limerick"
     ],
     "seeAlso": "galway.json: Sheils Galway"
   },
@@ -843,9 +846,9 @@
     ],
     "branches": null,
     "stock": {
-      "count": null,
-      "source": null,
-      "checkedAt": null
+      "count": 95,
+      "source": "https://www.carsireland.ie/car-dealers/county/limerick/conlans-bmw-limerick",
+      "checkedAt": "2026-11-20"
     },
     "typicalPriceEur": null,
     "reviews": {
@@ -856,13 +859,15 @@
     "adSignals": [],
     "platform": null,
     "activity": "",
-    "glanceNotes": "",
+    "glanceNotes": "Stock filled 2026-11-20 from CarsIreland: 79 cars, plus Conlans MINI Limerick 16 (https://www.carsireland.ie/car-dealers/county/limerick/conlans-mini-limerick).",
     "skip": "Branch of a Kildare-based BMW/MINI group on one conlans.ie site (site blocked us, 403). Limerick DoneDeal pages now show 66 cars (conlans-limerick-bmw) plus 16 (conlans-collection-limerick), 846 Google reviews 4.7.",
     "sources": [
       "https://www.donedeal.ie/dealer/conlans-collection-limerick",
       "https://www.donedeal.ie/dealer/conlans-collection-limerick/reviews",
       "https://irishtimes-irishtimes-prod.cdn.arcpublishing.com/life-and-style/motors/kildare-bmw-dealer-to-take-over-the-brand-s-limerick-retail-franchise-1.743755",
-      "https://www.donedeal.ie/dealer/conlans-limerick-bmw"
+      "https://www.donedeal.ie/dealer/conlans-limerick-bmw",
+      "https://www.carsireland.ie/car-dealers/county/limerick/conlans-bmw-limerick",
+      "https://www.carsireland.ie/car-dealers/county/limerick/conlans-mini-limerick"
     ]
   },
   {
@@ -935,9 +940,9 @@
     "brands": [],
     "branches": null,
     "stock": {
-      "count": null,
-      "source": null,
-      "checkedAt": null
+      "count": 25,
+      "source": "https://www.carsireland.ie/car-dealers/county/limerick/hertz-car-sales-limerick",
+      "checkedAt": "2026-11-20"
     },
     "typicalPriceEur": null,
     "reviews": {
@@ -948,10 +953,11 @@
     "adSignals": [],
     "platform": null,
     "activity": "",
-    "glanceNotes": "",
+    "glanceNotes": "Stock filled 2026-11-20 from CarsIreland: 25 cars (plus 1 vans).",
     "skip": "Rental brand outlet with 0 ads on DoneDeal.",
     "sources": [
-      "https://www.donedeal.ie/dealer/hertz-car-sales-limerick"
+      "https://www.donedeal.ie/dealer/hertz-car-sales-limerick",
+      "https://www.carsireland.ie/car-dealers/county/limerick/hertz-car-sales-limerick"
     ]
   },
   {
@@ -994,9 +1000,9 @@
     "brands": [],
     "branches": null,
     "stock": {
-      "count": null,
-      "source": null,
-      "checkedAt": null
+      "count": 13,
+      "source": "https://www.carsireland.ie/car-dealers/county/limerick/davin-car-sales",
+      "checkedAt": "2026-11-20"
     },
     "typicalPriceEur": null,
     "reviews": {
@@ -1007,10 +1013,11 @@
     "adSignals": [],
     "platform": null,
     "activity": "",
-    "glanceNotes": "",
+    "glanceNotes": "Stock filled 2026-11-20 from CarsIreland: 13 cars (plus 1 vans).",
     "skip": "12 ads.",
     "sources": [
-      "https://www.donedeal.ie/dealer/davin-car-sales"
+      "https://www.donedeal.ie/dealer/davin-car-sales",
+      "https://www.carsireland.ie/car-dealers/county/limerick/davin-car-sales"
     ]
   },
   {
@@ -1227,9 +1234,9 @@
     "brands": [],
     "branches": null,
     "stock": {
-      "count": null,
-      "source": null,
-      "checkedAt": null
+      "count": 9,
+      "source": "https://www.carsireland.ie/car-dealers/county/limerick/singland-motors",
+      "checkedAt": "2026-11-20"
     },
     "typicalPriceEur": null,
     "reviews": {
@@ -1240,10 +1247,11 @@
     "adSignals": [],
     "platform": null,
     "activity": "",
-    "glanceNotes": "",
+    "glanceNotes": "Stock filled 2026-11-20 from CarsIreland: 9 cars (plus 1 vans).",
     "skip": "Mainly a Land Rover service centre; no stock found online. DoneDeal page exists with 0 ads (2026-11-20).",
     "sources": [
-      "https://www.goldenpages.ie/q/business/advanced/where/ireland/what/car-dealers-new-used/48"
+      "https://www.goldenpages.ie/q/business/advanced/where/ireland/what/car-dealers-new-used/48",
+      "https://www.carsireland.ie/car-dealers/county/limerick/singland-motors"
     ]
   },
   {
@@ -2003,5 +2011,103 @@
       "https://www.donedeal.ie/find-a-dealer/Limerick"
     ],
     "validated": "2026-11-20"
+  },
+  {
+    "name": "Killaloe Auto Sales Limited",
+    "county": "Limerick",
+    "town": "Killaloe (Shantraud)",
+    "website": "https://www.killaloeautosales.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 49,
+      "source": "https://www.carsireland.ie/car-dealers/county/limerick/killaloe-auto-sales-limited",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 18450,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 53 ads (49 cars, 3 vans, 1 motorhomes)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Independent. Listed under Limerick on CarsIreland with a V94 (Limerick) eircode; Killaloe town itself is in Clare. Full CarsIreland template. Added 2026-11-20 from the CarsIreland Limerick dealer directory (https://www.carsireland.ie/car-dealers/county/limerick). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/limerick/killaloe-auto-sales-limited",
+      "https://www.carsireland.ie/car-dealers/county/limerick",
+      "https://www.killaloeautosales.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Gibbons Autos LTD",
+    "county": "Limerick",
+    "town": "Abbeyfeale (Killarney Road)",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 17,
+      "source": "https://www.carsireland.ie/car-dealers/county/limerick/gibbons-autos-ltd",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 7950,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 17 ads (17 cars)"
+    ],
+    "platform": "none (no website listed on CarsIreland)",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Small independent at a filling station; budget stock. No website listed: stock on CarsIreland only. Added 2026-11-20 from the CarsIreland Limerick dealer directory (https://www.carsireland.ie/car-dealers/county/limerick). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/limerick/gibbons-autos-ltd",
+      "https://www.carsireland.ie/car-dealers/county/limerick"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  },
+  {
+    "name": "Kyleford Motors",
+    "county": "Limerick",
+    "town": "Kilmallock",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 21,
+      "source": "https://www.carsireland.ie/car-dealers/county/limerick",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "46 DoneDeal ads; of the 10 visible, 5 campervans, 3 cars, 2 vans. Car count across all 46 unknown (likely around 14). Website not checked. Moved from Cork 2026-11-20: CarsIreland lists it in Kilmallock, Co. Limerick, with 21 cars plus 11 vans and 7 motorhomes, so it passes the 15-car line.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/kyleford-motors"
+    ]
   }
 ]
