@@ -44,10 +44,11 @@ Assumption: support takes about 2 hours a month per dealer at €40 an hour. Est
 **Showroom:** the site
 - Own-brand site, stock synced from DoneDeal or CarsIreland
 - Google reviews on the site
-- Enquiry and WhatsApp click to chat
+- Enquiry form (leads go to the dealer by email) and WhatsApp click to chat
 - Finance estimator
 - Trade-in form with 25 registration lookups a month
-- 1 staff login
+- Car finder: a "find me a car" form for cars not in stock
+- No dashboard, so no staff logins: stock comes from the sync, leads arrive by email
 - **Upgrade trigger:** leads land in email and go cold, or they want test drive booking.
 
 **Dealer:** the dashboard
@@ -58,6 +59,7 @@ Assumption: support takes about 2 hours a month per dealer at €40 an hour. Est
 - Trade-in with 100 lookups a month
 - Reviews replies from the dashboard
 - Deposits and sale records
+- Site analytics: visitors and where they came from, so the dealer sees which ads bring leads
 - 10 staff logins with roles
 - **Upgrade trigger:** a second branch, or they want margins and reports.
 
@@ -70,7 +72,13 @@ Assumption: support takes about 2 hours a month per dealer at €40 an hour. Est
 - Commercial section
 - **Upgrade trigger:** more branches.
 
-**Add-ons for any tier:** commercial vehicles €29, new cars €99, social €99, newsletter €59. Today's module prices stand, so a Showroom dealer can buy one module without jumping a tier.
+**Add-ons**, at today's module prices:
+- **Any tier:** commercial vehicles section €29.
+- **Dealer** (they need the dashboard):
+  - Service and aftersales €49: service booking and warranty claims on the site, tracked in the dashboard. Only for dealers with a workshop.
+  - New cars and factory orders €99.
+  - Social €99.
+  - Newsletter €59.
 
 **Over the allowance:** lookups €0.30, WhatsApp alerts €0.05, replies €0.03, marketing messages €0.12, AI €0.04 Standard or €0.08 Premium. Today's prices stand, except WhatsApp replies rise from €0.02 to €0.03, because Meta now charges for messages inside the 24-hour window.
 
