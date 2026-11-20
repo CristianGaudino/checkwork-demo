@@ -1,6 +1,6 @@
 # First-touch outreach: tier A dealers
 
-The 32 tier A dealers in the order of [prospects.md](prospects.md), then five more that their cards rate tier A (Audi Approved :plus Kerry is pitched through Blackwater). Call them in the waves of [go-to-market.md](go-to-market.md), not in this order: groups, with Connolly's last, start from week 6 or once 3 dealers are live. Each has a card in [cards/](cards/) with the full facts and links. Live demo: https://www.demo.checkwork.ie
+The 32 tier A dealers in the order of [prospects.md](prospects.md), then five more that their cards rate tier A (Audi Approved :plus Kerry is pitched through Blackwater). Call them in the waves of [go-to-market.md](go-to-market.md), not in this order: groups start from week 6 or once 3 dealers are live, with Blackwater and Connolly's last (Connolly's, tier A on its card, gets its script then). Each has a card in [cards/](cards/) with the full facts and links. Live demo: https://www.demo.checkwork.ie
 
 ## The rules on calls and email
 From the ePrivacy Regulations (S.I. 336 of 2011) and the Data Protection Commission's guidance (more in [go-to-market.md](go-to-market.md)):
