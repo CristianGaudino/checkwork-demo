@@ -138,6 +138,19 @@ test("our own stock has Add car, no sync and no DoneDeal service", async ({ page
   expect((await page.request.post("/api/donedeal/sync")).status()).toBe(404); // the cron's route needs its key
 });
 
+test("a car for sale is posted to social from its stock row; a sold car has no Post to social", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 }); // the row's buttons are from 640px
+  await page.goto("/dashboard/stock");
+  const row = page.getByRole("row").nth(1);
+  const post = row.getByRole("link", { name: "Post to social" });
+  await expect(post).toHaveAttribute("href", /^\/dashboard\/marketing\/new\?car=/);
+  await post.click();
+  await expect(page).toHaveURL(/\/dashboard\/marketing\/new\?car=/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("New post");
+  await page.goto("/dashboard/stock?view=sold");
+  await expect(page.getByRole("row").nth(1).getByRole("link", { name: "Post to social" })).toHaveCount(0);
+});
+
 test("the summary tiles are the filter: one press filters the table and marks the tile", async ({ page }) => {
   await page.goto("/dashboard/stock");
   const tabs = page.getByRole("navigation", { name: "Stock views" });

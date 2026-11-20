@@ -15,7 +15,9 @@ export function SaleForm({ carId, defaults, today, team, customers, leads, submi
   const [state, action, pending] = useKeptForm<FormState>(recordSaleAction.bind(null, carId), undefined);
   const e = state?.errors ?? {};
   return (
+    // In three short parts, each under its heading: the sale, who bought it, and the extras most sales leave as they are.
     <form {...action} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" noValidate>
+      <h2 className="text-section font-semibold sm:col-span-2 lg:col-span-3">The sale</h2>
       <Field label="Sale price (€)" error={e.priceEur}>
         <input name="priceEur" inputMode="numeric" defaultValue={defaults.priceEur} className={adminInput} />
       </Field>
@@ -25,7 +27,9 @@ export function SaleForm({ carId, defaults, today, team, customers, leads, submi
       <Field label="Sold by" error={e.salesperson}>
         <Select name="salesperson" defaultValue={defaults.salesperson ?? ""} options={[["", "Not set"], ...team.map((t) => [t, t] as const)]} />
       </Field>
+      <h2 className="mt-2 text-section font-semibold sm:col-span-2 lg:col-span-3">The buyer</h2>
       <BuyerFields customers={customers} defaultId={defaults.customerId} errors={e} />
+      <h2 className="mt-2 text-section font-semibold sm:col-span-2 lg:col-span-3">Warranty and trade-in</h2>
       <Field label="Warranty" error={e.coverMonths}>
         <Select name="coverMonths" defaultValue={String(defaults.coverMonths ?? COVER_MONTHS)} options={COVER_CHOICES.map((m) => [String(m), m === COVER_MONTHS ? `${m} months, included` : `${m} months, extended`] as const)} />
       </Field>
