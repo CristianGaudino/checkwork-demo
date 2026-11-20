@@ -17,7 +17,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ l
   const today = dublinDay();
   return (
     <>
-      <PageHeader title="Place an order" back={{ href: "/dashboard/orders", label: "Orders" }} />
+      <PageHeader title="Place an order" text="Four short steps. It shows under Orders until the car is handed over." back={{ href: "/dashboard/orders", label: "Orders" }} />
       {lead && (
         <Panel title={`What ${lead.name} asked for`}>
           <p className="max-w-measure whitespace-pre-line text-body">{lead.message}</p>

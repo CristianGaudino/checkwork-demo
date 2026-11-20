@@ -7,6 +7,7 @@ import { Field, adminButton, adminButtonQuiet, adminInput } from "@/components/a
 import { addTeamAction, setRoleAction, saveLeadEmailsAction, saveMarketingAction, sendTestEmailAction, saveNotificationsAction, saveTargetsAction, type SettingsState } from "@/app/dashboard/settings/actions";
 import type { DealerSettings, TeamMember } from "@/lib/admin/collections";
 import { ROLES } from "@/lib/permission-rules";
+import { CheckIcon } from "@/components/stock/icons";
 
 const ROLE_OPTIONS = ROLES.map((r) => [r, r] as const);
 
@@ -25,9 +26,11 @@ function Save({ pending, saved, add = false }: { pending: boolean; saved?: boole
       <button type="submit" disabled={pending} className={adminButton}>
         {pending ? (add ? "Adding" : "Saving") : add ? "Add" : "Save"}
       </button>
+      {/* Says it is done and that it works at once, so nobody saves twice to be sure. */}
       {saved && !pending && (
-        <p role="status" className="text-meta text-ok">
-          {add ? "Added" : "Saved"}
+        <p role="status" className="inline-flex items-center gap-1.5 text-meta font-medium text-ok">
+          <CheckIcon aria-hidden="true" className="size-4" />
+          {add ? "Added to the team" : "Saved. It works from now on"}
         </p>
       )}
     </div>

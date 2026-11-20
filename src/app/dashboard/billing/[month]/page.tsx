@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { SHOW_PRICING } from "@/lib/billing/rules";
 import { notFound } from "next/navigation";
 import { Badge, DataTable, Facts, PageHeader, Panel } from "@/components/admin/kit";
@@ -48,7 +49,10 @@ export default async function Page({ params }: { params: Promise<{ month: string
             { key: "eur", header: "Amount", align: "right", cell: (r) => <span className={r.strong ? "font-semibold" : ""}>{r.eur < 0 ? "-" : ""}{eur(Math.abs(r.eur), true)}</span> },
           ]}
         />
-        <p className="text-meta text-text-2">The invoice was emailed as a PDF when this bill was issued.</p>
+        <p className="text-meta text-text-2">
+          The invoice was emailed as a PDF when this bill was issued. Something look wrong?{" "}
+          <Link href={`/dashboard/help?type=Billing&from=${encodeURIComponent(`/dashboard/billing/${bill.id}`)}`} className="font-medium text-accent-text underline underline-offset-2">Ask us about this bill</Link>
+        </p>
       </Panel>
     </>
   );

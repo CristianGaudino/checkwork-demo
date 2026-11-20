@@ -33,3 +33,19 @@ test("the website's Warranty page has a claim form, and a lost lead asks why", a
   await page.getByRole("button", { name: "Price" }).click();
   await expect(page.getByRole("button", { name: "Price" })).toHaveAttribute("aria-pressed", "true");
 });
+
+test("an open claim is booked in from its row in the list", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  const fault = `Row step test ${Date.now()}`;
+  await page.goto("/dashboard/customers/cust-300");
+  await page.getByRole("region", { name: "Purchases" }).getByRole("link", { name: "Open a claim" }).first().click();
+  await page.getByLabel("The fault").fill(fault);
+  await page.getByRole("button", { name: "Open the claim" }).click();
+  await expect(page).toHaveURL(/\/dashboard\/aftersales\/claim-/);
+
+  await page.goto(`/dashboard/aftersales?view=open&q=${encodeURIComponent(fault)}`);
+  const row = page.getByRole("row").filter({ hasText: fault });
+  await row.getByRole("button", { name: "Book it in" }).click();
+  await expect(row.getByRole("button", { name: "Approve" })).toBeVisible();
+  await expect(row).toContainText("Booked in");
+});

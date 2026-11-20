@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AddTeamForm, RoleForm, LeadEmailsForm, MarketingForm, NotificationsForm, TargetsForm } from "@/components/admin/SettingsForms";
-import { Badge, DataTable, Facts, PageHeader, Panel, adminButtonQuiet, rowButton } from "@/components/admin/kit";
+import { Badge, DataTable, Facts, Notice, PageHeader, Panel, adminButtonQuiet, rowButton } from "@/components/admin/kit";
 import { ActButton } from "@/components/admin/ActButton";
 import { getSettings } from "@/lib/admin/collections";
 import { INTEGRATIONS, type IntegrationId, isUsable, modeOf } from "@/lib/integrations";
@@ -23,18 +23,18 @@ const GRANTS: Record<Role, string> = { Owner: "Everything", Manager: "Everything
 
 export const metadata = { title: "Settings" };
 
+const ASK_CHANGE = `/dashboard/help?type=${encodeURIComponent("Request a change")}&from=/dashboard/settings`;
 
-// The page in sections, one at a time (?section=), so it is never one long scroll on a phone: a list down the side from 1024px, a row of
-// tabs above on a phone.
+// The page in sections, one at a time (?section=), so it is never one long scroll on a phone: a list down the side from 1024px, each with
+// a line on what it changes, and a row of tabs above on a phone. The old Voice section (?section=marketing) is under Your business now.
 const SECTIONS = [
-  ["business", "Business"],
-  ["team", "Team"],
-  ["emails", "Emails"],
-  ["marketing", "Voice"],
-  ["services", "Services"],
-  ["demo", "Start again"],
+  ["business", "Your business", "Your details, opening hours and how your posts sound"],
+  ["targets", "Targets", "How fast to reply to a lead, and how long a test drive takes"],
+  ["team", "Team", "Who can sign in, and what each person can see"],
+  ["emails", "Notifications", "Where new leads are emailed, and the morning reminder"],
+  ["services", "Connected services", "The outside services your site uses, and which are on"],
+  ["demo", "Start again", "Put the dashboard back as it started"],
 ] as const;
-type Section = (typeof SECTIONS)[number][0];
 // The module each outside service belongs to; a service without one is the base site's (lead email, the bot check).
 const SERVICE_MODULE: Partial<Record<IntegrationId, ModuleId | ModuleId[]>> = {
   reviews: "reviews", gbp: "reviews", social: "social", ads: "social", newsletter: "newsletter", whatsapp: "whatsapp", ai: "ai", reglookup: ["lookupWebsite", "lookupDashboard"],
@@ -50,99 +50,135 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
   const team = roleCan(me.role, "team");
   const edit = roleCan(me.role, "settings");
   const owner = me.role === "Owner";
+  const voice = mods.has("social") || mods.has("newsletter");
   // A manager changes everyone but an owner.
   const mayChange = (t: { role: Role }) => team && (owner || t.role !== "Owner");
   // Demo data only where there are made-up records to put back: a real dealer's dashboard has no demo, and the server refuses it there too.
-  const sections = SECTIONS.filter(([k]) => (k !== "demo" || (mayResetDemo() && edit)) && (k !== "marketing" || mods.has("social") || mods.has("newsletter")));
-  const section: Section = sections.find(([k]) => k === sp.section)?.[0] ?? "business";
+  const sections = SECTIONS.filter(([k]) => k !== "demo" || (mayResetDemo() && edit));
+  const [section, , about] = sections.find(([k]) => k === sp.section) ?? sections[0];
   return (
     <>
-      <PageHeader title="Settings" text={edit ? "Your targets, team, emails and the services you offer." : "Only an owner or manager can change these settings."} />
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[13rem_minmax(0,1fr)] lg:items-start">
+      <PageHeader title="Settings" text="How your site and dashboard work for you and your team." />
+      {!edit && <Notice tone="neutral">Only an owner or manager can change these settings.</Notice>}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[16rem_minmax(0,1fr)] lg:items-start">
         <nav aria-label="Settings" className="scrollbar-none -mx-4 flex gap-1 overflow-x-auto px-4 sm:mx-0 sm:px-0 lg:sticky lg:top-24 lg:flex-col">
-          {sections.map(([k, label]) => (
+          {sections.map(([k, label, line]) => (
             <Link
               key={k}
               href={k === "business" ? "/dashboard/settings" : `/dashboard/settings?section=${k}`}
               aria-current={k === section ? "page" : undefined}
-              className={`inline-flex min-h-11 shrink-0 items-center rounded-control px-3 text-meta font-medium ${k === section ? "bg-text text-ink" : "text-text-2 hover:bg-card hover:text-text"}`}
+              className={`flex min-h-11 shrink-0 flex-col justify-center rounded-control px-3 lg:py-2.5 ${k === section ? "bg-text text-ink" : "text-text-2 hover:bg-card hover:text-text"}`}
             >
-              {label}
+              <span className="text-meta font-medium">{label}</span>
+              {/* The line on what it changes: in the side list on a laptop; on a phone it is under the tabs, for the open one only. */}
+              <span aria-hidden="true" className={`hidden text-meta lg:block ${k === section ? "opacity-80" : "text-text-2"}`}>{line}</span>
             </Link>
           ))}
         </nav>
         <div className="flex min-w-0 flex-col gap-6">
+          <p className="-mb-2 text-body text-text-2 lg:hidden">{about}</p>
+
           {section === "business" && (
-          <>
+            <>
+              <Panel title="Business details">
+                <Facts items={[["Name", SITE_NAME], ["Phone", DEALER_PHONE], ["Email", DEALER_EMAIL], ["Address", DEALER_ADDRESS_TEXT]]} />
+                <div className="flex flex-col gap-1">
+                  <h3 className="text-meta text-text-2">Opening hours</h3>
+                  <ul className="grid grid-cols-1 gap-x-8 gap-y-1 text-body sm:grid-cols-2">
+                    {OPENING_HOURS.map((h) => (
+                      <li key={h.day} className="flex justify-between gap-4 border-b border-hairline py-1.5">
+                        <span>{h.day}</span>
+                        <span className="tabular-nums text-text-2">{formatHours(h)}</span>
+                      </li>
+                    ))}
+                    {/* As on the public site: no test drive is offered on one (src/lib/bank-holidays.ts). */}
+                    <li className="flex justify-between gap-4 border-b border-hairline py-1.5">
+                      <span>Bank holidays</span>
+                      <span className="text-text-2">Closed</span>
+                    </li>
+                  </ul>
+                </div>
+                <p className="text-meta text-text-2">
+                  These show across your website. We change them for you:{" "}
+                  <Link href={ASK_CHANGE} className="font-medium text-accent-text underline underline-offset-2">ask us to change them</Link>
+                </p>
+              </Panel>
+              {voice && (
+                <Panel title="How your posts sound">
+                  {edit ? <MarketingForm settings={s} /> : <Facts items={[["How we sound", s.marketing.voice], ["Hashtags", s.marketing.hashtags], ["Sign-off line", s.marketing.signOff]].map(([k, v]) => [k, v || "Not set"] as const)} />}
+                </Panel>
+              )}
+            </>
+          )}
 
-          {/* The one thing here a dealer changes, first; the details we keep for them after it. */}
-          <Panel title="Targets">
-            {edit ? <TargetsForm settings={s} /> : <Facts items={[["Reply to a new lead within", `${s.leadSlaHours} hours`], ["Test drive slot", `${s.driveSlotMinutes} minutes`]]} />}
-          </Panel>
-
-          <Panel title="Business details">
-            <Facts items={[["Name", SITE_NAME], ["Phone", DEALER_PHONE], ["Email", DEALER_EMAIL], ["Address", DEALER_ADDRESS_TEXT]]} />
-            <ul className="grid grid-cols-1 gap-x-8 gap-y-1 text-body sm:grid-cols-2">
-              {OPENING_HOURS.map((h) => (
-                <li key={h.day} className="flex justify-between gap-4 border-b border-hairline py-1.5">
-                  <span>{h.day}</span>
-                  <span className="tabular-nums text-text-2">{formatHours(h)}</span>
-                </li>
-              ))}
-              {/* As on the public site: no test drive is offered on one (src/lib/bank-holidays.ts). */}
-              <li className="flex justify-between gap-4 border-b border-hairline py-1.5">
-                <span>Bank holidays</span>
-                <span className="text-text-2">Closed</span>
-              </li>
-            </ul>
-            <p className="text-meta text-text-2">
-              These show across the public site.{" "}
-              <Link href={`/dashboard/help?type=${encodeURIComponent("Request a change")}&from=/dashboard/settings`} className="font-medium text-accent-text underline underline-offset-2">Ask us to change them</Link>
-            </p>
-          </Panel>
-          </>
+          {section === "targets" && (
+            <Panel title="Targets">
+              {edit ? <TargetsForm settings={s} /> : <Facts items={[["Reply to a new lead within", `${s.leadSlaHours} hours`], ["Test drive slot", `${s.driveSlotMinutes} minutes`]]} />}
+            </Panel>
           )}
 
           {section === "team" && (
-          <Panel title="Team">
-            <DataTable
-              bare
-              rows={s.team}
-              rowKey={(t) => t.id}
-              columns={[
-                { key: "name", header: "Name", cell: (t) => <span className="font-medium">{t.name}</span> },
-                { key: "email", header: "Email", cell: (t) => t.email, hide: "sm" },
-                {
-                  key: "role",
-                  header: "Role",
-                  // The picker and Remove share a cell, so on a phone Remove sits under the picker instead of off the screen.
-                  cell: (t) =>
-                    mayChange(t) ? (
-                      <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-start">
-                        <RoleForm member={t} owner={owner} />
-                        {s.team.length > 1 && (
-                          <ActButton act={removeTeamAction.bind(null, t.id)} confirm={{ title: `Remove ${t.name} from the team?`, text: "Their leads and test drives go back to nobody. They can be added again later.", yes: "Remove" }} className={`${rowButton} text-bad`}>
-                            Remove
-                          </ActButton>
-                        )}
-                      </div>
-                    ) : (
-                      <Badge tone={t.role === "Owner" ? "info" : "neutral"}>{t.role}</Badge>
-                    ),
-                  align: team ? "right" : undefined,
-                },
-              ]}
-            />
-            <dl className="grid grid-cols-1 gap-x-8 gap-y-2 text-meta sm:grid-cols-2 lg:grid-cols-4">
-              {ROLES.map((r) => (
-                <div key={r}>
-                  <dt className="font-medium">{r}</dt>
-                  <dd className="text-text-2">{GRANTS[r]}</dd>
-                </div>
-              ))}
-            </dl>
-            {team ? <AddTeamForm owner={owner} /> : <p className="text-meta text-text-2">Only an owner or manager can change the team.</p>}
-          </Panel>
+            <>
+              <Panel title="Team" count={s.team.length}>
+                <DataTable
+                  bare
+                  rows={s.team}
+                  rowKey={(t) => t.id}
+                  columns={[
+                    { key: "name", header: "Name", cell: (t) => <span className="font-medium">{t.name}</span> },
+                    { key: "email", header: "Email", cell: (t) => t.email, hide: "sm" },
+                    {
+                      key: "role",
+                      header: "Role",
+                      // The picker and Remove share a cell, so on a phone Remove sits under the picker instead of off the screen.
+                      cell: (t) =>
+                        mayChange(t) ? (
+                          <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-start">
+                            <RoleForm member={t} owner={owner} />
+                            {s.team.length > 1 && (
+                              <ActButton act={removeTeamAction.bind(null, t.id)} confirm={{ title: `Remove ${t.name} from the team?`, text: "Their leads and test drives go back to nobody. They can be added again later.", yes: "Remove" }} className={`${rowButton} text-bad`}>
+                                Remove
+                              </ActButton>
+                            )}
+                          </div>
+                        ) : (
+                          <Badge tone={t.role === "Owner" ? "info" : "neutral"}>{t.role}</Badge>
+                        ),
+                      align: team ? "right" : undefined,
+                    },
+                  ]}
+                />
+                {team ? (
+                  <div className="flex flex-col gap-3 border-t border-hairline pt-4">
+                    <h3 className="font-semibold">Add someone</h3>
+                    <AddTeamForm owner={owner} />
+                  </div>
+                ) : (
+                  <p className="text-meta text-text-2">Only an owner or manager can change the team.</p>
+                )}
+              </Panel>
+              <Panel title="What each role can see" quiet>
+                <dl className="grid grid-cols-1 gap-x-8 gap-y-3 text-meta sm:grid-cols-2">
+                  {ROLES.map((r) => (
+                    <div key={r}>
+                      <dt className="font-medium">{r}</dt>
+                      <dd className="text-text-2">{GRANTS[r]}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </Panel>
+            </>
+          )}
+
+          {section === "emails" && (
+            <>
+              <Panel title="Lead emails">
+                {edit ? <LeadEmailsForm settings={s} fallback={Boolean(process.env.LEAD_TO_EMAIL)} /> : <Facts items={[["Send new leads to", s.leadEmails.join(", ") || (process.env.LEAD_TO_EMAIL ? "The site's own address" : "No address set")]]} />}
+              </Panel>
+              <Panel title="Morning reminder">
+                {edit ? <NotificationsForm settings={s} emailConnected={isUsable("email")} /> : <Facts items={[["Morning follow-ups email to each salesperson", s.notifications.followUps ? "On" : "Off"]]} />}
+              </Panel>
+            </>
           )}
 
           {section === "services" && sync && (
@@ -169,49 +205,31 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
             </Panel>
           )}
 
-          {section === "emails" && (
-          <>
-          <Panel title="Lead emails">
-            {edit ? <LeadEmailsForm settings={s} fallback={Boolean(process.env.LEAD_TO_EMAIL)} /> : <Facts items={[["Send new leads to", s.leadEmails.join(", ") || (process.env.LEAD_TO_EMAIL ? "The site's own address" : "No address set")]]} />}
-          </Panel>
-
-          <Panel title="Notifications">
-            {edit ? <NotificationsForm settings={s} emailConnected={isUsable("email")} /> : <Facts items={[["Morning follow-ups email to each salesperson", s.notifications.followUps ? "On" : "Off"]]} />}
-          </Panel>
-
-          </>
-          )}
-
-          {section === "marketing" && (
-          <Panel title="Marketing voice">
-            {edit ? <MarketingForm settings={s} /> : <Facts items={[["How we sound", s.marketing.voice], ["Hashtags", s.marketing.hashtags], ["Sign-off line", s.marketing.signOff]].map(([k, v]) => [k, v || "Not set"] as const)} />}
-          </Panel>
-          )}
-
           {section === "services" && (
-          <Panel title="Connected services">
-            <DataTable
-              bare
-              rows={services}
-              rowKey={(i) => i.id}
-              columns={[
-                { key: "name", header: "Service", cell: (i) => <span className="font-medium">{i.name}</span> },
-                { key: "purpose", header: "What it does", hide: "md", cell: (i) => i.purpose, className: "max-w-[20rem]" },
-                { key: "status", header: "Status", cell: (i) => (isUsable(i.id) ? <Badge tone="good">Connected</Badge> : <Badge tone="warn">Not connected</Badge>) },
-                // A dealer never sees setting names: we connect a service for them (the names are in .env.example and docs/new-site-checklist.md).
-                { key: "account", header: "Account", hide: "sm", cell: (i) => (modeOf(i.id) === "off" ? <Link href={`/dashboard/help?type=${encodeURIComponent("Request a change")}&from=/dashboard/settings`} className="text-meta font-medium text-accent-text underline underline-offset-2">Ask us to connect it</Link> : <span className="break-words text-meta text-text-2">{modeOf(i.id) === "simulated" ? i.demoAccount : "Nothing to do"}</span>) },
-              ]}
-            />
-          </Panel>
+            <Panel title="Connected services">
+              <p className="-mt-2 max-w-measure text-meta text-text-2">We connect these for you. Anything not connected yet, ask and we set it up.</p>
+              <DataTable
+                bare
+                rows={services}
+                rowKey={(i) => i.id}
+                columns={[
+                  { key: "name", header: "Service", cell: (i) => <span className="flex flex-col"><span className="font-medium">{i.name}</span><span className="text-meta text-text-2 md:hidden">{i.purpose}</span></span> },
+                  { key: "purpose", header: "What it does", hide: "md", cell: (i) => i.purpose, className: "max-w-[20rem]" },
+                  { key: "status", header: "Status", cell: (i) => (isUsable(i.id) ? <Badge tone="good">Connected</Badge> : <Badge tone="warn">Not connected</Badge>) },
+                  // A dealer never sees setting names: we connect a service for them (the names are in .env.example and docs/new-site-checklist.md).
+                  { key: "account", header: "Account", hide: "sm", cell: (i) => (modeOf(i.id) === "off" ? <Link href={ASK_CHANGE} className="text-meta font-medium text-accent-text underline underline-offset-2">Ask us to connect it</Link> : <span className="break-words text-meta text-text-2">{modeOf(i.id) === "simulated" ? i.demoAccount : "Nothing to do"}</span>) },
+                ]}
+              />
+            </Panel>
           )}
 
           {section === "demo" && (
-          <Panel title="Start again">
-            <p className="max-w-measure text-body">Put the leads, bookings, reviews, marketing and settings back as they started.</p>
-            <ActButton act={resetDemoAction} confirm={{ title: "Start again from the beginning?", text: "Every change made in the dashboard is lost.", yes: "Start again" }} className={`${adminButtonQuiet} w-fit`}>
-              Start again
-            </ActButton>
-          </Panel>
+            <Panel title="Start again">
+              <p className="max-w-measure text-body">Put the leads, bookings, reviews, marketing and settings back as they started.</p>
+              <ActButton act={resetDemoAction} confirm={{ title: "Start again from the beginning?", text: "Every change made in the dashboard is lost.", yes: "Start again" }} className={`${adminButtonQuiet} w-fit`}>
+                Start again
+              </ActButton>
+            </Panel>
           )}
         </div>
       </div>
