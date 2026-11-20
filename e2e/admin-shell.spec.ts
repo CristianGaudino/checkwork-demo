@@ -25,7 +25,7 @@ test("the sidebar stays in place while the page scrolls, and its groups fold, re
   await page.goto("/dashboard/settings");
   const side = sideMenu(page);
   // The everyday places are always there, never in a group; the page you are on opens its group; Customers starts open.
-  for (const label of ["Leads", "Test drives", "Stock", "Posts and emails"]) await expect(side.getByRole("link", { name: label, exact: true })).toBeVisible();
+  for (const label of ["Leads", "Test drives", "Stock", "Marketing"]) await expect(side.getByRole("link", { name: label, exact: true })).toBeVisible();
   await expect(side.getByRole("button", { name: "Settings and help", exact: true })).toHaveAttribute("aria-expanded", "true");
   await expect(side.getByRole("button", { name: "Customers", exact: true })).toHaveAttribute("aria-expanded", "true");
   await expect(side.getByRole("button", { name: "Results", exact: true })).toHaveAttribute("aria-expanded", "false");

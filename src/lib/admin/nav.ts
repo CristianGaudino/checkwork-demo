@@ -15,7 +15,7 @@ export const DEALER_NAV: NavItem[] = [
   { href: "/dashboard/leads", label: "Leads", icon: "inbox" },
   { href: "/dashboard/test-drives", label: "Test drives", icon: "calendar" },
   { href: "/dashboard/stock", label: "Stock", icon: "car" },
-  { href: "/dashboard/marketing", label: "Posts and emails", icon: "megaphone", module: ["social", "newsletter"] },
+  { href: "/dashboard/marketing", label: "Marketing", icon: "megaphone", module: ["social", "newsletter"] },
   { href: "/dashboard/customers", label: "Customers", icon: "users", group: "Customers", module: ["sales", "newsletter"] },
   { href: "/dashboard/whatsapp", label: "WhatsApp", icon: "whatsapp", group: "Customers" },
   { href: "/dashboard/orders", label: "Orders", icon: "truck", group: "Customers", ours: true },

@@ -130,7 +130,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
       {tab === "posts" && (
         <>
           {(waiting.length > 0 || ideas.length > 0) && (
-            <div className={`grid grid-cols-1 items-start gap-6 ${waiting.length && ideas.length ? "xl:grid-cols-2" : ""}`}>
+            <div className={`grid grid-cols-1 items-start gap-6 ${waiting.length && ideas.length ? "xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]" : ""}`}>
               {waiting.length > 0 && (
                 <Panel title="Waiting on you" count={waiting.length}>
                   <TaskList label="Waiting on you">

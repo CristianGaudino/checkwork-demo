@@ -80,6 +80,8 @@ export default async function Page() {
   const drivesOn = mods.has("testDrives");
   const today = dublinDay();
   const toDo = attention.reduce((n, a) => n + a.count, 0);
+  // The header counts only what is late or due now; reviews to answer and old stock are in the list, not in the headline.
+  const urgent = attention.filter((a) => a.urgency !== "info").reduce((n, a) => n + a.count, 0);
   const thisWeek = o.weeks[o.weeks.length - 1];
 
   // One kind of to-do as rows: the first few records each with their own buttons, then one row for the rest.
@@ -127,7 +129,7 @@ export default async function Page() {
 
   return (
     <>
-      <PageHeader title="Overview" text={`${fmtDay(today)}. ${toDo ? `${plural(toDo, "thing")} to do.` : "Nothing waiting on you."}`} />
+      <PageHeader title="Overview" text={`${fmtDay(today)}. ${urgent ? `${plural(urgent, "thing")} need${urgent === 1 ? "s" : ""} you.` : "Nothing urgent."}`} />
 
       <ActionTiles>
         {/* Stock from DoneDeal is added there, never here. */}

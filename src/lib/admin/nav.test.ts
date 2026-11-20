@@ -4,7 +4,7 @@ import { DEALER_NAV, DEFAULT_OPEN, navGroups, openGroupsCookie, parseOpenGroups 
 describe("the sidebar's groups", () => {
   it("puts Overview and the everyday places on their own, then each heading with the items under it, every item once", () => {
     const { top, groups } = navGroups(DEALER_NAV);
-    expect(top.map((i) => i.label)).toEqual(["Overview", "Leads", "Test drives", "Stock", "Posts and emails"]);
+    expect(top.map((i) => i.label)).toEqual(["Overview", "Leads", "Test drives", "Stock", "Marketing"]);
     expect(groups.map((g) => g.name)).toEqual(["Customers", "Results", "Settings and help"]);
     expect(groups[0].items.map((i) => i.label)).toEqual(["Customers", "WhatsApp", "Orders", "Aftersales", "Reviews"]);
     expect(top.length + groups.reduce((n, g) => n + g.items.length, 0)).toBe(DEALER_NAV.length);
