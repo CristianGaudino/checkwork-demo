@@ -55,7 +55,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
   // A manager changes everyone but an owner.
   const mayChange = (t: { role: Role }) => team && (owner || t.role !== "Owner");
   // Demo data only where there are made-up records to put back: a real dealer's dashboard has no demo, and the server refuses it there too.
-  const sections = SECTIONS.filter(([k]) => k !== "demo" || (mayResetDemo() && edit));
+  // Your business mentions the posts' voice only when that panel is there (posts or the newsletter are on).
+  const sections = SECTIONS.filter(([k]) => k !== "demo" || (mayResetDemo() && edit)).map(([k, label, line]) => [k, label, k === "business" && !voice ? "Your details and opening hours" : line] as const);
   const [section, , about] = sections.find(([k]) => k === sp.section) ?? sections[0];
   return (
     <>

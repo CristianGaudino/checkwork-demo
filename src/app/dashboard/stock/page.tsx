@@ -225,7 +225,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         action={<Link href={`/dashboard/stock/${needPhotos[0].id}#photos`} className={rowButton}>Add photos</Link>} />
     ),
     old.length > 0 && (
-      <Task key="old" urgency="soon" icon={<HistoryIcon />} count={old.length} title={one(old, `cars for sale ${OLD_STOCK_DAYS} days or more`, `car for sale ${OLD_STOCK_DAYS} days or more`)} detail={phoneless(synced ? `Think about a price drop on ${LISTING_SITE}.` : "Tick them below to drop the price, or post them to social.")} href={href("old")}
+      <Task key="old" urgency="soon" icon={<HistoryIcon />} count={old.length} title={one(old, `cars for sale ${OLD_STOCK_DAYS} days or more`, `car for sale ${OLD_STOCK_DAYS} days or more`)} detail={phoneless(synced ? `Think about a price drop on ${LISTING_SITE}.` : social ? "Tick them below to drop the price, or post them to social." : "Tick them below to drop the price.")} href={href("old")}
         action={<Link href={href("old")} className={rowButton}>See them</Link>} />
     ),
     drafts.length > 0 && (

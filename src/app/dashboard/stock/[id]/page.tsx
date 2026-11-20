@@ -68,7 +68,7 @@ export default async function Page({ params, searchParams }: { params: Promise<{
     (await hasModule("social")) && <PostToSocial key="post" car={car} className={quiet} />,
     <ViewOnSite key="view" car={car} className={quiet} />,
     deposits && !synced && !sold && (held || forSale(car)) && <Link key="reserve" href={`/dashboard/stock/${id}/reserve`} className={quiet}>{held ? "See the deposit" : "Reserve with a deposit"}</Link>,
-    !synced && !sold && <ListingButton key="listing" car={car} className={quiet} />,
+    !synced && <ListingButton key="listing" car={car} className={quiet} />, // a sold car too: it stays on the site as Sold until hidden
     synced && sold && !sale && <a key="dd" href={listingHref(car)} {...NEW_TAB} className={quiet}>Edit on {LISTING_SITE}<span className="sr-only"> (opens in a new tab)</span></a>,
     sold && sale && canDelete && <Link key="change" href={`/dashboard/stock/${id}/sale`} className={quiet}>Change the sale</Link>,
     sold && sale && canDelete && <Link key="undo" href={`/dashboard/stock/${id}/undo-sale`} className={quiet}>Undo sale</Link>,

@@ -14,7 +14,8 @@ import { fmtNum, fmtPct, threeLetter } from "@/lib/admin/format";
 import { leadsStore } from "@/lib/admin/collections";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { simulating } from "@/lib/integrations";
-import { can } from "@/lib/permissions";
+import { can, currentMember } from "@/lib/permissions";
+import { roleCan } from "@/lib/permission-rules";
 import { carName, carHref } from "@/lib/stock/format";
 import { forSale } from "@/lib/stock/types";
 import { BrandName } from "@/components/admin/BrandIcon";
@@ -27,7 +28,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
   const range = parseRange((await searchParams).range);
   // The demo shows generated figures; a dealer's own site shows what its visitors really did.
   if (!simulating()) return <RealAnalytics range={range} />;
-  const [all, leads, sales, reports] = await Promise.all([adminCars(), leadsStore.list(), salesStore.list(), can("reports")]);
+  const [all, leads, allSales, reports, me] = await Promise.all([adminCars(), leadsStore.list(), salesStore.list(), can("reports"), currentMember()]);
+  // As on Reports (owner's decision): the roles allowed margins see the dealership's sales; a salesperson sees their own.
+  const whole = roleCan(me.role, "margins");
+  const sales = whole ? allSales : allSales.filter((s) => s.salesperson === me.name);
   const cars = all.filter(forSale).map((c) => ({ slug: c.slug, title: carName(c) }));
   const a = buildAnalytics({ range, cars, leadTimes: leads.map((l) => l.createdAt) });
   const dv = change(a.totals.visitors, a.previous.visitors);
@@ -48,14 +52,14 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
 
       {/* The answer first, in words; the figures behind it follow. */}
       <p className="max-w-measure text-body">
-        {fmtNum(a.totals.visitors)} people visited your site in the last {range} days, {changeText(a.totals.visitors, a.previous.visitors).toLowerCase()}. {fmtNum(a.totals.leads)} got in touch and {fmtNum(sold)} bought a car.
+        {fmtNum(a.totals.visitors)} people visited your site in the last {range} days, {changeText(a.totals.visitors, a.previous.visitors).toLowerCase()}. {fmtNum(a.totals.leads)} got in touch{whole ? ` and ${fmtNum(sold)} bought a car.` : `, and you sold ${fmtNum(sold)}.`}
         {best && best.leads > 0 && ` Most leads came from ${best.name}.`}
       </p>
 
       <StatGrid>
         <StatCard label="Visitors" value={fmtNum(a.totals.visitors)} hint={changeText(a.totals.visitors, a.previous.visitors)} tone={dv >= 0 ? "good" : "bad"} />
         <StatCard label="Leads" value={fmtNum(a.totals.leads)} hint={changeText(a.totals.leads, a.previous.leads)} tone={dl >= 0 ? "good" : "bad"} href="/dashboard/leads" />
-        <StatCard label="Cars sold" value={fmtNum(sold)} hint="Sales you recorded" href={reports ? "/dashboard/reports" : undefined} />
+        <StatCard label="Cars sold" value={fmtNum(sold)} hint={whole ? "Sales you recorded" : "Your own sales"} href={reports ? "/dashboard/reports" : undefined} />
         <StatCard label="Visitors who got in touch" value={fmtPct(a.totals.conversion)} hint={changeText(a.totals.conversion, convBefore, true)} tone={a.totals.conversion >= convBefore ? "good" : "bad"} />
       </StatGrid>
 

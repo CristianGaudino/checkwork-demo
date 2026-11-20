@@ -5,7 +5,7 @@ import { z } from "zod";
 import { logActivity } from "@/lib/admin/activity";
 import { notify } from "@/lib/admin/notifications";
 import { currentMember } from "@/lib/permissions";
-import { DRIVE_STATUS_LABELS, drivesStore, getSettings, leadStatusSteps, leadsStore } from "@/lib/admin/collections";
+import { DRIVE_STATUS_LABELS, drivesStore, getSettings, leadStatusLabel, leadStatusSteps, leadsStore } from "@/lib/admin/collections";
 import { DRIVE_LIMITS, clashes, parseDriveStatus } from "@/lib/admin/drives";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { carName } from "@/lib/stock/format";
@@ -116,8 +116,12 @@ export async function addDriveAction(_prev: DriveFormState, data: FormData): Pro
   // Booked from a lead: the lead is answered, so it leaves the to-answer lists and shows the appointment.
   const leadId = data.get("leadId");
   const lead = typeof leadId === "string" && leadId ? await leadsStore.get(leadId.slice(0, 80)) : undefined;
-  if (lead && (lead.status === "new" || lead.status === "contacted") && leadStatusSteps(lead.type).includes("appointment")) {
-    await leadsStore.update(lead.id, (l) => ({ ...l, status: "appointment", notes: [...l.notes, { at: Date.now(), text: `Booked a test drive in ${carName(car)} for ${fmtDateTime(startsAt)}.` }] }));
+  const open = (s: string) => s === "new" || s === "contacted";
+  if (lead && open(lead.status) && leadStatusSteps(lead.type).includes("appointment")) {
+    // Checked again inside the write: a lead marked Won or Lost a moment ago is left as it is.
+    let moved = false;
+    await leadsStore.update(lead.id, (l) => ((moved = open(l.status)) ? { ...l, status: "appointment" as const, notes: [...l.notes, { at: Date.now(), text: `Booked a test drive in ${carName(car)} for ${fmtDateTime(startsAt)}.` }] } : l));
+    if (moved) await logActivity("leads", `Moved the lead from ${leadStatusLabel(lead.type, lead.status)} to ${leadStatusLabel(lead.type, "appointment")}`, { kind: "lead", id: lead.id });
     revalidatePath(`/dashboard/leads/${lead.id}`);
     revalidatePath("/dashboard/leads");
   }

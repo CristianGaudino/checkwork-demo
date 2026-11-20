@@ -82,7 +82,7 @@ with no D1). The actor is the signed-in person (`currentMember`), or a named one
 - **Every car is Shown, Hidden or a Draft** (`listing` on the car). Hidden cars and drafts are left out by the stock engine itself
   (`src/lib/stock/engine.ts`), so no list, count, page or sitemap has them and their link is not found. A new car can be saved as a draft;
   its listing date (days in stock) is set when it first goes on the website. Anyone on the team can hide, show or publish, from the
-  stock list (with Undo) or the car form. Deleting is for owners and managers.
+  stock list or the car's page (with Undo); Save changes on the car form never changes it. Deleting is for owners and managers.
 - **"For sale"** in the dashboard (`forSale`) means on the website and not sold: posts, test drives and the overview use it. Margins and
   stock age still count a hidden car, since it is stock the dealer owns.
 - **Several cars at once** (#104): tick cars on Stock, then drop their price (euros or up to 50%), mark them sold, or delete them

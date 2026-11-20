@@ -18,9 +18,9 @@ import { forSale, isSold, type Car } from "@/lib/stock/types";
 const words = (text: string, short: false | "xl" | "2xl") => <span className={short === "xl" ? "max-xl:sr-only" : short === "2xl" ? "max-2xl:sr-only" : ""}>{text}</span>;
 
 // A post for this car on Facebook and Instagram. Posts are for cars in stock: never a sold car. The caller checks the social module.
-export function PostToSocial({ car, className, short = false }: { car: Pick<Car, "slug" | "soldAt">; className: string; short?: boolean }) {
+export function PostToSocial({ car, className, short = false }: { car: Car; className: string; short?: boolean }) {
   const at = short && "xl";
-  if (isSold(car)) return null;
+  if (!forSale(car)) return null; // the composer offers only cars for sale: a hidden car, a draft or a sold one would be dropped there
   return (
     <Link href={`/dashboard/marketing/new?car=${encodeURIComponent(car.slug)}`} title="Post to Facebook and Instagram" className={className}>
       <ShareIcon className="size-4 shrink-0" />

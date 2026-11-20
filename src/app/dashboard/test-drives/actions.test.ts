@@ -6,6 +6,7 @@ vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => undefined })
 const { addDriveAction, assignDriveAction, moveDriveAction, setDriveStatusAction } = await import("./actions");
 const { drivesStore, getSettings, leadsStore, leadStatusSteps } = await import("@/lib/admin/collections");
 const { noticesStore } = await import("@/lib/admin/notifications");
+const { listActivity } = await import("@/lib/admin/activity");
 const { adminCars } = await import("@/lib/admin/stock-admin");
 const { addDays, dublinDay } = await import("@/lib/admin/format");
 const { driveTimes } = await import("@/lib/leads/constants");
@@ -66,6 +67,8 @@ describe("a booking made from a lead", () => {
     const after = (await leadsStore.get(lead.id))!;
     expect(after.status).toBe("appointment");
     expect(after.notes.at(-1)?.text).toMatch(/^Booked a test drive in /);
+    const logged = (await listActivity({ area: "leads" }, 1, 50)).rows.find((r) => r.refId === lead.id);
+    expect(logged?.summary).toMatch(/^Moved the lead from .+ to /);
   });
 });
 

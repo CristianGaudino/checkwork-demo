@@ -86,7 +86,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                   <Task key={o.id} href={`/dashboard/orders/${o.id}`} icon={<CarIcon />} title={`On order, ${o.regPeriod} ${o.make} ${o.model}`} detail={`Due ${monthLabel(o.expected)}`} action={<OrderBadge status={o.status} />} />
                 ))}
                 {held.map((r) => (
-                  <Task key={r.id} icon={<ReceiptIcon />} title={`Deposit held, ${r.carTitle}`} detail={`${fmtEur(r.depositEur)}, held until ${day(r.until)}`} />
+                  <Task key={r.id} icon={<ReceiptIcon />} href={`/dashboard/stock/${r.carId}/reserve`} title={`Deposit held, ${r.carTitle}`} detail={`${fmtEur(r.depositEur)}, held until ${day(r.until)}`} />
                 ))}
               </TaskList>
             )}

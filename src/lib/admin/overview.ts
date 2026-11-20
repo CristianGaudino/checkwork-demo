@@ -60,7 +60,6 @@ export function overview(input: { leads: Lead[]; drives: TestDrive[]; reviews: A
   return {
     weeks,
     usualWeek: before[Math.floor(before.length / 2)],
-    lateLeads: late.length,
     late,
     due,
     toConfirm,
