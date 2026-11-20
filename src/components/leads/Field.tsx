@@ -160,13 +160,14 @@ function PhoneField({ id, name, value, onChange, error, invalid, describedBy }: 
             onChange={(code) => {
               const c = COUNTRIES.find((x) => x.code === code)!;
               setCountry(c);
-              set(c, number);
+              set(c, tidy(number, c.dial)); // a code half typed in the box ("+3") never stacks behind the new one
             }}
           />
         </div>
+        {/* The full value is what the form sends (it is built from the page); the visible input holds only the number. */}
+        <input type="hidden" name={name} value={value} />
         <input
           id={id}
-          name={name}
           type="tel"
           inputMode="tel"
           autoComplete="tel-national"
@@ -176,7 +177,17 @@ function PhoneField({ id, name, value, onChange, error, invalid, describedBy }: 
           value={number}
           aria-invalid={error || invalid ? true : undefined}
           aria-describedby={[errorId, describedBy].filter(Boolean).join(" ") || undefined}
-          onChange={(e) => set(country, tidy(e.target.value, country.dial))}
+          onChange={(e) => {
+            // A number typed or pasted with its own code ("+353 87…" while PL is picked, or "00353…") switches the country. A code still
+            // being typed ("+3") is kept as it is; any other "+" (a stray one before a local number) is dropped and the number read under
+            // the country picked.
+            const raw = e.target.value.trim().replace(/^00/, "+");
+            const pasted = raw.startsWith("+") ? BY_DIAL.find((x) => raw.startsWith(x.dial)) : undefined;
+            if (raw.startsWith("+") && !pasted && BY_DIAL.some((x) => x.dial.startsWith(raw))) return onChange(raw);
+            const c = pasted ?? country;
+            if (c !== country) setCountry(c);
+            set(c, tidy(raw, c.dial));
+          }}
           className={`${control} h-12 min-w-0 flex-1 px-4`}
         />
       </div>
@@ -184,6 +195,9 @@ function PhoneField({ id, name, value, onChange, error, invalid, describedBy }: 
     </div>
   );
 }
+
+// Longest code first, so +353 is never read as a shorter code that starts the same way.
+const BY_DIAL = [...COUNTRIES].sort((a, b) => b.dial.length - a.dial.length);
 
 // What was typed or pasted, as the number alone: no code (a pasted +353 is dropped), only digits, spaces, brackets and hyphens, and no leading 0.
 function tidy(raw: string, dial: string) {
