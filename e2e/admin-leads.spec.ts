@@ -35,3 +35,25 @@ test("an unknown lead is a 404, and bad filters are ignored", async ({ page }) =
   await page.goto("/dashboard/leads?status=hacked&type=nope");
   expect((await page.getByRole("row").count()) - 1).toBeGreaterThan(10);
 });
+
+test("the list opens with what to answer now, and a lead moves on a step from its row, with Undo", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 }); // on a phone the row keeps one button (Call); the step is on the lead
+  await page.goto("/dashboard/leads");
+  const todo = page.getByRole("region", { name: /^To answer now/ });
+  const first = todo.getByRole("listitem").first();
+  await expect(first.getByRole("link", { name: /^(Call|Email|WhatsApp)/ })).toBeVisible();
+  const mark = first.getByRole("button", { name: /^Mark / });
+  await expect(mark).toBeVisible();
+  await mark.click();
+  await expect(page.getByTestId("toast")).toBeVisible();
+  await page.getByTestId("toast").getByRole("button", { name: "Undo" }).click();
+});
+
+test("Book a test drive on a lead fills in their name and number", async ({ page }) => {
+  await page.goto("/dashboard/leads/lead-4000");
+  await page.getByRole("link", { name: "Book a test drive" }).click();
+  await expect(page).toHaveURL(/test-drives\/new\?lead=lead-4000/);
+  await page.getByRole("main").locator("li > button[aria-pressed]").first().click();
+  await page.getByRole("button", { name: "Next", exact: true }).click();
+  await expect(page.getByLabel("Name", { exact: true })).toHaveValue("Fiona Byrne");
+});
