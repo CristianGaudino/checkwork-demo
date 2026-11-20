@@ -104,6 +104,8 @@ test("the public site follows the modules: with none on, the module pages are go
   await context.addCookies([{ name: "checkwork-demo-modules", value: "none", url: baseURL! }]);
   for (const path of ["/finance", "/trade-in", "/test-drive", "/reviews", "/service", "/new-cars", "/commercial", "/find-a-car"]) expect((await page.request.get(path)).status(), path).toBe(404);
   expect((await page.request.get("/dashboard/test-drives")).status()).toBe(404);
+  await page.goto("/finance");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Not in this plan"); // the demo says why; a client site is a plain 404
   await page.goto("/used-cars");
   await expect(page.getByRole("banner").getByRole("link", { name: "Finance" })).toHaveCount(0);
   await page.goto((await page.locator("article a").first().getAttribute("href"))!);

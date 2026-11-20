@@ -152,7 +152,8 @@ test("with the AI module off there is no AI anywhere; with Social off there are 
   await expect(page.getByRole("link", { name: "New post" })).toHaveCount(0);
   await expect(page.getByRole("link", { name: /^Calendar/ })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Write from the newest cars" })).toBeVisible();
-  expect((await page.goto("/dashboard/marketing/new"))?.status()).toBe(404);
+  await page.goto("/dashboard/marketing/new");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Not in your plan");
 
   await modules("dashboard,ai");
   expect((await page.goto("/dashboard/marketing"))?.status()).toBe(404);
