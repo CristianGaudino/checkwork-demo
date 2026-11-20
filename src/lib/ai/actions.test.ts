@@ -36,7 +36,7 @@ describe("writeWithAI behind the dashboard", () => {
   it("says the limit is reached past the cap, writes nothing and counts nothing", async () => {
     await saveBilling({ caps: { ai: 0 } });
     const review = (await reviewsStore.list())[0].id;
-    if (await count("opus") < 300) expect(await writeAction({ task: "reviewReply", reviewId: review })).toMatchObject({ ok: true }); // the plan's AI is free, so a EUR 0 limit lets it through
+    expect(await writeAction({ task: "reviewReply", reviewId: review })).toMatchObject({ ok: true }); // the plan's AI is free, so a EUR 0 limit lets it through
     await recordUsage("ai", "opus", 300); // the plan's 300 used up
     const before = await count("opus");
     expect(await writeAction({ task: "reviewReply", reviewId: (await reviewsStore.list())[0].id })).toEqual({ ok: false, reason: "limit" });

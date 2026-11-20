@@ -3,7 +3,7 @@ import { defineCollection } from "@/lib/admin/docs";
 import { dublinDay } from "@/lib/admin/format";
 import { SETTINGS_DEFAULT, getSettings, settingsStore, type DealerSettings } from "@/lib/admin/collections";
 import { notify } from "@/lib/admin/notifications";
-import { BILLING_DEFAULT, SHOW_PRICING, alertsCrossed, allowanceFor, inAllowance, planFor, usageCosts, usageId, withinCaps, type BillingSettings, type Kind, type Service, type UsageCount, withBillingDefaults } from "./rules";
+import { SHOW_PRICING, alertsCrossed, allowanceFor, inAllowance, usageCosts, usageId, withinCaps, type BillingSettings, type Kind, type Service, type UsageCount, withBillingDefaults } from "./rules";
 import { enabledModules } from "@/lib/modules";
 import { roleCan } from "@/lib/permission-rules";
 
@@ -16,13 +16,8 @@ export const sentAlertsStore = defineCollection<{ id: string }>("usage-alerts", 
 
 export const monthOf = (t: number = Date.now()) => dublinDay(t).slice(0, 7);
 
-// A record saved before the AI assistant was dropped may still carry `aiPlan`: nothing reads it. The tier's own limits (Showroom's
-// lookups) apply unless the owner's program set others.
-export async function billingSettings(): Promise<BillingSettings> {
-  const [s, on] = await Promise.all([getSettings(), enabledModules()]);
-  const b = withBillingDefaults(s.billing);
-  return { ...b, ceilings: { ...BILLING_DEFAULT.ceilings, ...planFor(on, b).tier.ceilings, ...s.billing?.ceilings } };
-}
+// A record saved before the AI assistant was dropped may still carry `aiPlan`: nothing reads it.
+export const billingSettings = async (): Promise<BillingSettings> => withBillingDefaults((await getSettings()).billing);
 // What the plan includes this month before usage is billed.
 export const monthAllowance = async (b: BillingSettings) => allowanceFor(await enabledModules(), b);
 export async function monthCounts(month = monthOf()): Promise<UsageCount[]> {

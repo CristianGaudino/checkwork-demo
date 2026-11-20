@@ -65,7 +65,7 @@ export const eur = (n: number, cents = !Number.isInteger(n)) => `€${n.toLocale
 // shortcut: our pricing is hidden on screen for now (the owner's call, November 2026). Billing shows the plan and its modules, the AI
 // writing choice and the billing details with no prices; its limits, bills and bill pages, the "Set the cap" link, limit notifications and
 // the demo bar's prices are hidden. The limits still apply. Set true to show it all again; nothing was removed.
-export const SHOW_PRICING = false;
+export const SHOW_PRICING = true;
 
 // One count a month per service, kind and place: a record per line of the bill, not one per use, so it never grows with traffic.
 export type UsageCount = { id: string; month: string; service: Service; kind: string; count: number };
@@ -113,9 +113,11 @@ export type BillingSettings = {
   branches: number;
   brands: number;
 };
-// Every site starts with our AI ceiling, so a live key never runs without a limit; the owner's program can set another per dealer.
+// Every site starts with our limits past the allowance, so no per-use service runs without one; the dealer can set lower, and the owner's
+// program can set others per dealer.
 export const AI_CEILING_EUR = 50;
-export const BILLING_DEFAULT: BillingSettings = { caps: {}, ceilings: { ai: AI_CEILING_EUR }, alerts: [], alertAt80: true, aiModel: "opus", term: "monthly", branches: 1, brands: 1 };
+export const DEFAULT_CEILINGS: Partial<Record<Scope, number>> = { lookup: 15, whatsapp: 20, ai: AI_CEILING_EUR };
+export const BILLING_DEFAULT: BillingSettings = { caps: {}, ceilings: DEFAULT_CEILINGS, alerts: [], alertAt80: true, aiModel: "opus", term: "monthly", branches: 1, brands: 1 };
 // A stored record over the defaults, the ceilings merged one level down: a record saved before a default ceiling existed still gets it.
 export const withBillingDefaults = (b?: Partial<BillingSettings>): BillingSettings => ({ ...BILLING_DEFAULT, ...b, ceilings: { ...BILLING_DEFAULT.ceilings, ...b?.ceilings } });
 
@@ -144,7 +146,7 @@ export function alertsCrossed(before: ReturnType<typeof usageCosts>, after: Retu
     const cap = capOf(b, s);
     if (cap !== undefined && cap > 0) {
       if (b.alertAt80 && crossed(s, cap * 0.8)) out.push({ key: `${month}:${s}:80:${cap}`, scope: s, text: `${label(s)} has reached 80% of its ${eur(cap)} monthly limit` });
-      if (crossed(s, cap)) out.push({ key: `${month}:${s}:cap:${cap}`, scope: s, text: `${label(s)} has reached its ${eur(cap)} monthly limit and has stopped until next month` });
+      if (crossed(s, cap)) out.push({ key: `${month}:${s}:cap:${cap}`, scope: s, text: `${label(s)} has reached its ${eur(cap)} monthly limit, and paid use has stopped until next month` });
     }
   }
   for (const a of b.alerts) if (crossed(a.scope, a.amountEur)) out.push({ key: `${month}:${a.scope}:${a.amountEur}`, scope: a.scope, text: `${label(a.scope)} has passed ${eur(a.amountEur)} this month` });
@@ -172,9 +174,8 @@ export function usageEstimate(counts: UsageCount[], allowance: Allowance, b: Bil
 // add-ons on top.
 const SHOWROOM: ModuleId[] = ["tradeIn", "finance", "carFinder", "lookupWebsite", "reviews"];
 const DEALER: ModuleId[] = [...SHOWROOM, "dashboard", "testDrives", "sales", "analytics", "whatsapp", "ai", "lookupDashboard"];
-// `ceilings`: our limit for a tier, unless the owner's program sets another. Showroom has no dashboard to see or limit its lookups.
-export const TIERS: { id: string; label: string; modules: readonly ModuleId[]; eur: number; branchEur?: number; setupEur: number; allowance: Allowance; perBranch?: readonly Service[]; ceilings?: Partial<Record<Scope, number>> }[] = [
-  { id: "showroom", label: "Showroom", modules: SHOWROOM, eur: 249, setupEur: 950, allowance: { lookup: 25 }, ceilings: { lookup: 15 } },
+export const TIERS: { id: string; label: string; modules: readonly ModuleId[]; eur: number; branchEur?: number; setupEur: number; allowance: Allowance; perBranch?: readonly Service[] }[] = [
+  { id: "showroom", label: "Showroom", modules: SHOWROOM, eur: 249, setupEur: 950, allowance: { lookup: 25 } },
   { id: "dealer", label: "Dealer", modules: DEALER, eur: 449, setupEur: 950, allowance: { lookup: 100, whatsapp: 500, ai: 100 } },
   { id: "group", label: "Group", modules: [...DEALER, "margins", "social", "newsletter", "newCars", "commercial"], eur: 749, branchEur: 149, setupEur: 1950, allowance: { lookup: 100, whatsapp: 500, ai: 300 }, perBranch: ["lookup", "whatsapp"] },
 ];

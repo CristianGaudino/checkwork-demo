@@ -9,7 +9,8 @@ import { SITE_NAME, DEALER_ADDRESS_TEXT, DEALER_EMAIL } from "@/lib/site";
 
 // The dealer's past bills, one record each, kept as what they were made of (bills-rules.ts itemise). On a real site the billing program
 // issues them and emails the PDF (#62); the demo seeds a year, and shows no download because the invoice comes from the payment provider.
-export const billsStore = defineCollection<Bill>("bills", seedBills);
+// "bills-v2": bills stored by builds before the tiers had other plan lines and a discount, so they start again.
+export const billsStore = defineCollection<Bill>("bills-v2", seedBills);
 
 export async function listBills(): Promise<Bill[]> {
   return (await billsStore.list()).sort((a, b) => b.id.localeCompare(a.id));

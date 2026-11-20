@@ -7,7 +7,9 @@ Going ahead with this model (owner, 20 Nov 2026). Prices are a month, before VAT
 - **Monthly:** the list price.
 - **A year paid upfront:** 1 month free (11 months' price).
 - **2-year contract:** setup waived.
-- **Moving up a tier:** pay only the setup difference (Dealer to Group: €1,000).
+- **Moving up a tier:** the new tier's setup less all setup already paid, never below €0 (Dealer to Group: €1,000); nothing on a 2-year contract.
+- **Dropping a module or a branch:** from the 1st of the next month.
+- **Limits:** extra use past the allowance stops at €15 of lookups, €20 of WhatsApp and €50 of AI a month, unless agreed otherwise. Dealers can set lower ones on the Billing page.
 
 ## Why these tiers
 - **Most prospects already have a site:** about 88% pay for CarsIreland, HappyDealer or DoneDeal, and DoneDeal gives one away free. So the base site is the hard sale.
@@ -30,7 +32,7 @@ Going ahead with this model (owner, 20 Nov 2026). Prices are a month, before VAT
 - Google reviews on the site, from the dealer's public Google listing (no sign-in needed)
 - Enquiry form (leads go to the dealer by email) and WhatsApp click to chat
 - Finance estimator
-- Trade-in form with 25 registration lookups a month; extra lookups stop at €15 a month, then buyers type their car in
+- Trade-in form with 25 registration lookups a month; past the limit buyers type their car in
 - Car finder: a "find me a car" form for cars not in stock
 - No dashboard, so no staff logins and no AI
 
@@ -47,11 +49,11 @@ Going ahead with this model (owner, 20 Nov 2026). Prices are a month, before VAT
 - Site analytics: visitors, and which ads bring leads
 - Staff logins with roles, as many as needed
 
-**Group:** Dealer for every branch, plus:
+**Group:** Dealer's lookups and WhatsApp alerts for every branch, plus:
 - Margins and reports
 - Social posts and ads, with AI writing raised to 300 uses a month
 - Newsletter and stock alerts
-- New cars and factory orders
+- New cars and factory orders, covering 2 brands; €29 a month and €100 setup per extra brand
 - Commercial vehicles section
 
 **Add-ons:**
@@ -60,7 +62,7 @@ Going ahead with this model (owner, 20 Nov 2026). Prices are a month, before VAT
 - **Dealer only** (they need the dashboard; Group has them):
   - Margins and reports €49
   - New cars €99, covering up to 2 brands, then €29 per extra brand (setup €400, plus €100 per extra brand)
-  - Social €99, with 200 more AI uses a month (300 in all, as Group)
+  - Social €99 (setup €150), with 200 more AI uses a month (300 in all, as Group)
   - Newsletter €59
 
 **Over an allowance:**
@@ -104,7 +106,7 @@ None of the Irish platforms publish dealer prices.
 So Checkwork is a second bill alongside their listings. It has to pay for itself in leads.
 
 ## Built
-Reviews on Showroom sites without the dashboard (#224), the tiers with allowances, new-car brand pricing and payment terms (#223), and "Improve this description" for synced cars (#225). Prices stay hidden on screen until we go public (`SHOW_PRICING`).
+Reviews on Showroom sites without the dashboard (#224), the tiers with allowances, new-car brand pricing and payment terms (#223), and "Improve this description" for synced cars (#225). Prices show on the Billing page and the demo bar.
 
 ## Later
 Multi-branch, one inbox across a group's branches (#226): built when an actual franchise or multi-branch dealer signs up. Until then, a group with more branches pays Group plus €149 a branch, and each branch's lookups and WhatsApp alerts are added to its allowance.

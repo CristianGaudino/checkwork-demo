@@ -20,7 +20,7 @@ const SECTIONS = [["plan", "Plan"], ["limits", "Limits"], ["bills", "Bills"]] as
 const AT_LIMIT: Record<Service, string> = {
   lookup: "The lookup button says the limit is reached, and the details are typed in.",
   ai: "The AI button says the limit is reached, and the text is left as it was.",
-  whatsapp: "Alerts and replies go by email instead, and marketing messages are not sent.",
+  whatsapp: "Replies go by email instead and marketing messages are not sent. Alerts your plan includes still go by WhatsApp.",
 };
 const INCLUDED: Record<Service, string> = { lookup: "lookups", ai: "AI actions", whatsapp: "WhatsApp alerts" };
 const today = () => new Date();
@@ -67,7 +67,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
                     return c === undefined ? "None" : eur(c);
                   },
                 },
-                { key: "then", header: "At the limit", hide: "md", cell: (s) => (s === "total" ? "Every service stops, each as above." : AT_LIMIT[s]), className: "max-w-[24rem]" },
+                { key: "then", header: "At the limit", hide: "md", cell: (s) => (s === "total" ? "Paid use stops, each as above." : AT_LIMIT[s]), className: "max-w-[24rem]" },
               ]}
             />
           </Panel>
@@ -118,7 +118,7 @@ function PlanAndUsage({ modules, services, usage, counts, b, now }: { modules: M
   const plan = planEur(modules, b);
   const sofar = usage.totalEur;
   const estimate = usageEstimate(counts, allowanceFor(modules, b), b, dublinDay(now.getTime()));
-  const bill = round2(plan + estimate);
+  const bill = round2((b.term === "annual" ? 0 : plan) + estimate); // a year paid upfront: each month's bill is the usage only
   const setup = setupLines(modules, b);
   const setupFull = setupEur(modules, b);
   const setupNet = termSetupEur(setupFull, b.term);

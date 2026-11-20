@@ -142,7 +142,8 @@ describe("the plan and the estimate", () => {
     expect(usageEstimate(counts, {}, b({ lookup: 5 }), "2026-11-10")).toBe(12); // a limit lowered below the spend: 9 spent, AI to 3
   });
   it("estimates past the allowance at the month's pace, not from what is billed so far", () => {
-    expect(usageEstimate([c("lookup", "website", 60)], { lookup: 100 }, opts(), "2026-11-10")).toBe(24); // 180 at that pace, 80 x 0.30
+    expect(usageEstimate([c("lookup", "website", 60)], { lookup: 100 }, opts({ ceilings: {} }), "2026-11-10")).toBe(24); // 180 at that pace, 80 x 0.30
+    expect(usageEstimate([c("lookup", "website", 60)], { lookup: 100 }, opts(), "2026-11-10")).toBe(15); // our EUR 15 limit stops it
   });
   it("lets a use the plan still includes past any limit, as it costs nothing; WhatsApp only for alerts", () => {
     const allowance = { lookup: 25, whatsapp: 500 };
