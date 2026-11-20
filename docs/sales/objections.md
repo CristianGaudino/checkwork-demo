@@ -6,11 +6,10 @@ What dealers will say, what they usually mean, and what to say back. Prices are 
 - Agree first, then answer with their own numbers from the card.
 - Never discount. The only offers are in the pricing doc: a year upfront gets a month free; a 2-year contract waives setup.
 - Only promise what's built: one site per dealer, with one leads inbox for its enquiries and reviews from one Google listing. Not built yet: one inbox across separate sites, per-branch or per-brand reports, several Google listings, leads from outside the site (manufacturer sites, chat tools, Facebook, DoneDeal or CarsIreland messages, phone enquiries), syncing several DoneDeal or CarsIreland accounts, reserving or paying a deposit online. Don't promise those, or discounts.
-- Shown in the demo but not yet connected for a real dealer: the DoneDeal or CarsIreland stock sync, the reg lookup, sending WhatsApp messages, posting to Facebook and Instagram, running ads, newsletters, and review replies to Google. Say they're coming, and don't give a launch date that depends on them.
 
 ## "We already have a website" (HappyDealer, CarsIreland, DoneDeal template)
 **Means:** it works well enough and switching sounds like hassle.
-**Say:** "Fair enough, and we don't touch your listings: we'll pull your stock from DoneDeal or CarsIreland, so nothing changes for whoever lists the cars. What you get that the template doesn't is your Google reviews on the site, a trade-in form with a reg lookup, and every lead from the site in one inbox with follow-ups."
+**Say:** "Fair enough, and we don't touch your listings: we pull your stock from DoneDeal or CarsIreland, so nothing changes for whoever lists the cars. What you get that the template doesn't is your Google reviews on the site, a trade-in form with a reg lookup, and every lead from the site in one inbox with follow-ups."
 **Proof:** their card's opener (reviews missing, no trade-in, a broken link). Open their site and the demo side by side on a phone.
 **Ask:** "When a lead comes in from your site today, how do you know someone rang them back?"
 
@@ -36,7 +35,7 @@ What dealers will say, what they usually mean, and what to say back. Prices are 
 
 ## "We get our leads from DoneDeal anyway"
 **Means:** DoneDeal works, why add anything.
-**Say:** "Keep it, we'll sync from it. But on DoneDeal your car sits beside your competitors'. Buyers who search your name, or come from your reviews, should land on a page with only your cars, a finance figure and a trade-in valuation."
+**Say:** "Keep it, we sync from it. But on DoneDeal your car sits beside your competitors'. Buyers who search your name, or come from your reviews, should land on a page with only your cars, a finance figure and a trade-in valuation."
 **Proof:** the demo's car page vs their DoneDeal ad. Dealer's AI improves a car's description, ready to paste into DoneDeal.
 **Ask:** "How many people Google your name each week? Where do they end up?"
 
@@ -53,7 +52,7 @@ What dealers will say, what they usually mean, and what to say back. Prices are 
 
 ## "We tried an agency before"
 **Means:** paid for a site that went stale, or never heard back.
-**Say:** "What went wrong? [Listen.] This isn't a one-off build. Your stock will sync itself from DoneDeal or CarsIreland, your reviews come straight from Google, and you change cars and staff from the dashboard yourself."
+**Say:** "What went wrong? [Listen.] This isn't a one-off build. Your stock syncs itself from DoneDeal or CarsIreland, your reviews come straight from Google, and you change cars and staff from the dashboard yourself."
 **Proof:** walk through the demo dashboard: add a car, reply to a review, assign a lead.
 **Ask:** "If you could change one thing on your site today without ringing anyone, what would it be?"
 

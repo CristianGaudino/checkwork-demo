@@ -23,7 +23,6 @@ So every first touch below is a call to the business's public number. Email come
   - syncing more than one DoneDeal or CarsIreland account
   - reserving or paying a deposit online (our site doesn't; a dealer who has it now loses it)
   - discounts
-  - Shown in the demo but not yet connected for a real dealer: the DoneDeal or CarsIreland stock sync, the reg lookup, sending WhatsApp messages, posting to Facebook and Instagram, running ads, newsletters, and review replies to Google. Say they're coming, and don't give a launch date that depends on them.
 - Our sync reads one DoneDeal or CarsIreland account. Dealers marked *one account* below list on more than one, so their ads have to move onto one before launch. Tell them if stock comes up.
 - If they ask for something in writing, email the demo link to the address they give you on the call.
 

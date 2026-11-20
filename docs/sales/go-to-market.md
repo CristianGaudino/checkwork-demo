@@ -8,7 +8,7 @@ The three tiers only, at list price: Showroom €249, Dealer €449, Group €74
 - Push Dealer: most of the first 20 should be on it.
 - Franchise dealers on a manufacturer site get Dealer, with our site as their used-car site next to the manufacturer's. Never pitch replacing the manufacturer site.
 - Groups: sell Group (€749 plus €149 per extra branch), led by reviews, trade-in and the dashboard. Each site has its own leads inbox for its enquiries and its reviews from one Google listing. One inbox across separate sites waits for #226: a group with several sites moves onto one of ours.
-- Before the first launch: connect the stock sync, reg lookup, WhatsApp and review replies on the dealer's own site (they run simulated in the demo). Facebook and Instagram posting, ads and newsletters are simulated too: connect each before launching a dealer who pays for it.
+- At setup we connect the dealer's own accounts to their site: DoneDeal or CarsIreland for the stock, WhatsApp, their Google profile, and Facebook, Instagram, ads and email for the add-ons they buy. The demo shows all of it working.
 
 ## Timing
 - Now to 19 December: dealers are quieter before the 271 plate. Best weeks of the year to get in the door.
@@ -55,9 +55,9 @@ Visits close car dealers. Calls book visits. Email only confirms what was said.
 
 1. Call the dealership's published landline. Ask who decides on the website, and for 20 minutes on a weekday morning. Use the card's opener in one line.
 2. Visit with a phone and a laptop. Show the problem from the card on their own site, on a phone. Then show demo.checkwork.ie in the Dealer view: reviews, trade-in with reg lookup, the leads inbox, WhatsApp alerts. Name the tier and the price in the room.
-3. Quote within 48 hours: one page with tier, add-ons from the card, setup, and the three payment options. Give a go-live date only once everything on the quote is connected for that dealer.
+3. Quote within 48 hours: one page with tier, add-ons from the card, setup, and the three payment options.
 4. Follow up by phone on day 3 and day 10. After that, monthly, unless they've said no.
-5. Once signed, get the order form, first invoice (setup or the year upfront), DoneDeal or CarsIreland account, logo and Google profile access. Book the launch date once everything they've bought is connected.
+5. Once signed, get the order form, first invoice (setup or the year upfront), DoneDeal or CarsIreland account, logo and Google profile access. Book the launch date on the day they sign.
 
 Ask for the 2-year contract when setup is the objection. Lead with monthly plus setup: the setup fee pays for onboarding time.
 
