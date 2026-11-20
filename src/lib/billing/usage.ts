@@ -3,8 +3,8 @@ import { defineCollection } from "@/lib/admin/docs";
 import { dublinDay } from "@/lib/admin/format";
 import { SETTINGS_DEFAULT, getSettings, settingsStore, type DealerSettings } from "@/lib/admin/collections";
 import { notify } from "@/lib/admin/notifications";
-import { SHOW_PRICING, alertsCrossed, usageCosts, usageId, withinCaps, type BillingSettings, type Kind, type Service, type UsageCount, withBillingDefaults } from "./rules";
-import { hasModule } from "@/lib/modules";
+import { SHOW_PRICING, alertsCrossed, allowanceFor, planFor, usageCosts, usageId, withinCaps, type BillingSettings, type Kind, type Service, type UsageCount, withBillingDefaults } from "./rules";
+import { enabledModules } from "@/lib/modules";
 import { roleCan } from "@/lib/permission-rules";
 
 // The meters for what is billed per use (#181): registration lookups, AI actions and WhatsApp messages. Every paid use is counted here,
@@ -16,17 +16,20 @@ export const sentAlertsStore = defineCollection<{ id: string }>("usage-alerts", 
 
 export const monthOf = (t: number = Date.now()) => dublinDay(t).slice(0, 7);
 
-// The assistant plan counts only while the dealer has the AI module, so the Billing page, the meters and the owner API agree.
+// The assistant plan counts only while the dealer has the AI module and no tier (a tier has its own AI allowance), so the Billing page,
+// the meters and the owner API agree.
 export async function billingSettings(): Promise<BillingSettings> {
-  const s = await getSettings();
+  const [s, on] = await Promise.all([getSettings(), enabledModules()]);
   const b = withBillingDefaults(s.billing);
-  return b.aiPlan === "assistant" && !(await hasModule("ai")) ? { ...b, aiPlan: "perAction" } : b;
+  return b.aiPlan === "assistant" && (!on.has("ai") || planFor(on, b).tier) ? { ...b, aiPlan: "perAction" } : b;
 }
+// What the plan includes this month before usage is billed.
+export const monthAllowance = async (b: BillingSettings) => allowanceFor(await enabledModules(), b);
 export async function monthCounts(month = monthOf()): Promise<UsageCount[]> {
   return (await usageStore.list()).filter((c) => c.month === month);
 }
 export async function monthUsage(month = monthOf()) {
-  return usageCosts(await monthCounts(month), (await billingSettings()).aiPlan);
+  return usageCosts(await monthCounts(month), await monthAllowance(await billingSettings()));
 }
 
 // Whether one more use is allowed: false once the month's spend reaches a cap (the dealer's or ours). The caller falls back without it.
@@ -51,7 +54,8 @@ export async function recordUsage<S extends Service>(service: S, kind: Kind<S>, 
     const next: UsageCount = { id, month, service, kind, count: (prev?.count ?? 0) + n };
     await usageStore.put(next);
     const after = [...before.filter((c) => c.id !== id), next];
-    const alerts = alertsCrossed(usageCosts(before, b.aiPlan), usageCosts(after, b.aiPlan), b, month);
+    const allowance = await monthAllowance(b);
+    const alerts = alertsCrossed(usageCosts(before, allowance), usageCosts(after, allowance), b, month);
     if (!alerts.length || !SHOW_PRICING) return; // no limit notices while pricing is hidden, and none marked sent
     const { team } = await getSettings();
     // Each owner and manager, by the name the bell knows them by (src/lib/permissions.ts): the team's, and an owner in ADMIN_OWNER_EMAILS who is

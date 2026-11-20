@@ -12,7 +12,8 @@ stock comes from.
 
 ## Usage billed per use
 
-Registration lookups, AI actions and WhatsApp messages cost the dealer per use, on top of the plan (#181). The code that makes a paid use
+Registration lookups, AI actions and WhatsApp messages cost the dealer per use, on top of the plan, past the plan's monthly allowance
+(#181, #223). The code that makes a paid use
 counts it with `recordUsage` and asks `usageAllowed` first (`src/lib/billing/usage.ts`): past a monthly cap (the dealer's, set by the Owner
 or Manager on Billing, or our ceiling) the service stops for the month and falls back (a lookup gives the plate's own facts, AI leaves the
 text alone, WhatsApp goes by email). Alerts at 80% of a cap, at the cap and at amounts the dealer chose go to the owners and managers in
@@ -220,13 +221,33 @@ Until both are set the admin answers 404 for everyone. The Worker checks Access'
 
 ## Billing and Help
 
+The plans (#223, `TIERS` in `src/lib/billing/rules.ts`, from `docs/sales/pricing-strategy.md`), a month before VAT:
+
+| Tier | Modules | Monthly | Setup | Included each month |
+|---|---|---|---|---|
+| Showroom | Trade-in, finance, car finder, lookup on the website, reviews shown | EUR 249 | EUR 950 | 25 lookups |
+| Dealer | Showroom plus the dashboard, test drives, sales, analytics, WhatsApp, AI writing, lookup in the dashboard | EUR 449 | EUR 950 | 100 lookups, 500 WhatsApp alerts, 100 AI actions |
+| Group | Dealer plus margins, social, newsletter, new cars, commercial | EUR 749, plus EUR 149 per extra branch | EUR 1,950 | 100 lookups and 500 WhatsApp alerts per branch, 300 AI actions |
+
+- **Add-ons** at module prices (`MODULE_EUR`): any module the tier lacks, such as commercial EUR 29, service EUR 49, social EUR 99,
+  newsletter EUR 59, new cars EUR 99. New cars covers 2 brands; each more brand is EUR 29 a month and EUR 100 at setup, in a tier or not
+  (setup EUR 400 as an add-on). "Custom" is the cheapest of the base site (EUR 200, setup EUR 1,200) plus each module, or a tier plus add-ons.
+- **Over the allowance** each use is billed: lookup EUR 0.30, WhatsApp alert EUR 0.05, reply EUR 0.03, marketing message EUR 0.12, AI
+  action EUR 0.04 (Standard) or EUR 0.08 (Premium). Replies and marketing messages are never included. A plan with no tier can take the
+  AI assistant instead (EUR 19 a month, 300 actions); a tier's own AI allowance replaces it.
+- **Payment terms** (`term`): monthly at list price, a year upfront for 11 months' price, or a 2-year contract with no setup fee.
+- `term`, `branches` (default 1) and `brands` (default 1) are billing settings set from the owner's program, as the ceilings are. Branches
+  only change Group's price and allowance until multi-branch is built (#226).
+
 `/dashboard/billing` is for the Owner and Manager (`can("billing")`; anyone else gets a 404, and so does every action). It has three sections:
-the plan and this month's usage (with the founding dealer discount, which is taken off the plan, not the usage, and an "Estimate" for the
-month end), the setup fees (the website's and those of Social, New cars and WhatsApp, half off for a founding dealer;
+the plan and this month's usage (with the payment term, the founding dealer discount, which is taken off the plan, not the usage, what
+the allowance covers, and an "Estimate" for the month end), the setup fees (the tier's or the website's, and those of add-ons set up with
+outside accounts (Social, New cars, WhatsApp), half off for a founding dealer, none on a 2-year contract;
 `setupLines` in `src/lib/billing/rules.ts`, also totalled in the demo bar's plans panel), the limits and alerts (a euro limit per service
-and for all usage, never above ours; the 80% alert; "tell me when X passes EUR N"; the AI plan and the writing quality, Premium (Claude Opus) at EUR 0.08
+and for all usage, never above ours; the 80% alert; "tell me when X passes EUR N"; the AI plan without a tier, and the writing quality, Premium (Claude Opus) at EUR 0.08
 an action or Standard (Claude Sonnet) at EUR 0.04, each action counted under the model that wrote it; the dealer never sees the model
-or provider's name), and the bills. Every change is written to the activity log. Rules and maths: `src/lib/billing/bills-rules.ts`
+or provider's name), and the bills. While prices are hidden (`SHOW_PRICING`) the page shows the plan's name, its modules, the payment
+term, the writing quality and the billing details, with no euro. Every change is written to the activity log. Rules and maths: `src/lib/billing/bills-rules.ts`
 (unit tested); the bills are a seeded collection, `src/lib/billing/bills.ts`. There is no PDF and no download: invoices come from the
 payment provider chosen at clone time and are emailed when issued. Billing details (company, VAT number, address, email) are the
 Owner's, stored in settings as `billingDetails`. "Ask us to add" sends a Help request of type "Add to my plan"; it switches nothing on.

@@ -9,7 +9,7 @@ import { enabledModules } from "@/lib/modules";
 import { can, currentMember } from "@/lib/permissions";
 import { billingDetails, listBills } from "@/lib/billing/bills";
 import { AI_PLAN_LABELS, FOUNDING, afterDiscount, eur, fmtMonth, foundingEnd, itemise, nextBillDate, scopeName, billedServices } from "@/lib/billing/bills-rules";
-import { AI_ASSISTANT, AI_MODELS, KINDS, MODULE_EUR, SHOW_PRICING, presetName, setupEur, setupLines, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, capOf, planEur, planFor, planLines, usageEstimate, round2, withVat, type BillingSettings, type Scope, type Service } from "@/lib/billing/rules";
+import { AI_ASSISTANT, AI_MODELS, KINDS, MODULE_EUR, SHOW_PRICING, TERM_LABELS, allowanceFor, presetName, setupEur, setupLines, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, capOf, planEur, planFor, planLines, termSetupEur, usageEstimate, round2, withVat, yearUpfrontEur, type BillingSettings, type Scope, type Service } from "@/lib/billing/rules";
 import { billingSettings, monthUsage } from "@/lib/billing/usage";
 import { askModuleAction, removeAlertAction, saveAiModelAction, saveAiPlanAction } from "./actions";
 import { dublinDay } from "@/lib/admin/format";
@@ -22,6 +22,7 @@ const AT_LIMIT: Record<Service, string> = {
   ai: "The AI button says the limit is reached, and the text is left as it was.",
   whatsapp: "Alerts and replies go by email instead, and marketing messages are not sent.",
 };
+const INCLUDED: Record<Service, string> = { lookup: "lookups", ai: "AI actions", whatsapp: "WhatsApp alerts" };
 const today = () => new Date();
 const UNIT = UNIT_PRICE_EUR as Record<Service, Record<string, number>>;
 type Modules = Awaited<ReturnType<typeof enabledModules>>;
@@ -92,16 +93,21 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
           </Panel>
           {modules.has("ai") && (
             <Panel title="AI plan">
-              <p className="max-w-measure text-body text-text-2">
-                Pay per action, or the AI assistant: {eur(AI_ASSISTANT.monthlyEur)} a month with {AI_ASSISTANT.actions} actions included, then per action.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {(["perAction", "assistant"] as const).map((p) => (
-                  <ActButton key={p} act={saveAiPlanAction.bind(null, p)} pressed={b.aiPlan === p} done="AI plan changed" className={`${adminButtonQuiet} aria-pressed:border-text aria-pressed:bg-text aria-pressed:text-ink`}>
-                    {AI_PLAN_LABELS[p]}
-                  </ActButton>
-                ))}
-              </div>
+              {/* A tier has its own AI allowance, so the assistant is for a plan without one. */}
+              {!planFor(modules, b).tier && (
+                <>
+                  <p className="max-w-measure text-body text-text-2">
+                    Pay per action, or the AI assistant: {eur(AI_ASSISTANT.monthlyEur)} a month with {AI_ASSISTANT.actions} actions included, then per action.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {(["perAction", "assistant"] as const).map((p) => (
+                      <ActButton key={p} act={saveAiPlanAction.bind(null, p)} pressed={b.aiPlan === p} done="AI plan changed" className={`${adminButtonQuiet} aria-pressed:border-text aria-pressed:bg-text aria-pressed:text-ink`}>
+                        {AI_PLAN_LABELS[p]}
+                      </ActButton>
+                    ))}
+                  </div>
+                </>
+              )}
               <h3 className="text-body font-semibold">Writing quality</h3>
               <p className="max-w-measure text-body text-text-2">Premium writes the best copy. Standard is quick and costs less.</p>
               <div className="flex flex-wrap gap-2">
@@ -123,19 +129,20 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
 
 function PlanAndUsage({ modules, services, usage, b, now }: { modules: Modules; services: Service[]; usage: Usage; b: BillingSettings; now: Date }) {
   const { aiPlan } = b;
-  // What adding a module costs: with what it needs, and a bundle it completes. 0 when the plan already pays for it.
-  const addEur = (id: (typeof MODULES)[number]["id"]) => planFor(withModule(modules, id)).eur - planFor(modules).eur;
+  // What adding a module costs: with what it needs, and a tier it completes. 0 when the plan already pays for it.
+  const addEur = (id: (typeof MODULES)[number]["id"]) => planFor(withModule(modules, id), b).eur - planFor(modules, b).eur;
   const others = MODULES.filter((m) => !modules.has(m.id) && MODULE_EUR[m.id] > 0);
   const assistant = aiPlan === "assistant" && modules.has("ai");
-  const plan = planEur(modules, assistant ? "assistant" : "perAction");
+  const plan = planEur(modules, assistant ? "assistant" : "perAction", b);
   const planNet = afterDiscount(plan);
   const sofar = usage.totalEur;
   const estimate = usageEstimate(usage, b, dublinDay(now.getTime()));
   const bill = round2(planNet + estimate);
-  const setup = setupLines(modules);
-  const setupFull = setupEur(modules);
-  const setupNet = round2(setupFull * (1 - FOUNDING.setupPct / 100));
-  const lines: (readonly [string, number])[] = [...planLines(modules).map((l) => [l.label, l.eur] as const), ...(assistant ? [["AI assistant", AI_ASSISTANT.monthlyEur] as const] : [])];
+  const setup = setupLines(modules, b);
+  const setupFull = setupEur(modules, b);
+  const setupNet = round2(termSetupEur(setupFull, b.term) * (1 - FOUNDING.setupPct / 100));
+  const allowance = allowanceFor(modules, b);
+  const lines: (readonly [string, number])[] = [...planLines(modules, b).map((l) => [l.label, l.eur] as const), ...(assistant ? [["AI assistant", AI_ASSISTANT.monthlyEur] as const] : [])];
   return (
     <>
       <Panel title="Your plan">
@@ -157,7 +164,10 @@ function PlanAndUsage({ modules, services, usage, b, now }: { modules: Modules; 
             <dd className="tabular-nums">{eur(planNet)}</dd>
           </div>
         </dl>
-        <p className="text-meta text-text-2">Next bill: {nextBillDate(now)}</p>
+        <p className="text-meta text-text-2">
+          {TERM_LABELS[b.term]}
+          {b.term === "annual" && `: ${eur(yearUpfrontEur(planNet))} a year, before VAT`}. Next bill: {nextBillDate(now)}
+        </p>
         {others.length > 0 && (
           <details className="rounded-control border border-hairline px-3">
             <summary className="min-h-11 cursor-pointer py-2.5 text-body font-medium">Add more to your plan</summary>
@@ -185,10 +195,18 @@ function PlanAndUsage({ modules, services, usage, b, now }: { modules: Modules; 
               <dd className="tabular-nums">{eur(l.eur)}</dd>
             </div>
           ))}
-          <div className="flex justify-between gap-4 py-2 text-ok">
-            <dt>Founding dealer: {FOUNDING.setupPct}% off</dt>
-            <dd className="whitespace-nowrap tabular-nums">-{eur(round2(setupFull - setupNet))}</dd>
-          </div>
+          {b.term === "twoYear" && (
+            <div className="flex justify-between gap-4 py-2 text-ok">
+              <dt>2-year contract: no setup fee</dt>
+              <dd className="whitespace-nowrap tabular-nums">-{eur(setupFull)}</dd>
+            </div>
+          )}
+          {setupNet > 0 && (
+            <div className="flex justify-between gap-4 py-2 text-ok">
+              <dt>Founding dealer: {FOUNDING.setupPct}% off</dt>
+              <dd className="whitespace-nowrap tabular-nums">-{eur(round2(setupFull - setupNet))}</dd>
+            </div>
+          )}
           <div className="flex justify-between gap-4 py-2 font-semibold">
             <dt>Paid once at launch, before VAT</dt>
             <dd className="tabular-nums">{eur(setupNet)}</dd>
@@ -221,7 +239,7 @@ function PlanAndUsage({ modules, services, usage, b, now }: { modules: Modules; 
                     { key: "cost", header: "So far", align: "right", cell: (k) => eur(k.costEur) },
                   ]}
                 />
-                {s === "ai" && assistant && <p className="text-meta text-text-2">The first {AI_ASSISTANT.actions} actions are in your AI assistant plan.</p>}
+                {allowance[s] ? <p className="text-meta text-text-2">The first {fmtNum(allowance[s])} {INCLUDED[s]} a month are in your plan.</p> : null}
               </div>
             ))}
           </>
@@ -257,6 +275,7 @@ async function WithoutPrices() {
         ) : (
           <p className="text-body text-text-2">The website, with your stock and the enquiry and contact forms.</p>
         )}
+        <p className="text-meta text-text-2">{TERM_LABELS[b.term]}</p>
         {off.length > 0 && (
           <details className="rounded-control border border-hairline px-3">
             <summary className="min-h-11 cursor-pointer py-2.5 text-body font-medium">Add more to your plan</summary>

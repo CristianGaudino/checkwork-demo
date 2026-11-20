@@ -12,7 +12,7 @@ export const MODULES = [
   { id: "sales", label: "Sales and customers", blurb: "Deposits and reservations, sale records and a customer list.", pages: [], dashboard: [], needs: ["dashboard"] }, // /dashboard/customers is shared with the newsletter: the page checks both
   { id: "margins", label: "Margins and reports", blurb: "Cost prices, margins for the staff allowed, sales reports, targets.", pages: [], dashboard: ["/dashboard/margins", "/dashboard/reports"], needs: ["sales"] },
   { id: "service", label: "Service and aftersales", blurb: "Service booking, warranty claims and their progress.", pages: ["/service"], dashboard: ["/dashboard/aftersales"], needs: ["dashboard"] },
-  { id: "reviews", label: "Reviews", blurb: "Google reviews on the site, and replies from the dashboard.", pages: ["/reviews"], dashboard: ["/dashboard/reviews"], needs: ["dashboard"] },
+  { id: "reviews", label: "Reviews", blurb: "Google reviews on the site, and replies from the dashboard.", pages: ["/reviews"], dashboard: ["/dashboard/reviews"] }, // shown without the dashboard (Showroom); replies need it (pathAllowed)
   { id: "social", label: "Social and ads", blurb: "Posts, stories, reels and ads from the dashboard.", pages: [], dashboard: [], needs: ["dashboard"] },
   { id: "newsletter", label: "Newsletter and alerts", blurb: "Newsletters, price-drop and new-stock alerts.", pages: [], dashboard: [], needs: ["dashboard"] },
   { id: "commercial", label: "Commercial vehicles", blurb: "A commercial section with ex. VAT pricing.", pages: ["/commercial"], dashboard: [] },
