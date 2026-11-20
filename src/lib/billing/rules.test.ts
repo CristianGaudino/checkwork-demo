@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { MODULE_IDS } from "@/lib/modules-rules";
-import { BILLING_DEFAULT, inAllowance, withBranchCeilings, allowanceFor, alertsCrossed, setupEur, setupLines, capOf, monthEndEstimate, planEur, planFor, planLines, presetName, termSetupEur, usageCosts, usageEstimate, withinCaps, yearUpfrontEur, type BillingSettings, type UsageCount } from "./rules";
+import { BILLING_DEFAULT, inAllowance, withBranchCeilings, allowanceFor, alertsCrossed, setupEur, setupLines, capOf, monthEndEstimate, planEur, planFor, planLines, presetName, switchTier, termSetupEur, TIERS, usageCosts, usageEstimate, withinCaps, yearUpfrontEur, type BillingSettings, type UsageCount } from "./rules";
 
 const c = (service: UsageCount["service"], kind: string, count: number): UsageCount => ({ id: `m:${service}:${kind}`, month: "2026-11", service, kind, count });
 
@@ -122,6 +122,22 @@ describe("the plan and the estimate", () => {
     expect(planLines([...SHOWROOM, "commercial"])).toEqual([{ label: "Showroom plan", eur: 249 }, { label: "Commercial vehicles", eur: 29 }]);
     expect(planLines([])).toEqual([{ label: "Showroom plan", eur: 249 }]);
     expect(planLines(GROUP, opts({ branches: 3 }))).toEqual([{ label: "Group plan", eur: 749 }, { label: "2 more branches", eur: 298 }]);
+  });
+  it("keeps the add-ons when the plan changes, and drops only those the new tier cannot hold, saying which", () => {
+    const tier = (id: string) => TIERS.find((t) => t.id === id)!;
+    const sorted = (s: Iterable<string>) => [...s].sort();
+    // Dealer with Service and Commercial on top, to Group: Commercial is in Group, Service stays an add-on, and the total follows.
+    const group = switchTier([...DEALER, "service", "commercial"], tier("group"));
+    expect(sorted(group.modules)).toEqual(sorted([...GROUP, "service"]));
+    expect(group.dropped).toEqual([]);
+    expect(planEur(group.modules)).toBe(749 + 49);
+    // Back to Showroom: Commercial stays, Service needs the dashboard Showroom lacks, so it drops and is named.
+    const showroom = switchTier([...DEALER, "service", "commercial"], tier("showroom"));
+    expect(sorted(showroom.modules)).toEqual(sorted([...SHOWROOM, "commercial"]));
+    expect(showroom.dropped).toEqual(["service"]);
+    expect(planEur(showroom.modules)).toBe(249 + 29);
+    // A tier's own modules are not add-ons: Group to Dealer is Dealer, with nothing to report.
+    expect(switchTier(GROUP, tier("dealer"))).toEqual({ modules: new Set(DEALER), dropped: [] });
   });
   it("prices new cars for 2 brands, then each more brand, in a tier or as an add-on", () => {
     const newCars = (brands: number) => planEur([...DEALER, "newCars"], opts({ brands })) - 449;

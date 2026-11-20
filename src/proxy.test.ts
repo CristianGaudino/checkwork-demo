@@ -60,4 +60,19 @@ describe("modules in the proxy (#173)", () => {
     vi.stubEnv("NEXT_PUBLIC_SITE_MODULES", "finance");
     expect((await get("/finance")).status).not.toBe(404);
   });
+  it("says a module is not in the plan only where the demo bar decides the plan, and in the dashboard only with the dashboard", async () => {
+    const to = async (path: string, cookie?: string) => {
+      const res = await get(path, cookie === undefined ? {} : { cookie: `checkwork-demo-modules=${cookie}` });
+      const where = new URL(res.headers.get("x-middleware-rewrite")!).pathname;
+      expect(res.status, path).toBe(where.startsWith("/dashboard/") ? 200 : 404); // the dashboard screen's own action needs a 200 (src/proxy.ts)
+      return where;
+    };
+    vi.stubEnv("NEXT_PUBLIC_SITE_MODULES", "dashboard");
+    expect(await to("/finance")).toBe("/not-found-closed-area"); // a real client site never advertises it
+    vi.stubEnv("APP_ENV", "demo");
+    expect(await to("/finance", "dashboard")).toBe("/not-in-plan/finance");
+    vi.stubEnv("NODE_ENV", "development");
+    expect(await to("/dashboard/whatsapp", "dashboard")).toBe("/dashboard/not-in-plan/whatsapp");
+    expect(await to("/dashboard/test-drives", "none")).toBe("/not-found-closed-area");
+  });
 });
