@@ -26,11 +26,15 @@ const nctLabel = (s: string) => {
   return m ? `${MONTHS[Number(m[2]) - 1]} ${m[1]}` : undefined;
 };
 
-// Every spec the car has, in the order the page shows them. Rows with no value are left out (D-10); road tax is dropped on purpose (stale due dates).
+// Every spec the car has, in the order the page shows them. Rows with no value are left out (D-10); a feed's road tax due date is dropped on purpose (stale), and
+// the annual motor tax shows only as the dealer entered it.
 // The speeds are in km/h, the site's own unit; `miles` is the same row for a buyer who chose miles, with the mph as published.
 export type SpecRow = { label: string; value: string; miles?: { label: string; value: string } };
+const withUnit = (n: number | undefined, unit: string) => (n === undefined ? undefined : `${fmtNum(n)} ${unit}`);
+
 export function specRows(car: Car): SpecRow[] {
   const mph = car.maxSpeedMph;
+  const range = car.evRangeKm;
   const rows: [string, string | undefined, SpecRow["miles"]?][] = [
     ["Year", String(car.year)],
     ["Mileage", car.mileageKm === undefined ? undefined : formatKm(car.mileageKm)],
@@ -38,11 +42,18 @@ export function specRows(car: Car): SpecRow[] {
     ["Transmission", car.gearbox && GEARBOX_LABELS[car.gearbox]],
     ["Body type", car.bodyType],
     ["Engine", car.engineLitres === undefined ? undefined : `${car.engineLitres.toFixed(1)} L`],
+    ["Range (WLTP)", withUnit(range, "km"), range === undefined ? undefined : { label: "Range (WLTP)", value: `${fmtNum(Math.round(range / KM_PER_MILE))} miles` }],
+    ["Battery", withUnit(car.batteryKwh, "kWh")],
+    ["Max AC charging", withUnit(car.acChargeKw, "kW")],
+    ["Max DC charging", withUnit(car.dcChargeKw, "kW")],
+    ["10 to 80% charge", withUnit(car.charge10To80Mins, "min")],
     ["Colour", car.colour],
     ["Doors", car.doors === undefined ? undefined : String(car.doors)],
     ["Seats", car.seats === undefined ? undefined : String(car.seats)],
     ["Owners", car.owners ? String(car.owners) : undefined], // 0 is a new vehicle: no row, not "Owners 0"
     ["NCT expires", car.nctExpiry && nctLabel(car.nctExpiry)],
+    ["CO2", withUnit(car.co2GKm, "g/km")],
+    ["Motor tax", car.motorTaxEur === undefined ? undefined : `${fmtEur(car.motorTaxEur)} a year`],
     ["Max speed", mph === undefined ? undefined : `${Math.round(mph * KM_PER_MILE)} km/h`, { label: "Max speed", value: `${mph} mph` }],
     ["0 to 100 km/h", car.zeroTo62Secs === undefined ? undefined : `${car.zeroTo62Secs} s`, { label: "0 to 62 mph", value: `${car.zeroTo62Secs} s` }],
   ];

@@ -7,7 +7,7 @@ test("the page shows the dealer's conversation, with the buttons under an alert"
   await expect(phone.getByText(/wants (to sell their car|a price for a trade-in)/).first()).toBeVisible();
   await expect(phone.getByRole("button", { name: "Reply with a price" })).toBeVisible();
   await expect(phone.getByRole("button", { name: "Yes, it's available" }).first()).toBeVisible();
-  await expect(page.getByRole("heading", { name: "What WhatsApp does for you" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "What reaches your phone" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Staff phones" })).toBeVisible();
 });
 
@@ -31,7 +31,11 @@ test("reply with a price: the lead gets the offer, and the buyer answers", async
   await expect(page.getByText("Offer sent by WhatsApp: €8,500").first()).toBeVisible();
 });
 
-test("without the WhatsApp module the page is not there", async ({ page, context, baseURL }) => {
+test("without the WhatsApp module the page says it is not in the plan, and the owner can ask for it", async ({ page, context, baseURL }) => {
   await context.addCookies([{ name: "checkwork-demo-modules", value: "dashboard", url: baseURL! }]);
-  expect((await page.goto("/dashboard/whatsapp"))?.status()).toBe(404);
+  await page.goto("/dashboard/whatsapp");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Not in your plan");
+  await expect(page.getByText("Leads to your phone, and replies from WhatsApp that the site sends on.")).toBeVisible();
+  await page.getByRole("button", { name: "Ask us to add WhatsApp" }).click();
+  await expect(page.getByText("We have your request. Our reply will show in Help.")).toBeVisible();
 });

@@ -2,6 +2,8 @@ import textLimits from "./text-limits.json";
 import { DEALER_RULES } from "@/lib/dealer.config";
 export const FUELS = ["petrol", "diesel", "hybrid", "plug-in-hybrid", "electric", "other"] as const;
 export type Fuel = (typeof FUELS)[number];
+// The fuels with a plug: the ones that have a range, a battery and charging figures.
+export const PLUG_FUELS: readonly Fuel[] = ["electric", "plug-in-hybrid"];
 export const FUEL_LABELS: Record<Fuel, string> = {
   petrol: "Petrol",
   diesel: "Diesel",
@@ -61,6 +63,14 @@ export interface Car {
   nctExpiry?: string; // "2027-07" for "07/2027"
   maxSpeedMph?: number; // 126 for "126 mph", as published; the page shows km/h unless the buyer chose miles
   zeroTo62Secs?: number; // 9.9 for "9.9 seconds"
+  co2GKm?: number; // CO2 in g/km, as the dealer entered it
+  motorTaxEur?: number; // annual motor tax in whole euro, entered by the dealer: the site never works it out
+  // Electric and plug-in hybrid only (the car form keeps them for those fuels alone).
+  evRangeKm?: number; // WLTP range
+  batteryKwh?: number;
+  acChargeKw?: number; // the most it takes on AC
+  dcChargeKw?: number; // the most it takes on DC
+  charge10To80Mins?: number; // 10 to 80% on a fast charger
   description?: string; // the dealer's text, line breaks kept, contact block removed
   features?: string[]; // equipment items
   photos: Photo[]; // 0 to 6, local /stock/... paths

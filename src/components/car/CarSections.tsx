@@ -51,7 +51,7 @@ export function Specifications({ car }: { car: Car }) {
     <section>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className={h2}>Specifications</h2>
-        {(car.mileageKm !== undefined || car.maxSpeedMph !== undefined) && <UnitToggle />}
+        {(car.mileageKm !== undefined || car.maxSpeedMph !== undefined || car.evRangeKm !== undefined) && <UnitToggle />}
       </div>
       {/* Every other row filled (in pairs from 640px, where two rows sit side by side), so a label is easy to follow to its value. */}
       <dl className={`mt-4 grid grid-cols-1 gap-x-4 ${card} p-2 sm:grid-cols-2`}>

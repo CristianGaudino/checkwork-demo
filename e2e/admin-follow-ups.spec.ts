@@ -19,7 +19,7 @@ test("a follow-up set on a lead shows on the lead and in the list's Follow-ups d
   await panel.getByRole("button", { name: "Set" }).click();
   await expect(panel).toContainText("Today");
   await page.goto("/dashboard/leads?due=1");
-  await expect(page.getByRole("row", { name: /Aleksandra/ })).toContainText("Today");
+  await expect(page.getByRole("row", { name: /Aleksandra/ })).toContainText("Follow up today");
   await page.goto("/dashboard");
   await expect(page.getByRole("link", { name: /Follow-ups due/ })).toBeVisible();
   await page.goto("/dashboard/leads/lead-edge-1");

@@ -8,7 +8,7 @@ import { countsBetween } from "@/lib/owner-api/counters";
 import type { Range } from "@/lib/admin/analytics";
 import { AreaChart, BarList } from "@/components/admin/charts";
 import { DataTable, PageHeader, Panel, Segmented, StatCard, StatGrid } from "@/components/admin/kit";
-import { RANGES, buildAnalytics, change, parseRange } from "@/lib/admin/analytics";
+import { RANGES, buildAnalytics, change, changeText, parseRange } from "@/lib/admin/analytics";
 import { fmtNum, fmtPct, threeLetter } from "@/lib/admin/format";
 import { leadsStore } from "@/lib/admin/collections";
 import { adminCars } from "@/lib/admin/stock-admin";
@@ -19,7 +19,6 @@ import { forSale } from "@/lib/stock/types";
 export const metadata = { title: "Analytics" };
 
 const shortDate = new Intl.DateTimeFormat("en-IE", { day: "numeric", month: "short", timeZone: "UTC" });
-const arrow = (n: number) => `${n >= 0 ? "Up" : "Down"} ${fmtPct(Math.abs(n))} on the period before`;
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ range?: string }> }) {
   const range = parseRange((await searchParams).range);
@@ -28,22 +27,22 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
   const [all, leads] = await Promise.all([adminCars(), leadsStore.list()]);
   const cars = all.filter(forSale).map((c) => ({ slug: c.slug, title: carName(c) }));
   const a = buildAnalytics({ range, cars, leadTimes: leads.map((l) => l.createdAt) });
-  const c = (now: number, before: number) => change(now, before);
-  const dv = c(a.totals.visitors, a.previous.visitors);
-  const dp = c(a.totals.pageviews, a.previous.pageviews);
-  const dl = c(a.totals.leads, a.previous.leads);
+  const dv = change(a.totals.visitors, a.previous.visitors);
+  const dp = change(a.totals.pageviews, a.previous.pageviews);
+  const dl = change(a.totals.leads, a.previous.leads);
+  const convBefore = a.previous.visitors ? (a.previous.leads / a.previous.visitors) * 100 : 0;
   const top = a.funnel[0].count;
 
   return (
     <>
-      <PageHeader title="Analytics" />
+      <PageHeader title="Analytics" text="Who visits your site, where they come from and what they look at." />
       <Segmented label="Period" items={RANGES.map((r) => ({ label: `${r} days`, href: `/dashboard/analytics?range=${r}`, active: range === r }))} />
 
       <StatGrid>
-        <StatCard label="Visitors" value={fmtNum(a.totals.visitors)} hint={arrow(dv)} tone={dv >= 0 ? "good" : "bad"} />
-        <StatCard label="Page views" value={fmtNum(a.totals.pageviews)} hint={arrow(dp)} tone={dp >= 0 ? "good" : "bad"} />
-        <StatCard label="Leads" value={fmtNum(a.totals.leads)} hint={arrow(dl)} tone={dl >= 0 ? "good" : "bad"} />
-        <StatCard label="Visitors who became leads" value={fmtPct(a.totals.conversion)} hint={arrow(c(a.totals.conversion, a.previous.visitors ? (a.previous.leads / a.previous.visitors) * 100 : 0))} tone={c(a.totals.conversion, a.previous.visitors ? (a.previous.leads / a.previous.visitors) * 100 : 0) >= 0 ? "good" : "bad"} />
+        <StatCard label="Visitors" value={fmtNum(a.totals.visitors)} hint={changeText(a.totals.visitors, a.previous.visitors)} tone={dv >= 0 ? "good" : "bad"} />
+        <StatCard label="Page views" value={fmtNum(a.totals.pageviews)} hint={changeText(a.totals.pageviews, a.previous.pageviews)} tone={dp >= 0 ? "good" : "bad"} />
+        <StatCard label="Leads" value={fmtNum(a.totals.leads)} hint={changeText(a.totals.leads, a.previous.leads)} tone={dl >= 0 ? "good" : "bad"} />
+        <StatCard label="Visitors who became leads" value={fmtPct(a.totals.conversion)} hint={changeText(a.totals.conversion, convBefore, true)} tone={a.totals.conversion >= convBefore ? "good" : "bad"} />
       </StatGrid>
 
       <Panel title="Visitors each day">
@@ -105,7 +104,7 @@ async function RealAnalytics({ range }: { range: Range }) {
 
   return (
     <>
-      <PageHeader title="Analytics" />
+      <PageHeader title="Analytics" text="Who visits your site, where they come from and what they look at." />
       <Segmented label="Period" items={RANGES.map((r) => ({ label: `${r} days`, href: `/dashboard/analytics?range=${r}`, active: range === r }))} />
 
       <StatGrid>

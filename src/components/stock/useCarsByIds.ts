@@ -7,7 +7,8 @@ export type Loaded = { cars: Car[]; gone: number };
 
 // The ids live in this browser (saved or compare), so the cars are fetched by id from /api/saved-cars: the stock stays on the
 // server. `onGone` hears the ids the stock no longer has, only on a good answer, so a failed load never loses a car.
-export function useCarsByIds(ids: string[] | null, onGone?: (goneIds: string[]) => void) {
+// `features`: the equipment comes too (compare lists it); the other lists leave it out.
+export function useCarsByIds(ids: string[] | null, onGone?: (goneIds: string[]) => void, features = false) {
   const [loaded, setLoaded] = useState<Loaded | "error" | null>(null);
   const [attempt, setAttempt] = useState(0);
   const gone = useRef(onGone);
@@ -18,7 +19,7 @@ export function useCarsByIds(ids: string[] | null, onGone?: (goneIds: string[]) 
   useEffect(() => {
     if (!ids?.length) return;
     let stale = false;
-    fetch(`/api/saved-cars?ids=${ids.join(",")}`)
+    fetch(`/api/saved-cars?ids=${ids.join(",")}${features ? "&features=1" : ""}`)
       .then((r) => {
         if (!r.ok) throw new Error(`status ${r.status}`);
         return r.json() as Promise<{ cars: Car[]; goneIds: string[] }>;
@@ -32,7 +33,7 @@ export function useCarsByIds(ids: string[] | null, onGone?: (goneIds: string[]) 
     return () => {
       stale = true;
     };
-  }, [ids, attempt]);
+  }, [ids, attempt, features]);
 
   const retry = () => {
     setLoaded(null);

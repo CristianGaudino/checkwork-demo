@@ -1,7 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
-const { DRIVE_NEXT, clashes, filterDrives, parseDriveStatus, settleSeededDrive, slotData, waitingDrives } = await import("./drives");
+const { DRIVE_NEXT, clashes, filterDrives, parseDriveStatus, seededSlot, settleSeededDrive, slotData, waitingDrives } = await import("./drives");
+const { demoDrives } = await import("./collections");
+const { dublinDateTime } = await import("./format");
+const { inDriveHours } = await import("@/lib/leads/constants");
 type D = import("./collections").TestDrive;
 
 const at = (day: number, hour: number) => new Date(2026, 10, day, hour, 0).getTime();
@@ -66,5 +69,22 @@ describe("test drive agenda", () => {
     expect(settleSeededDrive(five, "cancelled", now)).toEqual({ startsAt: five, status: "cancelled" });
     const later = Date.UTC(2026, 10, 19, 19, 0);
     expect(settleSeededDrive(later, "requested", now)).toEqual({ startsAt: later, status: "requested" });
+  });
+  it("a request past on a Saturday moves to Monday, not to the Sunday we are closed", () => {
+    const sat = Date.UTC(2026, 10, 21, 14, 0); // Saturday 21 November, 14:00 in Dublin
+    expect(settleSeededDrive(sat, "requested", sat + 5 * 3_600_000).startsAt).toBe(Date.UTC(2026, 10, 23, 14, 0));
+  });
+  it("a seeded booking falls inside opening hours: a closed day moves on (or back), a late time to the day's last slot", () => {
+    expect(seededSlot("2026-11-22", "12:00")).toBe(Date.UTC(2026, 10, 23, 12, 0)); // Sunday to Monday
+    expect(seededSlot("2026-11-22", "12:00", -1)).toBe(Date.UTC(2026, 10, 21, 12, 0)); // a past one back to Saturday
+    expect(seededSlot("2026-11-21", "17:30")).toBe(Date.UTC(2026, 10, 21, 15, 0)); // Saturday's last slot
+    expect(seededSlot("2026-11-24", "10:30")).toBe(Date.UTC(2026, 10, 24, 10, 30)); // a Tuesday time inside the hours stays
+  });
+  it("every demo booking is inside opening hours, whatever day the demo is opened", () => {
+    for (let d = 0; d < 7; d++) {
+      vi.useFakeTimers({ now: Date.UTC(2026, 10, 16 + d, 8 + d * 2, 0) }); // each weekday, morning to evening
+      for (const b of demoDrives()) expect(inDriveHours(dublinDateTime(b.startsAt).slice(0, 10), dublinDateTime(b.startsAt).slice(11)), dublinDateTime(b.startsAt)).toBe(true);
+      vi.useRealTimers();
+    }
   });
 });

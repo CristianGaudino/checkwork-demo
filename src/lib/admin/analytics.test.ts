@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { RANGES, buildAnalytics, change, parseRange, share } from "./analytics";
+import { RANGES, buildAnalytics, change, changeText, parseRange, share } from "./analytics";
 
 const cars = Array.from({ length: 20 }, (_, i) => ({ slug: `car-${i}`, title: `Car ${i}` }));
 const now = new Date("2026-11-10T15:00:00Z").getTime();
@@ -69,5 +69,12 @@ describe("range and change", () => {
     expect(change(120, 100)).toBe(20);
     expect(change(80, 100)).toBe(-20);
     expect(change(5, 0)).toBe(0);
+  });
+  it("says a count's change in % and a rate's in points", () => {
+    expect(changeText(145, 100)).toBe("Up 45% on the period before");
+    expect(changeText(90, 100)).toBe("Down 10% on the period before");
+    expect(changeText(12, 0)).toBe("None the period before"); // not "Up 0%"
+    expect(changeText(1.9, 1.3, true)).toBe("Up 0.6 points on the period before");
+    expect(changeText(2, 3, true)).toBe("Down 1 point on the period before");
   });
 });

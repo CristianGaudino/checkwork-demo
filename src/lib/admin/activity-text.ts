@@ -4,7 +4,8 @@ import { priceLabel } from "@/lib/stock/format";
 
 // The words an activity entry uses for a car edit: the price in full (the change people ask about), the rest by name.
 // "Changed the price from €17,950 to €16,950, and the mileage and colour". Pure, so it is tested.
-const name = (label: string) => label.replace(/\s*\(.*\)$/, "").toLowerCase();
+// Ordinary words lowered, short forms (NCT, CO2, AC) kept.
+const name = (label: string) => label.replace(/\s*\(.*\)$/, "").replace(/\b[A-Z][a-z]*\b/g, (w) => w.toLowerCase());
 const list = (words: string[]) => (words.length > 1 ? `${words.slice(0, -1).join(", ")} and ${words.at(-1)}` : (words[0] ?? ""));
 
 export function carEditSummary(was: object, now: object): string {

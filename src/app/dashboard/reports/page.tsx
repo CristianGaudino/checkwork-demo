@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { AreaChart, BarList } from "@/components/admin/charts";
+import { ChevronDownIcon } from "@/components/stock/icons";
 import { DataTable, PageHeader, Panel, Segmented, StatCard, StatGrid } from "@/components/admin/kit";
 import { getSettings, leadsStore, prepStore, salesStore } from "@/lib/admin/collections";
 import { isSalesLead } from "@/lib/admin/leads";
@@ -46,18 +47,27 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
           format={fmtEur}
           summary={`Sales each month over the last ${period} months, the most in ${monthLabel(best.month)} at ${fmtEur(best.value)}.`}
         />
-        <DataTable
-          bare
-          label="Sales by month"
-          rows={[...r.months].reverse()}
-          rowKey={(m) => m.month}
-          columns={[
-            { key: "month", header: "Month", cell: (m) => monthLabel(m.month), nowrap: true },
-            { key: "sold", header: "Cars sold", align: "right", hide: "sm", cell: (m) => fmtNum(m.sold) },
-            { key: "value", header: "Sales", align: "right", cell: (m) => fmtEur(m.value) },
-            { key: "profit", header: "Profit", align: "right", cell: (m) => (m.costed ? fmtEur(m.profit) : <span className="text-text-2">-</span>) },
-          ]}
-        />
+        {/* The chart is the answer; the figures behind it are one tap away. */}
+        <details className="group rounded-control border border-hairline px-3">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between py-2.5 text-body font-medium [&::-webkit-details-marker]:hidden">
+            Each month
+            <ChevronDownIcon aria-hidden="true" className="size-4 text-text-2 transition-transform group-open:rotate-180" />
+          </summary>
+          <div className="pb-3">
+            <DataTable
+              bare
+              label="Sales by month"
+              rows={[...r.months].reverse()}
+              rowKey={(m) => m.month}
+              columns={[
+                { key: "month", header: "Month", cell: (m) => monthLabel(m.month), nowrap: true },
+                { key: "sold", header: "Cars sold", align: "right", hide: "sm", cell: (m) => fmtNum(m.sold) },
+                { key: "value", header: "Sales", align: "right", cell: (m) => fmtEur(m.value) },
+                { key: "profit", header: "Profit", align: "right", cell: (m) => (m.costed ? fmtEur(m.profit) : <span className="text-text-2">-</span>) },
+              ]}
+            />
+          </div>
+        </details>
       </Panel>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">

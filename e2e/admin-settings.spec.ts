@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { as } from "./open";
 
 test("a target is checked, saved, and changes what the overview calls late", async ({ page }) => {
   await page.goto("/dashboard/settings");
@@ -40,4 +41,16 @@ test("the sections are one at a time; services say what is connected and how to 
   await expect(social).toContainText("Connected");
   await expect(social).toContainText("@checkworkmotors");
   await expect(page.getByRole("row", { name: /Lead email/ })).toContainText("Ask us to connect it");
+});
+
+test("without the settings permission every section is read only: values as text, nothing to save", async ({ page, context }) => {
+  await as(context, "Sales");
+  for (const section of ["", "?section=team", "?section=emails", "?section=marketing", "?section=services"]) {
+    await page.goto(`/dashboard/settings${section}`);
+    await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
+    await expect(page.getByRole("main").getByRole("button", { name: /^(Save|Add|Send a test email|Start again)$/ })).toHaveCount(0);
+    await expect(page.getByRole("main").getByRole("textbox")).toHaveCount(0);
+  }
+  await page.goto("/dashboard/settings");
+  await expect(page.getByText(/^\d+ hours$/)).toBeVisible(); // the reply target, as text (another test may have changed it)
 });

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AddTeamForm, RoleForm, LeadEmailsForm, MarketingForm, NotificationsForm, TargetsForm } from "@/components/admin/SettingsForms";
-import { Badge, DataTable, PageHeader, Panel, adminButtonQuiet, rowButton } from "@/components/admin/kit";
+import { Badge, DataTable, Facts, PageHeader, Panel, adminButtonQuiet, rowButton } from "@/components/admin/kit";
 import { ActButton } from "@/components/admin/ActButton";
 import { getSettings } from "@/lib/admin/collections";
 import { INTEGRATIONS, type IntegrationId, isUsable, modeOf } from "@/lib/integrations";
@@ -57,7 +57,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
   const section: Section = sections.find(([k]) => k === sp.section)?.[0] ?? "business";
   return (
     <>
-      <PageHeader title="Settings" text={edit ? undefined : "Only an owner or manager can change these settings."} />
+      <PageHeader title="Settings" text={edit ? "Your targets, team, emails and the services you offer." : "Only an owner or manager can change these settings."} />
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[13rem_minmax(0,1fr)] lg:items-start">
         <nav aria-label="Settings" className="scrollbar-none -mx-4 flex gap-1 overflow-x-auto px-4 sm:mx-0 sm:px-0 lg:sticky lg:top-24 lg:flex-col">
           {sections.map(([k, label]) => (
@@ -77,20 +77,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
 
           {/* The one thing here a dealer changes, first; the details we keep for them after it. */}
           <Panel title="Targets">
-            <Locked open={edit}>
-              <TargetsForm settings={s} />
-            </Locked>
+            {edit ? <TargetsForm settings={s} /> : <Facts items={[["Reply to a new lead within", `${s.leadSlaHours} hours`], ["Test drive slot", `${s.driveSlotMinutes} minutes`]]} />}
           </Panel>
 
           <Panel title="Business details">
-            <dl className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
-              {[["Name", SITE_NAME], ["Phone", DEALER_PHONE], ["Email", DEALER_EMAIL], ["Address", DEALER_ADDRESS_TEXT]].map(([k, v]) => (
-                <div key={k}>
-                  <dt className="text-meta text-text-2">{k}</dt>
-                  <dd className="text-body">{v}</dd>
-                </div>
-              ))}
-            </dl>
+            <Facts items={[["Name", SITE_NAME], ["Phone", DEALER_PHONE], ["Email", DEALER_EMAIL], ["Address", DEALER_ADDRESS_TEXT]]} />
             <ul className="grid grid-cols-1 gap-x-8 gap-y-1 text-body sm:grid-cols-2">
               {OPENING_HOURS.map((h) => (
                 <li key={h.day} className="flex justify-between gap-4 border-b border-hairline py-1.5">
@@ -181,15 +172,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
           {section === "emails" && (
           <>
           <Panel title="Lead emails">
-            <Locked open={edit}>
-              <LeadEmailsForm settings={s} fallback={Boolean(process.env.LEAD_TO_EMAIL)} />
-            </Locked>
+            {edit ? <LeadEmailsForm settings={s} fallback={Boolean(process.env.LEAD_TO_EMAIL)} /> : <Facts items={[["Send new leads to", s.leadEmails.join(", ") || (process.env.LEAD_TO_EMAIL ? "The site's own address" : "No address set")]]} />}
           </Panel>
 
           <Panel title="Notifications">
-            <Locked open={edit}>
-              <NotificationsForm settings={s} emailConnected={isUsable("email")} />
-            </Locked>
+            {edit ? <NotificationsForm settings={s} emailConnected={isUsable("email")} /> : <Facts items={[["Morning follow-ups email to each salesperson", s.notifications.followUps ? "On" : "Off"]]} />}
           </Panel>
 
           </>
@@ -197,9 +184,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
 
           {section === "marketing" && (
           <Panel title="Marketing voice">
-            <Locked open={edit}>
-              <MarketingForm settings={s} />
-            </Locked>
+            {edit ? <MarketingForm settings={s} /> : <Facts items={[["How we sound", s.marketing.voice], ["Hashtags", s.marketing.hashtags], ["Sign-off line", s.marketing.signOff]].map(([k, v]) => [k, v || "Not set"] as const)} />}
           </Panel>
           )}
 
@@ -231,14 +216,5 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
         </div>
       </div>
     </>
-  );
-}
-
-// Read only for someone who may not change settings: every control is disabled (the server refuses the save anyway).
-function Locked({ open, children }: { open: boolean; children: React.ReactNode }) {
-  return (
-    <fieldset disabled={!open} className="contents">
-      {children}
-    </fieldset>
   );
 }

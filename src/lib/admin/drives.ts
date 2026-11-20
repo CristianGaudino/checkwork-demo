@@ -8,7 +8,16 @@ import { addDays, addMonths, dublinDateTime, dublinDay, dublinMs } from "./forma
 export function settleSeededDrive(startsAt: number, status: DriveStatus, now: number): { startsAt: number; status: DriveStatus } {
   if (startsAt > now || !isOpenDrive({ status })) return { startsAt, status };
   if (status === "confirmed") return { startsAt, status: "completed" };
-  return { startsAt: dublinMs(addDays(dublinDay(startsAt), 1), dublinDateTime(startsAt).slice(11)), status };
+  return { startsAt: seededSlot(addDays(dublinDay(startsAt), 1), dublinDateTime(startsAt).slice(11)), status };
+}
+
+// A seeded booking inside opening hours: a closed day (a Sunday, a bank holiday) moves to the next open one (`step` -1: the one before, so
+// a past booking stays past), and a time outside the day's slots moves to the nearest one (17:30 on a Saturday becomes 15:00).
+export function seededSlot(day: string, time: string, step: 1 | -1 = 1): number {
+  // A fortnight at most: a site with no opening hours set keeps the time asked for rather than looping for ever.
+  for (let i = 0; i < 14 && !driveTimes(day).length; i++) day = addDays(day, step);
+  const t = driveTimes(day);
+  return dublinMs(day, t.length ? (t.find((x) => x >= time) ?? t.at(-1)!) : time);
 }
 
 // Agenda helpers for the test drive bookings. Pure, so the grouping and the checks are tested. How far ahead, and on which days and

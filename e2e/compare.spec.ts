@@ -47,7 +47,11 @@ test("pick two cars on their pages: the compare page has a card each, and a plac
   await expect(page.getByTestId("compare-placeholder")).toHaveAttribute("href", "/used-cars"); // the whole card is the link
   await expect(page.getByTestId("compare-placeholder")).toHaveText("Add a car");
   await expect(page.getByRole("button", { name: "Add a car" })).toHaveCount(0); // no separate button
-  for (const row of ["Price", "Year", "Mileage", "Fuel", "Transmission", "Engine", "Body type"]) await expect(cards(page).first().getByText(row, { exact: true })).toBeVisible();
+  for (const row of ["Price", "Finance", "Year", "Mileage", "Fuel", "Transmission", "Engine", "Body type", "NCT expires", "Equipment"]) await expect(cards(page).first().getByText(row, { exact: true })).toBeVisible();
+  // The monthly figures carry the lender's wording, and the equipment opens on its card.
+  await expect(page.getByText(/^This is an estimate only.*Representative example/)).toBeVisible();
+  await cards(page).first().getByText("Show equipment").click();
+  await expect(cards(page).first().getByRole("listitem").first()).toBeVisible();
   await expect(page.getByRole("region", { name: "Compare cars" })).toHaveCount(0); // the bar is for the other pages
 });
 

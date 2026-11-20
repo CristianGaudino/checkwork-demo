@@ -71,6 +71,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
     <>
       <PageHeader
         title="Orders"
+        text="Factory orders for new cars, from the order to the handover."
         actions={
           <Link href="/dashboard/orders/new" className={adminButton}>
             <PlusIcon className="size-4" />

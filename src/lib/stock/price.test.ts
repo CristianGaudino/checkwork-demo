@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { FINANCE } from "@/lib/finance/finance.config";
 import { quote } from "@/lib/finance/payment";
-import { payableEur, priceInfo } from "./price";
+import { financeMonthlyEur, payableEur, priceInfo } from "./price";
 
 describe("priceInfo", () => {
   it("says only the price and a finance estimate for a plain car", () => {
@@ -51,5 +51,15 @@ describe("priceInfo", () => {
   it("offers no finance on a reserved car, as the rest of its page does not", () => {
     expect(priceInfo({ priceEur: 20000, reserved: true }).financeFrom).toBeUndefined();
     expect(priceInfo({ priceEur: 20000, reserved: true }).headline).toBe("€20,000");
+  });
+});
+
+describe("financeMonthlyEur", () => {
+  it("is the figure the price block says, and none where there is no finance offer", () => {
+    const m = financeMonthlyEur({ priceEur: 15000 });
+    expect(priceInfo({ priceEur: 15000 }).financeFrom).toBe(`Estimate from €${m} a month`);
+    const { depositEur, termMonths, aprPct } = FINANCE.defaults;
+    expect(m).toBe(Math.round(quote(15000, depositEur, termMonths, aprPct)!.monthlyEur));
+    for (const car of [{ priceEur: 0 }, { priceEur: 15000, soldAt: "2026-10-01" }, { priceEur: 15000, reserved: true }, { priceEur: 500 }]) expect(financeMonthlyEur(car)).toBeUndefined();
   });
 });

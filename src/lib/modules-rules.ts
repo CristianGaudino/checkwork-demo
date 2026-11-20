@@ -14,7 +14,7 @@ export const MODULES = [
   { id: "service", label: "Service and aftersales", blurb: "Service booking, warranty claims and their progress.", pages: ["/service"], dashboard: ["/dashboard/aftersales"], needs: ["dashboard"] },
   // No needs (#224): a Showroom site shows its reviews without the dashboard; /dashboard/reviews (replies) also needs the dashboard, as every dashboard page.
   { id: "reviews", label: "Reviews", blurb: "Google reviews on the site; replies from the dashboard when you have it.", pages: ["/reviews"], dashboard: ["/dashboard/reviews"] },
-  { id: "social", label: "Social and ads", blurb: "Posts, stories, reels and ads from the dashboard.", pages: [], dashboard: [], needs: ["dashboard"] },
+  { id: "social", label: "Social and ads", blurb: "Posts, stories, reels and ads from the dashboard.", pages: [], dashboard: ["/dashboard/marketing/new"], needs: ["dashboard"] },
   { id: "newsletter", label: "Newsletter and alerts", blurb: "Newsletters, price-drop and new-stock alerts.", pages: [], dashboard: [], needs: ["dashboard"] },
   { id: "commercial", label: "Commercial vehicles", blurb: "A commercial section with ex. VAT pricing.", pages: ["/commercial"], dashboard: [] },
   { id: "newCars", label: "New cars and factory orders", blurb: "New car pages by brand and ordering of factory cars.", pages: ["/new-cars"], dashboard: ["/dashboard/orders"], needs: ["dashboard"] },

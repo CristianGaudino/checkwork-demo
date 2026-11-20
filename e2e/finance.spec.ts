@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import { unfold } from "./open";
 import type { Page } from "@playwright/test";
-import { FINANCE } from "../src/lib/finance/finance.config";
+import { FINANCE, pcpEstimate } from "../src/lib/finance/finance.config";
 import { quote } from "../src/lib/finance/payment";
 import { SOLD_VISIBLE_DAYS } from "../src/lib/stock/types";
 import { choose } from "./combo";
@@ -39,6 +39,34 @@ test("/finance estimates a monthly payment at the dealer's fixed rate as the buy
   const q = quote(15000, 3000, 48, FINANCE.defaults.aprPct)!;
   await expect(result(page)).toContainText(`About ${price(q.monthlyEur)} a month`);
   await expect(result(page)).toContainText("€12,000");
+});
+
+test("/finance switches to PCP: the monthly payment, the optional final payment, the mileage allowance and the PCP wording", async ({ page }) => {
+  test.skip(!FINANCE.pcp, "This dealer offers hire purchase only");
+  const pcp = FINANCE.pcp!;
+  await open(page, "/finance");
+  const choice = calc(page).getByRole("group", { name: "Type of finance" });
+  await expect(choice.getByRole("button", { name: "Hire purchase" })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByText("Hire purchase, subject to status.")).toBeVisible();
+
+  await calc(page).getByLabel("Price").fill("15000");
+  await calc(page).getByLabel("Deposit").fill("3000");
+  await choose(calc(page).getByLabel("Term"), "60 months");
+  await choice.getByRole("button", { name: "PCP" }).click();
+  await expect(choice.getByRole("button", { name: "PCP" })).toHaveAttribute("aria-pressed", "true");
+  await expect(calc(page).getByLabel("Term")).toHaveValue(`${pcp.termMonths} months`); // 60 months is hire purchase only
+  const q = pcpEstimate(15000, 3000, pcp.termMonths)!;
+  await expect(result(page)).toContainText(`About ${price(q.monthlyEur)} a month`);
+  const row = (label: string) => result(page).locator("div", { has: page.getByText(label, { exact: true }) });
+  await expect(row("Optional final payment")).toContainText(price(q.finalEur));
+  await expect(row("Mileage allowance")).toContainText(`${pcp.kmPerYear.toLocaleString("en-IE")} km a year`);
+  await expect(calc(page).getByText(`an example rate of ${pcp.aprPct}% APR`)).toBeVisible();
+  await expect(page.getByText("Personal contract plan, subject to status.")).toBeVisible();
+  await expect(page.getByText("Hire purchase, subject to status.")).toHaveCount(0);
+
+  await calc(page).getByLabel("Deposit").fill("12000");
+  await expect(page.getByText("Deposit is too high for PCP. Lower it or choose hire purchase.")).toBeVisible();
+  await expect(result(page)).toHaveText("Check the figures you entered.");
 });
 
 test("/finance is the estimator only: no car picker, no application, a button to choose a car, and the facts", async ({ page }) => {
@@ -101,6 +129,7 @@ test.describe("finance application", () => {
     await expect(d).toBeVisible();
     await expect(d.getByLabel("Deposit")).toHaveValue("4000");
     await expect(d.getByLabel("Term")).toHaveValue("36 months");
+    if (FINANCE.pcp) await expect(d.getByLabel("Type of finance")).toHaveValue("Hire purchase");
     await expect(d.getByText("We don't ask for income, date of birth or bank details.")).toBeVisible();
     await expect(d.getByLabel(/income|date of birth|bank/i)).toHaveCount(0);
 
@@ -113,6 +142,19 @@ test.describe("finance application", () => {
     await choose(d.getByLabel("Employment status"), "Self-employed");
     await d.getByRole("button", { name: "Send details" }).click();
     await expect(d.getByRole("heading", { name: "Thanks, we have your details." })).toBeFocused();
+  });
+
+  test("Apply on PCP carries PCP over with the deposit and term", async ({ page }) => {
+    test.skip(!FINANCE.pcp, "This dealer offers hire purchase only");
+    await open(page, `/used-cars/${live.slug}`);
+    await calc(page).getByRole("button", { name: "PCP" }).click();
+    await calc(page).getByLabel("Deposit").fill("4000");
+    await choose(calc(page).getByLabel("Term"), "24 months");
+    await page.getByRole("button", { name: "Apply" }).click();
+    const d = page.getByRole("dialog", { name: "Apply" });
+    await expect(d.getByLabel("Type of finance")).toHaveValue("PCP");
+    await expect(d.getByLabel("Deposit")).toHaveValue("4000");
+    await expect(d.getByLabel("Term")).toHaveValue("24 months");
   });
 
   test("a car page works out finance on that car's price and applies for that car", async ({ page }) => {

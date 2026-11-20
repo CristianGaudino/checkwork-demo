@@ -11,10 +11,11 @@ export async function GET(req: Request) {
     return Response.json({ error: "bad ids" }, { status: 400, headers });
   }
   const ids = [...new Set(raw)];
+  const withFeatures = new URL(req.url).searchParams.get("features") === "1"; // the compare page lists the equipment
   const found = await stock.getByIds(ids);
-  // The card uses neither the text nor the equipment, and no internal date (sold, listed) reaches the browser (owner rule, Phase 2).
+  // The card uses neither the text nor the equipment (compare asks for the equipment), and no internal date (sold, listed) reaches the browser (owner rule, Phase 2).
   // Undefined keys are left out of the JSON.
-  const cars = found.filter((c): c is Car => c !== null).map((c) => ({ ...c, description: undefined, features: undefined, listedAt: undefined, soldAt: c.soldAt && "sold" }));
+  const cars = found.filter((c): c is Car => c !== null).map((c) => ({ ...c, description: undefined, features: withFeatures ? c.features : undefined, listedAt: undefined, soldAt: c.soldAt && "sold" }));
   const goneIds = ids.filter((_, i) => found[i] === null);
   return Response.json({ cars, goneIds }, { headers });
 }

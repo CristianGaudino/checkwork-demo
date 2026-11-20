@@ -24,9 +24,10 @@ import { hasModule } from "@/lib/modules";
 
 export const metadata = { title: "Edit car" };
 
-export default async function Page({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ cost?: string }> }) {
+export default async function Page({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ cost?: string; photos?: string }> }) {
   const { id } = await params;
-  const costSaved = (await searchParams).cost === "saved";
+  const sp = await searchParams;
+  const costSaved = sp.cost === "saved";
   const [car, deposits] = await Promise.all([adminCar(id), hasModule("sales")]);
   if (!car) notFound();
   // A hidden car or a draft has no page on the website to view.
@@ -99,6 +100,7 @@ export default async function Page({ params, searchParams }: { params: Promise<{
     <>
       <PageHeader title={carName(car)} actions={steps} back={{ href: "/dashboard/stock", label: "Stock" }} />
       {/* Photos first: they are the job on the forecourt, and they save on their own, apart from the form's Save changes. */}
+      {sp.photos === "failed" && <Notice tone="warn">The car is saved, but its photos did not upload. Add them below.</Notice>}
       <CarPhotos carId={car.id} photos={car.photos} max={CAR_PHOTOS_MAX} />
       <CarForm car={car} cost={cost} />
       {prep}

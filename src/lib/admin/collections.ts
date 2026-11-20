@@ -102,8 +102,10 @@ function seedLeads(): Lead[] {
     const type = r.pick(SEED_TYPES);
     const p = person(r);
     const car = type === "find-a-car" || type === "general" || type === "sell" ? undefined : livePicks(r);
-    const age = i < 6 ? r.int(1, 30) * HOUR : (i - 4) * r.int(6, 14) * HOUR + r.int(0, 5) * HOUR;
-    const status: LeadStatus = age < 30 * HOUR ? "new" : r.pick(["new", "contacted", "contacted", "appointment", "won", "lost"] as const);
+    // The newest came in this morning, so they stay within the reply target through the day after the daily reset (worker.mjs). An older
+    // one has been answered, so only a few new leads are late, as at a real dealer.
+    const age = i < 6 ? r.int(1, 10) * HOUR : (i - 4) * r.int(6, 14) * HOUR + r.int(0, 5) * HOUR;
+    const status: LeadStatus = age < 30 * HOUR ? "new" : r.pick(["contacted", "contacted", "appointment", "won", "lost"] as const);
     return {
       id: `lead-${1000 + i}`,
       type,
@@ -192,7 +194,7 @@ export const demoLeads = seedLeadsWithEdges;
 
 // ---- Test drives ----
 // The statuses live with the pure drive rules (drives.ts), so the overview and the pages share them without the stores.
-import { DRIVE_STATUSES, DRIVE_STATUS_LABELS, settleSeededDrive, type DriveStatus } from "./drives";
+import { DRIVE_STATUSES, DRIVE_STATUS_LABELS, seededSlot, settleSeededDrive, type DriveStatus } from "./drives";
 export { DRIVE_STATUSES, DRIVE_STATUS_LABELS, type DriveStatus };
 // assignedTo: the team member taking the customer out (a name, as on a lead). A website request has nobody until someone takes it.
 export type TestDrive = { id: string; name: string; email: string; phone: string; carSlug: string; carTitle: string; startsAt: number; status: DriveStatus; notes: string; assignedTo?: string; createdAt: number };
@@ -206,20 +208,22 @@ function seedDrives(): TestDrive[] {
     const car = livePicks(r);
     const upcoming = i < 9;
     const day = upcoming ? r.int(0, 9) : -r.int(1, 14);
-    const at = irishAt(now + day * DAY, r.int(10, 17), r.pick([0, 30]));
+    const at = seededSlot(dublinDay(now + day * DAY), `${r.int(10, 17)}:${r.pick(["00", "30"])}`, upcoming ? 1 : -1);
     const { startsAt, status } = settleSeededDrive(at, upcoming ? r.pick(["requested", "confirmed", "confirmed"] as const) : r.pick(["completed", "completed", "completed", "no-show", "cancelled"] as const), now);
     const notes = r.pick(["", "", "Bringing a partner.", "Wants to compare with another car."]);
     return { id: `drive-${200 + i}`, ...person(r), carSlug: car.slug, carTitle: carTitleOf(car), startsAt, status, notes, ...(status !== "requested" && { assignedTo: DRIVERS[i % 3] }), createdAt: now - (Math.abs(day) + 2) * DAY };
   });
 }
-// Today's and tomorrow's diary, so the demo never opens on an empty day (a random day can miss it). Not 11:00, which the tests book.
+// Today's and tomorrow's diary, so the demo never opens on an empty day (a random day can miss it). Not 11:00, which the tests book. On a
+// day we are closed they move to the next open one, as every seeded booking does (seededSlot).
 function seedDiary(): TestDrive[] {
   const r = rng(137);
   const now = Date.now();
   const forSale = (demoCars as Car[]).filter((c) => !c.soldAt && !c.reserved);
+  const first = r.int(0, forSale.length - 1);
   return ([[0, 12, 30, "confirmed"], [0, 15, 0, "confirmed"], [0, 17, 0, "requested"], [1, 10, 0, "requested"], [1, 16, 30, "confirmed"]] as const).map(([day, h, m, seeded], i) => {
-    const car = r.pick(forSale);
-    const { startsAt, status } = settleSeededDrive(irishAt(now + day * DAY, h, m), seeded, now);
+    const car = forSale[(first + i) % forSale.length]; // a different car each, so the diary never books one car twice at once
+    const { startsAt, status } = settleSeededDrive(seededSlot(dublinDay(now + day * DAY), `${h}:${String(m).padStart(2, "0")}`), seeded, now);
     // Booked in the last day: today's and tomorrow's diary was mostly filled lately.
     return { id: `drive-${230 + i}`, ...person(r), carSlug: car.slug, carTitle: carTitleOf(car), startsAt, status, notes: i === 1 ? "Bringing a partner." : "", ...(status !== "requested" && { assignedTo: DRIVERS[i % 2] }), createdAt: now - (i + 1) * 5 * HOUR };
   });

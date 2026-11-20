@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 vi.mock("next/cache", () => ({ revalidatePath: () => {} }));
 vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => undefined }), headers: async () => ({ get: () => null }) }));
-const { addDriveAction, assignDriveAction, setDriveStatusAction } = await import("./actions");
+const { addDriveAction, assignDriveAction, moveDriveAction, setDriveStatusAction } = await import("./actions");
 const { drivesStore, getSettings } = await import("@/lib/admin/collections");
 const { noticesStore } = await import("@/lib/admin/notifications");
 const { adminCars } = await import("@/lib/admin/stock-admin");
@@ -35,6 +35,16 @@ describe("a booking taken at the desk", () => {
     const holiday = firstDay(1, isBankHoliday);
     if (holiday) expect((await addDriveAction(undefined, form(await base({ date: holiday }))))?.errors?.date).toBe("That's a bank holiday. We're closed");
     expect((await addDriveAction(undefined, form(await base({ time: "06:00" }))))?.errors?.time).toMatch(/^Choose a time from /);
+    // Saturday closes at 16:00, so the last drive starts at 15:00: 17:30 is refused on the server, whatever the form sent.
+    const sat = firstDay(1, (d) => new Date(`${d}T12:00:00Z`).getUTCDay() === 6 && driveTimes(d).length > 0)!;
+    expect((await addDriveAction(undefined, form(await base({ date: sat, time: "17:30" }))))?.errors?.time).toBe("Choose a time from 10:00 to 15:00");
+  });
+  it("refuses moving a booking to a closed day or out of hours", async () => {
+    const drive = (await drivesStore.list()).find((d) => d.status === "requested" || d.status === "confirmed")!;
+    const closed = firstDay(1, (d) => driveTimes(d).length === 0 && !isBankHoliday(d))!;
+    expect((await moveDriveAction(drive.id, undefined, form({ date: closed, time: "11:00" })))?.errors?.date).toBe("We're closed that day");
+    expect((await moveDriveAction(drive.id, undefined, form({ date: open(20), time: "18:30" })))?.errors?.time).toMatch(/^Choose a time from /);
+    expect((await drivesStore.get(drive.id))!.startsAt).toBe(drive.startsAt);
   });
   it("books a free time, refuses the same car within the slot, and keeps who takes them out only if they are on the team", async () => {
     const team = (await getSettings()).team;

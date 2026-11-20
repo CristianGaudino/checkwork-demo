@@ -9,14 +9,15 @@ import { can, currentMember } from "@/lib/permissions";
 import { stockSource } from "@/lib/stock-source";
 import { carName, priceLabel } from "@/lib/stock/format";
 import { forSale } from "@/lib/stock/types";
-import { requireModule } from "@/lib/modules";
+import { hasModule } from "@/lib/modules";
+import { NotInPlan } from "@/components/admin/NotInPlan";
 
 export const metadata = { title: "Reserve" };
 
 // Take a deposit on a car for sale, or see the one on it: Mark sold turns it into the sale, and owners and managers can end it with the
 // deposit refunded or kept. Our version only: DoneDeal stock is not reserved here.
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
-  await requireModule("sales"); // deposits are the sales module (#173)
+  if (!(await hasModule("sales"))) return <NotInPlan id="sales" />; // deposits are the sales module (#173)
   const { id } = await params;
   const [car, reservations, customers, { team }, me, source, canEnd] = await Promise.all([adminCar(id), reservationsStore.list(), customersStore.list(), getSettings(), currentMember(), stockSource(), can("settings")]);
   const held = car && heldFor(reservations, car.id);

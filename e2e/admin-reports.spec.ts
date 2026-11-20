@@ -14,6 +14,7 @@ test("owners, managers and finance see the full report with profit; the period f
   }
   await page.getByRole("navigation", { name: "Period" }).getByRole("link", { name: "3 months" }).click();
   await expect(page).toHaveURL(/period=3$/);
+  await page.getByText("Each month", { exact: true }).click();
   await expect(page.getByRole("region", { name: "Sales by month" }).getByRole("table").last().getByRole("row")).toHaveCount(4); // a header and three months (the first table is the chart's, for screen readers)
   expect((await page.request.get("/dashboard/reports?period=7")).status()).toBe(200); // a bad period falls back
 });

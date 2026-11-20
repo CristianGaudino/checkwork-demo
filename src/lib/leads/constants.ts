@@ -81,6 +81,8 @@ export const PHOTO_MIN_ERROR = `Add at least ${PHOTO_MIN_COUNT} photos so we can
 // cars the buyer likes, and none is fine. Read by the form and by the server, so they never differ.
 export const PHOTO_LIMITS = { trade_in: { min: PHOTO_MIN_COUNT, max: PHOTO_MAX_COUNT }, sourcing: { min: 0, max: 6 } } as const;
 export const PHOTO_SLOTS = ["Front", "Back", "Driver's side", "Passenger's side", "Interior front", "Interior back", "Dashboard and mileage", "Any damage"];
+// What the pages say about photos, in step with the picker: its first PHOTO_MIN_COUNT slots are required, the rest recommended.
+export const PHOTO_NOTES = [`The ${PHOTO_MIN_COUNT} we need: ${PHOTO_SLOTS.slice(0, PHOTO_MIN_COUNT).join(", ")}.`, `More is better: ${PHOTO_SLOTS.slice(PHOTO_MIN_COUNT).filter((s) => s !== "Any damage").join(", ")}.`, "Include photos of any damage, even small marks."];
 
 // Test drives (a booking is a lead with a day and a time), the same rules for the website and the dashboard. The days and hours come from
 // OPENING_HOURS, so they never disagree with the opening times on the site. Slots start when we open and stop an hour before we close.

@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { HOUR } from "@/lib/time";
 
 vi.mock("server-only", () => ({}));
 
@@ -26,6 +27,17 @@ describe("demo records", () => {
     vi.stubEnv("APP_ENV", "production");
     vi.stubEnv("DEMO_RECORDS", "on");
     expect((await (await fresh()).leadsStore.list()).length).toBeGreaterThan(10);
+  });
+
+  it("opens with a few new leads late, not all of them, and still so at the end of the day it was reset", async () => {
+    const { overview } = await import("./overview");
+    const { isSalesLead } = await import("./leads");
+    const leads = (await (await fresh()).leadsStore.list()).filter(isSalesLead);
+    for (const now of [Date.now(), Date.now() + 10 * HOUR]) {
+      const o = overview({ leads, drives: [], reviews: [], now, slaHours: 24 });
+      expect(o.lateLeads).toBeGreaterThan(0);
+      expect(o.lateLeads).toBeLessThan(o.newLeads / 2);
+    }
   });
 });
 

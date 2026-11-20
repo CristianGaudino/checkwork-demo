@@ -41,6 +41,21 @@ describe("carFromForm", () => {
     expect(r.ok && r.car.features).toEqual(["Sat Nav", "Heated seats"]);
     expect(r.ok && r.car).toMatchObject({ vat: "ex", wasPriceEur: 16000, bodySlug: "estate" });
   });
+  it("keeps CO2 and motor tax for any car, and the battery figures only for a car with a plug", () => {
+    const ev = { co2GKm: "0", motorTaxEur: "120", evRangeKm: "270", batteryKwh: "40", acChargeKw: "6.6", dcChargeKw: "50", charge10To80Mins: "45" };
+    expect(carFromForm(form({ ...ev, fuel: "electric" }), "1")).toMatchObject({ ok: true, car: { co2GKm: 0, motorTaxEur: 120, evRangeKm: 270, batteryKwh: 40, acChargeKw: 6.6, dcChargeKw: 50, charge10To80Mins: 45 } });
+    expect(carFromForm(form({ ...ev, fuel: "plug-in-hybrid" }), "1")).toMatchObject({ car: { evRangeKm: 270 } });
+    // Changing the fuel to petrol clears what the car had, the stored figures included.
+    const petrol = carFromForm(form({ ...ev, fuel: "petrol" }), "1", { evRangeKm: 270, batteryKwh: 40, photos: [] } as unknown as Car);
+    expect(petrol.ok && petrol.car).toMatchObject({ co2GKm: 0, motorTaxEur: 120 });
+    for (const k of ["evRangeKm", "batteryKwh", "acChargeKw", "dcChargeKw", "charge10To80Mins"]) expect(petrol.ok && petrol.car).not.toHaveProperty(k);
+  });
+  it("refuses battery, charging, CO2 and tax figures out of range", () => {
+    const r = carFromForm(form({ fuel: "electric", co2GKm: "-1", motorTaxEur: "12.5", evRangeKm: "0", batteryKwh: "400", acChargeKw: "abc", dcChargeKw: "5000", charge10To80Mins: "2.5" }), "1");
+    expect(r.ok).toBe(false);
+    if (r.ok) return;
+    expect(Object.keys(r.errors).sort()).toEqual(["acChargeKw", "batteryKwh", "charge10To80Mins", "co2GKm", "dcChargeKw", "evRangeKm", "motorTaxEur"]);
+  });
   it("rejects bad input with a message per field", () => {
     const r = carFromForm(form({ make: " ", year: "1850", priceEur: "12.5", nctExpiry: "07/2027" }), "1");
     expect(r.ok).toBe(false);

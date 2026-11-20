@@ -13,6 +13,7 @@ import { AI_MODELS, KINDS, MODULE_EUR, SHOW_PRICING, TERM_LABELS, allowanceFor, 
 import { billingSettings, monthCounts, monthUsage } from "@/lib/billing/usage";
 import { askModuleAction, removeAlertAction, saveAiModelAction } from "./actions";
 import { dublinDay } from "@/lib/admin/format";
+import { ChevronDownIcon } from "@/components/stock/icons";
 
 export const metadata = { title: "Billing" };
 
@@ -39,7 +40,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
   const scopes: Scope[] = [...services, "total"];
   return (
     <>
-      <PageHeader title="Billing" />
+      <PageHeader title="Billing" text="What you pay us each month, and what you have used so far." />
       <Segmented label="Billing sections" items={SECTIONS.map(([k, label]) => ({ label, href: k === "plan" ? "/dashboard/billing" : `/dashboard/billing?section=${k}`, active: k === section }))} />
 
       {section === "plan" && <PlanAndUsage modules={modules} services={services} usage={usage} counts={counts} b={b} now={today()} />}
@@ -126,6 +127,12 @@ function PlanAndUsage({ modules, services, usage, counts, b, now }: { modules: M
   const lines = planLines(modules, b).map((l) => [l.label, l.eur] as const);
   return (
     <>
+      {/* What most people come for first: this month's bill. The detail is below it. */}
+      <StatGrid>
+        <StatCard label={`This month's bill with ${VAT_PCT}% VAT`} value={eur(withVat(bill))} hint="Estimate" />
+        <StatCard label="Before VAT" value={eur(bill)} hint="Estimate" />
+        {services.length > 0 && <StatCard label="Usage so far" value={eur(sofar)} hint={`About ${eur(estimate)} by month end`} />}
+      </StatGrid>
       <Panel title="Your plan">
         <dl className="flex flex-col divide-y divide-hairline text-body">
           {lines.map(([label, n]) => (
@@ -162,6 +169,43 @@ function PlanAndUsage({ modules, services, usage, counts, b, now }: { modules: M
         )}
       </Panel>
 
+      <Panel title="Usage this month">
+        {services.length === 0 ? (
+          <EmptyState title="No usage is billed" text="Nothing on your site is charged per use." />
+        ) : (
+          <ul className="flex flex-col divide-y divide-hairline">
+            {services.map((s) => (
+              <li key={s}>
+                {/* One line each, the detail one tap away. */}
+                <details className="group">
+                  <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-4 py-2 text-body [&::-webkit-details-marker]:hidden">
+                    <span className="font-medium">{SERVICE_LABELS[s]}</span>
+                    <span className="flex items-center gap-2 tabular-nums">
+                      {eur(usage[s].costEur)}
+                      <ChevronDownIcon aria-hidden="true" className="size-4 text-text-2 transition-transform group-open:rotate-180" />
+                    </span>
+                  </summary>
+                  <div className="flex flex-col gap-2 pb-4">
+                    <DataTable
+                      bare
+                      rows={usage[s].kinds}
+                      rowKey={(k) => k.kind}
+                      columns={[
+                        { key: "kind", header: "What", cell: (k) => k.label },
+                        { key: "count", header: "Uses", align: "right", cell: (k) => fmtNum(k.count) },
+                        { key: "price", header: "Each", align: "right", hide: "sm", cell: (k) => eur(UNIT[s][k.kind]) },
+                        { key: "cost", header: "So far", align: "right", cell: (k) => eur(k.costEur) },
+                      ]}
+                    />
+                    {allowance[s] ? <p className="text-meta text-text-2">The first {fmtNum(allowance[s])} {INCLUDED[s]} a month are in your plan.</p> : null}
+                  </div>
+                </details>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Panel>
+
       <Panel title="Setup fees">
         <dl className="flex flex-col divide-y divide-hairline text-body">
           {setup.map((l) => (
@@ -182,38 +226,6 @@ function PlanAndUsage({ modules, services, usage, counts, b, now }: { modules: M
           </div>
         </dl>
       </Panel>
-
-      <Panel title="Usage this month">
-        {services.length === 0 ? (
-          <EmptyState title="No usage is billed" text="Nothing on your site is charged per use." />
-        ) : (
-          <>
-            <StatGrid>
-              <StatCard label="Usage so far" value={eur(sofar)} />
-              <StatCard label="Usage by month end" value={eur(estimate)} hint="Estimate" />
-              <StatCard label="Bill before VAT" value={eur(bill)} hint="Estimate" />
-              <StatCard label={`Bill with ${VAT_PCT}% VAT`} value={eur(withVat(bill))} hint="Estimate" />
-            </StatGrid>
-            {services.map((s) => (
-              <div key={s} className="flex flex-col gap-2">
-                <h3 className="text-body font-semibold">{SERVICE_LABELS[s]}</h3>
-                <DataTable
-                  bare
-                  rows={usage[s].kinds}
-                  rowKey={(k) => k.kind}
-                  columns={[
-                    { key: "kind", header: "What", cell: (k) => k.label },
-                    { key: "count", header: "Uses", align: "right", cell: (k) => fmtNum(k.count) },
-                    { key: "price", header: "Each", align: "right", hide: "sm", cell: (k) => eur(UNIT[s][k.kind]) },
-                    { key: "cost", header: "So far", align: "right", cell: (k) => eur(k.costEur) },
-                  ]}
-                />
-                {allowance[s] ? <p className="text-meta text-text-2">The first {fmtNum(allowance[s])} {INCLUDED[s]} a month are in your plan.</p> : null}
-              </div>
-            ))}
-          </>
-        )}
-      </Panel>
     </>
   );
 }
@@ -226,7 +238,7 @@ async function WithoutPrices() {
   const off = MODULES.filter((m) => !modules.has(m.id));
   return (
     <>
-      <PageHeader title="Billing" />
+      <PageHeader title="Billing" text="What you pay us each month, and what you have used so far." />
       <Panel title={`Your plan: ${planFor(modules, b).name}`}>
         {on.length > 0 ? (
           // Folded: a long list would bury the billing details below it on a phone.
