@@ -1,6 +1,7 @@
 import { CarForm } from "@/components/admin/CarForm";
 import { PageHeader } from "@/components/admin/kit";
 import { SyncedNotice } from "@/components/admin/SyncedNotice";
+import { CAR_PHOTOS_MAX } from "@/lib/admin/car-photos";
 import { can } from "@/lib/permissions";
 import { stockSource } from "@/lib/stock-source";
 
@@ -20,7 +21,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
   return (
     <>
       <PageHeader title="Add a car" back={{ href: "/dashboard/stock", label: "Stock" }} />
-      <CarForm cost={cost} reg={((await searchParams).reg ?? "").toUpperCase().replace(/[^A-Z0-9-]/g, "").slice(0, 12)} />
+      <CarForm cost={cost} photosMax={CAR_PHOTOS_MAX} reg={((await searchParams).reg ?? "").toUpperCase().replace(/[^A-Z0-9-]/g, "").slice(0, 12)} />
     </>
   );
 }

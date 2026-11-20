@@ -8,11 +8,12 @@ import { useLeaveGuard } from "@/components/admin/useLeaveGuard";
 import { Select } from "@/components/Select";
 import { Field, Panel, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
 import { AITextarea } from "@/components/admin/AIWriter";
+import { NewCarPhotos, type PickedPhoto } from "@/components/admin/CarPhotos";
 import { saveCarAction } from "@/app/dashboard/stock/actions";
 import { lookupRegStaffAction } from "@/app/dashboard/reg-action";
 import { CAR_FIELDS, FIELD_GROUPS } from "@/lib/admin/car-fields";
 import { addMonths, dublinDay, fmtDay, isIsoMonth, monthChoices } from "@/lib/admin/format";
-import type { Car } from "@/lib/stock/types";
+import { PLUG_FUELS, type Car, type Fuel } from "@/lib/stock/types";
 import type { WriteRequest } from "@/lib/ai/tasks";
 import type { FormState } from "@/lib/admin/validation";
 
@@ -33,9 +34,18 @@ const monthOptions = (current: string): (readonly [string, string])[] => {
 // `car` is the car being edited, or none for a new one.
 // `cost` is only given to staff with the margins permission, and the box is not in the page without it.
 // `reg`: a registration to start a new car from (a trade-in taken on a sale).
-export function CarForm({ car, cost, reg: startReg = "" }: { car?: Car; cost?: { eur?: number }; reg?: string }) {
+// `photosMax`: a new car's photos are picked here and go with the form (a saved car's are on its page, apart from the form).
+export function CarForm({ car, cost, reg: startReg = "", photosMax }: { car?: Car; cost?: { eur?: number }; reg?: string; photosMax?: number }) {
   const form = useRef<HTMLFormElement>(null);
-  const [state, action, pending] = useKeptForm<FormState>(saveCarAction.bind(null, car?.id ?? null), undefined, form);
+  const [photos, setPhotos] = useState<PickedPhoto[]>([]);
+  const [state, action, pending] = useKeptForm<FormState>(async (prev, data) => {
+    for (const p of photos) {
+      data.append("photo", p.blob);
+      data.append("photoWidth", String(p.width));
+      data.append("photoHeight", String(p.height));
+    }
+    return saveCarAction(car?.id ?? null, prev, data);
+  }, undefined, form);
   const errors = state?.errors ?? {};
   // What the registration lookup filled in. The boxes are uncontrolled, so a lookup redraws them (`drawn`) from what was typed plus what
   // was found; a box already typed in keeps its value.
@@ -43,6 +53,7 @@ export function CarForm({ car, cost, reg: startReg = "" }: { car?: Car; cost?: {
   const [drawn, setDrawn] = useState(0);
   const [reg, setReg] = useState(startReg);
   const [onRequest, setOnRequest] = useState(car?.priceEur === 0); // a price of 0 says so as it is typed
+  const [fuel, setFuel] = useState<string>(car?.fuel ?? ""); // the battery and charging boxes are for a car with a plug
   useLeaveGuard(form); // a menu tap would throw the edits away
   const value = (name: string): string => {
     if (found[name] !== undefined) return found[name];
@@ -54,6 +65,7 @@ export function CarForm({ car, cost, reg: startReg = "" }: { car?: Car; cost?: {
     const next: Record<string, string> = { ...typed };
     for (const [k, v] of Object.entries(from)) if (v !== undefined && !typed[k]) next[k] = String(v);
     setFound(next);
+    setFuel(next.fuel ?? "");
     setDrawn((n) => n + 1);
   };
 
@@ -76,9 +88,11 @@ export function CarForm({ car, cost, reg: startReg = "" }: { car?: Car; cost?: {
           </div>
         </Panel>
       )}
+      {photosMax !== undefined && <NewCarPhotos photos={photos} onChange={setPhotos} max={photosMax} error={errors.photos} />}
       <div key={drawn} className="flex flex-col gap-6">
       {FIELD_GROUPS.map((group) => (
-        <Panel key={group} title={group}>
+        // Hidden, not left out, for any other fuel: what was typed comes back if the fuel is changed back. The server drops it on save.
+        <Panel key={group} title={group} className={group === "Battery and charging" && !PLUG_FUELS.includes(fuel as Fuel) ? "hidden" : ""}>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {CAR_FIELDS.filter((f) => f.group === group).map((f) => f.name === "description" ? (
               // The description has the AI writer under it, so it is not inside the label the other boxes use.
@@ -90,7 +104,7 @@ export function CarForm({ car, cost, reg: startReg = "" }: { car?: Car; cost?: {
             ) : (
               <Field key={f.name} label={f.label} hint={f.name === "priceEur" && onRequest ? "A price of 0 shows as Price on request on the website, with no finance estimate." : f.hint} error={errors[f.name]} className={f.wide ? "sm:col-span-2 lg:col-span-3" : ""}>
                 {f.type === "select" ? (
-                  <Select name={f.name} defaultValue={value(f.name)} options={[["", f.name === "condition" ? "Used" : "Not set"], ...f.options!.filter(([v]) => !(f.name === "condition" && v === "used"))]} />
+                  <Select name={f.name} defaultValue={value(f.name)} onChange={f.name === "fuel" ? setFuel : undefined} options={[["", f.name === "condition" ? "Used" : "Not set"], ...f.options!.filter(([v]) => !(f.name === "condition" && v === "used"))]} />
                 ) : f.type === "month" ? (
                   <Select name={f.name} defaultValue={value(f.name)} options={monthOptions(value(f.name))} />
                 ) : f.type === "textarea" ? (

@@ -6,7 +6,7 @@ export type FieldSpec = {
   name: string;
   label: string;
   type: "text" | "number" | "select" | "textarea" | "month";
-  group: "Basics" | "Price" | "Details" | "Description and equipment";
+  group: (typeof FIELD_GROUPS)[number];
   options?: readonly (readonly [string, string])[];
   hint?: string;
   step?: string;
@@ -34,11 +34,19 @@ export const CAR_FIELDS: FieldSpec[] = [
   { name: "seats", label: "Seats", type: "number", group: "Details" },
   { name: "owners", label: "Owners", type: "number", group: "Details" },
   { name: "nctExpiry", label: "NCT expiry", type: "month", group: "Details" },
+  { name: "co2GKm", label: "CO2 (g/km)", type: "number", group: "Details" },
+  { name: "motorTaxEur", label: "Motor tax (€ a year)", type: "number", group: "Details" },
+  // Shown for an electric car or a plug-in hybrid only (CarForm); the server drops them for any other fuel.
+  { name: "evRangeKm", label: "Range (km, WLTP)", type: "number", group: "Battery and charging" },
+  { name: "batteryKwh", label: "Battery (kWh)", type: "number", group: "Battery and charging", step: "0.1" },
+  { name: "acChargeKw", label: "Max AC charging (kW)", type: "number", group: "Battery and charging", step: "0.1" },
+  { name: "dcChargeKw", label: "Max DC charging (kW)", type: "number", group: "Battery and charging" },
+  { name: "charge10To80Mins", label: "10 to 80% charge (minutes)", type: "number", group: "Battery and charging" },
   { name: "description", label: "Description", type: "textarea", group: "Description and equipment", wide: true },
   { name: "features", label: "Equipment", type: "textarea", group: "Description and equipment", wide: true, hint: "One item per line" },
 ];
 
-export const FIELD_GROUPS = ["Basics", "Price", "Details", "Description and equipment"] as const;
+export const FIELD_GROUPS = ["Basics", "Price", "Details", "Battery and charging", "Description and equipment"] as const;
 
 // A saved car as the form's boxes, cut to what the AI writer accepts: what "Improve this description" sends for a synced car, which has no form.
 export const carFields = (car: object): Record<string, string> =>

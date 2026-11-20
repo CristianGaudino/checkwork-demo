@@ -33,13 +33,18 @@ export function priceInfo(car: Pick<Car, "priceEur" | "wasPriceEur" | "vat" | "s
     out.was = fmtEur(car.wasPriceEur!);
     out.drop = `${L.reduced} ${fmtEur(car.wasPriceEur! - car.priceEur)}`;
   }
-  // Finance is worked out on what the buyer pays, so an ex. VAT price is taken with VAT on. A reserved car has no finance offer, as on the
-  // rest of its page: a deposit is on it. The deposit is the calculator's own default (none on a car cheaper than it), so the two agree.
-  const payable = payableEur(car);
-  if (financeable(payable) && !car.reserved) {
-    const { defaults } = FINANCE;
-    const q = quote(payable, payable > defaults.depositEur ? defaults.depositEur : 0, defaults.termMonths, defaults.aprPct);
-    if (q) out.financeFrom = `${L.financeFrom} ${fmtEur(Math.round(q.monthlyEur))} ${L.perMonth}`;
-  }
+  const monthly = financeMonthlyEur(car);
+  if (monthly !== undefined) out.financeFrom = `${L.financeFrom} ${fmtEur(monthly)} ${L.perMonth}`;
   return out;
+}
+
+// The estimated monthly payment, in whole euro, or none for a car with no finance offer. Finance is worked out on what the buyer pays, so an
+// ex. VAT price is taken with VAT on. A sold or reserved car has no finance offer, as on the rest of its page. The deposit is the
+// calculator's own default (none on a car cheaper than it), so the two agree.
+export function financeMonthlyEur(car: Pick<Car, "priceEur" | "vat" | "soldAt" | "reserved">): number | undefined {
+  const payable = payableEur(car);
+  if (isSold(car) || onRequest(car) || car.reserved || !financeable(payable)) return undefined;
+  const { defaults } = FINANCE;
+  const q = quote(payable, payable > defaults.depositEur ? defaults.depositEur : 0, defaults.termMonths, defaults.aprPct);
+  return q ? Math.round(q.monthlyEur) : undefined;
 }

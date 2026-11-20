@@ -83,8 +83,25 @@ describe("specRows", () => {
     expect(specRows({ ...full, owners: 0 }).some((r) => r.label === "Owners")).toBe(false);
   });
 
-  it("never shows a road tax row", () => {
+  it("never shows a road tax row of its own: motor tax only as the dealer entered it", () => {
     expect(specRows(full).some((r) => /tax/i.test(r.label))).toBe(false);
+    expect(specRows({ ...full, motorTaxEur: 180, co2GKm: 89 }).filter((r) => ["CO2", "Motor tax"].includes(r.label))).toEqual([
+      { label: "CO2", value: "89 g/km" },
+      { label: "Motor tax", value: "€180 a year" },
+    ]);
+  });
+
+  it("shows an electric car's range, battery and charging, the range in miles too", () => {
+    const leaf: Car = { ...full, fuel: "electric", engineLitres: undefined, co2GKm: 0, evRangeKm: 270, batteryKwh: 40, acChargeKw: 6.6, dcChargeKw: 50, charge10To80Mins: 45 };
+    const rows = specRows(leaf);
+    expect(rows.filter((r) => /Range|Battery|charg/.test(r.label))).toEqual([
+      { label: "Range (WLTP)", value: "270 km", miles: { label: "Range (WLTP)", value: "168 miles" } },
+      { label: "Battery", value: "40 kWh" },
+      { label: "Max AC charging", value: "6.6 kW" },
+      { label: "Max DC charging", value: "50 kW" },
+      { label: "10 to 80% charge", value: "45 min" },
+    ]);
+    expect(rows.find((r) => r.label === "CO2")?.value).toBe("0 g/km"); // 0 is a figure, not a missing one
   });
 });
 
