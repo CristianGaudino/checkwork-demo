@@ -17,7 +17,7 @@ Most big Cork dealers already pay for decent sites (HappyDealer, CarsIreland, mt
 2. "Enquiries, trade-ins, WhatsApp, chat, two branches: who follows up which one?" Leads inbox, follow-ups, staff logins and WhatsApp alerts (Dealer dashboard, WhatsApp).
 3. "Vans need ex. VAT prices for the trade buyer." A commercial section with ex. VAT pricing (Commercial vehicles).
 4. "Every car you list is a post you're not making." Posts and ads from the dashboard with AI drafts (Social and ads, AI writing).
-**Pitch:** Full suite, led by the dashboard and reviews. The site already does most of what a basic site does, so a site swap alone won't sell; two branches, €4.4m of stock and a business that already pays for chat make the dashboard the sale.
+**Pitch:** Group at €898 a month (€749 plus €149 for Mallow), led by the dashboard and reviews. The site already does most of what a basic site does, so a site swap alone won't sell; two branches, €4.4m of stock and a business that already pays for chat make the dashboard the sale. Our site becomes their used-car and van site next to Ford's.
 **Opener:** "You have 910 Google reviews at 4.8 and none of them appear on cavanaghs.com; we put them on the site and bring every enquiry, trade-in and WhatsApp from Charleville and Mallow into one inbox."
 **Caveats:** Ford controls new-car pages; lead with used cars, vans and the dashboard.
 
@@ -30,10 +30,10 @@ Most big Cork dealers already pay for decent sites (HappyDealer, CarsIreland, mt
 - Car pages have Send us a Message, Book a Test Drive and €99 reserve, but no way to value a trade-in (e.g. https://www.blackwatermotors.ie/used/).
 **Sales points:**
 1. "Your 'Value My Vehicle' button is broken: every buyer with a car to trade hits a dead page." Trade-in with photos and reg lookup that works (Trade-in and sell your car, Registration lookup on the website).
-2. "Seven locations, one website, leads by message form: who picks each one up?" Leads inbox, follow-ups, staff roles per branch, WhatsApp alerts (Dealer dashboard, WhatsApp).
+2. "Seven locations, one website, leads by message form: who picks each one up?" Leads inbox, follow-ups, staff roles, WhatsApp alerts (Dealer dashboard, WhatsApp).
 3. "683 reviews for Cork alone, and a buyer on your site sees none." Reviews on the site, replies from the dashboard (Reviews).
-4. "With 650 cars, stock age decides profit." Margins, stock age and reports by branch (Sales and customers, Margins and reports).
-**Pitch:** Full suite, dashboard first. They have a decent self-run site, but at this size (seven locations, about €20m of stock) the dashboard, trade-in and reports are the sale.
+4. "With 650 cars, stock age decides profit." Margins, stock age and reports (Sales and customers, Margins and reports).
+**Pitch:** Group at €1,643 a month (€749 plus €149 for each of the six other locations), dashboard first. They have a decent self-run site, but at this size (seven locations, about €20m of stock) the dashboard, trade-in and reports are the sale.
 **Opener:** "The 'Value My Vehicle' link on blackwatermotors.ie loops back on itself and never loads, so trade-in buyers hit a dead end; we fix that with a reg-lookup valuation form and put every lead from all seven locations in one inbox."
 **Caveats:** VW Group brands control new-car pages; lead with used cars, trade-in and the dashboard. Group decision across seven sites, so expect a longer sale. The broken link is a quick fix for them once pointed out, so use it to open the conversation, not as the whole case.
 
@@ -49,7 +49,7 @@ Most big Cork dealers already pay for decent sites (HappyDealer, CarsIreland, mt
 2. "479 Google reviews, and your site shows none of them." Google reviews on the site, replies from the dashboard (Reviews).
 3. "Buyers text, they don't ring." Leads to your phone and replies by WhatsApp (WhatsApp).
 4. "Which brand and branch makes you money?" Margins, sales reports and stock age (Sales and customers, Margins and reports).
-**Pitch:** Full suite, led by the dashboard. The HappyDealer site is decent, so the case is running three branches from one place, not a new site.
+**Pitch:** Group at €1,047 a month (€749 plus €149 each for Bandon and Clonmel), led by the dashboard. The HappyDealer site is decent, so the case is running three branches from one place, with our site for used cars next to the manufacturers'.
 **Opener:** "You've 324 cars across Silversprings, Bandon and Clonmel and 479 Google reviews, but none of those reviews are on kevinoleary.ie; we put them on the site and every lead from all three showrooms in one inbox."
 **Caveats:** Six franchises, each with its own new-car rules; lead with used cars and the dashboard. Clonmel is in Tipperary, so the decision covers more than Cork.
 
@@ -65,7 +65,7 @@ Most big Cork dealers already pay for decent sites (HappyDealer, CarsIreland, mt
 2. "Two DoneDeal accounts, a Kia page and a used site: one inbox for all of it." Leads inbox and follow-ups (Dealer dashboard, WhatsApp).
 3. "Your new and used cars in one place." New car pages and factory orders next to used stock (New cars and factory orders).
 4. "Every car is a post you're not making." Posts and ads from the dashboard (Social and ads, AI writing).
-**Pitch:** Full suite. Two stock sources, about €7.7m of stock and a paid site plus paid press: they spend, and joining the two businesses up is the value.
+**Pitch:** Dealer at €449. Two stock sources, about €7.7m of stock and a paid site plus paid press: they spend, and joining the two businesses up in one site and one inbox is the value.
 **Opener:** "Your car pages show a trade-in price, but there's nowhere on carsuperstore.ie for a buyer to value their own car; we add a reg-lookup trade-in form and bring Nyhan and Car Superstore leads into one inbox."
 **Caveats:** The link between Nyhan Motors and Car Superstore is from the logo ("Nyhan Motors") and the shared address; confirm it's one business before pitching both. Kia controls new-car pages.
 
@@ -80,8 +80,8 @@ Most big Cork dealers already pay for decent sites (HappyDealer, CarsIreland, mt
 2. "1,400 reviews is a lot to reply to." Reply to Google reviews from the dashboard with AI drafts (Reviews, AI writing).
 3. "Your Black Friday offer belongs on Facebook and Instagram, not just DoneDeal." Posts and ads from the dashboard (Social and ads).
 4. "Which cars make money and which sit?" Margins, stock age and reports (Sales and customers, Margins and reports).
-**Pitch:** Dashboard only, on top of their mtc site, or full suite if they're ready to leave mtc. Not a basic site sale.
-**Opener:** "You've 1,432 Google reviews at 4.8; we give you one dashboard to reply to them, follow up every lead and post your offers, without touching your mtc site."
+**Pitch:** Dealer at €449, plus Social (€99) for the offers they post. Our site replaces mtc for used cars next to Skoda's new-car pages; the dashboard is what they're buying.
+**Opener:** "You've 1,432 Google reviews at 4.8; we give you one dashboard to reply to them, follow up every lead and post your offers."
 **Caveats:** A dashboard sale: their site is already strong. Skoda controls new-car pages. The expired event banner is a day old: mention it lightly, if at all.
 
 ### O'Callaghan Motors (Toyota Kanturk), Kanturk · Tier A, 74/100 (able 45, willing 14, opening 15)
@@ -95,7 +95,7 @@ Most big Cork dealers already pay for decent sites (HappyDealer, CarsIreland, mt
 1. "Your menu sends buyers to a Toyota dealer in Tallaght." A site of your own for used cars, where every link is yours (the site itself).
 2. "166 reviews at 4.6, none on your site." Reviews on the site, replies from the dashboard (Reviews).
 3. "Toyota's template takes the lead; then what?" Leads inbox, follow-ups, WhatsApp alerts (Dealer dashboard, WhatsApp).
-**Pitch:** Dashboard plus Reviews, and a used-car site only if Toyota allows one beside the template. One branch and €2.5m of stock: start with the dashboard.
+**Pitch:** Dealer at €449, with our site as their used-car site next to Toyota's template. One branch and €2.5m of stock: lead with the dashboard and reviews.
 **Opener:** "The 'Explore' link in your site's menu goes to Tadg Riordan Toyota in Tallaght; worth a look, and while you're at it, your 166 Google reviews aren't on the site either."
 **Caveats:** Toyota Ireland controls the template; they may not be able to change much, and they likely don't pay for it themselves.
 
@@ -111,7 +111,7 @@ Most big Cork dealers already pay for decent sites (HappyDealer, CarsIreland, mt
 2. "Buyers want to know what their car is worth before they visit." Trade-in with photos and reg lookup (Trade-in and sell your car).
 3. "Two showrooms, three brands, plus vans: one inbox." Leads inbox, follow-ups, WhatsApp alerts (Dealer dashboard, WhatsApp).
 4. "Van buyers want ex. VAT prices." Commercial section (Commercial vehicles).
-**Pitch:** Full suite at a mid size: site plus Trade-in, Reviews, Commercial and the dashboard. They already pay for HappyDealer and a chat bot.
+**Pitch:** Group at €898 a month (€749 plus €149 for the second showroom): site with trade-in, reviews, commercials and the dashboard. They already pay for HappyDealer and a chat bot.
 **Opener:** "The review on your home page shows a name and a date but no words; we pull in your 143 Google reviews properly and add a trade-in valuation your site doesn't have."
 **Caveats:** Three manufacturers control their new-car pages (Kia also has kia.com/ie/dealer/mallowroadkia); lead with used cars and vans. The empty review may be a star-only review rather than a fault: say "shows no text", not "broken".
 
@@ -126,9 +126,9 @@ Most big Cork dealers already pay for decent sites (HappyDealer, CarsIreland, mt
 1. "Nearly 1,000 Google reviews and not one on your website." Reviews on the site, replies from the dashboard (Reviews, AI writing).
 2. "Toyota gives you the forms; who follows up the leads?" Leads inbox, follow-ups, WhatsApp alerts (Dealer dashboard, WhatsApp).
 3. "Post every used car without typing it out." Posts and ads from the dashboard (Social and ads).
-**Pitch:** Dashboard plus Reviews. The template is Toyota's, so the site itself isn't the sale.
+**Pitch:** Dealer at €449, led by reviews, with our site as their used-car site next to Toyota's template.
 **Opener:** "You've 998 Google reviews at 4.7 and grandons.ie doesn't show one; we put them on and let you reply to them from a single dashboard."
-**Caveats:** Toyota Ireland template: the dealer probably can't change the site and doesn't pay for it, so this is a dashboard sale only, closer to tier B in practice.
+**Caveats:** Toyota Ireland template: the dealer probably can't change the site and doesn't pay for it, so the dashboard is the sale, with our site beside Toyota's for used cars; closer to tier B in practice.
 
 ### Cogans Toyota Cork, Carrigaline · Tier A, 73/100 (able 40, willing 18, opening 15)
 **Who they are:** Toyota main dealer, one site. 54 ads on DoneDeal and 52 used cars on its own site, typical €29,895, about €1.6m. 1,411 Google reviews at 4.8. Toyota Ireland dealer template. Social: X, Instagram, YouTube, Facebook, LinkedIn.
@@ -140,9 +140,9 @@ Most big Cork dealers already pay for decent sites (HappyDealer, CarsIreland, mt
 1. "1,411 reviews at 4.8 is your best salesperson, and it isn't on your website." Reviews on the site, replies from the dashboard (Reviews, AI writing).
 2. "Toyota's forms send you leads; the dashboard makes sure each one gets a reply." Leads inbox and follow-ups (Dealer dashboard, WhatsApp).
 3. "Show off every trade-in you take." Posts and ads from the dashboard (Social and ads).
-**Pitch:** Dashboard plus Reviews; not a site sale.
+**Pitch:** Dealer at €449, led by reviews, with our site as their used-car site next to Toyota's.
 **Opener:** "You've 1,411 Google reviews at 4.8, more than almost any dealer in Cork, and cogans.ie doesn't show one; we put them on the site and give you one place to reply."
-**Caveats:** Same Toyota template as Grandons, O'Callaghan, Lehane and Macroom: a dashboard sale only, closer to tier B.
+**Caveats:** Same Toyota template as Grandons, O'Callaghan, Lehane and Macroom: a Dealer sale led by the dashboard, closer to tier B.
 
 ## Tier B
 
@@ -150,180 +150,180 @@ Most big Cork dealers already pay for decent sites (HappyDealer, CarsIreland, mt
 Kia main dealer, 161 DoneDeal ads (mostly new Kia, typical €45,145), 178 Google reviews at 4.4, HappyDealer site.
 1. The featured EV9 offer on the home page reads "3.9% FINAINCE" (https://www.motorview.ie/): their copy goes up unchecked; AI drafts for car descriptions and posts (AI writing, Social and ads).
 2. No WhatsApp: leads to your phone and replies by WhatsApp (WhatsApp, Dealer dashboard).
-**Pitch:** Dashboard plus Social and WhatsApp; Kia controls new-car pages.
+**Pitch:** Dealer at €449 plus Social (€99), with our site for used cars; Kia controls new-car pages.
 **Opener:** "Your EV9 offer on motorview.ie says '3.9% FINAINCE'; we give you AI-checked descriptions and posts, and every lead in one inbox."
 
 ### Bandon Motors, Bandon · Tier B, 68/100
 Ford and Peugeot dealer, 99 DoneDeal ads (Trusted Dealer), typical €36,950, 150 Google reviews at 4.6. Two sites: bandonmotors.ie (HappyDealer, used) and bandonmotors.com (Ford).
 1. Two websites split buyers between used and new: new and used cars in one place (New cars and factory orders).
 2. No trade-in or "value my car" link on the home page (https://www.bandonmotors.ie/): trade-in with reg lookup (Trade-in and sell your car).
-**Pitch:** Site plus Trade-in and the dashboard.
+**Pitch:** Dealer at €449: one site with trade-in, plus New cars (€99) to bring new and used together.
 **Opener:** "Your buyers have two Bandon Motors websites to choose from and no way to value their trade-in on either home page; we give you one site that does both."
 
 ### Newmarket Motors, Newmarket · Tier B, 68/100
 Volkswagen, VW Commercial, Mercedes-Benz vans and XPENG, 100 DoneDeal ads, typical €38,500, 168 Google reviews at 4.8, HappyDealer site.
 1. Vans from two makers but no ex. VAT section: commercial section (Commercial vehicles).
 2. No trade-in or valuation link on the home page (https://www.newmarketmotors.ie/): trade-in with photos (Trade-in and sell your car).
-**Pitch:** Site plus Commercial, Trade-in and the dashboard.
+**Pitch:** Dealer at €449 plus Commercial (€29): site with trade-in and an ex. VAT van section.
 **Opener:** "You sell VW and Mercedes vans to trade buyers; we give them ex. VAT prices and a trade-in valuation on your own site."
 
 ### Lehane Motors (Toyota & Lexus), Airport Road, Cork · Tier B, 67/100
 Toyota and Lexus main dealer, 88 DoneDeal ads, typical €30,900, Toyota Ireland template site.
 1. No reviews on the home page (https://www.lehanemotors.ie/): Reviews.
 2. Template takes leads, nothing follows them up: Dealer dashboard, WhatsApp.
-**Pitch:** Dashboard plus Reviews; Toyota controls the site.
+**Pitch:** Dealer at €449, led by reviews, with our site as their used-car site next to Toyota's.
 **Opener:** "Toyota's template collects your leads; we give you one inbox to make sure every one gets a call back."
 
 ### Johnson & Perrott Motor Group (JPMG), Bishopstown, Douglas, Mahon Point · Tier B, 66/100
 Ford, Kia, Land Rover, MG, Opel, Peugeot and Volvo across five Cork sites plus MotorStore used cars; the site's search reads "Search 457 Cars". Pays for Trustpilot; site by Dmac Media.
 1. The menu still lists "Customer Feedback: Coming Soon" (https://www.jpmg.ie/): reviews on the site with replies from the dashboard (Reviews).
-2. Five sites and seven brands: leads inbox, staff roles per branch, margins and reports (Dealer dashboard, Margins and reports).
-**Pitch:** Dashboard and reports; the site is reasonably modern.
-**Opener:** "Five showrooms and 457 cars is a lot of leads to track; we give JPMG one inbox, staff roles per branch and margins by brand."
+2. Five sites and seven brands: leads inbox, staff roles, margins and reports (Dealer dashboard, Margins and reports).
+**Pitch:** Group at €1,345 a month (€749 plus €149 for each of the four other sites): one inbox, staff roles, margins and reports. The site is reasonably modern, so lead with the dashboard.
+**Opener:** "Five showrooms and 457 cars is a lot of leads to track; we give JPMG one inbox, staff roles and margins by brand."
 
 ### Colemans Millstreet, Millstreet · Tier B, 65/100
 Kia and New Holland dealer since 1954, 54 DoneDeal ads (some tractors), typical €18,700, 191 Google reviews at 4.4. Has its own HappyDealer site at colemansmillstreet.com.
 1. Cars and tractors share one stock search (https://www.colemansmillstreet.com/): commercial section with ex. VAT pricing for the machinery buyer (Commercial vehicles).
 2. No WhatsApp: WhatsApp leads, the way farmers already talk (WhatsApp).
-**Pitch:** Dashboard plus WhatsApp and Commercial; small.
+**Pitch:** Dealer at €449 plus Commercial (€29); small, so Showroom at €249 is the fallback.
 **Opener:** "Your farm customers already use WhatsApp; we send every enquiry on colemansmillstreet.com straight to your phone."
 
 ### O'Flynn Motors, Mallow (Limerick Road) · Tier B, 65/100
 John O'Flynn Motors, Peugeot dealer, 70 cars and 12 vans on CarsIreland, typical €28,373.
 1. The home page has test drive and quote requests but no finance estimator, trade-in or reviews (https://www.oflynnmotors.ie/): Finance, Trade-in and sell your car, Reviews.
 2. 12 vans: commercial section (Commercial vehicles).
-**Pitch:** Basic used-car site plus Finance and Trade-in.
+**Pitch:** Showroom at €249 plus Commercial (€29): a used-car site with finance and trade-in.
 **Opener:** "Your 70 used cars are on CarsIreland, but your own site has no finance figure or trade-in; we build you a used-car site with both."
 
 ### O'Connor Car Centre, Little Island · Tier B, 63/100
 Biggest independent in the city area: 154 DoneDeal ads, typical €19,388, 183 Google reviews at 5.0, HappyDealer site.
 1. 183 five-star Google reviews; the site shows its own testimonials, not the rating (https://www.oconnorcarcentre.ie/): Reviews.
 2. No trade-in or valuation link on the home page, no WhatsApp: Trade-in and sell your car, WhatsApp.
-**Pitch:** Full suite at independent size; they already pay for HappyDealer.
+**Pitch:** Dealer at €449 at independent size; they already pay for HappyDealer.
 **Opener:** "A perfect 5.0 from 183 Google reviews is the best score in Cork, and your site doesn't show it; we do, and add a trade-in valuation."
 
 ### Great Island Motors, Cobh (Rushbrooke) · Tier B, 63/100
 Independent, 174 cars and 16 vans on CarsIreland, typical €14,675. No website found; greatislandmotors.com shows only a blank "Redirecting..." page and isn't confirmed as theirs.
 1. No website: 174 cars live only on CarsIreland next to competitors' cars (the site itself, stock synced from CarsIreland).
 2. 16 vans: commercial section (Commercial vehicles).
-**Pitch:** Basic site plus Finance and Trade-in; the clearest website sale in Cork.
+**Pitch:** Showroom at €249 plus Commercial (€29); the clearest website sale in Cork. With 174 cars, Dealer at €449 is the step up.
 **Opener:** "You've 174 cars for sale and no website of your own; we give you one, synced from CarsIreland, so buyers see only your cars."
 
 ### Dan Seaman Motors, Forge Hill, Cork city · Tier B, 61/100
 Fiat, Alfa Romeo, Jeep, Chrysler, Mitsubishi, Subaru, Isuzu and Leapmotor; 134 cars and 37 vans on CarsIreland, typical €37,973, HappyDealer site.
 1. 37 vans: commercial section with ex. VAT pricing (Commercial vehicles).
 2. No trade-in or valuation link on the home page (https://www.danseamanmotors.ie/): Trade-in and sell your car.
-**Pitch:** Site plus Commercial, Trade-in and New cars.
+**Pitch:** Dealer at €449 plus Commercial (€29) and New cars (€99 for two brands, €29 for each extra).
 **Opener:** "You've 37 vans for sale and eight brands of new car; we give trade buyers ex. VAT prices and every buyer a trade-in valuation."
 
 ### Finbarr Galvin Bandon, Bandon · Tier B, 61/100
 Skoda, SEAT and CUPRA, family run since 1975, 121 cars on CarsIreland, typical €36,450, HappyDealer site.
 1. No trade-in or valuation link on the home page (https://www.finbarrgalvin.ie/): Trade-in and sell your car.
 2. No WhatsApp: WhatsApp, Dealer dashboard.
-**Pitch:** Site plus Trade-in and the dashboard.
+**Pitch:** Dealer at €449: site with trade-in and the dashboard.
 **Opener:** "Most Skoda buyers have a car to trade; we let them value it on finbarrgalvin.ie before they ring."
 
 ### John Dunne Motors, Turner's Cross, Cork city · Tier B, 59/100
 Independent, 96 cars, typical €13,200, 143 Google reviews at 4.5, CarsIreland dealer site.
 1. No reviews on the home page despite 143 Google reviews (https://www.johndunnemotors.ie/): Reviews.
 2. The site is CarsIreland's template and links back to their CarsIreland page: a site of their own (the site itself).
-**Pitch:** Site plus Reviews.
+**Pitch:** Showroom at €249: a site of their own with their reviews on it.
 **Opener:** "143 Google reviews at 4.5 and johndunnemotors.ie shows none; we put them on a site that's yours, not CarsIreland's."
 
 ### Cork City Ford Centre, Forge Hill, Cork city · Tier B, 59/100
 Official Ford dealer on the Ford Ireland template, 62 cars and 18 vans on CarsIreland, typical €30,725.
 1. Ford's template covers stock and forms; leads still need following up: Dealer dashboard, WhatsApp.
 2. 18 vans: Commercial vehicles.
-**Pitch:** Dashboard only; Ford controls the site.
+**Pitch:** Dealer at €449 plus Commercial (€29), with our site as their used-car and van site next to Ford's template.
 **Opener:** "Ford's template brings the leads; we give you one place to follow each one up."
 
 ### Greenhall Motors, Buttevant · Tier B, 56/100
 Opel and Leapmotor, 56 cars and 15 vans on CarsIreland, nearly-new stock (typical €37,600). Site redirects to greenhallmotors.com.
 1. No trade-in or valuation link on the home page: Trade-in and sell your car.
 2. 15 vans: Commercial vehicles.
-**Pitch:** Site plus Trade-in and Commercial.
+**Pitch:** Showroom at €249 plus Commercial (€29): a site with trade-in and a van section.
 **Opener:** "Your stock is nearly new and your buyers have cars to trade; we let them value theirs on your site."
 
 ### Roskeen Cars & Commercials, Lombardstown · Tier B, 54/100
 Independent, 65 DoneDeal ads (cars and vans), typical €14,950, 106 Google reviews at 4.8, CarsIreland site.
 1. Sells vans: Commercial vehicles.
 2. Leads by phone and WhatsApp only: Dealer dashboard.
-**Pitch:** Dashboard plus Commercial.
+**Pitch:** Dealer at €449 plus Commercial (€29).
 **Opener:** "You sell cars and commercials; we give van buyers ex. VAT prices and you one inbox."
 
 ### Ballincollig Motors, Ballincollig · Tier B, 54/100
 Independent, 62 cars, typical €15,225, 111 Google reviews at 4.2, CarsIreland site.
 1. No reviews on the home page (https://www.ballincolligmotors.ie/): Reviews.
 2. Site is CarsIreland's template, Facebook only: Social and ads.
-**Pitch:** Site plus Reviews and Social.
+**Pitch:** Showroom at €249 for the site and reviews; posting every car for them needs Dealer at €449 plus Social (€99).
 **Opener:** "111 Google reviews and none on your site; we fix that and post every car to Facebook for you."
 
 ### Macroom Motors (Toyota), Macroom · Tier B, 54/100
 Toyota dealer since 1975 with body shop and NCT bay, 98 cars on CarsIreland, Toyota Ireland template.
 1. No reviews on the home page (https://www.macroommotors.com/): Reviews.
 2. Body shop and service: Service and aftersales.
-**Pitch:** Dashboard plus Service.
+**Pitch:** Dealer at €449 plus Service (€49), with our site as their used-car site next to Toyota's.
 **Opener:** "We put your service and body shop bookings in the same dashboard as your car leads."
 
 ### Jimmy Barry Motors, Bantry · Tier B, 54/100
 Independent, 68 cars and 47 vans on CarsIreland (the site shows 116), typical €20,350, 77 Google reviews at 4.6, CarsIreland site.
 1. 47 vans: Commercial vehicles.
 2. The first review on the home page is from 4 years ago (https://www.jimmybarrymotors.ie/): Reviews that update themselves.
-**Pitch:** Site plus Commercial.
+**Pitch:** Showroom at €249 plus Commercial (€29).
 **Opener:** "Nearly half your stock is vans; we give trade buyers their own section with ex. VAT prices."
 
 ### Top Spec Motors, Newmarket · Tier B, 53/100
 Large independent: 281 cars, 69 vans, 27 motorhomes on CarsIreland, typical €22,800, CarsIreland site with forms already.
 1. 380 vehicles: margins, stock age and reports (Margins and reports).
 2. Vans and motorhomes: Commercial vehicles.
-**Pitch:** Dashboard and reports; the site already has the forms.
+**Pitch:** Dealer at €449 plus Margins and reports (€49) and Commercial (€29); the site already has the forms.
 **Opener:** "With 380 vehicles, which ones are sitting? We show you stock age and margins in one dashboard."
 
 ### Denis & Mary Ryan, Bishopstown, Cork city · Tier B, 52/100
 Citroen, DS, Subaru and Maxus, 37 DoneDeal ads, typical €16,500, 133 Google reviews at 4.2, CarsIreland site.
 1. New and used across four brands: New cars and factory orders.
 2. Leads by forms and WhatsApp: Dealer dashboard.
-**Pitch:** Dashboard plus New cars.
+**Pitch:** Dealer at €449 plus New cars (€99 for two brands, €29 for each extra).
 **Opener:** "Four brands of new car and a used forecourt; we put new orders and used leads in one place."
 
 ### D Canny Garage, South Link Road, Cork city · Tier B, 52/100
 Used cars plus new KGM, 46 cars on CarsIreland, typical €24,325, CarsIreland site.
 1. New KGM: New cars and factory orders.
 2. Leads by phone and WhatsApp: Dealer dashboard.
-**Pitch:** Dashboard plus New cars.
+**Pitch:** Dealer at €449 plus New cars (€99).
 **Opener:** "New KGMs and used cars, one inbox for both."
 
 ### Fermoy Nissan, Fermoy · Tier B, 52/100
 Nissan dealer, family run, 45 cars and 20 vans on CarsIreland, typical €23,450, CarsIreland franchise template.
 1. 20 vans: Commercial vehicles.
 2. Leads by forms and WhatsApp: Dealer dashboard.
-**Pitch:** Dashboard plus Commercial.
+**Pitch:** Dealer at €449 plus Commercial (€29), with our site for used cars and vans next to Nissan's.
 **Opener:** "A third of your stock is vans; we give trade buyers ex. VAT prices."
 
 ### Abernethys, Midleton · Tier B, 52/100
 Ford main dealer since 1928, 43 cars on CarsIreland, typical €18,950, Ford Ireland template.
 1. No reviews on the home page (https://www.abernethys.ie/): Reviews.
 2. Ford's forms, no follow-up: Dealer dashboard.
-**Pitch:** Dashboard plus Reviews.
+**Pitch:** Dealer at €449, led by reviews, with our site as their used-car site next to Ford's.
 **Opener:** "Nearly a hundred years in Midleton and your reviews aren't on your website; we put them there."
 
 ### O'Briens Garage Midleton, Midleton · Tier B, 52/100
 Mazda dealer, 39 cars on CarsIreland, typical €32,900, 191 Google reviews at 4.5, CarsIreland franchise template.
 1. Leads by forms: Dealer dashboard, WhatsApp.
 2. Mazda new cars: New cars and factory orders.
-**Pitch:** Dashboard.
+**Pitch:** Dealer at €449, with our site for used cars next to Mazda's.
 **Opener:** "We give you one inbox for every Mazda lead, new and used."
 
 ### Ollie Kierce Cars, Carrigtwohill · Tier B, 51/100
 Independent, 41 DoneDeal ads, typical €16,499, 104 Google reviews at 4.0, HappyDealer site.
 1. No WhatsApp: WhatsApp.
 2. Small stock, owner-run: social posts done for them (Social and ads, AI writing).
-**Pitch:** Basic site plus Social.
+**Pitch:** Showroom at €249; posting every car for them needs Dealer at €449 plus Social (€99).
 **Opener:** "We post every car you take in to Facebook and Instagram, written for you."
 
 ### Fogarty Bros, Killeagh · Tier B, 51/100
 KGM dealer, 23 DoneDeal ads (28 on site), typical €38,650, Google rating 4.9, CarsIreland site.
 1. New KGM: New cars and factory orders.
 2. Small stock: Social and ads.
-**Pitch:** Basic dashboard; small.
+**Pitch:** Showroom at €249; small stock, so Dealer at €449 plus New cars (€99) only if they want KGM orders and leads in one place.
 **Opener:** "We put your new KGM orders and used car leads in one place."

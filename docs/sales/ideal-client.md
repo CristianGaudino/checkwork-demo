@@ -12,7 +12,7 @@ A dealer who **can pay and will pay**: for the basic site, or for the full suite
 - Already on a strong, modern site built in the last year or two with most of what we sell (stock search, finance, trade-in, reviews), unless they are big enough to want the dashboard.
 - Kerry: Cartwright (already being pitched as Carright).
 
-Franchise dealers often have to use the manufacturer's site for new cars. Note it; their used-car side or dashboard can still be a sale.
+Franchise dealers often have to use the manufacturer's site for new cars. Note it; Dealer can still be a sale, with our site as their used-car site next to the manufacturer's.
 
 ## Scoring (out of 100)
 **Able to pay (up to 50)**

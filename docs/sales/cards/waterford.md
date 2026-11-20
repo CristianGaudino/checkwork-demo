@@ -22,7 +22,7 @@ Live demo for every pitch: https://www.demo.checkwork.ie
 2. "Every buyer has a car to trade. Your site doesn't ask for it." Trade-in with photos and registration lookup.
 3. "Nine brands, three websites, one sales team." One stock search and one leads inbox across every showroom: Dealer dashboard, Sales and customers, staff logins and roles per showroom.
 4. "Which brand's leads go cold?" Margins and reports, Site analytics, follow-ups in the dashboard.
-**Pitch:** Full suite. They have the size and already pay an agency. Lead with the dashboard and a group-wide leads inbox, with New cars and factory orders and Commercial vehicles (Fiat Professional, Ford vans). The site rebuild is secondary.
+**Pitch:** Group at €749 plus €149 for each extra showroom. They have the size and already pay an agency. Lead with the dashboard and a group-wide leads inbox, with New cars and factory orders and Commercial vehicles (Fiat Professional, Ford vans). The site rebuild is secondary.
 **Opener:** "Your Volkswagen, Audi and Citroën showrooms have over 1,100 Google reviews between them, and autoboland.ie doesn't show one of them: can I show you a site and dashboard that put them in front of every buyer?"
 **Caveats:** Group decision: expect to deal with group management, not one showroom, and with the mtc contract. Manufacturer sites cover new cars for most brands: lead with used stock, reviews and the dashboard. Waterford Motor Village (tier B below) may also be Boland's.
 
@@ -38,7 +38,7 @@ Live demo for every pitch: https://www.demo.checkwork.ie
 2. "514 reviews at 4.9 is your best salesperson." Reviews module.
 3. "Scrappage and add-ons belong in a price box, not the car's title." Finance estimator with your lender's wording, and clear price and offer fields per car.
 4. "48 vans for VAT-registered buyers." Commercial vehicles section with ex. VAT prices.
-**Pitch:** Used-car site plus dashboard. The Opel template stays for new cars; we sell a used-car and vans site with reviews, trade-in, finance and a leads inbox.
+**Pitch:** Dealer at €449 plus Commercial (€29). The Opel template stays for new cars; we sell a used-car and vans site with reviews, trade-in, finance and a leads inbox.
 **Opener:** "Your website still has a COVID page asking customers to wear a mask, and your 514 reviews at 4.9 aren't on it: can I show you what your used cars and vans would look like on a site you control?"
 **Caveats:** Opel Ireland runs the template, so they may not be able to drop it; lead with used cars, vans and the dashboard.
 
@@ -53,7 +53,7 @@ Live demo for every pitch: https://www.demo.checkwork.ie
 1. "A paid platform, and the social block is empty." Social and ads from the dashboard, with AI drafts for each car.
 2. "Where do your NetDirector leads go?" Dealer dashboard: leads inbox, follow-ups, WhatsApp alerts.
 3. "88 reviews you could grow." Reviews module: show them and reply from the dashboard.
-**Pitch:** Dashboard first, site switch second. They already pay for a platform with most features, so the case is follow-ups, social and one place for leads. If they own BYD Waterford, the pitch is both sites from one dashboard.
+**Pitch:** Dealer at €449 plus Social (€99), dashboard first. They already pay for a platform with most features, so the case is follow-ups, social and one place for leads. If they own BYD Waterford, sell Group for both (€898).
 **Opener:** "You've opened a new dealership and your site invites people to your social channels, but there are no links under it: can I show you how every car you take in becomes a post from one dashboard?"
 **Caveats:** Peugeot may require its template for new cars; lead with used cars and the dashboard. Same owner as BYD Waterford is not confirmed: check before pitching them together.
 
@@ -67,7 +67,7 @@ Live demo for every pitch: https://www.demo.checkwork.ie
 1. "Four brands, four TikTok-ready showrooms, one person posting." Social and ads with AI drafts from the dashboard.
 2. "Which of your 175 cars has been sitting longest, and what did it make?" Margins and reports, stock age.
 3. "355 reviews, one on show." Reviews module with replies from the dashboard.
-**Pitch:** Dashboard, not a rebuild. They already spend on a modern site and four social channels.
+**Pitch:** Dealer at €449 plus Social (€99), led by the dashboard, not the site. They already spend on a modern site and four social channels.
 **Opener:** "You have 175 cars and four social channels to keep fed: can I show you a dashboard that drafts the post for every car and tells you which ones are ageing?"
 **Caveats:** Low opening: the HappyDealer site already does most of what our basic site does, and they may be in a contract. Manufacturer rules cover new Skoda, CUPRA, SEAT and Mazda.
 
@@ -81,7 +81,7 @@ Live demo for every pitch: https://www.demo.checkwork.ie
 1. "98 cars, and your own website shows none of them." Stock search on their own site, synced from their listings.
 2. "Most EV buyers ask 'what's my car worth' and 'what's the monthly'." Trade-in with registration lookup, Finance estimator.
 3. "A new showroom needs its leads in one place." Dealer dashboard with Test drives calendar.
-**Pitch:** Used and nearly-new site plus dashboard, alongside the BYD template for new models. If T & C Motors is the same owner, sell both together.
+**Pitch:** Dealer at €449: a used and nearly-new site next to BYD's template, with the dashboard. If T & C Motors is the same owner, sell Group for both (€898).
 **Opener:** "You've 98 BYDs listed on CarsIreland and none of them on bydwaterford.ie: can I show you your stock on a site of your own, with trade-in and finance on every car?"
 **Caveats:** BYD Ireland controls the template; new cars likely stay there. Ownership link with T & C Motors not confirmed.
 
@@ -93,105 +93,105 @@ Live demo for every pitch: https://www.demo.checkwork.ie
 Suzuki, Maxus and Isuzu dealer, two sites, 143 ads on DoneDeal, 112 reviews shown on its own CarsIreland-built site (farrellautoport.ie).
 1. "Anyone typing https://tramoregarages.ie gets a security warning." The old domain has a certificate for odin.com; plain http redirects to farrellautoport.ie. Easy fix we'd do as part of the switch.
 2. "Two showrooms, one leads inbox." Dealer dashboard, Commercial vehicles for Maxus and Isuzu.
-**Pitch:** Dashboard and commercial section; the current site already has stock, trade-in and test drive.
+**Pitch:** Group at €898 a month (€749 plus €149 for the second showroom), commercial section included; the current site already has stock, trade-in and test drive.
 **Opener:** "Anyone who types your old tramoregarages.ie address on https gets a security warning: want me to show you what we'd do for both your showrooms?"
 
 ### Walsh's Car Sales, Waterford City (Cork Road) and Ferrybank · Tier B, 68/100 (able 45, willing 14, opening 9)
 Nissan dealer, two branches, 62 cars on DoneDeal (typical €30,000), 75 Google reviews at 4.7, HappyDealer site.
-1. "Two branches, one set of leads." Dealer dashboard with staff logins per branch, WhatsApp alerts.
+1. "Two branches, one set of leads." Dealer dashboard with staff logins, WhatsApp alerts.
 2. "No trade-in page." Trade-in with registration lookup.
-**Pitch:** Dashboard plus trade-in; the site itself is modern.
+**Pitch:** Group at €898 a month (€749 plus €149 for Ferrybank), led by one inbox for both; the site itself is modern.
 **Opener:** "You run Cork Road and Ferrybank: can I show you one inbox that puts every lead from both in front of the right salesperson?"
 
 ### Paul O'Connor Cars, Dungarvan · Tier B, 67/100 (able 37, willing 18, opening 12)
 Independent, 92 cars on its own site (79 on DoneDeal), typical €21,000, 559 Google reviews at 4.9, the best-reviewed independent in the county. HappyDealer site.
 1. "559 reviews at 4.9: let them sell." Reviews module with replies from the dashboard.
 2. "A 'We Buy Cars' page but no valuation form." Trade-in with photos and registration lookup.
-**Pitch:** Dashboard plus trade-in and reviews.
+**Pitch:** Dealer at €449, led by reviews and trade-in.
 **Opener:** "You've 559 Google reviews at 4.9, more than any independent in Waterford: can I show you how to put them to work on every car page?"
 
 ### Tom Murphy Car Sales (Toyota and Lexus), Waterford City (Cork Road) · Tier B, 62/100 (able 29, willing 18, opening 15)
 Toyota and Lexus dealer on Toyota Ireland's template; 30 cars on DoneDeal, 613 Google reviews at 4.5, the most in the county.
 1. "613 reviews and none on your site." Reviews module.
 2. "Leads by phone and email go cold." Dealer dashboard, follow-ups.
-**Pitch:** Dashboard and a used-car site beside the Toyota template.
+**Pitch:** Dealer at €449, with our site as their used-car site next to Toyota's template.
 **Opener:** "You've the most Google reviews of any dealer in Waterford and none of them on your website: can I show you the fix?"
 
 ### Cullinane Williams Car Sales, Waterford City (Cork Road) · Tier B, 60/100 (able 37, willing 14, opening 9)
 Independent, 109 cars (typical €22,000), 115 Google reviews at 4.6. CarsIreland-built site (they pay for it).
 1. "Two different WhatsApp numbers on one home page" (089 418 7054 and 086 823 9426, https://www.cullinanewilliams.ie/). WhatsApp module: one number, leads to the right phone.
 2. "115 reviews, none shown." Reviews module.
-**Pitch:** Basic site plus dashboard.
+**Pitch:** Dealer at €449.
 **Opener:** "Your home page sends WhatsApp enquiries to two different numbers: can I show you how every lead lands in one place?"
 
 ### Azkar, Waterford · Tier B, 60/100 (able 37, willing 11, opening 12)
 Biggest independent in the county: 152 cars on DoneDeal (PRESTIGE package), typical €26,995, 170 Google reviews. CarsIreland site.
 1. "152 cars and a premium DoneDeal package: what does each lead cost you?" Site analytics, Margins and reports.
 2. "Leads from three places." Dealer dashboard, WhatsApp.
-**Pitch:** Dashboard; the site already has the forms.
+**Pitch:** Dealer at €449; the site already has the forms, so the inbox and analytics are the sale.
 **Opener:** "You're paying for DoneDeal's top package on 152 cars: can I show you which of them actually bring in buyers?"
 
 ### Sheridan Waterford (Kia), Waterford City (Cork Road) · Tier B, 59/100 (able 36, willing 14, opening 9)
 Kia dealer since 2006 (firm 1915), 53 cars on DoneDeal, about 160 to 170 Google reviews at 4.3, HappyDealer site, also services Ford and does CVRT.
 1. "No trade-in page." Trade-in with registration lookup.
 2. "Service and CVRT customers are tomorrow's buyers." Service and aftersales, Newsletter and alerts.
-**Pitch:** Dashboard with service.
+**Pitch:** Dealer at €449 plus Service (€49).
 **Opener:** "Your workshop sees hundreds of cars a year: can I show you how to turn those service customers into your next trade-ins?"
 
 ### Anthony Duggan Car Sales, Dungarvan · Tier B, 57/100 (able 28, willing 14, opening 15)
 Independent since 2017, 71 cars (typical €21,000), 51 Google reviews at 4.8, DoneDeal-built site ("Powered by DoneDeal").
 1. "Your website is DoneDeal's, not yours." Own site with stock synced from DoneDeal.
 2. "51 reviews at 4.8 not shown." Reviews module.
-**Pitch:** Basic site.
+**Pitch:** Showroom at €249.
 **Opener:** "Your site says 'Powered by DoneDeal' at the bottom: can I show you one that's yours, with the same stock?"
 
 ### Castletown Car Sales, Tramore · Tier B, 57/100 (able 28, willing 14, opening 15)
 Independent since 1981, site carbargains.ie (CarsIreland-built), 49 cars, typical €14,500, 75 Google reviews at 4.9; automatics and cash for cars.
 1. "Your name isn't your web address." A site under their own name.
 2. "Cash-for-cars sellers are trade-ins." Trade-in with photos and registration lookup.
-**Pitch:** Basic site.
+**Pitch:** Showroom at €249.
 **Opener:** "People searching for Castletown Car Sales land on carbargains.ie: can I show you a site under your own name?"
 
 ### H&H Motors, Waterford City (Butlerstown Roundabout) · Tier B, 56/100 (able 34, willing 10, opening 12)
 Renault and Dacia main dealer since 1984, 77 vehicles on its own NetDirector site, 309 reviews at 4.5 shown on the site.
 1. "Leads from the site go where?" Dealer dashboard, follow-ups, WhatsApp alerts.
 2. "A 'Value my car' link, no valuation with photos." Trade-in with photos and registration lookup.
-**Pitch:** Dashboard only; the site is decent.
+**Pitch:** Dealer at €449, with our site for used cars next to Renault's; the site is decent, so lead with what happens to the leads.
 **Opener:** "Your site already does stock and reviews well: can I show you what happens to those leads after they're sent?"
 
 ### Alan Galibert Car Sales, Waterford · Tier B, 56/100 (able 33, willing 11, opening 12)
 Independent, 90 cars, typical €14,995, 95 Google reviews, CarsIreland site, DoneDeal ACCELERATOR package, new ads hourly.
 1. "You list new cars every hour; do you post them?" Social and ads with AI drafts.
 2. "Paid on two platforms." Site analytics to see which brings buyers.
-**Pitch:** Dashboard.
+**Pitch:** Dealer at €449 plus Social (€99).
 **Opener:** "You put a new car up almost every hour: can I show you how each one becomes a post without you writing it?"
 
 ### Premium Autos, Waterford City (Cork Road) · Tier B, 55/100 (able 28, willing 18, opening 9)
 Independent, 71 cars, typical €14,000, 326 Google reviews at 4.4. CarsIreland site.
 1. "326 reviews: a big number for an independent." Reviews module with replies.
 2. "Leads by phone, email and WhatsApp." Dealer dashboard.
-**Pitch:** Dashboard.
+**Pitch:** Dealer at €449.
 **Opener:** "326 Google reviews is a lot for an independent: can I show you how to put them on every car you sell?"
 
 ### Martin Barrett Car Sales, Waterford City (Catherine Street) · Tier B, 54/100 (able 28, willing 14, opening 12)
 Former Skoda dealer, now independent, 57 cars (typical €19,700, mostly 2018 to 2023 Skoda, VW, CUPRA), 93 reviews at 4.4, HappyDealer site.
 1. "No trade-in page." Trade-in.
 2. "Cash for cars and car sourcing, handled how?" Car finder, dashboard.
-**Pitch:** Dashboard plus trade-in.
+**Pitch:** Dealer at €449, led by trade-in.
 **Opener:** "You buy cars and source cars as well as selling them: can I show you one place that tracks all three?"
 
 ### Kieran Sandford Motors, Dungarvan · Tier B, 53/100 (able 24, willing 14, opening 15)
 Independent since 2006, 42 budget cars (typical €8,000), 62 reviews at 4.5, DoneDeal-built site.
 1. "Your website is DoneDeal's." Own site with synced stock.
 2. "Typos in your ads are on your site too" ('Nissian', 'ORGINAL' in listings). AI writing for descriptions.
-**Pitch:** Basic site.
+**Pitch:** Showroom at €249.
 **Opener:** "Can I show you a site that's yours, with your DoneDeal stock on it and descriptions written for you?"
 
 ### Waterford Motor Village, Waterford City (Waterford Business Park) · Tier B, 52/100 (able 25, willing 9, opening 18)
 24 cars on DoneDeal (typical €13,000), 99 reviews at 4.5. The site shows only "New website under construction" (https://www.waterfordmotorvillage.com/, checked 20 Nov 2026).
 1. "Your website is a holding page." The site itself.
 2. "99 reviews with nowhere to show them." Reviews module.
-**Pitch:** Basic site.
+**Pitch:** Showroom at €249.
 **Opener:** "Your website still says it's under construction: we can have it live with your stock in days."
 **Caveat:** Its phone number matches Boland's VW and Ford; check it isn't part of the Boland group before approaching.
 
@@ -199,5 +199,5 @@ Independent since 2006, 42 budget cars (typical €8,000), 62 reviews at 4.5, Do
 Independent, 66 cars (typical €18,000, Japanese import hybrids), 62 reviews at 5.0, HappyDealer site.
 1. "62 reviews at 5.0 and one on show." Reviews module.
 2. "No trade-in page." Trade-in.
-**Pitch:** Basic site upgrades plus reviews.
+**Pitch:** Showroom at €249, with their reviews up front.
 **Opener:** "A perfect 5.0 from 62 reviews: can I show you how to make it the first thing buyers see?"
