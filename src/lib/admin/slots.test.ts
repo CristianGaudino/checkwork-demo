@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { slotState } from "./slots";
+import { firstOpen, slotState } from "./slots";
 
 describe("slotState", () => {
   const taken = ["2026-11-20 11:00"];
@@ -15,5 +15,16 @@ describe("slotState", () => {
   it("is past for a time today that has gone", () => {
     expect(slotState("2026-11-12", "09:00", [], 60, "2026-11-12 09:00")).toBe("past");
     expect(slotState("2026-11-12", "09:30", [], 60, "2026-11-12 09:00")).toBe("open");
+  });
+});
+
+describe("firstOpen", () => {
+  const times = () => ["10:00", "11:00"];
+  it("skips a day whose times are gone or taken", () => {
+    expect(firstOpen(["2026-11-20", "2026-11-21"], ["2026-11-21 10:00"], 60, "2026-11-20 12:00", "", times)).toEqual({ date: "2026-11-21", time: "11:00" });
+  });
+  it("starts after a given day, and is undefined when nothing is free", () => {
+    expect(firstOpen(["2026-11-20", "2026-11-21"], [], 60, "2026-11-19 09:00", "2026-11-20", times)).toEqual({ date: "2026-11-21", time: "10:00" });
+    expect(firstOpen(["2026-11-20"], [], 60, "2026-11-20 12:00", "", times)).toBeUndefined();
   });
 });

@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { DriveStatusBadge } from "@/components/admin/badges";
 import { DriveSteps } from "@/components/admin/DriveSteps";
-import { Badge, DataTable, EmptyState, PageHeader, Panel, Segmented, TableFooter, TableToolbar, adminButton, choicePill, pageOf, sortRows, type Column, type FilterGroup } from "@/components/admin/kit";
-import { CheckIcon, ChevronLeftIcon, ChevronRightIcon, PlusIcon } from "@/components/stock/icons";
+import { Badge, DataTable, EmptyState, PageHeader, Panel, Segmented, TableFooter, TableToolbar, adminButton, choicePill, pageOf, rowButton, sortRows, type Column, type FilterGroup } from "@/components/admin/kit";
+import { CheckIcon, ChevronLeftIcon, ChevronRightIcon, PhoneIcon, PlusIcon } from "@/components/stock/icons";
+import { telHref } from "@/lib/phone";
 import { card } from "@/components/ui";
 import { DRIVE_STATUSES, DRIVE_STATUS_LABELS, drivesStore, getSettings, type DriveStatus, type TestDrive } from "@/lib/admin/collections";
 import { filterDrives, isOpenDrive, waitingDrives } from "@/lib/admin/drives";
@@ -41,6 +42,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
   const onDay = (iso: string) => drives.filter((d) => dublinDay(d.startsAt) === iso).sort((a, b) => a.startsAt - b.startsAt);
   const waiting = waitingDrives(drives);
   const later = waiting.filter((d) => dublinDay(d.startsAt) !== today);
+  // The next six days' confirmed bookings, by day: the diary ahead. Requests are under Still to confirm, so none shows twice.
+  const ahead = Array.from({ length: 6 }, (_, i) => addDays(today, i + 1))
+    .map((iso) => [iso, onDay(iso).filter((d) => d.status === "confirmed")] as const)
+    .filter(([, list]) => list.length > 0);
 
   return (
     <>
@@ -81,6 +86,18 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
               {later.length > 8 && <Link href={link({ view: "list", status: "requested", when: "ahead", day: undefined })} className="w-fit text-meta font-medium underline">See all {later.length}</Link>}
             </Panel>
           )}
+          <Panel title="Next few days" action={<Link href={link({ view: "week" })} className="text-meta font-medium underline">See the week</Link>}>
+            {ahead.length === 0 ? (
+              <p className="text-body text-text-2">Nothing confirmed for the next six days.</p>
+            ) : (
+              ahead.map(([iso, list]) => (
+                <section key={iso} aria-label={fmtDay(iso)} className="flex flex-col gap-1">
+                  <h3 className="text-meta font-semibold text-text-2">{fmtDay(iso)}</h3>
+                  <Agenda drives={list} gone={gone} />
+                </section>
+              ))
+            )}
+          </Panel>
         </>
       )}
 
@@ -114,7 +131,16 @@ function Agenda({ drives, gone, empty = "Nothing booked.", withDay = false }: { 
               {d.carTitle} · {d.assignedTo ?? "Nobody yet"}
             </span>
           </span>
-          <DriveSteps drive={d} className="relative z-10 col-span-2 md:col-span-1 md:col-start-3 md:justify-end" />
+          {/* Call them, then the next step, one press each. */}
+          <span className="relative z-10 col-span-2 flex flex-wrap gap-2 md:col-span-1 md:col-start-3 md:justify-end">
+            {isOpenDrive(d) && telHref(d.phone) && (
+              <a href={telHref(d.phone) ?? undefined} className={rowButton}>
+                <PhoneIcon className="size-4" />
+                Call
+              </a>
+            )}
+            <DriveSteps drive={d} ahead={dublinDay(d.startsAt) > dublinDay()} />
+          </span>
         </li>
       ))}
     </ul>

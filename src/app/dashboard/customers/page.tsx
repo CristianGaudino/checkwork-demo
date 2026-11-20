@@ -5,7 +5,10 @@ import { ActButton } from "@/components/admin/ActButton";
 import { can } from "@/lib/permissions";
 import { notFound } from "next/navigation";
 import { hasModule } from "@/lib/modules";
-import { ALERT_KINDS, ALERT_KIND_LABELS, alertsStore, customersStore, subscribersStore, type Customer, type StockAlert, type Subscriber } from "@/lib/admin/collections";
+import { ALERT_KINDS, ALERT_KIND_LABELS, alertsStore, claimOpen, claimsStore, customersStore, orderOpen, ordersStore, reservationsStore, salesStore, subscribersStore, type Customer, type StockAlert, type Subscriber } from "@/lib/admin/collections";
+import { PhoneIcon } from "@/components/stock/icons";
+import { telHref } from "@/lib/phone";
+import { stockSource } from "@/lib/stock-source";
 import { fmtAgo, fmtDate, fmtNum } from "@/lib/admin/format";
 import { pauseAlertAction, removeAlertAction, unsubscribeAction } from "./actions";
 
@@ -22,7 +25,16 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
   if (!tabs.length) notFound();
   const tab = tabs.find(([k]) => k === sp.tab)?.[0] ?? tabs[0][0];
   const q = (sp.q ?? "").trim().toLowerCase().slice(0, 60);
-  const [customers, alerts, subs] = await Promise.all([customersStore.list(), alertsStore.list(), subscribersStore.list()]);
+  const [customers, alerts, subs, sold, deposits, claims, orders, service, newCars] = await Promise.all([customersStore.list(), alertsStore.list(), subscribersStore.list(), salesStore.list(), reservationsStore.list(), claimsStore.list(), ordersStore.list(), hasModule("service"), hasModule("newCars")]);
+  const ordersOn = newCars && (await stockSource()) !== "donedeal";
+  // What each customer bought last, and what is still open for them (a deposit held, a claim, a factory order), at a glance in the row.
+  const lastBought = new Map<string, { car: string; on: string }>();
+  for (const s of sold) if (s.customerId && !s.returnedOn && (lastBought.get(s.customerId)?.on ?? "") < s.soldOn) lastBought.set(s.customerId, { car: s.carTitle, on: s.soldOn });
+  const open = new Map<string, string[]>();
+  const add = (id: string | undefined, what: string) => id && open.set(id, [...new Set([...(open.get(id) ?? []), what])]);
+  for (const r of deposits) if (r.status === "held") add(r.customerId, "Deposit held");
+  if (service) for (const k of claims) if (claimOpen(k.status)) add(k.customerId, "Warranty claim");
+  if (ordersOn) for (const o of orders) if (orderOpen(o.status)) add(o.customerId, "Car on order");
   const live = subs.filter((s) => s.status === "subscribed").length;
   const sources = [...new Set(customers.map((c) => c.source))].sort();
 
@@ -40,10 +52,33 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
       // A long email still asks for its whole width: the cap keeps Last contact on a phone screen.
       className: "max-w-[12rem] sm:max-w-none",
     },
-    { key: "source", header: "Source", sort: (c) => c.source, cell: (c) => c.source, hide: "sm" },
-    { key: "consent", header: "Marketing", hide: "sm", sort: (c) => (c.marketingConsent ? 0 : 1), cell: (c) => (c.marketingConsent ? <Badge tone="good">Agreed</Badge> : <Badge>No</Badge>) },
-    { key: "added", header: "Customer since", hide: "md", nowrap: true, sort: (c) => c.createdAt, cell: (c) => fmtDate(c.createdAt) },
+    {
+      key: "bought",
+      header: "Bought",
+      hide: "md",
+      sort: (c) => lastBought.get(c.id)?.on,
+      cell: (c) => {
+        const b = lastBought.get(c.id);
+        return b ? <span className="flex flex-col"><span className="line-clamp-2">{b.car}</span><span className="text-meta text-text-2">{fmtDate(`${b.on}T12:00:00Z`)}</span></span> : <span className="text-text-2">Nothing yet</span>;
+      },
+    },
+    { key: "open", header: "Open for them", hide: "sm", sort: (c) => open.get(c.id)?.length ?? 0, cell: (c) => <span className="flex flex-wrap gap-1">{(open.get(c.id) ?? []).map((w) => <Badge key={w} tone="info">{w}</Badge>)}</span> },
+    { key: "source", header: "Came from", sort: (c) => c.source, cell: (c) => c.source, hide: "2xl" },
+    { key: "consent", header: "Marketing", hide: "xl", sort: (c) => (c.marketingConsent ? 0 : 1), cell: (c) => (c.marketingConsent ? <Badge tone="good">Agreed</Badge> : <Badge>No</Badge>) },
     { key: "last", header: "Last contact", sort: (c) => c.lastContactAt, cell: (c) => fmtAgo(c.lastContactAt), align: "right", nowrap: true },
+    {
+      key: "act",
+      header: "Contact",
+      quietHeader: true,
+      hide: "lg",
+      nowrap: true,
+      cell: (c) => (
+        <span className="relative z-10 flex justify-end gap-2">
+          {telHref(c.phone) && <a href={telHref(c.phone) ?? undefined} className={rowButton}><PhoneIcon className="size-4" />Call</a>}
+          {c.email && <a href={`mailto:${c.email}`} className={rowButton}>Email</a>}
+        </span>
+      ),
+    },
   ];
   const alertColumns: Column<StockAlert>[] = [
     { key: "kind", header: "Alert", sort: (a) => ALERT_KIND_LABELS[a.kind], cell: (a) => ALERT_KIND_LABELS[a.kind] },
@@ -104,7 +139,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
 
   return (
     <>
-      <PageHeader title="Customers" text="People who bought from you or asked to hear from you." />
+      <PageHeader title="Customers" text="People who bought from you, and those who asked to hear about cars and offers." />
       {/* The three lists are the summary: each tile is its count and opens its list. */}
       <SummaryTabs
         label="Customer lists"
