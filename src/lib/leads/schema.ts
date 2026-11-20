@@ -119,6 +119,7 @@ const tradeIn = {
 };
 
 // D-17: deposit, term and employment. An application is made from a car page, which sends the car's id; the price comes from the car.
+// With PCP on, the type of finance too (none is hire purchase, as before), and a PCP term must be one PCP offers.
 const BAD_DEPOSIT = "Enter the deposit in euros, numbers only.";
 const finance = {
   carId: given(carId.optional()),
@@ -130,7 +131,8 @@ const finance = {
       .transform(Number)
       .refine((n) => n <= 250000, BAD_DEPOSIT),
   ),
-  term: given(z.enum(FINANCE.terms.map(String) as [string, ...string[]], { error: "Choose a term from the list." }).transform(Number)),
+  product: given(z.enum(FINANCE.pcp ? ["hp", "pcp"] : ["hp"], { error: "Choose a type of finance." }).optional()),
+  term: given(z.enum([...new Set([...FINANCE.terms, ...(FINANCE.pcp?.terms ?? [])])].map(String) as [string, ...string[]], { error: "Choose a term from the list." }).transform(Number)),
   employment: given(z.enum(Object.keys(EMPLOYMENT) as [keyof typeof EMPLOYMENT], { error: "Choose an employment status." })),
 };
 
@@ -164,7 +166,9 @@ export const leadSchema = z
       .refine(needsMessage, { path: ["message"], message: "Tell us how we can help.", when: (p) => typeof p.value === "object" && p.value !== null }),
     z.object({ type: z.literal("order"), ...contact, ...order }),
     z.object({ type: z.literal("trade_in"), ...contact, ...tradeIn }),
-    z.object({ type: z.literal("finance"), ...contact, ...finance }),
+    z
+      .object({ type: z.literal("finance"), ...contact, ...finance })
+      .refine((d) => typeof d.term !== "number" || Boolean((d.product === "pcp" ? FINANCE.pcp?.terms : FINANCE.terms)?.includes(d.term)), { path: ["term"], message: "Choose a term from the list.", when: (p) => typeof p.value === "object" && p.value !== null }),
     z.object({ type: z.literal("test_drive"), ...contact, ...testDrive }).refine((d) => driveTimes(d.driveDate ?? "").includes(d.driveTime ?? "") && dublinMs(d.driveDate ?? "", d.driveTime ?? "") > Date.now(), { path: ["driveTime"], message: BAD_DRIVE_TIME, when: (p) => typeof p.value === "object" && p.value !== null }),
     z.object({ type: z.literal("alert"), ...contact, ...alert }),
   ])
@@ -208,6 +212,7 @@ export const DETAIL_LABELS: Record<string, string> = {
   regPeriod: "Registration period",
   year: "Year",
   budgetMax: "Budget up to",
+  product: "Finance",
   deposit: "Deposit",
   term: "Term (months)",
   employment: "Employment status",
