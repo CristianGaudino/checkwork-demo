@@ -122,7 +122,7 @@ Most big Galway franchise dealers already have decent sites (CarsIreland, HappyD
 3. "392 reviews, none on the site." (Reviews).
 4. "Vans buyers want ex. VAT prices." Commercial section (Commercial vehicles).
 **Pitch:** Group at €1,047 a month (€749 plus €149 each for Tuam and Ennis). The biggest stock in Galway and already paying for a dealer platform.
-**Opener:** "The 'MORE' button on the Skoda offer at the top of alhayesmotors.com links to a file on a PC in your office, so no buyer can open it; that's the kind of thing our dashboard stops happening."
+**Opener:** "The 'MORE' button on the Skoda offer at the top of alhayesmotors.com links to a file on a PC in your office, so no buyer can open it; we'd fix that on a site we look after."
 **Caveats:** Group decision (Portumna, Tuam, Ennis). VW and Skoda have their own dealer sites (alhayesvolkswagen.ie, alhayesskoda.ie) for new cars; lead with used cars and the dashboard. The broken link is easy for them to fix, so use it to open the conversation, not as the whole case.
 
 ### Cunningham Autopoint, Oranmore · Tier A, 72/100 (able 45, willing 15, opening 12)

@@ -101,7 +101,7 @@ Nissan dealer, two branches, 62 cars on DoneDeal (typical €30,000), 75 Google 
 1. "Two branches, one set of leads." Dealer dashboard with staff logins, WhatsApp alerts.
 2. "No trade-in page." Trade-in with registration lookup.
 **Pitch:** Group at €898 a month (€749 plus €149 for Ferrybank), led by one inbox for both; the site itself is modern.
-**Opener:** "You run Cork Road and Ferrybank: can I show you one inbox that puts every lead from both in front of the right salesperson?"
+**Opener:** "You run Cork Road and Ferrybank: can I show you one inbox where every lead from both gets an owner?"
 
 ### Paul O'Connor Cars, Dungarvan · Tier B, 67/100 (able 37, willing 18, opening 12)
 Independent, 92 cars on its own site (79 on DoneDeal), typical €21,000, 559 Google reviews at 4.9, the best-reviewed independent in the county. HappyDealer site.

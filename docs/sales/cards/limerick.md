@@ -34,7 +34,7 @@ Most big Limerick franchise dealers already have decent sites (CarsIreland, Happ
 3. "127 used cars: which ones are sitting too long?" Stock age and margins (Margins and reports).
 4. "Every car is a post you're not making." Social posts and AI drafts from the dashboard (Social and ads, AI writing).
 **Pitch:** Group at €898 a month (€749 plus €149 for Rathkeale), with our site as their used-car site next to Toyota's. Big stock and two branches: the back office is the sale.
-**Opener:** "Toyota runs your website for new cars; we give you the part Toyota doesn't: a used-car site and one inbox for every lead from DoneDeal, the site and the phone, with stock age and margins on your 127 used cars."
+**Opener:** "Toyota runs your website for new cars; we give you the part Toyota doesn't: a used-car site and one inbox for every enquiry from it, with stock age and margins on your 127 used cars."
 **Caveats:** Manufacturer-mandated site: ours sits beside Toyota's as their used-car site, not in its place.
 
 ### James Barry Motors, Limerick city (Dock Road) · Tier A, 80/100 (able 50, willing 18, opening 12)
@@ -60,7 +60,7 @@ Most big Limerick franchise dealers already have decent sites (CarsIreland, Happ
 **Sales points:**
 1. "1,551 reviews at 4.8. Every one of them deserves a reply." Replies and review requests from the dashboard (Reviews).
 2. "171 cars at €38,000 each: the money is in which ones sit." Stock age and margins (Margins and reports).
-3. "Leads come from DoneDeal, CarsIreland, the site and the phone." One inbox with follow-ups and WhatsApp alerts (Dealer dashboard, Sales and customers, WhatsApp).
+3. "Every enquiry from your site in one inbox, with a nudge when one goes cold." Follow-ups and WhatsApp alerts (Dealer dashboard, Sales and customers, WhatsApp).
 **Pitch:** Dealer at €449 plus Margins and reports (€49), dashboard first. €6.6m of stock and a paid platform, but the site already does most things.
 **Opener:** "You have more Google reviews than any dealer in Limerick, 1,551 at 4.8; we'd help you reply to every one and put your 171 cars, leads and margins in one dashboard."
 **Caveats:** Hyundai sets rules for new cars: lead with used and the dashboard. Small website opening, so don't lead with the site.
@@ -86,7 +86,7 @@ Most big Limerick franchise dealers already have decent sites (CarsIreland, Happ
 - The site already has 95 cars, finance and business finance, valuation, WhatsApp, test drive and Google reviews.
 **Sales points:**
 1. "1,255 reviews at 4.7 is a sales tool. Use it." Review requests and replies from the dashboard (Reviews).
-2. "Leads from DoneDeal, the site and WhatsApp in one place, with a nudge when one goes cold." (Dealer dashboard, Sales and customers, WhatsApp).
+2. "Every enquiry from your site in one place, with a nudge when one goes cold." (Dealer dashboard, Sales and customers, WhatsApp).
 3. "Renault's 271 offers change every month: post them in minutes." (Social and ads, AI writing).
 **Pitch:** Dealer at €449 plus Social (€99): €548 a month. Mid-size stock but huge review count and a paid platform; the site has few gaps, so the dashboard is the sale.
 **Opener:** "1,255 Google reviews at 4.7 is more than most Munster dealers; we'd help you turn that into follow-ups and repeat sales from one dashboard."
@@ -102,10 +102,10 @@ Most big Limerick franchise dealers already have decent sites (CarsIreland, Happ
 **Sales points:**
 1. "839 reviews and one on show." Reviews on the site, replies from the dashboard (Reviews).
 2. "Every VW and Skoda buyer has a car to trade. Let them value it online." Trade-in with photos and reg lookup (Trade-in and sell your car, Registration lookup on the website).
-3. "Three DoneDeal accounts, one dealership: leads in one place." Leads inbox and follow-ups (Dealer dashboard, Sales and customers, WhatsApp).
+3. "One dealership, one site: every enquiry in one place." Leads inbox and follow-ups (Dealer dashboard, Sales and customers, WhatsApp). Our sync reads one DoneDeal account, so their three accounts' ads move onto one first.
 4. "A DSG labelled Manual loses the buyer who filters for automatics." Specs filled from the reg (Registration lookup in the dashboard), vans with ex. VAT prices (Commercial vehicles).
 **Pitch:** Dealer at €449 plus Commercial (€29). Biggest franchise stock in the county, four brands plus commercials, already paying HappyDealer.
-**Opener:** "You have 839 Google reviews and one on your homepage, no way for a buyer to value their trade-in, and 'Commericals' spelled wrong in your menu; we fix all three and put all three DoneDeal accounts into one dashboard."
+**Opener:** "You have 839 Google reviews and one on your homepage, no way for a buyer to value their trade-in, and 'Commericals' spelled wrong in your menu; we fix all three and put every enquiry from your site in one dashboard."
 **Caveats:** VW Group and Mercedes-Benz have strict rules for new cars: lead with used, commercials and the dashboard. Stock is counted across three DoneDeal accounts at the same address. The Touareg label is one listing: show it, don't generalise.
 
 ### AutoXpress, Limerick city (Castlepark, Dock Road) · Tier A, 72/100 (able 42, willing 18, opening 12)
@@ -145,7 +145,7 @@ Nissan, Citroen and Mazda franchise, 95 cars (about €2.4m), 157 reviews at 4.6
 
 ### Leonards Motors, Limerick city (Mulgrave Street) · Tier B, 64/100
 Peugeot franchise, 112 cars (typical €46,000, mostly new), 210 reviews at 4.3, modern custom site with finance calculator, part-exchange, Google reviews and WhatsApp.
-**Hooks:** 1. Leads arrive by phone, email, WhatsApp and DoneDeal: "one inbox so none goes cold" (Dealer dashboard, Sales and customers, WhatsApp). 2. 112 cars, many new Peugeots: "which used cars are sitting too long?" (Margins and reports).
+**Hooks:** 1. Enquiries from the site: "one inbox so none goes cold" (Dealer dashboard, Sales and customers, WhatsApp). 2. 112 cars, many new Peugeots: "which used cars are sitting too long?" (Margins and reports).
 **Pitch:** Dealer at €449 plus Margins and reports (€49): €498 a month. The site is new and good (12.5 MB on a phone is the only weak spot), so the dashboard is the sale.
 **Opener:** "Your site already does finance and part-exchange well; we'd add the back office: one inbox for every lead and stock age on your used cars."
 

@@ -18,7 +18,7 @@ Most big Cork dealers already pay for decent sites (HappyDealer, CarsIreland, mt
 3. "Vans need ex. VAT prices for the trade buyer." A commercial section with ex. VAT pricing (Commercial vehicles).
 4. "Every car you list is a post you're not making." Posts and ads from the dashboard with AI drafts (Social and ads, AI writing).
 **Pitch:** Group at €898 a month (€749 plus €149 for Mallow), led by the dashboard and reviews. The site already does most of what a basic site does, so a site swap alone won't sell; two branches, €4.4m of stock and a business that already pays for chat make the dashboard the sale. Our site becomes their used-car and van site next to Ford's.
-**Opener:** "You have 910 Google reviews at 4.8 and none of them appear on cavanaghs.com; we put them on the site and bring every enquiry, trade-in and WhatsApp from Charleville and Mallow into one inbox."
+**Opener:** "You have 910 Google reviews at 4.8 and none of them appear on cavanaghs.com; we put them on the site and bring every enquiry and trade-in from Charleville and Mallow into one inbox."
 **Caveats:** Ford controls new-car pages; lead with used cars, vans and the dashboard.
 
 ### Blackwater Motors, Cork (Airport Road), Fermoy, Skibbereen · Tier A, 84/100 (able 50, willing 13, opening 21)
@@ -62,10 +62,10 @@ Most big Cork dealers already pay for decent sites (HappyDealer, CarsIreland, mt
 - Car pages are good: Enquire, Finance, Reserve, Test Drive and Delivery are all there.
 **Sales points:**
 1. "You price cars with and without a trade-in, but a buyer can't find out what theirs is worth." Trade-in with photos and reg lookup (Trade-in and sell your car, Registration lookup on the website).
-2. "Two DoneDeal accounts, two businesses: one site and one inbox for both." Leads inbox and follow-ups (Dealer dashboard, WhatsApp).
+2. "Two businesses: one site and one inbox for both." Leads inbox and follow-ups (Dealer dashboard, WhatsApp).
 3. "Your new and used cars in one place." New car pages and factory orders next to used stock (New cars and factory orders).
 4. "Every car is a post you're not making." Posts and ads from the dashboard (Social and ads, AI writing).
-**Pitch:** Dealer at €449 plus New cars (€99, Kia) and Social (€99): €647 a month. Two stock sources, about €7.7m of stock and a paid site plus paid press: they spend, and joining the two businesses up in one site and one inbox is the value.
+**Pitch:** Dealer at €449 plus New cars (€99, Kia) and Social (€99): €647 a month. About €7.7m of stock and a paid site plus paid press: they spend, and joining the two businesses up in one site and one inbox is the value. Our sync reads one DoneDeal account, so they move their ads onto one first.
 **Opener:** "Your car pages show a trade-in price, but there's nowhere on carsuperstore.ie for a buyer to value their own car; we add a reg-lookup trade-in form and bring Nyhan and Car Superstore leads into one inbox."
 **Caveats:** The link between Nyhan Motors and Car Superstore is from the logo ("Nyhan Motors") and the shared address; confirm it's one business before pitching both. Kia controls new-car pages.
 

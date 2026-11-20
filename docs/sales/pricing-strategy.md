@@ -110,4 +110,4 @@ So Checkwork is a second bill alongside their listings. It has to pay for itself
 Reviews on Showroom sites without the dashboard (#224), the tiers with allowances, new-car brand pricing and payment terms (#223), and "Improve this description" for synced cars (#225). Prices show on the Billing page and the demo bar.
 
 ## Later
-Multi-branch, one inbox across a group's branches (#226): built when an actual franchise or multi-branch dealer signs up. Until then, a group with more branches pays Group plus €149 a branch, and each branch's lookups and WhatsApp alerts are added to its allowance.
+Multi-branch: per-branch stock, inboxes and reports, and one inbox across separate sites (#226): built when an actual franchise or multi-branch dealer signs up. Until then, a group with more branches pays Group plus €149 a branch, and each branch's lookups and WhatsApp alerts are added to its allowance.
