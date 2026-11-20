@@ -5,7 +5,8 @@ What dealers will say, what they usually mean, and what to say back. Prices are 
 ## Ground rules
 - Agree first, then answer with their own numbers from the card.
 - Never discount. The only offers are in the pricing doc: a year upfront gets a month free; a 2-year contract waives setup.
-- Only promise what's built: one site per dealer, with one leads inbox for its enquiries and reviews from one Google listing. Not built yet: one inbox across separate sites, per-branch or per-brand reports, several Google listings, leads from outside the site (Facebook, DoneDeal or CarsIreland messages, phone enquiries), syncing several DoneDeal accounts.
+- Only promise what's built: one site per dealer, with one leads inbox for its enquiries and reviews from one Google listing. Not built yet: one inbox across separate sites, per-branch or per-brand reports, several Google listings, leads from outside the site (manufacturer sites, chat tools, Facebook, DoneDeal or CarsIreland messages, phone enquiries), syncing several DoneDeal or CarsIreland accounts, reserving or paying a deposit online. Don't promise those, or discounts.
+- Shown in the demo but not yet connected for a real dealer: the DoneDeal or CarsIreland stock sync, the reg lookup, sending WhatsApp messages, posting to Facebook and Instagram, newsletters, and review replies to Google. Say they're coming, and don't give a launch date that depends on them.
 
 ## "We already have a website" (HappyDealer, CarsIreland, DoneDeal template)
 **Means:** it works well enough and switching sounds like hassle.
@@ -16,13 +17,13 @@ What dealers will say, what they usually mean, and what to say back. Prices are 
 ## "It's more than we pay now"
 **Means:** they see a second bill, not more sales.
 **Say:** "It is a second bill: your listings stay. So it has to pay for itself. Dealer is €449 a month. At your typical price of €[card figure], one extra sale or one trade-in you'd have missed covers months of it."
-**Proof:** site analytics show which ads and pages bring leads to the site. Showroom at €249 if they only want the site.
+**Proof:** site analytics show which channels and tagged ads bring leads to the site. Showroom at €249 if they only want the site.
 **Ask:** "How many enquiries a month do you think go unanswered or get answered late?"
 **Don't:** cut the price. Offer the year upfront (a month free) if cash flow is the worry.
 
 ## "The manufacturer controls our site"
 **Means:** they can't drop it, and may not pay for it.
-**Say:** "Keep it for new cars. We'd be your used-car site next to it, synced from your DoneDeal or CarsIreland stock. The dashboard gives you every lead from our site in one inbox, your reviews on show, stock age and margins."
+**Say:** "Keep it for new cars. We'd be your used-car site next to it, synced from your DoneDeal or CarsIreland stock. The dashboard gives you every lead from our site in one inbox, your reviews on show, and stock age, and margins with the €49 add-on."
 **Proof:** cards for Toyota, Opel, VW, Kia and Ford dealers all lead this way. Never suggest replacing the manufacturer's site.
 **Ask:** "Who handles your used-car enquiries today, and where do they land?"
 
@@ -58,7 +59,7 @@ What dealers will say, what they usually mean, and what to say back. Prices are 
 
 ## "What if you go out of business? You're one person."
 **Means:** a real risk, and they're right to ask.
-**Say:** "Fair question. You're never trapped: it's monthly, your stock stays on DoneDeal or CarsIreland, and owners can export leads, customers and stock to a spreadsheet any time. I'm also deliberately taking on only as many dealers as I can look after properly."
+**Say:** "Fair question. You're never trapped: it's monthly, your stock stays on DoneDeal or CarsIreland, and on Dealer and Group, owners can export leads, customers and stock to a spreadsheet any time. I'm also deliberately taking on only as many dealers as I can look after properly."
 **Ask:** "What would you need to see to feel comfortable?"
 **Don't:** claim a team or support hours you don't have.
 
@@ -76,8 +77,8 @@ Expect a longer sale. Note the date and follow up.
 
 ## "What about data protection / our customers' data?"
 **Means:** GDPR worry, or they've been asked before.
-**Say:** "When someone asks what you hold on them, or to be deleted, the dashboard finds everything by their email or phone: forms, leads, test drives, purchases. You download a copy or erase it in a few clicks. Leads are kept 12 months then deleted, purchases lose the buyer's details after six years, and the site's privacy page says so."
-**Proof:** Data requests in the demo dashboard; every export is logged.
+**Say:** "On Dealer and Group, when someone asks what you hold on them, or to be deleted, the dashboard finds everything by their email or phone: forms, leads, test drives, purchases. You download a copy or erase it in a few clicks. Leads are kept 12 months then deleted, purchases lose the buyer's details after six years, and the site's privacy page says so. On Showroom, we do it for you."
+**Proof:** Data requests in the demo dashboard; every export of personal data is logged.
 **Ask:** "How would you answer a data request today?"
 
 ## "Let me think about it"

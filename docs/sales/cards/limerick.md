@@ -97,7 +97,6 @@ Most big Limerick franchise dealers already have decent sites (CarsIreland, Happ
 **What we found:**
 - One review on the homepage (August 2026), against 839 Google reviews (https://www.frankhogan.ie/).
 - No trade-in form: car pages offer Enquire, Finance, Reserve and Test Drive, but nothing to value the buyer's own car.
-- Spelling: "Commericals" in the main menu and "VW Commericals" in the footer.
 - A featured 2024 Touareg described as "4M DSG" (an automatic) is labelled "Manual" on the homepage.
 **Sales points:**
 1. "839 reviews and one on show." Reviews on the site, replies from the dashboard (Reviews).
@@ -105,7 +104,7 @@ Most big Limerick franchise dealers already have decent sites (CarsIreland, Happ
 3. "One dealership, one site: every enquiry in one place." Leads inbox and follow-ups (Dealer dashboard, Sales and customers, WhatsApp). Our sync reads one DoneDeal account, so their three accounts' ads move onto one first.
 4. "A DSG labelled Manual loses the buyer who filters for automatics." Specs filled from the reg (Registration lookup in the dashboard), vans with ex. VAT prices (Commercial vehicles).
 **Pitch:** Dealer at €449 plus Commercial (€29). Biggest franchise stock in the county, four brands plus commercials, already paying HappyDealer.
-**Opener:** "You have 839 Google reviews and one on your homepage, no way for a buyer to value their trade-in, and 'Commericals' spelled wrong in your menu; we fix all three and put every enquiry from your site in one dashboard."
+**Opener:** "You have 839 Google reviews and one on your homepage, and no way for a buyer to value their trade-in; we fix both and put every enquiry from your site in one dashboard."
 **Caveats:** VW Group and Mercedes-Benz have strict rules for new cars: lead with used, commercials and the dashboard. Stock is counted across three DoneDeal accounts at the same address. The Touareg label is one listing: show it, don't generalise.
 
 ### AutoXpress, Limerick city (Castlepark, Dock Road) · Tier A, 72/100 (able 42, willing 18, opening 12)
