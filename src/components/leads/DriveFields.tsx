@@ -32,7 +32,7 @@ export function DriveFields({ bind, carId }: { bind(name: string): FieldBinding;
   const day = bind("driveDate");
   const time = bind("driveTime");
   const times = free(day.value);
-  const next = days.find((d) => d > day.value) ?? days[0];
+  const next = days.find((d) => d > day.value && free(d).length) ?? days.find((d) => free(d).length);
   const pick = (d: string, t = free(d)[0] ?? "") => {
     day.onChange(d);
     time.onChange(t);
