@@ -1,0 +1,1734 @@
+[
+  {
+    "name": "Divanes Kerry (Divane Volkswagen)",
+    "county": "Kerry",
+    "town": "Castleisland",
+    "website": "https://www.divane.ie/",
+    "businessPhone": "066 916 6007",
+    "type": "franchise",
+    "brands": [
+      "Volkswagen",
+      "Volkswagen Commercial Vehicles"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 339,
+      "source": "https://www.donedeal.ie/dealer/divanes-kerry",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 41050,
+    "reviews": {
+      "count": 407,
+      "rating": 4.7,
+      "source": "https://www.donedeal.ie/dealer/divanes-kerry/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise dealer account, Trusted Dealer badge, 339 ads",
+      "Stock also syndicated to adverts.ie and cars.ie"
+    ],
+    "platform": "Volkswagen dealer site (page title \"Volkswagen | Down for maintenance\")",
+    "activity": "Stock live on DoneDeal (prices reduced on several ads at check). Radio Kerry and CompleteCar coverage of awards and solar switch. Socials not checked.",
+    "glanceNotes": "Website https://www.divane.ie/ found in validation (2026-11-20, linked from the DoneDeal dealer page). divane.ie is the dealer's own site per DoneDeal, but on the day it returned 503 with a Volkswagen 'Down for maintenance' page, so features were not checked; recheck before pitching. Main VW dealer for Kerry since 1954 (adverts.ie profile). Typical price is the median of the 10 visible DoneDeal ads. Phone from the adverts.ie dealer listing, not an own site.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/divanes-kerry",
+      "https://www.donedeal.ie/dealer/divanes-kerry/reviews",
+      "https://touch.adverts.ie/dealer/3453112",
+      "https://jammer.ie/dealership/358-divane-volkswagen",
+      "https://www.radiokerry.ie/news/divane-volkswagen-castleisland-awarded-volkswagen-commercial-vehicles-retailer-of-the-year-2020-233306",
+      "https://completecar.ie/car-news/article/11618/Kerry-Volkswagen-dealer-switches-to-solar",
+      "https://www.divane.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Kerry Motor Works (Benner's Garage Ltd)",
+    "county": "Kerry",
+    "town": "Tralee",
+    "website": "https://www.kerrymotorworks.ie/",
+    "businessPhone": "066 714 4096",
+    "type": "franchise",
+    "brands": [
+      "Ford"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 182,
+      "source": "https://www.donedeal.ie/dealer/kerry-motor-works",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 31225,
+    "reviews": {
+      "count": 454,
+      "rating": 4.7,
+      "source": "https://www.donedeal.ie/dealer/kerry-motor-works/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise dealer account, 182 ads",
+      "Paid dealer platform (NetDirector / Keyloop)"
+    ],
+    "platform": "NetDirector (Keyloop), per footer",
+    "activity": "Stock live (181 vehicles on own site, 182 on DoneDeal); Facebook, X and Instagram linked; careers page. Post dates not checked.",
+    "glanceNotes": "Strong existing site: stock on site (181), PCP/HP/cash budget finance tool, part-ex valuation page, test drive booking page, new car search. Gaps: no reviews shown, enquiry and trade-in on separate pages rather than forms on the page, no team page. Mix includes Ford commercials. Sale is the dashboard or a switch from Keyloop, not the basic site. Typical price is the median of 8 priced ads of 10 visible.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/kerry-motor-works",
+      "https://www.donedeal.ie/dealer/kerry-motor-works/reviews",
+      "https://www.kerrymotorworks.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Kellihers Toyota Tralee",
+    "county": "Kerry",
+    "town": "Tralee",
+    "website": "https://www.kellihers.ie/",
+    "businessPhone": "066 712 0000",
+    "type": "franchise",
+    "brands": [
+      "Toyota",
+      "Toyota Professional (Proace)"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 105,
+      "source": "https://www.donedeal.ie/dealer/kellihers-garage",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 23000,
+    "reviews": {
+      "count": 345,
+      "rating": 4.4,
+      "source": "https://www.donedeal.ie/dealer/kellihers-garage/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise dealer account (94 car ads, 105 ads in all)",
+      "Finance offers shown on DoneDeal ads"
+    ],
+    "platform": "Toyota Ireland dealer template (copyright Toyota Ireland)",
+    "activity": "Stock live on DoneDeal; X, Instagram, YouTube and Facebook linked from site. Post dates not checked.",
+    "glanceNotes": "Own site is Toyota Ireland's template: used-car counter showed 0 with 6 featured cars, stock otherwise links out to a used search. Has finance link, trade-in valuation request, test drive booking. No reviews shown, no enquiry form on page, no team page. Manufacturer controls the new-car site, so the pitch is the used-car side and the dashboard. Typical price: most of the 10 visible ads sat between about €18,500 and €28,000 (range €16,900 to €48,950); 23,000 is the middle of that band, not a computed median.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/kellihers-garage",
+      "https://www.donedeal.ie/dealer/kellihers-garage/cars",
+      "https://www.donedeal.ie/dealer/kellihers-garage/reviews",
+      "https://www.kellihers.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Adams of Tralee",
+    "county": "Kerry",
+    "town": "Tralee",
+    "website": "https://www.adamsoftralee.ie/",
+    "businessPhone": null,
+    "type": "franchise",
+    "brands": [
+      "Hyundai"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 86,
+      "source": "https://www.donedeal.ie/dealer/adams-of-tralee",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 33425,
+    "reviews": {
+      "count": 1051,
+      "rating": 4.8,
+      "source": "https://www.donedeal.ie/dealer/adams-of-tralee/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise dealer account, Trusted Dealer, 86 ads",
+      "cars.ie dealer account, 80 cars"
+    ],
+    "platform": "HappyDealer (footer 'website by happydealer.ie')",
+    "activity": "Stock live on DoneDeal and cars.ie. Socials not checked.",
+    "glanceNotes": "Website https://www.adamsoftralee.ie/ found in validation (2026-11-20, linked from the DoneDeal dealer page). Own HappyDealer site: new Hyundai, Fiat Professional vans and used stock on site, finance pages, test drive links, reviews shown; trade-in only mentioned, no form seen. Mile Height, Tralee. Phone not shown on the pages read. Typical price is the median of the 10 visible DoneDeal ads.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/adams-of-tralee",
+      "https://www.donedeal.ie/dealer/adams-of-tralee/reviews",
+      "https://www.cars.ie/dealer-adams-of-tralee-137",
+      "https://www.autobiz.ie/all/adams-team-up-with-hyundai",
+      "https://www.adamsoftralee.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Ahern's of Kerry (Aherns Motor Group)",
+    "county": "Kerry",
+    "town": "Castleisland",
+    "website": "https://www.aherns.ie/",
+    "businessPhone": "066 714 3000",
+    "type": "franchise",
+    "brands": [
+      "BMW",
+      "Opel",
+      "Renault",
+      "Renault Commercial",
+      "Dacia",
+      "BYD"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 111,
+      "source": "https://www.donedeal.ie/dealer/aherns-motor-group",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 28690,
+    "reviews": {
+      "count": 236,
+      "rating": 4.4,
+      "source": "https://www.donedeal.ie/dealer/aherns-motor-group/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise dealer account, Trusted Dealer, 84 ads",
+      "Paid site builder (HappyDealer)"
+    ],
+    "platform": "HappyDealer (footer: website by happydealer.ie)",
+    "activity": "Named team on the homepage (Pat Ahern, Paul Ahern, Barry Ryan, Gordon Lunn); Facebook and Instagram linked; reviews on site dated to Aug 2025.",
+    "glanceNotes": "Site has stock search, 'Set a Budget' finance tool, finance application, 37 reviews shown. Gaps: no trade-in form, no enquiry form (contact page only), no test drive booking. Separate BMW and Opel sites linked. Six franchises: new cars and orders module fits. Typical price is the median of the 10 visible DoneDeal ads. Stock 111 = 84 on the Aherns Motor Group DoneDeal page + 27 on the separate Aherns BMW page (https://www.donedeal.ie/dealer/aherns-bmw), same Castleisland address and Google listing (236 reviews).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/aherns-motor-group",
+      "https://www.donedeal.ie/dealer/aherns-motor-group/reviews",
+      "https://www.aherns.ie/",
+      "https://www.completecar.ie/car-news/article/12171/Aherns-is-new-Kerry-Renault-dealer",
+      "https://www.donedeal.ie/dealer/aherns-bmw"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Randles Bros",
+    "county": "Kerry",
+    "town": "Tralee",
+    "website": "https://www.randlesbros.com/",
+    "businessPhone": "066 712 4275",
+    "type": "franchise",
+    "brands": [
+      "Nissan"
+    ],
+    "branches": 2,
+    "stock": {
+      "count": 51,
+      "source": "https://www.donedeal.ie/dealer/randles-bros",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 27041,
+    "reviews": {
+      "count": 51,
+      "rating": 4.1,
+      "source": "https://www.donedeal.ie/dealer/randles-bros/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise dealer account, 51 ads",
+      "Paid site builder (HappyDealer)",
+      "Print ads in Killarney Advertiser motoring features"
+    ],
+    "platform": "HappyDealer (footer: website by happydealer.ie)",
+    "activity": "Stock live on DoneDeal. No social links on site. Kerry's longest-serving dealership per Killarney Advertiser.",
+    "glanceNotes": "Main Nissan dealer for Kerry. Sales at Manor West, Tralee; contact address and second site on Muckross Road, Killarney (064 663 1237 per Killarney Advertiser ad). Site: 8 featured cars plus used search, budget finance tool, cash-for-cars page. Gaps: no trade-in form, no enquiry form on page, no test drive booking, reviews only a 'read reviews' link, no socials. Review count on DoneDeal (51) may be the Tralee listing only. Typical price is the median of the 10 visible DoneDeal ads.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/randles-bros",
+      "https://www.donedeal.ie/dealer/randles-bros/reviews",
+      "https://www.randlesbros.com/",
+      "https://killarneyadvertiser.ie/?p=32392",
+      "https://issuu.com/killarneyadvertiser/docs/motoring_feature_2021"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "McElligott's Kia Tralee",
+    "county": "Kerry",
+    "town": "Tralee",
+    "website": "https://www.mce.ie/",
+    "businessPhone": "066 718 1911",
+    "type": "franchise",
+    "brands": [
+      "Kia",
+      "Mercedes-Benz",
+      "Honda"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 67,
+      "source": "https://www.donedeal.ie/dealer/mcelligotts-kia-tralee",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 46950,
+    "reviews": {
+      "count": 1003,
+      "rating": 4.9,
+      "source": "https://www.donedeal.ie/dealer/mcelligotts-kia-tralee"
+    },
+    "adSignals": [
+      "DoneDeal franchise dealer account, Trusted Dealer, 67 ads",
+      "Kia-hosted dealer page as well as own site"
+    ],
+    "platform": null,
+    "activity": "Stock live on DoneDeal; Facebook and Instagram linked; 'Latest news' section on site empty. EU Kia Dealer of the Year 2023.",
+    "glanceNotes": "Own site mce.ie: new-model list with monthly prices, used stock only via a link out to a search, no finance calculator, no trade-in form, no enquiry form (contact link only), no test drive booking on site, no reviews shown despite ~1,000 Google reviews at 4.9, no phone on homepage, model-year image names MY23 to MY25. Kia also hosts a template page (kia.com/ie/dealer/mcelligottstralee). Phone from DoneDeal ad text. Typical price is the median of 7 priced ads of 10 visible (some new). Brands Mercedes-Benz and Honda as shown on mce.ie; whether these are franchises not confirmed.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/mcelligotts-kia-tralee",
+      "https://www.donedeal.ie/cars-for-sale/kia-sorento-phev-k3-5dr-au/43145859",
+      "https://www.mce.ie/",
+      "https://kia.com/ie/dealer/mcelligottstralee/homepage",
+      "https://www.kia.com/ie/dealer/mcelligottstralee/about-kia/our-dealership/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Liam Lynch Motors (Liam Lynch Skoda)",
+    "county": "Kerry",
+    "town": "Farranfore",
+    "website": "https://www.liamlynchmotors.ie/",
+    "businessPhone": "087 747 7720",
+    "type": "franchise",
+    "brands": [
+      "Skoda"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 76,
+      "source": "https://www.donedeal.ie/dealer/liam-lynch-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 33400,
+    "reviews": {
+      "count": 239,
+      "rating": 4.6,
+      "source": "https://www.donedeal.ie/dealer/liam-lynch-motors/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise dealer account, Trusted Dealer, 76 ads",
+      "cars.ie listings"
+    ],
+    "platform": "HappyDealer (footer 'website by happydealer.ie')",
+    "activity": "Stock live on DoneDeal and cars.ie. Socials not checked.",
+    "glanceNotes": "Website https://www.liamlynchmotors.ie/ found in validation (2026-11-20, linked from the DoneDeal dealer page). Own HappyDealer site: stock search on site, finance pages, reviews shown; no trade-in or test drive form seen on the homepage. DoneDeal gives Killarney/Farranfore; reviewers mention the Farranfore Skoda showroom. Phone from cars.ie listings. Typical price is the visible-ad average (about €33,400) of 10 of 76 ads; DoneDeal median sat around €34,000 to €35,000.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/liam-lynch-motors",
+      "https://www.donedeal.ie/dealer/liam-lynch-motors/reviews",
+      "https://www.cars.ie/listing-skoda-octavia-selection-tdi-bhp-832841",
+      "https://www.liamlynchmotors.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Reen's Rathmore (Reens Car Sales)",
+    "county": "Kerry",
+    "town": "Rathmore",
+    "website": "http://www.reenscarsales.ie",
+    "businessPhone": "064 775 8150",
+    "type": "franchise",
+    "brands": [
+      "Peugeot",
+      "Fiat",
+      "Jeep",
+      "DS Automobiles"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 55,
+      "source": "https://www.donedeal.ie/dealer/reens-rathmore",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 32950,
+    "reviews": {
+      "count": 215,
+      "rating": 4.6,
+      "source": "https://www.donedeal.ie/cars-for-sale/jeep-compass-2024/42977325"
+    },
+    "adSignals": [
+      "DoneDeal franchise dealer account, Trusted Dealer (55 car ads, 66 ads in all)"
+    ],
+    "platform": "Appears to be a Peugeot dealer template (external Peugeot booking links); not confirmed",
+    "activity": "Stock live on DoneDeal. No social links on site. Fiat and Jeep added Sept 2023.",
+    "glanceNotes": "Site is Peugeot-branded: used stock on a separate page, test drive links, 'Request a Quote' and contact pages. No finance calculator, no trade-in form, no enquiry form on page, no reviews shown, no socials, opening hours missing. Typical price is the median of 7 priced ads of 10 visible. DS brand seen in stock only.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/reens-rathmore",
+      "https://www.donedeal.ie/cars-for-sale/jeep-compass-2024/42977325",
+      "http://www.reenscarsales.ie",
+      "https://completecar.ie/car-news/article/12726/Reens-Rathmore-appointed-Fiat-and-Jeep-dealer"
+    ]
+  },
+  {
+    "name": "Billy Naughton Ltd",
+    "county": "Kerry",
+    "town": "Tralee",
+    "website": "https://www.billynaughton.ie/",
+    "businessPhone": "066 712 1863",
+    "type": "franchise",
+    "brands": [
+      "Honda",
+      "Volvo",
+      "Citroen"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 59,
+      "source": "https://www.billynaughton.ie/",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 39725,
+    "reviews": {
+      "count": 100,
+      "rating": 4.3,
+      "source": "https://www.donedeal.ie/dealer/billy-naughton-ltd/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise dealer account, 59 ads",
+      "CarsIreland paid dealer site"
+    ],
+    "platform": "CarsIreland (footer: Powered by CarsIreland)",
+    "activity": "Images uploaded Nov 2026; Google reviews on site to Jan 2026; Facebook only.",
+    "glanceNotes": "Full CarsIreland site: 59 cars on site, budget finance tool and finance application, valuation and trade-in, enquiry forms, test drive booking, reviews. Loose ends: placeholder 'Lorem ipsum' text on the valuation form, typo 'in in 1968', repeated 'Loading...' labels. Feature-complete, so the sale is the dashboard (franchise, ~€2.3m stock). Typical price is the median of 10 visible DoneDeal ads (includes new cars up to €71k).",
+    "skip": null,
+    "sources": [
+      "https://www.billynaughton.ie/",
+      "https://www.donedeal.ie/dealer/billy-naughton-ltd",
+      "https://www.donedeal.ie/dealer/billy-naughton-ltd/reviews",
+      "https://cars.ie/dealer-billy-naughton-ltd-838"
+    ]
+  },
+  {
+    "name": "BG Motors Ltd",
+    "county": "Kerry",
+    "town": "Killarney",
+    "website": "https://www.bgmotors.ie/",
+    "businessPhone": "087 257 5784",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 128,
+      "source": "https://www.donedeal.ie/dealer/bg-motors-ltd",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 31490,
+    "reviews": {
+      "count": 218,
+      "rating": 4.8,
+      "source": "https://www.donedeal.ie/dealer/bg-motors-ltd/reviews"
+    },
+    "adSignals": [
+      "DoneDeal dealer account, 128 ads",
+      "Paid site builder (HappyDealer)"
+    ],
+    "platform": "HappyDealer (footer: Website by HappyDealer)",
+    "activity": "Review on site dated Jul 2026; Facebook and Instagram linked; 13 years on DoneDeal.",
+    "glanceNotes": "Calls itself Kerry's largest pre-owned dealership. Site: stock search, 'What car suits me' and budget (HP/cash) tools, 'We Buy Cars' page, stock alerts. Gaps: no trade-in form, no enquiry form on page (contact page only), no test drive booking, one review shown. Biggest independent in the county: dashboard and lead forms are the pitch. Typical price is the median of 10 visible DoneDeal ads.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/bg-motors-ltd",
+      "https://www.donedeal.ie/dealer/bg-motors-ltd/reviews",
+      "https://www.bgmotors.ie/"
+    ]
+  },
+  {
+    "name": "Joe O'Connor Car Sales",
+    "county": "Kerry",
+    "town": "Tralee",
+    "website": "https://www.joeoconnorcarsales.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 85,
+      "source": "https://www.donedeal.ie/dealer/joe-oconnor-car-sales",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 16950,
+    "reviews": {
+      "count": 17,
+      "rating": 4.2,
+      "source": "https://www.donedeal.ie/dealer/joe-oconnor-car-sales/reviews"
+    },
+    "adSignals": [
+      "DoneDeal dealer account, 85 ads"
+    ],
+    "platform": "CarsIreland dealer site (footer 'Powered by CarsIreland.ie')",
+    "activity": "Stock live on DoneDeal. Socials not checked.",
+    "glanceNotes": "Website https://www.joeoconnorcarsales.ie/ found in validation (2026-11-20, linked from the DoneDeal dealer page). Own CarsIreland site: stock pages on site, finance, valuation/trade-in, test drive and enquiry forms, reviews block. Site also sells car rental. Clash Cross, Rathass, Tralee. Few Google reviews for its size. A DoneDeal review mentions car rental too. Phone hidden behind DoneDeal button. Typical price is the median of 10 visible ads.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/joe-oconnor-car-sales",
+      "https://www.donedeal.ie/dealer/joe-oconnor-car-sales/reviews",
+      "https://www.joeoconnorcarsales.ie/"
+    ]
+  },
+  {
+    "name": "Listowel Auto's Ltd",
+    "county": "Kerry",
+    "town": "Listowel",
+    "website": "https://www.listowelautos.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 78,
+      "source": "https://www.donedeal.ie/dealer/listowel-autos-ltd",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 24950,
+    "reviews": {
+      "count": 142,
+      "rating": 4.6,
+      "source": "https://www.donedeal.ie/dealer/listowel-autos-ltd/reviews"
+    },
+    "adSignals": [
+      "DoneDeal dealer account, 78 ads"
+    ],
+    "platform": "CarsIreland dealer site (footer 'Powered by CarsIreland.ie')",
+    "activity": "Stock live on DoneDeal. Socials not checked.",
+    "glanceNotes": "Website https://www.listowelautos.ie/ found in validation (2026-11-20, linked from the DoneDeal dealer page). Own CarsIreland site: stock pages on site, finance, valuation/trade-in, test drive and enquiry forms, reviews block. Also offers car sourcing. Mostly VW, Audi, BMW from about 2016 to 2025. Typical price is the median of 10 visible ads.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/listowel-autos-ltd",
+      "https://www.donedeal.ie/dealer/listowel-autos-ltd/reviews",
+      "https://www.listowelautos.ie/"
+    ]
+  },
+  {
+    "name": "Walsh Autos",
+    "county": "Kerry",
+    "town": "Castleisland",
+    "website": "https://www.walshautos.com/",
+    "businessPhone": "066 714 2789",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 78,
+      "source": "https://www.walshautos.com/",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 16600,
+    "reviews": {
+      "count": 168,
+      "rating": 4.5,
+      "source": "https://www.donedeal.ie/dealer/walsh-autos/reviews"
+    },
+    "adSignals": [
+      "DoneDeal dealer account, Trusted Dealer, 78 ads",
+      "CarsIreland paid dealer site"
+    ],
+    "platform": "CarsIreland (footer: Powered by CarsIreland.ie)",
+    "activity": "Site images Oct 2025; WhatsApp link; social feed section with no profile links.",
+    "glanceNotes": "Full CarsIreland site: 78 cars on site, finance slider and application, valuation, enquiry form, test drive booking, WhatsApp. Gaps: no reviews shown, no social profile links. Also an Audi/VW servicing workshop. Feature-complete for its size; the sale is the dashboard or reviews. Typical price is the median of 10 visible DoneDeal ads.",
+    "skip": null,
+    "sources": [
+      "https://www.walshautos.com/",
+      "https://www.donedeal.ie/dealer/walsh-autos",
+      "https://www.donedeal.ie/dealer/walsh-autos/reviews"
+    ]
+  },
+  {
+    "name": "Michael Daffy Car Sales",
+    "county": "Kerry",
+    "town": "Lisselton, Listowel",
+    "website": "https://www.michaeldaffy.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 61,
+      "source": "https://www.donedeal.ie/dealer/michael-daffy-car-sales",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 8623,
+    "reviews": {
+      "count": 38,
+      "rating": 4.3,
+      "source": "https://www.donedeal.ie/dealer/michael-daffy-car-sales/reviews"
+    },
+    "adSignals": [
+      "DoneDeal dealer account, 61 ads"
+    ],
+    "platform": "CarsIreland dealer site (footer 'Powered by CarsIreland.ie')",
+    "activity": "Stock live on DoneDeal. Socials not checked.",
+    "glanceNotes": "Website https://www.michaeldaffy.ie/ found in validation (2026-11-20, linked from the DoneDeal dealer page). Own CarsIreland site: stock pages on site, finance, valuation/trade-in, test drive and enquiry forms, reviews block. Lisselton Cross on the Ballybunion road. Budget stock, lower value. Typical price is the median of 10 visible ads.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/michael-daffy-car-sales",
+      "https://www.donedeal.ie/dealer/michael-daffy-car-sales/reviews",
+      "https://listowel.ie/?p=1186",
+      "https://www.michaeldaffy.ie/"
+    ]
+  },
+  {
+    "name": "Dillon Car Sales",
+    "county": "Kerry",
+    "town": "Listowel",
+    "website": "https://www.dilloncarsales.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 55,
+      "source": "https://www.cars.ie/dealer-dillon-car-sales-310",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": 27,
+      "rating": 4.4,
+      "source": "https://www.donedeal.ie/dealer/dillon-car-sales"
+    },
+    "adSignals": [
+      "DoneDeal dealer account, 59 ads",
+      "cars.ie dealer account, 55 cars"
+    ],
+    "platform": "CarsIreland dealer site (footer 'Powered by CarsIreland.ie')",
+    "activity": "59 ads live on DoneDeal on 2026-11-20; 55 on cars.ie.",
+    "glanceNotes": "Website https://www.dilloncarsales.ie/ found in validation (2026-11-20, linked from the DoneDeal dealer page). Own CarsIreland site: stock pages on site, finance, valuation/trade-in, test drive and enquiry forms, reviews block. Site also covers vans, servicing and recovery (Duagh Road, Listowel on the page). DoneDeal dealer page https://www.donedeal.ie/dealer/dillon-car-sales: 59 ads, 27 Google reviews at 4.4. Duagh Road, Listowel. Prices on cars.ie run €4,500 to €15,999, most between about €5,000 and €12,000; no median computed, so typicalPriceEur is null. Check the stock count is live before contacting.",
+    "skip": null,
+    "sources": [
+      "https://www.cars.ie/dealer-dillon-car-sales-310",
+      "https://www.dilloncarsales.ie/",
+      "https://www.donedeal.ie/dealer/dillon-car-sales"
+    ]
+  },
+  {
+    "name": "Randles Motors Kerry",
+    "county": "Kerry",
+    "town": "Tralee",
+    "website": "https://randles.ie/",
+    "businessPhone": "066 717 1023",
+    "type": "independent",
+    "brands": [],
+    "branches": 2,
+    "stock": {
+      "count": 28,
+      "source": "https://randles.ie/",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": 34,
+      "rating": 4.2,
+      "source": "https://randles.ie/"
+    },
+    "adSignals": [],
+    "platform": "Unknown: 'powered by' image unnamed; assets load from a liberatingsolution.tech design-demo path",
+    "activity": "Images uploaded Sept and Nov 2026; Facebook, Instagram and TikTok linked.",
+    "glanceNotes": "Clash East, Tralee, plus a Dublin showroom (randlesdublin.ie). Not the same business as Randles Bros. New-looking site with unfinished parts: About stats read '0 K+', '0 pt', '0 mo' and a placeholder Latin paragraph. Stock on site (24 cars, 3 EVs, 1 van), enquiry form, Google reviews block ('34+'). No finance calculator, no trade-in form, no test drive. Typical price not captured. Review count is the site's own '34+' claim.",
+    "skip": null,
+    "sources": [
+      "https://randles.ie/"
+    ]
+  },
+  {
+    "name": "John White Car Sales Ltd",
+    "county": "Kerry",
+    "town": "Killarney",
+    "website": "https://www.johnwhitecars.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 27,
+      "source": "https://www.donedeal.ie/dealer/john-white-car-sales-ltd",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 17123,
+    "reviews": {
+      "count": 21,
+      "rating": 5,
+      "source": "https://www.donedeal.ie/dealer/john-white-car-sales-ltd/reviews"
+    },
+    "adSignals": [
+      "DoneDeal dealer account, 27 ads"
+    ],
+    "platform": "DoneDeal dealer website (footer 'Powered by DoneDeal', developed by Square1)",
+    "activity": "Stock live on DoneDeal with recent price drops. Socials not checked.",
+    "glanceNotes": "Website https://www.johnwhitecars.ie/ found in validation (2026-11-20, linked from the DoneDeal dealer page). Own DoneDeal dealer website (Square1 build): stock synced from DoneDeal shown on site, finance and trade-in mentions; no test drive form seen. Small. Typical price is the median of 10 visible ads.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/john-white-car-sales-ltd",
+      "https://www.donedeal.ie/dealer/john-white-car-sales-ltd/reviews",
+      "https://www.johnwhitecars.ie/"
+    ]
+  },
+  {
+    "name": "Jerry O'Sullivan Car Sales Ltd",
+    "county": "Kerry",
+    "town": "Killorglin",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 26,
+      "source": "https://www.donedeal.ie/dealer/jerry-osullivan-car-sales-ltd",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 16850,
+    "reviews": {
+      "count": 75,
+      "rating": 4.7,
+      "source": "https://www.donedeal.ie/dealer/jerry-osullivan-car-sales-ltd/reviews"
+    },
+    "adSignals": [
+      "DoneDeal dealer account, 26 ads"
+    ],
+    "platform": null,
+    "activity": "Stock live on DoneDeal; also rents vans. Socials not checked.",
+    "glanceNotes": "Tullig, Killorglin. No website found. Half the visible ads are 'price on request'. Typical price is the median of 5 priced ads of 10 visible. No website confirmed (2026-11-20): DoneDeal page lists none, likely domains do not resolve, and a search found only DoneDeal/cars.ie listings (a van-rental ad names osullivanmotors.ie, which does not resolve).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/jerry-osullivan-car-sales-ltd",
+      "https://www.donedeal.ie/dealer/jerry-osullivan-car-sales-ltd/reviews"
+    ],
+    "noWebsiteVerified": true
+  },
+  {
+    "name": "Colm Cronin Car Sales Ltd",
+    "county": "Kerry",
+    "town": "Killarney",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 16,
+      "source": "https://www.donedeal.ie/dealer/colm-cronin-car-sales-ltd",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 11475,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "DoneDeal dealer account, 16 ads"
+    ],
+    "platform": null,
+    "activity": "Stock live on DoneDeal.",
+    "glanceNotes": "Borderline on the 15-car rule; kept but low priority. No website found. Review count not found. Typical price is the median of 10 visible ads. No website confirmed (2026-11-20): DoneDeal page lists none, likely domains (colmcronincarsales.ie, colmcronin.ie, cronincarsales.ie) do not resolve, and a search found only DoneDeal ads.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/colm-cronin-car-sales-ltd"
+    ],
+    "noWebsiteVerified": true
+  },
+  {
+    "name": "Cartwright",
+    "county": "Kerry",
+    "town": "Tralee",
+    "website": "https://www.cartwright.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 57,
+      "source": "https://www.carsireland.ie/car-dealers/county/kerry/cartwright",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "Stock filled 2026-11-20 from CarsIreland: 57 cars (plus 2 vans).",
+    "skip": "already being pitched (Carright)",
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/kerry/cartwright"
+    ]
+  },
+  {
+    "name": "Poff Motors",
+    "county": "Kerry",
+    "town": "Tralee",
+    "website": "https://www.poffmotors.com/",
+    "businessPhone": "066 712 4739",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 31,
+      "source": "https://www.donedeal.ie/dealer/962",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 10450,
+    "reviews": {
+      "count": 139,
+      "rating": 4.5,
+      "source": "https://www.donedeal.ie/dealer/962/reviews"
+    },
+    "adSignals": [
+      "DoneDeal dealer account",
+      "CarsIreland paid dealer site"
+    ],
+    "platform": "CarsIreland (footer: Powered by CarsIreland.ie)",
+    "activity": "Site reviews to Aug 2026, uploads Nov 2025.",
+    "glanceNotes": "",
+    "skip": "Small (about 30 cars at ~€10k) and already on a full CarsIreland site with stock, finance, trade-in, test drive, reviews and online reserve.",
+    "sources": [
+      "https://www.donedeal.ie/dealer/962",
+      "https://www.poffmotors.com/"
+    ]
+  },
+  {
+    "name": "Dineen O'Donoghue Motors",
+    "county": "Kerry",
+    "town": "Killarney",
+    "website": "https://www.dineenodonoghuemotors.ie/",
+    "businessPhone": "064 775 4670",
+    "type": "franchise",
+    "brands": [
+      "Suzuki"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 19,
+      "source": "https://www.dineenodonoghuemotors.ie/",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": 53,
+      "rating": 4.7,
+      "source": "https://www.dineenodonoghuemotors.ie/"
+    },
+    "adSignals": [
+      "DoneDeal franchise dealer account, 19 ads",
+      "CarsIreland paid dealer site"
+    ],
+    "platform": "CarsIreland (footer: Powered by CarsIreland.ie)",
+    "activity": "Reviews on site to May 2026.",
+    "glanceNotes": "",
+    "skip": "Small (19 cars) and already on a full CarsIreland site with stock, finance, valuation, test drive and reviews.",
+    "sources": [
+      "https://www.dineenodonoghuemotors.ie/",
+      "https://www.donedeal.ie/cars-for-sale/suzuki-vitara-2023-sz5/42899426"
+    ]
+  },
+  {
+    "name": "Pat Looney Car Sales",
+    "county": "Kerry",
+    "town": "Killarney",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 10,
+      "source": "https://touch.adverts.ie/dealer/2991589",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "",
+    "skip": "Fewer than 15 cars (about 10 on adverts.ie, mostly €6k to €12.5k). Not in DoneDeal's Kerry dealer directory (2026-11-20).",
+    "sources": [
+      "https://touch.adverts.ie/dealer/2991589"
+    ]
+  },
+  {
+    "name": "Tom Murphy's Garage",
+    "county": "Kerry",
+    "town": "Farranfore",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": null,
+      "source": null,
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "",
+    "skip": "No sign of car stock for sale online (Golden Pages listing only; mostly service, tyres, recovery). Not in DoneDeal's Kerry dealer directory (81 dealers, checked 2026-11-20).",
+    "sources": [
+      "https://www.goldenpages.ie/tom-murphy-s-garage-farranfore-V93/"
+    ]
+  },
+  {
+    "name": "AD Sales and Contracts Ltd",
+    "county": "Kerry",
+    "town": "Abbeydorney",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": null,
+      "source": null,
+      "checkedAt": null
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "",
+    "skip": "Not a car retailer: about 15 ads, mostly agricultural and plant machinery.",
+    "sources": [
+      "https://www.donedeal.ie/dealer/ad-sales-and-contracts-ltd"
+    ]
+  },
+  {
+    "name": "Mid Kerry Trade Sales",
+    "county": "Kerry",
+    "town": null,
+    "website": "https://www.midkerrytradesales.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 1,
+      "source": "https://cars.ie/dealer-mid-kerry-trade-sales-1742",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "",
+    "skip": "Fewer than 15 cars (one listing on cars.ie). DoneDeal dealer page shows 3 ads (2026-11-20).",
+    "sources": [
+      "https://cars.ie/dealer-mid-kerry-trade-sales-1742",
+      "https://www.donedeal.ie/dealer/mid-kerry-trade-sales"
+    ]
+  },
+  {
+    "name": "Audi Approved :plus Kerry",
+    "county": "Kerry",
+    "town": "Tralee",
+    "website": "http://www.audikerry.ie/",
+    "businessPhone": null,
+    "type": "franchise",
+    "brands": [
+      "Audi"
+    ],
+    "branches": 2,
+    "stock": {
+      "count": 94,
+      "source": "https://www.donedeal.ie/dealer/audi-approved-plus-kerry",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 40400,
+    "reviews": {
+      "count": 89,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/audi-approved-plus-kerry"
+    },
+    "adSignals": [
+      "DoneDeal franchise dealer account, TURBO package, 94 ads"
+    ],
+    "platform": "Custom WordPress site (no builder credit), sister site to Audi Cork",
+    "activity": "Newest DoneDeal ads 4 hours old at check (2026-11-20); DoneDeal WhatsApp replies off. Socials not checked.",
+    "glanceNotes": "Own audikerry.ie (WordPress): new and used Audi pages and test drive request; no finance calculator, trade-in form or reviews block seen on the homepage. Sister dealership of Audi Cork (DoneDeal dealer description), so two branches across Cork and Kerry. Audi new cars are likely tied to the manufacturer; the used side and dashboard are the pitch. Added 2026-11-20 from the DoneDeal Kerry dealer directory (https://www.donedeal.ie/find-a-dealer/Kerry): 95 ads listed there, 94 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/audi-approved-plus-kerry",
+      "https://www.donedeal.ie/find-a-dealer/Kerry",
+      "http://www.audikerry.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "DC Autoline Kerry",
+    "county": "Kerry",
+    "town": "Tralee",
+    "website": "https://www.dcautolinekerry.ie/",
+    "businessPhone": "0874452589",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 79,
+      "source": "https://www.donedeal.ie/dealer/dc-autoline-kerry",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 13350,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, TURBO package, 79 ads",
+      "Paid site builder (DoneDeal dealer website)"
+    ],
+    "platform": "DoneDeal dealer website (footer 'Powered by DoneDeal', developed by Square1)",
+    "activity": "Newest DoneDeal ads 6 hours old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "Own DoneDeal dealer website (Square1 build): stock synced from DoneDeal shown on site, finance and trade-in mentions; no test drive form seen. Added 2026-11-20 from the DoneDeal Kerry dealer directory (https://www.donedeal.ie/find-a-dealer/Kerry): 77 ads listed there, 79 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page. Phone from the own site (tel: link).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/dc-autoline-kerry",
+      "https://www.donedeal.ie/find-a-dealer/Kerry",
+      "https://www.dcautolinekerry.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Autopoint Motor Group",
+    "county": "Kerry",
+    "town": "Tralee",
+    "website": "https://www.autopointmotorgroup.com/",
+    "businessPhone": "(066)7102545",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 75,
+      "source": "https://www.donedeal.ie/dealer/autopoint-motor-group",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 23895,
+    "reviews": {
+      "count": 335,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/autopoint-motor-group"
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, Trusted Dealer badge, ACCELERATOR package, 75 ads"
+    ],
+    "platform": "Custom site (no builder credit)",
+    "activity": "Newest DoneDeal ads 2 hours old at check (2026-11-20); DoneDeal WhatsApp replies off. Socials not checked.",
+    "glanceNotes": "Own autopointmotorgroup.com: stock search and finance pages, reviews mentioned; no trade-in or test drive form seen on the homepage. DoneDeal description calls it a 'National Multi Award Winning Independent Car Dealer'. One Tralee site found. Added 2026-11-20 from the DoneDeal Kerry dealer directory (https://www.donedeal.ie/find-a-dealer/Kerry): 75 ads listed there, 75 on the dealer page. Typical price is the median of the 5 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded. Phone from the own site (tel: link).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/autopoint-motor-group",
+      "https://www.donedeal.ie/find-a-dealer/Kerry",
+      "https://www.autopointmotorgroup.com/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "JPS Car Sales",
+    "county": "Kerry",
+    "town": "Killarney",
+    "website": "https://www.jpscarsales.ie/",
+    "businessPhone": "0852116344",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 68,
+      "source": "https://www.donedeal.ie/dealer/jps-car-sales",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 15450,
+    "reviews": {
+      "count": 120,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/jps-car-sales"
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, Trusted Dealer badge, TURBO package, 68 ads",
+      "Paid site builder (DoneDeal dealer website)"
+    ],
+    "platform": "DoneDeal dealer website (footer 'Powered by DoneDeal', developed by Square1)",
+    "activity": "Newest DoneDeal ads 1 day old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "Own DoneDeal dealer website (Square1 build): stock synced from DoneDeal shown on site, finance and trade-in mentions; no test drive form seen. Fossa, on the N72 Killorglin road outside Killarney (DoneDeal address). Added 2026-11-20 from the DoneDeal Kerry dealer directory (https://www.donedeal.ie/find-a-dealer/Kerry): 68 ads listed there, 68 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded. Phone from the own site (tel: link).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/jps-car-sales",
+      "https://www.donedeal.ie/find-a-dealer/Kerry",
+      "https://www.jpscarsales.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Des Murphy Cars Ltd",
+    "county": "Kerry",
+    "town": "Tarbert",
+    "website": "https://www.desmurphycars.ie/",
+    "businessPhone": "085-1490351",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 64,
+      "source": "https://www.donedeal.ie/dealer/des-murphy-cars-ltd",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 18995,
+    "reviews": {
+      "count": 48,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/des-murphy-cars-ltd"
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, TURBO package, 64 ads",
+      "Paid site builder (CarsIreland dealer site)"
+    ],
+    "platform": "CarsIreland dealer site (footer 'Powered by CarsIreland.ie')",
+    "activity": "Newest DoneDeal ads 7 hours old at check (2026-11-20); DoneDeal WhatsApp replies off. Socials not checked.",
+    "glanceNotes": "Own CarsIreland site: stock pages on site, finance, valuation/trade-in, test drive and enquiry forms, reviews block. Family business selling cars in Tarbert since 1969 (DoneDeal dealer description). Added 2026-11-20 from the DoneDeal Kerry dealer directory (https://www.donedeal.ie/find-a-dealer/Kerry): 66 ads listed there, 64 on the dealer page. Typical price is the median of the 9 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded. Phone from the own site (tel: link).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/des-murphy-cars-ltd",
+      "https://www.donedeal.ie/find-a-dealer/Kerry",
+      "https://www.desmurphycars.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Auto Polo Group Irl",
+    "county": "Kerry",
+    "town": "Tralee",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 55,
+      "source": "https://www.donedeal.ie/dealer/auto-polo-group-irl",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 11350,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, TURBO package, 55 ads"
+    ],
+    "platform": "none (no own website)",
+    "activity": "Newest DoneDeal ads 3 days old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "No website listed on the DoneDeal directory or dealer page: stock lives only on DoneDeal, the clearest website pitch. DoneDeal directory lists it under Cars and Breaking & Repairables; the first 10 ads are all cars. Added 2026-11-20 from the DoneDeal Kerry dealer directory (https://www.donedeal.ie/find-a-dealer/Kerry): 58 ads listed there, 55 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/auto-polo-group-irl",
+      "https://www.donedeal.ie/find-a-dealer/Kerry"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Donagh Hickey Motors",
+    "county": "Kerry",
+    "town": "Rathmore",
+    "website": "https://www.donaghhickeymotors.com/",
+    "businessPhone": "064-7758030",
+    "type": "franchise",
+    "brands": [
+      "Renault",
+      "Dacia"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 52,
+      "source": "https://www.donedeal.ie/dealer/donagh-hickey-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 15400,
+    "reviews": {
+      "count": 182,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/donagh-hickey-motors"
+    },
+    "adSignals": [
+      "DoneDeal franchise dealer account, Trusted Dealer badge, TURBO package, 52 ads",
+      "Paid site builder (CarsIreland dealer site)"
+    ],
+    "platform": "CarsIreland dealer site (footer 'Powered by CarsIreland.ie')",
+    "activity": "Newest DoneDeal ads 2 days old at check (2026-11-20); DoneDeal WhatsApp replies off. Socials not checked.",
+    "glanceNotes": "Own CarsIreland site: stock pages on site, finance, valuation/trade-in, test drive and enquiry forms, reviews block. Main Renault and Dacia dealer (DoneDeal). Added 2026-11-20 from the DoneDeal Kerry dealer directory (https://www.donedeal.ie/find-a-dealer/Kerry): 52 ads listed there, 52 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded. Phone from the own site (tel: link).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/donagh-hickey-motors",
+      "https://www.donedeal.ie/find-a-dealer/Kerry",
+      "https://www.donaghhickeymotors.com/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Motorcare Cars & Customising",
+    "county": "Kerry",
+    "town": "Listowel",
+    "website": "https://www.motorcareireland.ie/",
+    "businessPhone": "0899404929",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 46,
+      "source": "https://www.donedeal.ie/dealer/motorcare-cars-customising",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 17950,
+    "reviews": {
+      "count": 130,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/motorcare-cars-customising"
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, PRESTIGE package, 46 ads",
+      "Paid site builder (DoneDeal dealer website)"
+    ],
+    "platform": "DoneDeal dealer website (footer 'Powered by DoneDeal', developed by Square1)",
+    "activity": "Newest DoneDeal ads 5 hours old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "Own DoneDeal dealer website (Square1 build): stock synced from DoneDeal shown on site, finance and trade-in mentions; no test drive form seen. Also does window tinting, wrapping and car modifications (DoneDeal description). Added 2026-11-20 from the DoneDeal Kerry dealer directory (https://www.donedeal.ie/find-a-dealer/Kerry): 45 ads listed there, 46 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded. Phone from the own site (tel: link).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/motorcare-cars-customising",
+      "https://www.donedeal.ie/find-a-dealer/Kerry",
+      "https://www.motorcareireland.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "RH Car Sales",
+    "county": "Kerry",
+    "town": "Tralee",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 40,
+      "source": "https://www.donedeal.ie/dealer/rh-car-sales",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 8373,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, TURBO package, 40 ads"
+    ],
+    "platform": "none (no own website)",
+    "activity": "Newest DoneDeal ads 3 days old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "No website listed on the DoneDeal directory or dealer page: stock lives only on DoneDeal, the clearest website pitch. Cars and vans, low-value stock. Added 2026-11-20 from the DoneDeal Kerry dealer directory (https://www.donedeal.ie/find-a-dealer/Kerry): 41 ads listed there, 40 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/rh-car-sales",
+      "https://www.donedeal.ie/find-a-dealer/Kerry"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Mulvihill Motors",
+    "county": "Kerry",
+    "town": "Moyvane",
+    "website": "https://www.mulvihillmotors.com/",
+    "businessPhone": "0862556491",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 30,
+      "source": "https://www.donedeal.ie/dealer/mulvihill-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 11375,
+    "reviews": {
+      "count": 22,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/mulvihill-motors"
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, Trusted Dealer badge, TURBO package, 30 ads",
+      "Paid site builder (DoneDeal dealer website)"
+    ],
+    "platform": "DoneDeal dealer website (footer 'Powered by DoneDeal', developed by Square1)",
+    "activity": "Newest DoneDeal ads 1 hour old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "Own DoneDeal dealer website (Square1 build): stock synced from DoneDeal shown on site, finance and trade-in mentions; no test drive form seen. Also repairs, tyres and NCT prep (DoneDeal description). Added 2026-11-20 from the DoneDeal Kerry dealer directory (https://www.donedeal.ie/find-a-dealer/Kerry): 30 ads listed there, 30 on the dealer page. Typical price is the median of the 6 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded. Phone from the own site (tel: link).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/mulvihill-motors",
+      "https://www.donedeal.ie/find-a-dealer/Kerry",
+      "https://www.mulvihillmotors.com/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "DOS Motors",
+    "county": "Kerry",
+    "town": "Killarney",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 24,
+      "source": "https://www.donedeal.ie/dealer/dos-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 9123,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, TURBO package, 24 ads"
+    ],
+    "platform": "none (no own website)",
+    "activity": "Newest DoneDeal ads 4 hours old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "No website listed on the DoneDeal directory or dealer page: stock lives only on DoneDeal, the clearest website pitch. Added 2026-11-20 from the DoneDeal Kerry dealer directory (https://www.donedeal.ie/find-a-dealer/Kerry): 25 ads listed there, 24 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/dos-motors",
+      "https://www.donedeal.ie/find-a-dealer/Kerry"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Mike O'Sullivan Car Sales Ltd",
+    "county": "Kerry",
+    "town": "Portmagee",
+    "website": null,
+    "businessPhone": "087 264 6300",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 23,
+      "source": "https://www.donedeal.ie/dealer/mike-osullivan-car-sales-ltd",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 12450,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, ACCELERATOR package, 23 ads"
+    ],
+    "platform": "none (no own website)",
+    "activity": "Newest DoneDeal ads 2 days old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "No website listed on the DoneDeal directory or dealer page: stock lives only on DoneDeal, the clearest website pitch. Cars, vans, SUVs and trucks (DoneDeal description). Added 2026-11-20 from the DoneDeal Kerry dealer directory (https://www.donedeal.ie/find-a-dealer/Kerry): 23 ads listed there, 23 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page. Phone from the DoneDeal dealer description.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/mike-osullivan-car-sales-ltd",
+      "https://www.donedeal.ie/find-a-dealer/Kerry"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Moriartys Central Car Sales",
+    "county": "Kerry",
+    "town": "Farranfore",
+    "website": "https://www.centralcarsales.ie/",
+    "businessPhone": "066-9764007",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 22,
+      "source": "https://www.donedeal.ie/dealer/moriartys-central-car-sales",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 16925,
+    "reviews": {
+      "count": 21,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/moriartys-central-car-sales"
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, CRUISE package, 22 ads",
+      "Paid site builder (CarsIreland dealer site)"
+    ],
+    "platform": "CarsIreland dealer site (footer 'Powered by CarsIreland.ie')",
+    "activity": "Newest DoneDeal ads 3 days old at check (2026-11-20); DoneDeal WhatsApp replies off. Socials not checked.",
+    "glanceNotes": "Own CarsIreland site: stock pages on site, finance, valuation/trade-in, test drive and enquiry forms, reviews block. Trades as Central Car Sales; also servicing, NCT prep, valeting and sourcing (DoneDeal description). Added 2026-11-20 from the DoneDeal Kerry dealer directory (https://www.donedeal.ie/find-a-dealer/Kerry): 22 ads listed there, 22 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded. Phone from the own site (tel: link).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/moriartys-central-car-sales",
+      "https://www.donedeal.ie/find-a-dealer/Kerry",
+      "https://www.centralcarsales.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Killarney Auto's Ltd",
+    "county": "Kerry",
+    "town": "Killarney",
+    "website": "https://www.killarneyautos.ie/",
+    "businessPhone": "064-6631355",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 21,
+      "source": "https://www.donedeal.ie/dealer/killarney-autos-ltd",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 45200,
+    "reviews": {
+      "count": 90,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/killarney-autos-ltd"
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, ACCELERATOR package, 21 ads",
+      "Paid site builder (CarsIreland dealer site)"
+    ],
+    "platform": "CarsIreland dealer site (footer 'Powered by CarsIreland.ie')",
+    "activity": "Newest DoneDeal ads 4 hours old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "Own CarsIreland site: stock pages on site, finance, valuation/trade-in, test drive and enquiry forms, reviews block. Mostly commercials and some coaches on DoneDeal, so the typical price is skewed up by vans and coaches. Added 2026-11-20 from the DoneDeal Kerry dealer directory (https://www.donedeal.ie/find-a-dealer/Kerry): 21 ads listed there, 21 on the dealer page. Typical price is the median of the 6 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded. Phone from the own site (tel: link).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/killarney-autos-ltd",
+      "https://www.donedeal.ie/find-a-dealer/Kerry",
+      "https://www.killarneyautos.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Pristine Classic Cars",
+    "county": "Kerry",
+    "town": "Glenbeigh",
+    "website": "https://www.pristine-classics.com/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 19,
+      "source": "https://www.donedeal.ie/dealer/pristine-classic-cars",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 22750,
+    "reviews": {
+      "count": 50,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/pristine-classic-cars"
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, ACCELERATOR package, 19 ads"
+    ],
+    "platform": "WordPress (WPBakery, Slider Revolution)",
+    "activity": "Newest DoneDeal ads 19 days old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "Added 2026-11-20 from the DoneDeal Kerry dealer directory (https://www.donedeal.ie/find-a-dealer/Kerry): 19 ads listed there, 19 on the dealer page. Typical price is the median of the 7 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded.",
+    "skip": "Classic and vintage car restorer and hire business (site title \"Vintage Car Sales & Car Hire\"); 19 classics on DoneDeal, not a used-car retailer we sell to.",
+    "sources": [
+      "https://www.donedeal.ie/dealer/pristine-classic-cars",
+      "https://www.donedeal.ie/find-a-dealer/Kerry",
+      "https://www.pristine-classics.com/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Trader Kerry",
+    "county": "Kerry",
+    "town": "Causeway",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 19,
+      "source": "https://www.donedeal.ie/dealer/trader-kerry",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 6823,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, ACCELERATOR package, 19 ads"
+    ],
+    "platform": "none (no own website)",
+    "activity": "Newest DoneDeal ads 8 days old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "No website listed on the DoneDeal directory or dealer page: stock lives only on DoneDeal, the clearest website pitch. Low-value stock. Added 2026-11-20 from the DoneDeal Kerry dealer directory (https://www.donedeal.ie/find-a-dealer/Kerry): 19 ads listed there, 19 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/trader-kerry",
+      "https://www.donedeal.ie/find-a-dealer/Kerry"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Healy Automotive",
+    "county": "Kerry",
+    "town": "Killorglin",
+    "website": "https://www.healyautomotive.ie/",
+    "businessPhone": "0874274626",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 16,
+      "source": "https://www.donedeal.ie/dealer/healy-automotive",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 12495,
+    "reviews": {
+      "count": 35,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/healy-automotive"
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, ACCELERATOR package, 16 ads",
+      "Paid site builder (DoneDeal dealer website)"
+    ],
+    "platform": "DoneDeal dealer website (footer 'Powered by DoneDeal', developed by Square1)",
+    "activity": "Newest DoneDeal ads 13 hours old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "Own DoneDeal dealer website (Square1 build): stock synced from DoneDeal shown on site, finance and trade-in mentions; no test drive form seen. Added 2026-11-20 from the DoneDeal Kerry dealer directory (https://www.donedeal.ie/find-a-dealer/Kerry): 18 ads listed there, 16 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded. Phone from the own site (tel: link).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/healy-automotive",
+      "https://www.donedeal.ie/find-a-dealer/Kerry",
+      "https://www.healyautomotive.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Mangan Bros Garage",
+    "county": "Kerry",
+    "town": "Milltown",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 18,
+      "source": "https://www.donedeal.ie/dealer/mangan-bros-garage",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 16250,
+    "reviews": {
+      "count": 13,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/mangan-bros-garage"
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, ACCELERATOR package, 18 ads"
+    ],
+    "platform": "none (no own website)",
+    "activity": "Newest DoneDeal ads 2 days old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "No website listed on the DoneDeal directory or dealer page: stock lives only on DoneDeal, the clearest website pitch. Family-run garage (DoneDeal description). Added 2026-11-20 from the DoneDeal Kerry dealer directory (https://www.donedeal.ie/find-a-dealer/Kerry): 18 ads listed there, 18 on the dealer page. Typical price is the median of the 9 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/mangan-bros-garage",
+      "https://www.donedeal.ie/find-a-dealer/Kerry"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Neziri Motors",
+    "county": "Kerry",
+    "town": "Tralee",
+    "website": "https://www.nezirimotors.ie/",
+    "businessPhone": "0874263945",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 19,
+      "source": "https://www.donedeal.ie/dealer/neziri-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 8950,
+    "reviews": {
+      "count": 37,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/neziri-motors"
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, ACCELERATOR package, 19 ads",
+      "Paid site builder (DoneDeal dealer website)"
+    ],
+    "platform": "DoneDeal dealer website (footer 'Powered by DoneDeal', developed by Square1)",
+    "activity": "Newest DoneDeal ads 2 days old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "Own DoneDeal dealer website (Square1 build): stock synced from DoneDeal shown on site, finance and trade-in mentions; no test drive form seen. Also ECU tuning (DoneDeal description). Added 2026-11-20 from the DoneDeal Kerry dealer directory (https://www.donedeal.ie/find-a-dealer/Kerry): 18 ads listed there, 19 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded. Phone from the own site (tel: link).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/neziri-motors",
+      "https://www.donedeal.ie/find-a-dealer/Kerry",
+      "https://www.nezirimotors.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Cunningham Motors",
+    "county": "Kerry",
+    "town": "Tralee",
+    "website": "https://www.cunninghammotors.ie/",
+    "businessPhone": "066-7122773",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 22,
+      "source": "https://www.donedeal.ie/dealer/cunningham-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 19950,
+    "reviews": {
+      "count": 53,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/cunningham-motors"
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, ACCELERATOR package, 22 ads",
+      "Paid site builder (CarsIreland dealer site)"
+    ],
+    "platform": "CarsIreland dealer site (footer 'Powered by CarsIreland.ie')",
+    "activity": "Newest DoneDeal ads 4 days old at check (2026-11-20); DoneDeal WhatsApp replies off. Socials not checked.",
+    "glanceNotes": "Own CarsIreland site: stock pages on site, finance, valuation/trade-in, test drive and enquiry forms, reviews block. Established 1977 (DoneDeal description); site title leads with servicing. Added 2026-11-20 from the DoneDeal Kerry dealer directory (https://www.donedeal.ie/find-a-dealer/Kerry): 17 ads listed there, 22 on the dealer page. Typical price is the median of the 1 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded. Phone from the own site (tel: link).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/cunningham-motors",
+      "https://www.donedeal.ie/find-a-dealer/Kerry",
+      "https://www.cunninghammotors.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Killorglin Autos Ltd",
+    "county": "Kerry",
+    "town": "Killorglin",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 16,
+      "source": "https://www.donedeal.ie/dealer/killorglin-autos-ltd",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 12500,
+    "reviews": {
+      "count": 109,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/killorglin-autos-ltd"
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, CRUISE package, 16 ads"
+    ],
+    "platform": "none (no own website)",
+    "activity": "Newest DoneDeal ads 1 day old at check (2026-11-20); DoneDeal WhatsApp replies off. Socials not checked.",
+    "glanceNotes": "No website listed on the DoneDeal directory or dealer page: stock lives only on DoneDeal, the clearest website pitch. Added 2026-11-20 from the DoneDeal Kerry dealer directory (https://www.donedeal.ie/find-a-dealer/Kerry): 16 ads listed there, 16 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/killorglin-autos-ltd",
+      "https://www.donedeal.ie/find-a-dealer/Kerry"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Murphy Motors",
+    "county": "Kerry",
+    "town": "Barraduff",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 15,
+      "source": "https://www.donedeal.ie/dealer/murphy-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 8850,
+    "reviews": {
+      "count": 4,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/murphy-motors"
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, TURBO package, 15 ads"
+    ],
+    "platform": "none (no own website)",
+    "activity": "Newest DoneDeal ads 6 hours old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "No website listed on the DoneDeal directory or dealer page: stock lives only on DoneDeal, the clearest website pitch. Barraduff, outside Killarney; says it supplies new and used cars (DoneDeal description). Added 2026-11-20 from the DoneDeal Kerry dealer directory (https://www.donedeal.ie/find-a-dealer/Kerry): 15 ads listed there, 15 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/murphy-motors",
+      "https://www.donedeal.ie/find-a-dealer/Kerry"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Tubrid Motors Ltd",
+    "county": "Kerry",
+    "town": "Ardfert (Tubrid, near Tralee)",
+    "website": "https://www.tubridmotors.ie/",
+    "businessPhone": "(066) 711 5993",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 15,
+      "source": "https://www.carsireland.ie/car-dealers/county/kerry/tubrid-motors-ltd",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 16745,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer account: 15 ads (15 cars)"
+    ],
+    "platform": "CarsIreland dealer website template (WordPress, 'Powered by CarsIreland')",
+    "activity": "Stock live on CarsIreland at check (2026-11-20). Socials not checked.",
+    "glanceNotes": "Independent, also mechanics and crash repair. Full CarsIreland template. Marginal at 15 cars. Added 2026-11-20 from the CarsIreland Kerry dealer directory (https://www.carsireland.ie/car-dealers/county/kerry). Stock is the directory's car count; typical price is the median of the 10 car prices on page 1 of the CarsIreland dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.carsireland.ie/car-dealers/county/kerry/tubrid-motors-ltd",
+      "https://www.carsireland.ie/car-dealers/county/kerry",
+      "https://www.tubridmotors.ie/"
+    ],
+    "validated": "2026-11-20",
+    "stockSource": "CarsIreland"
+  }
+]
