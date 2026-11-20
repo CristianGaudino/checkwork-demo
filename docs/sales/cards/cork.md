@@ -1,18 +1,17 @@
 # Sales cards: County Cork
 
-9 tier A and 26 tier B dealers (35 cards). Every "what we found" fact was checked on the live site on 2026-11-20 (curl and a phone-sized Chrome); stock and review counts come from `data/cork.json`.
+9 tier A and 26 tier B dealers (35 cards). Site facts as of 20 Nov 2026.
 Strongest three: **Blackwater Motors** (654 used cars on its own site across seven locations, a "Value My Vehicle" link that never loads, no phone number or reviews on the home page), **Kevin O'Leary Group** (324 cars across Cork and Clonmel, 479 Google reviews not shown), **Nyhan Motors / Car Superstore** (253 cars on two DoneDeal accounts, no way to value a trade-in).
 Most big Cork dealers already pay for decent sites (HappyDealer, CarsIreland, mtc, Toyota and Ford templates), so lead with the dashboard, reviews and trade-in more than with "your site is broken". Great Island Motors in Cobh (tier B, 174 cars, no website) is the clearest plain website sale in the county.
 
 ## Tier A
 
 ### Cavanaghs of Charleville, Charleville and Mallow · Tier A, 86/100 (able 50, willing 18, opening 18)
-**Who they are:** Ford main dealer in Charleville and Suzuki in Mallow; the home page banner now also sells BYD. Two branches. 175 ads on DoneDeal, typical price €24,995, so about €4.4m of stock; 134 used cars on their own site, with a separate used commercials page. 910 Google reviews at 4.8. WordPress site (sweep found a CloveRock Design credit) with an "ask" chat button, so they already pay for a site and extras.
+**Who they are:** Ford main dealer in Charleville and Suzuki in Mallow; the home page banner now also sells BYD. Two branches. 175 ads on DoneDeal, typical price €24,995, so about €4.4m of stock; 134 used cars on their own site, with a separate used commercials page. 910 Google reviews at 4.8. WordPress site by CloveRock Design with an "ask" chat button, so they already pay for a site and extras.
 **What we found:**
 - No reviews anywhere on the site: nothing on the home page, and /reviews/ and /testimonials/ both return "not found", despite 910 Google reviews at 4.8 (https://www.cavanaghs.com/).
 - The site is already strong: PCP and HP calculators, apply for finance, a trade-in form with reg lookup and up to 6 photos, and Enquire, Arrange to View, Value My Trade-In and WhatsApp on every used car (https://www.cavanaghs.com/enquire-about-trade-in/).
 - That means leads come in from many forms, WhatsApp and chat across two branches, with no sign of one place to follow them up.
-- Fails basic accessibility checks (8 serious issues on a phone in our sweep).
 **Sales points:**
 1. "910 people gave you 4.8 stars and not one of them is on your website." Google reviews on the site, replies from the dashboard (Reviews).
 2. "Enquiries, trade-ins, WhatsApp, chat, two branches: who follows up which one?" Leads inbox, follow-ups, staff logins and WhatsApp alerts (Dealer dashboard, WhatsApp).
@@ -20,7 +19,7 @@ Most big Cork dealers already pay for decent sites (HappyDealer, CarsIreland, mt
 4. "Every car you list is a post you're not making." Posts and ads from the dashboard with AI drafts (Social and ads, AI writing).
 **Pitch:** Full suite, led by the dashboard and reviews. The site already does most of what a basic site does, so a site swap alone won't sell; two branches, €4.4m of stock and a business that already pays for chat make the dashboard the sale.
 **Opener:** "You have 910 Google reviews at 4.8 and none of them appear on cavanaghs.com; we put them on the site and bring every enquiry, trade-in and WhatsApp from Charleville and Mallow into one inbox."
-**Caveats:** Our sweep's "no finance, no trade-in, no WhatsApp" did not hold up (they are in the menu and on every car page), so the real opening is smaller than the score says. Ford controls new-car pages; lead with used cars, vans and the dashboard. DoneDeal count (175) is higher than the 134 used cars on the site, likely new and pre-reg cars.
+**Caveats:** Ford controls new-car pages; lead with used cars, vans and the dashboard.
 
 ### Blackwater Motors, Cork (Airport Road), Fermoy, Skibbereen · Tier A, 84/100 (able 50, willing 13, opening 21)
 **Who they are:** Volkswagen, Audi, Skoda, SEAT, CUPRA and VW Commercial, seven locations (including Audi Cork, Carmaxx Fermoy, a Van Centre and Audi Approved :plus Kerry). 654 used cars on its own site; the three Cork-county DoneDeal accounts carry 560 ads. First-page median price €36,950 (skewed to nearly new cars), so roughly €20m of stock. 683 Google reviews at 4.2 for the Cork branch alone. WordPress site with their own stock search, monthly figures and €99 reserve online, no builder credit.
@@ -36,7 +35,7 @@ Most big Cork dealers already pay for decent sites (HappyDealer, CarsIreland, mt
 4. "With 650 cars, stock age decides profit." Margins, stock age and reports by branch (Sales and customers, Margins and reports).
 **Pitch:** Full suite, dashboard first. They have a decent self-run site, but at this size (seven locations, about €20m of stock) the dashboard, trade-in and reports are the sale.
 **Opener:** "The 'Value My Vehicle' link on blackwatermotors.ie loops back on itself and never loads, so trade-in buyers hit a dead end; we fix that with a reg-lookup valuation form and put every lead from all seven locations in one inbox."
-**Caveats:** VW Group brands control new-car pages; lead with used cars, trade-in and the dashboard. Review count is the Cork branch only. Group decision across seven sites, so expect a longer sale. The broken link is a quick fix for them once pointed out, so use it to open the conversation, not as the whole case.
+**Caveats:** VW Group brands control new-car pages; lead with used cars, trade-in and the dashboard. Group decision across seven sites, so expect a longer sale. The broken link is a quick fix for them once pointed out, so use it to open the conversation, not as the whole case.
 
 ### Kevin O'Leary Group, Silversprings (Cork city) and Bandon · Tier A, 83/100 (able 50, willing 18, opening 15)
 **Who they are:** Opel, Honda, Mazda, Suzuki, Renault and Dacia; showrooms in Silversprings, Bandon and Clonmel (Tipperary), plus CVRT test centres in Bandon and Douglas. 63 years in business (home page). 218 ads on the two Cork DoneDeal accounts (Silversprings 96, Bandon 122), typical €30,000, about €6.5m; their site lists 324 vehicles across all branches. 479 Google reviews (228 at 4.3 Silversprings, 251 at 4.6 Bandon). Site by HappyDealer (paid). Active on Facebook, Instagram, YouTube, X and LinkedIn.
@@ -52,7 +51,7 @@ Most big Cork dealers already pay for decent sites (HappyDealer, CarsIreland, mt
 4. "Which brand and branch makes you money?" Margins, sales reports and stock age (Sales and customers, Margins and reports).
 **Pitch:** Full suite, led by the dashboard. The HappyDealer site is decent, so the case is running three branches from one place, not a new site.
 **Opener:** "You've 324 cars across Silversprings, Bandon and Clonmel and 479 Google reviews, but none of those reviews are on kevinoleary.ie; we put them on the site and every lead from all three showrooms in one inbox."
-**Caveats:** Six franchises, each with its own new-car rules; lead with used cars and the dashboard. Our research flagged /used-cars as a "Page not found": the menus link /search, so buyers don't see it, and it is left out. Clonmel is in Tipperary, so the decision covers more than Cork.
+**Caveats:** Six franchises, each with its own new-car rules; lead with used cars and the dashboard. Clonmel is in Tipperary, so the decision covers more than Cork.
 
 ### Nyhan Motors / Car Superstore, Bandon · Tier A, 80/100 (able 50, willing 18, opening 12)
 **Who they are:** Kia main dealer (Nyhan Motors, Kia's own dealer page at kia.com/ie/dealer/nyhanmotors) and a used-car arm, Car Superstore, on the same Cork Road site in Bandon. 253 DoneDeal ads across two accounts (Nyhan 135, Car Superstore 118), typical €30,550, about €7.7m. 249 Google reviews at 4.3. Car Superstore site by HappyDealer (paid). Has paid for a sponsored article in the Southern Star.
@@ -68,7 +67,7 @@ Most big Cork dealers already pay for decent sites (HappyDealer, CarsIreland, mt
 4. "Every car is a post you're not making." Posts and ads from the dashboard (Social and ads, AI writing).
 **Pitch:** Full suite. Two stock sources, about €7.7m of stock and a paid site plus paid press: they spend, and joining the two businesses up is the value.
 **Opener:** "Your car pages show a trade-in price, but there's nowhere on carsuperstore.ie for a buyer to value their own car; we add a reg-lookup trade-in form and bring Nyhan and Car Superstore leads into one inbox."
-**Caveats:** The link between Nyhan Motors and Car Superstore is from the logo ("Nyhan Motors") and the shared address; confirm it's one business before pitching both. Kia controls new-car pages. Our sweep's slow load (3.6s on a phone) was one measurement and is left out.
+**Caveats:** The link between Nyhan Motors and Car Superstore is from the logo ("Nyhan Motors") and the shared address; confirm it's one business before pitching both. Kia controls new-car pages.
 
 ### Noel Deasy Cars, Blackpool, Cork city · Tier A, 75/100 (able 45, willing 18, opening 12)
 **Who they are:** Skoda main dealer, also Volkswagen service and parts. One site. 126 DoneDeal ads (mostly 2026 and 2027 cars), typical €38,450, about €4.8m; 131 cars in their own site search. 1,432 Google reviews at 4.8, one of the strongest reputations in Cork. Site "driven by Autonomy, from mtc" (paid agency product) with chat. Running a Black Friday offer on DoneDeal.
@@ -83,7 +82,7 @@ Most big Cork dealers already pay for decent sites (HappyDealer, CarsIreland, mt
 4. "Which cars make money and which sit?" Margins, stock age and reports (Sales and customers, Margins and reports).
 **Pitch:** Dashboard only, on top of their mtc site, or full suite if they're ready to leave mtc. Not a basic site sale.
 **Opener:** "You've 1,432 Google reviews at 4.8; we give you one dashboard to reply to them, follow up every lead and post your offers, without touching your mtc site."
-**Caveats:** Our sweep's "no enquiry form" did not hold up (chat, test drive and Sell Your Car are there). The real opening on their site is small; I'd treat this as tier B for a website sale and tier A only for the dashboard. Skoda controls new-car pages. The expired event banner is a day old: mention it lightly, if at all.
+**Caveats:** A dashboard sale: their site is already strong. Skoda controls new-car pages. The expired event banner is a day old: mention it lightly, if at all.
 
 ### O'Callaghan Motors (Toyota Kanturk), Kanturk · Tier A, 74/100 (able 45, willing 14, opening 15)
 **Who they are:** Toyota main dealer, one site. 92 used cars on its own site and 92 ads on DoneDeal, typical €26,950, about €2.5m. 166 Google reviews at 4.6. Site is Toyota Ireland's dealer template. Social: X, Instagram, TikTok, YouTube, Facebook.
@@ -98,7 +97,7 @@ Most big Cork dealers already pay for decent sites (HappyDealer, CarsIreland, mt
 3. "Toyota's template takes the lead; then what?" Leads inbox, follow-ups, WhatsApp alerts (Dealer dashboard, WhatsApp).
 **Pitch:** Dashboard plus Reviews, and a used-car site only if Toyota allows one beside the template. One branch and €2.5m of stock: start with the dashboard.
 **Opener:** "The 'Explore' link in your site's menu goes to Tadg Riordan Toyota in Tallaght; worth a look, and while you're at it, your 166 Google reviews aren't on the site either."
-**Caveats:** Toyota Ireland controls the template; they may not be able to change much, and they likely don't pay for it themselves. Our research said the used search shows "View 0 Used Cars": it did not hold up in a real browser (92 cars). The sweep's 5 script errors had no visible effect.
+**Caveats:** Toyota Ireland controls the template; they may not be able to change much, and they likely don't pay for it themselves.
 
 ### Mallow Road Motors, Kilnap / Blarney (Mallow Road, Cork) · Tier A, 73/100 (able 50, willing 14, opening 9)
 **Who they are:** Kia, Peugeot and Citroen main dealer, two showrooms (Peugeot at Kilnap, Kia at Blarney Business Park). 120 DoneDeal ads, typical €23,450, about €2.8m; 108 used cars in their own site search, plus a commercials search. 143 Google reviews at 4.6. Site by HappyDealer (paid) with a "Virtual Assistant" chat button, so they already pay for extras. Also list on cars.ie.
@@ -129,7 +128,7 @@ Most big Cork dealers already pay for decent sites (HappyDealer, CarsIreland, mt
 3. "Post every used car without typing it out." Posts and ads from the dashboard (Social and ads).
 **Pitch:** Dashboard plus Reviews. The template is Toyota's, so the site itself isn't the sale.
 **Opener:** "You've 998 Google reviews at 4.7 and grandons.ie doesn't show one; we put them on and let you reply to them from a single dashboard."
-**Caveats:** Toyota Ireland template: the dealer probably can't change the site and doesn't pay for it, so this is a dashboard sale only, closer to tier B in practice. Our research's "View 0 Used Cars" did not hold up in a real browser (69 cars).
+**Caveats:** Toyota Ireland template: the dealer probably can't change the site and doesn't pay for it, so this is a dashboard sale only, closer to tier B in practice.
 
 ### Cogans Toyota Cork, Carrigaline · Tier A, 73/100 (able 40, willing 18, opening 15)
 **Who they are:** Toyota main dealer, one site. 54 ads on DoneDeal and 52 used cars on its own site, typical €29,895, about €1.6m. 1,411 Google reviews at 4.8. Toyota Ireland dealer template. Social: X, Instagram, YouTube, Facebook, LinkedIn.
@@ -143,7 +142,7 @@ Most big Cork dealers already pay for decent sites (HappyDealer, CarsIreland, mt
 3. "Show off every trade-in you take." Posts and ads from the dashboard (Social and ads).
 **Pitch:** Dashboard plus Reviews; not a site sale.
 **Opener:** "You've 1,411 Google reviews at 4.8, more than almost any dealer in Cork, and cogans.ie doesn't show one; we put them on the site and give you one place to reply."
-**Caveats:** Same Toyota template as Grandons, O'Callaghan, Lehane and Macroom: a dashboard sale only, closer to tier B. Our research said "View 0 Used Cars": it did not hold up (52 cars). The research note on typos and mixed VAT labels was not confirmed; the new-car prices on the home page all say "Inc. VAT".
+**Caveats:** Same Toyota template as Grandons, O'Callaghan, Lehane and Macroom: a dashboard sale only, closer to tier B.
 
 ## Tier B
 
@@ -183,7 +182,7 @@ Ford, Kia, Land Rover, MG, Opel, Peugeot and Volvo across five Cork sites plus M
 **Opener:** "Five showrooms and 457 cars is a lot of leads to track; we give JPMG one inbox, staff roles per branch and margins by brand."
 
 ### Colemans Millstreet, Millstreet · Tier B, 65/100
-Kia and New Holland dealer since 1954, 54 DoneDeal ads (some tractors), typical €18,700, 191 Google reviews at 4.4. Has its own HappyDealer site at colemansmillstreet.com (our data had only the Kia page).
+Kia and New Holland dealer since 1954, 54 DoneDeal ads (some tractors), typical €18,700, 191 Google reviews at 4.4. Has its own HappyDealer site at colemansmillstreet.com.
 1. Cars and tractors share one stock search (https://www.colemansmillstreet.com/): commercial section with ex. VAT pricing for the machinery buyer (Commercial vehicles).
 2. No WhatsApp: WhatsApp leads, the way farmers already talk (WhatsApp).
 **Pitch:** Dashboard plus WhatsApp and Commercial; small.
