@@ -60,11 +60,11 @@ test("on the narrowest phone the dealer's module switches open inside the panel 
   const modules = bar.getByRole("button", { name: /^Plan/ });
   await expect(modules).toBeInViewport({ ratio: 1 });
   await modules.click();
-  const base = bar.getByRole("button", { name: /^Base only/ });
-  await expect(base).toBeInViewport({ ratio: 1 });
-  await base.click();
-  await expect(modules).toContainText("Base only");
-  await expect(base).toHaveAttribute("aria-pressed", "true");
+  const showroom = bar.getByRole("button", { name: /^Showroom/ });
+  await expect(showroom).toBeInViewport({ ratio: 1 });
+  await showroom.click();
+  await expect(modules).toContainText("Showroom");
+  await expect(showroom).toHaveAttribute("aria-pressed", "true");
 });
 
 test("light is the default, dark is a choice that sticks and does not flash", async ({ page }) => {
@@ -81,7 +81,7 @@ test("light is the default, dark is a choice that sticks and does not flash", as
   await expect(html).not.toHaveAttribute("data-theme", "dark");
 });
 
-test("the public site follows the plan: on Base only the module pages are gone, from the menu and the car page too (the finance estimate stays: it is the car's price)", async ({ page, context, baseURL }) => {
+test("the public site follows the modules: with none on, the module pages are gone, from the menu and the car page too (the finance estimate stays: it is the car's price)", async ({ page, context, baseURL }) => {
   await context.addCookies([{ name: "checkwork-demo-modules", value: "none", url: baseURL! }]);
   for (const path of ["/finance", "/trade-in", "/test-drive", "/reviews", "/service", "/new-cars", "/commercial", "/find-a-car"]) expect((await page.request.get(path)).status(), path).toBe(404);
   expect((await page.request.get("/dashboard/test-drives")).status()).toBe(404);

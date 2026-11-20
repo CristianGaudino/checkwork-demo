@@ -228,7 +228,8 @@ Until both are set the admin answers 404 for everyone. The Worker checks Access'
 
 ## Billing and Help
 
-The plans (#223, `TIERS` in `src/lib/billing/rules.ts`, from `docs/sales/pricing-strategy.md`), a month before VAT:
+The plans (#223, `TIERS` in `src/lib/billing/rules.ts`, from `docs/sales/pricing-strategy.md`), a month before VAT. Only these three tiers
+and their add-ons are sold:
 
 | Tier | Modules | Monthly | Setup | Included each month |
 |---|---|---|---|---|
@@ -238,20 +239,20 @@ The plans (#223, `TIERS` in `src/lib/billing/rules.ts`, from `docs/sales/pricing
 
 - **Add-ons** at module prices (`MODULE_EUR`): any module the tier lacks, such as commercial EUR 29, service EUR 49, social EUR 99,
   newsletter EUR 59, new cars EUR 99. New cars covers 2 brands; each more brand is EUR 29 a month and EUR 100 at setup, in a tier or not
-  (setup EUR 400 as an add-on). "Custom" is the cheapest of the base site (EUR 200, setup EUR 1,200) plus each module, or a tier plus add-ons.
+  (setup EUR 400 as an add-on). A plan is the cheapest tier for the dealer's modules plus add-ons; no modules is Showroom. Showroom takes
+  no add-on that is or needs the dashboard, and more than one branch is Group. The demo bar calls a set that is not exactly a tier's "Custom".
 - **Over the allowance** each use is billed: lookup EUR 0.30, WhatsApp alert EUR 0.05, reply EUR 0.03, marketing message EUR 0.12, AI
-  action EUR 0.04 (Standard) or EUR 0.08 (Premium). Replies and marketing messages are never included. A plan with no tier can take the
-  AI assistant instead (EUR 19 a month, 300 actions); a tier's own AI allowance replaces it.
+  action EUR 0.04 (Standard) or EUR 0.08 (Premium). Replies and marketing messages are never included.
 - **Payment terms** (`term`): monthly at list price, a year upfront for 11 months' price, or a 2-year contract with no setup fee.
 - `term`, `branches` (default 1) and `brands` (default 1) are billing settings set from the owner's program, as the ceilings are. Branches
   only change Group's price and allowance until multi-branch is built (#226).
 
 `/dashboard/billing` is for the Owner and Manager (`can("billing")`; anyone else gets a 404, and so does every action). It has three sections:
 the plan and this month's usage (with the payment term, what
-the allowance covers, and an "Estimate" for the month end), the setup fees (the tier's or the website's, and those of add-ons set up with
+the allowance covers, and an "Estimate" for the month end), the setup fees (the tier's, and those of add-ons set up with
 outside accounts (Social, New cars, WhatsApp), none on a 2-year contract;
 `setupLines` in `src/lib/billing/rules.ts`, also totalled in the demo bar's plans panel), the limits and alerts (a euro limit per service
-and for all usage, never above ours; the 80% alert; "tell me when X passes EUR N"; the AI plan without a tier's AI allowance, and the writing quality, Premium (Claude Opus) at EUR 0.08
+and for all usage, never above ours; the 80% alert; "tell me when X passes EUR N"; AI writing's quality, Premium (Claude Opus) at EUR 0.08
 an action or Standard (Claude Sonnet) at EUR 0.04, each action counted under the model that wrote it; the dealer never sees the model
 or provider's name), and the bills. While prices are hidden (`SHOW_PRICING`) the page shows the plan's name, its modules, the payment
 term, the writing quality and the billing details, with no euro. Every change is written to the activity log. Rules and maths: `src/lib/billing/bills-rules.ts`

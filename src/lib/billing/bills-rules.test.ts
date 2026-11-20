@@ -38,16 +38,16 @@ describe("parseAlert", () => {
 
 describe("itemise", () => {
   const bill: Bill = {
-    id: "2026-10", issuedOn: "2026-11-01", dueOn: "2026-12-01", status: "due", base: 200, modules: [{ label: "Finance", eur: 29 }], aiAssistantEur: 0,
+    id: "2026-10", issuedOn: "2026-11-01", dueOn: "2026-12-01", status: "due", modules: [{ label: "Showroom plan", eur: 249 }, { label: "Commercial vehicles", eur: 29 }],
     usage: [{ service: "ai", kind: "opus", count: 10, unitEur: 0.05 }, { service: "whatsapp", kind: "alert", count: 0, unitEur: 0.05 }],
   };
   it("adds the plan and the usage, then VAT", () => {
     const t = itemise(bill);
-    expect(t.planEur).toBe(229);
+    expect(t.planEur).toBe(278);
     expect(t.usageEur).toBe(0.5);
-    expect(t.net).toBe(229.5);
-    expect(t.vatEur).toBe(52.79);
-    expect(t.total).toBe(282.29);
+    expect(t.net).toBe(278.5);
+    expect(t.vatEur).toBe(64.06);
+    expect(t.total).toBe(342.56);
     expect(t.usage).toHaveLength(1); // a line with no uses is left out
     expect(t.usage[0].detail).toBe("10 x €0.05");
   });

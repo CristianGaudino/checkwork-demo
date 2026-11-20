@@ -3,7 +3,7 @@ import { defineCollection } from "@/lib/admin/docs";
 import { dublinDay } from "@/lib/admin/format";
 import { SETTINGS_DEFAULT, getSettings, settingsStore, type DealerSettings } from "@/lib/admin/collections";
 import { notify } from "@/lib/admin/notifications";
-import { SHOW_PRICING, alertsCrossed, allowanceFor, planFor, usageCosts, usageId, withinCaps, type BillingSettings, type Kind, type Service, type UsageCount, withBillingDefaults } from "./rules";
+import { SHOW_PRICING, alertsCrossed, allowanceFor, usageCosts, usageId, withinCaps, type BillingSettings, type Kind, type Service, type UsageCount, withBillingDefaults } from "./rules";
 import { enabledModules } from "@/lib/modules";
 import { roleCan } from "@/lib/permission-rules";
 
@@ -16,13 +16,8 @@ export const sentAlertsStore = defineCollection<{ id: string }>("usage-alerts", 
 
 export const monthOf = (t: number = Date.now()) => dublinDay(t).slice(0, 7);
 
-// The assistant plan counts only while the dealer has the AI module and no tier (a tier with AI has its own allowance), so the Billing page,
-// the meters and the owner API agree.
-export async function billingSettings(): Promise<BillingSettings> {
-  const [s, on] = await Promise.all([getSettings(), enabledModules()]);
-  const b = withBillingDefaults(s.billing);
-  return b.aiPlan === "assistant" && (!on.has("ai") || planFor(on, b).tier) ? { ...b, aiPlan: "perAction" } : b;
-}
+// A record saved before the AI assistant was dropped may still carry `aiPlan`: nothing reads it.
+export const billingSettings = async (): Promise<BillingSettings> => withBillingDefaults((await getSettings()).billing);
 // What the plan includes this month before usage is billed.
 export const monthAllowance = async (b: BillingSettings) => allowanceFor(await enabledModules(), b);
 export async function monthCounts(month = monthOf()): Promise<UsageCount[]> {
@@ -74,7 +69,7 @@ export async function recordUsage<S extends Service>(service: S, kind: Kind<S>, 
 
 // Saves the dealer's limits and alerts. Ours (the ceilings) are set from the owner's program, never here.
 // `change` may be worked out from the billing as it is when written (adding or removing one alert), so two saves at once both land.
-type BillingChange = Partial<Pick<BillingSettings, "caps" | "alerts" | "alertAt80" | "aiPlan" | "aiModel">>;
+type BillingChange = Partial<Pick<BillingSettings, "caps" | "alerts" | "alertAt80" | "aiModel">>;
 export async function saveBilling(change: BillingChange | ((now: BillingSettings) => BillingChange)) {
   // On the settings as they are now, so a team change saved at the same moment is never undone.
   const apply = (s: Partial<DealerSettings>) => {

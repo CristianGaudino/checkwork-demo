@@ -3,12 +3,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 const team = vi.hoisted(() => ({ list: [] as { id: string; name: string; email: string; role: string }[] }));
 vi.mock("@/lib/admin/collections", () => ({
-  getSettings: async () => ({ team: team.list, billing: { caps: { lookup: 1 }, ceilings: {}, alerts: [], alertAt80: true, aiPlan: "perAction" } }),
+  getSettings: async () => ({ team: team.list, billing: { caps: { lookup: 1 }, ceilings: {}, alerts: [], alertAt80: true, aiPlan: "assistant" } }), // aiPlan: a stored record from before the assistant was dropped, ignored
   settingsStore: { put: async () => {} },
 }));
 const notices = vi.hoisted(() => [] as { for?: string }[]);
 vi.mock("@/lib/admin/notifications", () => ({ notify: async (n: { for?: string }) => void notices.push(n) }));
-vi.mock("@/lib/modules", () => ({ enabledModules: async () => new Set(["lookupWebsite", "lookupDashboard", "ai"]) })); // no tier, so no allowance
+vi.mock("@/lib/modules", () => ({ enabledModules: async () => new Set(["tradeIn", "lookupWebsite"]) })); // Showroom: 25 lookups included
 vi.mock("./rules", async (real) => ({ ...(await real<typeof import("./rules")>()), SHOW_PRICING: true })); // the notices as they work with pricing shown
 const { recordUsage, usageStore, sentAlertsStore } = await import("./usage");
 
@@ -27,13 +27,13 @@ describe("who hears that a limit is reached", () => {
       { id: "2", name: "Conor Doyle", email: "conor@example.com", role: "Sales" },
     ];
     vi.stubEnv("ADMIN_OWNER_EMAILS", "Owner@Example.com, ciara@example.com");
-    await recordUsage("lookup", "website", 4); // €1.20, past the €1 limit
+    await recordUsage("lookup", "website", 29); // 25 included, then 4 at €1.20, past the €1 limit
     expect([...new Set(notices.map((n) => n.for))].sort()).toEqual(["Ciara Walsh", "owner@example.com"]);
   });
 
   it("nobody at all when there is no owner or manager, rather than everyone", async () => {
     team.list = [{ id: "2", name: "Conor Doyle", email: "conor@example.com", role: "Sales" }];
-    await recordUsage("lookup", "website", 4);
+    await recordUsage("lookup", "website", 29);
     expect(notices).toEqual([]);
   });
 });
@@ -43,5 +43,12 @@ describe("our ceilings on a record saved before they existed", () => {
     const { billingSettings } = await import("./usage");
     const { AI_CEILING_EUR } = await import("./rules");
     expect((await billingSettings()).ceilings.ai).toBe(AI_CEILING_EUR);
+  });
+});
+
+describe("a stored AI assistant plan", () => {
+  it("is ignored: the allowance is the tier's", async () => {
+    const { billingSettings, monthAllowance } = await import("./usage");
+    expect(await monthAllowance(await billingSettings())).toEqual({ lookup: 25 });
   });
 });

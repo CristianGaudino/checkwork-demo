@@ -11,7 +11,7 @@ import { can, currentMember } from "@/lib/permissions";
 import { fieldErrors } from "@/lib/admin/validation";
 import { billingSettings, saveBilling, monthUsage } from "@/lib/billing/usage";
 import { eur, parseAlert, parseLimits, billedServices } from "@/lib/billing/bills-rules";
-import { AI_MODELS, AI_PLANS, KINDS, SERVICE_LABELS, type AiModel, type AiPlan, type Scope } from "@/lib/billing/rules";
+import { AI_MODELS, KINDS, SERVICE_LABELS, type AiModel, type Scope } from "@/lib/billing/rules";
 import { requireStaff } from "@/lib/staff";
 
 export type BillingState = { errors?: Record<string, string>; saved?: boolean } | undefined;
@@ -57,15 +57,6 @@ export async function removeAlertAction(scope: Scope, amountEur: number) {
   if (!b.alerts.some(gone)) return;
   await saveBilling((now) => ({ alerts: now.alerts.filter((a) => !gone(a)) }));
   await logActivity("settings", `Removed the alert for when ${scopeLabel(scope)} passes ${eur(amountEur)}`);
-  revalidatePath("/dashboard/billing");
-}
-
-export async function saveAiPlanAction(plan: AiPlan) {
-  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
-  if (!(await can("billing")) || !AI_PLANS.includes(plan) || !(await enabledModules()).has("ai")) return;
-  if ((await billingSettings()).aiPlan === plan) return;
-  await saveBilling({ aiPlan: plan });
-  await logActivity("settings", `Changed the AI plan to ${plan === "assistant" ? "the AI assistant" : "pay per action"}`);
   revalidatePath("/dashboard/billing");
 }
 

@@ -1,5 +1,5 @@
 import type { ModuleId } from "@/lib/modules-rules";
-import { KINDS, SERVICES, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, round2, usageCosts, type AiPlan, type Allowance, type Scope, type Service } from "./rules";
+import { KINDS, SERVICES, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, round2, usageCosts, type Allowance, type Scope, type Service } from "./rules";
 
 // The Billing page's pure rules: reading the limit and alert forms, and what a bill is made of. No server code,
 // so the forms (browser) and the tests use them too.
@@ -57,15 +57,12 @@ export type Bill = {
   issuedOn: string; // YYYY-MM-DD
   dueOn: string;
   status: "paid" | "due";
-  base: number;
-  modules: { label: string; eur: number }[];
-  aiAssistantEur: number;
+  modules: { label: string; eur: number }[]; // the plan's lines: the tier, its extra branches, each add-on (planLines)
   usage: BillUsage[];
 };
 export type BillLine = { label: string; detail?: string; eur: number };
 export function itemise(b: Bill) {
-  // `base` is 0 when a tier's line (which has the base in it) is among the modules.
-  const plan: BillLine[] = [...(b.base ? [{ label: "Website", eur: b.base }] : []), ...b.modules, ...(b.aiAssistantEur ? [{ label: "AI assistant", eur: b.aiAssistantEur }] : [])];
+  const plan: BillLine[] = b.modules;
   const billed = (u: BillUsage) => u.count - (u.included ?? 0);
   const usage: BillLine[] = b.usage.filter((u) => billed(u) > 0).map((u) => ({ label: `${SERVICE_LABELS[u.service]}: ${(KINDS[u.service] as Record<string, string>)[u.kind] ?? u.kind}`, detail: `${billed(u)} x ${eur(u.unitEur)}`, eur: round2(billed(u) * u.unitEur) }));
   const planEur = round2(plan.reduce((n, l) => n + l.eur, 0));
@@ -80,8 +77,6 @@ export function usageLines(counts: { service: Service; kind: string; count: numb
   const c = usageCosts(counts, allowance);
   return SERVICES.flatMap((service) => c[service].kinds.map(({ kind, count, included }) => ({ service, kind, count, included, unitEur: (UNIT_PRICE_EUR[service] as Record<string, number>)[kind] })));
 }
-
-export const AI_PLAN_LABELS: Record<AiPlan, string> = { perAction: "Pay per action", assistant: "AI assistant" };
 
 // The paid services a dealer has, from their modules: the lookup in either place, AI writing, WhatsApp.
 // What can have a limit, and is listed on the Billing page: each service the dealer has, and one used this month before it was switched

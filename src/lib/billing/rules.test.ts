@@ -27,19 +27,19 @@ describe("usage costs", () => {
     expect(w.kinds.map((k) => k.included)).toEqual([500, 0, 0]);
   });
 
-  it("each tier's allowance, Group's lookups and alerts per branch; the AI assistant only without a tier", () => {
+  it("each tier's allowance, Group's lookups and alerts per branch", () => {
+    expect(allowanceFor([], opts())).toEqual({ lookup: 25 }); // no modules is Showroom
     expect(allowanceFor(SHOWROOM, opts())).toEqual({ lookup: 25 });
-    expect(allowanceFor(DEALER, opts({ aiPlan: "assistant" }))).toEqual({ lookup: 100, whatsapp: 500, ai: 100 });
+    expect(allowanceFor(DEALER, opts())).toEqual({ lookup: 100, whatsapp: 500, ai: 100 });
     expect(allowanceFor(GROUP, opts({ branches: 3 }))).toEqual({ lookup: 300, whatsapp: 1500, ai: 300 });
-    expect(allowanceFor(["dashboard", "ai"], opts({ aiPlan: "assistant" }))).toEqual({ ai: 300 });
-    expect(allowanceFor(["dashboard", "ai"], opts())).toEqual({});
+    expect(allowanceFor(["dashboard", "ai"], opts())).toEqual({ lookup: 100, whatsapp: 500, ai: 100 }); // AI needs the dashboard: Dealer
   });
 });
 
 describe("setup fees", () => {
-  it("are the tier's, or the website's, plus each add-on set up with an outside account, and new-car brands past two", () => {
-    expect(setupLines([])).toEqual([{ label: "Website", eur: 1200 }]);
-    expect(setupEur(["dashboard", "finance"])).toBe(1200);
+  it("are the tier's, plus each add-on set up with an outside account, and new-car brands past two", () => {
+    expect(setupLines([])).toEqual([{ label: "Showroom plan", eur: 950 }]);
+    expect(setupEur(["dashboard", "finance"])).toBe(950); // Dealer
     expect(setupEur(SHOWROOM)).toBe(950);
     expect(setupEur(DEALER)).toBe(950); // WhatsApp is in the tier
     expect(setupEur([...DEALER, "social"])).toBe(950 + 150);
@@ -51,7 +51,7 @@ describe("setup fees", () => {
     expect(termSetupEur(950, "twoYear")).toBe(0);
     expect(termSetupEur(950, "annual")).toBe(950);
     expect(termSetupEur(950, "monthly")).toBe(950);
-    expect(yearUpfrontEur(planEur(DEALER, "perAction"))).toBe(4939);
+    expect(yearUpfrontEur(planEur(DEALER))).toBe(4939);
   });
 });
 
@@ -87,40 +87,42 @@ describe("alerts", () => {
 });
 
 describe("the plan and the estimate", () => {
-  it("prices the base and the modules, with the assistant's fee when chosen", () => {
-    expect(planEur([], "perAction")).toBe(200);
-    expect(planEur(["dashboard", "finance"], "assistant")).toBe(200 + 49 + 29 + 19);
+  it("is always a tier: no modules is Showroom, and the dashboard makes it Dealer at least", () => {
+    expect(planFor([])).toMatchObject({ name: "Showroom", eur: 249, extras: [] });
+    expect(planFor(["finance"])).toMatchObject({ name: "Showroom", eur: 249, extras: [] });
+    expect(planEur(["dashboard", "finance"])).toBe(449);
+    expect(planFor(["dashboard"])).toMatchObject({ name: "Dealer", eur: 449 });
   });
-  it("prices a tier when it is cheaper, with add-ons at their own price", () => {
-    expect(planFor(SHOWROOM)).toMatchObject({ name: "Showroom", eur: 249, separateEur: 326, saving: 77, extras: [] });
+  it("prices the cheapest tier, with add-ons at their own price", () => {
+    expect(planFor(SHOWROOM)).toMatchObject({ name: "Showroom", eur: 249, extras: [] });
     expect(planFor(DEALER)).toMatchObject({ name: "Dealer", eur: 449, extras: [] });
     expect(planFor([...DEALER, "service", "commercial"])).toMatchObject({ name: "Dealer", eur: 449 + 49 + 29, extras: ["service", "commercial"] });
     expect(planFor(GROUP)).toMatchObject({ name: "Group", eur: 749 });
     expect(planFor([...DEALER, "margins", "social", "newsletter", "newCars"])).toMatchObject({ name: "Group", eur: 749 }); // Dealer and these add-ons would be 755
     expect(planFor(SHOWROOM, { branches: 2, brands: 1 })).toMatchObject({ name: "Group", eur: 898 }); // more than one branch is a Group
     expect(planFor([...SHOWROOM, "commercial"])).toMatchObject({ name: "Showroom", eur: 249 + 29 });
-    for (const m of ["dashboard", "whatsapp", "ai"] as const) expect(planFor([...SHOWROOM, "dashboard", m]).tier?.id).not.toBe("showroom"); // no dashboard on Showroom
-    expect(planEur(GROUP, "perAction", opts({ branches: 3 }))).toBe(1047); // 749 + 2 x 149
-    expect(planEur(MODULE_IDS, "perAction")).toBe(749 + 49); // Group and Service
-    expect(planFor(["finance"])).toMatchObject({ name: "Custom", eur: 229, saving: 0 });
-    expect(planFor([]).name).toBe("Base only");
+    expect(planFor([...SHOWROOM, "dashboard"])).toMatchObject({ name: "Dealer", eur: 449 });
+    for (const m of ["dashboard", "whatsapp", "ai"] as const) expect(planFor([...SHOWROOM, "dashboard", m]).tier.id).not.toBe("showroom"); // no dashboard on Showroom
+    expect(planEur(GROUP, opts({ branches: 3 }))).toBe(1047); // 749 + 2 x 149
+    expect(planEur(MODULE_IDS)).toBe(749 + 49); // Group and Service
     expect(presetName(SHOWROOM)).toBe("Showroom");
     expect(presetName(DEALER)).toBe("Dealer");
     expect(presetName(GROUP)).toBe("Group");
     expect(presetName(DEALER.filter((m) => m !== "ai"))).toBe("Dealer"); // a per-use module (€0) is not part of the plan's name
     expect(presetName([...DEALER, "service"])).toBe("Custom");
+    expect(presetName([])).toBe("Custom"); // not exactly a tier's modules, though it is priced as Showroom
     // A free module off never makes the plan dearer, and adding a module never makes it cheaper.
-    expect(planEur(MODULE_IDS.filter((m) => m !== "ai"), "perAction")).toBe(798);
+    expect(planEur(MODULE_IDS.filter((m) => m !== "ai"))).toBe(798);
     for (const m of MODULE_IDS) {
       const without = MODULE_IDS.filter((x) => x !== m);
       expect(planFor(MODULE_IDS).eur - planFor(without).eur).toBeGreaterThanOrEqual(0);
     }
     expect(planLines([...SHOWROOM, "commercial"])).toEqual([{ label: "Showroom plan", eur: 249 }, { label: "Commercial vehicles", eur: 29 }]);
-    expect(planLines([])).toEqual([{ label: "Website", eur: 200 }]);
+    expect(planLines([])).toEqual([{ label: "Showroom plan", eur: 249 }]);
     expect(planLines(GROUP, opts({ branches: 3 }))).toEqual([{ label: "Group plan", eur: 749 }, { label: "2 more branches", eur: 298 }]);
   });
   it("prices new cars for 2 brands, then each more brand, in a tier or as an add-on", () => {
-    const newCars = (brands: number) => planEur([...DEALER, "newCars"], "perAction", opts({ brands })) - 449;
+    const newCars = (brands: number) => planEur([...DEALER, "newCars"], opts({ brands })) - 449;
     expect(newCars(1)).toBe(99);
     expect(newCars(2)).toBe(99);
     expect(newCars(4)).toBe(157); // 99 + 2 x 29
