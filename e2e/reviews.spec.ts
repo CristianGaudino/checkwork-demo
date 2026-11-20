@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { directionsUrl } from "../src/lib/dealer";
+import { MODULES_COOKIE } from "../src/lib/modules-rules";
+import { demoBar } from "./open";
 
 const strip = (page: import("@playwright/test").Page) => page.getByRole("group", { name: "Google reviews" });
 
@@ -40,4 +42,20 @@ test("at 1280px four reviews show across", async ({ page }) => {
   await page.goto("/");
   const visible = await strip(page).locator("article").evaluateAll((els) => els.filter((e) => e.checkVisibility()).length);
   expect(visible).toBeGreaterThan(3); // more than three show at once
+});
+
+test("with the dashboard off and Reviews on, the home page and /reviews still show the reviews, and no Dashboard link (#224)", async ({ page, context, baseURL }) => {
+  await context.addCookies([{ name: MODULES_COOKIE, value: "reviews", url: baseURL! }]);
+  await page.setViewportSize({ width: 1280, height: 800 }); // the header links are from 1024px
+  await page.goto("/");
+  const bar = await demoBar(page);
+  await bar.getByRole("link", { name: "Dealer" }).click(); // as the dealer's staff, who would get the Dashboard link
+  await expect(bar.getByRole("link", { name: "Dealer" })).toHaveAttribute("aria-current", "true");
+  await expect(page.getByRole("heading", { name: "What customers say" })).toBeVisible();
+  await expect(strip(page).locator("article").first()).toBeVisible();
+  await expect(page.getByRole("banner").getByRole("link", { name: "Dashboard" })).toHaveCount(0);
+  await page.goto("/reviews");
+  await expect(page.getByRole("list", { name: "Google reviews" }).locator("article").first()).toBeVisible();
+  await expect(page.getByRole("banner").getByRole("link", { name: "Dashboard" })).toHaveCount(0);
+  expect((await page.request.get("/dashboard/reviews")).status()).toBe(404);
 });

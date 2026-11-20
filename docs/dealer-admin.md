@@ -184,6 +184,10 @@ visitors sign up). Each list, its actions and its export answer only with its mo
 - **On the site** (`/reviews`, and the strip on the home page): the reviews Google's Places API gives (up to five, most relevant first),
   as Google gives them, with the rating, the count and the way to every review on Google Maps. None are chosen or hidden by us (owner's
   decision, 2026-11-11): selecting reviews would mislead, and Irish consumer law asks traders to be open about how reviews are shown.
+- **Without the dashboard** (#224) the site still shows them: the Reviews module needs nothing else, and only the dashboard page (the
+  replies) also needs the dashboard. Showing needs `GOOGLE_PLACE_ID` and `GOOGLE_PLACES_API_KEY` (a Places API key from Google Cloud: the
+  dealer's public listing, no sign-in by the dealer). Replying and the full list need `GOOGLE_BUSINESS_LOCATION` and
+  `GOOGLE_BUSINESS_REFRESH_TOKEN` (the Business Profile API, signed in once as the profile's owner or a manager).
 - **In the dashboard** a reply goes to Google first, through the Business Profile API (`postReviewReply` in `publishers.ts`, simulated on
   the demo), and is kept only once Google has it. There is no flag: Google offers no way to take one. The list itself comes from the
   Business Profile once it is connected; on the demo it is the seeded reviews.
