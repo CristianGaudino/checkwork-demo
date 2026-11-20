@@ -4,6 +4,9 @@ import { CarForm } from "@/components/admin/CarForm";
 import { Field, Notice, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput, dangerButton } from "@/components/admin/kit";
 import { ActButton } from "@/components/admin/ActButton";
 import { SyncedNotice } from "@/components/admin/SyncedNotice";
+import { AITextarea } from "@/components/admin/AIWriter";
+import { carFields } from "@/lib/admin/car-fields";
+import { LISTING_SITE } from "@/lib/stock-source-rules";
 import { TrashIcon } from "@/components/stock/icons";
 import { costsStore, heldFor, prepStore, reservationsStore, salesStore } from "@/lib/admin/collections";
 import { RETURN_WINDOW_DAYS, withinReturnWindow } from "@/lib/admin/deposits";
@@ -66,6 +69,15 @@ export default async function Page({ params, searchParams }: { params: Promise<{
       <>
         <PageHeader title={carName(car)} actions={steps} back={{ href: "/dashboard/stock", label: "Stock" }} />
         <SyncedNotice car={car} />
+        {/* The site shows the feed's text, so a better one is written here and pasted into the listing site (#225). Not for an ad that is gone. */}
+        {!sold && !car.takenDownAt && (await hasModule("ai")) && (
+          <Panel title="Improve this description">
+            <AITextarea label="Description" task="carDescription" defaultValue={car.description ?? ""} rows={8} request={{ task: "carDescription", fields: carFields(car) }} copy={`Copy for ${LISTING_SITE}`} />
+            <p className="max-w-measure text-body text-text-2">
+              Paste it into {LISTING_SITE}; the site updates within 15 minutes.
+            </p>
+          </Panel>
+        )}
         {/* DoneDeal has the car; the cost is the dealer's own, so it is still entered here. */}
         {cost && (
           <Panel title="Cost price">

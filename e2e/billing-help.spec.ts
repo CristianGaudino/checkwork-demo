@@ -11,17 +11,21 @@ test("the owner sees the plan, sets a limit and an alert, and opens a bill", asy
   test.skip(!SHOW_PRICING, "pricing is hidden for now (SHOW_PRICING)");
   await page.goto("/dashboard/billing");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Billing");
-  await expect(page.getByText(/Founding dealer: 30% off until/)).toBeVisible();
+  await expect(page.getByText("Group plan").first()).toBeVisible();
   await expect(page.getByText("Estimate").first()).toBeVisible();
 
   await page.getByRole("link", { name: "Limits", exact: true }).click();
-  // High enough that the other specs' lookups, on the same server, never reach it.
-  await page.getByLabel("Registration lookup limit (€ a month)").fill("120.50");
+  // WhatsApp: the other specs' alerts are inside the allowance, so a limit here never stops them on the same server.
+  await page.getByLabel("WhatsApp limit (€ a month)").fill("12.50");
   await page.getByRole("button", { name: "Save limits" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Saved" })).toBeVisible();
   await page.reload();
-  await expect(page.getByLabel("Registration lookup limit (€ a month)")).toHaveValue("120.5");
-  // Never above ours.
+  await expect(page.getByLabel("WhatsApp limit (€ a month)")).toHaveValue("12.5");
+  // Never above ours: EUR 15 of lookups by default.
+  await page.getByLabel("Registration lookup limit (€ a month)").fill("16");
+  await page.getByRole("button", { name: "Save limits" }).click();
+  await expect(page.getByText("Our limit for your account is €15")).toBeVisible();
+  await page.getByLabel("Registration lookup limit (€ a month)").fill("");
   await page.getByLabel("All usage limit (€ a month)").fill("151");
   await page.getByRole("button", { name: "Save limits" }).click();
   await expect(page.getByText("Our limit for your account is €150")).toBeVisible();
@@ -36,7 +40,6 @@ test("the owner sees the plan, sets a limit and an alert, and opens a bill", asy
   await page.getByRole("table").getByRole("link").first().click();
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Bill for");
   await expect(page.getByText("VAT at 23%")).toBeVisible();
-  await expect(page.getByText("Founding dealer discount")).toBeVisible();
 });
 
 test("with our prices hidden, the owner still has Billing: the plan and its modules, AI writing and the details, and no euro anywhere", async ({ page }) => {

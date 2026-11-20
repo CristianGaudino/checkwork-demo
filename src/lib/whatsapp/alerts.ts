@@ -29,7 +29,7 @@ async function staffCopies(event: EventId, text: string, extra: Partial<Draft>):
 // goes by email, a buyer's only where there is an address (`canEmail`), and a marketing message is not sent. Returns how many were sent.
 // shortcut: one batch (a few, one per linked phone) can pass the cap by those few cents; check per message if it ever matters.
 async function deliver(drafts: Draft[], kind: "alert" | "marketing", canEmail: (d: Draft) => boolean = () => true): Promise<number> {
-  const viaWhatsApp = modeOf("whatsapp") === "simulated" && (await usageAllowed("whatsapp"));
+  const viaWhatsApp = modeOf("whatsapp") === "simulated" && (await usageAllowed("whatsapp", kind));
   if (!viaWhatsApp && kind === "marketing") return 0;
   const out = drafts.filter((d) => viaWhatsApp || canEmail(d));
   for (const d of out) await addMessage({ ...d, ...(!viaWhatsApp && { via: "email" as const }) });

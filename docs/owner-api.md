@@ -13,8 +13,8 @@ Read only, for the owner's own program (#62): how each live dealer site is used.
 Send `Authorization: Bearer <OWNER_API_TOKEN>`. No token or a wrong one: `404`, as the closed dashboard answers. The token is compared in constant time.
 
 - `GET /api/owner/v1/summary?from=YYYY-MM-DD&to=YYYY-MM-DD`
-- `GET /api/owner/v1/usage?from=&to=`: billing counts by month, with costs for the month in progress only (a past month may have been on another AI plan; its bill is the record)
-- `GET /api/owner/v1/modules`: the modules on and the monthly plan
+- `GET /api/owner/v1/usage?from=&to=`: billing counts by month, with costs for the month in progress only (a past month may have been on another plan; its bill is the record)
+- `GET /api/owner/v1/modules`: the modules on and the monthly plan price (`planEur`: the tier and its add-ons, before VAT)
 
 `from` and `to` are Irish days, inclusive; the default is the last 30 days. More than a year, or a bad day: `400`. Answers are cached for an hour per range (`Cache-Control: private, max-age=3600`, and in the Worker).
 

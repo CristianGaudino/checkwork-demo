@@ -7,6 +7,10 @@ Going ahead with this model (owner, 20 Nov 2026). Prices are a month, before VAT
 - **Monthly:** the list price.
 - **A year paid upfront:** 1 month free (11 months' price).
 - **2-year contract:** setup waived.
+- **Moving up a tier:** the new tier's setup less all setup already paid, never below €0 (Dealer to Group: €1,000); nothing on a 2-year contract.
+- **Add-ons that tip into Group:** when a Dealer's add-ons cost more than Group, the plan becomes Group: a little less a month, but Group's setup (€1,950) instead of the add-ons' (Dealer with Margins, Social, Newsletter and New cars: €749 instead of €755 a month, €1,950 instead of €1,500 setup).
+- **Dropping a module or a branch:** from the 1st of the next month.
+- **Limits:** extra use past the allowance stops at €15 of lookups, €20 of WhatsApp (€20 per branch on Group) and €50 of AI a month, unless agreed otherwise. Dealer and Group can set lower ones on the Billing page; a Showroom dealer asks us.
 
 ## Why these tiers
 - **Most prospects already have a site:** about 88% pay for CarsIreland, HappyDealer or DoneDeal, and DoneDeal gives one away free. So the base site is the hard sale.
@@ -26,52 +30,52 @@ Going ahead with this model (owner, 20 Nov 2026). Prices are a month, before VAT
 
 **Showroom:** the website.
 - Own-brand site, with stock synced from DoneDeal or CarsIreland
-- Google reviews on the site, shown from the dealer's Google Business Profile
+- Google reviews on the site, from the dealer's public Google listing (no sign-in needed)
 - Enquiry form (leads go to the dealer by email) and WhatsApp click to chat
 - Finance estimator
-- Trade-in form with 25 registration lookups a month
+- Trade-in form with 25 registration lookups a month, then up to 50 more at €0.30 (€15); past that, buyers type their car in
 - Car finder: a "find me a car" form for cars not in stock
 - No dashboard, so no staff logins and no AI
 
 **Dealer:** Showroom plus the dashboard.
 - Leads inbox with follow-ups
-- WhatsApp alerts (500 a month)
+- WhatsApp alerts to staff and confirmations to buyers (500 messages a month)
 - Test drive booking and calendar
 - Trade-in with 100 lookups a month
 - Reply to Google reviews from the dashboard
-- AI writing, 100 drafts a month:
+- AI writing, 100 uses a month (each draft or rewrite is one):
   - replies to leads and reviews
   - better car descriptions, copied to DoneDeal in one click for synced stock
 - Deposits and sale records
 - Site analytics: visitors, and which ads bring leads
-- 10 staff logins with roles
+- Staff logins with roles, as many as needed
 
-**Group:** Dealer for every branch, with one inbox, plus:
+**Group:** Dealer's lookups and WhatsApp alerts for every branch, plus:
 - Margins and reports
-- Social posts and ads, with AI writing raised to 300 drafts a month
+- Social posts and ads, with AI writing raised to 300 uses a month
 - Newsletter and stock alerts
-- New cars and factory orders
+- New cars and factory orders, covering 2 brands; €29 a month and €100 setup per extra brand
 - Commercial vehicles section
 
 **Add-ons:**
 - **Any tier:** commercial vehicles €29.
-- **Dealer only** (they need the dashboard):
-  - Service and aftersales €49 (service booking and warranty claims, for dealers with a workshop)
+- **Dealer or Group:** service and aftersales €49 (service booking and warranty claims, for dealers with a workshop).
+- **Dealer only** (they need the dashboard; Group has them):
+  - Margins and reports €49
   - New cars €99, covering up to 2 brands, then €29 per extra brand (setup €400, plus €100 per extra brand)
-  - Social €99
+  - Social €99 (setup €150), with 200 more AI uses a month (300 in all, as Group)
   - Newsletter €59
 
 **Over an allowance:**
 - lookup €0.30
 - WhatsApp alert €0.05, reply €0.03, marketing message €0.12
-- AI draft €0.04 (Standard) or €0.08 (Premium)
+- AI use €0.04 (Standard) or €0.08 (Premium)
 
-## Launch offer
-- **First 10 dealers:** Dealer at €349 a month on a 2-year contract (so no setup), with the price kept for the term. We need reference dealers in Cork and Kerry more than margin.
-- **Price rises:** at renewal with 60 days' notice, once any of these is true:
-  - 5 dealers are live in one county
-  - more than 40% of tier A calls close
-  - Facebook leads ship
+## Price rises
+At renewal with 60 days' notice, once any of these is true:
+- 5 dealers are live in one county
+- more than 40% of tier A calls close
+- Facebook leads ship
 
 ## Your time is the limit
 Running costs are close to nothing:
@@ -102,10 +106,8 @@ None of the Irish platforms publish dealer prices.
 
 So Checkwork is a second bill alongside their listings. It has to pay for itself in leads.
 
-## Needs building before we sell
-1. **Reviews without the dashboard:** show Google reviews from the Business Profile on Showroom sites, and keep replies for Dealer (today reviews need the dashboard).
-2. **Monthly allowances:** billing has no included lookups, WhatsApp messages or AI drafts yet; today every use is charged.
-3. **AI descriptions for synced stock:** an "Improve this description" button on synced cars that copies the draft for DoneDeal (today synced cars can't be edited on the site).
-4. **Multi-branch:** one dashboard and inbox across branches isn't built. Until it is, sell a group one Dealer per branch.
-5. **New-car brands:** the brand count in the new-cars price.
-6. **Code prices and terms:** the new prices, the €0.03 WhatsApp reply, 1 month free for a year upfront, and setup waived on 2 years, in `src/lib/billing/rules.ts`.
+## Built
+Reviews on Showroom sites without the dashboard (#224), the tiers with allowances, new-car brand pricing and payment terms (#223), and "Improve this description" for synced cars (#225). Prices show on the Billing page and the demo bar.
+
+## Later
+Multi-branch: per-branch stock, inboxes and reports, and one inbox across separate sites (#226): built when an actual franchise or multi-branch dealer signs up. Until then, a group with more branches pays Group plus €149 a branch, and each branch's lookups and WhatsApp alerts are added to its allowance.

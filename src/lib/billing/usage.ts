@@ -3,8 +3,8 @@ import { defineCollection } from "@/lib/admin/docs";
 import { dublinDay } from "@/lib/admin/format";
 import { SETTINGS_DEFAULT, getSettings, settingsStore, type DealerSettings } from "@/lib/admin/collections";
 import { notify } from "@/lib/admin/notifications";
-import { SHOW_PRICING, alertsCrossed, usageCosts, usageId, withinCaps, type BillingSettings, type Kind, type Service, type UsageCount, withBillingDefaults } from "./rules";
-import { hasModule } from "@/lib/modules";
+import { SHOW_PRICING, alertsCrossed, allowanceFor, inAllowance, usageCosts, usageId, withinCaps, withBranchCeilings, type BillingSettings, type Kind, type Service, type UsageCount, withBillingDefaults } from "./rules";
+import { enabledModules } from "@/lib/modules";
 import { roleCan } from "@/lib/permission-rules";
 
 // The meters for what is billed per use (#181): registration lookups, AI actions and WhatsApp messages. Every paid use is counted here,
@@ -16,23 +16,25 @@ export const sentAlertsStore = defineCollection<{ id: string }>("usage-alerts", 
 
 export const monthOf = (t: number = Date.now()) => dublinDay(t).slice(0, 7);
 
-// The assistant plan counts only while the dealer has the AI module, so the Billing page, the meters and the owner API agree.
-export async function billingSettings(): Promise<BillingSettings> {
-  const s = await getSettings();
-  const b = withBillingDefaults(s.billing);
-  return b.aiPlan === "assistant" && !(await hasModule("ai")) ? { ...b, aiPlan: "perAction" } : b;
-}
+// A record saved before the AI assistant was dropped may still carry `aiPlan`: nothing reads it.
+export const billingSettings = async (): Promise<BillingSettings> => withBranchCeilings(withBillingDefaults((await getSettings()).billing));
+// What the plan includes this month before usage is billed.
+export const monthAllowance = async (b: BillingSettings) => allowanceFor(await enabledModules(), b);
 export async function monthCounts(month = monthOf()): Promise<UsageCount[]> {
   return (await usageStore.list()).filter((c) => c.month === month);
 }
 export async function monthUsage(month = monthOf()) {
-  return usageCosts(await monthCounts(month), (await billingSettings()).aiPlan);
+  return usageCosts(await monthCounts(month), await monthAllowance(await billingSettings()));
 }
 
-// Whether one more use is allowed: false once the month's spend reaches a cap (the dealer's or ours). The caller falls back without it.
-export async function usageAllowed(service: Service): Promise<boolean> {
+// Whether one more use is allowed: false once the month's spend reaches a cap (the dealer's or ours), unless the plan still includes it
+// (a use inside the allowance costs nothing, so even a EUR 0 limit lets it through). The caller falls back without it.
+export async function usageAllowed(service: Service, kind?: string): Promise<boolean> {
   try {
-    return withinCaps(await monthUsage(), await billingSettings(), service);
+    const b = await billingSettings();
+    const allowance = await monthAllowance(b);
+    const usage = usageCosts(await monthCounts(), allowance);
+    return withinCaps(usage, b, service) || inAllowance(usage, allowance, service, kind);
   } catch {
     return true; // a meter that cannot be read never stops the dealer's work; the cap is checked again on the next use
   }
@@ -51,7 +53,8 @@ export async function recordUsage<S extends Service>(service: S, kind: Kind<S>, 
     const next: UsageCount = { id, month, service, kind, count: (prev?.count ?? 0) + n };
     await usageStore.put(next);
     const after = [...before.filter((c) => c.id !== id), next];
-    const alerts = alertsCrossed(usageCosts(before, b.aiPlan), usageCosts(after, b.aiPlan), b, month);
+    const allowance = await monthAllowance(b);
+    const alerts = alertsCrossed(usageCosts(before, allowance), usageCosts(after, allowance), b, month);
     if (!alerts.length || !SHOW_PRICING) return; // no limit notices while pricing is hidden, and none marked sent
     const { team } = await getSettings();
     // Each owner and manager, by the name the bell knows them by (src/lib/permissions.ts): the team's, and an owner in ADMIN_OWNER_EMAILS who is
@@ -70,7 +73,7 @@ export async function recordUsage<S extends Service>(service: S, kind: Kind<S>, 
 
 // Saves the dealer's limits and alerts. Ours (the ceilings) are set from the owner's program, never here.
 // `change` may be worked out from the billing as it is when written (adding or removing one alert), so two saves at once both land.
-type BillingChange = Partial<Pick<BillingSettings, "caps" | "alerts" | "alertAt80" | "aiPlan" | "aiModel">>;
+type BillingChange = Partial<Pick<BillingSettings, "caps" | "alerts" | "alertAt80" | "aiModel">>;
 export async function saveBilling(change: BillingChange | ((now: BillingSettings) => BillingChange)) {
   // On the settings as they are now, so a team change saved at the same moment is never undone.
   const apply = (s: Partial<DealerSettings>) => {

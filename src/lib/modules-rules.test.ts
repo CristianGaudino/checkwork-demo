@@ -38,4 +38,14 @@ describe("modules", () => {
     expect(pathAllowed("/finance", parseModules("finance"))).toBe(true);
     expect(pathAllowed("/dashboard/test-drives", parseModules("dashboard,testDrives"))).toBe(true);
   });
+
+  it("shows reviews on a site without the dashboard, and keeps the replies page in the dashboard (#224)", () => {
+    const showroom = parseModules("reviews");
+    expect([...showroom]).toEqual(["reviews"]);
+    expect(pathAllowed("/reviews", showroom)).toBe(true);
+    expect(pathAllowed("/dashboard/reviews", showroom)).toBe(false);
+    expect(pathAllowed("/dashboard/reviews", parseModules("dashboard,reviews"))).toBe(true);
+    expect([...withModule(new Set(), "reviews")]).toEqual(["reviews"]);
+    expect([...withoutModule(parseModules("dashboard,reviews"), "dashboard")]).toEqual(["reviews"]);
+  });
 });

@@ -15,9 +15,10 @@ const listeners = new Set<() => void>();
 const notify = () => listeners.forEach((l) => l());
 const subscribe = (cb: () => void) => (listeners.add(cb), () => void listeners.delete(cb));
 
+// A plan without the dashboard (Showroom) has no dealer side, so the view is the customer's whatever was chosen before.
 function read(): DemoRole {
   try {
-    return DEMO_BAR_ENABLED && localStorage.getItem(KEY) === "dealer" ? "dealer" : "customer";
+    return DEMO_BAR_ENABLED && localStorage.getItem(KEY) === "dealer" && parseModules(modulesRaw() ?? "all").has("dashboard") ? "dealer" : "customer";
   } catch {
     return "customer";
   }

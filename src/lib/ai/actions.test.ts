@@ -4,7 +4,7 @@ vi.mock("server-only", () => ({}));
 vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => undefined }), headers: async () => ({ get: () => null }) }));
 vi.mock("next/navigation", () => ({ notFound: () => { throw new Error("not-found"); } }));
 const { writeAction } = await import("./actions");
-const { saveBilling, monthCounts } = await import("@/lib/billing/usage");
+const { saveBilling, monthCounts, recordUsage } = await import("@/lib/billing/usage");
 const { adminCars } = await import("@/lib/admin/stock-admin");
 const { forSale } = await import("@/lib/stock/types");
 const { reviewsStore } = await import("@/lib/admin/collections");
@@ -35,6 +35,9 @@ describe("writeWithAI behind the dashboard", () => {
 
   it("says the limit is reached past the cap, writes nothing and counts nothing", async () => {
     await saveBilling({ caps: { ai: 0 } });
+    const review = (await reviewsStore.list())[0].id;
+    expect(await writeAction({ task: "reviewReply", reviewId: review })).toMatchObject({ ok: true }); // the plan's AI is free, so a EUR 0 limit lets it through
+    await recordUsage("ai", "opus", 300); // the plan's 300 used up
     const before = await count("opus");
     expect(await writeAction({ task: "reviewReply", reviewId: (await reviewsStore.list())[0].id })).toEqual({ ok: false, reason: "limit" });
     expect(await count("opus")).toBe(before);

@@ -68,13 +68,13 @@ describe("alertStaff", () => {
     expect(await alertStaff("deposit", { eur: 1000 })).toBe(0);
     expect(db.msgs).toEqual([]);
   });
-  it("past the cap: an alert goes by email and is not counted, a marketing message is not sent", async () => {
+  it("past the cap: an alert goes by email and is not counted, the staff nudge for a new car too (it is an alert, not marketing)", async () => {
     db.allowed = false;
     await alertStaff("deposit", { eur: 1000 });
     expect(db.msgs).toEqual([expect.objectContaining({ to: "a", via: "email" })]);
     db.msgs = [];
-    expect(await alertStaff("new-in", { car: "2019 Ford Focus" })).toBe(0);
-    expect(db.msgs).toEqual([]);
+    expect(await alertStaff("new-in", { car: "2019 Ford Focus" })).toBe(1);
+    expect(db.msgs).toEqual([expect.objectContaining({ to: "a", via: "email" })]);
     expect(db.used).toBe(0);
   });
 });

@@ -37,7 +37,8 @@ export function LimitsForm({ scopes, caps, ceilings, alertAt80 }: { scopes: Scop
           const ceiling = ceilings[s];
           return (
             <Field key={s} label={`${scopeName(s)} limit (€ a month)`} hint={ceiling !== undefined ? `Our limit for your account: ${eur(ceiling)}` : "Leave empty for no limit"} error={f.errors[`cap-${s}`]}>
-              <input name={`cap-${s}`} inputMode="decimal" defaultValue={caps[s] ?? ""} className={adminInput} />
+              {/* The limit in force: a stored one above a ceiling set later shows as the ceiling, so an untouched field always saves. */}
+              <input name={`cap-${s}`} inputMode="decimal" defaultValue={caps[s] === undefined ? "" : Math.min(caps[s], ceiling ?? Infinity)} className={adminInput} />
             </Field>
           );
         })}

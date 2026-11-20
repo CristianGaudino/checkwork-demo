@@ -135,7 +135,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ n
             </ul>
             <p className="max-w-measure text-meta text-text-2">
               Buyers who tick the WhatsApp box on a form get a confirmation and your replies on WhatsApp, and can stop at any time. Everyone else gets email.{" "}
-              {SHOW_PRICING ? "If WhatsApp is over its monthly cap, alerts and replies go by email instead." : "If WhatsApp can't send, alerts and replies go by email instead."}{" "}
+              {SHOW_PRICING ? "If WhatsApp reaches its monthly limit, replies go by email instead. Alerts your plan includes still go by WhatsApp." : "If WhatsApp can't send, alerts and replies go by email instead."}{" "}
               {mayBill && SHOW_PRICING && (
                 <Link href="/dashboard/billing" className="font-medium text-accent-text underline underline-offset-2">
                   Set the cap

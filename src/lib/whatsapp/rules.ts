@@ -38,7 +38,7 @@ export const EVENTS: Record<EventId, { module: ModuleId; label: string; does: st
   finance: { module: "finance", label: "Finance application", does: "A new application, so nobody waits to hear it was received.", kind: "alert", buttons: ["ack"] },
   deposit: { module: "sales", label: "Deposit taken", does: "A deposit taken on a car. Confirm it and it is in the activity log.", kind: "alert", buttons: ["confirm"] },
   review: { module: "reviews", label: "New Google review", does: "A new review as it lands. Reply and it is posted on Google.", kind: "alert", buttons: ["review"] },
-  "new-in": { module: "social", label: "A new car in stock", does: "A car just added, with a nudge to post it.", kind: "marketing", buttons: ["post"] },
+  "new-in": { module: "social", label: "A new car in stock", does: "A car just added, with a nudge to post it.", kind: "alert", buttons: ["post"] },
   monday: { module: "margins", label: "The Monday summary", does: "Last week in a few lines, with a link to the full report.", kind: "alert", buttons: ["report"] },
 };
 export const EVENT_IDS = Object.keys(EVENTS) as EventId[];

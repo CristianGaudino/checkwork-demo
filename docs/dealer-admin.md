@@ -12,10 +12,12 @@ stock comes from.
 
 ## Usage billed per use
 
-Registration lookups, AI actions and WhatsApp messages cost the dealer per use, on top of the plan (#181). The code that makes a paid use
+Registration lookups, AI actions and WhatsApp messages cost the dealer per use, on top of the plan, past the plan's monthly allowance
+(#181, #223). The code that makes a paid use
 counts it with `recordUsage` and asks `usageAllowed` first (`src/lib/billing/usage.ts`): past a monthly cap (the dealer's, set by the Owner
 or Manager on Billing, or our ceiling) the service stops for the month and falls back (a lookup gives the plate's own facts, AI leaves the
-text alone, WhatsApp goes by email). Alerts at 80% of a cap, at the cap and at amounts the dealer chose go to the owners and managers in
+text alone, a WhatsApp reply or alert goes by email, or nothing if the buyer gave none, and a marketing message is not sent; an alert the
+plan still includes always goes). Our default limits are `DEFAULT_CEILINGS`, WhatsApp's times the branches on Group (`withBranchCeilings`). Alerts at 80% of a cap, at the cap and at amounts the dealer chose go to the owners and managers in
 the bell, once a month each. Counts are one record per month per line of the bill. Prices are in `src/lib/billing/rules.ts`.
 
 ## Roles and permissions
@@ -184,6 +186,10 @@ visitors sign up). Each list, its actions and its export answer only with its mo
 - **On the site** (`/reviews`, and the strip on the home page): the reviews Google's Places API gives (up to five, most relevant first),
   as Google gives them, with the rating, the count and the way to every review on Google Maps. None are chosen or hidden by us (owner's
   decision, 2026-11-11): selecting reviews would mislead, and Irish consumer law asks traders to be open about how reviews are shown.
+- **Without the dashboard** (#224) the site still shows them: the Reviews module needs nothing else, and only the dashboard page (the
+  replies) also needs the dashboard. Showing needs `GOOGLE_PLACE_ID` and `GOOGLE_PLACES_API_KEY` (a Places API key from Google Cloud: the
+  dealer's public listing, no sign-in by the dealer). Replying and the full list need `GOOGLE_BUSINESS_LOCATION` and
+  `GOOGLE_BUSINESS_REFRESH_TOKEN` (the Business Profile API, signed in once as the profile's owner or a manager).
 - **In the dashboard** a reply goes to Google first, through the Business Profile API (`postReviewReply` in `publishers.ts`, simulated on
   the demo), and is kept only once Google has it. There is no flag: Google offers no way to take one. The list itself comes from the
   Business Profile once it is connected; on the demo it is the seeded reviews.
@@ -201,6 +207,9 @@ cars are added, changed and sold on DoneDeal only. The dashboard never edits the
   lists is hidden (its link is not found), because DoneDeal does not say why an ad came down: Stock and Overview ask the dealer whether it
   sold (the sale form, which marks it sold so its page shows Sold for a while) or did not (it stays hidden). If the ad goes up again the car
   comes back. Each change is in the activity history as "DoneDeal sync".
+- **Improve this description** (#225, with the AI module): a car opens on its dashboard page, where AI rewrites the feed's description
+  from the car's facts (an AI action like any draft: the monthly cap and usage) and "Copy for DoneDeal" copies it to paste into the ad.
+  The site's text changes only when the ad does, at the next sync.
 - **It never empties the site:** an answer with no cars, or with more than half the cars for sale gone, is held and changes nothing.
   Owners and managers can Apply anyway.
 - **When it fails** the site keeps the stock from the last good sync, Stock, Overview and Settings say so, and after an hour the owners and
@@ -220,13 +229,34 @@ Until both are set the admin answers 404 for everyone. The Worker checks Access'
 
 ## Billing and Help
 
+The plans (#223, `TIERS` in `src/lib/billing/rules.ts`, from `docs/sales/pricing-strategy.md`), a month before VAT. Only these three tiers
+and their add-ons are sold:
+
+| Tier | Modules | Monthly | Setup | Included each month |
+|---|---|---|---|---|
+| Showroom | Trade-in, finance, car finder, lookup on the website, reviews shown | EUR 249 | EUR 950 | 25 lookups |
+| Dealer | Showroom plus the dashboard, test drives, sales, analytics, WhatsApp, AI writing, lookup in the dashboard | EUR 449 | EUR 950 | 100 lookups, 500 WhatsApp alerts and confirmations, 100 AI actions |
+| Group | Dealer plus margins, social, newsletter, new cars, commercial | EUR 749, plus EUR 149 per extra branch | EUR 1,950 | 100 lookups and 500 WhatsApp alerts per branch, 300 AI actions |
+
+- **Add-ons** at module prices (`MODULE_EUR`): any module the tier lacks, such as commercial EUR 29, service EUR 49, margins EUR 49, social EUR 99 (with 200 more AI actions a month),
+  newsletter EUR 59, new cars EUR 99. New cars covers 2 brands; each more brand is EUR 29 a month and EUR 100 at setup, in a tier or not
+  (setup EUR 400 as an add-on). A plan is the cheapest tier for the dealer's modules plus add-ons; no modules is Showroom. Showroom takes
+  no add-on that is or needs the dashboard, and more than one branch is Group. The demo bar names the plan as the Billing page does, and each switch shows what turning it on adds.
+- **Over the allowance** each use is billed: lookup EUR 0.30, WhatsApp alert EUR 0.05, reply EUR 0.03, marketing message EUR 0.12, AI
+  action EUR 0.04 (Standard) or EUR 0.08 (Premium). Replies and marketing messages are never included.
+- **Payment terms** (`term`): monthly at list price, a year upfront for 11 months' price, or a 2-year contract with no setup fee.
+- `term`, `branches` (default 1) and `brands` (default 1) are billing settings set from the owner's program, as the ceilings are. Branches
+  only change Group's price and allowance until multi-branch is built (#226).
+
 `/dashboard/billing` is for the Owner and Manager (`can("billing")`; anyone else gets a 404, and so does every action). It has three sections:
-the plan and this month's usage (with the founding dealer discount, which is taken off the plan, not the usage, and an "Estimate" for the
-month end), the setup fees (the website's and those of Social, New cars and WhatsApp, half off for a founding dealer;
+the plan and this month's usage (with the payment term, what
+the allowance covers, and an "Estimate" for the month end), the setup fees (the tier's, and those of add-ons set up with
+outside accounts (Social, New cars), none on a 2-year contract;
 `setupLines` in `src/lib/billing/rules.ts`, also totalled in the demo bar's plans panel), the limits and alerts (a euro limit per service
-and for all usage, never above ours; the 80% alert; "tell me when X passes EUR N"; the AI plan and the writing quality, Premium (Claude Opus) at EUR 0.08
+and for all usage, never above ours (by default EUR 15 of lookups, EUR 20 of WhatsApp (EUR 20 per branch on Group: a WhatsApp ceiling the owner's program sets is per branch too) and EUR 50 of AI past the allowance, `DEFAULT_CEILINGS`); the 80% alert; "tell me when X passes EUR N"; AI writing's quality, Premium (Claude Opus) at EUR 0.08
 an action or Standard (Claude Sonnet) at EUR 0.04, each action counted under the model that wrote it; the dealer never sees the model
-or provider's name), and the bills. Every change is written to the activity log. Rules and maths: `src/lib/billing/bills-rules.ts`
+or provider's name), and the bills. With `SHOW_PRICING` false the page shows only the plan's name, its modules, the payment
+term, the writing quality and the billing details, with no euro. On a year paid upfront the month's estimated bill is the usage only. Every change is written to the activity log. Rules and maths: `src/lib/billing/bills-rules.ts`
 (unit tested); the bills are a seeded collection, `src/lib/billing/bills.ts`. There is no PDF and no download: invoices come from the
 payment provider chosen at clone time and are emailed when issued. Billing details (company, VAT number, address, email) are the
 Owner's, stored in settings as `billingDetails`. "Ask us to add" sends a Help request of type "Add to my plan"; it switches nothing on.
@@ -274,7 +304,7 @@ The `whatsapp` module. On the demo it is simulated (integration `whatsapp`): `/d
 - Call back is not a reply: it sets the follow-up to today and gives the lead to whoever tapped, and leaves the status. Its note and a buyer's answer are marked `auto`, so the report's first reply skips them. Confirm on a deposit records it in the activity log against the car. Suggest another time sends the buyer the time and leaves the alert open: the booking moves in Test drives once they agree. A test drive confirmed with its booking tells the buyer the day and time.
 - Only a team member with a linked phone can act, in their own conversation (an unlinked one is told to link it). With an alert's module off, its alert and questions are hidden and acting on them is refused. Margins are never in a message.
 - The lead page shows "WhatsApp updates: on" for a buyer who ticked the box, with Stop WhatsApp, which clears `whatsappOptIn` (logged, without the buyer): nothing more goes to them on WhatsApp. Their own STOP reply comes with the adapter.
-- Every message to a phone or a buyer checks `usageAllowed("whatsapp")` and records `alert`, `reply` or `marketing`. Past the cap an alert or reply is stored as "Sent by email instead" and not counted; marketing is not sent. A buyer without the opt-in gets email, also uncounted. The site's acknowledgements to the dealer inside a conversation are free replies and not counted.
+- Every message to a phone or a buyer checks `usageAllowed("whatsapp")` and records `alert`, `reply` or `marketing`. Past the cap an alert or reply is stored as "Sent by email instead" and not counted, unless the plan's alerts still cover it (`inAllowance`); marketing is not sent. A buyer without the opt-in gets email, also uncounted. The site's acknowledgements to the dealer inside a conversation are free replies and not counted.
 - Messages about a lead are removed once the lead is gone (purge, data request), on the next read of the page.
 - The real Cloud API goes where `ADAPTER GOES HERE` is, in `src/lib/whatsapp/send.ts`: approved templates outside the 24 hour window, and a webhook that checks Meta's signature and ignores unknown numbers.
 

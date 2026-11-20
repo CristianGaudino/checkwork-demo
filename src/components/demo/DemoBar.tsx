@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useId, useState, useSyncExternalStore } from "react";
 import { DEMO_ROLES, THEME_KEY, isAppPath, roleForPath, type Theme } from "@/lib/demo";
-import { setDealerRole, setDemoRole, setDemoStockSource, useDealerRole, useDemoRole, useStockSource } from "@/lib/demo-role";
+import { setDealerRole, setDemoRole, setDemoStockSource, useDealerRole, useDemoRole, useModules, useStockSource } from "@/lib/demo-role";
 import { ROLES, type Role } from "@/lib/permission-rules";
 import { LISTING_SITE } from "@/lib/stock-source-rules";
 import { ChevronDownIcon } from "@/components/stock/icons";
@@ -53,8 +53,10 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
   const router = useRouter();
   const inApp = isAppPath(path);
   const saved = useDemoRole();
+  // A plan without the dashboard (Showroom) has no dealer side, so the demo is the customer's view only, with the Plan switch to go back.
+  const dashboard = useModules().has("dashboard");
   // In the dealer area the route is the role. On a public page it is the remembered one.
-  const role = inApp ? roleForPath(path) : saved;
+  const role = !dashboard ? "customer" : inApp ? roleForPath(path) : saved;
   const theme = useSyncExternalStore(subscribe, read, () => "light" as Theme);
   const dealerRole = useDealerRole();
   const donedeal = useStockSource() === "donedeal";
@@ -67,28 +69,30 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
   // `phone`: the controls in the pill's panel, where the row wraps and the module list opens in place; else the slim bar.
   const controls = (phone: boolean) => (
     <>
-      <nav aria-label="View the demo as" className="flex items-center">
-        <span className="pl-2 pr-1 text-text-2">View as</span>
-        {DEMO_ROLES.filter((r) => showAreas || r.id === "customer").map((r) => (
-          <Link
-            key={r.id}
-            href={r.href}
-            prefetch={isAppPath(r.href) ? false : undefined} // the dealer area sits behind Cloudflare Access: a prefetch from a public page gets its login page
-            onClick={(e) => {
-              setDemoRole(r.id);
-              // From a public page, Dealer changes that page (a Dashboard link in the header, and stock and social links on a car) instead of leaving it.
-              if (!inApp && r.id !== "customer") {
-                e.preventDefault();
-                router.refresh();
-              }
-            }}
-            aria-current={r.id === role ? "true" : undefined}
-            className={`flex h-11 items-center px-2 sm:px-3 ${r.id === role ? "font-semibold text-text underline decoration-accent decoration-2 underline-offset-8" : "text-text-2"} ${press}`}
-          >
-            {r.label}
-          </Link>
-        ))}
-      </nav>
+      {dashboard && (
+        <nav aria-label="View the demo as" className="flex items-center">
+          <span className="pl-2 pr-1 text-text-2">View as</span>
+          {DEMO_ROLES.filter((r) => showAreas || r.id === "customer").map((r) => (
+            <Link
+              key={r.id}
+              href={r.href}
+              prefetch={isAppPath(r.href) ? false : undefined} // the dealer area sits behind Cloudflare Access: a prefetch from a public page gets its login page
+              onClick={(e) => {
+                setDemoRole(r.id);
+                // From a public page, Dealer changes that page (a Dashboard link in the header, and stock and social links on a car) instead of leaving it.
+                if (!inApp && r.id !== "customer") {
+                  e.preventDefault();
+                  router.refresh();
+                }
+              }}
+              aria-current={r.id === role ? "true" : undefined}
+              className={`flex h-11 items-center px-2 sm:px-3 ${r.id === role ? "font-semibold text-text underline decoration-accent decoration-2 underline-offset-8" : "text-text-2"} ${press}`}
+            >
+              {r.label}
+            </Link>
+          ))}
+        </nav>
+      )}
       {role === "dealer" && showAreas && (
         <div className={`flex items-center gap-2 ${phone ? "w-full flex-wrap" : ""}`}>
           {/* Which member of the team the demo acts as: the role decides what they may see (src/lib/permissions.ts). The browser's own
@@ -123,10 +127,10 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
           >
             {LISTING_SITE} sync<span className="ml-1">{donedeal ? "on" : "off"}</span>
           </button>
-          {/* Which modules the dealer has (#173), so a smaller site can be shown. */}
-          <ModuleSwitches chip={chip} inline={phone} />
         </div>
       )}
+      {/* Which modules the dealer has (#173), so a smaller site can be shown. One switch in one place, so choosing a plan keeps it open. */}
+      {showAreas && (role === "dealer" || !dashboard) && <ModuleSwitches chip={chip} inline={phone} />}
       <button type="button" aria-pressed={theme === "dark"} onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className={`flex h-11 items-center px-2 text-text-2 ${press}`}>
         {theme === "dark" ? "Dark" : "Light"}
       </button>
