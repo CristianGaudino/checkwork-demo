@@ -6,7 +6,7 @@ import { LISTING_SITE } from "@/lib/stock-source-rules";
 // Every outside service the site can use, in one list. A service is "connected" when all its settings are present. Nothing here holds a
 // secret: `env` names the variables to set (Cloudflare dashboard, or `.dev.vars` for local work). The admin shows this list, and any
 // feature that needs a service asks `isConnected(id)` first, so a missing key is a clear message and never an error.
-export type IntegrationId = "reviews" | "social" | "ads" | "newsletter" | "email" | "botcheck" | "reglookup" | "donedeal" | "gbp" | "whatsapp" | "ai";
+export type IntegrationId = "reviews" | "social" | "ads" | "newsletter" | "email" | "botcheck" | "reglookup" | "donedeal" | "gbp" | "whatsapp" | "ai" | "history";
 
 export type Integration = {
   id: IntegrationId;
@@ -29,6 +29,7 @@ export const INTEGRATIONS: readonly Integration[] = [
   { id: "email", name: "Lead email", purpose: "Emails each new lead to the dealer.", env: ["LEAD_TO_EMAIL"], where: "Cloudflare Email Service (the EMAIL binding) and this address" },
   { id: "botcheck", name: "Bot check on forms", purpose: "Keeps spam out of the lead forms.", env: ["TURNSTILE_SECRET_KEY", "NEXT_PUBLIC_TURNSTILE_SITE_KEY"], where: "Cloudflare Turnstile" },
   { id: "reglookup", demoAccount: `${SITE_NAME} on Cartell`, name: "Registration lookup", purpose: "Fills in the make, model and details from a registration on the trade-in, sell and stock forms.", env: ["CARTELL_API_KEY"], where: "Cartell, a business account" },
+  { id: "history", demoAccount: `${SITE_NAME} on Cartell`, name: "Vehicle history check", purpose: "Checks a used car for finance owed, a write-off and its mileage, and shows buyers a clear report on the car's page.", env: ["HISTORY_CHECK_API_KEY"], where: "Cartell or MotorCheck, a business account for history checks" },
   { id: "gbp", demoAccount: `${SITE_NAME} on Google`, name: "Google review replies", purpose: "Lists every Google review in Reviews and posts the replies written there.", env: ["GOOGLE_BUSINESS_LOCATION", "GOOGLE_BUSINESS_REFRESH_TOKEN"], where: "Google Business Profile API, for the dealer's verified profile, signed in as its owner or a manager" },
   // Only for a dealer whose stock comes from a listing site, DoneDeal or CarsIreland (src/lib/stock-source.ts): Settings lists it then.
   { id: "donedeal", demoAccount: `${SITE_NAME} on ${LISTING_SITE}`, name: `${LISTING_SITE} stock`, purpose: `Brings the dealer's ${LISTING_SITE} ads onto the site every 15 minutes.`, env: ["DONEDEAL_API_KEY"], where: `${LISTING_SITE}, an API key for the dealer's own site, given with the dealer's written consent (DoneDeal and CarsIreland work the same way)` },
@@ -52,8 +53,8 @@ export const isConnected = (id: IntegrationId) => {
 };
 
 export type Mode = "live" | "simulated" | "off";
-// Only the outward services (and the registration lookup, DoneDeal stock and review replies) are simulated. Lead email, the bot check and reviews
+// Only the outward services (and the registration lookup, the history check, DoneDeal stock and review replies) are simulated. Lead email, the bot check and reviews
 // always show their true state, and analytics shows its sample figures only while simulating (src/app/dashboard/analytics/page.tsx).
-const SIMULATABLE: readonly IntegrationId[] = ["social", "ads", "newsletter", "reglookup", "donedeal", "gbp", "whatsapp", "ai"];
+const SIMULATABLE: readonly IntegrationId[] = ["social", "ads", "newsletter", "reglookup", "donedeal", "gbp", "whatsapp", "ai", "history"];
 export const modeOf = (id: IntegrationId): Mode => (isConnected(id) ? "live" : simulating() && SIMULATABLE.includes(id) ? "simulated" : "off");
 export const isUsable = (id: IntegrationId) => modeOf(id) !== "off";

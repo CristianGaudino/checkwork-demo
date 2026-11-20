@@ -27,6 +27,8 @@ import { LISTING_SITE } from "@/lib/stock-source-rules";
 import { requireStaff } from "@/lib/staff";
 import { requireModule } from "@/lib/modules";
 import { alertNewIn, alertStaff } from "@/lib/whatsapp/alerts";
+import { runHistoryCheck } from "@/lib/history-check";
+import { parseIrishReg } from "@/lib/reg";
 
 const carRef = (c: Car) => ({ kind: "car" as const, id: c.id, label: carTitleOf(c) });
 
@@ -79,6 +81,18 @@ export async function saveCostAction(id: string, data: FormData) {
   const change = costText(was, cost);
   if (change) await logActivity("stock", change, carRef(car));
   redirect(`/dashboard/stock/${id}?cost=saved`);
+}
+
+// Runs the car's history check again, by the registration on the form (an import carries its Irish one). Anyone on the team, both versions.
+export async function historyCheckAction(id: string, data: FormData) {
+  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
+  const car = await adminCar(id);
+  if (!car) return;
+  const reg = parseIrishReg(String(data.get("reg") ?? "").slice(0, 16))?.reg;
+  if (!reg) redirect(`/dashboard/stock/${id}?history=reg`);
+  const check = await runHistoryCheck(car, reg, dublinDay());
+  if (check) await logActivity("stock", "Ran the history check", carRef(car));
+  redirect(`/dashboard/stock/${id}?history=${check ? "done" : "failed"}`);
 }
 
 // Back on sale is for a sold car with no sale recorded. One with a sale is undone on its own page (undoSaleAction), which keeps the record.

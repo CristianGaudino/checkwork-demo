@@ -9,6 +9,7 @@ import { devFixtureCars } from "@/lib/dev-data";
 import { reservationsStore, salesStore } from "./collections";
 import { carSlug, nextCarId } from "./stock-admin-pure";
 import { dropCarPhotos } from "./car-photos";
+import { historyStore } from "@/lib/history-check";
 
 // The dealer's view of the stock: every car, sold ones too, and the writes. On the Worker this is the `cars` table the public site reads
 // (so a change shows on the site within seconds). With no D1 binding it edits the in-memory list the site reads (dev and E2E).
@@ -75,4 +76,5 @@ export async function removeCar(id: string, known?: Car): Promise<void> {
   }
   await afterWrite();
   if (car) await dropCarPhotos(car.photos);
+  await historyStore.remove(id); // its history check goes with it
 }
