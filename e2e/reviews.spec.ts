@@ -49,8 +49,7 @@ test("with the dashboard off and Reviews on, the home page and /reviews still sh
   await page.setViewportSize({ width: 1280, height: 800 }); // the header links are from 1024px
   await page.goto("/");
   const bar = await demoBar(page);
-  await bar.getByRole("link", { name: "Dealer" }).click(); // as the dealer's staff, who would get the Dashboard link
-  await expect(bar.getByRole("link", { name: "Dealer" })).toHaveAttribute("aria-current", "true");
+  await expect(bar.getByRole("navigation", { name: "View the demo as" })).toHaveCount(0); // no dealer side to view it as
   await expect(page.getByRole("heading", { name: "What customers say" })).toBeVisible();
   await expect(strip(page).locator("article").first()).toBeVisible();
   await expect(page.getByRole("banner").getByRole("link", { name: "Dashboard" })).toHaveCount(0);

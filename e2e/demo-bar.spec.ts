@@ -60,11 +60,30 @@ test("on the narrowest phone the dealer's module switches open inside the panel 
   const modules = bar.getByRole("button", { name: /^Plan/ });
   await expect(modules).toBeInViewport({ ratio: 1 });
   await modules.click();
-  const showroom = bar.getByRole("button", { name: /^Showroom/ });
-  await expect(showroom).toBeInViewport({ ratio: 1 });
-  await showroom.click();
-  await expect(modules).toContainText("Showroom");
-  await expect(showroom).toHaveAttribute("aria-pressed", "true");
+  const dealer = bar.getByRole("button", { name: /^Dealer/ });
+  await expect(dealer).toBeInViewport({ ratio: 1 });
+  await dealer.click();
+  await expect(modules).toContainText("Dealer");
+  await expect(dealer).toHaveAttribute("aria-pressed", "true");
+});
+
+test("on Showroom there is no dealer side: no View as, no dealer tools, and the Plan switch takes the demo back", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/dashboard");
+  const bar = await demoBar(page);
+  await bar.getByRole("button", { name: /^Plan/ }).click();
+  await bar.getByRole("button", { name: /^Showroom/ }).click();
+  await expect(page).toHaveURL(/\/$/); // the dealer area is gone, so the demo leaves it
+  await expect(bar.getByRole("navigation", { name: "View the demo as" })).toHaveCount(0);
+  await expect(bar.getByRole("combobox", { name: "Role" })).toHaveCount(0);
+  await expect(page.getByRole("banner").getByRole("link", { name: "Dashboard" })).toHaveCount(0);
+  await page.goto("/used-cars");
+  await page.locator("article").first().getByRole("link").first().click();
+  await expect(page.getByTestId("buy-box")).toBeVisible();
+  await expect(page.locator("[data-car-controls]")).toHaveCount(0);
+  await bar.getByRole("button", { name: /^Plan/ }).click();
+  await bar.getByRole("button", { name: /^Dealer/ }).click();
+  await expect(bar.getByRole("link", { name: "Dealer" })).toBeVisible(); // the dealer side is back
 });
 
 test("light is the default, dark is a choice that sticks and does not flash", async ({ page }) => {

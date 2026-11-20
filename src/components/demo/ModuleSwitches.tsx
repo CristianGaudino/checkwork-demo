@@ -1,6 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { isAppPath } from "@/lib/demo";
 import { useEffect, useId, useRef, useState } from "react";
 import { setDemoModules, useModules } from "@/lib/demo-role";
 import { MODULES, withModule, withoutModule, type ModuleId } from "@/lib/modules-rules";
@@ -15,6 +16,7 @@ const PLANS = TIERS;
 // `inline`: in the phone panel the list opens in place, under the button, rather than as a popup that would run off a narrow screen.
 export function ModuleSwitches({ chip, inline = false }: { chip: string; inline?: boolean }) {
   const router = useRouter();
+  const path = usePathname();
   const on = useModules();
   const [open, setOpen] = useState(false);
   const toggle = useRef<HTMLButtonElement>(null);
@@ -29,8 +31,11 @@ export function ModuleSwitches({ chip, inline = false }: { chip: string; inline?
     return add ? `+${eur(add)}` : "Included";
   };
   const apply = (next: Iterable<ModuleId>) => {
-    setDemoModules(next);
-    router.refresh();
+    const list = [...next];
+    setDemoModules(list);
+    // Without the dashboard the dealer area is gone (404), so the demo goes to the site's home page.
+    if (isAppPath(path) && !list.includes("dashboard")) router.push("/");
+    else router.refresh();
   };
 
   useEffect(() => {
