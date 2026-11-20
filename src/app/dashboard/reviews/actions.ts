@@ -12,6 +12,7 @@ import { requireStaff } from "@/lib/staff";
 export async function replyAction(id: string, data: FormData) {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   await requireModule("reviews"); // and only while the dealer has it
+  await requireModule("dashboard"); // replies are a dashboard feature: a Showroom site shows reviews only (#224)
   const reply = String(data.get("reply") ?? "").trim().slice(0, 500);
   const review = await reviewsStore.get(id);
   if (!review || reply === (review.reply ?? "")) return; // nothing changed

@@ -22,6 +22,12 @@ export function ModuleSwitches({ chip, inline = false }: { chip: string; inline?
   const panelId = useId();
   const plan = planFor(on);
   const preset = presetName(on);
+  // What turning a module on adds to the plan: an add-on's price, or a move to the tier that holds it.
+  const addLabel = (id: ModuleId) => {
+    if (!MODULE_EUR[id]) return "Per use";
+    const add = planFor(withModule(on, id)).eur - plan.eur;
+    return add ? `+${eur(add)}` : "Included";
+  };
   const apply = (next: Iterable<ModuleId>) => {
     setDemoModules(next);
     router.refresh();
@@ -46,7 +52,7 @@ export function ModuleSwitches({ chip, inline = false }: { chip: string; inline?
   return (
     <div ref={root} className={inline && open ? "basis-full" : "relative"}>
       <button ref={toggle} type="button" aria-expanded={open} aria-controls={panelId} onClick={() => setOpen((o) => !o)} className={`${chip} border-hairline text-text-2 ${press}`}>
-        Plan<span className="ml-1 font-medium text-text">{preset}</span>
+        Plan<span className="ml-1 font-medium text-text">{plan.name}</span>
       </button>
       {open && (
         <div id={panelId} role="group" aria-label="Plan and modules" className={`flex flex-col gap-1 overflow-y-auto rounded-card border border-hairline bg-band p-2 ${inline ? "mt-2 max-h-[50vh] w-full" : "absolute bottom-full left-0 z-50 mb-2 max-h-[70vh] w-80 shadow-panel"}`}>
@@ -68,7 +74,7 @@ export function ModuleSwitches({ chip, inline = false }: { chip: string; inline?
             <label key={m.id} className="flex min-h-11 cursor-pointer items-center gap-3 rounded-control px-2 hover:bg-hairline/50">
               <input type="checkbox" checked={on.has(m.id)} onChange={(e) => apply(e.target.checked ? withModule(on, m.id) : withoutModule(on, m.id))} className="size-4 accent-[var(--color-accent)]" />
               <span className="flex-1 text-meta">{m.label}</span>
-              {SHOW_PRICING && <span className="text-meta tabular-nums text-text-2">{MODULE_EUR[m.id] ? eur(MODULE_EUR[m.id]) : "Per use"}</span>}
+              {SHOW_PRICING && !on.has(m.id) && <span className="text-meta tabular-nums text-text-2">{addLabel(m.id)}</span>}
             </label>
           ))}
           {SHOW_PRICING && (

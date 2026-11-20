@@ -240,7 +240,7 @@ and their add-ons are sold:
 - **Add-ons** at module prices (`MODULE_EUR`): any module the tier lacks, such as commercial EUR 29, service EUR 49, social EUR 99,
   newsletter EUR 59, new cars EUR 99. New cars covers 2 brands; each more brand is EUR 29 a month and EUR 100 at setup, in a tier or not
   (setup EUR 400 as an add-on). A plan is the cheapest tier for the dealer's modules plus add-ons; no modules is Showroom. Showroom takes
-  no add-on that is or needs the dashboard, and more than one branch is Group. The demo bar calls a set that is not exactly a tier's "Custom".
+  no add-on that is or needs the dashboard, and more than one branch is Group. The demo bar names the plan as the Billing page does, and each switch shows what turning it on adds.
 - **Over the allowance** each use is billed: lookup EUR 0.30, WhatsApp alert EUR 0.05, reply EUR 0.03, marketing message EUR 0.12, AI
   action EUR 0.04 (Standard) or EUR 0.08 (Premium). Replies and marketing messages are never included.
 - **Payment terms** (`term`): monthly at list price, a year upfront for 11 months' price, or a 2-year contract with no setup fee.
