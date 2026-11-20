@@ -1,0 +1,1701 @@
+[
+  {
+    "name": "Blackwater Motors",
+    "county": "Cork",
+    "town": "Cork (Airport Road), Fermoy, Skibbereen",
+    "website": "https://www.blackwatermotors.ie/",
+    "businessPhone": null,
+    "type": "franchise",
+    "brands": [
+      "Volkswagen",
+      "Audi",
+      "Skoda",
+      "SEAT",
+      "CUPRA",
+      "VW Commercial"
+    ],
+    "branches": 7,
+    "stock": {
+      "count": 654,
+      "source": "https://www.blackwatermotors.ie/used-cars/",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 36950,
+    "reviews": {
+      "count": 683,
+      "rating": 4.2,
+      "source": "https://www.donedeal.ie/dealer/blackwater-motors-cork/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise accounts per branch: Cork 277 ads, Fermoy 208, Skibbereen 75 (Trusted Dealer badge)"
+    ],
+    "platform": null,
+    "activity": "Stock live on own site (654 matching vehicles); Facebook linked.",
+    "glanceNotes": "654 is used only (the site's condition filter offers only 'used') but covers all seven locations, including Audi Approved :plus Kerry and Carmaxx; the location filter runs in the browser, so a Cork-only count isn't available from the page. Cork-county DoneDeal accounts: Cork 277 + Fermoy 208 + Skibbereen 75 = 560; the Cork branch's first page is mostly 2026/2027 cars at about 11 km (pre-reg or demo). Own stock search with monthly figures, 'Value My Vehicle' link, finance quote and reserve online. No enquiry form on the listing page, no reviews shown, no phone on the homepage or used page. No builder credit (WordPress). Review count is the Cork branch only. Typical price is a first-page median, skewed premium. Big enough for the dashboard even with a decent site.",
+    "skip": null,
+    "sources": [
+      "https://www.blackwatermotors.ie/",
+      "https://www.blackwatermotors.ie/used-cars/",
+      "https://www.donedeal.ie/dealer/blackwater-motors-cork",
+      "https://www.donedeal.ie/dealer/blackwater-motors-cork/reviews"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Johnson & Perrott Motor Group (JPMG)",
+    "county": "Cork",
+    "town": "Cork (Bishopstown, Douglas, Mahon Point)",
+    "website": "https://www.jpmg.ie/",
+    "businessPhone": "021 480 4040",
+    "type": "franchise",
+    "brands": [
+      "Ford",
+      "Kia",
+      "Land Rover",
+      "MG",
+      "Opel",
+      "Peugeot",
+      "Volvo"
+    ],
+    "branches": 5,
+    "stock": {
+      "count": 457,
+      "source": "https://www.jpmg.ie/used-cars",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "Trustpilot programme (site cites 1,400 Trustpilot reviews)",
+      "Own used-car brand MotorStore"
+    ],
+    "platform": "Dmac Media",
+    "activity": "Facebook, Instagram, LinkedIn, YouTube linked; 457 cars live on site.",
+    "glanceNotes": "Cork-only group: Bishopstown (Land Rover, Volvo), Douglas, Mahon Point, plus MotorStore used. Phone given is MotorStore's. Site has stock search, HP monthly figures, 'Value my car' page, Trustpilot. No visible finance calculator, test drive request or enquiry form on the used page. Only two prices visible in the fetch, so typical price left null. Google review count not found (no DoneDeal dealer page found). Strong-ish modern site, but big enough for the dashboard. Validated: the site's search button reads 'Search 457 Cars'; only two prices shown (€22,900, €25,900), the stock list loads by script.",
+    "skip": null,
+    "sources": [
+      "https://www.jpmg.ie/used-cars"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Kevin O'Leary Group",
+    "county": "Cork",
+    "town": "Silversprings (Cork city), Bandon",
+    "website": "https://www.kevinoleary.ie/",
+    "businessPhone": "021 450 3397",
+    "type": "franchise",
+    "brands": [
+      "Opel",
+      "Honda",
+      "Mazda",
+      "Suzuki",
+      "Renault",
+      "Dacia"
+    ],
+    "branches": 3,
+    "stock": {
+      "count": 218,
+      "source": "https://www.donedeal.ie/dealer/kevin-oleary-silversprings",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 30000,
+    "reviews": {
+      "count": 479,
+      "rating": 4.45,
+      "source": "https://www.donedeal.ie/dealer/kevin-oleary-silversprings/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise accounts: Silversprings 96 ads (Trusted Dealer), Bandon 122 ads"
+    ],
+    "platform": "HappyDealer",
+    "activity": "Facebook, Instagram, YouTube, X, LinkedIn linked.",
+    "glanceNotes": "Stock = Silversprings 96 + Bandon 122 on DoneDeal (confirmed). Own site ('website by happydealer.ie') lists 324 vehicles at /search, across Cork and Clonmel. The /used-cars claim is weaker than it looked: /used-cars (no slash) returns 200 with a 'Page not found' body (a soft 404), but the site's menus link /search and /used-cars/ redirects there, so buyers don't hit it; only an SEO point. Reviews = 228 (4.3) Silversprings + 251 (4.6) Bandon. Third branch in Clonmel, Tipperary, plus a CVRT centre in Douglas. Budget filter, stock alerts, cash-for-cars page; no trade-in form, no test drive, no enquiry form seen on the home page. Bandon phone 023 884 1264.",
+    "skip": null,
+    "sources": [
+      "https://www.kevinoleary.ie/",
+      "https://www.kevinoleary.ie/used-cars",
+      "https://www.donedeal.ie/dealer/kevin-oleary-silversprings",
+      "https://www.donedeal.ie/dealer/kevin-oleary-bandon",
+      "https://www.donedeal.ie/dealer/kevin-oleary-silversprings/reviews",
+      "https://www.donedeal.ie/dealer/kevin-oleary-bandon/reviews",
+      "https://www.kevinoleary.ie/search"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Cavanaghs of Charleville",
+    "county": "Cork",
+    "town": "Charleville, Mallow",
+    "website": "https://www.cavanaghs.com/",
+    "businessPhone": null,
+    "type": "franchise",
+    "brands": [
+      "Ford",
+      "Suzuki"
+    ],
+    "branches": 2,
+    "stock": {
+      "count": 175,
+      "source": "https://www.donedeal.ie/dealer/cavanaghs-of-charleville-ltd",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 24995,
+    "reviews": {
+      "count": 910,
+      "rating": 4.8,
+      "source": "https://www.donedeal.ie/dealer/cavanaghs-of-charleville-ltd/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise account with 175 ads"
+    ],
+    "platform": "WordPress (no builder credit)",
+    "activity": "175 live DoneDeal ads.",
+    "glanceNotes": "Ford dealer in Charleville, Suzuki in Mallow. cavanaghs.com loads normally in a browser (200; it refuses only bare fetchers), WordPress, titled 'Ford Dealer Cork & Limerick'. Has used cars and used commercials pages, apply-for-finance, trade-in enquiry and used-car enquiry forms, location page. Stock list loads by script, so not counted from the site. No Fermoy mention on cavanaghs.com. DoneDeal 175 ads, 910 Google reviews (4.8) confirmed. Many vans in stock: commercial section pitch.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/cavanaghs-of-charleville-ltd",
+      "https://www.donedeal.ie/dealer/cavanaghs-of-charleville-ltd/reviews",
+      "https://www.cavanaghs.com/about-us/",
+      "https://www.cavanaghs.com/",
+      "https://www.cavanaghs.com/used-cars/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Nyhan Motors / Car Superstore",
+    "county": "Cork",
+    "town": "Bandon",
+    "website": "https://www.carsuperstore.ie/",
+    "businessPhone": "023 882 0120",
+    "type": "franchise",
+    "brands": [
+      "Kia"
+    ],
+    "branches": 2,
+    "stock": {
+      "count": 253,
+      "source": "https://www.donedeal.ie/dealer/nyhan-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 30550,
+    "reviews": {
+      "count": 249,
+      "rating": 4.3,
+      "source": "https://www.donedeal.ie/dealer/nyhan-motors/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise account (Nyhan Motors) 135 ads",
+      "DoneDeal account (Car Superstore) 118 ads",
+      "Sponsored article in the Southern Star (2019)"
+    ],
+    "platform": "HappyDealer",
+    "activity": "Live ads on both DoneDeal accounts; latest site review Sept 2026.",
+    "glanceNotes": "Stock = Nyhan Motors 135 + Car Superstore 118 on DoneDeal (Car Superstore site claims 200+). Linked by the Car Superstore logo alt text 'Car Superstore Nyhan Motors'; carsuperstore.ie names Nyhan Motors throughout (Bandon, P72 AK40), so likely one business. Car Superstore site: budget filter, stock alerts, finance apply link; no trade-in form, no test drive, no enquiry form, no social links. Kia new-car site is kia.com/ie/dealer/nyhanmotors. Typical price is the Car Superstore sample median. Validated: Nyhan DoneDeal 135 (Kia only), Car Superstore own search 119 ('Website by HappyDealer').",
+    "skip": null,
+    "sources": [
+      "https://www.carsuperstore.ie/",
+      "https://www.donedeal.ie/dealer/nyhan-motors",
+      "https://www.donedeal.ie/dealer/nyhan-motors/reviews",
+      "https://www.donedeal.ie/dealer/car-superstore/reviews",
+      "https://www.kia.com/ie/dealer/nyhanmotors/about-kia/our-dealership/",
+      "https://www.southernstar.ie/news/sponsored-save-up-to-e5000-on-your-kia-with-nyhan-motors-4180620",
+      "https://www.carsuperstore.ie/search"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Noel Deasy Cars",
+    "county": "Cork",
+    "town": "Blackpool, Cork city",
+    "website": "https://www.noeldeasy.com/",
+    "businessPhone": "021 439 5024",
+    "type": "franchise",
+    "brands": [
+      "Skoda"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 126,
+      "source": "https://www.donedeal.ie/dealer/noel-deasy-ltd",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 38450,
+    "reviews": {
+      "count": 1432,
+      "rating": 4.8,
+      "source": "https://www.donedeal.ie/dealer/noel-deasy-ltd/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise account with 126 ads",
+      "Black Friday offers in ad titles"
+    ],
+    "platform": "mtc",
+    "activity": "Running a Black Friday offer on DoneDeal in Nov 2026.",
+    "glanceNotes": "Own site found: noeldeasy.com (Skoda, Cork; mtc credit in footer). Used search lists 131 vehicles, finance page, test drive and WhatsApp buttons, reviews shown. DoneDeal 126 ads, first page 9 of 10 are 2026/2027 cars (new or nearly new), so typical price is high. Skoda main dealer, also VW parts and service (Cork Chamber). Very strong review count (1,432 Google, 4.8). Already on a modern agency site: the pitch is the dashboard, not the site.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/noel-deasy-ltd",
+      "https://www.donedeal.ie/dealer/noel-deasy-ltd/reviews",
+      "https://chamber.corkchamber.ie/list/member/noel-deasy-cars-ltd-1984",
+      "https://www.goldenpages.ie/deasy-noel-cars-ltd-cork/12/",
+      "https://www.noeldeasy.com/",
+      "https://www.noeldeasy.com/used-cars"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Motorview",
+    "county": "Cork",
+    "town": "Midleton",
+    "website": "https://www.motorview.ie/",
+    "businessPhone": "021 463 7444",
+    "type": "franchise",
+    "brands": [
+      "Kia"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 161,
+      "source": "https://www.donedeal.ie/dealer/motorview",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 45145,
+    "reviews": {
+      "count": 178,
+      "rating": 4.4,
+      "source": "https://www.donedeal.ie/dealer/motorview/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise account with 161 ads",
+      "3.9% finance offer advertised"
+    ],
+    "platform": "HappyDealer",
+    "activity": "Reviews on site up to Aug 2026; Facebook, X, YouTube.",
+    "glanceNotes": "Mostly new Kia stock, so typical price is high. Own site: budget filter, finance apply, 'Get Valuation' sell-your-car form, six reviews shown. No test drive request, no enquiry form on the home page, no live chat. Copy typos ('FINAINCE', 'Warrenty').",
+    "skip": null,
+    "sources": [
+      "https://www.motorview.ie/",
+      "https://www.donedeal.ie/dealer/motorview",
+      "https://www.donedeal.ie/dealer/motorview/reviews"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "O'Connor Car Centre",
+    "county": "Cork",
+    "town": "Little Island",
+    "website": "https://www.oconnorcarcentre.ie/",
+    "businessPhone": "021 735 5833",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 154,
+      "source": "https://www.donedeal.ie/dealer/oconnor-car-centre",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 19388,
+    "reviews": {
+      "count": 183,
+      "rating": 5,
+      "source": "https://www.donedeal.ie/dealer/oconnor-car-centre/reviews"
+    },
+    "adSignals": [
+      "DoneDeal dealer account with 154 ads"
+    ],
+    "platform": "HappyDealer",
+    "activity": "Review dated Nov 2026 with an owner reply; stock to 2026 models.",
+    "glanceNotes": "Biggest independent found in the city area. Own site: stock search, finance/cash budget tool, stock alerts, one review shown, 'Meet the Team' link. No trade-in form, no test drive, no general enquiry form, no social links. Mix of everyday cars and premium (BMW X5, Range Rover).",
+    "skip": null,
+    "sources": [
+      "https://www.oconnorcarcentre.ie/",
+      "https://www.donedeal.ie/dealer/oconnor-car-centre",
+      "https://www.donedeal.ie/dealer/oconnor-car-centre/reviews"
+    ]
+  },
+  {
+    "name": "Bandon Motors",
+    "county": "Cork",
+    "town": "Bandon",
+    "website": "https://www.bandonmotors.ie/",
+    "businessPhone": "023 884 4422",
+    "type": "franchise",
+    "brands": [
+      "Ford",
+      "Peugeot"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 99,
+      "source": "https://www.donedeal.ie/dealer/bandon-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 36950,
+    "reviews": {
+      "count": 150,
+      "rating": 4.6,
+      "source": "https://www.donedeal.ie/dealer/bandon-motors/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise account with 99 ads (Trusted Dealer)",
+      "Sponsored article in the Southern Star"
+    ],
+    "platform": "HappyDealer",
+    "activity": "Review July 2026; Facebook and Instagram.",
+    "glanceNotes": "Two sites: bandonmotors.ie (HappyDealer, used) and bandonmotors.com (Ford official). Own site: finance/cash budget tool, stock alerts, one review shown, team page link. No trade-in form, no test drive, no enquiry form seen. Clarke Bros (Bandon) is on the same road and the founder is named Clarke; link not confirmed.",
+    "skip": null,
+    "sources": [
+      "https://www.bandonmotors.ie/",
+      "https://www.donedeal.ie/dealer/bandon-motors",
+      "https://www.donedeal.ie/dealer/bandon-motors/reviews",
+      "https://www.southernstar.ie/sponsored/bandon-motors-new-peugeot-dealers-in-west-cork-4286262"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Mallow Road Motors",
+    "county": "Cork",
+    "town": "Kilnap / Blarney (Mallow Road, Cork)",
+    "website": "https://www.mallowroadmotors.com/",
+    "businessPhone": "021 439 2066",
+    "type": "franchise",
+    "brands": [
+      "Peugeot",
+      "Citroen",
+      "Kia"
+    ],
+    "branches": 2,
+    "stock": {
+      "count": 120,
+      "source": "https://www.donedeal.ie/dealer/289",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 23450,
+    "reviews": {
+      "count": 143,
+      "rating": 4.6,
+      "source": "https://www.donedeal.ie/dealer/289/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise account with 120 ads",
+      "Listings also on cars.ie"
+    ],
+    "platform": "HappyDealer",
+    "activity": "120 live DoneDeal ads.",
+    "glanceNotes": "Own site found: mallowroadmotors.com ('Website by HappyDealer'): new Kia, Peugeot and Citroen, used search (108 cars at /search) and commercials search, finance page, reviews page. No trade-in or test drive form seen on the home or search page. Peugeot showroom at Kilnap, Old Mallow Road; Kia at Blarney Business Park (ad text). Kia manufacturer page kia.com/ie/dealer/mallowroadkia also exists.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/289",
+      "https://www.donedeal.ie/dealer/289/reviews",
+      "https://www.cars.ie/dealer-mallow-road-motors-545",
+      "https://www.kia.com/ie/dealer/mallowroadkia/about-kia/our-dealership/",
+      "https://www.mallowroadmotors.com/",
+      "https://www.mallowroadmotors.com/search"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Newmarket Motors",
+    "county": "Cork",
+    "town": "Newmarket",
+    "website": "https://www.newmarketmotors.ie/",
+    "businessPhone": "029 60100",
+    "type": "franchise",
+    "brands": [
+      "Volkswagen",
+      "VW Commercial",
+      "Mercedes-Benz Commercial",
+      "XPENG"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 100,
+      "source": "https://www.donedeal.ie/dealer/newmarket-motors-ltd",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 38500,
+    "reviews": {
+      "count": 168,
+      "rating": 4.8,
+      "source": "https://www.donedeal.ie/dealer/newmarket-motors-ltd/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise account with 100 ads"
+    ],
+    "platform": "HappyDealer",
+    "activity": "Review May 2026; Facebook, Instagram, YouTube.",
+    "glanceNotes": "Own site: finance/cash budget tool, one review shown, team page. No trade-in form, no test drive, no enquiry form seen. Franchise list from site links and DoneDeal stock; the make filter also lists other brands.",
+    "skip": null,
+    "sources": [
+      "https://www.newmarketmotors.ie/",
+      "https://www.donedeal.ie/dealer/newmarket-motors-ltd",
+      "https://www.donedeal.ie/dealer/newmarket-motors-ltd/reviews"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "O'Callaghan Motors (Toyota Kanturk)",
+    "county": "Cork",
+    "town": "Kanturk",
+    "website": "https://www.ocallaghanmotors.com/",
+    "businessPhone": "029 50035",
+    "type": "franchise",
+    "brands": [
+      "Toyota"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 92,
+      "source": "https://www.donedeal.ie/dealer/ocallaghan-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 26950,
+    "reviews": {
+      "count": 166,
+      "rating": 4.6,
+      "source": "https://www.donedeal.ie/dealer/ocallaghan-motors/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise account with 92 ads"
+    ],
+    "platform": "Toyota Ireland dealer platform",
+    "activity": "Social: X, Instagram, TikTok, YouTube, Facebook.",
+    "glanceNotes": "Site is Toyota Ireland's template: finance calculator, trade-in and test drive requests, but used search showed 'View 0 Used Cars' while DoneDeal has 92. A menu link goes to another dealer's domain (trmtallaght.ie). No reviews shown.",
+    "skip": null,
+    "sources": [
+      "https://www.ocallaghanmotors.com/",
+      "https://www.donedeal.ie/dealer/ocallaghan-motors",
+      "https://www.donedeal.ie/dealer/ocallaghan-motors/reviews"
+    ]
+  },
+  {
+    "name": "Lehane Motors (Toyota & Lexus)",
+    "county": "Cork",
+    "town": "Airport Road, Cork",
+    "website": "https://www.lehanemotors.ie/",
+    "businessPhone": "021 481 7700",
+    "type": "franchise",
+    "brands": [
+      "Toyota",
+      "Lexus"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 88,
+      "source": "https://www.donedeal.ie/dealer/lehane-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 30900,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "DoneDeal franchise account with 88 ads"
+    ],
+    "platform": "Toyota Ireland dealer platform",
+    "activity": "Social: X, Instagram, YouTube, Facebook, LinkedIn.",
+    "glanceNotes": "Toyota Ireland template site: finance calculator, trade-in and test drive requests, but 'View 0 Used Cars' on site while DoneDeal has 88. No reviews shown. Google review count not shown on its DoneDeal reviews tab. A search result said it sits in the Macroom Motors group; the site does not say so.",
+    "skip": null,
+    "sources": [
+      "https://www.lehanemotors.ie/",
+      "https://www.donedeal.ie/dealer/lehane-motors"
+    ]
+  },
+  {
+    "name": "Grandons Toyota Cork",
+    "county": "Cork",
+    "town": "Glanmire",
+    "website": "https://www.grandons.ie/",
+    "businessPhone": "021 485 8300",
+    "type": "franchise",
+    "brands": [
+      "Toyota"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 69,
+      "source": "https://www.donedeal.ie/dealer/grandons-toyota-cork",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 29000,
+    "reviews": {
+      "count": 998,
+      "rating": 4.7,
+      "source": "https://www.donedeal.ie/dealer/grandons-toyota-cork/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise account with 69 ads"
+    ],
+    "platform": "Toyota Ireland dealer platform",
+    "activity": "Social: X, YouTube, Facebook, LinkedIn.",
+    "glanceNotes": "Toyota Ireland template: finance calculator, trade-in, test drive. Used search shows 'View 0 Used Cars' with four featured used cars, while DoneDeal has 69. No reviews shown despite ~1,000 Google reviews.",
+    "skip": null,
+    "sources": [
+      "https://www.grandons.ie/",
+      "https://www.donedeal.ie/dealer/grandons-toyota-cork",
+      "https://www.donedeal.ie/dealer/grandons-toyota-cork/reviews"
+    ]
+  },
+  {
+    "name": "Cogans Toyota Cork",
+    "county": "Cork",
+    "town": "Carrigaline",
+    "website": "https://www.cogans.ie/",
+    "businessPhone": "021 485 2500",
+    "type": "franchise",
+    "brands": [
+      "Toyota"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 54,
+      "source": "https://www.donedeal.ie/dealer/cogans-toyota-cork",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 29895,
+    "reviews": {
+      "count": 1411,
+      "rating": 4.8,
+      "source": "https://www.donedeal.ie/dealer/cogans-toyota-cork/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise account with 54 ads"
+    ],
+    "platform": "Toyota Ireland dealer platform",
+    "activity": "Social: X, Instagram, YouTube, Facebook, LinkedIn.",
+    "glanceNotes": "Toyota Ireland template: finance calculator, trade-in, test drive. 'View 0 Used Cars' on site while DoneDeal has 54. No reviews shown despite 1,411 Google reviews. Typos and mixed VAT labels on offers.",
+    "skip": null,
+    "sources": [
+      "https://www.cogans.ie/",
+      "https://www.donedeal.ie/dealer/cogans-toyota-cork",
+      "https://www.donedeal.ie/dealer/cogans-toyota-cork/reviews"
+    ]
+  },
+  {
+    "name": "Colemans Millstreet",
+    "county": "Cork",
+    "town": "Millstreet",
+    "website": "https://www.kia.com/ie/dealer/colemanskia/homepage",
+    "businessPhone": null,
+    "type": "franchise",
+    "brands": [
+      "Kia",
+      "New Holland"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 54,
+      "source": "https://www.donedeal.ie/dealer/colemans-millstreet",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 18700,
+    "reviews": {
+      "count": 191,
+      "rating": 4.4,
+      "source": "https://www.donedeal.ie/dealer/colemans-millstreet/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise account with 54 ads (Trusted Dealer)"
+    ],
+    "platform": "Kia Ireland dealer page only",
+    "activity": "54 live DoneDeal ads.",
+    "glanceNotes": "No dealer-owned website found, only the Kia manufacturer page. Some DoneDeal ads are New Holland tractors, so the car count is a bit under 54. Phone not captured.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/colemans-millstreet",
+      "https://www.donedeal.ie/dealer/colemans-millstreet/reviews",
+      "https://www.kia.com/ie/dealer/colemanskia/about-kia/our-dealership/"
+    ]
+  },
+  {
+    "name": "Jonathan O'Brien Cars",
+    "county": "Cork",
+    "town": "Tramore Road, Cork city",
+    "website": "https://www.jonathanobriencars.ie/",
+    "businessPhone": "021 432 0665",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 70,
+      "source": "https://www.jonathanobriencars.ie/",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 39850,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": "HappyDealer",
+    "activity": "Review Sept 2026; Facebook and Instagram.",
+    "glanceNotes": "Count is the site's own claim ('Over 70+ Cars in Stock'), not counted. Premium stock (Range Rover, Porsche Macan, Defender), so typical price is a featured-cars median and may run high. Budget tool, stock alerts; no trade-in form, test drive or enquiry form seen. DoneDeal page not found, so Google review count unknown.",
+    "skip": null,
+    "sources": [
+      "https://www.jonathanobriencars.ie/"
+    ]
+  },
+  {
+    "name": "John Dunne Motors",
+    "county": "Cork",
+    "town": "Turner's Cross, Cork city",
+    "website": "https://www.johndunnemotors.ie/",
+    "businessPhone": "021 496 3310",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 96,
+      "source": "https://www.johndunnemotors.ie/",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 13200,
+    "reviews": {
+      "count": 143,
+      "rating": 4.5,
+      "source": "https://www.donedeal.ie/dealer/john-dunne-motors/reviews"
+    },
+    "adSignals": [
+      "DoneDeal dealer account",
+      "CarsIreland dealer site"
+    ],
+    "platform": "CarsIreland.ie",
+    "activity": "Image uploads Dec 2025; Facebook linked.",
+    "glanceNotes": "CarsIreland site: 96 vehicles, budget filter, finance apply, test drive and enquiry forms, WhatsApp, reserve online. No reviews shown, no trade-in form (valuation button only). Typical price from only three prices shown.",
+    "skip": null,
+    "sources": [
+      "https://www.johndunnemotors.ie/",
+      "https://www.donedeal.ie/dealer/john-dunne-motors/reviews"
+    ]
+  },
+  {
+    "name": "Roskeen Cars & Commercials",
+    "county": "Cork",
+    "town": "Lombardstown (near Mallow)",
+    "website": "https://www.roskeencars.ie/",
+    "businessPhone": "087 350 0350",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 65,
+      "source": "https://www.donedeal.ie/dealer/roskeen-cars-and-commercials",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 14950,
+    "reviews": {
+      "count": 106,
+      "rating": 4.8,
+      "source": "https://www.donedeal.ie/dealer/roskeen-cars-and-commercials/reviews"
+    },
+    "adSignals": [
+      "DoneDeal dealer account with 65 ads",
+      "Listings on cars.ie"
+    ],
+    "platform": "CarsIreland.ie",
+    "activity": "65 live DoneDeal ads.",
+    "glanceNotes": "Own site: roskeencars.ie (Lombardstown, Mallow; 'Powered by' CarsIreland logo). 66 cars on its used search, finance apply, test drive and trade-in buttons, WhatsApp, Google reviews shown. Sells cars and vans: commercial section pitch. Phone from cars.ie listing.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/roskeen-cars-and-commercials",
+      "https://www.donedeal.ie/dealer/roskeen-cars-and-commercials/reviews",
+      "https://www.cars.ie/listing-toyota-landcruiser-d-d-lc-dr-manual-840570",
+      "https://www.roskeencars.ie/",
+      "https://www.roskeencars.ie/used-cars/"
+    ]
+  },
+  {
+    "name": "Ballincollig Motors",
+    "county": "Cork",
+    "town": "Ballincollig",
+    "website": "https://www.ballincolligmotors.ie/",
+    "businessPhone": "021 487 2222",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 62,
+      "source": "https://www.ballincolligmotors.ie/",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 15225,
+    "reviews": {
+      "count": 111,
+      "rating": 4.2,
+      "source": "https://www.donedeal.ie/dealer/ballincollig-motors/reviews"
+    },
+    "adSignals": [
+      "DoneDeal dealer account",
+      "CarsIreland dealer site"
+    ],
+    "platform": "CarsIreland.ie",
+    "activity": "Newest image uploads April 2025; social feed empty.",
+    "glanceNotes": "CarsIreland site: 62 cars, budget sliders, test drive and enquiry forms, WhatsApp. No reviews shown, valuation heading with no visible fields, Facebook only. Typical price from four prices.",
+    "skip": null,
+    "sources": [
+      "https://www.ballincolligmotors.ie/",
+      "https://www.donedeal.ie/dealer/ballincollig-motors/reviews"
+    ]
+  },
+  {
+    "name": "Mac's Motors",
+    "county": "Cork",
+    "town": "South Douglas Road, Cork city",
+    "website": "https://www.macsmotors.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 54,
+      "source": "https://www.donedeal.ie/dealer/1453",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 9388,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "DoneDeal dealer account with 54 ads",
+      "Listings on cars.ie"
+    ],
+    "platform": "CarsIreland.ie",
+    "activity": "Price drops on most ads (was/now prices).",
+    "glanceNotes": "Own site: macsmotors.ie (Dosco Business Park, South Douglas Road; 'Powered by CarsIreland.ie'). 54 cars on its used search, finance apply, trade-in, test drive request, WhatsApp, Google reviews shown. Budget stock (median under €10k), so stock value is low.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/1453",
+      "https://www.macsmotors.ie/",
+      "https://www.macsmotors.ie/used-cars/"
+    ]
+  },
+  {
+    "name": "Ollie Kierce Cars",
+    "county": "Cork",
+    "town": "Carrigtwohill",
+    "website": "https://www.olliekiercecars.ie/",
+    "businessPhone": "021 212 4030",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 41,
+      "source": "https://www.donedeal.ie/dealer/ollie-kierce-cars-ltd",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 16499,
+    "reviews": {
+      "count": 104,
+      "rating": 4,
+      "source": "https://www.donedeal.ie/dealer/ollie-kierce-cars-ltd/reviews"
+    },
+    "adSignals": [
+      "DoneDeal dealer account with 41 ads"
+    ],
+    "platform": "HappyDealer",
+    "activity": "Facebook linked.",
+    "glanceNotes": "Own site: stock search, budget filter, 'Sell us your car' link, many reviews shown (some duplicated). No trade-in form, test drive or enquiry form seen. Names Ollie and Ray via reviews only.",
+    "skip": null,
+    "sources": [
+      "https://www.olliekiercecars.ie/",
+      "https://www.donedeal.ie/dealer/ollie-kierce-cars-ltd",
+      "https://www.donedeal.ie/dealer/ollie-kierce-cars-ltd/reviews"
+    ]
+  },
+  {
+    "name": "Denis & Mary Ryan",
+    "county": "Cork",
+    "town": "Bishopstown, Cork city",
+    "website": "https://www.ryans.ie/",
+    "businessPhone": null,
+    "type": "franchise",
+    "brands": [
+      "Citroen",
+      "DS",
+      "Subaru",
+      "Maxus"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 37,
+      "source": "https://www.donedeal.ie/dealer/denis-mary-ryan",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 16500,
+    "reviews": {
+      "count": 133,
+      "rating": 4.2,
+      "source": "https://www.donedeal.ie/dealer/denis-mary-ryan/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise account with 37 ads"
+    ],
+    "platform": "CarsIreland.ie",
+    "activity": "37 live DoneDeal ads.",
+    "glanceNotes": "Own site: ryans.ie ('Used Cars - New Citroen, DS, Maxus - Bishopstown, Cork'; CarsIreland platform), linked from its DoneDeal page. 37 cars on site, finance, test drive and trade-in buttons, WhatsApp, Google reviews shown. DoneDeal shows 'DS, Subaru, Citroen Dealer'; site title adds Maxus. Google reviews 133 (4.2) per DoneDeal.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/denis-mary-ryan",
+      "https://www.donedeal.ie/dealer/denis-mary-ryan/reviews",
+      "https://www.ryans.ie/"
+    ]
+  },
+  {
+    "name": "David Tobin Cars",
+    "county": "Cork",
+    "town": "Fermoy",
+    "website": "https://www.davidtobincars.ie/",
+    "businessPhone": "025 49233",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 34,
+      "source": "https://www.donedeal.ie/dealer/david-tobin-cars",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 14700,
+    "reviews": {
+      "count": 297,
+      "rating": 5,
+      "source": "https://www.donedeal.ie/dealer/david-tobin-cars/reviews"
+    },
+    "adSignals": [
+      "DoneDeal dealer account with 34 ads (Trusted Dealer)"
+    ],
+    "platform": "HappyDealer",
+    "activity": "Review Oct 2026; Facebook and Instagram.",
+    "glanceNotes": "Very strong reviews for its size (297 at 5.0). Own site: budget/monthly tool, one review shown, sell-your-car link. No trade-in form, test drive or enquiry form. Also does servicing.",
+    "skip": null,
+    "sources": [
+      "https://www.davidtobincars.ie/",
+      "https://www.donedeal.ie/dealer/david-tobin-cars",
+      "https://www.donedeal.ie/dealer/david-tobin-cars/reviews"
+    ]
+  },
+  {
+    "name": "Granville Motors Cork",
+    "county": "Cork",
+    "town": "Ballincollig",
+    "website": "https://www.rightpricecarscork.ie/",
+    "businessPhone": "021 487 9091",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 34,
+      "source": "https://www.rightpricecarscork.ie/",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 14750,
+    "reviews": {
+      "count": 33,
+      "rating": 4.8,
+      "source": "https://www.donedeal.ie/dealer/granville-motors-cork/reviews"
+    },
+    "adSignals": [
+      "DoneDeal dealer account",
+      "CarsIreland dealer site"
+    ],
+    "platform": "CarsIreland.ie",
+    "activity": "Image uploads Oct 2025.",
+    "glanceNotes": "Site says 'over 50 cars' but shows 34. Budget tool, test drive, enquiry forms. No reviews shown, empty social feed, Saturday by appointment only.",
+    "skip": null,
+    "sources": [
+      "https://www.rightpricecarscork.ie/",
+      "https://www.donedeal.ie/dealer/granville-motors-cork/reviews"
+    ]
+  },
+  {
+    "name": "Rigney Bros",
+    "county": "Cork",
+    "town": "Dungourney (near Midleton)",
+    "website": "https://www.rigneybros.com/",
+    "businessPhone": "021 466 8318",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 33,
+      "source": "https://www.rigneybros.com/",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": 104,
+      "rating": 4.7,
+      "source": "https://www.donedeal.ie/dealer/rigney-bros/reviews"
+    },
+    "adSignals": [
+      "DoneDeal dealer account",
+      "CarsIreland dealer site"
+    ],
+    "platform": "CarsIreland.ie",
+    "activity": "Image uploads May 2025; Instagram, Facebook, WhatsApp.",
+    "glanceNotes": "Family business since 1931; also servicing, crash repair, recovery. CarsIreland site with budget tool, test drive, enquiry forms. No reviews shown. Only one price visible, so typical price null.",
+    "skip": null,
+    "sources": [
+      "https://www.rigneybros.com/",
+      "https://www.donedeal.ie/dealer/rigney-bros/reviews"
+    ]
+  },
+  {
+    "name": "Airport Road Car Sales",
+    "county": "Cork",
+    "town": "Kinsale Road, Cork city",
+    "website": "https://www.airportroadcarsales.ie/",
+    "businessPhone": "021 480 9095",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 30,
+      "source": "https://www.airportroadcarsales.ie/",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 7500,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "DoneDeal dealer account with 29 ads",
+      "CarsIreland dealer site"
+    ],
+    "platform": "CarsIreland.ie",
+    "activity": "Image uploads to Sept 2026; established 1993.",
+    "glanceNotes": "CarsIreland site with finance sliders, test drive and enquiry forms, WhatsApp. No reviews shown, no trade-in form. Budget stock. Review count not shown on DoneDeal.",
+    "skip": null,
+    "sources": [
+      "https://www.airportroadcarsales.ie/",
+      "https://www.donedeal.ie/dealer/airport-road-car-sales/reviews"
+    ]
+  },
+  {
+    "name": "James Dunlea Car Sales",
+    "county": "Cork",
+    "town": "Glanmire",
+    "website": "https://www.dunleacarsales.com/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 33,
+      "source": "https://www.donedeal.ie/dealer/james-dunlea-car-sales-ltd",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 18450,
+    "reviews": {
+      "count": 109,
+      "rating": 4.8,
+      "source": "https://www.donedeal.ie/dealer/james-dunlea-car-sales-ltd/reviews"
+    },
+    "adSignals": [
+      "DoneDeal dealer account with 33 ads",
+      "Listings on cars.ie"
+    ],
+    "platform": "CarsIreland.ie",
+    "activity": "33 live DoneDeal ads.",
+    "glanceNotes": "Own site: dunleacarsales.com (Glanmire; 'Powered by CarsIreland.ie'), linked from its DoneDeal page. 32 cars on site, finance, trade-in and test drive buttons. The 'stock only on DoneDeal' pitch does not apply.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/james-dunlea-car-sales-ltd",
+      "https://www.donedeal.ie/dealer/james-dunlea-car-sales-ltd/reviews",
+      "https://www.dunleacarsales.com/"
+    ]
+  },
+  {
+    "name": "Eds Car Sales Fermoy",
+    "county": "Cork",
+    "town": "Fermoy",
+    "website": "https://www.edcarsales.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 27,
+      "source": "https://www.donedeal.ie/dealer/eds-car-sales-fermoy",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 31950,
+    "reviews": {
+      "count": 130,
+      "rating": 4.8,
+      "source": "https://www.donedeal.ie/dealer/eds-car-sales-fermoy/reviews"
+    },
+    "adSignals": [
+      "DoneDeal dealer account with 27 ads"
+    ],
+    "platform": "Webador (jwwb.nl assets)",
+    "activity": "27 live DoneDeal ads.",
+    "glanceNotes": "Own site: edcarsales.ie (\"Ed's Car Sales\", Connolly Street, Fermoy), not linked from DoneDeal. A Webador webshop: cars are shop 'products' with a /cart page, 29 cars linked from the home page, finance page and calculator, trade-in mention, WhatsApp. No proper stock search. Premium used stock (BMW X5, Volvo XC60 PHEV, 330e), so stock value is high for its size. Google reviews 128 (4.8) per a search snippet of its DoneDeal page.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/eds-car-sales-fermoy",
+      "https://www.donedeal.ie/dealer/eds-car-sales-fermoy/reviews",
+      "https://www.edcarsales.ie/"
+    ]
+  },
+  {
+    "name": "OC Motors",
+    "county": "Cork",
+    "town": "Mallow",
+    "website": "https://www.ocmotors.ie/",
+    "businessPhone": "022 22745",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 27,
+      "source": "https://www.donedeal.ie/dealer/1133/cars",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 12950,
+    "reviews": {
+      "count": 28,
+      "rating": 4.6,
+      "source": "https://www.donedeal.ie/dealer/1133/reviews"
+    },
+    "adSignals": [
+      "DoneDeal dealer account with 27 ads",
+      "CarsIreland dealer site"
+    ],
+    "platform": "CarsIreland.ie",
+    "activity": "Image uploads Jan 2026; newest review shown Feb 2025.",
+    "glanceNotes": "Site shows 30 vehicles but welcome text claims 'over 70'. Test drive, enquiry forms, budget tool. Duplicated footer blocks.",
+    "skip": null,
+    "sources": [
+      "https://www.ocmotors.ie/",
+      "https://www.donedeal.ie/dealer/1133/cars",
+      "https://www.donedeal.ie/dealer/1133/reviews"
+    ]
+  },
+  {
+    "name": "Diarmuid French Motors",
+    "county": "Cork",
+    "town": "Leap (West Cork)",
+    "website": "https://www.frenchmotors.ie/",
+    "businessPhone": "028 34657",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 26,
+      "source": "https://www.frenchmotors.ie/",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 8950,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer site"
+    ],
+    "platform": "CarsIreland.ie",
+    "activity": "Image uploads May 2025.",
+    "glanceNotes": "Also servicing and towing. Budget tool, test drive and enquiry forms. No reviews shown, WhatsApp only social. Budget stock. DoneDeal page not found, review count unknown.",
+    "skip": null,
+    "sources": [
+      "https://www.frenchmotors.ie/"
+    ]
+  },
+  {
+    "name": "Fogarty Bros",
+    "county": "Cork",
+    "town": "Killeagh (East Cork)",
+    "website": "https://www.fogartybros.ie/",
+    "businessPhone": null,
+    "type": "franchise",
+    "brands": [
+      "KGM (SsangYong)"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 23,
+      "source": "https://www.donedeal.ie/dealer/fogarty-bros",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 38650,
+    "reviews": {
+      "count": null,
+      "rating": 4.9,
+      "source": "https://www.donedeal.ie/dealer/fogarty-bros"
+    },
+    "adSignals": [
+      "DoneDeal franchise account with 23 ads"
+    ],
+    "platform": "CarsIreland.ie",
+    "activity": "23 live DoneDeal ads incl. 2026/2027 KGM.",
+    "glanceNotes": "Own site: fogartybros.ie (Main Street, Killeagh; 'Powered by CarsIreland.ie'). 'New KGM' in the menu confirms the KGM franchise. 28 cars on its used search, finance apply, test drive and trade-in buttons, WhatsApp.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/fogarty-bros",
+      "https://www.fogartybros.ie/"
+    ]
+  },
+  {
+    "name": "Linehan Car Sales Millstreet",
+    "county": "Cork",
+    "town": "Millstreet",
+    "website": "https://www.linehancarsales.com/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 23,
+      "source": "https://www.donedeal.ie/dealer/linehan-car-sales-millstreet",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 11950,
+    "reviews": {
+      "count": 49,
+      "rating": 4.7,
+      "source": "https://www.donedeal.ie/dealer/linehan-car-sales-millstreet/reviews"
+    },
+    "adSignals": [
+      "DoneDeal dealer account with 23 ads"
+    ],
+    "platform": "Google Sites (self-built)",
+    "activity": "Price drops on several ads.",
+    "glanceNotes": "Own site: linehancarsales.com (Millstreet), linked from its DoneDeal page. A free Google Sites page: stock as two hand-made pages ('Used Vehicles Pg 1/Pg 2'), finance and contact pages, no search, no enquiry, trade-in or test drive forms. Family-run, 45+ years, servicing too. Small, budget stock: low ability to pay, but a clear opening.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/linehan-car-sales-millstreet",
+      "https://www.donedeal.ie/dealer/linehan-car-sales-millstreet/reviews",
+      "https://www.linehancarsales.com/"
+    ]
+  },
+  {
+    "name": "Cadogan Motor Works",
+    "county": "Cork",
+    "town": "Skibbereen",
+    "website": "https://www.cadoganmotorworks.ie/",
+    "businessPhone": "028 21461",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 17,
+      "source": "https://www.cadoganmotorworks.ie/",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 25000,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland dealer site"
+    ],
+    "platform": "CarsIreland.ie",
+    "activity": "Image uploads Feb 2026; review shown dated Sept 2026.",
+    "glanceNotes": "Just above the 15-car line. Budget tool, test drive, enquiry, seven Google reviews shown. No social links. Closed weekends. Low priority.",
+    "skip": null,
+    "sources": [
+      "https://www.cadoganmotorworks.ie/"
+    ]
+  },
+  {
+    "name": "Macroom Motors (Toyota)",
+    "county": "Cork",
+    "town": "Macroom",
+    "website": "https://www.macroommotors.com/",
+    "businessPhone": "026 20800",
+    "type": "franchise",
+    "brands": [
+      "Toyota"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": null,
+      "source": null,
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": "Toyota Ireland dealer platform",
+    "activity": "Social: X, Instagram, YouTube, Facebook.",
+    "glanceNotes": "Toyota franchise since 1975 with body shop and NCT bay. Site shows 'View 0 Used Cars' and one featured used car; no DoneDeal dealer page found, so stock count unknown. Needs a manual check.",
+    "skip": null,
+    "sources": [
+      "https://www.macroommotors.com/"
+    ]
+  },
+  {
+    "name": "Cavanaghs of Fermoy",
+    "county": "Cork",
+    "town": "Fermoy",
+    "website": "https://www.cavanaghsoffermoyford.ie/",
+    "businessPhone": null,
+    "type": "franchise",
+    "brands": [
+      "Ford"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": null,
+      "source": null,
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "Ford dealer on the Cork Road (per search result). Its site is broken for every buyer: https://www.cavanaghsoffermoyford.ie and the bare domain both fail the TLS handshake (alert 40, so the browser shows a security error), and plain http returns Cloudflare 'Error code: 1001' (409, DNS resolution error: the domain points at Cloudflare with no site behind it). Not linked from cavanaghs.com (Charleville), so relationship unconfirmed. No stock or review figures found. Strong opening if it is still trading.",
+    "skip": null,
+    "sources": [
+      "https://www.cavanaghsoffermoyford.ie/"
+    ],
+    "websiteBroken": true
+  },
+  {
+    "name": "Ryan Motors (Pat & Jason Ryan Motors)",
+    "county": "Cork",
+    "town": "Youghal (Cork Road)",
+    "website": "https://www.ryanmotors.ie/",
+    "businessPhone": "024 93919",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 38,
+      "source": "https://www.ryanmotors.ie/search",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 18750,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "cars.ie dealer account with 38 listings"
+    ],
+    "platform": "HappyDealer",
+    "activity": "",
+    "glanceNotes": "Listed as 'Ryan Pat Motors' in Golden Pages; trades as Ryan Motors / Pat & Jason Ryan Motors. Own site ryanmotors.ie ('Website by HappyDealer', phone 024-93919 matches the directories): 38 cars on its search, finance pages. No trade-in or test drive form seen on the home page. A directory says Kia approved service agent; cars.ie labels it independent. Typical price is the median of six cars.ie prices (€2,500 to €37,000). Google review count not found.",
+    "skip": null,
+    "sources": [
+      "https://www.ryanmotors.ie/",
+      "https://www.ryanmotors.ie/search",
+      "https://www.cars.ie/dealer-pat-jason-ryan-motors-899",
+      "https://www.goldenpages.ie/used-cars/youghal-cork-county/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Kearys Motor Group (incl. Kearys CarStore)",
+    "county": "Cork",
+    "town": "Little Island / Kinsale Road, Cork",
+    "website": "https://www.kearys.ie/",
+    "businessPhone": "021 475 7265",
+    "type": "franchise",
+    "brands": [
+      "BMW",
+      "Renault",
+      "Nissan",
+      "Hyundai"
+    ],
+    "branches": null,
+    "stock": {
+      "count": null,
+      "source": null,
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": "mtc",
+    "activity": "",
+    "glanceNotes": "CarStore claims 1,000+ cars across Dublin, Cork, Limerick and Galway on one central site. kearys.ie returned 403. Note: Kearys is Cork-headquartered, so it is the group itself rather than a branch; skip kept because its central site is agency-built (mtc), but its size could justify a dashboard pitch to head office.",
+    "skip": "National group with one central site (CarStore in Dublin, Cork, Limerick, Galway; built by mtc).",
+    "sources": [
+      "https://www.carstore.ie/"
+    ]
+  },
+  {
+    "name": "MSL Mercedes-Benz Cork",
+    "county": "Cork",
+    "town": "Little Island",
+    "website": "https://www.msl.ie/en",
+    "businessPhone": "021 240 8600",
+    "type": "franchise",
+    "brands": [
+      "Mercedes-Benz"
+    ],
+    "branches": null,
+    "stock": {
+      "count": null,
+      "source": null,
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "",
+    "skip": "Part of MSL Motor Group (Dublin HQ, Dublin and Cork branches) on one central site.",
+    "sources": [
+      "https://www.msl.ie/en"
+    ]
+  },
+  {
+    "name": "ZuCar Cork",
+    "county": "Cork",
+    "town": "Little Island",
+    "website": "https://www.zucar.ie/",
+    "businessPhone": null,
+    "type": "franchise",
+    "brands": [],
+    "branches": null,
+    "stock": {
+      "count": 107,
+      "source": "https://www.donedeal.ie/dealer/zucar-cork",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": 3.9,
+      "source": "https://www.donedeal.ie/dealer/zucar-cork"
+    },
+    "adSignals": [],
+    "platform": "mtc",
+    "activity": "",
+    "glanceNotes": "",
+    "skip": "Part of the Joe Duffy Group (national) with one central ZuCar site.",
+    "sources": [
+      "https://www.zucar.ie/",
+      "https://www.donedeal.ie/dealer/zucar-cork"
+    ]
+  },
+  {
+    "name": "Midleton Motors",
+    "county": "Cork",
+    "town": "Midleton",
+    "website": "https://www.midletonmotors.ie/",
+    "businessPhone": "087 384 6774",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 13,
+      "source": "https://www.midletonmotors.ie/",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": "CarsIreland.ie",
+    "activity": "",
+    "glanceNotes": "",
+    "skip": "13 cars for sale.",
+    "sources": [
+      "https://www.midletonmotors.ie/"
+    ]
+  },
+  {
+    "name": "Clarke Bros (Bandon)",
+    "county": "Cork",
+    "town": "Bandon",
+    "website": "https://www.clarkebrosgroup.ie/",
+    "businessPhone": "087 258 4009",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 14,
+      "source": "https://www.clarkebrosgroup.ie/",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": "CarsIreland.ie",
+    "activity": "",
+    "glanceNotes": "Same road as Bandon Motors; may be related.",
+    "skip": "14 cars for sale.",
+    "sources": [
+      "https://www.clarkebrosgroup.ie/"
+    ]
+  },
+  {
+    "name": "Carrigaline Car Sales",
+    "county": "Cork",
+    "town": "Carrigaline",
+    "website": "http://www.carrigalinecarsales.com/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 14,
+      "source": "https://www.donedeal.ie/dealer/carrigaline-car-sales",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": 3.6,
+      "source": "https://www.donedeal.ie/dealer/carrigaline-car-sales"
+    },
+    "adSignals": [],
+    "platform": "CarsIreland.ie",
+    "activity": "",
+    "glanceNotes": "",
+    "skip": "12 to 14 cars for sale (own site 12, DoneDeal 14).",
+    "sources": [
+      "https://www.donedeal.ie/dealer/carrigaline-car-sales"
+    ]
+  },
+  {
+    "name": "Martin Burke Car Sales",
+    "county": "Cork",
+    "town": "Skibbereen",
+    "website": "https://www.martinburkecarsales.ie/",
+    "businessPhone": "028 22306",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 13,
+      "source": "https://www.martinburkecarsales.ie/",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": "CarsIreland.ie",
+    "activity": "",
+    "glanceNotes": "",
+    "skip": "13 cars for sale.",
+    "sources": [
+      "https://www.martinburkecarsales.ie/"
+    ]
+  },
+  {
+    "name": "Cronin Autos",
+    "county": "Cork",
+    "town": "Mallow (Clonbanin Cross)",
+    "website": "http://www.croninautos.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 12,
+      "source": "https://www.donedeal.ie/dealer/cronin-autos",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": 4.7,
+      "source": "https://www.donedeal.ie/dealer/cronin-autos"
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "",
+    "skip": "11 to 12 cars for sale (own site 11, DoneDeal 12).",
+    "sources": [
+      "https://www.donedeal.ie/dealer/cronin-autos"
+    ]
+  },
+  {
+    "name": "John O'Brien Car Sales",
+    "county": "Cork",
+    "town": "Ardfield, Clonakilty",
+    "website": "https://www.johnobriencarsales.com/",
+    "businessPhone": "023 883 5000",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 6,
+      "source": "https://www.johnobriencarsales.com/",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": "CarsIreland.ie",
+    "activity": "",
+    "glanceNotes": "",
+    "skip": "6 cars for sale.",
+    "sources": [
+      "https://www.johnobriencarsales.com/"
+    ]
+  },
+  {
+    "name": "Kelleher Motors",
+    "county": "Cork",
+    "town": "Carrigtwohill",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 7,
+      "source": "https://www.donedeal.ie/dealer/kelleher-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "DoneDeal page opened: 7 ads, Carrigtwohill.",
+    "skip": "7 ads (4 cars, 3 commercials).",
+    "sources": [
+      "https://www.donedeal.ie/dealer/kelleher-motors"
+    ]
+  },
+  {
+    "name": "Cork Truck Services / Dennehy Trucks & Vans / Neil Mc Auliffe",
+    "county": "Cork",
+    "town": null,
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": null,
+    "stock": {
+      "count": null,
+      "source": null,
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "DoneDeal pages opened: Cork Truck Services 23 ads (9 of 10 visible are Mercedes vans), Dennehy 16 (trucks and vans), Neil Mc Auliffe 29 (all listed as commercials: Hilux, commercial Land Cruisers).",
+    "skip": "Not car retailers: trucks, vans or campervans only.",
+    "sources": [
+      "https://www.donedeal.ie/dealer/cork-truck-services-ltd",
+      "https://www.donedeal.ie/dealer/dennehy-trucks-vans",
+      "https://www.donedeal.ie/dealer/neil-mc-auliffe"
+    ]
+  },
+  {
+    "name": "Kyleford Motors",
+    "county": "Cork",
+    "town": null,
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 46,
+      "source": "https://www.donedeal.ie/dealer/kyleford-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "46 DoneDeal ads; of the 10 visible, 5 campervans, 3 cars, 2 vans. Car count across all 46 unknown (likely around 14). Website not checked.",
+    "skip": "Mostly campervans and vans; cars likely under 15.",
+    "skipUnverified": true,
+    "sources": [
+      "https://www.donedeal.ie/dealer/kyleford-motors"
+    ]
+  },
+  {
+    "name": "Kinsale Road Autos",
+    "county": "Cork",
+    "town": "Kinsale Road, Cork (T12 VR64)",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 0,
+      "source": "https://www.donedeal.ie/dealer/kinsale-road-autos",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": 4.4,
+      "source": "https://www.donedeal.ie/dealer/kinsale-road-autos"
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "DoneDeal dealer page exists but shows no ads. No own site found (kinsaleroadautos.ie/.com/.net don't resolve; a search found nothing under this name).",
+    "skip": "No cars for sale on DoneDeal (0 ads).",
+    "sources": [
+      "https://www.donedeal.ie/dealer/kinsale-road-autos"
+    ]
+  }
+]
