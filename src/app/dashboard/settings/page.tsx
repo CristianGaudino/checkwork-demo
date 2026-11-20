@@ -57,7 +57,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
   const section: Section = sections.find(([k]) => k === sp.section)?.[0] ?? "business";
   return (
     <>
-      <PageHeader title="Settings" text={edit ? undefined : "Only an owner or manager can change these settings."} />
+      <PageHeader title="Settings" text={edit ? "Your targets, team, emails and the services you offer." : "Only an owner or manager can change these settings."} />
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[13rem_minmax(0,1fr)] lg:items-start">
         <nav aria-label="Settings" className="scrollbar-none -mx-4 flex gap-1 overflow-x-auto px-4 sm:mx-0 sm:px-0 lg:sticky lg:top-24 lg:flex-col">
           {sections.map(([k, label]) => (

@@ -84,6 +84,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
     <>
       <PageHeader
         title="Marketing"
+        text="Posts, ads and newsletters for your cars."
         actions={
           social && (tab === "posts" || tab === "calendar") && (
             <Link href="/dashboard/marketing/new" className={adminButton}>

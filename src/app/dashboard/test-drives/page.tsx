@@ -46,6 +46,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
     <>
       <PageHeader
         title="Test drives"
+        text="Bookings from the site and the ones you add. Confirm a request to lock in the time."
         actions={
           <Link href="/dashboard/test-drives/new" className={adminButton}>
             <PlusIcon className="size-4" />

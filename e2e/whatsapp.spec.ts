@@ -7,7 +7,7 @@ test("the page shows the dealer's conversation, with the buttons under an alert"
   await expect(phone.getByText(/wants (to sell their car|a price for a trade-in)/).first()).toBeVisible();
   await expect(phone.getByRole("button", { name: "Reply with a price" })).toBeVisible();
   await expect(phone.getByRole("button", { name: "Yes, it's available" }).first()).toBeVisible();
-  await expect(page.getByRole("heading", { name: "What WhatsApp does for you" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "What reaches your phone" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Staff phones" })).toBeVisible();
 });
 

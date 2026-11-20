@@ -8,8 +8,8 @@ import { BUTTON_LABELS } from "@/lib/whatsapp/rules";
 import type { Msg, View } from "@/lib/whatsapp/store";
 import { SITE_NAME } from "@/lib/site";
 
-// The dealer's WhatsApp, drawn as a phone: what the site sent them, the buttons under it, and a box to type in. Beside it, smaller, the
-// buyer's phone for the lead last written to. Both are the real conversation (src/lib/whatsapp), so a tap here changes the lead.
+// The dealer's WhatsApp, drawn as a phone: what the site sent them, the buttons under it, and a box to type in. Beside it, narrower, the
+// buyer's phone for the lead last written to, at the same height so the two read as one conversation. Both are the real conversation (src/lib/whatsapp), so a tap here changes the lead.
 const dayLabel = (t: number) => {
   const d = dublinDay(t);
   const today = dublinDay();
@@ -64,7 +64,7 @@ function Phone({ label, title, status, msgs, mine, small = false, onTap, onSend,
     if (box) box.scrollTop = box.scrollHeight;
   }, [msgs.length]);
   return (
-    <section aria-label={label} className={`mx-auto w-full overflow-hidden rounded-[2rem] border-[6px] border-ink bg-ink shadow-lift ring-1 ring-hairline ${small ? "max-w-64" : "max-w-88"}`}>
+    <section aria-label={label} className="flex w-full flex-col overflow-hidden rounded-[2rem] border-[6px] border-ink bg-ink shadow-lift ring-1 ring-hairline">
       <div className="flex items-center gap-2.5 bg-wa-bar px-3 py-2.5 text-white">
         <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white/15">
           <WhatsAppIcon className="size-5 text-whatsapp" />
@@ -74,7 +74,7 @@ function Phone({ label, title, status, msgs, mine, small = false, onTap, onSend,
           <p className="truncate text-[0.6875rem] leading-tight opacity-80">{status}</p>
         </div>
       </div>
-      <div data-wa-chat className={`overflow-y-auto bg-wa-chat p-2.5 text-wa-ink ${small ? "h-72" : "h-[30rem] max-sm:h-[26rem]"}`}>
+      <div data-wa-chat className={`overflow-y-auto bg-wa-chat p-2.5 text-wa-ink ${small ? "h-64 md:h-[33.5rem]" : "h-[30rem]"}`}>
         {msgs.length === 0 && <p className="pt-6 text-center text-meta opacity-70">No messages yet</p>}
         <ul className="flex flex-col gap-2">
           {msgs.map((m, i) => {
@@ -126,12 +126,15 @@ export function Phones({ initial }: { initial: View }) {
   }, [view.typing]);
   const run = (go: () => Promise<View>) => start(async () => setView(await go()));
   return (
-    <div className="flex flex-col gap-6">
-      <Phone label="Your WhatsApp" title={SITE_NAME} status="Business account" msgs={view.staff} mine="staff" busy={busy} onTap={(id, b) => run(() => tapAction(id, b))} onSend={(t) => run(() => sendAction(t))} />
-      <div className="flex flex-col gap-2">
-        <p className="text-center text-meta text-text-2">What the buyer sees</p>
+    <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-[minmax(0,22rem)_minmax(0,16rem)] md:justify-center">
+      <figure className="mx-auto flex w-full max-w-88 flex-col gap-2 md:max-w-none">
+        <figcaption className="text-center text-meta font-medium text-text-2">You</figcaption>
+        <Phone label="Your WhatsApp" title={SITE_NAME} status="Business account" msgs={view.staff} mine="staff" busy={busy} onTap={(id, b) => run(() => tapAction(id, b))} onSend={(t) => run(() => sendAction(t))} />
+      </figure>
+      <figure className="mx-auto flex w-full max-w-64 flex-col gap-2 md:max-w-none">
+        <figcaption className="text-center text-meta font-medium text-text-2">The buyer</figcaption>
         <Phone label="The buyer's WhatsApp" title={view.buyerName || "A buyer"} status={view.typing && view.buyer.length > 0 ? "typing..." : "online"} msgs={view.buyer} mine="buyer" small busy={busy} />
-      </div>
+      </figure>
     </div>
   );
 }

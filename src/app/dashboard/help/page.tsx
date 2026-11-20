@@ -28,7 +28,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ f
   const [mine, last] = await Promise.all([requestsOf(me.name), feedbackStore.get(me.name.toLowerCase())]);
   return (
     <>
-      <PageHeader title="Help" />
+      <PageHeader title="Help" text="Questions, changes or ideas: ask us here and our reply shows below." />
       <Panel title="Contact us">
         <ul className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {CONTACTS.map(([label, value, href]) => (

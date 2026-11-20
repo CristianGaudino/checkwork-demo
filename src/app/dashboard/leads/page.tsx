@@ -64,22 +64,16 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
               </Badge>
             )}
           </span>
+          {/* The follow-up, when there is one, under the status: one place to look for what to do next. Overdue is red, today amber. */}
+          {l.followUpOn && isOpenLead(l) && (
+            <span className={`text-meta ${l.followUpOn < today ? "font-medium text-bad" : followUpDue(l, today) ? "font-medium text-warn" : "text-text-2"}`}>
+              Follow up {l.followUpOn === today ? "today" : l.followUpOn < today ? "overdue" : fmtDate(`${l.followUpOn}T12:00:00Z`)}
+            </span>
+          )}
           {/* On a phone the Received column is hidden; when it came in sits here, under its status. */}
           <span className="text-meta text-text-2 sm:hidden">{fmtAgo(l.createdAt)}</span>
         </span>
       ),
-    },
-    {
-      key: "follow",
-      header: "Follow up",
-      hide: "xl", // mostly empty, so it gives way to Who has it on a laptop
-      nowrap: true,
-      sort: (l) => (l.followUpOn && isOpenLead(l) ? l.followUpOn : undefined),
-      // Overdue is late (red), today is due (amber), later is just a date.
-      cell: (l) =>
-        l.followUpOn && isOpenLead(l) ? (
-          <span className={l.followUpOn < today ? "font-medium text-bad" : followUpDue(l, today) ? "font-medium text-warn" : ""}>{l.followUpOn === today ? "Today" : l.followUpOn < today ? "Overdue" : fmtDate(`${l.followUpOn}T12:00:00Z`)}</span>
-        ) : null,
     },
     { key: "owner", header: "Who has it", hide: "lg", nowrap: true, sort: (l) => l.assignedTo, cell: (l) => (l.assignedTo ? <span className="inline-flex items-center gap-2"><Avatar name={l.assignedTo} />{l.assignedTo.split(" ")[0]}</span> : <span className="text-text-2">Nobody</span>) },
     { key: "when", header: "Received", sort: (l) => l.createdAt, cell: (l) => fmtAgo(l.createdAt), align: "right", nowrap: true, hide: "sm" }, // on a phone it is in the Who column
@@ -110,7 +104,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
 
   return (
     <>
-      <PageHeader title="Leads" />
+      <PageHeader title="Leads" text="Everyone who got in touch. Open one to reply, set its status or give it to someone." />
       <SummaryTabs
         label="Lead status"
         items={[{ label: "All", href: href({ status: undefined }), active: !f.status, count: all.length }, ...LEAD_STATUSES.map((s) => ({ label: LEAD_STATUS_LABELS[s], href: href({ status: s }), active: f.status === s, count: counts[s] }))]}

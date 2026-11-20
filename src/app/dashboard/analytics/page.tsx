@@ -36,7 +36,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
 
   return (
     <>
-      <PageHeader title="Analytics" />
+      <PageHeader title="Analytics" text="Who visits your site, where they come from and what they look at." />
       <Segmented label="Period" items={RANGES.map((r) => ({ label: `${r} days`, href: `/dashboard/analytics?range=${r}`, active: range === r }))} />
 
       <StatGrid>
@@ -105,7 +105,7 @@ async function RealAnalytics({ range }: { range: Range }) {
 
   return (
     <>
-      <PageHeader title="Analytics" />
+      <PageHeader title="Analytics" text="Who visits your site, where they come from and what they look at." />
       <Segmented label="Period" items={RANGES.map((r) => ({ label: `${r} days`, href: `/dashboard/analytics?range=${r}`, active: range === r }))} />
 
       <StatGrid>
