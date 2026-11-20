@@ -43,12 +43,20 @@ export async function saveCarAction(id: string | null, _prev: FormState, data: F
   if (id && !existing) return { errors: { make: "This car no longer exists" } };
   const result = carFromForm(data, id ?? (await freeCarId()), existing);
   if (!result.ok) return { errors: result.errors };
+  // A new car can bring its photos (the edit page adds them one at a time, on their own).
+  const photos = id ? [] : await newCarPhotos(data);
+  if (!photos) return { errors: { photos: "A photo could not be added. Remove it and try again." } };
   // The cost belongs to staff with the margins permission: without it the box never came, and a forged one is ignored. A bad figure stops the
   // save, so the car is never saved with a cost the dealer did not mean.
   const cost = (await can("margins")) ? parseCost(String(data.get("costEur") ?? "")) : undefined;
   if (cost === "invalid") return { errors: { costEur: BAD_COST } };
   const wasCost = cost === undefined || !id ? undefined : (await costsStore.get(id))?.costEur;
-  const car = existing ? (await saveCar(result.car), result.car) : await addCar(result.car); // a new car takes the id still free as it is written
+  let car = existing ? (await saveCar(result.car), result.car) : await addCar(result.car); // a new car takes the id still free as it is written
+  // Stored under the id the car was given, then saved with it. If storing fails the car is there without them, to add on its page.
+  if (photos.length) {
+    car = { ...car, photos: await Promise.all(photos.map((p) => storeCarPhoto(car.id, p.bytes, p.width, p.height))) };
+    await saveCar(car);
+  }
   if (cost === null) await costsStore.remove(car.id);
   else if (cost !== undefined) await costsStore.put({ id: car.id, costEur: cost });
   await logActivity("stock", existing ? carEditSummary(existing, car) : "Added the car", carRef(car));
@@ -177,17 +185,31 @@ export async function bulkStockAction(data: FormData): Promise<BulkResult> {
 // A car's photos (#21), our version only. The browser has already shrunk each one to a JPEG (CarPhotos); the bytes are checked again here.
 // One photo per call, so a slow phone connection loses at most one. The first photo is the one on the card and at the top of the page.
 const photoSize = z.coerce.number().int().min(1).max(4000);
+// One photo as sent, checked: a JPEG within the size limit, with its width and height. null for anything else.
+async function checkedPhoto(file: FormDataEntryValue | null, width: unknown, height: unknown) {
+  const size = z.object({ width: photoSize, height: photoSize }).safeParse({ width, height });
+  if (!(file instanceof Blob) || file.size > CAR_PHOTO_MAX_BYTES || !size.success) return null;
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  return sniffImage(bytes)?.ext === "jpg" ? { bytes, ...size.data } : null;
+}
+
+// The photos picked on Add a car (CarForm), sent with the form: "photo", "photoWidth" and "photoHeight", once per photo, in order.
+// All checked before the car is saved, so a bad one stops the save and nothing is half added. null when one is wrong.
+async function newCarPhotos(data: FormData) {
+  const [files, widths, heights] = [data.getAll("photo"), data.getAll("photoWidth"), data.getAll("photoHeight")];
+  if (files.length > CAR_PHOTOS_MAX) return null;
+  const photos = await Promise.all(files.map((f, i) => checkedPhoto(f, widths[i], heights[i])));
+  return photos.every((p) => p !== null) ? photos : null;
+}
+
 export async function addCarPhotoAction(carId: string, data: FormData): Promise<{ error?: string }> {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const car = (await readOnly()) ? undefined : await adminCar(carId);
   if (!car) return { error: "This car can no longer be changed here." };
   if (car.photos.length >= CAR_PHOTOS_MAX) return { error: `A car can have ${CAR_PHOTOS_MAX} photos.` };
-  const file = data.get("photo");
-  const size = z.object({ width: photoSize, height: photoSize }).safeParse({ width: data.get("width"), height: data.get("height") });
-  if (!(file instanceof Blob) || file.size > CAR_PHOTO_MAX_BYTES || !size.success) return { error: "That photo could not be added. Try another." };
-  const bytes = new Uint8Array(await file.arrayBuffer());
-  if (sniffImage(bytes)?.ext !== "jpg") return { error: "That photo could not be added. Try another." };
-  const photo = await storeCarPhoto(car.id, bytes, size.data.width, size.data.height);
+  const checked = await checkedPhoto(data.get("photo"), data.get("width"), data.get("height"));
+  if (!checked) return { error: "That photo could not be added. Try another." };
+  const photo = await storeCarPhoto(car.id, checked.bytes, checked.width, checked.height);
   // Read again just before writing. Not a lock: CarPhotos sends one photo at a time, which is what keeps two uploads from clashing.
   const now = (await adminCar(carId)) ?? car;
   await saveCar({ ...now, photos: [...now.photos, photo] });

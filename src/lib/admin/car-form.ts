@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { listedOn, slugify, carSlug } from "./stock-admin-pure";
-import { CONDITIONS, FUELS, GEARBOXES, TEXT_LIMITS, VAT_STATUSES, type Car } from "@/lib/stock/types";
+import { CONDITIONS, FUELS, GEARBOXES, PLUG_FUELS, TEXT_LIMITS, VAT_STATUSES, type Car } from "@/lib/stock/types";
 import { blank, fieldErrors } from "./validation";
 
 // The car form, as data the server checks. The browser's own limits (min, max, maxLength) are a convenience; this is the check.
@@ -30,6 +30,13 @@ export const carFormSchema = z.object({
   seats: int(1, 9),
   owners: int(0, 20),
   nctExpiry: z.preprocess(blank, z.string().regex(/^\d{4}-\d{2}$/, "Use the form 2027-07").optional()),
+  co2GKm: int(0, 1000),
+  motorTaxEur: int(0, 10_000),
+  evRangeKm: int(1, 2000),
+  batteryKwh: num(1, 300),
+  acChargeKw: num(1, 50),
+  dcChargeKw: int(1, 1000),
+  charge10To80Mins: int(1, 600),
   description: text(TEXT_LIMITS.description),
   features: z.preprocess(
     (v) => (typeof v === "string" ? v.split("\n").map((l) => l.trim()).filter(Boolean) : []),
@@ -48,6 +55,7 @@ export function carFromForm(data: FormData, id: string, existing?: Car, today = 
   if (!parsed.success) return { ok: false, errors: fieldErrors(parsed.error) };
   const f = parsed.data;
   const base = { id, make: f.make, model: f.model, year: f.year };
+  const plug = f.fuel !== undefined && PLUG_FUELS.includes(f.fuel);
   const car: Car = {
     ...existing,
     ...base,
@@ -70,6 +78,14 @@ export function carFromForm(data: FormData, id: string, existing?: Car, today = 
     seats: f.seats,
     owners: f.owners,
     nctExpiry: f.nctExpiry,
+    co2GKm: f.co2GKm,
+    motorTaxEur: f.motorTaxEur,
+    // Only a car with a plug keeps its battery figures, so changing the fuel to petrol clears them.
+    evRangeKm: plug ? f.evRangeKm : undefined,
+    batteryKwh: plug ? f.batteryKwh : undefined,
+    acChargeKw: plug ? f.acChargeKw : undefined,
+    dcChargeKw: plug ? f.dcChargeKw : undefined,
+    charge10To80Mins: plug ? f.charge10To80Mins : undefined,
     description: f.description,
     features: f.features.length ? f.features : undefined,
     photos: existing?.photos ?? [],

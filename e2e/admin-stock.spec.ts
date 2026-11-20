@@ -231,6 +231,33 @@ test("tick several cars: drop their price at once, then delete them", async ({ p
   await expect(page.getByRole("row", { name: new RegExp(MAKE) })).toHaveCount(0);
 });
 
+test("add a car with its photos and battery figures: they show on its page", async ({ page }) => {
+  await page.goto("/dashboard/stock/new");
+  await page.getByLabel("Make", { exact: true }).fill(MAKE);
+  await page.getByLabel("Model", { exact: true }).fill("Volt");
+  await page.getByLabel("Year", { exact: true }).fill("2023");
+  await page.getByLabel("Price (€)", { exact: true }).fill("24950");
+  await page.getByLabel("CO2 (g/km)").fill("0");
+  await page.getByLabel("Motor tax (€ a year)").fill("120");
+  // The battery boxes are for a car with a plug only.
+  await expect(page.getByLabel("Battery (kWh)")).toBeHidden();
+  await choose(page.getByLabel("Fuel"), "Electric");
+  await page.getByLabel("Range (km, WLTP)").fill("410");
+  await page.getByLabel("Battery (kWh)").fill("58");
+  await page.locator('input[type="file"]').setInputFiles(["public/stock/4710001/1-b1b37b33.webp", "public/stock/4710001/1-b1b37b33.webp"]);
+  await expect(page.getByText("2 of 20")).toBeVisible();
+  await expect(page.getByText("Main photo")).toBeVisible();
+  await page.getByRole("button", { name: "Add car" }).click();
+  await expect(page.getByRole("status")).toContainText(`Saved 2023 ${MAKE} Volt`);
+  await expect(page.getByRole("link", { name: "Add its photos" })).toHaveCount(0); // it has them
+
+  await page.goto(`/used-cars?q=${MAKE}`);
+  await page.locator("article").filter({ hasText: "Volt" }).getByRole("link").first().click();
+  await expect(page.locator('img[src^="data:image/jpeg"]').first()).toBeAttached();
+  const specs = page.locator("section").filter({ has: page.getByRole("heading", { name: "Specifications" }) });
+  for (const [label, value] of [["Range (WLTP)", "410 km"], ["Battery", "58 kWh"], ["CO2", "0 g/km"], ["Motor tax", "€120 a year"]]) await expect(specs.locator("div").filter({ hasText: label }).getByText(value)).toBeVisible();
+});
+
 test("a car's photos: add one, it shows on the site, remove it", async ({ page }) => {
   await addCar(page, "Photo", "15000");
   await page.getByRole("link", { name: "Add its photos" }).click();

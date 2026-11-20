@@ -25,6 +25,12 @@ describe("GET /api/saved-cars", () => {
     expect(body.cars[0]).not.toHaveProperty("features");
   });
 
+  it("sends the equipment only when asked for it (the compare page)", async () => {
+    const body = await (await get(`${live.id}&features=1`)).json();
+    expect(body.cars[0].features.length).toBeGreaterThan(0);
+    expect(body.cars[0]).not.toHaveProperty("description");
+  });
+
   it("returns a car sold inside the period marked sold, with no sale date anywhere", async () => {
     // A day after its sale, so it is inside the window whatever today's date is.
     vi.useFakeTimers({ now: Date.parse(sold.soldAt!) + 86_400_000, toFake: ["Date"] });
