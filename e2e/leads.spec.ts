@@ -161,11 +161,10 @@ test("Test drive asks for a day and a time, reaches the dealer's dashboard as a 
   await d.getByLabel("Name").fill("Drive booker");
   await d.getByLabel("Phone").fill("087 123 4567");
   await d.getByRole("checkbox").check();
-  await d.getByRole("button", { name: "Book" }).click();
-  await expect(d.locator("p", { hasText: "Choose a day from the list." })).toBeVisible();
-  await choose(d.getByLabel("Day"), 0);
-  await expect(d.getByLabel("Time")).toBeVisible();
-  await choose(d.getByLabel("Time"), 0);
+  // The form opens on the first day with a free time, and that time, so Book sends it as it stands.
+  await expect(d.getByLabel("Day")).toHaveValue(/^\w{3} \d+ \w{3}$/);
+  await expect(d.getByLabel("Time")).toHaveValue(/^\d{2}:\d{2}$/);
+  await expect(d.getByText("No match")).toHaveCount(0);
   await d.getByRole("button", { name: "Book" }).click();
   await expect(d.getByRole("heading", { name: "Thanks, we have your request." })).toBeFocused();
   // The booking is now on the dealer's list (the admin is open in this run).
