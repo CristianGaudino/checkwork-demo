@@ -9,7 +9,7 @@ import { VAT_PCT } from "@/lib/billing/rules";
 
 export const metadata = { title: "Bill" };
 
-// One bill, itemised: the plan, the discount, each usage line, VAT and the total. The invoice itself is emailed as a PDF when it is issued.
+// One bill, itemised: the plan, each usage line, VAT and the total. The invoice itself is emailed as a PDF when it is issued.
 export default async function Page({ params }: { params: Promise<{ month: string }> }) {
   if (!SHOW_PRICING || !(await can("billing"))) notFound(); // hidden for now (SHOW_PRICING)
   const { month } = await params;
@@ -19,7 +19,6 @@ export default async function Page({ params }: { params: Promise<{ month: string
   const mine = await billingDetails();
   const rows: (BillLine & { key: string; strong?: boolean })[] = [
     ...t.plan.map((l) => ({ ...l, key: `p-${l.label}` })),
-    ...(t.discountEur ? [{ key: "discount", label: "Founding dealer price", eur: -t.discountEur }] : []),
     ...t.usage.map((l) => ({ ...l, key: `u-${l.label}` })),
     { key: "net", label: "Total before VAT", eur: t.net, strong: true },
     { key: "vat", label: `VAT at ${VAT_PCT}%`, eur: t.vatEur },

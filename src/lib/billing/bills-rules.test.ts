@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { TIERS } from "./rules";
-import { foundingEnd, foundingOff, itemise, nextBillDate, parseAlert, parseEuro, parseLimits, usageLines, type Bill } from "./bills-rules";
+import { itemise, nextBillDate, parseAlert, parseEuro, parseLimits, usageLines, type Bill } from "./bills-rules";
 
 describe("parseEuro", () => {
   it("reads blank, whole euros and cents", () => {
@@ -39,17 +38,16 @@ describe("parseAlert", () => {
 
 describe("itemise", () => {
   const bill: Bill = {
-    id: "2026-10", issuedOn: "2026-11-01", dueOn: "2026-12-01", status: "due", base: 200, modules: [{ label: "Finance", eur: 29 }], aiAssistantEur: 0, discountEur: 68.7,
+    id: "2026-10", issuedOn: "2026-11-01", dueOn: "2026-12-01", status: "due", base: 200, modules: [{ label: "Finance", eur: 29 }], aiAssistantEur: 0,
     usage: [{ service: "ai", kind: "opus", count: 10, unitEur: 0.05 }, { service: "whatsapp", kind: "alert", count: 0, unitEur: 0.05 }],
   };
-  it("takes the discount off the plan only, then adds VAT", () => {
+  it("adds the plan and the usage, then VAT", () => {
     const t = itemise(bill);
     expect(t.planEur).toBe(229);
-    expect(t.discountEur).toBe(68.7);
     expect(t.usageEur).toBe(0.5);
-    expect(t.net).toBe(160.8);
-    expect(t.vatEur).toBe(36.98);
-    expect(t.total).toBe(197.78);
+    expect(t.net).toBe(229.5);
+    expect(t.vatEur).toBe(52.79);
+    expect(t.total).toBe(282.29);
     expect(t.usage).toHaveLength(1); // a line with no uses is left out
     expect(t.usage[0].detail).toBe("10 x €0.05");
   });
@@ -61,14 +59,8 @@ describe("itemise", () => {
   });
 });
 
-describe("founding discount and dates", () => {
-  it("is the Dealer plan at €349 on a 2-year contract only, until the contract ends", () => {
-    const tier = (id: string) => TIERS.find((t) => t.id === id);
-    expect(foundingOff(tier("dealer"), "twoYear")).toBe(100);
-    expect(foundingOff(tier("dealer"), "annual")).toBe(0);
-    expect(foundingOff(tier("group"), "twoYear")).toBe(0);
-    expect(foundingOff(undefined, "twoYear")).toBe(0);
-    expect(foundingEnd(new Date("2026-11-16T10:00:00Z"))).toBe("November 2028");
+describe("dates", () => {
+  it("bills on the first of next month", () => {
     expect(nextBillDate(new Date("2026-12-31T10:00:00Z"))).toBe("1 January 2027");
   });
 });

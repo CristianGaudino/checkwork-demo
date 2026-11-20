@@ -94,8 +94,8 @@ export function AITextarea({ id, name, label, defaultValue = "", rows = 5, maxLe
   return (
     <div className="flex flex-col gap-2">
       <label className="sr-only" htmlFor={id}>{label}</label>
-      <textarea ref={box} id={id} name={name} rows={rows} maxLength={maxLength} value={text} onChange={(e) => { setText(e.target.value); setCopied(false); }} className={`${adminInput} h-auto py-2`} />
-      <AIWriter task={task} text={text} request={() => (typeof request === "function" ? request(box.current) : request)} onText={(t, subject) => { setText(t); setCopied(false); if (subject) onSubject?.(subject); }} />
+      <textarea ref={box} id={id} name={name} rows={rows} maxLength={maxLength} value={text} onChange={(e) => { setText(e.target.value); setCopied(false); setCopyError(""); }} className={`${adminInput} h-auto py-2`} />
+      <AIWriter task={task} text={text} request={() => (typeof request === "function" ? request(box.current) : request)} onText={(t, subject) => { setText(t); setCopied(false); setCopyError(""); if (subject) onSubject?.(subject); }} />
       {copy && text.trim() && (
         <>
           <button type="button" onClick={copyText} className={`${adminButtonQuiet} self-start`}>

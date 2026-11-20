@@ -16,12 +16,12 @@ export const sentAlertsStore = defineCollection<{ id: string }>("usage-alerts", 
 
 export const monthOf = (t: number = Date.now()) => dublinDay(t).slice(0, 7);
 
-// The assistant plan counts only while the dealer has the AI module and no AI allowance from a tier, so the Billing page,
+// The assistant plan counts only while the dealer has the AI module and no tier (a tier with AI has its own allowance), so the Billing page,
 // the meters and the owner API agree.
 export async function billingSettings(): Promise<BillingSettings> {
   const [s, on] = await Promise.all([getSettings(), enabledModules()]);
   const b = withBillingDefaults(s.billing);
-  return b.aiPlan === "assistant" && (!on.has("ai") || planFor(on, b).tier?.allowance.ai) ? { ...b, aiPlan: "perAction" } : b;
+  return b.aiPlan === "assistant" && (!on.has("ai") || planFor(on, b).tier) ? { ...b, aiPlan: "perAction" } : b;
 }
 // What the plan includes this month before usage is billed.
 export const monthAllowance = async (b: BillingSettings) => allowanceFor(await enabledModules(), b);

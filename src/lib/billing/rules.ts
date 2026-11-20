@@ -182,6 +182,7 @@ export type PlanOptions = { branches: number; brands: number };
 const ONE_SITE: PlanOptions = { branches: 1, brands: 1 };
 const extraBranches = (o: PlanOptions) => Math.max(0, o.branches - 1);
 const tierEur = (t: Tier, o: PlanOptions) => t.eur + (t.branchEur ?? 0) * extraBranches(o);
+const DASHBOARD_MODULES = new Set(MODULES.filter((m) => m.id === "dashboard" || (m as { needs?: readonly string[] }).needs?.includes("dashboard")).map((m) => m.id));
 
 // The cheapest way to pay for these modules: base and each module, or a tier and the modules outside it at module prices. A tier counts
 // even with some of its modules off: the dealer never pays more for fewer modules than a tier that holds them all.
@@ -194,9 +195,11 @@ export function planFor(modules: Iterable<ModuleId>, o: PlanOptions = ONE_SITE):
   // More than one branch is a Group: the only tier sold per branch.
   const ways: { tier?: Tier; extras: ModuleId[]; eur: number }[] = [
     ...(extraBranches(o) ? [] : [{ extras: on, eur: separateEur }]),
-    ...TIERS.filter((t) => !extraBranches(o) || t.branchEur).map((tier) => {
+    ...TIERS.filter((t) => !extraBranches(o) || t.branchEur).flatMap((tier) => {
       const extras = on.filter((m) => !tier.modules.includes(m));
-      return { tier, extras, eur: tierEur(tier, o) + sum(extras) };
+      // A tier without the dashboard (Showroom) takes no add-on that is the dashboard or needs it: that is the Dealer tier.
+      if (!tier.modules.includes("dashboard") && extras.some((m) => DASHBOARD_MODULES.has(m))) return [];
+      return [{ tier, extras, eur: tierEur(tier, o) + sum(extras) }];
     }),
   ];
   const best = ways.reduce((a, w) => (w.eur < a.eur ? w : a));
@@ -227,10 +230,10 @@ export function planLines(modules: Iterable<ModuleId>, o: PlanOptions = ONE_SITE
 export function planEur(modules: Iterable<ModuleId>, aiPlan: AiPlan, o: PlanOptions = ONE_SITE): number {
   return planFor(modules, o).eur + (aiPlan === "assistant" ? AI_ASSISTANT.monthlyEur : 0);
 }
-// What the plan includes each month before usage is billed: the tier's allowance (Group's lookups and alerts per branch), and the AI
-// assistant's actions when chosen on a plan with no AI allowance.
+// What the plan includes each month before usage is billed: the tier's allowance (Group's lookups and alerts per branch), or on a plan
+// with no tier the AI assistant's actions when chosen.
 export function allowanceFor(modules: Iterable<ModuleId>, b: PlanOptions & { aiPlan: AiPlan }): Allowance {
   const { tier } = planFor(modules, b);
-  const own: Allowance = tier ? Object.fromEntries(Object.entries(tier.allowance).map(([s, n]) => [s, tier.perBranch?.includes(s as Service) ? n * Math.max(1, b.branches) : n])) : {};
-  return b.aiPlan === "assistant" && !own.ai ? { ...own, ai: AI_ASSISTANT.actions } : own;
+  if (!tier) return b.aiPlan === "assistant" ? { ai: AI_ASSISTANT.actions } : {};
+  return Object.fromEntries(Object.entries(tier.allowance).map(([s, n]) => [s, tier.perBranch?.includes(s as Service) ? n * Math.max(1, b.branches) : n]));
 }

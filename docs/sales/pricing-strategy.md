@@ -66,12 +66,11 @@ Going ahead with this model (owner, 20 Nov 2026). Prices are a month, before VAT
 - WhatsApp alert €0.05, reply €0.03, marketing message €0.12
 - AI draft €0.04 (Standard) or €0.08 (Premium)
 
-## Launch offer
-- **First 10 dealers:** Dealer at €349 a month on a 2-year contract (so no setup), with the price kept for the term. We need reference dealers in Cork and Kerry more than margin.
-- **Price rises:** at renewal with 60 days' notice, once any of these is true:
-  - 5 dealers are live in one county
-  - more than 40% of tier A calls close
-  - Facebook leads ship
+## Price rises
+At renewal with 60 days' notice, once any of these is true:
+- 5 dealers are live in one county
+- more than 40% of tier A calls close
+- Facebook leads ship
 
 ## Your time is the limit
 Running costs are close to nothing:

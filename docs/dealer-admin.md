@@ -247,7 +247,7 @@ The plans (#223, `TIERS` in `src/lib/billing/rules.ts`, from `docs/sales/pricing
   only change Group's price and allowance until multi-branch is built (#226).
 
 `/dashboard/billing` is for the Owner and Manager (`can("billing")`; anyone else gets a 404, and so does every action). It has three sections:
-the plan and this month's usage (with the payment term, the founding dealer price (Dealer at EUR 349 on a 2-year contract, off the plan, not the usage), what
+the plan and this month's usage (with the payment term, what
 the allowance covers, and an "Estimate" for the month end), the setup fees (the tier's or the website's, and those of add-ons set up with
 outside accounts (Social, New cars, WhatsApp), none on a 2-year contract;
 `setupLines` in `src/lib/billing/rules.ts`, also totalled in the demo bar's plans panel), the limits and alerts (a euro limit per service

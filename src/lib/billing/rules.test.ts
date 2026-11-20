@@ -27,13 +27,12 @@ describe("usage costs", () => {
     expect(w.kinds.map((k) => k.included)).toEqual([500, 0, 0]);
   });
 
-  it("each tier's allowance, Group's lookups and alerts per branch; the AI assistant only without a tier's AI allowance", () => {
+  it("each tier's allowance, Group's lookups and alerts per branch; the AI assistant only without a tier", () => {
     expect(allowanceFor(SHOWROOM, opts())).toEqual({ lookup: 25 });
     expect(allowanceFor(DEALER, opts({ aiPlan: "assistant" }))).toEqual({ lookup: 100, whatsapp: 500, ai: 100 });
     expect(allowanceFor(GROUP, opts({ branches: 3 }))).toEqual({ lookup: 300, whatsapp: 1500, ai: 300 });
     expect(allowanceFor(["dashboard", "ai"], opts({ aiPlan: "assistant" }))).toEqual({ ai: 300 });
     expect(allowanceFor(["dashboard", "ai"], opts())).toEqual({});
-    expect(allowanceFor([...SHOWROOM, "dashboard", "ai"], opts({ aiPlan: "assistant" }))).toEqual({ lookup: 25, ai: 300 }); // Showroom has no AI allowance
   });
 });
 
@@ -99,6 +98,8 @@ describe("the plan and the estimate", () => {
     expect(planFor(GROUP)).toMatchObject({ name: "Group", eur: 749 });
     expect(planFor([...DEALER, "margins", "social", "newsletter", "newCars"])).toMatchObject({ name: "Group", eur: 749 }); // Dealer and these add-ons would be 755
     expect(planFor(SHOWROOM, { branches: 2, brands: 1 })).toMatchObject({ name: "Group", eur: 898 }); // more than one branch is a Group
+    expect(planFor([...SHOWROOM, "commercial"])).toMatchObject({ name: "Showroom", eur: 249 + 29 });
+    for (const m of ["dashboard", "whatsapp", "ai"] as const) expect(planFor([...SHOWROOM, "dashboard", m]).tier?.id).not.toBe("showroom"); // no dashboard on Showroom
     expect(planEur(GROUP, "perAction", opts({ branches: 3 }))).toBe(1047); // 749 + 2 x 149
     expect(planEur(MODULE_IDS, "perAction")).toBe(749 + 49); // Group and Service
     expect(planFor(["finance"])).toMatchObject({ name: "Custom", eur: 229, saving: 0 });
@@ -114,7 +115,7 @@ describe("the plan and the estimate", () => {
       const without = MODULE_IDS.filter((x) => x !== m);
       expect(planFor(MODULE_IDS).eur - planFor(without).eur).toBeGreaterThanOrEqual(0);
     }
-    expect(planLines([...SHOWROOM, "commercial", "ai"])).toEqual([{ label: "Showroom plan", eur: 249 }, { label: "Commercial vehicles", eur: 29 }]);
+    expect(planLines([...SHOWROOM, "commercial"])).toEqual([{ label: "Showroom plan", eur: 249 }, { label: "Commercial vehicles", eur: 29 }]);
     expect(planLines([])).toEqual([{ label: "Website", eur: 200 }]);
     expect(planLines(GROUP, opts({ branches: 3 }))).toEqual([{ label: "Group plan", eur: 749 }, { label: "2 more branches", eur: 298 }]);
   });
