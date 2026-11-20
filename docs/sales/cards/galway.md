@@ -17,7 +17,7 @@ Most big Galway franchise dealers already have decent sites (CarsIreland, HappyD
 1. "481 people gave you 4.6 stars and none of them are on your website." Reviews on the site, replies from the dashboard (Reviews).
 2. "A BMW buyer wants to know the monthly figure on the car they are looking at, not a brand offer." Finance estimator on every used car (Finance).
 3. "Every buyer has a car to trade. Let them value it before they ring." Trade-in form with photos and reg lookup (Trade-in, Registration lookup on the website).
-4. "Three branches, three sites, one inbox." Dashboard with leads inbox, follow-ups and staff logins (Dealer dashboard, WhatsApp).
+4. "Three branches, one site, one inbox." Dashboard with leads inbox, follow-ups and staff logins (Dealer dashboard, WhatsApp).
 **Pitch:** Group at €1,047 a month (€749 plus €149 each for Athlone and Drogheda), with our site for the used side. €9m of stock in Galway alone and three Carzone sites: they spend, and the dashboard is where the group value is.
 **Opener:** "You have 481 Google reviews at 4.6 and not one of them is on colmquinnbmwgalway.ie; we put them on the site and let you reply from one dashboard for all three branches."
 **Caveats:** BMW controls new-car pages and service booking; lead with used cars and the dashboard. Group decision (Colm Quinn runs Athlone and Drogheda too).
@@ -29,7 +29,7 @@ Most big Galway franchise dealers already have decent sites (CarsIreland, HappyD
 - No WhatsApp on the home page; car pages offer Enquire, Finance, Reserve, Test Drive and WhatsApp.
 **Sales points:**
 1. "Three showrooms, two counties: who is following up which lead?" Leads inbox, follow-ups, staff roles, WhatsApp alerts (Dealer dashboard, WhatsApp).
-2. "What's selling in Galway versus Drogheda?" Margins, stock age and reports (Sales and customers, Margins and reports).
+2. "What's selling, and what's sitting?" Margins, stock age and reports (Sales and customers, Margins and reports).
 3. "765 reviews at 4.7: who answers them?" Replies from the dashboard with AI drafts (Reviews, AI writing).
 4. "Let buyers value their trade-in before they pick a car." A valuation page with photos and reg lookup (Trade-in).
 **Pitch:** Group at €1,047 a month (€749 plus €149 each for Drogheda and Dundalk), led by the dashboard. The site is already good, so a site alone won't move them; group size and 765 reviews make the dashboard the sale.
@@ -48,7 +48,7 @@ Most big Galway franchise dealers already have decent sites (CarsIreland, HappyD
 2. "A €12,000 buyer wants to see the monthly payment." Finance estimator (Finance).
 3. "Let buyers value their trade-in from the forecourt of the last dealer they visited." Trade-in with reg lookup (Trade-in, Registration lookup on the website).
 4. "Every car you list is a post you're not making." Social posts from the dashboard with AI drafts (Social and ads, AI writing).
-**Pitch:** Showroom at €249: a used-car site with finance and trade-in next to Opel's template, and Dealer later. One branch, mid-value stock and a manufacturer template they probably don't pay much for: start small.
+**Pitch:** Showroom at €249: a used-car site with finance and trade-in next to Opel's template. Posts and AI writing need Dealer plus Social (€449 + €99 = €548 a month), so that comes later. One branch, mid-value stock and a manufacturer template they probably don't pay much for: start small.
 **Opener:** "Over 100 used cars on DoneDeal, but your website is Opel's new-car template with no finance, trade-in or reviews; we build you a used-car site that does all three."
 **Caveats:** Opel template stays for new cars; we sell the used side next to it. Reviews and social activity are thin, so willingness is less certain than the score suggests.
 
@@ -61,7 +61,7 @@ Most big Galway franchise dealers already have decent sites (CarsIreland, HappyD
 1. "1,540 reviews at 4.9 and buyers only see a number." Real reviews on the site, replies from the dashboard (Reviews).
 2. "With your volume, which leads did nobody call back?" Leads inbox, follow-ups, WhatsApp alerts (Dealer dashboard, WhatsApp).
 3. "Know which cars are sitting too long." Stock age, margins and reports (Margins and reports).
-**Pitch:** Dealer at €449, dashboard first. Their site already has the forms, so the sale is reviews, follow-up and reporting for a busy single-site dealer.
+**Pitch:** Dealer at €449 plus Margins and reports (€49): €498 a month, dashboard first. Their site already has the forms, so the sale is reviews, follow-up and reporting for a busy single-site dealer.
 **Opener:** "1,540 Google reviews at 4.9 is the best record in Galway, yet your site shows a single number; we put the reviews themselves on the site and let you answer them from one dashboard."
 **Caveats:** Site is modern and already has finance, valuation and test drive, so the opening is thinner than the score suggests. VW group brands control new-car content.
 
@@ -77,7 +77,7 @@ Most big Galway franchise dealers already have decent sites (CarsIreland, HappyD
 2. "Your site shows the same three reviews, the newest nine months old." Recent reviews on the site, kept up to date (Reviews).
 3. "You sponsor the Races; does your site turn that traffic into leads you follow up?" Leads inbox and follow-ups, site analytics (Dealer dashboard, Site analytics).
 4. "Two new-car brands and a used yard in one place." New cars and factory orders (New cars and factory orders).
-**Pitch:** Dealer at €449, led by reviews and the dashboard. They spend on sponsorship and radio, run two franchises and have the most to gain from managing reviews.
+**Pitch:** Dealer at €449 plus New cars (€99, Peugeot and Leapmotor): €548 a month, led by reviews and the dashboard. They spend on sponsorship and radio, run two franchises and have the most to gain from managing reviews.
 **Opener:** "You sponsor the Galway Races, but your site shows the same three reviews, the newest nine months old, and Google has you at 4.0; we keep fresh reviews on the site and help you answer all 353 from one dashboard."
 **Caveats:** The CarsIreland site already has finance, valuation, test drive and enquiry forms, so this is a reviews and dashboard sale, not a site rescue. Peugeot and Leapmotor may require their own new-car pages; lead with used cars, reviews and the dashboard.
 
@@ -135,7 +135,7 @@ Most big Galway franchise dealers already have decent sites (CarsIreland, HappyD
 1. "A €60,000 buyer wants to value their trade-in properly, not in a chat box." Trade-in form with photos and reg lookup (Trade-in).
 2. "Two sites, two review profiles, one business." One site and one dashboard for Autopoint and BYD (Dealer dashboard, Reviews).
 3. "New BYDs and premium used in one place." (New cars and factory orders).
-**Pitch:** Dealer at €449: one site and inbox for Autopoint and BYD Galway. New franchise, premium stock and already paying HappyDealer.
+**Pitch:** Dealer at €449 plus New cars (€99, BYD): €548 a month, one site and inbox for Autopoint and BYD Galway. New franchise, premium stock and already paying HappyDealer.
 **Opener:** "You run two sites and two review profiles for one business; we bring Autopoint and BYD Galway together with a proper trade-in form and one inbox for the leads."
 **Caveats:** BYD (via MDL) controls new-car content; lead with used cars and the dashboard. Current site is decent, so this is an upgrade sale, not a rescue.
 
@@ -147,8 +147,8 @@ Most big Galway franchise dealers already have decent sites (CarsIreland, HappyD
 - No WhatsApp.
 **Sales points:**
 1. "620 reviews and buyers can't see one." (Reviews).
-2. "Three counties, four sites: one inbox." (Dealer dashboard, WhatsApp).
-3. "Know which brand and branch makes money." (Margins and reports).
+2. "Three counties, one site, one inbox." (Dealer dashboard, WhatsApp).
+3. "Know which cars make money." (Margins and reports).
 **Pitch:** Group at €1,047 a month (€749 plus €149 each for Ennis and Limerick), led by reviews. The site already does the basics.
 **Opener:** "You have 620 Google reviews at 4.5 and none are on sheils.ie; we add them and give the group one dashboard for leads from Galway, Ennis and Limerick."
 **Caveats:** Group decision, made centrally. Manufacturer sites for Hyundai and MG.

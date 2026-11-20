@@ -18,7 +18,7 @@ Most big Limerick franchise dealers already have decent sites (CarsIreland, Happ
 2. "Your Valuations button sends buyers to a contact form. Let them value their car there and then." Trade-in with photos and reg lookup (Trade-in and sell your car, Registration lookup on the website).
 3. "Two branches, two counties, one list of leads." Leads inbox, follow-ups and WhatsApp alerts for Limerick and Galway (Dealer dashboard, Sales and customers, WhatsApp).
 4. "Five brands of new cars plus used: what is actually making you money?" (Margins and reports, New cars and factory orders).
-**Pitch:** Group at €898 a month (€749 plus €149 for Galway), with our site for the used side. €3.8m of stock, two branches and a paid platform: they spend, and the gaps (reviews, trade-in, follow-up) are dashboard features.
+**Pitch:** Group at €898 a month (€749 plus €149 for Galway), with our site for the used side; New cars for all five brands adds €87 (3 x €29), €985 a month. €3.8m of stock, two branches and a paid platform: they spend, and the gaps (reviews, trade-in, follow-up) are dashboard features.
 **Opener:** "You have 475 Google reviews and none of them are on lyonsoflimerick.com, and your Valuations button just opens a contact form; we fix both and give you one dashboard for Limerick and Galway."
 **Caveats:** Ford, Volvo and JLR all have rules on dealer sites and NetDirector may be the approved supplier: lead with used cars and the dashboard, not replacing the site. Group decision, likely made centrally for both branches.
 
@@ -30,7 +30,7 @@ Most big Limerick franchise dealers already have decent sites (CarsIreland, Happ
 - The site already has a used car search (127 cars once it loads), finance calculator, trade-in valuation and test drive booking, all from Toyota's template.
 **Sales points:**
 1. "332 reviews at 4.5 and the homepage shows none." Reviews pulled onto your pages, replies from the dashboard (Reviews).
-2. "Toyota gives you the website. Nobody gives you the back office." Leads inbox, follow-ups, staff and branch view across Raheen and Rathkeale (Dealer dashboard, Sales and customers).
+2. "Toyota gives you the website. Nobody gives you the back office." Leads inbox, follow-ups and staff logins for Raheen and Rathkeale (Dealer dashboard, Sales and customers).
 3. "127 used cars: which ones are sitting too long?" Stock age and margins (Margins and reports).
 4. "Every car is a post you're not making." Social posts and AI drafts from the dashboard (Social and ads, AI writing).
 **Pitch:** Group at €898 a month (€749 plus €149 for Rathkeale), with our site as their used-car site next to Toyota's. Big stock and two branches: the back office is the sale.
@@ -88,7 +88,7 @@ Most big Limerick franchise dealers already have decent sites (CarsIreland, Happ
 1. "1,255 reviews at 4.7 is a sales tool. Use it." Review requests and replies from the dashboard (Reviews).
 2. "Leads from DoneDeal, the site and WhatsApp in one place, with a nudge when one goes cold." (Dealer dashboard, Sales and customers, WhatsApp).
 3. "Renault's 271 offers change every month: post them in minutes." (Social and ads, AI writing).
-**Pitch:** Dealer at €449. Mid-size stock but huge review count and a paid platform; the site has few gaps, so the dashboard is the sale.
+**Pitch:** Dealer at €449 plus Social (€99): €548 a month. Mid-size stock but huge review count and a paid platform; the site has few gaps, so the dashboard is the sale.
 **Opener:** "1,255 Google reviews at 4.7 is more than most Munster dealers; we'd help you turn that into follow-ups and repeat sales from one dashboard."
 **Caveats:** Weakest website opening of the tier A dealers: the site is complete. Renault/Dacia rules for new cars.
 
@@ -128,7 +128,7 @@ Most big Limerick franchise dealers already have decent sites (CarsIreland, Happ
 ### Munster Trade Sales, Limerick city (Corbally Road) · Tier B, 67/100
 Premium used BMW, Audi and Mercedes, 78 cars (about €2m), 224 reviews at 4.7, HappyDealer site, sponsors the Limerick hurling team.
 **Hooks:** 1. No trade-in form (car pages have Enquire and Test Drive, nothing to value a trade): "Premium buyers trade in. Let them value it online" (Trade-in and sell your car, Registration lookup on the website). 2. "You sponsor Limerick hurling; every car is a post for those fans" (Social and ads, AI writing).
-**Pitch:** Dealer at €449 plus Margins and reports (€49): high-value used stock.
+**Pitch:** Dealer at €449 plus Margins and reports (€49) and Social (€99): €597 a month for high-value used stock.
 **Opener:** "You back the Limerick hurlers and have 224 reviews at 4.7, but a buyer can't value their trade-in on your site; we add that and a dashboard for your margins."
 
 ### John Culhane Car Sales, Askeaton · Tier B, 67/100
@@ -164,7 +164,7 @@ Premium used (typical €73,000), 49 on DoneDeal but "100+ cars" on its site, 26
 ### Adams of Glin, Glin · Tier B, 59/100
 Peugeot franchise, 73 cars (about €2.2m), DoneDeal TURBO package, HappyDealer site, 21 reviews.
 **Hooks:** 1. The homepage downloaded about 110 MB on a phone in our test (background video): on rural mobile data most buyers won't wait (the site itself). 2. No trade-in form, and the car page we checked had no Test Drive button (Trade-in and sell your car, Test drives).
-**Pitch:** Showroom at €249 with trade-in; Dealer later.
+**Pitch:** Showroom at €249 with trade-in; test drive booking comes with Dealer at €449, later.
 **Opener:** "Your homepage downloaded over 100 MB on a phone when we tested it, so most buyers on mobile data give up before it loads; we'd make it fast and add a trade-in valuation."
 
 ### Dan Dooley Ford Centre, Knocklong · Tier B, 56/100
@@ -181,7 +181,7 @@ Independent budget cars, 68 on DoneDeal (median about €5,700, about €0.4m), 
 
 ### Pierse Select, Limerick · Tier B, 52/100
 Used outlet of Pierse Motor Group (VW and SEAT in Tipperary and Clare), 48 cars (about €1.4m), DoneDeal ACCELERATOR, one HappyDealer site for the group.
-**Hooks:** 1. Tipperary, Clare, the Limerick used outlet and Cardian under one group: "One dashboard for every branch" (Dealer dashboard, Sales and customers). 2. "Which branch's used cars sit longest?" (Margins and reports).
+**Hooks:** 1. Tipperary, Clare, the Limerick used outlet and Cardian under one group: "One dashboard for every branch" (Dealer dashboard, Sales and customers). 2. "Which used cars sit longest across the group?" (Margins and reports).
 **Pitch:** Group, pitched with Cardian: €749 plus €149 for each extra branch.
 **Opener:** "Pierse runs Tipperary, Clare, Pierse Select and Cardian; we'd give the group one dashboard for leads and stock across all of them."
 

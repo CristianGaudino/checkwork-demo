@@ -51,7 +51,7 @@ Live demo for every pitch: https://www.demo.checkwork.ie
 1. "Your DoneDeal link to your own site is broken for some buyers." Correct, owned web address.
 2. "€40,000 cars with no finance estimate." Finance estimator with your lender's wording.
 3. "89 reviews not shown." Reviews module.
-**Pitch:** Part of a Blackwater Motors Group deal, if at all: one more location at €149 a month.
+**Pitch:** Part of a Blackwater Motors Group deal, if at all: it is already one of the seven locations in Blackwater's Group price (€1,643 a month).
 **Opener:** "The web address on your DoneDeal page downloads a blank file instead of opening your site: worth a two-minute look?"
 **Caveats:** Recommend moving down to C: it is part of Blackwater Motors, a Cork group whose sites run centrally, which our skip rules exclude. Any sale is a group decision in Cork. Audi controls new cars.
 
@@ -66,7 +66,7 @@ Live demo for every pitch: https://www.demo.checkwork.ie
 1. "90 years in Kerry and 345 reviews say so. Your site doesn't." Reviews module.
 2. "You pay for chat; where do those chats go?" Dealer dashboard with leads inbox and WhatsApp.
 3. "Every car is a post you're not making." Social and ads with AI drafts.
-**Pitch:** Dealer at €449, with our site as their used-car site next to Toyota's template. They already pay for extras.
+**Pitch:** Dealer at €449 plus Social (€99): €548 a month, with our site as their used-car site next to Toyota's template. They already pay for extras.
 **Opener:** "Ninety years in Tralee and 345 Google reviews, and none of them on kellihers.ie: can I show you a dashboard that puts them to work and keeps every chat and lead in one place?"
 **Caveats:** Toyota Ireland runs the template for new and used, so a new site may not be allowed; lead with the dashboard, reviews and social.
 
@@ -80,7 +80,7 @@ Live demo for every pitch: https://www.demo.checkwork.ie
 1. "454 reviews at 4.7, and not one on your site." Reviews module.
 2. "181 cars online, up to 300 on the lot: which ones are ageing?" Margins and reports, stock age.
 3. "Ford Pro buyers want ex. VAT." Commercial vehicles section.
-**Pitch:** Dealer at €449 plus Margins and reports (€49), as a switch from Keyloop if they're unhappy with it. The dashboard is the sale, not the site.
+**Pitch:** Dealer at €449 plus Margins and reports (€49) and Commercial (€29): €527 a month, as a switch from Keyloop if they're unhappy with it. The dashboard is the sale, not the site.
 **Opener:** "You've 454 Google reviews at 4.7 and a site that does almost everything else, except show them: can I show you a site and dashboard that add reviews, stock age and margins?"
 **Caveats:** Low opening; they already pay for a capable platform and may be in contract. Ford mandates parts of the new-car side.
 
@@ -92,11 +92,11 @@ Live demo for every pitch: https://www.demo.checkwork.ie
 3. Reviews are shown (good), but a fraction of the 236.
 4. Car pages on HappyDealer already take enquiries and test drives: the site is not the main gap.
 **Sales points:**
-1. "Six franchises, three websites, one sales team." One leads inbox, New cars and factory orders.
+1. "Six franchises, three websites, one sales team." One site, one leads inbox, New cars and factory orders.
 2. "Every trade-in is a car you need to price." Trade-in with photos and registration lookup.
 3. "Renault vans for VAT-registered buyers." Commercial vehicles.
-**Pitch:** Dealer at €449 plus New cars (€99 for two brands, €29 for each extra), dashboard first: they're big, spend on sponsorship and a paid site, and run six brands.
-**Opener:** "You run six franchises across three websites: can I show you one dashboard that brings every lead and order from them into one place?"
+**Pitch:** Dealer at €449 plus New cars for six brands (€99 + 4 x €29 = €215): €664 a month, setup €1,750 (€950 + €400 + 4 x €100). Commercial (€29) for the Renault vans makes it €693. Dashboard first: they're big, spend on sponsorship and a paid site, and run six brands. Our site carries all six brands and their used stock; leads that land on their other sites don't reach the inbox.
+**Opener:** "You run six franchises across three websites: can I show you one site for all six brands, with one dashboard for every lead and order?"
 **Caveats:** Low opening on the site itself; HappyDealer contract likely. BMW and Opel sites may be manufacturer-led. Lead with the dashboard and orders.
 
 ---
@@ -114,7 +114,7 @@ Hyundai and Fiat Professional dealer with van hire, 86 cars on DoneDeal (typical
 Honda, Volvo and Citroën dealer since 1968, 59 cars (typical €39,725, about €2.3m), 100 reviews at 4.3. Full CarsIreland site.
 1. "Three franchises, one inbox." Dealer dashboard, New cars and factory orders.
 2. "Facebook only." Social and ads with AI drafts.
-**Pitch:** Dealer at €449; the site has the forms, so the dashboard is the sale.
+**Pitch:** Dealer at €449 plus New cars for three brands (€99 + €29 = €128) and Social (€99): €676 a month. The site has the forms, so the dashboard is the sale.
 **Opener:** "You sell three brands from one showroom: can I show you a dashboard that handles leads, orders and posts for all of them?"
 
 ### McElligott's Kia Tralee, Tralee · Tier B, 68/100 (able 40, willing 13, opening 15)
@@ -177,7 +177,7 @@ Independent, 78 cars (typical €24,950, mostly VW, Audi, BMW), 142 reviews at 4
 Independent and Audi/VW workshop, 78 cars (typical €16,600), 168 reviews at 4.5, full CarsIreland site with WhatsApp.
 1. "168 reviews, none on the site." Reviews module.
 2. "Workshop customers are future buyers." Service and aftersales, Newsletter and alerts.
-**Pitch:** Dealer at €449 plus Service (€49).
+**Pitch:** Dealer at €449 plus Service (€49) and Newsletter (€59): €557 a month.
 **Opener:** "Your workshop sees every Audi and VW in the area: can I show you how to turn those customers into your next sales?"
 
 ### JPS Car Sales, Killarney (Fossa) · Tier B, 54/100 (able 28, willing 11, opening 15)
