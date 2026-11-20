@@ -10,6 +10,7 @@ import { dublinDay, fmtAgo, fmtDate } from "@/lib/admin/format";
 import { SALES_LEAD_TYPES, countByStatus, filterLeads, followUpDue, isHotLead, isOpenLead, isSalesLead, parseLeadFilter, urgentFirst } from "@/lib/admin/leads";
 import { TOPICS, isUrgent, leadTags } from "@/lib/leads/contact-topics";
 import { enabledModules } from "@/lib/modules";
+import { BrandIcon } from "@/components/admin/BrandIcon";
 
 export const metadata = { title: "Leads" };
 
@@ -41,7 +42,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
             {l.name}
           </Link>
           <span className="truncate text-meta text-text-2">
-            {LEAD_TYPE_LABELS[l.type]} · {sourceText(l)}
+            {LEAD_TYPE_LABELS[l.type]} · <BrandIcon name={sourceText(l)} className="size-3.5 align-[-2px]" /> {sourceText(l)}
           </span>
           {l.topic && (
             <span className={`truncate text-meta ${l.status === "new" && isUrgent(l.answers ?? {}) ? "font-medium text-warn" : "text-text-2"}`}>{leadTags(l.topic, l.answers ?? {}).join(" · ")}</span>

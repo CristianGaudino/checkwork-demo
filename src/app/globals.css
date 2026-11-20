@@ -79,6 +79,10 @@
   --color-scrim: rgb(11 15 31 / 0.55);
   --color-thumb: #ffffff;
   --color-whatsapp: #25d366; /* WhatsApp's own green, for its icon only */
+  /* The networks' own colours, for their marks only (BrandIcon), so Facebook, Instagram and Google tell apart at a glance */
+  --color-facebook: #1877f2;
+  --color-instagram: #d62976;
+  --color-google: #1a73e8;
   /* The WhatsApp panel on the dashboard (header, chat paper, the two bubbles, the text on them, the button text) */
   --color-wa-bar: #075e54;
   --color-wa-chat: #efe7dd;
@@ -108,6 +112,9 @@
 :root[data-theme="dark"],
 .theme-dark {
   color-scheme: dark;
+  --color-facebook: #5b9cf6; /* lighter on the dark surface, so the marks still read */
+  --color-instagram: #f0679e;
+  --color-google: #8ab4f8;
   --color-surface: #0b0f1f; /* Midnight */
   --color-accent: #5a5deb; /* white button text on it reaches 5:1 */
   --color-accent-text: #a78bfa; /* lavender: accent text on Midnight */

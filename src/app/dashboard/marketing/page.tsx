@@ -1,5 +1,5 @@
 import { Badge, EmptyState, Notice, PageHeader, Panel, StatCard, StatGrid, SummaryTabs, TableFooter, TableToolbar, Task, TaskList, pageOf, adminButton, adminButtonQuiet, rowButton, type FilterGroup, type Tone } from "@/components/admin/kit";
-import { FacebookIcon, InstagramIcon, MegaphoneIcon, PlusIcon, TikTokIcon, TrashIcon } from "@/components/stock/icons";
+import { PlusIcon, TrashIcon } from "@/components/stock/icons";
 import { DAY } from "@/lib/time";
 import { ActButton } from "@/components/admin/ActButton";
 import { sendDuePosts } from "@/lib/admin/scheduler";
@@ -18,6 +18,7 @@ import { isUsable } from "@/lib/integrations";
 import { carName } from "@/lib/stock/format";
 import { createNewsletterAction, deleteAdAction, deleteMediaAction, deleteNewsletterAction, deletePostAction, publishPostAction, sendNewsletterAction, startAdAction } from "./actions";
 import { SubmitButton } from "@/components/admin/SubmitButton";
+import { BrandIcon } from "@/components/admin/BrandIcon";
 
 export const metadata = { title: "Marketing" };
 
@@ -140,6 +141,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                           key={item.p.id}
                           urgency={item.p.status === "draft" ? "soon" : "info"}
                           title={item.p.status === "draft" ? `Draft ${postName(item.p)}` : postName(item.p)}
+                          mark={<BrandIcon name={item.p.network} />}
                           detail={[item.p.status === "scheduled" && `Goes out ${fmtDateTime(item.p.scheduledFor ?? item.p.createdAt)}`, item.p.carTitle].filter(Boolean).join(", ") || item.p.text}
                           action={
                             <>
@@ -153,6 +155,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                           key={item.a.id}
                           urgency="soon"
                           title={`${AD_PLATFORM_LABELS[item.a.platform]} ad, not started`}
+                          mark={<BrandIcon name={AD_PLATFORM_LABELS[item.a.platform]} />}
                           detail={`${item.a.carTitle}, budget ${fmtEur(item.a.budgetEur)}`}
                           action={
                             <>
@@ -214,10 +217,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                 {paged.rows.map((item) =>
                   item.kind === "post" ? (
                     <li key={item.p.id} className="flex flex-wrap items-center gap-3 px-5 py-3">
-                      <Thumb src={item.p.photos?.[0]} icon={<NetworkIcon network={item.p.network} />} />
+                      <Thumb src={item.p.photos?.[0]} icon={<BrandIcon name={item.p.network} className="size-5" />} />
                       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                          <span className="font-medium">{postName(item.p)}</span>
+                          <span className="inline-flex items-center gap-1.5 font-medium">{item.p.photos?.[0] && <BrandIcon name={item.p.network} />}{postName(item.p)}</span>
                           <Badge tone={STATUS[item.p.status].tone}>{STATUS[item.p.status].label}</Badge>
                         </div>
                         <span className="truncate text-meta text-text-2">
@@ -234,7 +237,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                     </li>
                   ) : (
                     <li key={item.a.id} className="flex flex-wrap items-center gap-3 px-5 py-3">
-                      <Thumb icon={<MegaphoneIcon />} />
+                      <Thumb icon={<BrandIcon name={AD_PLATFORM_LABELS[item.a.platform]} className="size-5" />} />
                       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                           <span className="font-medium">{AD_PLATFORM_LABELS[item.a.platform]} ad</span>
@@ -370,7 +373,7 @@ function Calendar({ posts, ads, week }: { posts: Awaited<ReturnType<typeof posts
               <ul className="flex flex-col gap-2">
                 {items[d].map((i) => (
                   <li key={i.id} data-calendar-item className="flex min-w-0 flex-col gap-0.5 rounded-control bg-row-alt p-2">
-                    <span className="truncate text-meta font-medium">{i.title}</span>
+                    <span className="flex min-w-0 items-center gap-1.5 text-meta font-medium"><BrandIcon name={i.title} /><span className="truncate">{i.title}</span></span>
                     {i.sub && <span className="truncate text-meta text-text-2">{i.sub}</span>}
                     <span className="text-meta text-text-2">{new Date(i.at).toLocaleTimeString("en-IE", { hour: "2-digit", minute: "2-digit", timeZone: TIME_ZONE })} · {STATUS[i.status].label}</span>
                   </li>
@@ -384,11 +387,6 @@ function Calendar({ posts, ads, week }: { posts: Awaited<ReturnType<typeof posts
   );
 }
 
-const NETWORK_ICONS = { Facebook: FacebookIcon, Instagram: InstagramIcon, TikTok: TikTokIcon } as const;
-function NetworkIcon({ network }: { network: keyof typeof NETWORK_ICONS }) {
-  const Icon = NETWORK_ICONS[network];
-  return <Icon />;
-}
 const postName = (p: { network: string; format?: keyof typeof FORMAT_LABELS }) => `${p.network} ${(p.format ? FORMAT_LABELS[p.format] : "Post").toLowerCase()}`;
 
 // The post's first photo, or the network's mark when it has none.

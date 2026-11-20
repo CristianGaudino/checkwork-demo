@@ -10,6 +10,7 @@ import { stockSource } from "@/lib/stock-source";
 import { fmtAgo, fmtDate, fmtNum } from "@/lib/admin/format";
 import { pauseAlertAction, removeAlertAction, unsubscribeAction } from "./actions";
 import { CallButton } from "@/components/admin/LeadActions";
+import { BrandName } from "@/components/admin/BrandIcon";
 
 export const metadata = { title: "Customers" };
 
@@ -62,7 +63,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
       },
     },
     { key: "open", header: "Open for them", hide: "sm", sort: (c) => open.get(c.id)?.length ?? 0, cell: (c) => <span className="flex flex-wrap gap-1">{(open.get(c.id) ?? []).map((w) => <Badge key={w} tone="info">{w}</Badge>)}</span> },
-    { key: "source", header: "Came from", sort: (c) => c.source, cell: (c) => c.source, hide: "2xl" },
+    { key: "source", header: "Came from", sort: (c) => c.source, cell: (c) => <BrandName name={c.source} />, hide: "2xl" },
     { key: "consent", header: "Marketing", hide: "xl", sort: (c) => (c.marketingConsent ? 0 : 1), cell: (c) => (c.marketingConsent ? <Badge tone="good">Agreed</Badge> : <Badge>No</Badge>) },
     { key: "last", header: "Last contact", sort: (c) => c.lastContactAt, cell: (c) => fmtAgo(c.lastContactAt), align: "right", nowrap: true },
     {

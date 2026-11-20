@@ -216,6 +216,11 @@ export const InstagramIcon = (p: Props) => (
     <circle cx="17.2" cy="6.8" r=".6" />
   </Icon>
 );
+export const GoogleIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M19.6 10.5H12.5v3h4.2a4.9 4.9 0 1 1-1.3-5.1l2.1-2.1A8 8 0 1 0 20 12c0-.5 0-1-.1-1.5Z" />
+  </Icon>
+);
 export const TikTokIcon = (p: Props) => (
   <Icon {...p}>
     <path d="M14 4v10.5a3.5 3.5 0 1 1-3.5-3.5M14 4c.3 2.3 1.8 3.8 4 4" />

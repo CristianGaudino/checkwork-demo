@@ -19,6 +19,7 @@ import { carName } from "@/lib/stock/format";
 import { forSale } from "@/lib/stock/types";
 import { notFound } from "next/navigation";
 import { PrintButton } from "./PrintButton";
+import { BrandName } from "@/components/admin/BrandIcon";
 
 export const metadata = { title: "Monthly report" };
 
@@ -137,7 +138,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ m
           </StatGrid>
           {real.now.sources.length > 0 && (
             <Panel title="Where visitors came from">
-              <DataTable bare rows={real.now.sources.slice(0, 6)} rowKey={(c) => c.name} columns={[{ key: "n", header: "Source", cell: (c) => <span className="font-medium">{c.name}</span> }, { key: "v", header: "Visits", align: "right", cell: (c) => fmtNum(c.visits) }, { key: "l", header: "Leads", align: "right", cell: (c) => fmtNum(c.leads) }]} />
+              <DataTable bare rows={real.now.sources.slice(0, 6)} rowKey={(c) => c.name} columns={[{ key: "n", header: "Source", cell: (c) => <BrandName name={c.name} className="font-medium" /> }, { key: "v", header: "Visits", align: "right", cell: (c) => fmtNum(c.visits) }, { key: "l", header: "Leads", align: "right", cell: (c) => fmtNum(c.leads) }]} />
             </Panel>
           )}
         </>

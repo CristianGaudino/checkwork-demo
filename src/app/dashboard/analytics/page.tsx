@@ -17,6 +17,7 @@ import { simulating } from "@/lib/integrations";
 import { can } from "@/lib/permissions";
 import { carName, carHref } from "@/lib/stock/format";
 import { forSale } from "@/lib/stock/types";
+import { BrandName } from "@/components/admin/BrandIcon";
 
 export const metadata = { title: "Analytics" };
 
@@ -65,7 +66,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
             rows={[...a.sources].sort((x, y) => y.leads - x.leads || y.visitors - x.visitors)}
             rowKey={(s) => s.name}
             columns={[
-              { key: "name", header: "Source", cell: (s) => <span className="font-medium">{s.name}</span> },
+              { key: "name", header: "Source", cell: (s) => <BrandName name={s.name} className="font-medium" /> },
               { key: "v", header: "Visitors", align: "right", cell: (s) => fmtNum(s.visitors) },
               { key: "l", header: "Leads", align: "right", cell: (s) => <span className="font-semibold">{fmtNum(s.leads)}</span> },
               { key: "c", header: "Got in touch", align: "right", cell: (s) => fmtPct(s.visitors ? (s.leads / s.visitors) * 100 : 0), hide: "sm" },
@@ -141,7 +142,7 @@ async function RealAnalytics({ range }: { range: Range }) {
             rows={f.sources}
             rowKey={(s) => s.name}
             columns={[
-              { key: "name", header: "Source", cell: (s) => <span className="font-medium">{s.name}</span> },
+              { key: "name", header: "Source", cell: (s) => <BrandName name={s.name} className="font-medium" /> },
               { key: "v", header: "Visits", align: "right", cell: (s) => fmtNum(s.visits) },
               { key: "l", header: "Leads", align: "right", cell: (s) => fmtNum(s.leads) },
               { key: "c", header: "Became leads", align: "right", cell: (s) => (s.visits ? fmtPct((s.leads / s.visits) * 100) : ""), hide: "sm" },

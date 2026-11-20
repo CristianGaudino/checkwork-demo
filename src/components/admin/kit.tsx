@@ -373,14 +373,16 @@ export function TaskList({ children, label }: { children: React.ReactNode; label
     </ul>
   );
 }
-export function Task({ title, detail, href, action, icon, urgency = "info", count }: { title: string; detail?: React.ReactNode; href?: string; action?: React.ReactNode; icon?: React.ReactNode; urgency?: TaskUrgency; count?: number }) {
+// `mark`: a small mark before the title, on every screen (a network's logo), where `icon` is the big one from 640px.
+export function Task({ title, detail, href, action, icon, mark, urgency = "info", count }: { title: string; detail?: React.ReactNode; href?: string; action?: React.ReactNode; icon?: React.ReactNode; mark?: React.ReactNode; urgency?: TaskUrgency; count?: number }) {
   return (
     // On a phone the buttons drop under the words when both do not fit, so a name is never squeezed to a word a line.
     <li className="relative flex min-h-16 flex-wrap items-center gap-x-3 gap-y-2 py-3 pl-4 pr-1 transition-colors has-[>a:hover]:bg-surface">
       <span aria-hidden="true" className={`absolute inset-y-3 left-0 w-1 rounded-full ${TASK_MARK[urgency]}`} />
       {icon && <span aria-hidden="true" className={`hidden size-10 shrink-0 place-items-center sm:grid rounded-control [&>svg]:size-5 ${TASK_ICON[urgency]}`}>{icon}</span>}
       <span className="flex min-w-[min(12rem,100%)] flex-1 flex-col">
-        <span className="font-medium">
+        <span className={`font-medium ${mark ? "inline-flex items-center gap-1.5" : ""}`}>
+          {mark}
           {count !== undefined && <span className="mr-1.5 tabular-nums">{fmtNum(count)}</span>}
           {title}
         </span>

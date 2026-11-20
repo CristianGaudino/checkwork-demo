@@ -14,6 +14,7 @@ import { PostPreview } from "@/components/admin/PostPreview";
 import type { MediaItem } from "@/lib/admin/collections";
 import { press } from "@/components/ui";
 import { SubmitButton } from "@/components/admin/SubmitButton";
+import { BrandIcon } from "@/components/admin/BrandIcon";
 
 // The page sends the cars as small cards (CarPicker); the chosen car's photos and suggested text are asked for when it is chosen (`load`), so the page
 // stays small with any size of stock.
@@ -124,7 +125,7 @@ export function PostComposer({ cars, initialSlug, initialFormat = "post", initia
           <div role="radiogroup" aria-label="Where" className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             {NETWORKS.map((n) => (
               <button key={n} type="button" role="radio" aria-checked={network === n} onClick={() => pick(n, format)} className={`${card(network === n)} flex min-h-14 items-center justify-between gap-3 px-4 text-body font-medium`}>
-                {n}
+                <span className="inline-flex items-center gap-2"><BrandIcon name={n} className="size-5" />{n}</span>
                 {network === n && <CheckIcon className="size-4 text-accent-text" />}
               </button>
             ))}
@@ -259,7 +260,7 @@ export function PostComposer({ cars, initialSlug, initialFormat = "post", initia
 
       {/* Beside the steps from 1024px once a car is chosen; on a phone, in the last step only. */}
       <figure aria-label="Preview" className={`${step === 3 ? "flex" : "hidden"} ${slug ? "lg:flex" : "lg:hidden"} min-w-0 flex-col self-start overflow-hidden rounded-card border border-hairline bg-card lg:sticky lg:top-24`}>
-        <figcaption className="px-4 py-3 text-meta font-medium">{network}{format !== "post" && ` ${FORMAT_LABELS[format].toLowerCase()}`}</figcaption>
+        <figcaption className="flex items-center gap-1.5 px-4 py-3 text-meta font-medium"><BrandIcon name={network} />{network}{format !== "post" && ` ${FORMAT_LABELS[format].toLowerCase()}`}</figcaption>
         <div className="px-4 pb-4">
           <PostPreview network={network} format={format} layout={layout} text={text} photos={photos} video={clip || undefined} title={picked?.title ?? ""} price={car?.price} was={car?.was} />
         </div>

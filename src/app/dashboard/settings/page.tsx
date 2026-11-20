@@ -17,6 +17,7 @@ import { currentMember } from "@/lib/permissions";
 import { ROLES, roleCan, type Role } from "@/lib/permission-rules";
 import { enabledModules } from "@/lib/modules";
 import type { ModuleId } from "@/lib/modules-rules";
+import { BrandIcon } from "@/components/admin/BrandIcon";
 
 // What each role may see, in words, so the owner knows what a role change does.
 const GRANTS: Record<Role, string> = { Owner: "Everything", Manager: "Everything except changing an owner", Sales: "Everything except margins, the full reports, the team, settings, activity, data requests and billing", Finance: "Margins and the full reports, and everything Sales sees" };
@@ -213,7 +214,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
                 rows={services}
                 rowKey={(i) => i.id}
                 columns={[
-                  { key: "name", header: "Service", cell: (i) => <span className="flex flex-col"><span className="font-medium">{i.name}</span><span className="text-meta text-text-2 md:hidden">{i.purpose}</span></span> },
+                  { key: "name", header: "Service", cell: (i) => <span className="flex flex-col"><span className="inline-flex items-center gap-1.5 font-medium"><BrandIcon name={i.name} />{i.name}</span><span className="text-meta text-text-2 md:hidden">{i.purpose}</span></span> },
                   { key: "purpose", header: "What it does", hide: "md", cell: (i) => i.purpose, className: "max-w-[20rem]" },
                   { key: "status", header: "Status", cell: (i) => (isUsable(i.id) ? <Badge tone="good">Connected</Badge> : <Badge tone="warn">Not connected</Badge>) },
                   // A dealer never sees setting names: we connect a service for them (the names are in .env.example and docs/new-site-checklist.md).
