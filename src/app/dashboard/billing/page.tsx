@@ -8,8 +8,8 @@ import { MODULES, withModule } from "@/lib/modules-rules";
 import { enabledModules } from "@/lib/modules";
 import { can, currentMember } from "@/lib/permissions";
 import { billingDetails, listBills } from "@/lib/billing/bills";
-import { AI_PLAN_LABELS, FOUNDING, afterDiscount, eur, fmtMonth, foundingEnd, itemise, nextBillDate, scopeName, billedServices } from "@/lib/billing/bills-rules";
-import { AI_ASSISTANT, AI_MODELS, KINDS, MODULE_EUR, SHOW_PRICING, TERM_LABELS, allowanceFor, presetName, setupEur, setupLines, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, capOf, planEur, planFor, planLines, termSetupEur, usageEstimate, round2, withVat, yearUpfrontEur, type BillingSettings, type Scope, type Service } from "@/lib/billing/rules";
+import { AI_PLAN_LABELS, FOUNDING, eur, fmtMonth, foundingEnd, foundingOff, itemise, nextBillDate, scopeName, billedServices } from "@/lib/billing/bills-rules";
+import { AI_ASSISTANT, AI_MODELS, KINDS, MODULE_EUR, SHOW_PRICING, TERM_LABELS, allowanceFor, setupEur, setupLines, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, capOf, planEur, planFor, planLines, termSetupEur, usageEstimate, round2, withVat, yearUpfrontEur, type BillingSettings, type Scope, type Service } from "@/lib/billing/rules";
 import { billingSettings, monthUsage } from "@/lib/billing/usage";
 import { askModuleAction, removeAlertAction, saveAiModelAction, saveAiPlanAction } from "./actions";
 import { dublinDay } from "@/lib/admin/format";
@@ -93,8 +93,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
           </Panel>
           {modules.has("ai") && (
             <Panel title="AI plan">
-              {/* A tier has its own AI allowance, so the assistant is for a plan without one. */}
-              {!planFor(modules, b).tier && (
+              {/* A tier with its own AI allowance has no use for the assistant. */}
+              {!planFor(modules, b).tier?.allowance.ai && (
                 <>
                   <p className="max-w-measure text-body text-text-2">
                     Pay per action, or the AI assistant: {eur(AI_ASSISTANT.monthlyEur)} a month with {AI_ASSISTANT.actions} actions included, then per action.
@@ -134,13 +134,14 @@ function PlanAndUsage({ modules, services, usage, b, now }: { modules: Modules; 
   const others = MODULES.filter((m) => !modules.has(m.id) && MODULE_EUR[m.id] > 0);
   const assistant = aiPlan === "assistant" && modules.has("ai");
   const plan = planEur(modules, assistant ? "assistant" : "perAction", b);
-  const planNet = afterDiscount(plan);
+  const off = foundingOff(planFor(modules, b).tier, b.term);
+  const planNet = round2(plan - off);
   const sofar = usage.totalEur;
   const estimate = usageEstimate(usage, b, dublinDay(now.getTime()));
   const bill = round2(planNet + estimate);
   const setup = setupLines(modules, b);
   const setupFull = setupEur(modules, b);
-  const setupNet = round2(termSetupEur(setupFull, b.term) * (1 - FOUNDING.setupPct / 100));
+  const setupNet = termSetupEur(setupFull, b.term);
   const allowance = allowanceFor(modules, b);
   const lines: (readonly [string, number])[] = [...planLines(modules, b).map((l) => [l.label, l.eur] as const), ...(assistant ? [["AI assistant", AI_ASSISTANT.monthlyEur] as const] : [])];
   return (
@@ -153,12 +154,14 @@ function PlanAndUsage({ modules, services, usage, b, now }: { modules: Modules; 
               <dd className="tabular-nums">{eur(n)}</dd>
             </div>
           ))}
-          <div className="flex justify-between gap-4 py-2 text-ok">
-            <dt>
-              Founding dealer: {FOUNDING.pct}% off until {foundingEnd(now)}
-            </dt>
-            <dd className="whitespace-nowrap tabular-nums">-{eur(round2(plan - planNet))}</dd>
-          </div>
+          {off > 0 && (
+            <div className="flex justify-between gap-4 py-2 text-ok">
+              <dt>
+                Founding dealer: {eur(FOUNDING.eur)} until {foundingEnd(now)}
+              </dt>
+              <dd className="whitespace-nowrap tabular-nums">-{eur(off)}</dd>
+            </div>
+          )}
           <div className="flex justify-between gap-4 py-2 font-semibold">
             <dt>Plan each month, before VAT</dt>
             <dd className="tabular-nums">{eur(planNet)}</dd>
@@ -199,12 +202,6 @@ function PlanAndUsage({ modules, services, usage, b, now }: { modules: Modules; 
             <div className="flex justify-between gap-4 py-2 text-ok">
               <dt>2-year contract: no setup fee</dt>
               <dd className="whitespace-nowrap tabular-nums">-{eur(setupFull)}</dd>
-            </div>
-          )}
-          {setupNet > 0 && (
-            <div className="flex justify-between gap-4 py-2 text-ok">
-              <dt>Founding dealer: {FOUNDING.setupPct}% off</dt>
-              <dd className="whitespace-nowrap tabular-nums">-{eur(round2(setupFull - setupNet))}</dd>
             </div>
           )}
           <div className="flex justify-between gap-4 py-2 font-semibold">
@@ -258,7 +255,7 @@ async function WithoutPrices() {
   return (
     <>
       <PageHeader title="Billing" />
-      <Panel title={`Your plan: ${presetName(modules)}`}>
+      <Panel title={`Your plan: ${planFor(modules, b).name}`}>
         {on.length > 0 ? (
           // Folded: a long list would bury the billing details below it on a phone.
           <details className="rounded-control border border-hairline px-3">

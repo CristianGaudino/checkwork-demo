@@ -1,5 +1,5 @@
 import type { ModuleId } from "@/lib/modules-rules";
-import { KINDS, SERVICES, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, round2, usageCosts, type AiPlan, type Allowance, type Scope, type Service } from "./rules";
+import { KINDS, SERVICES, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, round2, usageCosts, type AiPlan, type Allowance, type Scope, type Service, type Term, type Tier } from "./rules";
 
 // The Billing page's pure rules: reading the limit and alert forms, the founding discount, and what a bill is made of. No server code,
 // so the forms (browser) and the tests use them too.
@@ -13,12 +13,13 @@ export const OUR_DETAILS = { name: "Checkwork Ltd", vat: "IE 3456789 TH", addres
 
 export type BillingDetails = { company: string; vatNumber: string; address: string; email: string };
 
-// The founding dealer's discount: a share off the plan (not the usage) until a month some time ahead, and half the setup fees.
-export const FOUNDING = { pct: 30, months: 20, setupPct: 50 } as const;
+// The founding offer (docs/sales/pricing-strategy.md): the Dealer plan at €349 a month for a 2-year contract, which already waives setup.
+// Off the Dealer plan line only, never the add-ons or the usage.
+export const FOUNDING = { eur: 349, months: 24 } as const;
+export const foundingOff = (tier: Tier | undefined, term: Term) => (tier?.id === "dealer" && term === "twoYear" ? tier.eur - FOUNDING.eur : 0);
 export function foundingEnd(now: Date): string {
   return new Intl.DateTimeFormat("en-IE", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + FOUNDING.months, 1)));
 }
-export const afterDiscount = (planEur: number) => round2(planEur * (1 - FOUNDING.pct / 100));
 export const nextBillDate = (now: Date) => new Intl.DateTimeFormat("en-IE", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)));
 
 // A euro limit or alert amount: blank is none, else 0 to 10,000 in whole euros or cents. Anything else is an error.
@@ -66,17 +67,17 @@ export type Bill = {
   base: number;
   modules: { label: string; eur: number }[];
   aiAssistantEur: number;
-  discountPct: number;
+  discountEur: number; // the founding offer's saving on the plan
   usage: BillUsage[];
 };
 export type BillLine = { label: string; detail?: string; eur: number };
 export function itemise(b: Bill) {
-  // `base` is 0 when a bundle's line (which has the base in it) is among the modules.
+  // `base` is 0 when a tier's line (which has the base in it) is among the modules.
   const plan: BillLine[] = [...(b.base ? [{ label: "Website", eur: b.base }] : []), ...b.modules, ...(b.aiAssistantEur ? [{ label: "AI assistant", eur: b.aiAssistantEur }] : [])];
   const billed = (u: BillUsage) => u.count - (u.included ?? 0);
   const usage: BillLine[] = b.usage.filter((u) => billed(u) > 0).map((u) => ({ label: `${SERVICE_LABELS[u.service]}: ${(KINDS[u.service] as Record<string, string>)[u.kind] ?? u.kind}`, detail: `${billed(u)} x ${eur(u.unitEur)}`, eur: round2(billed(u) * u.unitEur) }));
   const planEur = round2(plan.reduce((n, l) => n + l.eur, 0));
-  const discountEur = round2((planEur * b.discountPct) / 100);
+  const discountEur = b.discountEur;
   const usageEur = round2(usage.reduce((n, l) => n + l.eur, 0));
   const net = round2(planEur - discountEur + usageEur);
   const vatEur = round2((net * VAT_PCT) / 100);

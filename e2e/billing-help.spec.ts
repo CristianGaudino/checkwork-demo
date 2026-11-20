@@ -11,7 +11,7 @@ test("the owner sees the plan, sets a limit and an alert, and opens a bill", asy
   test.skip(!SHOW_PRICING, "pricing is hidden for now (SHOW_PRICING)");
   await page.goto("/dashboard/billing");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Billing");
-  await expect(page.getByText(/Founding dealer: 30% off until/)).toBeVisible();
+  await expect(page.getByText("Group plan").first()).toBeVisible();
   await expect(page.getByText("Estimate").first()).toBeVisible();
 
   await page.getByRole("link", { name: "Limits", exact: true }).click();
@@ -36,7 +36,6 @@ test("the owner sees the plan, sets a limit and an alert, and opens a bill", asy
   await page.getByRole("table").getByRole("link").first().click();
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Bill for");
   await expect(page.getByText("VAT at 23%")).toBeVisible();
-  await expect(page.getByText("Founding dealer discount")).toBeVisible();
 });
 
 test("with our prices hidden, the owner still has Billing: the plan and its modules, AI writing and the details, and no euro anywhere", async ({ page }) => {

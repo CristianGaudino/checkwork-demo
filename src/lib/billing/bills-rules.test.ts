@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { afterDiscount, foundingEnd, itemise, nextBillDate, parseAlert, parseEuro, parseLimits, usageLines, type Bill } from "./bills-rules";
+import { TIERS } from "./rules";
+import { foundingEnd, foundingOff, itemise, nextBillDate, parseAlert, parseEuro, parseLimits, usageLines, type Bill } from "./bills-rules";
 
 describe("parseEuro", () => {
   it("reads blank, whole euros and cents", () => {
@@ -38,7 +39,7 @@ describe("parseAlert", () => {
 
 describe("itemise", () => {
   const bill: Bill = {
-    id: "2026-10", issuedOn: "2026-11-01", dueOn: "2026-12-01", status: "due", base: 200, modules: [{ label: "Finance", eur: 29 }], aiAssistantEur: 0, discountPct: 30,
+    id: "2026-10", issuedOn: "2026-11-01", dueOn: "2026-12-01", status: "due", base: 200, modules: [{ label: "Finance", eur: 29 }], aiAssistantEur: 0, discountEur: 68.7,
     usage: [{ service: "ai", kind: "opus", count: 10, unitEur: 0.05 }, { service: "whatsapp", kind: "alert", count: 0, unitEur: 0.05 }],
   };
   it("takes the discount off the plan only, then adds VAT", () => {
@@ -61,9 +62,13 @@ describe("itemise", () => {
 });
 
 describe("founding discount and dates", () => {
-  it("is 30% off and ends 20 months on", () => {
-    expect(afterDiscount(200)).toBe(140);
-    expect(foundingEnd(new Date("2026-11-16T10:00:00Z"))).toBe("July 2028");
+  it("is the Dealer plan at €349 on a 2-year contract only, until the contract ends", () => {
+    const tier = (id: string) => TIERS.find((t) => t.id === id);
+    expect(foundingOff(tier("dealer"), "twoYear")).toBe(100);
+    expect(foundingOff(tier("dealer"), "annual")).toBe(0);
+    expect(foundingOff(tier("group"), "twoYear")).toBe(0);
+    expect(foundingOff(undefined, "twoYear")).toBe(0);
+    expect(foundingEnd(new Date("2026-11-16T10:00:00Z"))).toBe("November 2028");
     expect(nextBillDate(new Date("2026-12-31T10:00:00Z"))).toBe("1 January 2027");
   });
 });

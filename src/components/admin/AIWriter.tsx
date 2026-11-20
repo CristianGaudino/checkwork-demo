@@ -83,15 +83,26 @@ export function AITextarea({ id, name, label, defaultValue = "", rows = 5, maxLe
   id ??= own;
   const [text, setText] = useState(defaultValue);
   const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState("");
+  // A copy that fails says so: otherwise the dealer pastes whatever was copied before.
+  const copyText = () => {
+    const failed = () => { setCopied(false); setCopyError("Couldn't copy. Select the text and copy it."); };
+    setCopyError("");
+    if (!navigator.clipboard) return failed();
+    navigator.clipboard.writeText(text).then(() => setCopied(true), failed);
+  };
   return (
     <div className="flex flex-col gap-2">
       <label className="sr-only" htmlFor={id}>{label}</label>
-      <textarea ref={box} id={id} name={name} rows={rows} maxLength={maxLength} value={text} onChange={(e) => setText(e.target.value)} className={`${adminInput} h-auto py-2`} />
+      <textarea ref={box} id={id} name={name} rows={rows} maxLength={maxLength} value={text} onChange={(e) => { setText(e.target.value); setCopied(false); }} className={`${adminInput} h-auto py-2`} />
       <AIWriter task={task} text={text} request={() => (typeof request === "function" ? request(box.current) : request)} onText={(t, subject) => { setText(t); setCopied(false); if (subject) onSubject?.(subject); }} />
       {copy && text.trim() && (
-        <button type="button" onClick={() => navigator.clipboard?.writeText(text).then(() => setCopied(true), () => {})} className={`${adminButtonQuiet} self-start`}>
-          {copied ? "Copied" : copy === true ? "Copy" : copy}
-        </button>
+        <>
+          <button type="button" onClick={copyText} className={`${adminButtonQuiet} self-start`}>
+            {copied ? "Copied" : copy === true ? "Copy" : copy}
+          </button>
+          <p aria-live="polite" className="text-meta text-bad">{copyError}</p>
+        </>
       )}
     </div>
   );

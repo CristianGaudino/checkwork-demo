@@ -227,10 +227,10 @@ export function planLines(modules: Iterable<ModuleId>, o: PlanOptions = ONE_SITE
 export function planEur(modules: Iterable<ModuleId>, aiPlan: AiPlan, o: PlanOptions = ONE_SITE): number {
   return planFor(modules, o).eur + (aiPlan === "assistant" ? AI_ASSISTANT.monthlyEur : 0);
 }
-// What the plan includes each month before usage is billed: the tier's allowance (Group's lookups and alerts per branch), or on a plan
-// with no tier the AI assistant's actions when chosen.
+// What the plan includes each month before usage is billed: the tier's allowance (Group's lookups and alerts per branch), and the AI
+// assistant's actions when chosen on a plan with no AI allowance.
 export function allowanceFor(modules: Iterable<ModuleId>, b: PlanOptions & { aiPlan: AiPlan }): Allowance {
   const { tier } = planFor(modules, b);
-  if (!tier) return b.aiPlan === "assistant" ? { ai: AI_ASSISTANT.actions } : {};
-  return Object.fromEntries(Object.entries(tier.allowance).map(([s, n]) => [s, tier.perBranch?.includes(s as Service) ? n * Math.max(1, b.branches) : n]));
+  const own: Allowance = tier ? Object.fromEntries(Object.entries(tier.allowance).map(([s, n]) => [s, tier.perBranch?.includes(s as Service) ? n * Math.max(1, b.branches) : n])) : {};
+  return b.aiPlan === "assistant" && !own.ai ? { ...own, ai: AI_ASSISTANT.actions } : own;
 }

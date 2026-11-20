@@ -27,12 +27,13 @@ describe("usage costs", () => {
     expect(w.kinds.map((k) => k.included)).toEqual([500, 0, 0]);
   });
 
-  it("each tier's allowance, Group's lookups and alerts per branch; the AI assistant only without a tier", () => {
+  it("each tier's allowance, Group's lookups and alerts per branch; the AI assistant only without a tier's AI allowance", () => {
     expect(allowanceFor(SHOWROOM, opts())).toEqual({ lookup: 25 });
     expect(allowanceFor(DEALER, opts({ aiPlan: "assistant" }))).toEqual({ lookup: 100, whatsapp: 500, ai: 100 });
     expect(allowanceFor(GROUP, opts({ branches: 3 }))).toEqual({ lookup: 300, whatsapp: 1500, ai: 300 });
     expect(allowanceFor(["dashboard", "ai"], opts({ aiPlan: "assistant" }))).toEqual({ ai: 300 });
     expect(allowanceFor(["dashboard", "ai"], opts())).toEqual({});
+    expect(allowanceFor([...SHOWROOM, "dashboard", "ai"], opts({ aiPlan: "assistant" }))).toEqual({ lookup: 25, ai: 300 }); // Showroom has no AI allowance
   });
 });
 
@@ -96,6 +97,8 @@ describe("the plan and the estimate", () => {
     expect(planFor(DEALER)).toMatchObject({ name: "Dealer", eur: 449, extras: [] });
     expect(planFor([...DEALER, "service", "commercial"])).toMatchObject({ name: "Dealer", eur: 449 + 49 + 29, extras: ["service", "commercial"] });
     expect(planFor(GROUP)).toMatchObject({ name: "Group", eur: 749 });
+    expect(planFor([...DEALER, "margins", "social", "newsletter", "newCars"])).toMatchObject({ name: "Group", eur: 749 }); // Dealer and these add-ons would be 755
+    expect(planFor(SHOWROOM, { branches: 2, brands: 1 })).toMatchObject({ name: "Group", eur: 898 }); // more than one branch is a Group
     expect(planEur(GROUP, "perAction", opts({ branches: 3 }))).toBe(1047); // 749 + 2 x 149
     expect(planEur(MODULE_IDS, "perAction")).toBe(749 + 49); // Group and Service
     expect(planFor(["finance"])).toMatchObject({ name: "Custom", eur: 229, saving: 0 });

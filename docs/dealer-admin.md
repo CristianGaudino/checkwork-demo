@@ -247,11 +247,11 @@ The plans (#223, `TIERS` in `src/lib/billing/rules.ts`, from `docs/sales/pricing
   only change Group's price and allowance until multi-branch is built (#226).
 
 `/dashboard/billing` is for the Owner and Manager (`can("billing")`; anyone else gets a 404, and so does every action). It has three sections:
-the plan and this month's usage (with the payment term, the founding dealer discount, which is taken off the plan, not the usage, what
+the plan and this month's usage (with the payment term, the founding dealer price (Dealer at EUR 349 on a 2-year contract, off the plan, not the usage), what
 the allowance covers, and an "Estimate" for the month end), the setup fees (the tier's or the website's, and those of add-ons set up with
-outside accounts (Social, New cars, WhatsApp), half off for a founding dealer, none on a 2-year contract;
+outside accounts (Social, New cars, WhatsApp), none on a 2-year contract;
 `setupLines` in `src/lib/billing/rules.ts`, also totalled in the demo bar's plans panel), the limits and alerts (a euro limit per service
-and for all usage, never above ours; the 80% alert; "tell me when X passes EUR N"; the AI plan without a tier, and the writing quality, Premium (Claude Opus) at EUR 0.08
+and for all usage, never above ours; the 80% alert; "tell me when X passes EUR N"; the AI plan without a tier's AI allowance, and the writing quality, Premium (Claude Opus) at EUR 0.08
 an action or Standard (Claude Sonnet) at EUR 0.04, each action counted under the model that wrote it; the dealer never sees the model
 or provider's name), and the bills. While prices are hidden (`SHOW_PRICING`) the page shows the plan's name, its modules, the payment
 term, the writing quality and the billing details, with no euro. Every change is written to the activity log. Rules and maths: `src/lib/billing/bills-rules.ts`

@@ -21,5 +21,7 @@ test("a synced car's description is improved with AI and copied for DoneDeal", a
   await panel.getByRole("button", { name: "Copy for DoneDeal" }).click();
   await expect(panel.getByRole("button", { name: "Copied" })).toBeVisible();
   expect((await page.evaluate(() => navigator.clipboard.readText())).replace(/\r/g, "")).toBe(text); // Windows reads it back with CRLF
-  await expect(panel.getByRole("link", { name: /^Edit on DoneDeal/ })).toHaveAttribute("target", "_blank");
+  await box.press("End");
+  await box.pressSequentially(" Ask about finance.");
+  await expect(panel.getByRole("button", { name: "Copy for DoneDeal" })).toBeVisible(); // an edit is not what was copied
 });

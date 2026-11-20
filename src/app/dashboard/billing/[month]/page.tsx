@@ -19,7 +19,7 @@ export default async function Page({ params }: { params: Promise<{ month: string
   const mine = await billingDetails();
   const rows: (BillLine & { key: string; strong?: boolean })[] = [
     ...t.plan.map((l) => ({ ...l, key: `p-${l.label}` })),
-    ...(t.discountEur ? [{ key: "discount", label: `Founding dealer discount, ${bill.discountPct}% off the plan`, eur: -t.discountEur }] : []),
+    ...(t.discountEur ? [{ key: "discount", label: "Founding dealer price", eur: -t.discountEur }] : []),
     ...t.usage.map((l) => ({ ...l, key: `u-${l.label}` })),
     { key: "net", label: "Total before VAT", eur: t.net, strong: true },
     { key: "vat", label: `VAT at ${VAT_PCT}%`, eur: t.vatEur },

@@ -3,7 +3,7 @@ import { defineCollection } from "@/lib/admin/docs";
 import { addDays, dublinDay } from "@/lib/admin/format";
 import { getSettings } from "@/lib/admin/collections";
 import { MODULE_IDS } from "@/lib/modules-rules";
-import { FOUNDING, usageLines, type Bill, type BillingDetails } from "./bills-rules";
+import { usageLines, type Bill, type BillingDetails } from "./bills-rules";
 import { BILLING_DEFAULT, allowanceFor, planLines, type Service } from "./rules";
 import { SITE_NAME, DEALER_ADDRESS_TEXT, DEALER_EMAIL } from "@/lib/site";
 
@@ -39,6 +39,6 @@ function seedBills(): Bill[] {
       { service: "whatsapp", kind: "reply", count: 40 + grow * 5 },
       { service: "whatsapp", kind: "marketing", count: i % 3 === 0 ? 40 : 0 },
     ];
-    return { id, issuedOn, dueOn: addDays(issuedOn, 30), status: i === 0 ? "due" : "paid", base: 0, modules, aiAssistantEur: 0, discountPct: FOUNDING.pct, usage: usageLines(counts, allowance) };
+    return { id, issuedOn, dueOn: addDays(issuedOn, 30), status: i === 0 ? "due" : "paid", base: 0, modules, aiAssistantEur: 0, discountEur: 0, usage: usageLines(counts, allowance) };
   });
 }
