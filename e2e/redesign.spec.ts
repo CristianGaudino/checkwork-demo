@@ -127,12 +127,6 @@ test.describe("DoneDeal stock", () => {
     await expect(page.getByRole("region", { name: "DoneDeal" })).toContainText("Connected");
     await expect(page.getByRole("cell", { name: "DoneDeal stock" })).toBeVisible();
   });
-
-  test("on a car page the dealer edits on DoneDeal", async ({ page }) => {
-    await page.goto(`/used-cars/${live.slug}`);
-    await page.locator("[data-demo-bar]").getByRole("link", { name: "Dealer" }).click();
-    await expect(page.locator("[data-car-controls]").getByRole("link", { name: /^Edit on DoneDeal/ })).toBeVisible();
-  });
 });
 
 test("our own stock has Add car, no sync and no DoneDeal service", async ({ page }) => {

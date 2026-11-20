@@ -55,5 +55,3 @@ export const MENU_GROUPS = [
 export const FOOTER_GROUPS = [{ title: "Cars", links: MENU_PRIMARY }, ...MENU_GROUPS] as const;
 export const LEGAL_LINKS = [PAGE.privacy, PAGE.terms];
 
-// Where the dealer's staff go from the public site, when the demo is viewed as the dealer.
-export const DASHBOARD_LINK = link("/dashboard", "Dashboard");

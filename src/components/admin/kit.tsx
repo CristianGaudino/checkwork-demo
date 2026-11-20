@@ -328,3 +328,59 @@ export function Avatar({ name, className = "" }: { name: string; className?: str
 // One choice among several, as a button that posts on its own: a server action gets the `name` and `value`. The chosen one is filled.
 // A choice among a few (a status, who has it), filled when it is the one now. ChoiceAct (ActButton.tsx) runs it with Undo in its toast.
 export const choicePill = (active: boolean) => `inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-meta font-medium ${active ? "border-text bg-text text-ink" : "border-control bg-card text-text"} ${press}`;
+
+// What needs doing, as a list a person works down: each row says what it is, why it matters now (`detail`) and has the button that does
+// it (`action`), so nobody has to work out where to go. The marker on the left is the urgency: `now` (red) is late or due today, `soon`
+// (amber) is coming up, `info` is worth knowing. The row's own link (`href`) opens the thing; the action sits above it and is what a press
+// on it hits. Inside a Panel, or on its own as the page's first block.
+const TASK_MARK = { now: "bg-bad", soon: "bg-warn", info: "bg-hairline" } as const;
+const TASK_ICON = { now: "bg-bad-soft text-bad", soon: "bg-warn-soft text-warn", info: "bg-row-alt text-text-2" } as const;
+export type TaskUrgency = keyof typeof TASK_MARK;
+export function TaskList({ children, label }: { children: React.ReactNode; label?: string }) {
+  return (
+    <ul aria-label={label} className="-mx-1 flex flex-col divide-y divide-hairline">
+      {children}
+    </ul>
+  );
+}
+export function Task({ title, detail, href, action, icon, urgency = "info", count }: { title: string; detail?: React.ReactNode; href?: string; action?: React.ReactNode; icon?: React.ReactNode; urgency?: TaskUrgency; count?: number }) {
+  return (
+    <li className="relative flex min-h-16 items-center gap-3 py-3 pl-4 pr-1 transition-colors has-[>a:hover]:bg-surface">
+      <span aria-hidden="true" className={`absolute inset-y-3 left-0 w-1 rounded-full ${TASK_MARK[urgency]}`} />
+      {icon && <span aria-hidden="true" className={`grid size-10 shrink-0 place-items-center rounded-control [&>svg]:size-5 ${TASK_ICON[urgency]}`}>{icon}</span>}
+      <span className="flex min-w-0 flex-1 flex-col">
+        <span className="font-medium">
+          {count !== undefined && <span className="mr-1.5 tabular-nums">{fmtNum(count)}</span>}
+          {title}
+        </span>
+        {detail && <span className="text-meta text-text-2">{detail}</span>}
+      </span>
+      {href && <Link href={href} aria-label={count !== undefined ? `${count} ${title}` : title} className="absolute inset-0" />}
+      {action && <span className="relative z-10 flex shrink-0 flex-wrap justify-end gap-2">{action}</span>}
+    </li>
+  );
+}
+
+// The page's main jobs as big buttons, each an icon, a verb and one line on what it is for: what a person who has never used the dashboard
+// presses first. Two across on a phone, up to four across from 640px. The first is the page's primary job and is filled.
+export function ActionTiles({ children, label = "Quick actions" }: { children: React.ReactNode; label?: string }) {
+  return (
+    <nav aria-label={label} className="grid grid-cols-2 gap-3 sm:grid-cols-[repeat(auto-fit,minmax(12rem,1fr))]">
+      {children}
+    </nav>
+  );
+}
+export function ActionTile({ href, icon, label, text, primary = false }: { href: string; icon: React.ReactNode; label: string; text?: string; primary?: boolean }) {
+  return (
+    <Link
+      href={href}
+      className={`flex min-h-24 flex-col justify-between gap-3 rounded-card border p-4 transition-colors ${primary ? "border-accent bg-accent text-on-accent" : `${card} hover:border-control`} ${press}`}
+    >
+      <span aria-hidden="true" className={`grid size-10 place-items-center rounded-control [&>svg]:size-5 ${primary ? "bg-card text-accent-text" : "bg-row-alt text-accent-text"}`}>{icon}</span>
+      <span className="flex flex-col">
+        <span className="font-semibold">{label}</span>
+        {text && <span className={`text-meta ${primary ? "" : "text-text-2"}`}>{text}</span>}
+      </span>
+    </Link>
+  );
+}

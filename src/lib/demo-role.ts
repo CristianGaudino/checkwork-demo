@@ -1,40 +1,17 @@
 "use client";
 
 import { useMemo, useSyncExternalStore } from "react";
-import { DEMO_BAR_ENABLED, type DemoRole } from "@/lib/demo";
+import { DEMO_BAR_ENABLED } from "@/lib/demo";
 import { ROLE_COOKIE, parseRole, type Role } from "@/lib/permission-rules";
 import { STOCK_COOKIE, parseStockSource, type StockSource } from "@/lib/stock-source-rules";
 import { MODULES_COOKIE, modulesValue, parseModules, type ModuleId } from "@/lib/modules-rules";
-import { SITE_SLUG } from "@/lib/site";
 
-// How the demo is being viewed on the public pages, remembered in this browser: as a customer, or as the dealer's staff (who then get a
-// Dashboard link in the header, and stock and social links on a car page). The dealer area itself is decided by the route and by
-// Cloudflare Access; the dealer's role (what they may see inside it) is a cookie the server reads (src/lib/permissions.ts).
-const KEY = `${SITE_SLUG}:role`;
+// The demo's switches, remembered in this browser as cookies the server reads too: the dealer's role (what they may see), where the stock
+// comes from, and which modules are on. The public site is always the customer's view; the dealer area is decided by the route and by
+// Cloudflare Access.
 const listeners = new Set<() => void>();
 const notify = () => listeners.forEach((l) => l());
 const subscribe = (cb: () => void) => (listeners.add(cb), () => void listeners.delete(cb));
-
-// A plan without the dashboard (Showroom) has no dealer side, so the view is the customer's whatever was chosen before.
-function read(): DemoRole {
-  try {
-    return DEMO_BAR_ENABLED && localStorage.getItem(KEY) === "dealer" && parseModules(modulesRaw() ?? "all").has("dashboard") ? "dealer" : "customer";
-  } catch {
-    return "customer";
-  }
-}
-
-export function setDemoRole(role: DemoRole) {
-  try {
-    if (role === "customer") localStorage.removeItem(KEY);
-    else localStorage.setItem(KEY, role);
-  } catch {
-    // Blocked storage: the role lasts for this page view only, which is the same as customer.
-  }
-  notify();
-}
-
-export const useDemoRole = () => useSyncExternalStore(subscribe, read, () => "customer" as DemoRole);
 
 // The dealer role the demo acts as (src/lib/permissions.ts): a cookie, so the server reads it.
 const roleValue = () => parseRole(document.cookie.split("; ").find((c) => c.startsWith(`${ROLE_COOKIE}=`))?.slice(ROLE_COOKIE.length + 1));
