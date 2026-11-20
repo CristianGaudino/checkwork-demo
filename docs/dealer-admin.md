@@ -16,7 +16,8 @@ Registration lookups, AI actions and WhatsApp messages cost the dealer per use, 
 (#181, #223). The code that makes a paid use
 counts it with `recordUsage` and asks `usageAllowed` first (`src/lib/billing/usage.ts`): past a monthly cap (the dealer's, set by the Owner
 or Manager on Billing, or our ceiling) the service stops for the month and falls back (a lookup gives the plate's own facts, AI leaves the
-text alone, WhatsApp goes by email). Alerts at 80% of a cap, at the cap and at amounts the dealer chose go to the owners and managers in
+text alone, a WhatsApp reply or alert goes by email, or nothing if the buyer gave none, and a marketing message is not sent; an alert the
+plan still includes always goes). Our default limits are `DEFAULT_CEILINGS`, WhatsApp's times the branches on Group (`withBranchCeilings`). Alerts at 80% of a cap, at the cap and at amounts the dealer chose go to the owners and managers in
 the bell, once a month each. Counts are one record per month per line of the bill. Prices are in `src/lib/billing/rules.ts`.
 
 ## Roles and permissions

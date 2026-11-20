@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Badge, DataTable, Facts, PageHeader, Panel } from "@/components/admin/kit";
 import { fmtDay } from "@/lib/admin/format";
 import { can } from "@/lib/permissions";
-import { billingDetails, billsStore } from "@/lib/billing/bills";
+import { billingDetails, getBill } from "@/lib/billing/bills";
 import { OUR_DETAILS, eur, fmtMonth, itemise, type BillLine } from "@/lib/billing/bills-rules";
 import { VAT_PCT } from "@/lib/billing/rules";
 
@@ -13,7 +13,7 @@ export const metadata = { title: "Bill" };
 export default async function Page({ params }: { params: Promise<{ month: string }> }) {
   if (!SHOW_PRICING || !(await can("billing"))) notFound(); // hidden for now (SHOW_PRICING)
   const { month } = await params;
-  const bill = /^\d{4}-\d{2}$/.test(month) ? await billsStore.get(month) : undefined;
+  const bill = /^\d{4}-\d{2}$/.test(month) ? await getBill(month) : undefined;
   if (!bill) notFound();
   const t = itemise(bill);
   const mine = await billingDetails();

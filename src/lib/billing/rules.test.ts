@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { MODULE_IDS } from "@/lib/modules-rules";
-import { BILLING_DEFAULT, inAllowance, allowanceFor, alertsCrossed, setupEur, setupLines, capOf, monthEndEstimate, planEur, planFor, planLines, presetName, termSetupEur, usageCosts, usageEstimate, withinCaps, yearUpfrontEur, type BillingSettings, type UsageCount } from "./rules";
+import { BILLING_DEFAULT, inAllowance, withBranchCeilings, allowanceFor, alertsCrossed, setupEur, setupLines, capOf, monthEndEstimate, planEur, planFor, planLines, presetName, termSetupEur, usageCosts, usageEstimate, withinCaps, yearUpfrontEur, type BillingSettings, type UsageCount } from "./rules";
 
 const c = (service: UsageCount["service"], kind: string, count: number): UsageCount => ({ id: `m:${service}:${kind}`, month: "2026-11", service, kind, count });
 
@@ -144,6 +144,10 @@ describe("the plan and the estimate", () => {
   it("estimates past the allowance at the month's pace, not from what is billed so far", () => {
     expect(usageEstimate([c("lookup", "website", 60)], { lookup: 100 }, opts({ ceilings: {} }), "2026-11-10")).toBe(24); // 180 at that pace, 80 x 0.30
     expect(usageEstimate([c("lookup", "website", 60)], { lookup: 100 }, opts(), "2026-11-10")).toBe(15); // our EUR 15 limit stops it
+  });
+  it("grows Group's WhatsApp limit with its branches, and only that one", () => {
+    expect(withBranchCeilings(opts({ branches: 3 })).ceilings).toEqual({ lookup: 15, whatsapp: 60, ai: 50 });
+    expect(withBranchCeilings(opts()).ceilings).toEqual({ lookup: 15, whatsapp: 20, ai: 50 });
   });
   it("lets a use the plan still includes past any limit, as it costs nothing; WhatsApp only for alerts", () => {
     const allowance = { lookup: 25, whatsapp: 500 };

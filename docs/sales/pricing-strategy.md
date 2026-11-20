@@ -9,7 +9,7 @@ Going ahead with this model (owner, 20 Nov 2026). Prices are a month, before VAT
 - **2-year contract:** setup waived.
 - **Moving up a tier:** the new tier's setup less all setup already paid, never below €0 (Dealer to Group: €1,000); nothing on a 2-year contract.
 - **Dropping a module or a branch:** from the 1st of the next month.
-- **Limits:** extra use past the allowance stops at €15 of lookups, €20 of WhatsApp and €50 of AI a month, unless agreed otherwise. Dealers can set lower ones on the Billing page.
+- **Limits:** extra use past the allowance stops at €15 of lookups, €20 of WhatsApp (€20 per branch on Group) and €50 of AI a month, unless agreed otherwise. Dealer and Group can set lower ones on the Billing page; a Showroom dealer asks us.
 
 ## Why these tiers
 - **Most prospects already have a site:** about 88% pay for CarsIreland, HappyDealer or DoneDeal, and DoneDeal gives one away free. So the base site is the hard sale.
@@ -32,7 +32,7 @@ Going ahead with this model (owner, 20 Nov 2026). Prices are a month, before VAT
 - Google reviews on the site, from the dealer's public Google listing (no sign-in needed)
 - Enquiry form (leads go to the dealer by email) and WhatsApp click to chat
 - Finance estimator
-- Trade-in form with 25 registration lookups a month; past the limit buyers type their car in
+- Trade-in form with 25 registration lookups a month, then up to 50 more at €0.30 (€15); past that, buyers type their car in
 - Car finder: a "find me a car" form for cars not in stock
 - No dashboard, so no staff logins and no AI
 

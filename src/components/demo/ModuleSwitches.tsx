@@ -26,9 +26,8 @@ export function ModuleSwitches({ chip, inline = false }: { chip: string; inline?
   const preset = presetName(on);
   // What turning a module on adds to the plan: an add-on's price, or a move to the tier that holds it.
   const addLabel = (id: ModuleId) => {
-    if (!MODULE_EUR[id]) return "Per use";
-    const add = planFor(withModule(on, id)).eur - plan.eur;
-    return add ? `+${eur(add)}` : "Included";
+    const add = planFor(withModule(on, id)).eur - plan.eur; // a per-use module can still move the plan up a tier (AI needs the dashboard)
+    return add ? `+${eur(add)}` : MODULE_EUR[id] ? "Included" : "Per use";
   };
   const apply = (next: Iterable<ModuleId>) => {
     const list = [...next];

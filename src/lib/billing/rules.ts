@@ -62,9 +62,9 @@ export const round2 = (n: number) => Math.round(n * 100) / 100;
 // "€20", "€20.50": whole euros without cents, as the Billing page writes them; `cents` always shows them, as a bill does ("€200.00").
 export const eur = (n: number, cents = !Number.isInteger(n)) => `€${n.toLocaleString("en-IE", { minimumFractionDigits: cents ? 2 : 0, maximumFractionDigits: 2 })}`;
 
-// shortcut: our pricing is hidden on screen for now (the owner's call, November 2026). Billing shows the plan and its modules, the AI
-// writing choice and the billing details with no prices; its limits, bills and bill pages, the "Set the cap" link, limit notifications and
-// the demo bar's prices are hidden. The limits still apply. Set true to show it all again; nothing was removed.
+// Our prices show on screen (the owner's call, 20 November 2026). False hides them: Billing then shows the plan and its modules, the AI
+// writing choice and the billing details with no prices, and hides its limits, bills and bill pages, the "Set the cap" link, limit
+// notifications and the demo bar's prices. The limits apply either way.
 export const SHOW_PRICING = true;
 
 // One count a month per service, kind and place: a record per line of the bill, not one per use, so it never grows with traffic.
@@ -118,6 +118,9 @@ export type BillingSettings = {
 export const AI_CEILING_EUR = 50;
 export const DEFAULT_CEILINGS: Partial<Record<Scope, number>> = { lookup: 15, whatsapp: 20, ai: AI_CEILING_EUR };
 export const BILLING_DEFAULT: BillingSettings = { caps: {}, ceilings: DEFAULT_CEILINGS, alerts: [], alertAt80: true, aiModel: "opus", term: "monthly", branches: 1, brands: 1 };
+// Group's WhatsApp limit grows with its branches, as its alerts do. Worked out when read, never stored, so a save never multiplies it.
+export const withBranchCeilings = (b: BillingSettings): BillingSettings =>
+  b.branches > 1 && b.ceilings.whatsapp !== undefined ? { ...b, ceilings: { ...b.ceilings, whatsapp: b.ceilings.whatsapp * b.branches } } : b;
 // A stored record over the defaults, the ceilings merged one level down: a record saved before a default ceiling existed still gets it.
 export const withBillingDefaults = (b?: Partial<BillingSettings>): BillingSettings => ({ ...BILLING_DEFAULT, ...b, ceilings: { ...BILLING_DEFAULT.ceilings, ...b?.ceilings } });
 

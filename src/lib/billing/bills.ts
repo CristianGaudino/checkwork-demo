@@ -3,6 +3,9 @@ import { defineCollection } from "@/lib/admin/docs";
 import { addDays, dublinDay } from "@/lib/admin/format";
 import { getSettings } from "@/lib/admin/collections";
 import { MODULE_IDS } from "@/lib/modules-rules";
+import { DEMO_BAR_ENABLED } from "@/lib/demo";
+import { enabledModules } from "@/lib/modules";
+import { billingSettings } from "./usage";
 import { usageLines, type Bill, type BillingDetails } from "./bills-rules";
 import { BILLING_DEFAULT, allowanceFor, planLines, type Service } from "./rules";
 import { SITE_NAME, DEALER_ADDRESS_TEXT, DEALER_EMAIL } from "@/lib/site";
@@ -13,7 +16,19 @@ import { SITE_NAME, DEALER_ADDRESS_TEXT, DEALER_EMAIL } from "@/lib/site";
 export const billsStore = defineCollection<Bill>("bills-v2", seedBills);
 
 export async function listBills(): Promise<Bill[]> {
-  return (await billsStore.list()).sort((a, b) => b.id.localeCompare(a.id));
+  const shown = await asShown();
+  return (await billsStore.list()).map(shown).sort((a, b) => b.id.localeCompare(a.id));
+}
+export async function getBill(id: string): Promise<Bill | undefined> {
+  const bill = await billsStore.get(id);
+  return bill && (await asShown())(bill);
+}
+// The demo's bills follow the plan the demo bar shows now, so the Bills tab never disagrees with the Plan tab. A real site's are as issued.
+async function asShown(): Promise<(bill: Bill) => Bill> {
+  if (!DEMO_BAR_ENABLED) return (bill) => bill;
+  const [modules, b] = await Promise.all([enabledModules(), billingSettings()]);
+  const allowance = allowanceFor(modules, b);
+  return (bill) => ({ ...bill, modules: planLines(modules, b), usage: usageLines(bill.usage, allowance) });
 }
 
 export async function billingDetails(): Promise<BillingDetails> {
