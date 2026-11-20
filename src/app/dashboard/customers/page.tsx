@@ -26,13 +26,14 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
   const tab = tabs.find(([k]) => k === sp.tab)?.[0] ?? tabs[0][0];
   const q = (sp.q ?? "").trim().toLowerCase().slice(0, 60);
   const [customers, alerts, subs, sold, deposits, claims, orders, service, newCars] = await Promise.all([customersStore.list(), alertsStore.list(), subscribersStore.list(), salesStore.list(), reservationsStore.list(), claimsStore.list(), ordersStore.list(), hasModule("service"), hasModule("newCars")]);
-  const ordersOn = newCars && (await stockSource()) !== "donedeal";
+  const synced = (await stockSource()) === "donedeal"; // orders and deposits are our version only
+  const ordersOn = newCars && !synced;
   // What each customer bought last, and what is still open for them (a deposit held, a claim, a factory order), at a glance in the row.
   const lastBought = new Map<string, { car: string; on: string }>();
   for (const s of sold) if (s.customerId && !s.returnedOn && (lastBought.get(s.customerId)?.on ?? "") < s.soldOn) lastBought.set(s.customerId, { car: s.carTitle, on: s.soldOn });
   const open = new Map<string, string[]>();
   const add = (id: string | undefined, what: string) => id && open.set(id, [...new Set([...(open.get(id) ?? []), what])]);
-  for (const r of deposits) if (r.status === "held") add(r.customerId, "Deposit held");
+  if (!synced) for (const r of deposits) if (r.status === "held") add(r.customerId, "Deposit held");
   if (service) for (const k of claims) if (claimOpen(k.status)) add(k.customerId, "Warranty claim");
   if (ordersOn) for (const o of orders) if (orderOpen(o.status)) add(o.customerId, "Car on order");
   const live = subs.filter((s) => s.status === "subscribed").length;

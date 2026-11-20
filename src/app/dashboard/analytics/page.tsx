@@ -16,6 +16,7 @@ import { adminCars } from "@/lib/admin/stock-admin";
 import { simulating } from "@/lib/integrations";
 import { can, currentMember } from "@/lib/permissions";
 import { roleCan } from "@/lib/permission-rules";
+import { hasModule } from "@/lib/modules";
 import { carName, carHref } from "@/lib/stock/format";
 import { forSale } from "@/lib/stock/types";
 import { BrandName } from "@/components/admin/BrandIcon";
@@ -28,9 +29,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
   const range = parseRange((await searchParams).range);
   // The demo shows generated figures; a dealer's own site shows what its visitors really did.
   if (!simulating()) return <RealAnalytics range={range} />;
-  const [all, leads, allSales, reports, me] = await Promise.all([adminCars(), leadsStore.list(), salesStore.list(), can("reports"), currentMember()]);
+  const [all, leads, allSales, mayReport, me, marginsOn] = await Promise.all([adminCars(), leadsStore.list(), salesStore.list(), can("reports"), currentMember(), hasModule("margins")]);
   // As on Reports (owner's decision): the roles allowed margins see the dealership's sales; a salesperson sees their own.
   const whole = roleCan(me.role, "margins");
+  const reports = mayReport && marginsOn; // Reports is the margins module's page: without it the link would be a dead end
   const sales = whole ? allSales : allSales.filter((s) => s.salesperson === me.name);
   const cars = all.filter(forSale).map((c) => ({ slug: c.slug, title: carName(c) }));
   const a = buildAnalytics({ range, cars, leadTimes: leads.map((l) => l.createdAt) });

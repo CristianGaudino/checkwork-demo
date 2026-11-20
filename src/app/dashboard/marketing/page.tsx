@@ -145,7 +145,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                           detail={[item.p.status === "scheduled" && `Goes out ${fmtDateTime(item.p.scheduledFor ?? item.p.createdAt)}`, item.p.carTitle].filter(Boolean).join(", ") || item.p.text}
                           action={
                             <>
-                              <ActButton act={publishPostAction.bind(null, item.p.id)} confirm={{ title: "Post this now?", text: `It goes out on ${item.p.network} at once.`, yes: "Post now" }} className={rowButton}>Post now</ActButton>
+                              <ActButton act={publishPostAction.bind(null, item.p.id)} confirm={{ title: "Post this now?", text: `It goes out on ${item.p.network} at once.`, yes: "Post now" }} label={`Post now: ${postName(item.p)}${item.p.carTitle ? `, ${item.p.carTitle}` : ""}`} className={rowButton}>Post now</ActButton>
                               <ActButton act={deletePostAction.bind(null, item.p.id)} confirm={{ title: "Delete this post?", text: "This cannot be undone.", yes: "Delete" }} label={`Delete the ${postName(item.p)}`} className={`${rowButton} w-11 px-0 text-bad`}><TrashIcon className="size-4" /></ActButton>
                             </>
                           }
@@ -159,7 +159,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                           detail={`${item.a.carTitle}, budget ${fmtEur(item.a.budgetEur)}`}
                           action={
                             <>
-                              <ActButton act={startAdAction.bind(null, item.a.id)} confirm={{ title: "Start this ad?", text: `It runs on ${AD_PLATFORM_LABELS[item.a.platform]} with a budget of ${fmtEur(item.a.budgetEur)}.`, yes: "Start ad" }} className={rowButton}>Start ad</ActButton>
+                              <ActButton act={startAdAction.bind(null, item.a.id)} confirm={{ title: "Start this ad?", text: `It runs on ${AD_PLATFORM_LABELS[item.a.platform]} with a budget of ${fmtEur(item.a.budgetEur)}.`, yes: "Start ad" }} label={`Start ad: ${AD_PLATFORM_LABELS[item.a.platform]} ad, ${item.a.carTitle}`} className={rowButton}>Start ad</ActButton>
                               <ActButton act={deleteAdAction.bind(null, item.a.id)} confirm={{ title: "Delete this ad?", text: "This cannot be undone.", yes: "Delete" }} label="Delete this ad" className={`${rowButton} w-11 px-0 text-bad`}><TrashIcon className="size-4" /></ActButton>
                             </>
                           }
@@ -232,7 +232,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                       {item.p.status === "posted" ? (
                         <Results items={[[item.p.reach ?? 0, "saw it"], [item.p.clicks ?? 0, "clicks"]]} />
                       ) : (
-                        <ActButton act={publishPostAction.bind(null, item.p.id)} confirm={{ title: "Post this now?", text: `It goes out on ${item.p.network} at once.`, yes: "Post now" }} className={rowButton}>Post now</ActButton>
+                        <ActButton act={publishPostAction.bind(null, item.p.id)} confirm={{ title: "Post this now?", text: `It goes out on ${item.p.network} at once.`, yes: "Post now" }} label={`Post now: ${postName(item.p)}${item.p.carTitle ? `, ${item.p.carTitle}` : ""}`} className={rowButton}>Post now</ActButton>
                       )}
                     </li>
                   ) : (
@@ -246,7 +246,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                         <span className="truncate text-meta text-text-2">{item.a.carTitle}, {fmtEur(item.a.budgetEur)}</span>
                       </div>
                       {item.a.status === "draft" ? (
-                        <ActButton act={startAdAction.bind(null, item.a.id)} confirm={{ title: "Start this ad?", text: `It runs on ${AD_PLATFORM_LABELS[item.a.platform]} with a budget of ${fmtEur(item.a.budgetEur)}.`, yes: "Start ad" }} className={rowButton}>Start ad</ActButton>
+                        <ActButton act={startAdAction.bind(null, item.a.id)} confirm={{ title: "Start this ad?", text: `It runs on ${AD_PLATFORM_LABELS[item.a.platform]} with a budget of ${fmtEur(item.a.budgetEur)}.`, yes: "Start ad" }} label={`Start ad: ${AD_PLATFORM_LABELS[item.a.platform]} ad, ${item.a.carTitle}`} className={rowButton}>Start ad</ActButton>
                       ) : (
                         <Results items={[[item.a.impressions, "saw it"], [item.a.clicks, "clicks"], [item.a.leads, "leads"]]} />
                       )}

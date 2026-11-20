@@ -27,3 +27,17 @@ test("a bad range falls back to 30 days", async ({ page }) => {
   await page.goto("/dashboard/analytics?range=12345");
   await expect(page.getByRole("navigation", { name: "Period" }).getByRole("link", { name: "30 days" })).toHaveAttribute("aria-current", "page");
 });
+
+test("a salesperson sees their own sales, never the dealership's, and the funnel stops before sales", async ({ page, context, baseURL }) => {
+  const funnel = page.getByRole("region", { name: "From visit to sale" }).getByRole("listitem");
+  await page.goto("/dashboard/analytics");
+  const steps = await funnel.count();
+  await expect(page.getByText("Sales you recorded")).toBeVisible();
+  await context.addCookies([{ name: "checkwork-demo-role", value: "Sales", url: baseURL! }]);
+  await page.reload();
+  await expect(page.getByText("Your own sales")).toBeVisible();
+  await expect(page.getByText(/, and you sold \d+\./)).toBeVisible();
+  await expect(funnel).toHaveCount(steps - 1);
+  await expect(page.getByText("Bought a car")).toHaveCount(0);
+  await context.clearCookies({ name: "checkwork-demo-role" });
+});

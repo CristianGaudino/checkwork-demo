@@ -47,6 +47,7 @@ function NextStep({ o }: { o: Order }) {
         confirm={next.to === "arrived" ? { title: "Mark it arrived?", text: "The car goes into stock, held for the buyer. This cannot be stepped back.", yes: "It has arrived" } : undefined}
         active={false}
         done={`${o.make} ${o.model}: ${ORDER_STATUS_LABELS[next.to]}`}
+        label={`${next.label}: ${o.make} ${o.model}`}
         className={rowButton}
       >
         {next.label}

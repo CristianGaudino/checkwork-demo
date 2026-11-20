@@ -92,7 +92,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ m
         {a && <StatCard label="Visitors" value={fmtNum(a.totals.visitors)} hint={compare(a.totals.visitors, a.previous.visitors)} href="/dashboard/analytics" />}
         {real && <StatCard label="Visits" value={fmtNum(real.now.totals.visits)} hint={compare(real.now.totals.visits, real.before.totals.visits)} href="/dashboard/analytics" />}
         {hasSales ? (
-          <StatCard label="Cars sold" value={fmtNum(s.sales.count)} hint={compare(s.sales.count, p.sales.count)} href="/dashboard/reports" />
+          <StatCard label="Cars sold" value={fmtNum(s.sales.count)} hint={compare(s.sales.count, p.sales.count)} href={hasMargins ? "/dashboard/reports" : undefined} />
         ) : (
           whole && <StatCard label="Cars sold" value={fmtNum(s.stock.sold)} hint={compare(s.stock.sold, p.stock.sold)} />
         )}

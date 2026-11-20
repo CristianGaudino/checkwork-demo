@@ -18,7 +18,7 @@ function NextStep({ c }: { c: Claim }) {
   if (!next) return null;
   return (
     <span className="relative z-10">
-      <ChoiceAct action={setClaimStatusAction.bind(null, c.id)} set={{ status: next[0], from: c.status }} back={{ status: c.status, from: next[0] }} active={false} done={`${c.carTitle}: ${CLAIM_STATUS_LABELS[next[0]]}`} className={rowButton}>
+      <ChoiceAct action={setClaimStatusAction.bind(null, c.id)} set={{ status: next[0], from: c.status }} back={{ status: c.status, from: next[0] }} active={false} done={`${c.carTitle}: ${CLAIM_STATUS_LABELS[next[0]]}`} label={`${next[1]}: ${c.carTitle}`} className={rowButton}>
         {next[1]}
       </ChoiceAct>
     </span>

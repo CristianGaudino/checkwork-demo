@@ -61,9 +61,10 @@ const formOf = (fields: Record<string, string>) => {
   for (const [k, v] of Object.entries(fields)) f.set(k, v);
   return f;
 };
-export function ChoiceAct({ action, set, back, active, done, confirm, className, children }: { action: (data: FormData) => Promise<unknown>; set: Record<string, string>; back?: Record<string, string>; active: boolean; done: string; confirm?: Confirm; className?: string; children: React.ReactNode }) {
+// `label`: the button's name for a screen reader when it repeats down a list ("Mark contacted: Mary Byrne"); it starts with the words shown.
+export function ChoiceAct({ action, set, back, active, done, confirm, label, className, children }: { action: (data: FormData) => Promise<unknown>; set: Record<string, string>; back?: Record<string, string>; active: boolean; done: string; confirm?: Confirm; label?: string; className?: string; children: React.ReactNode }) {
   return (
-    <ActButton act={() => action(formOf(set))} undo={back && (() => action(formOf(back)))} done={done} confirm={confirm} pressed={className ? undefined : active} className={className ?? choicePill(active)}>
+    <ActButton act={() => action(formOf(set))} undo={back && (() => action(formOf(back)))} done={done} confirm={confirm} label={label} pressed={className ? undefined : active} className={className ?? choicePill(active)}>
       {children}
     </ActButton>
   );

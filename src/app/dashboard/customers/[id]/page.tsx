@@ -7,7 +7,7 @@ import { LEAD_TYPE_LABELS, claimOpen, claimsStore, coverEnds, customersStore, dr
 import { monthLabel } from "@/lib/admin/reports";
 import { dublinDay, fmtDate, fmtEur, fmtTime } from "@/lib/admin/format";
 import { isOpenDrive } from "@/lib/admin/drives";
-import { isOpenLead } from "@/lib/admin/leads";
+import { isOpenLead, openWarrantyRequests } from "@/lib/admin/leads";
 import { matchesAny, parsePersonQuery, type PersonQuery } from "@/lib/admin/person-match";
 import { hasModule } from "@/lib/modules";
 import { NotInPlan } from "@/components/admin/NotInPlan";
@@ -29,7 +29,9 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   if (!c) notFound();
   // Claims, orders and test drives are modules of their own: with one off, its records stay but its links go (#173).
   const [service, newCars, drivesOn] = await Promise.all([hasModule("service"), hasModule("newCars"), hasModule("testDrives")]);
-  const ordersOn = newCars && (await stockSource()) !== "donedeal";
+  // Orders and deposits are our version only: with DoneDeal stock their pages are not there.
+  const synced = (await stockSource()) === "donedeal";
+  const ordersOn = newCars && !synced;
   const [sales, reservations, claims, leads, drives, orders] = await Promise.all([salesStore.list(), reservationsStore.list(), claimsStore.list(), leadsStore.list(), drivesStore.list(), ordersStore.list()]);
   const today = dublinDay();
   const day = (d: string) => fmtDate(`${d}T12:00:00Z`);
@@ -45,10 +47,12 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 
   // What is still open for them, as tasks to open. Soonest needs first: a drive coming up, a lead to answer, then the longer-running ones.
   const openDrives = drivesOn ? theirDrives.filter((d) => isOpenDrive(d) && dublinDay(d.startsAt) >= today).reverse() : [];
-  const openLeads = theirLeads.filter(isOpenLead);
+  // A warranty request that became a claim is done, as on Aftersales: the claim is what is open.
+  const openRequests = new Set(openWarrantyRequests(theirLeads, claims).map((l) => l.id));
+  const openLeads = theirLeads.filter((l) => (l.type === "warranty" ? openRequests.has(l.id) : isOpenLead(l)));
   const openClaims = service ? theirClaims.filter((k) => claimOpen(k.status)) : [];
   const openOrders = ordersOn ? theirOrders.filter((o) => orderOpen(o.status)) : [];
-  const held = deposits.filter((r) => r.status === "held");
+  const held = synced ? [] : deposits.filter((r) => r.status === "held");
   const openCount = openDrives.length + openLeads.length + openClaims.length + openOrders.length + held.length;
 
   return (
