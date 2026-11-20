@@ -1,0 +1,2007 @@
+[
+  {
+    "name": "Lyons of Limerick",
+    "county": "Limerick",
+    "town": "Limerick city (Ballysimon Road)",
+    "website": "https://www.lyonsoflimerick.com/",
+    "businessPhone": "061 413344",
+    "type": "franchise",
+    "brands": [
+      "Ford",
+      "Volvo",
+      "Jaguar",
+      "Land Rover",
+      "BYD"
+    ],
+    "branches": 2,
+    "stock": {
+      "count": 160,
+      "source": "https://www.donedeal.ie/dealer/lyons-of-limerick-ltd",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 24000,
+    "reviews": {
+      "count": 475,
+      "rating": 4.2,
+      "source": "https://www.donedeal.ie/dealer/lyons-of-limerick-ltd/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise dealer account, 160 ads"
+    ],
+    "platform": "NetDirector (Keyloop)",
+    "activity": "DoneDeal ads posted within hours on check date; Facebook, X, Instagram, YouTube, LinkedIn linked",
+    "glanceNotes": "Stock on own site (/used-cars/, no count shown), no finance calculator seen (finance page only), no trade-in form ('Valuations' goes to contact page), enquiry form yes, no test drive request seen, no reviews shown, no chat. Rough edges: placeholder 'Heading', duplicated breadcrumb, broken LinkedIn URL. Second branch in Briar Hill, Galway (091 399210). Typical price = median of first 10 DoneDeal ads (range EUR 12,500 to 42,236).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/lyons-of-limerick-ltd",
+      "https://www.donedeal.ie/dealer/lyons-of-limerick-ltd/reviews",
+      "https://www.lyonsoflimerick.com/"
+    ],
+    "validated": "2026-11-20",
+    "seeAlso": "galway.json: Lyons of Galway (Galway branch, Briarhill)"
+  },
+  {
+    "name": "Brian Geary Toyota",
+    "county": "Limerick",
+    "town": "Raheen, Limerick (also Rathkeale)",
+    "website": "https://www.briangeary.ie/",
+    "businessPhone": "061 225225",
+    "type": "franchise",
+    "brands": [
+      "Toyota"
+    ],
+    "branches": 2,
+    "stock": {
+      "count": 127,
+      "source": "https://www.donedeal.ie/dealer/brian-geary-car-sales",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 32200,
+    "reviews": {
+      "count": 332,
+      "rating": 4.5,
+      "source": "https://www.donedeal.ie/dealer/brian-geary-car-sales/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise dealer account, 127 ads"
+    ],
+    "platform": "Toyota Ireland template (footer: Copyright Toyota Ireland)",
+    "activity": "All 10 sampled DoneDeal ads posted 5 to 8 hours before check; X, TikTok, YouTube, Facebook linked",
+    "glanceNotes": "Manufacturer template site: finance calculator, trade-in valuation request and test drive booking present; used car search showed 'View 0 Used Cars' when checked (stock not visible on own site); no reviews shown; no chat; no team page. Homepage lists only Raheen; second dealership in Rathkeale per briangeary.ie/about-us (search snippet, page not opened). Established 1977. Pitch is the used side and dashboard; new cars are Toyota's.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/brian-geary-car-sales",
+      "https://www.donedeal.ie/dealer/brian-geary-car-sales/reviews",
+      "https://www.briangeary.ie/",
+      "https://www.briangeary.ie/about-us"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "James Barry Motors",
+    "county": "Limerick",
+    "town": "Limerick city (Dock Road)",
+    "website": "https://www.jamesbarrymotors.ie/",
+    "businessPhone": "061 224000",
+    "type": "franchise",
+    "brands": [
+      "CUPRA",
+      "SEAT",
+      "Maxus",
+      "Mitsubishi",
+      "Nissan (Charleville branch)"
+    ],
+    "branches": 2,
+    "stock": {
+      "count": 131,
+      "source": "https://www.donedeal.ie/dealer/james-barry-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 18850,
+    "reviews": {
+      "count": 252,
+      "rating": 4.2,
+      "source": "https://www.donedeal.ie/dealer/james-barry-motors/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise dealer account, 131 ads",
+      "CarsIreland-powered site"
+    ],
+    "platform": "CarsIreland (footer: Powered by CarsIreland)",
+    "activity": "DoneDeal ads aged 7 hours to 22 days (median about 8 days); named team page; Instagram, Facebook, X, LinkedIn",
+    "glanceNotes": "132 cars on own site, monthly-budget filter (not a full calculator), finance apply page, valuation form with lorem ipsum text, enquiry and WhatsApp, test drive booking, Google reviews shown. Polish issues: lorem ipsum, 'Accesories' typo, 'Social feed' placeholder. Second branch in Charleville, Co. Cork (Nissan).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/james-barry-motors",
+      "https://www.donedeal.ie/dealer/james-barry-motors/reviews",
+      "https://www.jamesbarrymotors.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Limerick Motor Centre",
+    "county": "Limerick",
+    "town": "Limerick city (Ballysimon Road)",
+    "website": "https://www.limerickmotorcentre.ie/",
+    "businessPhone": "061 417141",
+    "type": "franchise",
+    "brands": [
+      "Hyundai",
+      "Isuzu"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 171,
+      "source": "https://www.donedeal.ie/dealer/limerick-motor-centre",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 38600,
+    "reviews": {
+      "count": 1551,
+      "rating": 4.8,
+      "source": "https://www.donedeal.ie/dealer/limerick-motor-centre/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise dealer account, 171 ads",
+      "CarsIreland-powered site"
+    ],
+    "platform": "CarsIreland (footer: Powered by CarsIreland)",
+    "activity": "DoneDeal ads posted 4 hours to 2 days before check; Instagram and Facebook; About page names the managers",
+    "glanceNotes": "171 cars on own site, budget filter and monthly figures, finance apply page, valuation form whose intro is placeholder 'Lorem ipsum', enquiry and test drive forms, Google reviews shown, no chat. Ireland's longest-serving Hyundai dealer per its site. Typical price = median of 9 priced DoneDeal ads.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/limerick-motor-centre",
+      "https://www.donedeal.ie/dealer/limerick-motor-centre/reviews",
+      "https://www.limerickmotorcentre.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Frank Hogan Ltd",
+    "county": "Limerick",
+    "town": "Limerick city (Dublin Road)",
+    "website": "https://www.frankhogan.ie/",
+    "businessPhone": "061 416000",
+    "type": "franchise",
+    "brands": [
+      "Volkswagen",
+      "Skoda",
+      "Mercedes-Benz",
+      "smart",
+      "VW Commercial"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 303,
+      "source": "https://www.donedeal.ie/dealer/frank-hogan-ltd",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 35700,
+    "reviews": {
+      "count": 839,
+      "rating": 4.4,
+      "source": "https://www.donedeal.ie/dealer/frank-hogan-ltd/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise dealer account, 125 ads",
+      "Separate DoneDeal pages for Skoda (95 ads) and Mercedes-Benz (83 ads)"
+    ],
+    "platform": "HappyDealer (footer: Website by HappyDealer)",
+    "activity": "DoneDeal ads posted 5 hours to 3 days before check; meet-the-team page; per-brand social accounts",
+    "glanceNotes": "Stock on own site with filters (count not shown), finance search by monthly payment, stock alerts. No trade-in form, no general enquiry form (listings push to phone), no test drive request seen, one featured review, no chat. Page 1 of DoneDeal is mostly new VWs, so the typical price leans to new cars. Stock 303 = 125 on the Frank Hogan Ltd DoneDeal page + 95 on Frank Hogan Skoda (https://www.donedeal.ie/dealer/frank-hogan-skoda) + 83 on Frank Hogan Mercedes-Benz (https://www.donedeal.ie/dealer/frank-hogan-mercedes-benz), same Dublin Road site and frankhogan.ie (2026-11-20).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/frank-hogan-ltd",
+      "https://www.donedeal.ie/dealer/frank-hogan-ltd/reviews",
+      "https://www.frankhogan.ie/",
+      "https://www.donedeal.ie/dealer/frank-hogan-skoda",
+      "https://www.donedeal.ie/dealer/frank-hogan-mercedes-benz"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Dennehy Motors",
+    "county": "Limerick",
+    "town": "Limerick city (Riverside Park, Dock Road)",
+    "website": "https://www.dennehymotorsrenault.ie/",
+    "businessPhone": "061 442444",
+    "type": "franchise",
+    "brands": [
+      "Renault",
+      "Dacia"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 92,
+      "source": "https://www.donedeal.ie/dealer/dennehy-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 20495,
+    "reviews": {
+      "count": 1255,
+      "rating": 4.7,
+      "source": "https://www.donedeal.ie/dealer/dennehy-motors/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise dealer account, 92 ads",
+      "CarsIreland-powered site"
+    ],
+    "platform": "CarsIreland (footer: Powered by Carsireland)",
+    "activity": "DoneDeal ads median 3 days old; meet-the-team page; Facebook, X, LinkedIn",
+    "glanceNotes": "95 cars on own site, budget filter, finance and business finance pages, valuation form with placeholder text, enquiry, WhatsApp and appointment forms, test drive booking, Google reviews shown, no chat. Polish issues: placeholder copy, 'Show moreHide' in filter. Older press also named it a Fiat, Jeep, Opel dealer; its current site shows Renault and Dacia only.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/dennehy-motors",
+      "https://www.donedeal.ie/dealer/dennehy-motors/reviews",
+      "https://www.dennehymotorsrenault.ie/",
+      "https://completecar.ie/car-news/article/12678/Gowan-appoints-Dennehy-Motors-in-Limerick"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Pat Tiernan Motors",
+    "county": "Limerick",
+    "town": "Limerick city (Delta Retail Park, Ballysimon Road)",
+    "website": "https://www.pattiernanmotors.ie/",
+    "businessPhone": "061 402000",
+    "type": "franchise",
+    "brands": [
+      "Nissan",
+      "Citroen",
+      "Mazda"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 95,
+      "source": "https://www.donedeal.ie/dealer/pat-tiernan-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 24950,
+    "reviews": {
+      "count": 157,
+      "rating": 4.6,
+      "source": "https://www.donedeal.ie/dealer/pat-tiernan-motors/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise dealer account, 95 ads"
+    ],
+    "platform": "HappyDealer (footer: website by happydealer.ie)",
+    "activity": "DoneDeal ads posted 3 hours to 1 day before check; team page; Facebook, Instagram, TikTok",
+    "glanceNotes": "Stock on own site (count not shown), 'Set a Budget' filter and finance apply link, no trade-in form, no enquiry form on homepage (contact page only), no test drive request, reviews only a button, no chat.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/pat-tiernan-motors",
+      "https://www.donedeal.ie/dealer/pat-tiernan-motors/reviews",
+      "https://www.pattiernanmotors.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Leonards Motors",
+    "county": "Limerick",
+    "town": "Limerick city (2 Mulgrave Street)",
+    "website": "https://www.leonardsmotors.ie/",
+    "businessPhone": "061 414249",
+    "type": "franchise",
+    "brands": [
+      "Peugeot"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 112,
+      "source": "https://www.donedeal.ie/dealer/leonards-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 45995,
+    "reviews": {
+      "count": 210,
+      "rating": 4.3,
+      "source": "https://www.donedeal.ie/dealer/leonards-motors/reviews"
+    },
+    "adSignals": [
+      "DoneDeal franchise dealer account, 112 ads"
+    ],
+    "platform": "Not shown",
+    "activity": "All 10 sampled DoneDeal ads 2 days old; Facebook, Instagram, TikTok, X, YouTube",
+    "glanceNotes": "Stock on own site (count not shown), finance calculator with part-exchange, 'Get My Car Valued' and part-exchange page, no enquiry form (phone, email, WhatsApp), no test drive request, Google review carousel, no team page. Typical price is the page-1 DoneDeal median, mostly new Peugeots (range EUR 30,445 to 57,995); used stock is likely cheaper. A search snippet also called it a Mazda dealer; its site shows Peugeot.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/leonards-motors",
+      "https://www.donedeal.ie/dealer/leonards-motors/reviews",
+      "https://www.leonardsmotors.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Hinchy's (Kia)",
+    "county": "Limerick",
+    "town": "Limerick city (Ennis Road) and Garryspillane, Knocklong",
+    "website": "https://www.hinchys.ie/",
+    "businessPhone": "061 321500",
+    "type": "franchise",
+    "brands": [
+      "Kia",
+      "Suzuki"
+    ],
+    "branches": 2,
+    "stock": {
+      "count": 274,
+      "source": "https://www.donedeal.ie/dealer/hinchys-garryspillane",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 39900,
+    "reviews": {
+      "count": 809,
+      "rating": 4.7,
+      "source": "https://www.donedeal.ie/dealer/hinchys-garryspillane"
+    },
+    "adSignals": [
+      "DoneDeal franchise dealer accounts: Ennis Road 59 ads, Garryspillane 215 ads"
+    ],
+    "platform": "HappyDealer (footer: Website by HappyDealer)",
+    "activity": "Named Kia European Dealer of the Year 2024 (Ennis Road); Facebook and Instagram",
+    "glanceNotes": "Own site plus Kia-hosted dealer pages. Stock on own site (count not shown), budget/finance tool, 'We buy cars' page but no trade-in form, no enquiry form seen, no test drive request, reviews shown, no chat. Garryspillane phone 062 58900. Stock 274 = Ennis Road 59 + Garryspillane 215 on DoneDeal; reviews 809 = 305 + 504, both 4.7 (2026-11-20).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/hinchys-ennis-road",
+      "https://www.donedeal.ie/dealer/hinchys-ennis-road/reviews",
+      "https://www.hinchys.ie/",
+      "https://www.kia.com/ie/dealer/hinchysennisroad/about-kia/our-dealership/",
+      "https://kia.com/ie/about-kia/news-and-events/hinchey-s-named-kia-european-dealer-of-the-year-2024",
+      "https://www.donedeal.ie/dealer/hinchys-garryspillane",
+      "https://www.donedeal.ie/dealer/hinchys-garryspillane/reviews"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "AutoXpress",
+    "county": "Limerick",
+    "town": "Limerick city (Castlepark, Dock Road)",
+    "website": "https://www.autoxpress.ie/",
+    "businessPhone": "061 446033",
+    "type": "independent",
+    "brands": [],
+    "branches": 2,
+    "stock": {
+      "count": 332,
+      "source": "https://www.donedeal.ie/dealer/autoxpress-limerick",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 25400,
+    "reviews": {
+      "count": 709,
+      "rating": 4.7,
+      "source": "https://www.donedeal.ie/dealer/autoxpress-limerick/reviews"
+    },
+    "adSignals": [
+      "DoneDeal dealer account, 332 ads (Limerick)"
+    ],
+    "platform": "HappyDealer (footer: Website by HappyDealer)",
+    "activity": "Site banner '500+ cars available'; team page; Facebook and Instagram; latest review shown Dec 2025",
+    "glanceNotes": "Used car importer (UK imports). Stock on own site, finance search by monthly payment, no trade-in form, no enquiry form (stock alerts and contact page), no test drive request, one review shown, no chat. Second branch in Galway (091 335696).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/autoxpress-limerick",
+      "https://www.donedeal.ie/dealer/autoxpress-limerick/reviews",
+      "https://www.autoxpress.ie/"
+    ],
+    "seeAlso": "galway.json: AutoXpress Galway (same business, Galway branch)"
+  },
+  {
+    "name": "D & L O'Connell Bros Car Sales",
+    "county": "Limerick",
+    "town": "Glenmore West, Tournafulla, Newcastle West",
+    "website": "https://www.oconnellbroscars.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 112,
+      "source": "https://www.donedeal.ie/dealer/d-l-oconnell-bros-car-sales-ltd",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 28950,
+    "reviews": {
+      "count": 78,
+      "rating": 4.9,
+      "source": "https://www.donedeal.ie/dealer/d-l-oconnell-bros-car-sales-ltd/reviews"
+    },
+    "adSignals": [
+      "DoneDeal dealer account, 112 ads",
+      "Also lists on cars.ie"
+    ],
+    "platform": "CarsIreland dealer site (footer 'Powered by CarsIreland.ie')",
+    "activity": "Unknown: DoneDeal page shows no listing dates; stock model years 2018 to 2023",
+    "glanceNotes": "Website https://www.oconnellbroscars.ie/ found in validation (2026-11-20, linked from the DoneDeal dealer page). Own CarsIreland site: stock pages on site, finance, valuation/trade-in, test drive and enquiry forms, reviews block. Phone hidden behind DoneDeal button, not recorded.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/d-l-oconnell-bros-car-sales-ltd",
+      "https://www.donedeal.ie/dealer/d-l-oconnell-bros-car-sales-ltd/reviews",
+      "https://www.goldenpages.ie/dl-o-connell-bros-car-sales-ltd-strand-V42/",
+      "https://www.oconnellbroscars.ie/"
+    ]
+  },
+  {
+    "name": "Munster Trade Sales",
+    "county": "Limerick",
+    "town": "Limerick city (Corbally Road)",
+    "website": "https://www.munstertradesales.ie/",
+    "businessPhone": "086 069 0999",
+    "type": "independent",
+    "brands": [
+      "BMW",
+      "Audi",
+      "Mercedes-Benz (used)"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 78,
+      "source": "https://www.donedeal.ie/dealer/munster-trade-sales",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 25950,
+    "reviews": {
+      "count": 224,
+      "rating": 4.7,
+      "source": "https://www.donedeal.ie/dealer/munster-trade-sales/reviews"
+    },
+    "adSignals": [
+      "DoneDeal dealer account, 78 ads"
+    ],
+    "platform": "HappyDealer (footer 'website by happydealer.ie')",
+    "activity": "Sampled DoneDeal ads posted 2 to 6 hours before check",
+    "glanceNotes": "Website https://www.munstertradesales.ie/ found in validation (2026-11-20, linked from the DoneDeal dealer page). Own HappyDealer site: stock search on site, finance pages, reviews shown; no trade-in or test drive form seen on the homepage. Premium used cars, many 'price on application'. The 2022 guide gave a Rosmadda West, Co. Clare address; DoneDeal now says Corbally Road, Limerick. Phone from the 2022 guide, may be stale.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/munster-trade-sales",
+      "https://www.donedeal.ie/dealer/munster-trade-sales/reviews",
+      "https://www.bestinireland.com/best-used-car-dealerships-limerick/",
+      "https://www.munstertradesales.ie/"
+    ]
+  },
+  {
+    "name": "Cardian",
+    "county": "Limerick",
+    "town": "Limerick city (Eastpoint Retail Park, Ballysimon Road)",
+    "website": "https://www.cardian.ie/",
+    "businessPhone": "061 574374",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 49,
+      "source": "https://www.donedeal.ie/dealer/cardian",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 72950,
+    "reviews": {
+      "count": 269,
+      "rating": 4.9,
+      "source": "https://www.donedeal.ie/dealer/cardian/reviews"
+    },
+    "adSignals": [
+      "DoneDeal dealer account, 49 ads"
+    ],
+    "platform": "HappyDealer (footer: Website by HappyDealer)",
+    "activity": "DoneDeal ads 2 hours to 2 days old; team page; no social links on site",
+    "glanceNotes": "Site says '100+ cars in stock'; finance 'What car suits me' tool, sell-your-car page, no enquiry form, no test drive request, one review shown, no chat. Footer names parent company Pierse Motor Group, so the decision may sit with the group. Typical price is page 1 of DoneDeal (EUR 49,950 to 119,950) and may overstate the average.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/cardian",
+      "https://www.donedeal.ie/dealer/cardian/reviews",
+      "https://www.cardian.ie/"
+    ]
+  },
+  {
+    "name": "CMC Car Sales",
+    "county": "Limerick",
+    "town": "Limerick city (Coonagh Cross / Clondrinagh, Ennis Road)",
+    "website": "https://www.cmcsales.ie/",
+    "businessPhone": "086 029 3967",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 41,
+      "source": "https://www.donedeal.ie/dealer/cmc-car-sales",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 28950,
+    "reviews": {
+      "count": 125,
+      "rating": 4.9,
+      "source": "https://www.donedeal.ie/dealer/cmc-car-sales/reviews"
+    },
+    "adSignals": [
+      "DoneDeal dealer account, 41 ads",
+      "CarsIreland-powered site"
+    ],
+    "platform": "CarsIreland (footer: Powered by CarsIreland)",
+    "activity": "All sampled DoneDeal ads 1 day old; Instagram and Facebook",
+    "glanceNotes": "Strong site already: 41 cars on site, budget tool and finance apply, valuation form, enquiry plus WhatsApp per car, test drive booking, Google reviews. Small opening; mainly a dashboard sale.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/cmc-car-sales",
+      "https://www.donedeal.ie/dealer/cmc-car-sales/reviews",
+      "https://www.cmcsales.ie/"
+    ]
+  },
+  {
+    "name": "Gammell Car Sales",
+    "county": "Limerick",
+    "town": "Kilmallock (Gortboy)",
+    "website": "https://www.gammellcarsales.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 45,
+      "source": "https://www.donedeal.ie/dealer/gammell-car-sales",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 10800,
+    "reviews": {
+      "count": 77,
+      "rating": 4.8,
+      "source": "https://www.donedeal.ie/dealer/gammell-car-sales/reviews"
+    },
+    "adSignals": [
+      "DoneDeal dealer account, 45 ads",
+      "cars.ie dealer page"
+    ],
+    "platform": "CarsIreland dealer site (footer 'Powered by CarsIreland.ie')",
+    "activity": "Sampled DoneDeal ads 3 to 6 days old",
+    "glanceNotes": "Website https://www.gammellcarsales.ie/ found in validation (2026-11-20, linked from the DoneDeal dealer page). Own CarsIreland site: stock pages on site, finance, valuation/trade-in, test drive and enquiry forms, reviews block. Low-priced stock (median EUR 10,800 of 8 priced ads).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/gammell-car-sales",
+      "https://www.donedeal.ie/dealer/gammell-car-sales/reviews",
+      "https://www.cars.ie/dealer-gammell-car-sales-924",
+      "https://www.gammellcarsales.ie/"
+    ]
+  },
+  {
+    "name": "Rhino Auto Sales",
+    "county": "Limerick",
+    "town": "Limerick city (Dock Road)",
+    "website": "https://www.rhinoautosales.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 68,
+      "source": "https://www.donedeal.ie/dealer/rhino-auto-sales",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 5748,
+    "reviews": {
+      "count": 90,
+      "rating": 3.9,
+      "source": "https://www.donedeal.ie/dealer/rhino-auto-sales/reviews"
+    },
+    "adSignals": [
+      "DoneDeal dealer account, 68 ads"
+    ],
+    "platform": "WordPress (footer 'Powered by WordPress')",
+    "activity": "Unknown: no listing dates shown",
+    "glanceNotes": "Website https://www.rhinoautosales.ie/ found in validation (2026-11-20, linked from the DoneDeal dealer page). Own WordPress brochure site: no stock on site (links out to the DoneDeal dealer page), finance page, contact form; no trade-in, test drive or reviews seen. Also has a KartCross page. Budget stock (median about EUR 5,700, cars-only EUR 4,750), so stock value is low.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/rhino-auto-sales",
+      "https://www.donedeal.ie/dealer/rhino-auto-sales/reviews",
+      "https://www.rhinoautosales.ie/"
+    ]
+  },
+  {
+    "name": "547 Motors",
+    "county": "Limerick",
+    "town": "Newcastle West",
+    "website": "https://www.547motors.ie/",
+    "businessPhone": "087 134 9446",
+    "type": "independent",
+    "brands": [
+      "Audi",
+      "Volkswagen",
+      "Mercedes-Benz",
+      "BMW (used)"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 32,
+      "source": "https://www.donedeal.ie/dealer/547-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 18950,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "DoneDeal dealer account, 32 ads"
+    ],
+    "platform": "HappyDealer (footer: Website by HappyDealer)",
+    "activity": "DoneDeal ads 7 to 11 days old; Instagram and TikTok",
+    "glanceNotes": "Stock on own site, budget/finance tool, 'We buy cars' page but no trade-in form, no enquiry form, no test drive request, one review shown. Sales by appointment only. Google review count not shown on DoneDeal; unknown.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/547-motors",
+      "https://www.547motors.ie/"
+    ]
+  },
+  {
+    "name": "PJ's Garage & Car Sales",
+    "county": "Limerick",
+    "town": "Limerick city (Ennis Road)",
+    "website": "https://www.pjsgarage.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 27,
+      "source": "https://www.donedeal.ie/dealer/pjs-garage-car-sales",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 8990,
+    "reviews": {
+      "count": 509,
+      "rating": 4.5,
+      "source": "https://www.donedeal.ie/dealer/pjs-garage-car-sales/reviews"
+    },
+    "adSignals": [
+      "DoneDeal dealer account, 27 ads"
+    ],
+    "platform": "CarsIreland dealer site (footer 'Powered by CarsIreland.ie')",
+    "activity": "Sampled DoneDeal ads 9 hours to 1 day old; established 2009 per DoneDeal",
+    "glanceNotes": "Website https://www.pjsgarage.ie/ found in validation (2026-11-20, linked from the DoneDeal dealer page). Own CarsIreland site: stock pages on site, finance, valuation/trade-in, test drive and enquiry forms, reviews block. Cheap stock (median EUR 8,990) but 509 Google reviews show steady trade.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/pjs-garage-car-sales",
+      "https://www.donedeal.ie/dealer/pjs-garage-car-sales/reviews",
+      "https://www.pjsgarage.ie/"
+    ]
+  },
+  {
+    "name": "Lowes Car Sales",
+    "county": "Limerick",
+    "town": "Askeaton (Ballingarrane)",
+    "website": "https://www.lowescarsales.com/",
+    "businessPhone": "087 449 1387",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 21,
+      "source": "https://www.lowescarsales.com/",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "cars.ie dealer page",
+      "CarsIreland-powered site"
+    ],
+    "platform": "CarsIreland (footer: Powered by CarsIreland.ie)",
+    "activity": "Image uploads dated Oct 2025",
+    "glanceNotes": "21 cars on own site, budget filter, finance apply, valuation form, enquiry and test drive forms, no reviews shown. Only one featured price seen (EUR 29,950), so typical price unknown. Google review count unknown (a directory shows 16 old reviews, not Google-verified).",
+    "skip": null,
+    "sources": [
+      "https://www.lowescarsales.com/",
+      "https://www.cars.ie/dealer-lowes-car-sales-760",
+      "https://vymaps.com/IE/Lowes-Car-Sales-257268/"
+    ]
+  },
+  {
+    "name": "Auto Trade Depot",
+    "county": "Limerick",
+    "town": "Rathina, Newcastle West",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 16,
+      "source": "https://www.donedeal.ie/dealer/auto-trade-depot",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 8125,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "DoneDeal dealer account, 16 ads"
+    ],
+    "platform": null,
+    "activity": "DoneDeal ads 2 to 7 days old",
+    "glanceNotes": "No website listed. Borderline on stock (16) and low value. Review count not shown. No website confirmed (2026-11-20): DoneDeal page lists none, autotradedepot.ie/.com do not resolve, and a search found nothing.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/auto-trade-depot"
+    ],
+    "noWebsiteVerified": true
+  },
+  {
+    "name": "Donie Daffy Car Sales",
+    "county": "Limerick",
+    "town": "Croom (Main Street)",
+    "website": "https://www.doniedaffycars.com/",
+    "businessPhone": "061 397237",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 15,
+      "source": "https://www.doniedaffycars.com/",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "CarsIreland-powered site"
+    ],
+    "platform": "CarsIreland (footer: Powered by CarsIreland.ie)",
+    "activity": "Image uploads dated Mar 2026",
+    "glanceNotes": "15 cars on own site (borderline for the skip rule), budget filter and finance apply, enquiry and test drive forms, trade-in link, online reserve/payment, no reviews shown. Typical price and reviews not found; no DoneDeal dealer page found.",
+    "skip": null,
+    "sources": [
+      "https://www.doniedaffycars.com/"
+    ]
+  },
+  {
+    "name": "Kearys CarStore Limerick",
+    "county": "Limerick",
+    "town": "Limerick city (Eastpoint Retail Park)",
+    "website": "https://www.carstore.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": null,
+    "stock": {
+      "count": null,
+      "source": null,
+      "checkedAt": null
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "",
+    "skip": "National group (Kearys Motor Group): one carstore.ie site for Dublin, Cork, Limerick, Galway.",
+    "sources": [
+      "https://www.carstore.ie/"
+    ],
+    "seeAlso": "galway.json: Kearys Carstore Galway"
+  },
+  {
+    "name": "Sheils Motor Group Limerick",
+    "county": "Limerick",
+    "town": "Limerick city (Ennis Road)",
+    "website": "https://www.sheils.ie/",
+    "businessPhone": null,
+    "type": "franchise",
+    "brands": [
+      "Ford",
+      "Honda",
+      "MG",
+      "BYD",
+      "Hyundai"
+    ],
+    "branches": null,
+    "stock": {
+      "count": null,
+      "source": null,
+      "checkedAt": null
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "",
+    "skip": "Group run from Ennis, Co. Clare: one sheils.ie site for Galway, Ennis, Limerick (site by CRD Media). Limerick branch had 43 DoneDeal ads, 147 Google reviews 4.5.",
+    "sources": [
+      "https://www.sheils.ie/",
+      "https://www.donedeal.ie/dealer/sheils-motor-group-limerick",
+      "https://www.donedeal.ie/dealer/sheils-motor-group-limerick/reviews"
+    ],
+    "seeAlso": "galway.json: Sheils Galway"
+  },
+  {
+    "name": "Conlans BMW Limerick",
+    "county": "Limerick",
+    "town": "Limerick city (Tipperary Road)",
+    "website": "https://www.conlans.ie/",
+    "businessPhone": null,
+    "type": "franchise",
+    "brands": [
+      "BMW",
+      "MINI"
+    ],
+    "branches": null,
+    "stock": {
+      "count": null,
+      "source": null,
+      "checkedAt": null
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "",
+    "skip": "Branch of a Kildare-based BMW/MINI group on one conlans.ie site (site blocked us, 403). Limerick DoneDeal pages now show 66 cars (conlans-limerick-bmw) plus 16 (conlans-collection-limerick), 846 Google reviews 4.7.",
+    "sources": [
+      "https://www.donedeal.ie/dealer/conlans-collection-limerick",
+      "https://www.donedeal.ie/dealer/conlans-collection-limerick/reviews",
+      "https://irishtimes-irishtimes-prod.cdn.arcpublishing.com/life-and-style/motors/kildare-bmw-dealer-to-take-over-the-brand-s-limerick-retail-franchise-1.743755",
+      "https://www.donedeal.ie/dealer/conlans-limerick-bmw"
+    ]
+  },
+  {
+    "name": "Audi Limerick",
+    "county": "Limerick",
+    "town": "Limerick city (Ballysimon Road)",
+    "website": "https://www.audilimerick.ie/",
+    "businessPhone": null,
+    "type": "franchise",
+    "brands": [
+      "Audi"
+    ],
+    "branches": null,
+    "stock": {
+      "count": null,
+      "source": null,
+      "checkedAt": null
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "",
+    "skip": "Reported part of Joe Duffy Motor Group (national group; older article, not re-verified); site returned 503. Confirmed 2026-11-20: its DoneDeal page (91 ads) links to joeduffy.ie/audi.",
+    "sources": [
+      "https://www.breakingnews.ie/ireland/audi-pledges-to-create-30-jobs-in-limerick-644748.html",
+      "https://www.audilimerick.ie/en/",
+      "https://www.donedeal.ie/dealer/audi-limerick"
+    ]
+  },
+  {
+    "name": "Europcar Car Sales Limerick",
+    "county": "Limerick",
+    "town": "Limerick city",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": null,
+    "stock": {
+      "count": null,
+      "source": null,
+      "checkedAt": null
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "",
+    "skip": "Rental company's ex-fleet sales outlet.",
+    "sources": []
+  },
+  {
+    "name": "Hertz Car Sales Limerick",
+    "county": "Limerick",
+    "town": "Limerick city (Clondrinagh, Ennis Road)",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": null,
+    "stock": {
+      "count": null,
+      "source": null,
+      "checkedAt": null
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "",
+    "skip": "Rental brand outlet with 0 ads on DoneDeal.",
+    "sources": [
+      "https://www.donedeal.ie/dealer/hertz-car-sales-limerick"
+    ]
+  },
+  {
+    "name": "Moloneys of Abbeyfeale",
+    "county": "Limerick",
+    "town": "Abbeyfeale",
+    "website": "https://www.moloneysgarage.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": null,
+    "stock": {
+      "count": null,
+      "source": null,
+      "checkedAt": null
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "",
+    "skip": "13 ads, mostly vans (406 Google reviews 4.4). Confirmed 2026-11-20: 13 on DoneDeal; site moloneysgarage.ie listed there.",
+    "sources": [
+      "https://www.donedeal.ie/dealer/moloneys-of-abbeyfeale",
+      "https://www.donedeal.ie/dealer/moloneys-of-abbeyfeale/reviews"
+    ]
+  },
+  {
+    "name": "Davin Car Sales",
+    "county": "Limerick",
+    "town": "Limerick city (Ennis Road)",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": null,
+    "stock": {
+      "count": null,
+      "source": null,
+      "checkedAt": null
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "",
+    "skip": "12 ads.",
+    "sources": [
+      "https://www.donedeal.ie/dealer/davin-car-sales"
+    ]
+  },
+  {
+    "name": "Mike Cosgrave Car Sales",
+    "county": "Limerick",
+    "town": "Limerick city (Delta Retail Park)",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": null,
+    "stock": {
+      "count": null,
+      "source": null,
+      "checkedAt": null
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "",
+    "skip": "11 ads, low-priced, includes a digger and a transport service. Now 11 results on DoneDeal (2026-11-20).",
+    "sources": [
+      "https://www.donedeal.ie/dealer/mike-cosgrave-car-sales"
+    ]
+  },
+  {
+    "name": "MK Auto Sales",
+    "county": "Limerick",
+    "town": "Askeaton",
+    "website": "https://www.mkautosales.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": null,
+    "stock": {
+      "count": null,
+      "source": null,
+      "checkedAt": null
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "",
+    "skip": "9 ads, 7 of them campers.",
+    "sources": [
+      "https://www.donedeal.ie/dealer/mk-auto-sales",
+      "https://www.mkautosales.ie/"
+    ]
+  },
+  {
+    "name": "Castle Motors NCW",
+    "county": "Limerick",
+    "town": "Newcastle West (Killarney Road)",
+    "website": "https://www.castlemotorsncw.com/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": null,
+    "stock": {
+      "count": null,
+      "source": null,
+      "checkedAt": null
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "",
+    "skip": "About 9 cars in stock.",
+    "sources": [
+      "https://www.carbuyersguide.net/dealer/castle-motors-ncw",
+      "https://www.castlemotorsncw.com/used-cars.php"
+    ]
+  },
+  {
+    "name": "TMG Car Sales Limerick",
+    "county": "Limerick",
+    "town": "Limerick city",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": null,
+    "stock": {
+      "count": null,
+      "source": null,
+      "checkedAt": null
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "",
+    "skip": "3 ads on its DoneDeal dealer page (2026-11-20).",
+    "sources": [
+      "https://www.donedeal.ie/dealer/tmg-car-sales-limerick"
+    ]
+  },
+  {
+    "name": "Newcastle West Autos",
+    "county": "Limerick",
+    "town": "Newcastle West (Limerick Road, Gortboy)",
+    "website": "https://www.newcastlewestautos.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": null,
+    "stock": {
+      "count": null,
+      "source": null,
+      "checkedAt": null
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "",
+    "skip": "No sign of current trading: website domain no longer resolves, no DoneDeal page found. Rechecked 2026-11-20: domain still does not resolve and not in DoneDeal's Limerick dealer directory (105 dealers).",
+    "sources": [
+      "https://www.solocheck.ie/Irish-Company/Newcastlewest-Autos-Limited-254162"
+    ]
+  },
+  {
+    "name": "Michael Flynn Cars (Newcastle West)",
+    "county": "Limerick",
+    "town": "Newcastle West (South Quay)",
+    "website": "http://www.limerick.michaelflynncars.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": null,
+    "stock": {
+      "count": null,
+      "source": null,
+      "checkedAt": null
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "",
+    "skip": "No sign of current trading: Limerick website no longer resolves, nothing else found. Branch of a Longford dealer. Rechecked 2026-11-20: domain still does not resolve and not in DoneDeal's Limerick dealer directory (105 dealers).",
+    "sources": []
+  },
+  {
+    "name": "Arthur Auto Sales",
+    "county": "Limerick",
+    "town": "Limerick city (Ballysimon Road)",
+    "website": "https://www.arthurautosales.ie/",
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": null,
+    "stock": {
+      "count": null,
+      "source": null,
+      "checkedAt": null
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "",
+    "skip": "No sign of current trading: website domain no longer resolves, no DoneDeal page found; only a 2022 guide and an old sponsored article. Rechecked 2026-11-20: domain still does not resolve and not in DoneDeal's Limerick dealer directory (105 dealers).",
+    "sources": [
+      "https://www.limerickleader.ie/news/sponsored-content/731124/arthur-s-auto-sales-ltd.html",
+      "https://www.bestinireland.com/best-used-car-dealerships-limerick/"
+    ]
+  },
+  {
+    "name": "Singland Motors",
+    "county": "Limerick",
+    "town": "Castletroy (Dublin Road)",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": null,
+    "stock": {
+      "count": null,
+      "source": null,
+      "checkedAt": null
+    },
+    "typicalPriceEur": null,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [],
+    "platform": null,
+    "activity": "",
+    "glanceNotes": "",
+    "skip": "Mainly a Land Rover service centre; no stock found online. DoneDeal page exists with 0 ads (2026-11-20).",
+    "sources": [
+      "https://www.goldenpages.ie/q/business/advanced/where/ireland/what/car-dealers-new-used/48"
+    ]
+  },
+  {
+    "name": "John Culhane Car Sales",
+    "county": "Limerick",
+    "town": "Askeaton",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 104,
+      "source": "https://www.donedeal.ie/dealer/john-culhane-car-sales",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 28415,
+    "reviews": {
+      "count": 62,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/john-culhane-car-sales"
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, Trusted Dealer badge, TURBO package, 104 ads"
+    ],
+    "platform": "none (no own website)",
+    "activity": "Newest DoneDeal ads 11 hours old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "DoneDeal lists http://www.culhanecarsales.ie, but the domain did not resolve on 2026-11-20, so stock lives only on DoneDeal for now. Selling used cars in Limerick for twenty years (DoneDeal description). Added 2026-11-20 from the DoneDeal Limerick dealer directory (https://www.donedeal.ie/find-a-dealer/Limerick): 103 ads listed there, 104 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/john-culhane-car-sales",
+      "https://www.donedeal.ie/find-a-dealer/Limerick",
+      "http://www.culhanecarsales.ie"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Adams of Glin",
+    "county": "Limerick",
+    "town": "Glin",
+    "website": "https://www.adamsofglin.ie/",
+    "businessPhone": "068-34139",
+    "type": "franchise",
+    "brands": [
+      "Peugeot"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 73,
+      "source": "https://www.donedeal.ie/dealer/adams-of-glin",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 29450,
+    "reviews": {
+      "count": 21,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/adams-of-glin"
+    },
+    "adSignals": [
+      "DoneDeal franchise dealer account, TURBO package, 73 ads",
+      "Paid site builder (HappyDealer)"
+    ],
+    "platform": "HappyDealer (footer 'website by happydealer.ie')",
+    "activity": "Newest DoneDeal ads 2 hours old at check (2026-11-20); DoneDeal WhatsApp replies off. Socials not checked.",
+    "glanceNotes": "Own HappyDealer site: stock search on site, finance pages, reviews shown; no trade-in or test drive form seen on the homepage. Peugeot franchise: new cars may sit on the manufacturer site; the used side and dashboard are the pitch. Added 2026-11-20 from the DoneDeal Limerick dealer directory (https://www.donedeal.ie/find-a-dealer/Limerick): 75 ads listed there, 73 on the dealer page. Typical price is the median of the 8 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded. Phone from the own site (tel: link).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/adams-of-glin",
+      "https://www.donedeal.ie/find-a-dealer/Limerick",
+      "https://www.adamsofglin.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Dan Dooley Ford Centre",
+    "county": "Limerick",
+    "town": "Knocklong",
+    "website": "https://www.dandooleycarsales.ie/",
+    "businessPhone": "062 53103",
+    "type": "franchise",
+    "brands": [
+      "Ford"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 54,
+      "source": "https://www.donedeal.ie/dealer/dan-dooley-ford-centre",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 17950,
+    "reviews": {
+      "count": 107,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/dan-dooley-ford-centre"
+    },
+    "adSignals": [
+      "DoneDeal franchise dealer account, TURBO package, 54 ads",
+      "Paid site builder (HappyDealer)"
+    ],
+    "platform": "HappyDealer (footer 'Website by HappyDealer')",
+    "activity": "Newest DoneDeal ads 8 hours old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "Own HappyDealer site: stock and finance pages, reviews shown; no trade-in or test drive form seen on the homepage. In business at Knocklong since 1961 (DoneDeal description). DoneDeal links carsalesireland.ie, which redirects to dandooleycarsales.ie. Added 2026-11-20 from the DoneDeal Limerick dealer directory (https://www.donedeal.ie/find-a-dealer/Limerick): 56 ads listed there, 54 on the dealer page. Typical price is the median of the 9 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded. Phone from the own site.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/dan-dooley-ford-centre",
+      "https://www.donedeal.ie/find-a-dealer/Limerick",
+      "https://www.dandooleycarsales.ie/",
+      "http://www.carsalesireland.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Pierse Select",
+    "county": "Limerick",
+    "town": "Limerick",
+    "website": "https://www.piersemotors.ie/",
+    "businessPhone": "062-33-222",
+    "type": "independent",
+    "brands": [],
+    "branches": 3,
+    "stock": {
+      "count": 48,
+      "source": "https://www.donedeal.ie/dealer/pierse-select",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 28950,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, ACCELERATOR package, 48 ads",
+      "Paid site builder (HappyDealer)"
+    ],
+    "platform": "HappyDealer (footer 'website by happydealer.ie')",
+    "activity": "Newest DoneDeal ads 1 day old at check (2026-11-20); DoneDeal WhatsApp replies off. Socials not checked.",
+    "glanceNotes": "Own HappyDealer site: stock search on site, finance pages, reviews shown; no trade-in or test drive form seen on the homepage. Limerick used-car outlet of Pierse Motors (piersemotors.ie: Volkswagen and Seat, phones for Tipperary 062 and Clare 065), so a regional group of at least three sites on one HappyDealer site. Added 2026-11-20 from the DoneDeal Limerick dealer directory (https://www.donedeal.ie/find-a-dealer/Limerick): 46 ads listed there, 48 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page. Phone from the own site (tel: link).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/pierse-select",
+      "https://www.donedeal.ie/find-a-dealer/Limerick",
+      "https://www.piersemotors.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Thomas Motors",
+    "county": "Limerick",
+    "town": "Newcastle West",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 46,
+      "source": "https://www.donedeal.ie/dealer/thomas-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 11950,
+    "reviews": {
+      "count": 29,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/thomas-motors"
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, ACCELERATOR package, 46 ads"
+    ],
+    "platform": "none (no own website)",
+    "activity": "Newest DoneDeal ads 12 hours old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "No website listed on the DoneDeal directory or dealer page: stock lives only on DoneDeal, the clearest website pitch. Added 2026-11-20 from the DoneDeal Limerick dealer directory (https://www.donedeal.ie/find-a-dealer/Limerick): 46 ads listed there, 46 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/thomas-motors",
+      "https://www.donedeal.ie/find-a-dealer/Limerick"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "DG Autos",
+    "county": "Limerick",
+    "town": "Ballyneety",
+    "website": "https://www.dgautos.ie/",
+    "businessPhone": "087-7981098",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 43,
+      "source": "https://www.donedeal.ie/dealer/dg-autos",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 12450,
+    "reviews": {
+      "count": 77,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/dg-autos"
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, TURBO package, 43 ads",
+      "Paid site builder (CarsIreland dealer site)"
+    ],
+    "platform": "CarsIreland dealer site (footer 'Powered by CarsIreland.ie')",
+    "activity": "Newest DoneDeal ads 5 days old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "Own CarsIreland site: stock pages on site, finance, valuation/trade-in, test drive and enquiry forms, reviews block. Added 2026-11-20 from the DoneDeal Limerick dealer directory (https://www.donedeal.ie/find-a-dealer/Limerick): 43 ads listed there, 43 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded. Phone from the own site (tel: link).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/dg-autos",
+      "https://www.donedeal.ie/find-a-dealer/Limerick",
+      "https://www.dgautos.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "ZuCar Limerick",
+    "county": "Limerick",
+    "town": "Newcastle",
+    "website": "https://www.zucar.ie/",
+    "businessPhone": null,
+    "type": "franchise",
+    "brands": [
+      "Audi"
+    ],
+    "branches": 1,
+    "stock": {
+      "count": 40,
+      "source": "https://www.donedeal.ie/dealer/zucar-limerick",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 31900,
+    "reviews": {
+      "count": 47,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/zucar-limerick"
+    },
+    "adSignals": [
+      "DoneDeal franchise dealer account, Trusted Dealer badge, PRESTIGE package, 40 ads",
+      "Paid site builder (Agency build)"
+    ],
+    "platform": "Agency build (footer 'Website by mtc.')",
+    "activity": "Newest DoneDeal ads 2 days old at check (2026-11-20); DoneDeal WhatsApp replies off. Socials not checked.",
+    "glanceNotes": "Added 2026-11-20 from the DoneDeal Limerick dealer directory (https://www.donedeal.ie/find-a-dealer/Limerick): 41 ads listed there, 40 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded.",
+    "skip": "ZuCar brand site (zucar.ie, built by UK agency mtc.) already has stock search, finance, valuation and leasing, with a Locations page: a multi-site brand run centrally on a modern site.",
+    "sources": [
+      "https://www.donedeal.ie/dealer/zucar-limerick",
+      "https://www.donedeal.ie/find-a-dealer/Limerick",
+      "https://www.zucar.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Damian McElligott Motors",
+    "county": "Limerick",
+    "town": "Castletown Conyers",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 29,
+      "source": "https://www.donedeal.ie/dealer/damian-mcelligott-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 14000,
+    "reviews": {
+      "count": 12,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/damian-mcelligott-motors"
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, Trusted Dealer badge, ACCELERATOR package, 29 ads"
+    ],
+    "platform": "none (no own website)",
+    "activity": "Newest DoneDeal ads 3 days old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "No website listed on the DoneDeal directory or dealer page: stock lives only on DoneDeal, the clearest website pitch. Says it has 50 years in business (DoneDeal description). Added 2026-11-20 from the DoneDeal Limerick dealer directory (https://www.donedeal.ie/find-a-dealer/Limerick): 29 ads listed there, 29 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/damian-mcelligott-motors",
+      "https://www.donedeal.ie/find-a-dealer/Limerick"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "DK Autosales",
+    "county": "Limerick",
+    "town": "Abbeyfeale",
+    "website": "https://www.dkautosales.ie/",
+    "businessPhone": "087-7731442",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 27,
+      "source": "https://www.donedeal.ie/dealer/dk-autosales",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 18700,
+    "reviews": {
+      "count": 22,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/dk-autosales"
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, ACCELERATOR package, 27 ads",
+      "Paid site builder (CarsIreland dealer site)"
+    ],
+    "platform": "CarsIreland dealer site (footer 'Powered by CarsIreland.ie')",
+    "activity": "Newest DoneDeal ads 1 day old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "Own CarsIreland site: stock pages on site, finance, valuation/trade-in, test drive and enquiry forms, reviews block. Added 2026-11-20 from the DoneDeal Limerick dealer directory (https://www.donedeal.ie/find-a-dealer/Limerick): 27 ads listed there, 27 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded. Phone from the own site (tel: link).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/dk-autosales",
+      "https://www.donedeal.ie/find-a-dealer/Limerick",
+      "https://www.dkautosales.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Jeff Deegan Motors",
+    "county": "Limerick",
+    "town": "Lisnagry",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 25,
+      "source": "https://www.donedeal.ie/dealer/jeff-deegan-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 10950,
+    "reviews": {
+      "count": 41,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/jeff-deegan-motors"
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, TURBO package, 25 ads"
+    ],
+    "platform": "none (no own website)",
+    "activity": "Newest DoneDeal ads 6 hours old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "No website listed on the DoneDeal directory or dealer page: stock lives only on DoneDeal, the clearest website pitch. Added 2026-11-20 from the DoneDeal Limerick dealer directory (https://www.donedeal.ie/find-a-dealer/Limerick): 27 ads listed there, 25 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/jeff-deegan-motors",
+      "https://www.donedeal.ie/find-a-dealer/Limerick"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Autocamp LTD",
+    "county": "Limerick",
+    "town": "Pallasgreen",
+    "website": "https://www.autocampgroup.com/",
+    "businessPhone": "085-1800170",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 25,
+      "source": "https://www.donedeal.ie/dealer/autocamp-ltd",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 9450,
+    "reviews": {
+      "count": 25,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/autocamp-ltd"
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, Trusted Dealer badge, PRESTIGE package, 25 ads",
+      "Paid site builder (CarsIreland dealer site)"
+    ],
+    "platform": "CarsIreland dealer site (footer 'Powered by CarsIreland.ie')",
+    "activity": "Newest DoneDeal ads 5 hours old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "Own CarsIreland site: stock pages on site, finance, valuation/trade-in, test drive and enquiry forms, reviews block. Added 2026-11-20 from the DoneDeal Limerick dealer directory (https://www.donedeal.ie/find-a-dealer/Limerick): 25 ads listed there, 25 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded. Phone from the own site (tel: link).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/autocamp-ltd",
+      "https://www.donedeal.ie/find-a-dealer/Limerick",
+      "https://www.autocampgroup.com/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Johnny Gayer Auto Sales",
+    "county": "Limerick",
+    "town": "Feenagh",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 23,
+      "source": "https://www.donedeal.ie/dealer/johnny-gayer-auto-sales",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 15100,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, ACCELERATOR package, 23 ads"
+    ],
+    "platform": "none (no own website)",
+    "activity": "Newest DoneDeal ads 1 day old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "No website listed on the DoneDeal directory or dealer page: stock lives only on DoneDeal, the clearest website pitch. Added 2026-11-20 from the DoneDeal Limerick dealer directory (https://www.donedeal.ie/find-a-dealer/Limerick): 25 ads listed there, 23 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/johnny-gayer-auto-sales",
+      "https://www.donedeal.ie/find-a-dealer/Limerick"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Horgan's Garage",
+    "county": "Limerick",
+    "town": "Athea",
+    "website": "https://www.horgansgarage.ie/",
+    "businessPhone": "087-7983049",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 20,
+      "source": "https://www.donedeal.ie/dealer/horgans-garage",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 11725,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, ACCELERATOR package, 20 ads",
+      "Paid site builder (CarsIreland dealer site)"
+    ],
+    "platform": "CarsIreland dealer site (footer 'Powered by CarsIreland.ie')",
+    "activity": "Newest DoneDeal ads 2 hours old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "Own CarsIreland site: stock pages on site, finance, valuation/trade-in, test drive and enquiry forms, reviews block. Added 2026-11-20 from the DoneDeal Limerick dealer directory (https://www.donedeal.ie/find-a-dealer/Limerick): 20 ads listed there, 20 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page. Phone from the own site (tel: link).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/horgans-garage",
+      "https://www.donedeal.ie/find-a-dealer/Limerick",
+      "https://www.horgansgarage.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Graham Car Sales",
+    "county": "Limerick",
+    "town": "Limerick",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 20,
+      "source": "https://www.donedeal.ie/dealer/graham-car-sales",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 11225,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, ACCELERATOR package, 20 ads"
+    ],
+    "platform": "None working: domain serves a casino spam page",
+    "activity": "Newest DoneDeal ads 11 hours old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "grahamcarsales.ie (linked from DoneDeal) now serves an unrelated Polish casino page (title 'VOX Casino Polska'), so the dealer has no working site and DoneDeal sends buyers to spam. Added 2026-11-20 from the DoneDeal Limerick dealer directory (https://www.donedeal.ie/find-a-dealer/Limerick): 19 ads listed there, 20 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/graham-car-sales",
+      "https://www.donedeal.ie/find-a-dealer/Limerick",
+      "http://www.grahamcarsales.ie"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Healys Garage",
+    "county": "Limerick",
+    "town": "Abbeyfeale",
+    "website": "https://www.healysgarage.ie/",
+    "businessPhone": "068-31249",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 18,
+      "source": "https://www.donedeal.ie/dealer/healys-garage",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 14223,
+    "reviews": {
+      "count": 43,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/healys-garage"
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, ACCELERATOR package, 18 ads",
+      "Paid site builder (CarsIreland dealer site)"
+    ],
+    "platform": "CarsIreland dealer site (footer 'Powered by CarsIreland.ie')",
+    "activity": "Newest DoneDeal ads 1 day old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "Own CarsIreland site: stock pages on site, finance, valuation/trade-in, test drive and enquiry forms, reviews block. Added 2026-11-20 from the DoneDeal Limerick dealer directory (https://www.donedeal.ie/find-a-dealer/Limerick): 18 ads listed there, 18 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded. Phone from the own site (tel: link).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/healys-garage",
+      "https://www.donedeal.ie/find-a-dealer/Limerick",
+      "https://www.healysgarage.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Adare Motors",
+    "county": "Limerick",
+    "town": "Adare",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 17,
+      "source": "https://www.donedeal.ie/dealer/adare-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 6875,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, ACCELERATOR package, 17 ads"
+    ],
+    "platform": "none (no own website)",
+    "activity": "Newest DoneDeal ads 2 days old at check (2026-11-20); DoneDeal WhatsApp replies off. Socials not checked.",
+    "glanceNotes": "No website listed on the DoneDeal directory or dealer page: stock lives only on DoneDeal, the clearest website pitch. Added 2026-11-20 from the DoneDeal Limerick dealer directory (https://www.donedeal.ie/find-a-dealer/Limerick): 16 ads listed there, 17 on the dealer page. Typical price is the median of the 8 priced ads on page 1 of the DoneDeal dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/adare-motors",
+      "https://www.donedeal.ie/find-a-dealer/Limerick"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "AutoSpace Ireland",
+    "county": "Limerick",
+    "town": "Limerick",
+    "website": "https://www.autospaceireland.ie/",
+    "businessPhone": "0894261700",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 16,
+      "source": "https://www.donedeal.ie/dealer/autospace-ireland",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 12499,
+    "reviews": {
+      "count": 8,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/autospace-ireland"
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, ACCELERATOR package, 16 ads",
+      "Paid site builder (DoneDeal dealer website)"
+    ],
+    "platform": "DoneDeal dealer website (footer 'Powered by DoneDeal', developed by Square1)",
+    "activity": "Newest DoneDeal ads 8 hours old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "Own DoneDeal dealer website (Square1 build): stock synced from DoneDeal shown on site, finance and trade-in mentions; no test drive form seen. Added 2026-11-20 from the DoneDeal Limerick dealer directory (https://www.donedeal.ie/find-a-dealer/Limerick): 16 ads listed there, 16 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded. Phone from the own site (tel: link).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/autospace-ireland",
+      "https://www.donedeal.ie/find-a-dealer/Limerick",
+      "https://www.autospaceireland.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "JN Car Sales",
+    "county": "Limerick",
+    "town": "Abbeyfeale",
+    "website": "https://www.jncarsalesltd.ie/",
+    "businessPhone": "0872041761",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 15,
+      "source": "https://www.donedeal.ie/dealer/jn-car-sales",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 16950,
+    "reviews": {
+      "count": 13,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/jn-car-sales"
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, ACCELERATOR package, 15 ads",
+      "Paid site builder (DoneDeal dealer website)"
+    ],
+    "platform": "DoneDeal dealer website (footer 'Powered by DoneDeal', developed by Square1)",
+    "activity": "Newest DoneDeal ads 1 day old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "Own DoneDeal dealer website (Square1 build): stock synced from DoneDeal shown on site, finance and trade-in mentions; no test drive form seen. Added 2026-11-20 from the DoneDeal Limerick dealer directory (https://www.donedeal.ie/find-a-dealer/Limerick): 16 ads listed there, 15 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded. Phone from the own site (tel: link).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/jn-car-sales",
+      "https://www.donedeal.ie/find-a-dealer/Limerick",
+      "https://www.jncarsalesltd.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "JVC Motors",
+    "county": "Limerick",
+    "town": "Limerick",
+    "website": "https://jvcmotors.ie/",
+    "businessPhone": "+35361657070",
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 16,
+      "source": "https://www.donedeal.ie/dealer/jvc-motors",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 17245,
+    "reviews": {
+      "count": 72,
+      "rating": null,
+      "source": "https://www.donedeal.ie/dealer/jvc-motors"
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, PRESTIGE package, 16 ads"
+    ],
+    "platform": "Custom Next.js site (no builder credit)",
+    "activity": "Newest DoneDeal ads 2 days old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "Own jvcmotors.ie (Next.js): used cars, finance and enquiry mentions; no trade-in or test drive form seen on the homepage. Added 2026-11-20 from the DoneDeal Limerick dealer directory (https://www.donedeal.ie/find-a-dealer/Limerick): 16 ads listed there, 16 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page. Google review count as shown by DoneDeal; rating not recorded. Phone from the own site (tel: link).",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/jvc-motors",
+      "https://www.donedeal.ie/find-a-dealer/Limerick",
+      "https://jvcmotors.ie/"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Mark O Donnell Cars",
+    "county": "Limerick",
+    "town": "Pallasgreen",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 16,
+      "source": "https://www.donedeal.ie/dealer/mark-o-donnell-cars",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 6455,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, PRESTIGE package, 16 ads"
+    ],
+    "platform": "none (no own website)",
+    "activity": "Newest DoneDeal ads 10 hours old at check (2026-11-20); DoneDeal WhatsApp replies on. Socials not checked.",
+    "glanceNotes": "No website listed on the DoneDeal directory or dealer page: stock lives only on DoneDeal, the clearest website pitch. Low-value stock. Added 2026-11-20 from the DoneDeal Limerick dealer directory (https://www.donedeal.ie/find-a-dealer/Limerick): 16 ads listed there, 16 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/mark-o-donnell-cars",
+      "https://www.donedeal.ie/find-a-dealer/Limerick"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "RS Autotrade",
+    "county": "Limerick",
+    "town": "Limerick",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 15,
+      "source": "https://www.donedeal.ie/dealer/rs-autotrade",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 7199,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, ACCELERATOR package, 15 ads"
+    ],
+    "platform": "none (no own website)",
+    "activity": "Newest DoneDeal ads 7 days old at check (2026-11-20); DoneDeal WhatsApp replies off. Socials not checked.",
+    "glanceNotes": "No website listed on the DoneDeal directory or dealer page: stock lives only on DoneDeal, the clearest website pitch. Added 2026-11-20 from the DoneDeal Limerick dealer directory (https://www.donedeal.ie/find-a-dealer/Limerick): 15 ads listed there, 15 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/rs-autotrade",
+      "https://www.donedeal.ie/find-a-dealer/Limerick"
+    ],
+    "validated": "2026-11-20"
+  },
+  {
+    "name": "Treaty City Car Sales",
+    "county": "Limerick",
+    "town": "Raheen",
+    "website": null,
+    "businessPhone": null,
+    "type": "independent",
+    "brands": [],
+    "branches": 1,
+    "stock": {
+      "count": 15,
+      "source": "https://www.donedeal.ie/dealer/treaty-city-car-sales",
+      "checkedAt": "2026-11-20"
+    },
+    "typicalPriceEur": 6800,
+    "reviews": {
+      "count": null,
+      "rating": null,
+      "source": null
+    },
+    "adSignals": [
+      "DoneDeal independent dealer account, ACCELERATOR package, 15 ads"
+    ],
+    "platform": "none (no own website)",
+    "activity": "Newest DoneDeal ads 10 hours old at check (2026-11-20); DoneDeal WhatsApp replies off. Socials not checked.",
+    "glanceNotes": "No website listed on the DoneDeal directory or dealer page: stock lives only on DoneDeal, the clearest website pitch. Low-value stock. Added 2026-11-20 from the DoneDeal Limerick dealer directory (https://www.donedeal.ie/find-a-dealer/Limerick): 15 ads listed there, 15 on the dealer page. Typical price is the median of the 10 priced ads on page 1 of the DoneDeal dealer page.",
+    "skip": null,
+    "sources": [
+      "https://www.donedeal.ie/dealer/treaty-city-car-sales",
+      "https://www.donedeal.ie/find-a-dealer/Limerick"
+    ],
+    "validated": "2026-11-20"
+  }
+]
