@@ -19,7 +19,7 @@ Most big Galway franchise dealers already have decent sites (CarsIreland, HappyD
 3. "Every buyer has a car to trade. Let them value it before they ring." Trade-in form with photos and reg lookup (Trade-in, Registration lookup on the website).
 4. "Three branches, one site, one inbox." Dashboard with leads inbox, follow-ups and staff logins (Dealer dashboard, WhatsApp).
 **Pitch:** Group at €1,047 a month (€749 plus €149 each for Athlone and Drogheda), with our site for the used side. €9m of stock in Galway alone and three Carzone sites: they spend, and the dashboard is where the group value is.
-**Opener:** "You have 481 Google reviews at 4.6 and not one of them is on colmquinnbmwgalway.ie; we put them on the site and let you reply from one dashboard for all three branches."
+**Opener:** "You have 481 Google reviews at 4.6 and not one of them is on colmquinnbmwgalway.ie; we put them on the site and let you reply from your dashboard."
 **Caveats:** BMW controls new-car pages and service booking; lead with used cars and the dashboard. Group decision (Colm Quinn runs Athlone and Drogheda too).
 
 ### Western Motors Ltd, Ballybrit, Galway · Tier A, 80/100 (able 50, willing 18, opening 12)
@@ -103,11 +103,11 @@ Most big Galway franchise dealers already have decent sites (CarsIreland, HappyD
 - Reviews appear as a rating badge only; we saw no review text on the home page.
 - Little else to fault from the outside.
 **Sales points:**
-1. "2,191 reviews across four Galway showrooms: who answers them?" Replies from one dashboard with AI drafts (Reviews, AI writing).
+1. "More Google reviews than any group in the West: who answers them?" Your main Google listing's reviews on the site, replies from the dashboard with AI drafts (Reviews, AI writing).
 2. "14 dealerships, one place for every lead and follow-up." (Dealer dashboard, WhatsApp).
 3. "Margins and stock age across 10 brands." (Margins and reports, Sales and customers).
 **Pitch:** Group, if anything: €749 plus €149 for each extra branch, sold to head office. They have a good site, so ours as their used-car site is a long shot.
-**Opener:** "You have more Google reviews than any dealer group in the West; we help groups your size answer every one of them from one dashboard."
+**Opener:** "You have more Google reviews than any dealer group in the West; we'd put your main listing's reviews on your site and let you answer them from one dashboard."
 **Caveats:** Group decision at head office in Ballina. Manufacturer rules (Mercedes agency model, Volvo online ordering) limit what can change.
 
 ### Al Hayes Motors, Portumna (also Tuam) · Tier A, 74/100 (able 50, willing 15, opening 9)
@@ -133,10 +133,10 @@ Most big Galway franchise dealers already have decent sites (CarsIreland, HappyD
 - No WhatsApp.
 **Sales points:**
 1. "A €60,000 buyer wants to value their trade-in properly, not in a chat box." Trade-in form with photos and reg lookup (Trade-in).
-2. "Two sites, two review profiles, one business." One site and one dashboard for Autopoint and BYD (Dealer dashboard, Reviews).
+2. "Two sites, one business." One site and one inbox for Autopoint and BYD, with Autopoint's 261 Google reviews on show (Dealer dashboard, Reviews).
 3. "New BYDs and premium used in one place." (New cars and factory orders).
 **Pitch:** Dealer at €449 plus New cars (€99, BYD): €548 a month, one site and inbox for Autopoint and BYD Galway. New franchise, premium stock and already paying HappyDealer.
-**Opener:** "You run two sites and two review profiles for one business; we bring Autopoint and BYD Galway together with a proper trade-in form and one inbox for the leads."
+**Opener:** "You run two sites for one business; we bring Autopoint and BYD Galway onto one site with a proper trade-in form and one inbox for the leads."
 **Caveats:** BYD (via MDL) controls new-car content; lead with used cars and the dashboard. Current site is decent, so this is an upgrade sale, not a rescue.
 
 ### Sheils Galway, Galway (Headford Road) · Tier A, 71/100 (able 41, willing 15, opening 15)

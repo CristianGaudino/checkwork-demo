@@ -146,7 +146,7 @@ Nissan, Citroen and Mazda franchise, 95 cars (about €2.4m), 157 reviews at 4.6
 ### Leonards Motors, Limerick city (Mulgrave Street) · Tier B, 64/100
 Peugeot franchise, 112 cars (typical €46,000, mostly new), 210 reviews at 4.3, modern custom site with finance calculator, part-exchange, Google reviews and WhatsApp.
 **Hooks:** 1. Leads arrive by phone, email, WhatsApp and DoneDeal: "one inbox so none goes cold" (Dealer dashboard, Sales and customers, WhatsApp). 2. 112 cars, many new Peugeots: "which used cars are sitting too long?" (Margins and reports).
-**Pitch:** Dealer at €449. The site is new and good (12.5 MB on a phone is the only weak spot), so the dashboard is the sale.
+**Pitch:** Dealer at €449 plus Margins and reports (€49): €498 a month. The site is new and good (12.5 MB on a phone is the only weak spot), so the dashboard is the sale.
 **Opener:** "Your site already does finance and part-exchange well; we'd add the back office: one inbox for every lead and stock age on your used cars."
 
 ### D & L O'Connell Bros Car Sales, Tournafulla, Newcastle West · Tier B, 60/100
@@ -158,7 +158,7 @@ Independent, 112 cars (about €3.2m), 78 reviews at 4.9, CarsIreland site with 
 ### Cardian, Limerick city (Eastpoint, Ballysimon Road) · Tier B, 59/100
 Premium used (typical €73,000), 49 on DoneDeal but "100+ cars" on its site, 269 reviews at 4.9, HappyDealer site, part of Pierse Motor Group.
 **Hooks:** 1. Homepage downloads about 41 MB on a phone (background video) (the site itself). 2. 269 reviews at 4.9 and one on the homepage, from April 2026 (Reviews).
-**Pitch:** Group, pitched to Pierse with Pierse Select: €749 plus €149 for each extra branch.
+**Pitch:** Group, pitched to Pierse with Pierse Select: one Checkwork site carrying Cardian's and Pierse's stock with one inbox, €749 plus €149 for each extra branch.
 **Opener:** "Your homepage pulls over 40 MB on a phone before a buyer sees a car, and only one of your 269 reviews (4.9 average) is on show; we fix both."
 
 ### Adams of Glin, Glin · Tier B, 59/100
@@ -181,9 +181,9 @@ Independent budget cars, 68 on DoneDeal (median about €5,700, about €0.4m), 
 
 ### Pierse Select, Limerick · Tier B, 52/100
 Used outlet of Pierse Motor Group (VW and SEAT in Tipperary and Clare), 48 cars (about €1.4m), DoneDeal ACCELERATOR, one HappyDealer site for the group.
-**Hooks:** 1. Tipperary, Clare, the Limerick used outlet and Cardian under one group: "One dashboard for every branch" (Dealer dashboard, Sales and customers). 2. "Which used cars sit longest across the group?" (Margins and reports).
-**Pitch:** Group, pitched with Cardian: €749 plus €149 for each extra branch.
-**Opener:** "Pierse runs Tipperary, Clare, Pierse Select and Cardian; we'd give the group one dashboard for leads and stock across all of them."
+**Hooks:** 1. Pierse and Cardian run two separate websites: "One site and one inbox for both" (Dealer dashboard, Sales and customers). 2. "Which used cars sit longest?" (Margins and reports).
+**Pitch:** Group, pitched with Cardian: one Checkwork site carrying Pierse's and Cardian's stock with one inbox, €749 plus €149 for each extra branch.
+**Opener:** "Pierse and Cardian sell from two separate websites; we'd put both on one site with one inbox for every lead."
 
 ### CMC Car Sales, Limerick city (Ennis Road) · Tier B, 51/100
 Independent, 41 cars (about €1.2m), 125 reviews at 4.9, already strong CarsIreland site.
@@ -199,6 +199,6 @@ Independent, 45 cars at about €10,800 (about €0.5m), 77 reviews at 4.8, Cars
 
 ### Thomas Motors, Newcastle West · Tier B, 50/100
 Independent, 46 cars at about €11,950 (about €0.55m), DoneDeal ACCELERATOR, 29 reviews, no website.
-**Hooks:** 1. No website: every buyer sees your cars beside your competitors' on DoneDeal (the site with stock sync). 2. WhatsApp replies already on via DoneDeal: keep that on your own site (WhatsApp).
+**Hooks:** 1. No website: every buyer sees your cars beside your competitors' on DoneDeal (the site with stock sync). 2. WhatsApp replies already on via DoneDeal: keep that on your own site (WhatsApp click to chat).
 **Pitch:** Showroom at €249.
 **Opener:** "You pay DoneDeal for ACCELERATOR but have no site of your own; we'd put your 46 cars on one, synced from DoneDeal."

@@ -30,11 +30,11 @@ Most big Cork dealers already pay for decent sites (HappyDealer, CarsIreland, mt
 - Car pages have Send us a Message, Book a Test Drive and €99 reserve, but no way to value a trade-in (e.g. https://www.blackwatermotors.ie/used/).
 **Sales points:**
 1. "Your 'Value My Vehicle' button is broken: every buyer with a car to trade hits a dead page." Trade-in with photos and reg lookup that works (Trade-in and sell your car, Registration lookup on the website).
-2. "Seven locations, one website, leads by message form: who picks each one up?" Leads inbox, follow-ups, staff roles, WhatsApp alerts (Dealer dashboard, WhatsApp).
+2. "Seven locations, several websites, leads by message form: who picks each one up?" One site and one inbox for all seven locations, replacing yours: leads inbox, follow-ups, staff roles, WhatsApp alerts (Dealer dashboard, WhatsApp).
 3. "683 reviews for Cork alone, and a buyer on your site sees none." Reviews on the site, replies from the dashboard (Reviews).
 4. "With 650 cars, stock age decides profit." Margins, stock age and reports (Sales and customers, Margins and reports).
 **Pitch:** Group at €1,643 a month (€749 plus €149 for each of the six other locations), dashboard first. They have a decent self-run site, but at this size (seven locations, about €20m of stock) the dashboard, trade-in and reports are the sale.
-**Opener:** "The 'Value My Vehicle' link on blackwatermotors.ie loops back on itself and never loads, so trade-in buyers hit a dead end; we fix that with a reg-lookup valuation form and put every lead from all seven locations in one inbox."
+**Opener:** "The 'Value My Vehicle' link on blackwatermotors.ie loops back on itself and never loads, so trade-in buyers hit a dead end; we'd give you one site and one inbox for all seven locations, with a reg-lookup valuation form that works."
 **Caveats:** VW Group brands control new-car pages; lead with used cars, trade-in and the dashboard. Group decision across seven sites, so expect a longer sale. The broken link is a quick fix for them once pointed out, so use it to open the conversation, not as the whole case.
 
 ### Kevin O'Leary Group, Silversprings (Cork city), Bandon and Clonmel · Tier A, 83/100 (able 50, willing 18, opening 15)
@@ -46,11 +46,11 @@ Most big Cork dealers already pay for decent sites (HappyDealer, CarsIreland, mt
 - Sell Your Car is a good form with photos (https://www.kevinoleary.ie/cashforcars), but it is a cash offer, not a trade-in valuation against a car in stock.
 **Sales points:**
 1. "Three showrooms and two test centres: one inbox for every lead, with who's on it." Leads inbox, follow-ups, staff logins and roles (Dealer dashboard).
-2. "479 Google reviews, and your site shows none of them." Google reviews on the site, replies from the dashboard (Reviews).
+2. "251 Google reviews at 4.6 for Bandon alone, and your site shows none of them." Your main Google listing's reviews on the site, replies from the dashboard (Reviews).
 3. "Buyers text, they don't ring." Leads to your phone and replies by WhatsApp (WhatsApp).
 4. "Which cars make you money?" Margins, sales reports and stock age (Sales and customers, Margins and reports).
 **Pitch:** Group at €1,047 a month (€749 plus €149 each for Bandon and Clonmel), led by the dashboard. The HappyDealer site is decent, so the case is running three branches from one place, with our site for used cars next to the manufacturers'.
-**Opener:** "You've 324 cars across Silversprings, Bandon and Clonmel and 479 Google reviews, but none of those reviews are on kevinoleary.ie; we put them on the site and every lead from all three showrooms in one inbox."
+**Opener:** "You've 324 cars across Silversprings, Bandon and Clonmel and 251 Google reviews at 4.6 for Bandon alone, but none of them are on kevinoleary.ie; we put them on the site and every lead from all three showrooms in one inbox."
 **Caveats:** Six franchises, each with its own new-car rules; lead with used cars and the dashboard. Clonmel is in Tipperary, so the decision covers more than Cork.
 
 ### Nyhan Motors / Car Superstore, Bandon · Tier A, 80/100 (able 50, willing 18, opening 12)

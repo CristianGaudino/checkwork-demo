@@ -31,6 +31,8 @@ export async function saveLimitsAction(_p: BillingState, data: FormData): Promis
   const next = { ...b.caps };
   for (const s of scopes) delete next[s];
   Object.assign(next, caps);
+  // The form shows a stored limit above our ceiling as the ceiling (BillingForms): saved untouched, the stored one stays.
+  for (const s of scopes) if (b.caps[s] !== undefined && next[s] === Math.min(b.caps[s]!, b.ceilings[s] ?? Infinity)) next[s] = b.caps[s];
   for (const s of scopes) if (b.caps[s] !== next[s]) await logActivity("settings", next[s] === undefined ? `Removed the monthly limit on ${scopeLabel(s)}` : `Set the monthly limit on ${scopeLabel(s)} to ${eur(next[s]!)}`);
   if (b.alertAt80 !== alertAt80) await logActivity("settings", `Turned the 80% usage alert ${alertAt80 ? "on" : "off"}`);
   await saveBilling({ caps: next, alertAt80 });

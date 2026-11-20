@@ -18,12 +18,12 @@ Live demo for every pitch: https://www.demo.checkwork.ie
 3. Stock is split: autoboland.ie searches 252 vehicles, while Volkswagen Waterford, Audi Waterford (114 cars on CarsIreland) and Boland Citroën (75) each sit on separate sites.
 4. No WhatsApp: leads come by phone, email or the contact page.
 **Sales points:**
-1. "Over 1,100 Google reviews and not one on your website." Reviews module: Google reviews on the site, replies from the dashboard.
+1. "Over 1,100 Google reviews across your showrooms and not one on your website." Reviews module: your main Google listing's reviews on the site, replies from the dashboard.
 2. "Every buyer has a car to trade. Your site doesn't ask for it." Trade-in with photos and registration lookup.
 3. "Nine brands, three websites, one sales team." One site with every showroom's stock and one leads inbox: Dealer dashboard, Sales and customers, staff logins and roles.
 4. "Which leads go cold?" Margins and reports, Site analytics, follow-ups in the dashboard.
 **Pitch:** Group at €749 plus €149 for each extra showroom. They have the size and already pay an agency. Lead with the dashboard and a group-wide leads inbox, with New cars and factory orders (2 brands included, €29 a month for each extra) and Commercial vehicles (Fiat Professional, Ford vans). The site rebuild is secondary.
-**Opener:** "Your Volkswagen, Audi and Citroën showrooms have over 1,100 Google reviews between them, and autoboland.ie doesn't show one of them: can I show you a site and dashboard that put them in front of every buyer?"
+**Opener:** "Your Volkswagen, Audi and Citroën showrooms have over 1,100 Google reviews between them, and autoboland.ie doesn't show one of them: can I show you a site and dashboard that put your main listing's reviews in front of every buyer?"
 **Caveats:** Group decision: expect to deal with group management, not one showroom, and with the mtc contract. Manufacturer sites cover new cars for most brands: lead with used stock, reviews and the dashboard. Waterford Motor Village (tier B below) may also be Boland's.
 
 ### John Kelly (Waterford) Ltd, Waterford City (Waterford Business Park) · Tier A, 78/100 (able 39, willing 18, opening 21)

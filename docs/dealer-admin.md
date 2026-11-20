@@ -253,7 +253,7 @@ the plan and this month's usage (with the payment term, what
 the allowance covers, and an "Estimate" for the month end), the setup fees (the tier's, and those of add-ons set up with
 outside accounts (Social, New cars), none on a 2-year contract;
 `setupLines` in `src/lib/billing/rules.ts`, also totalled in the demo bar's plans panel), the limits and alerts (a euro limit per service
-and for all usage, never above ours (by default EUR 15 of lookups, EUR 20 of WhatsApp and EUR 50 of AI past the allowance, `DEFAULT_CEILINGS`); the 80% alert; "tell me when X passes EUR N"; AI writing's quality, Premium (Claude Opus) at EUR 0.08
+and for all usage, never above ours (by default EUR 15 of lookups, EUR 20 of WhatsApp (EUR 20 per branch on Group: a WhatsApp ceiling the owner's program sets is per branch too) and EUR 50 of AI past the allowance, `DEFAULT_CEILINGS`); the 80% alert; "tell me when X passes EUR N"; AI writing's quality, Premium (Claude Opus) at EUR 0.08
 an action or Standard (Claude Sonnet) at EUR 0.04, each action counted under the model that wrote it; the dealer never sees the model
 or provider's name), and the bills. With `SHOW_PRICING` false the page shows only the plan's name, its modules, the payment
 term, the writing quality and the billing details, with no euro. On a year paid upfront the month's estimated bill is the usage only. Every change is written to the activity log. Rules and maths: `src/lib/billing/bills-rules.ts`

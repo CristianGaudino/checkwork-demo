@@ -8,6 +8,7 @@ Going ahead with this model (owner, 20 Nov 2026). Prices are a month, before VAT
 - **A year paid upfront:** 1 month free (11 months' price).
 - **2-year contract:** setup waived.
 - **Moving up a tier:** the new tier's setup less all setup already paid, never below €0 (Dealer to Group: €1,000); nothing on a 2-year contract.
+- **Add-ons that tip into Group:** when a Dealer's add-ons cost more than Group, the plan becomes Group: a little less a month, but Group's setup (€1,950) instead of the add-ons' (Dealer with Margins, Social, Newsletter and New cars: €749 instead of €755 a month, €1,950 instead of €1,500 setup).
 - **Dropping a module or a branch:** from the 1st of the next month.
 - **Limits:** extra use past the allowance stops at €15 of lookups, €20 of WhatsApp (€20 per branch on Group) and €50 of AI a month, unless agreed otherwise. Dealer and Group can set lower ones on the Billing page; a Showroom dealer asks us.
 

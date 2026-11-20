@@ -33,12 +33,12 @@ Live demo for every pitch: https://www.demo.checkwork.ie
 3. No reviews on the site despite 215 at 4.6.
 4. On a phone the Peugeot cookie window fills the screen on arrival; there's no finance estimator or trade-in form.
 **Sales points:**
-1. "You sell four brands; your website sells one." A site with all their brands, New cars and factory orders.
+1. "You sell four brands; your website sells one." A site with Fiat and Jeep new cars and used stock of every brand (New cars and factory orders).
 2. "A used car with no year, no mileage and no price doesn't get a call." Stock pages with full details, Finance estimator.
 3. "215 reviews you're not using." Reviews module.
 4. "Buyers who can't ask, don't." Trade-in with registration lookup, lead forms, Dealer dashboard.
-**Pitch:** Dealer at €449 plus New cars (€99) for Fiat and Jeep: one site for all four brands and the used stock, next to Peugeot's template. Mid-size but franchise, pays for DoneDeal, and the current site doesn't cover half their business.
-**Opener:** "You've been a Fiat and Jeep dealer since 2023 but your website still only knows about Peugeot: can I show you one site with all four brands and your used stock?"
+**Pitch:** Dealer at €449 plus New cars (€99) for Fiat and Jeep: €548 a month, one site with Fiat and Jeep new cars and used Peugeot, DS and other stock, next to Peugeot's template. Mid-size but franchise, pays for DoneDeal, and the current site doesn't cover half their business.
+**Opener:** "You've been a Fiat and Jeep dealer since 2023 but your website still only knows about Peugeot: can I show you one site with Fiat and Jeep new cars and all your used stock?"
 **Caveats:** Peugeot (Stellantis) likely requires its template for new Peugeots; lead with used stock, Fiat and Jeep, and the dashboard.
 
 ### Audi Approved :plus Kerry, Tralee · Tier A, 76/100 (able 50, willing 11, opening 15)
@@ -51,7 +51,7 @@ Live demo for every pitch: https://www.demo.checkwork.ie
 1. "Your DoneDeal link to your own site is broken for some buyers." Correct, owned web address.
 2. "€40,000 cars with no finance estimate." Finance estimator with your lender's wording.
 3. "89 reviews not shown." Reviews module.
-**Pitch:** Part of a Blackwater Motors Group deal, if at all: it is already one of the seven locations in Blackwater's Group price (€1,643 a month).
+**Pitch:** Part of a Blackwater Motors Group deal, if at all: it is already one of the seven locations in Blackwater's Group price (€1,643 a month): one site and one inbox for all seven locations, replacing audiapprovedpluskerry.ie and Blackwater's other sites.
 **Opener:** "The web address on your DoneDeal page downloads a blank file instead of opening your site: worth a two-minute look?"
 **Caveats:** Recommend moving down to C: it is part of Blackwater Motors, a Cork group whose sites run centrally, which our skip rules exclude. Any sale is a group decision in Cork. Audi controls new cars.
 
@@ -205,5 +205,5 @@ Independent plus tinting and wrapping, 46 cars (typical €17,950), 130 reviews,
 Independent, 40 cars and vans (typical €8,373), no website found.
 1. "No website." The site itself.
 2. "Vans for trade buyers." Commercial vehicles.
-**Pitch:** Showroom at €249 (small budget).
+**Pitch:** Showroom at €249 plus Commercial (€29): €278 a month (small budget).
 **Opener:** "You've 40 cars and vans on DoneDeal and no site of your own: can I show you one built from that stock?"
