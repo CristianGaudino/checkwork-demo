@@ -190,6 +190,14 @@ describe("finance application (FIN-03, D-17)", () => {
     for (const deposit of ["250001", "12.5", "-1", "", "abc"]) expect(errors({ ...apply, deposit }).deposit).toEqual(["Enter the deposit in euros, numbers only."]);
   });
 
+  it("carries the type of finance, and a PCP term must be one PCP offers", () => {
+    expect(leadSchema.parse({ ...apply, product: "pcp" })).toMatchObject({ product: "pcp", term: 36 });
+    expect(leadSchema.parse({ ...apply, product: "" })).toMatchObject({ product: undefined }); // none is hire purchase
+    expect(errors({ ...apply, product: "lease" }).product).toEqual(["Choose a type of finance."]);
+    expect(errors({ ...apply, product: "pcp", term: "60" }).term).toEqual(["Choose a term from the list."]);
+    expect(errors({ ...apply, product: "hp", term: "60" })).toEqual({});
+  });
+
   it("drops income, date of birth and bank details", () => {
     const r = leadSchema.parse({ ...apply, income: "50000", dateOfBirth: "1990-01-01", iban: "IE00BANK" });
     expect(Object.keys(r).sort()).toEqual(["clientRef", "consent", "deposit", "employment", "name", "phone", "sourcePath", "term", "type"]);

@@ -1,4 +1,5 @@
 import type { ModuleId } from "@/lib/modules-rules";
+import { PRODUCT_LABELS, type FinanceProduct } from "@/lib/finance/finance.config";
 
 // The guided contact form (#176): what the buyer needs, a few taps about it, how to reach them. No zod here: the form imports this file,
 // and schema.ts, the dealer's email and the leads list read the same words.
@@ -45,6 +46,7 @@ const plain = (s: string) => (/^[A-Z]{2}/.test(s) ? s : s.toLowerCase());
 export function readable(key: string, value: string): string {
   if (key === "topic") return TOPICS.find((t) => t.id === value)?.label ?? value;
   if (key === "whatsappOptIn") return "Yes";
+  if (key === "product") return PRODUCT_LABELS[value as FinanceProduct] ?? value;
   return key in CHOICES ? (word(key as ChoiceKey, value) ?? value) : value;
 }
 

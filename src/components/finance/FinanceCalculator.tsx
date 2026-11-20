@@ -3,16 +3,16 @@
 import Link from "next/link";
 import { useId, useRef, useState } from "react";
 import { Field } from "@/components/leads/Field";
-import { FinanceFields, TERM_OPTIONS } from "@/components/leads/FinanceFields";
+import { FinanceFields, termOptions } from "@/components/leads/FinanceFields";
 import { LeadDialog } from "@/components/leads/LeadDialog";
 import type { CarSummary } from "@/components/leads/LeadDialog";
 import { LeadForm } from "@/components/leads/LeadForm";
 import { Tween } from "@/components/Tween";
-import { FINANCE, financeNotice } from "@/lib/finance/finance.config";
+import { FINANCE, PRODUCT_LABELS, financeNotice, pcpEstimate, type FinanceProduct } from "@/lib/finance/finance.config";
 import { financeable, quote } from "@/lib/finance/payment";
 import { fmtEur } from "@/lib/stock/format";
 import { ArrowRightIcon, InfoIcon } from "@/components/stock/icons";
-import { accentButton, card, press } from "@/components/ui";
+import { accentButton, card, chip, press } from "@/components/ui";
 import { count } from "@/lib/count-client";
 
 // Keystrokes that would not make a number are refused, so the fields only ever hold digits.
@@ -28,6 +28,7 @@ export type FinanceCar = CarSummary & { priceEur: number };
 // dealer's, set in finance.config.ts: the buyer picks a deposit and a term, never a rate. The real amount comes from the lender.
 // `car` is a car page's own car: its price is fixed and the buyer can start an application for it. Without one (/finance) the buyer
 // types a price for an estimate, and the way on is to choose a car: applications are made from a car page.
+// With PCP on (FINANCE.pcp) the buyer also picks hire purchase or PCP; each has its own rate, terms and wording.
 export function FinanceCalculator({ car }: { car?: FinanceCar }) {
   const uid = useId();
   const d = FINANCE.defaults;
@@ -35,6 +36,7 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
   // A car cheaper than the default deposit starts at no deposit, so its page never opens on an error.
   const [deposit, setDeposit] = useState(String(car && car.priceEur <= d.depositEur ? 0 : d.depositEur));
   const [term, setTerm] = useState(String(d.termMonths));
+  const [product, setProduct] = useState<FinanceProduct>("hp");
   const [open, setOpen] = useState(false);
   const [prefill, setPrefill] = useState<Record<string, string>>();
   const opener = useRef<HTMLButtonElement>(null);
@@ -42,8 +44,16 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
   const priceEur = car ? car.priceEur : Number(price);
   const depositEur = Number(deposit); // blank is no deposit
   const priceError = !car && !(price !== "" && financeable(priceEur)) ? "Enter a price between €1,000 and €250,000." : undefined;
-  const depositError = !priceError && depositEur >= priceEur ? "Deposit must be less than the price." : undefined;
-  const q = quote(priceEur, depositEur, Number(term), d.aprPct);
+  const pcp = product === "pcp" && FINANCE.pcp;
+  const q = pcp ? pcpEstimate(priceEur, depositEur, Number(term)) : quote(priceEur, depositEur, Number(term), d.aprPct);
+  const final = q && "finalEur" in q ? q.finalEur : undefined;
+  const depositError = priceError ? undefined : depositEur >= priceEur ? "Deposit must be less than the price." : pcp && !q ? "Deposit is too high for PCP. Lower it or choose hire purchase." : undefined;
+  const pick = (p: FinanceProduct) => {
+    count("finance");
+    setProduct(p);
+    const terms = p === "pcp" && FINANCE.pcp ? FINANCE.pcp : { terms: FINANCE.terms, termMonths: d.termMonths };
+    if (!terms.terms.includes(Number(term))) setTerm(String(terms.termMonths)); // a term the other product does not offer
+  };
 
   const field = (name: string, value: string, onChange: (v: string) => void, error?: string) => ({ id: `${uid}-${name}`, name, value, onChange: (v: string) => (count("finance"), onChange(v)), error });
 
@@ -53,6 +63,15 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
       <div data-wells className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
         <div className={`flex flex-col gap-4 ${card} p-4 sm:p-6`}>
           <div className="grid grid-cols-1 gap-4">
+            {FINANCE.pcp && (
+              <div role="group" aria-label="Type of finance" className="flex flex-wrap gap-2">
+                {(["hp", "pcp"] as const).map((p) => (
+                  <button key={p} type="button" aria-pressed={product === p} onClick={() => pick(p)} className={chip(product === p)}>
+                    {PRODUCT_LABELS[p]}
+                  </button>
+                ))}
+              </div>
+            )}
             {car ? (
               <div className="flex flex-col gap-1">
                 <p className="text-meta font-semibold">Price</p>
@@ -62,8 +81,8 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
               <Field {...field("price", price, take(WHOLE, setPrice), priceError)} label="Price" prefix="€" inputMode="numeric" autoComplete="off" />
             )}
             <Field {...field("deposit", deposit, take(WHOLE, setDeposit), depositError)} label="Deposit" prefix="€" inputMode="numeric" autoComplete="off" />
-            <Field {...field("term", term, setTerm)} label="Term" options={TERM_OPTIONS} />
-            <p className="text-meta text-text-2">Worked out at an example rate of {d.aprPct}% APR. Your real rate is set by the lender.</p>
+            <Field {...field("term", term, setTerm)} label="Term" options={termOptions(product)} />
+            <p className="text-meta text-text-2">Worked out at an example rate of {pcp ? pcp.aprPct : d.aprPct}% APR. Your real rate is set by the lender.</p>
           </div>
         </div>
         <div className={`flex flex-col gap-4 ${card} p-4 sm:p-6`}>
@@ -78,10 +97,11 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
                   {(
                     [
                       ["Amount borrowed", q.borrowedEur],
+                      ...(final === undefined ? [] : [["Optional final payment", final]]),
                       ["Estimated interest", q.interestEur],
                       ["Total you repay", q.totalEur],
                       ["Total cost, with your deposit", q.totalEur + depositEur],
-                    ] as const
+                    ] as [string, number][]
                   ).map(([label, value]) => (
                     <div key={label} className="flex justify-between gap-4">
                       <dt className="text-text-2">{label}</dt>
@@ -90,6 +110,12 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
                       </dd>
                     </div>
                   ))}
+                  {pcp && (
+                    <div className="flex justify-between gap-4">
+                      <dt className="text-text-2">Mileage allowance</dt>
+                      <dd className="text-right tabular-nums">{pcp.kmPerYear.toLocaleString("en-IE")} km a year</dd>
+                    </div>
+                  )}
                 </dl>
               </>
             ) : (
@@ -98,14 +124,14 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
           </div>
           <p className="flex items-start gap-2 text-meta text-text-2">
             <InfoIcon className="mt-0.5 size-4 shrink-0" />
-            {car ? financeNotice(car.priceEur) : FINANCE.notice}
+            {financeNotice(car?.priceEur, product)}
           </p>
           {car ? (
             <button
               ref={opener}
               type="button"
               onClick={() => {
-                setPrefill({ deposit, term }); // a new object on each open refreshes just these fields in the form
+                setPrefill(FINANCE.pcp ? { product, deposit, term } : { deposit, term }); // a new object on each open refreshes just these fields in the form
                 setOpen(true);
               }}
               className={`mt-auto flex h-12 w-full items-center justify-center gap-2 rounded-control border border-control bg-card px-6 font-semibold ${press}`}
