@@ -47,12 +47,12 @@ describe("badge and report", () => {
   it("names each problem plainly", () => {
     expect(historyProblems({ ...check, financeOwed: true, writeOff: "C", mileage: { consistent: false } })).toEqual(["Finance is owed on it", "Written off, category C", "The mileage does not match its records"]);
   });
-  it("keeps the plate and the reading for staff only", () => {
+  it("keeps the plate off both, and the reading for staff only", () => {
     const pub = Object.fromEntries(historyRows(check));
     expect(pub).toMatchObject({ "Finance owed": "None", "Written off": "No", Mileage: "Matches its records", Owners: "2", Imported: "Yes, from the UK" });
     expect(pub.Registration).toBeUndefined();
     const staff = Object.fromEntries(historyRows(check, true));
-    expect(staff.Registration).toBe("191-D-1");
+    expect(staff.Registration).toBeUndefined();
     expect(staff.Mileage).toContain("50,000 km");
   });
 });

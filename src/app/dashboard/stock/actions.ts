@@ -58,11 +58,14 @@ export async function saveCarAction(id: string | null, _prev: FormState, data: F
   // photos can be added, rather than an error that invites a second Save and a second copy of the car.
   let photosFailed = false;
   if (photos.length) {
-    try {
-      car = { ...car, photos: await Promise.all(photos.map((p) => storeCarPhoto(car.id, p.bytes, p.width, p.height))) };
-      await saveCar(car);
-    } catch {
+    const stored = await Promise.allSettled(photos.map((p) => storeCarPhoto(car.id, p.bytes, p.width, p.height)));
+    const ok = stored.flatMap((r) => (r.status === "fulfilled" ? [r.value] : []));
+    const saved = ok.length === photos.length && (await saveCar({ ...car, photos: ok }).then(() => true, () => false));
+    if (saved) car = { ...car, photos: ok };
+    else {
+      // None kept: the dealer adds them again on its page, so any stored now are removed rather than left behind unseen.
       photosFailed = true;
+      await dropCarPhotos(ok).catch(() => undefined);
     }
   }
   if (cost === null) await costsStore.remove(car.id);

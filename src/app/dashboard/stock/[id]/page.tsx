@@ -58,7 +58,6 @@ export default async function Page({ params, searchParams }: { params: Promise<{
   const problems = check ? historyProblems(check) : [];
   const historyPanel = check !== undefined && (
     <Panel title="History check">
-      {sp.photos === "failed" && <Notice tone="warn">The car is saved, but its photos did not upload. Add them below.</Notice>}
       {sp.history === "done" && <Notice>Checked.</Notice>}
       {sp.history === "failed" && <Notice tone="warn">The check did not come back. Try again in a minute.</Notice>}
       {sp.history === "reg" && <Notice tone="warn">Enter an Irish registration, like 191-D-12345.</Notice>}
@@ -122,6 +121,7 @@ export default async function Page({ params, searchParams }: { params: Promise<{
     <>
       <PageHeader title={carName(car)} actions={steps} back={{ href: "/dashboard/stock", label: "Stock" }} />
       {/* Photos first: they are the job on the forecourt, and they save on their own, apart from the form's Save changes. */}
+      {sp.photos === "failed" && <Notice tone="warn">The car is saved, but its photos did not upload. Add them below.</Notice>}
       <CarPhotos carId={car.id} photos={car.photos} max={CAR_PHOTOS_MAX} />
       <CarForm car={car} cost={cost} />
       {prep}

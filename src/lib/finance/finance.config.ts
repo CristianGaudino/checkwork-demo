@@ -12,6 +12,7 @@ const defaults = { priceEur: 15000, depositEur: 3000, termMonths: 48, aprPct: 8.
 // the terms, the guaranteed minimum future value (GMFV, the optional final payment), the mileage allowance, the excess mileage charge,
 // any fee, and the lender's own PCP wording in financeNotice.
 const pcpTerms = {
+  placeholder: true, // made-up terms: finance.config.test.ts fails a production deploy until the lender's replace them, or `pcp` is null
   aprPct: 8.9,
   terms: [24, 36, 48] as readonly number[],
   termMonths: 36, // the representative example's term, and where the calculator starts
@@ -52,12 +53,14 @@ export function financeNotice(priceEur: number = defaults.priceEur, product: Fin
   const depositEur = priceEur > defaults.depositEur ? defaults.depositEur : 0;
   if (product === "pcp") {
     const n = pcpTerms.termMonths;
-    const q = pcpEstimate(priceEur, depositEur, n);
+    // A cheap car can leave less to borrow than its final payment: its example is then without a deposit, still on its own price.
+    const deposit = pcpEstimate(priceEur, depositEur, n) ? depositEur : 0;
+    const q = pcpEstimate(priceEur, deposit, n);
     if (!q) return financeNotice(defaults.priceEur, "pcp");
     return (
-      `${ESTIMATE} Representative example: cash price ${eur(priceEur)}, deposit ${eur(depositEur)}, amount of credit ${eur(q.borrowedEur)}, ` +
+      `${ESTIMATE} Representative example: cash price ${eur(priceEur)}, deposit ${eur(deposit)}, amount of credit ${eur(q.borrowedEur)}, ` +
       `${n} monthly payments of ${eur(q.monthlyEur)}, optional final payment ${eur(q.finalEur)}${pcpTerms.purchaseFeeEur ? ` (including a purchase fee of ${eur(pcpTerms.purchaseFeeEur)})` : ""}, ` +
-      `${pcpTerms.aprPct}% APR. Total cost of credit ${eur(q.interestEur)}. Total amount payable ${eur(q.totalEur + depositEur)}. ` +
+      `${pcpTerms.aprPct}% APR. Total cost of credit ${eur(q.interestEur)}. Total amount payable ${eur(q.totalEur + deposit)}. ` +
       `Personal contract plan, subject to status. At the end you can pay the optional final payment and keep the car, hand it back, or trade it in. ` +
       `Mileage allowance ${pcpTerms.kmPerYear.toLocaleString("en-IE")} km a year: if you hand the car back, ${pcpTerms.excessCentPerKm} cent is charged for ` +
       `each km over it, and for damage beyond fair wear and tear. ${WARNINGS}`

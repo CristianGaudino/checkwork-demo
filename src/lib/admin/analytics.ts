@@ -45,6 +45,7 @@ export const change = (now: number, before: number) => (before ? ((now - before)
 // A change on the period before, in words. A count moves by a share of itself (%). A rate is already a percentage, so it moves by points:
 // 1.3% to 1.9% is "Up 0.6 points", where "Up 46%" would read as a different thing.
 export function changeText(now: number, before: number, rate = false): string {
+  if (!rate && !before) return now ? "None the period before" : "None this period or the one before"; // a share of nothing is no figure
   const r = (x: number) => Math.round(x * 10) / 10; // to the 0.1 the figures show, so the change matches them
   const d = rate ? r(now) - r(before) : change(now, before);
   const n = r(Math.abs(d));

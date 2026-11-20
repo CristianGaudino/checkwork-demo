@@ -1,6 +1,6 @@
 import "server-only";
 import { defineCollection } from "@/lib/admin/docs";
-import { fmtDate, fmtDay } from "@/lib/admin/format";
+import { dublinDay, fmtDate, fmtDay } from "@/lib/admin/format";
 import { modeOf } from "@/lib/integrations";
 import { formatKm } from "@/lib/stock/format";
 import { isNew, type Car } from "@/lib/stock/types";
@@ -51,11 +51,10 @@ export const demoReg = (car: Pick<Car, "id" | "year">) => `${String(car.year).sl
 // What stops the site saying "checked": each in plain words.
 export const historyProblems = (r: HistoryReport) => [r.financeOwed && "Finance is owed on it", r.writeOff && `Written off, category ${r.writeOff}`, !r.mileage.consistent && "The mileage does not match its records"].filter((p): p is string => Boolean(p));
 
-// The report as rows. `staff` adds the last reading and the plate, which the public report leaves out.
+// The report as rows. `staff` adds the last reading, which the public report leaves out (the plate is in the dashboard's own field).
 export function historyRows(c: HistoryCheck, staff = false): [string, string][] {
   const m = c.mileage;
   return [
-    ...(staff ? [["Registration", c.reg] as [string, string]] : []),
     ["Finance owed", c.financeOwed ? "Yes" : "None"],
     ["Written off", c.writeOff ? `Yes, category ${c.writeOff}` : "No"],
     ["Mileage", `${m.consistent ? "Matches its records" : "Does not match its records"}${staff && m.lastKm ? `, last read at ${formatKm(m.lastKm)}${m.readOn ? ` in ${fmtDay(m.readOn, "monthYear")}` : ""}` : ""}`],
@@ -75,7 +74,7 @@ export async function historyFor(car: Car): Promise<HistoryCheck | null> {
   const saved = (await historyStore.list({ seed: false }).catch(() => [])).find((c) => c.id === car.id);
   if (saved || mode === "live") return saved ?? null;
   const reg = demoReg(car);
-  const checkedOn = car.listedAt ?? new Date().toISOString().slice(0, 10);
+  const checkedOn = car.listedAt ?? dublinDay();
   return { id: car.id, reg, checkedOn, ...simulateHistory(reg, car, checkedOn) };
 }
 

@@ -73,6 +73,7 @@ describe("range and change", () => {
   it("says a count's change in % and a rate's in points", () => {
     expect(changeText(145, 100)).toBe("Up 45% on the period before");
     expect(changeText(90, 100)).toBe("Down 10% on the period before");
+    expect(changeText(12, 0)).toBe("None the period before"); // not "Up 0%"
     expect(changeText(1.9, 1.3, true)).toBe("Up 0.6 points on the period before");
     expect(changeText(2, 3, true)).toBe("Down 1 point on the period before");
   });

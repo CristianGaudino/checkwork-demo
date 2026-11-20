@@ -10,8 +10,9 @@ const guard = (config: { placeholder: boolean }) => {
   if (isProduction()) expect(config.placeholder, "finance.config.ts still holds placeholder figures").toBe(false);
 };
 
-test("the live config is not a placeholder in production", () => {
+test("the live config is not a placeholder in production, PCP included", () => {
   guard(FINANCE);
+  if (FINANCE.pcp) guard(FINANCE.pcp); // the demo's made-up PCP terms never reach a client site: its lender's, or PCP off
 });
 
 test("the guard fails a placeholder config in production and lets it through elsewhere", () => {
@@ -41,4 +42,9 @@ test("the PCP example states its final payment, mileage and figures from the sam
   expect(n).toContain(`${pcp.kmPerYear.toLocaleString("en-IE")} km a year`);
   expect(n).toContain("Personal contract plan, subject to status.");
   expect(pcpFinalEur(17950, 60)).toBeUndefined(); // a term PCP does not offer
+});
+
+test("a cheap car's PCP example stays on its own price, without the deposit, rather than another car's", () => {
+  const n = financeNotice(3500, "pcp"); // €3,000 down leaves less to borrow than the final payment
+  expect(n).toContain("cash price €3,500.00, deposit €0.00, amount of credit €3,500.00");
 });

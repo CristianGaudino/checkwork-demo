@@ -42,6 +42,13 @@ export function DriveFields({ bind, carId }: { bind(name: string): FieldBinding;
     if (first && !day.value) pick(first);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only when the days arrive or the day is cleared (a fresh form)
   }, [first, day.value]);
+  // The car's booked times arrive on the first focus, after the form chose a time: if that time is gone, move to the one the box now shows,
+  // so what is sent is what the buyer sees.
+  const gone = Boolean(day.value && time.value && times.length && !times.includes(time.value));
+  useEffect(() => {
+    if (gone) time.onChange(times[0]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only when the chosen time stops being free
+  }, [gone]);
   return (
     <div className="contents" onFocus={ask}>
       <div className="grid grid-cols-1 gap-4 @xl:grid-cols-2">

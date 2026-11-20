@@ -220,8 +220,9 @@ function seedDiary(): TestDrive[] {
   const r = rng(137);
   const now = Date.now();
   const forSale = (demoCars as Car[]).filter((c) => !c.soldAt && !c.reserved);
+  const first = r.int(0, forSale.length - 1);
   return ([[0, 12, 30, "confirmed"], [0, 15, 0, "confirmed"], [0, 17, 0, "requested"], [1, 10, 0, "requested"], [1, 16, 30, "confirmed"]] as const).map(([day, h, m, seeded], i) => {
-    const car = r.pick(forSale);
+    const car = forSale[(first + i) % forSale.length]; // a different car each, so the diary never books one car twice at once
     const { startsAt, status } = settleSeededDrive(seededSlot(dublinDay(now + day * DAY), `${h}:${String(m).padStart(2, "0")}`), seeded, now);
     // Booked in the last day: today's and tomorrow's diary was mostly filled lately.
     return { id: `drive-${230 + i}`, ...person(r), carSlug: car.slug, carTitle: carTitleOf(car), startsAt, status, notes: i === 1 ? "Bringing a partner." : "", ...(status !== "requested" && { assignedTo: DRIVERS[i % 2] }), createdAt: now - (i + 1) * 5 * HOUR };
