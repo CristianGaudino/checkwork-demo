@@ -1,18 +1,18 @@
 # First-touch outreach: tier A dealers
 
-The 32 tier A dealers in the order of [prospects.md](prospects.md), then five more that their cards rate tier A (Connolly's waits for the groups wave in [go-to-market.md](go-to-market.md); Audi Approved :plus Kerry is pitched through Blackwater). Each has a card in [cards/](cards/) with the full facts and links. Live demo: https://www.demo.checkwork.ie
+The 32 tier A dealers in the order of [prospects.md](prospects.md), then five more that their cards rate tier A (Audi Approved :plus Kerry is pitched through Blackwater). Call them in the waves of [go-to-market.md](go-to-market.md), not in this order: groups, with Connolly's last, start from week 6 or once 3 dealers are live. Each has a card in [cards/](cards/) with the full facts and links. Live demo: https://www.demo.checkwork.ie
 
 ## The rules on calls and email
 From the ePrivacy Regulations (S.I. 336 of 2011) and the Data Protection Commission's guidance (more in [go-to-market.md](go-to-market.md)):
 - Call a business's landline only. Don't call it if it's on the National Directory Database opt-out or the business has told us not to. If they say no, add them to the do-not-contact list and don't ring again. Never cold call a mobile number (083 to 089), even a company's.
 - Sole traders and partnerships count as individuals, not companies. Email them only if they've agreed to it on the call.
-- Every email you send says who it's from and gives them an easy way to say no to more.
+- Every email you send says it's from Checkwork, gives our postal address and an easy way to say no to more.
 
 So every first touch below is a call to the business's public number. Email comes later, and only to an address they give you on the call.
 
 ## Before every call
 - Open with: "Hi, it's [your name] from Checkwork. We're a small Irish business, we build websites and a sales dashboard for car dealers. Who looks after your website and marketing?" Then use the script with that person.
-- Check the number is a landline (not 083 to 089) and not on the NDD opt-out. When you reach a named person, say where we got the number and: "If you'd rather we didn't contact you again, just say and we won't."
+- Check the number is a landline (not 083 to 089) and not on the NDD opt-out. When you reach a named person, say where we got the number, that our privacy notice is on checkwork.ie, and: "If you'd rather we didn't contact you again, just say and we won't."
 - The site facts are from 20 November 2026. Open the page the morning you call and make sure it's still true.
 - Don't open with price. Each dealer's tier and price are on its card, for when they ask.
 - Don't promise these yet:
@@ -23,7 +23,7 @@ So every first touch below is a call to the business's public number. Email come
   - syncing more than one DoneDeal or CarsIreland account
   - reserving or paying a deposit online (our site doesn't; a dealer who has it now loses it)
   - discounts
-  - Shown in the demo but not yet connected for a real dealer: the DoneDeal or CarsIreland stock sync, the reg lookup, sending WhatsApp messages, posting to Facebook and Instagram, newsletters, and review replies to Google. Say they're coming, and don't give a launch date that depends on them.
+  - Shown in the demo but not yet connected for a real dealer: the DoneDeal or CarsIreland stock sync, the reg lookup, sending WhatsApp messages, posting to Facebook and Instagram, running ads, newsletters, and review replies to Google. Say they're coming, and don't give a launch date that depends on them.
 - Our sync reads one DoneDeal or CarsIreland account. Dealers marked *one account* below list on more than one, so their ads have to move onto one before launch. Tell them if stock comes up.
 - If they ask for something in writing, email the demo link to the address they give you on the call.
 
@@ -65,13 +65,13 @@ So every first touch below is a call to the business's public number. Email come
 
 ## 7. Western Motors Ltd · Galway
 **Channel:** call 091 709970
-**Before you call:** Check what a buyer sees for trade-in on a westernmotors.ie car page before you mention it. VW brands steer new cars. The decision is likely made centrally for all three showrooms. Ask if the other branches list on their own DoneDeal account (*one account* if so).
+**Before you call:** Check what a buyer sees for trade-in on a westernmotors.ie car page before you mention it. VW brands steer new cars. The decision is likely made centrally for all three showrooms. Ask if the other branches list on their own DoneDeal account (*one account* if so). Their site takes reserves online; ours doesn't, so say so if it comes up.
 **Script:** "Your site already does search, finance and test drives. What it can't tell you is which of the leads from Galway, Drogheda and Dundalk got a call back. We put every enquiry from the site in one inbox, with follow-ups and staff logins, and you'd answer your 765 Google reviews from the same place with a draft ready. Have you fifteen minutes for the demo?"
 **Follow-up:** A week on: "Who'd be the right person in the group to see the dashboard?"
 
 ## 8. Lyons of Limerick · Limerick
 **Channel:** call 061 413344
-**Before you call:** Ford, Volvo and JLR have site rules and NetDirector may be their approved supplier, so pitch our site for used cars beside it. Galway has its own site (lyonsgalway.com), so the offer is one used-car site for both. The decision is likely made for both branches. *One account* (Lyons of Galway lists separately).
+**Before you call:** Ford, Volvo and JLR have site rules and NetDirector may be their approved supplier, so pitch our site for used cars beside it. Galway has its own site (lyonsgalway.com), so the offer is one used-car site for both. The decision is likely made for both branches. *One account* (Lyons of Galway lists separately). Their site takes reserves online; ours doesn't, so say so if it comes up.
 **Script:** "You've 475 Google reviews and none of them are on lyonsoflimerick.com, and your Valuations button just opens the contact page. We'd put your Limerick reviews on show and give buyers a valuation form with reg lookup and photos. It'd be one used-car site for Limerick and Galway, with one dashboard for the leads it brings in. Could I show you on our demo?"
 **Follow-up:** A week on: "I'd still like to show you the valuation form. Does next week suit?"
 
@@ -173,7 +173,7 @@ So every first touch below is a call to the business's public number. Email come
 
 ## 25. Frank Hogan Ltd · Limerick
 **Channel:** call 061 416000
-**Before you call:** VW Group and Mercedes have strict new-car rules, so lead with used, commercials and the dashboard. *One account* (three DoneDeal accounts).
+**Before you call:** VW Group and Mercedes have strict new-car rules, so lead with used, commercials and the dashboard. *One account* (three DoneDeal accounts). Their site takes reserves online; ours doesn't, so say so if it comes up.
 **Script:** "You've 839 Google reviews and one on your homepage, and no way for a buyer to value their trade-in. We'd fix both and put every enquiry from your site in one dashboard. Could I show you on the demo?"
 **Follow-up:** A week on: "Did you think any more about the trade-in form? I'd still like to show it to you."
 
@@ -185,13 +185,13 @@ So every first touch below is a call to the business's public number. Email come
 
 ## 27. AutoXpress · Limerick
 **Channel:** call 061 446033
-**Before you call:** Say "over 30 MB", not an exact figure. Limerick and Galway share autoxpress.ie, so pitch them together. *One account* (Galway has its own account).
+**Before you call:** Say "over 30 MB", not an exact figure. Limerick and Galway share autoxpress.ie, so pitch them together. *One account* (Galway has its own account). Their site takes reserves online; ours doesn't, so say so if it comes up.
 **Script:** "Your homepage downloads over 30 MB on a phone before a buyer can search, and there's no way to value a trade-in. We'd fix both, and give Limerick and Galway one dashboard with margins on every import. Could I show you on the demo?"
 **Follow-up:** A week on: "Did you try the homepage on mobile data? I'd like to show you ours."
 
 ## 28. George Corbett Motors · Waterford
 **Channel:** call 051 857717
-**Before you call:** Their site is strong and they may be in contract, so lead with the dashboard.
+**Before you call:** Their site is strong and they may be in contract, so lead with the dashboard. Their site takes reserves online; ours doesn't, so say so if it comes up.
 **Script:** "You've 175 cars and four social channels to keep fed. Could I show you a dashboard that drafts the post for every car and tells you which ones are ageing? Your Google rating and reviews would go on the site as well, with a link to all 355. The homepage shows one at the moment."
 **Follow-up:** A week on: "Would fifteen minutes on the social side still be of interest?"
 

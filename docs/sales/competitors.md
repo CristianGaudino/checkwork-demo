@@ -21,7 +21,7 @@ Every rival sells a site. None of the site providers checked shows a leads inbox
 **What dealers get:** a custom-designed site with a control panel, stock management, a CRM and service scheduling. They also sell SEO, PPC, social and content ([happydealer.ie/web-development](https://www.happydealer.ie/web-development), [happydealer.ie](https://www.happydealer.ie/), 2026-11-20).
 **Price:** not published.
 **Weak for the dealer:**
-- Frank Hogan's site (839 Google reviews) has no trade-in valuation, no test drive booking, no WhatsApp and shows one review on the home page ([frankhogan.ie](https://www.frankhogan.ie/), 2026-11-20).
+- Frank Hogan's site (839 Google reviews) shows one review on the home page and has no trade-in valuation: car pages offer Enquire, Finance, Reserve and Test Drive, and nothing to value the buyer's own car ([frankhogan.ie](https://www.frankhogan.ie/), 2026-11-20).
 - AutoXpress's home page downloads 34 MB on a phone before a buyer can search ([card](cards/limerick.md), 2026-11-20).
 - A typo ("FINAINCE") in an offer on motorview.ie, and a home-page review with a name but no words on Mallow Road Motors ([cards/cork.md](cards/cork.md), 2026-11-20).
 - Its CRM is one line on its site, with no detail on what it does ([happydealer.ie/web-development](https://www.happydealer.ie/web-development)).
@@ -61,7 +61,7 @@ Every rival sells a site. None of the site providers checked shows a leads inbox
 - After the lead: the site's enquiries in one inbox, follow-ups, staff roles, WhatsApp alerts. No site provider above shows this on its public pages; HappyDealer's CRM is unverified.
 - Reviews: the Google rating, the count and up to five reviews as Google shows them, with a link to every review, plus replies from the dashboard. Most rivals show none or a few.
 - Trade-in with reg lookup: missing or a plain form on the CarsIreland, HappyDealer, DoneDeal and Toyota sites checked.
-- The site carries the dealer's name only, on their own domain, with stock synced from the DoneDeal or CarsIreland account they already pay for, and their data exports any time.
+- The site carries the dealer's name only, on their own domain, with stock synced from the DoneDeal or CarsIreland account they already pay for, and on Dealer and Group their data exports any time.
 - Margins, stock age, and AI descriptions copied back to DoneDeal: none of the site providers checked show these.
 
 ## Where it doesn't
