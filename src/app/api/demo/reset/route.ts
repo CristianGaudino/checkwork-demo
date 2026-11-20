@@ -6,7 +6,7 @@ import { isDemoSite } from "@/lib/site";
 
 const headers = { "Cache-Control": "no-store", "X-Robots-Tag": "noindex" };
 
-// The Worker's Monday cron (worker.mjs) puts the demo's made-up records back to their seed, with CRON_KEY, after the deploy moved the demo
+// The Worker's morning cron (worker.mjs) puts the demo's made-up records back to their seed, dated from today, with CRON_KEY; on a Monday after the deploy moved the demo
 // cars' sold dates, so a sale's day matches its car's again. The demo deploy only: anywhere else it is not there.
 export async function POST(req: Request) {
   if (!cronAuthorized(req) || !isDemoSite() || !seedsDemoRecords()) return new Response(null, { status: 404, headers });

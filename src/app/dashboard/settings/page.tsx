@@ -77,20 +77,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
 
           {/* The one thing here a dealer changes, first; the details we keep for them after it. */}
           <Panel title="Targets">
-            <Locked open={edit}>
-              <TargetsForm settings={s} />
-            </Locked>
+            {edit ? <TargetsForm settings={s} /> : <Facts rows={[["Reply to a new lead within", `${s.leadSlaHours} hours`], ["Test drive slot", `${s.driveSlotMinutes} minutes`]]} />}
           </Panel>
 
           <Panel title="Business details">
-            <dl className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
-              {[["Name", SITE_NAME], ["Phone", DEALER_PHONE], ["Email", DEALER_EMAIL], ["Address", DEALER_ADDRESS_TEXT]].map(([k, v]) => (
-                <div key={k}>
-                  <dt className="text-meta text-text-2">{k}</dt>
-                  <dd className="text-body">{v}</dd>
-                </div>
-              ))}
-            </dl>
+            <Facts rows={[["Name", SITE_NAME], ["Phone", DEALER_PHONE], ["Email", DEALER_EMAIL], ["Address", DEALER_ADDRESS_TEXT]]} />
             <ul className="grid grid-cols-1 gap-x-8 gap-y-1 text-body sm:grid-cols-2">
               {OPENING_HOURS.map((h) => (
                 <li key={h.day} className="flex justify-between gap-4 border-b border-hairline py-1.5">
@@ -181,15 +172,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
           {section === "emails" && (
           <>
           <Panel title="Lead emails">
-            <Locked open={edit}>
-              <LeadEmailsForm settings={s} fallback={Boolean(process.env.LEAD_TO_EMAIL)} />
-            </Locked>
+            {edit ? <LeadEmailsForm settings={s} fallback={Boolean(process.env.LEAD_TO_EMAIL)} /> : <Facts rows={[["Send new leads to", s.leadEmails.join(", ") || (process.env.LEAD_TO_EMAIL ? "The site's own address" : "No address set")]]} />}
           </Panel>
 
           <Panel title="Notifications">
-            <Locked open={edit}>
-              <NotificationsForm settings={s} emailConnected={isUsable("email")} />
-            </Locked>
+            {edit ? <NotificationsForm settings={s} emailConnected={isUsable("email")} /> : <Facts rows={[["Morning follow-ups email to each salesperson", s.notifications.followUps ? "On" : "Off"]]} />}
           </Panel>
 
           </>
@@ -197,9 +184,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
 
           {section === "marketing" && (
           <Panel title="Marketing voice">
-            <Locked open={edit}>
-              <MarketingForm settings={s} />
-            </Locked>
+            {edit ? <MarketingForm settings={s} /> : <Facts rows={[["How we sound", s.marketing.voice], ["Hashtags", s.marketing.hashtags], ["Sign-off line", s.marketing.signOff]].map(([k, v]) => [k, v || "Not set"])} />}
           </Panel>
           )}
 
@@ -234,11 +219,16 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
   );
 }
 
-// Read only for someone who may not change settings: every control is disabled (the server refuses the save anyway).
-function Locked({ open, children }: { open: boolean; children: React.ReactNode }) {
+// Values as text: the business details, and the settings for someone who may not change them (the server refuses a save anyway).
+function Facts({ rows }: { rows: string[][] }) {
   return (
-    <fieldset disabled={!open} className="contents">
-      {children}
-    </fieldset>
+    <dl className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
+      {rows.map(([k, v]) => (
+        <div key={k}>
+          <dt className="text-meta text-text-2">{k}</dt>
+          <dd className="break-words text-body">{v}</dd>
+        </div>
+      ))}
+    </dl>
   );
 }
