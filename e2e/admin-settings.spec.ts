@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import { as } from "./open";
 
 test("a target is checked, saved, and changes what the overview calls late", async ({ page }) => {
-  await page.goto("/dashboard/settings");
+  await page.goto("/dashboard/settings?section=targets");
   await page.locator('input[name="leadSlaHours"]').fill("0");
   await page.locator("form").filter({ has: page.locator('input[name="leadSlaHours"]') }).getByRole("button", { name: "Save" }).click();
   await expect(page.getByText("At least 1 hour")).toBeVisible();
@@ -34,7 +34,7 @@ test("the sections are one at a time; services say what is connected and how to 
   await page.goto("/dashboard/settings");
   await expect(page.getByRole("main").getByText("Checkwork Motors").first()).toBeVisible(); // the business details, not the menu
   await expect(page.getByRole("region", { name: "Team" })).toHaveCount(0); // one section at a time
-  await page.getByRole("navigation", { name: "Settings" }).getByRole("link", { name: "Services", exact: true }).click();
+  await page.getByRole("navigation", { name: "Settings" }).getByRole("link", { name: "Connected services", exact: true }).click();
   await expect(page).toHaveURL(/section=services/);
   const social = page.getByRole("row", { name: /Facebook and Instagram posting/ });
   // The three outward services are simulated on the demo, so they read as connected; lead email shows its true state.
@@ -51,6 +51,6 @@ test("without the settings permission every section is read only: values as text
     await expect(page.getByRole("main").getByRole("button", { name: /^(Save|Add|Send a test email|Start again)$/ })).toHaveCount(0);
     await expect(page.getByRole("main").getByRole("textbox")).toHaveCount(0);
   }
-  await page.goto("/dashboard/settings");
+  await page.goto("/dashboard/settings?section=targets");
   await expect(page.getByText(/^\d+ hours$/)).toBeVisible(); // the reply target, as text (another test may have changed it)
 });

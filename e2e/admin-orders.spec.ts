@@ -68,3 +68,22 @@ test("cancelling an order asks first: Cancel leaves it as it was, yes cancels it
   await page.goto("/dashboard/orders?view=cancelled");
   await expect(page.getByRole("row").filter({ hasText: "Zzcancel Estate" })).toBeVisible();
 });
+
+test("an order moves on from its row in the list: the next step is a button there", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/dashboard/orders/new");
+  await page.getByLabel("Make", { exact: true }).fill("Zzrow");
+  await page.getByLabel("Model", { exact: true }).fill("Coupe");
+  await page.getByLabel("Price (€)").fill("39000");
+  await choose(page.getByLabel("Due"), 1);
+  await page.getByLabel("Name", { exact: true }).fill("Nora Quinn");
+  await page.getByLabel("Phone", { exact: true }).fill("+353 83 000 8888");
+  await page.getByRole("button", { name: "Place order" }).click();
+  await expect(page).toHaveURL(/\/dashboard\/orders\/order-/);
+
+  await page.goto("/dashboard/orders?q=Zzrow");
+  const row = page.getByRole("row").filter({ hasText: "Zzrow Coupe" });
+  await row.getByRole("button", { name: "Mark built" }).click();
+  await expect(row.getByRole("button", { name: "Mark on its way" })).toBeVisible();
+  await expect(row).toContainText("Built");
+});
