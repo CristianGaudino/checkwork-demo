@@ -66,6 +66,7 @@ export function overview(input: { leads: Lead[]; drives: TestDrive[]; reviews: A
     toConfirm,
     unrecorded,
     // Today's open drives, the earlier ones too (a confirmed one this morning may still be out), in time order.
+    now, // the time these were worked out at, for the page's own "has it started" checks
     todayDrives: drives.filter((d) => isOpenDrive(d) && dublinDay(d.startsAt) === today).sort((a, b) => a.startsAt - b.startsAt),
     oldStock: cars.filter((c) => isOldStock(c, now)).length,
     newLeads: leads.filter((l) => l.status === "new").length,

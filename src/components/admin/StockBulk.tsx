@@ -86,13 +86,13 @@ export function StockBulk({ canDelete }: { canDelete: boolean }) {
   const choices: [Op, string, string, React.ReactNode][] = [
     ["price", "Drop the price", "Lower each price by euros or a percentage. The old price shows beside it.", <PercentIcon key="i" className="size-4" />],
     ["sold", "Mark sold", "Show them as Sold on the website. Record each sale after.", <CheckIcon key="i" className="size-4" />],
-    ...(canDelete ? [["delete", "Delete", "Remove them from the website for good.", <TrashIcon key="i" className="size-4" />] as [Op, string, string, React.ReactNode]] : []),
+    ...(canDelete ? [["delete", "Delete", "Delete the cars, their costs and prep for good.", <TrashIcon key="i" className="size-4" />] as [Op, string, string, React.ReactNode]] : []),
   ];
 
   return (
     <>
       {count === 0 && <p className="text-meta text-text-2 max-sm:hidden">Tick cars in the list to drop their price, mark them sold or delete them together.</p>}
-      <form id={FORM} onSubmit={(e) => (e.preventDefault(), amountOk && setAsking(true))} hidden={count === 0} className="sticky top-2 z-30 flex flex-col gap-3 rounded-card border border-accent bg-card p-4 shadow-lift lg:top-[5.5rem]">
+      <form id={FORM} onSubmit={(e) => (e.preventDefault(), amountOk && setAsking(true))} hidden={count === 0} className="z-30 sm:sticky sm:top-2 flex flex-col gap-3 rounded-card border border-accent bg-card p-4 shadow-lift lg:top-[5.5rem]">
       <div className="flex flex-wrap items-center gap-2">
         <p aria-live="polite" className="mr-auto flex min-w-0 flex-col">
           <span className="font-semibold">{count > 0 && `${cars} selected`}</span>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { movedSince } from "./stale";
+import { changedSince, movedSince } from "./stale";
 
 const form = (o: Record<string, string>) => {
   const f = new FormData();
@@ -12,5 +12,7 @@ describe("movedSince", () => {
     expect(movedSince(form({ status: "contacted", from: "new" }), "new")).toBe(false);
     expect(movedSince(form({ status: "contacted", from: "new" }), "appointment")).toBe(true);
     expect(movedSince(form({ status: "contacted" }), "appointment")).toBe(false);
+    expect(changedSince("requested", "cancelled")).toBe(true);
+    expect(changedSince(undefined, "cancelled")).toBe(false);
   });
 });

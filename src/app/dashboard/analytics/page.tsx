@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { bounds } from "@/lib/reports/monthly";
 import { DAY } from "@/lib/time";
-import { alertsStore } from "@/lib/admin/collections";
-import { dublinDay } from "@/lib/admin/format";
+import { alertsStore, salesStore } from "@/lib/admin/collections";
+import { addDays, dublinDay } from "@/lib/admin/format";
 import { visitorFigures } from "@/lib/admin/visitor-figures";
 import { countsBetween } from "@/lib/owner-api/counters";
 import type { Range } from "@/lib/admin/analytics";
@@ -14,6 +14,7 @@ import { fmtNum, fmtPct, threeLetter } from "@/lib/admin/format";
 import { leadsStore } from "@/lib/admin/collections";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { simulating } from "@/lib/integrations";
+import { can } from "@/lib/permissions";
 import { carName, carHref } from "@/lib/stock/format";
 import { forSale } from "@/lib/stock/types";
 
@@ -25,7 +26,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
   const range = parseRange((await searchParams).range);
   // The demo shows generated figures; a dealer's own site shows what its visitors really did.
   if (!simulating()) return <RealAnalytics range={range} />;
-  const [all, leads] = await Promise.all([adminCars(), leadsStore.list()]);
+  const [all, leads, sales, reports] = await Promise.all([adminCars(), leadsStore.list(), salesStore.list(), can("reports")]);
   const cars = all.filter(forSale).map((c) => ({ slug: c.slug, title: carName(c) }));
   const a = buildAnalytics({ range, cars, leadTimes: leads.map((l) => l.createdAt) });
   const dv = change(a.totals.visitors, a.previous.visitors);
@@ -33,7 +34,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
   const dl = change(a.totals.leads, a.previous.leads);
   const convBefore = a.previous.visitors ? (a.previous.leads / a.previous.visitors) * 100 : 0;
   const top = a.funnel[0].count;
-  const sold = a.funnel[a.funnel.length - 1].count;
+  // Cars sold is the sales recorded in the period (as Reports counts them), never a generated figure; the funnel ends on the same number.
+  const from = addDays(dublinDay(), -range);
+  const sold = sales.filter((s) => !s.returnedOn && s.soldOn > from).length;
+  const funnel = a.funnel.map((s, i, f) => (i === f.length - 1 ? { ...s, count: Math.min(sold, f[i - 1]?.count ?? sold) } : s));
   const best = [...a.sources].sort((x, y) => y.leads - x.leads)[0];
 
   return (
@@ -50,7 +54,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
       <StatGrid>
         <StatCard label="Visitors" value={fmtNum(a.totals.visitors)} hint={changeText(a.totals.visitors, a.previous.visitors)} tone={dv >= 0 ? "good" : "bad"} />
         <StatCard label="Leads" value={fmtNum(a.totals.leads)} hint={changeText(a.totals.leads, a.previous.leads)} tone={dl >= 0 ? "good" : "bad"} href="/dashboard/leads" />
-        <StatCard label="Cars sold" value={fmtNum(sold)} hint={`From ${fmtNum(a.totals.leads)} leads`} />
+        <StatCard label="Cars sold" value={fmtNum(sold)} hint="Sales you recorded" href={reports ? "/dashboard/reports" : undefined} />
         <StatCard label="Visitors who got in touch" value={fmtPct(a.totals.conversion)} hint={changeText(a.totals.conversion, convBefore, true)} tone={a.totals.conversion >= convBefore ? "good" : "bad"} />
       </StatGrid>
 
@@ -69,7 +73,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
           />
         </Panel>
         <Panel title="From visit to sale">
-          <BarList items={a.funnel.map((s, i) => ({ label: s.label, value: s.count, note: i ? fmtPct((s.count / top) * 100) : undefined }))} of={top} />
+          <BarList items={funnel.map((s, i) => ({ label: s.label, value: s.count, note: i ? fmtPct((s.count / top) * 100) : undefined }))} of={top} />
         </Panel>
       </div>
 

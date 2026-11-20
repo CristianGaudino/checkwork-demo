@@ -94,7 +94,7 @@ export async function LeadView({ id }: { id: string }) {
               <span>{lead.phone}</span>
             </p>
           </section>
-          <section aria-labelledby="next" className="flex min-w-0 flex-col gap-4 lg:border-l lg:border-hairline lg:pl-6">
+          <section aria-labelledby="next" className="flex min-w-0 flex-col gap-4 max-lg:order-first max-lg:border-b max-lg:border-hairline max-lg:pb-5 lg:border-l lg:border-hairline lg:pl-6">
             <h2 id="next" className="text-meta font-medium text-text-2">Next step</h2>
             <ContactButtons phone={lead.phone} email={lead.email} />
             {/* Booking a drive from the lead carries their car, name and number into the form. */}

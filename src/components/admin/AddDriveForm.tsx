@@ -24,7 +24,7 @@ const stepOf = (e: Record<string, string>) => (e.carSlug ? 0 : e.date || e.time 
 // A booking taken by phone or at the desk, in three steps: the car from photo cards, a free time from the picker (the car's other bookings
 // and past times cannot be picked), then the customer and who takes them out. Every field stays in one form. The server checks it all
 // again and refuses a clash; once booked, the diary opens on that day. `person`: a lead's name and number, filled in when booked from it.
-export function BookDriveForm({ cars, team, me, slots, initialCar, person }: { cars: CarCard[]; team: string[]; me: string; slots: Slots; initialCar: string; person?: { name: string; phone: string; email: string } }) {
+export function BookDriveForm({ cars, team, me, slots, initialCar, person }: { cars: CarCard[]; team: string[]; me: string; slots: Slots; initialCar: string; person?: { leadId: string; name: string; phone: string; email: string } }) {
   const router = useRouter();
   const start = cars.some((c) => c.slug === initialCar) ? initialCar : "";
   const [step, setStep] = useState(start ? 1 : 0);
@@ -51,6 +51,7 @@ export function BookDriveForm({ cars, team, me, slots, initialCar, person }: { c
     <form {...action} noValidate className="flex max-w-3xl flex-col gap-5">
       <Stepper titles={STEPS} step={step} headingRef={heading} />
       <input type="hidden" name="carSlug" value={car} />
+      {person && <input type="hidden" name="leadId" value={person.leadId} />}
 
       <section hidden={step !== 0}>
         <CarPicker

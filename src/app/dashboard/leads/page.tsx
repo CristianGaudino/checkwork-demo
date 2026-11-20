@@ -112,6 +112,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
   // What to answer now, worked down from the top: new leads waiting too long or in a hurry and follow-ups overdue, then the other new
   // ones and today's follow-ups. On the plain list only: a filter or a search is looking for something else.
   const filtered = Boolean(f.status || f.type || f.topic || f.q || f.due || f.late || f.with || f.source || (sp.page && sp.page !== "1"));
+  // The longest waiting first, as on the Overview: a new lead since it came in, a follow-up since the day it was due.
+  const waitingSince = (l: Lead) => (l.status === "new" ? l.createdAt : Date.parse(`${l.followUpOn}T00:00:00Z`));
   const todo = all
     .flatMap((l): { lead: Lead; why: string; urgency: TaskUrgency }[] => {
       if (l.status === "new") {
@@ -123,7 +125,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
       const late = l.followUpOn! < today;
       return [{ lead: l, why: late ? `Follow-up was due ${fmtDate(`${l.followUpOn}T12:00:00Z`)}` : "Follow up today", urgency: late ? "now" : "soon" }];
     })
-    .sort((a, b) => (a.urgency === b.urgency ? b.lead.createdAt - a.lead.createdAt : a.urgency === "now" ? -1 : 1));
+    .sort((a, b) => (a.urgency === b.urgency ? waitingSince(a.lead) - waitingSince(b.lead) : a.urgency === "now" ? -1 : 1));
   const SHOWN = 8;
 
   return (

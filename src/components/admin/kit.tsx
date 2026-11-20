@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useId } from "react";
-import { card, press } from "@/components/ui";
+import { NEW_TAB, card, press } from "@/components/ui";
 import { Tween } from "@/components/Tween";
 import { AppliedFilters, DensityToggle, Filters, LiveSearch, SortHeader, type FilterGroup } from "./TableTools";
 import { PER_PAGE_DEFAULT, perPage } from "@/lib/admin/paging";
@@ -417,7 +417,7 @@ export function ActionTile({ href, icon, label, text, primary = false, external 
     </>
   );
   return external ? (
-    <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
+    <a href={href} {...NEW_TAB} className={className}>
       {body}
     </a>
   ) : (

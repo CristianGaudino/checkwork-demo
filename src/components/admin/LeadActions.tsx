@@ -6,8 +6,19 @@ import { leadStatusLabel, type Lead, type LeadStatus } from "@/lib/admin/collect
 import { telHref, waHref } from "@/lib/phone";
 import { setStatusAction } from "@/app/dashboard/leads/actions";
 
+// A call to them, named for a screen reader ("Call Mary Byrne"). Nothing when there is no number to call.
+export function CallButton({ phone, name }: { phone: string; name: string }) {
+  const tel = phone ? telHref(phone) : undefined;
+  return tel ? (
+    <a href={tel} aria-label={`Call ${name}`} className={rowButton}>
+      <PhoneIcon className="size-4" />
+      Call
+    </a>
+  ) : null;
+}
+
 // The way they asked to be reached first (the contact form's "Call me", "WhatsApp", "Email me"), else a call, else an email: one button.
-export function ReachButton({ lead }: { lead: Pick<Lead, "phone" | "email" | "answers"> }) {
+export function ReachButton({ lead }: { lead: Pick<Lead, "name" | "phone" | "email" | "answers"> }) {
   const via = lead.answers?.contactVia;
   const tel = lead.phone ? telHref(lead.phone) : undefined;
   const wa = lead.phone ? waHref(lead.phone) : undefined;
@@ -25,13 +36,7 @@ export function ReachButton({ lead }: { lead: Pick<Lead, "phone" | "email" | "an
         Email
       </a>
     );
-  if (!tel) return null;
-  return (
-    <a href={tel} className={rowButton}>
-      <PhoneIcon className="size-4" />
-      Call
-    </a>
-  );
+  return <CallButton phone={lead.phone} name={lead.name} />;
 }
 
 // The step after this one, as one press with Undo: a new lead is answered, an answered one gets an appointment, an appointment is won.

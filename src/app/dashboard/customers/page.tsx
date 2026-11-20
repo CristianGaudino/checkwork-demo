@@ -6,11 +6,10 @@ import { can } from "@/lib/permissions";
 import { notFound } from "next/navigation";
 import { hasModule } from "@/lib/modules";
 import { ALERT_KINDS, ALERT_KIND_LABELS, alertsStore, claimOpen, claimsStore, customersStore, orderOpen, ordersStore, reservationsStore, salesStore, subscribersStore, type Customer, type StockAlert, type Subscriber } from "@/lib/admin/collections";
-import { PhoneIcon } from "@/components/stock/icons";
-import { telHref } from "@/lib/phone";
 import { stockSource } from "@/lib/stock-source";
 import { fmtAgo, fmtDate, fmtNum } from "@/lib/admin/format";
 import { pauseAlertAction, removeAlertAction, unsubscribeAction } from "./actions";
+import { CallButton } from "@/components/admin/LeadActions";
 
 export const metadata = { title: "Customers" };
 
@@ -74,7 +73,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
       nowrap: true,
       cell: (c) => (
         <span className="relative z-10 flex justify-end gap-2">
-          {telHref(c.phone) && <a href={telHref(c.phone) ?? undefined} className={rowButton}><PhoneIcon className="size-4" />Call</a>}
+          <CallButton phone={c.phone} name={c.name} />
           {c.email && <a href={`mailto:${c.email}`} className={rowButton}>Email</a>}
         </span>
       ),

@@ -73,7 +73,6 @@ export function CarFlags({ car, status = true }: { car: Car; status?: boolean })
   );
 }
 
-
 // Hide, show or publish, with Undo in the toast. Our version only: DoneDeal stock is shown and hidden there.
 export function ListingButton({ car, className }: { car: Car; className: string }) {
   const name = carName(car);

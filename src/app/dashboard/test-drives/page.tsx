@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { DriveStatusBadge } from "@/components/admin/badges";
 import { DriveSteps } from "@/components/admin/DriveSteps";
-import { Badge, DataTable, EmptyState, PageHeader, Panel, Segmented, TableFooter, TableToolbar, adminButton, choicePill, pageOf, rowButton, sortRows, type Column, type FilterGroup } from "@/components/admin/kit";
-import { CheckIcon, ChevronLeftIcon, ChevronRightIcon, PhoneIcon, PlusIcon } from "@/components/stock/icons";
-import { telHref } from "@/lib/phone";
+import { Badge, DataTable, EmptyState, PageHeader, Panel, Segmented, TableFooter, TableToolbar, adminButton, choicePill, pageOf, sortRows, type Column, type FilterGroup } from "@/components/admin/kit";
+import { CheckIcon, ChevronLeftIcon, ChevronRightIcon, PlusIcon } from "@/components/stock/icons";
 import { card } from "@/components/ui";
 import { DRIVE_STATUSES, DRIVE_STATUS_LABELS, drivesStore, getSettings, type DriveStatus, type TestDrive } from "@/lib/admin/collections";
 import { filterDrives, isOpenDrive, waitingDrives } from "@/lib/admin/drives";
@@ -12,6 +11,7 @@ import { adminCars } from "@/lib/admin/stock-admin";
 import { driveTimes } from "@/lib/leads/constants";
 import { forSale } from "@/lib/stock/types";
 import { currentMember } from "@/lib/permissions";
+import { CallButton } from "@/components/admin/LeadActions";
 
 export const metadata = { title: "Test drives" };
 
@@ -133,12 +133,7 @@ function Agenda({ drives, gone, empty = "Nothing booked.", withDay = false }: { 
           </span>
           {/* Call them, then the next step, one press each. */}
           <span className="relative z-10 col-span-2 flex flex-wrap gap-2 md:col-span-1 md:col-start-3 md:justify-end">
-            {isOpenDrive(d) && telHref(d.phone) && (
-              <a href={telHref(d.phone) ?? undefined} className={rowButton}>
-                <PhoneIcon className="size-4" />
-                Call
-              </a>
-            )}
+            {isOpenDrive(d) && <CallButton phone={d.phone} name={d.name} />}
             <DriveSteps drive={d} ahead={dublinDay(d.startsAt) > dublinDay()} />
           </span>
         </li>

@@ -138,10 +138,8 @@ export function CarForm({ car, cost, reg: startReg = "", photosMax }: { car?: Ca
         </div>
       )}
 
-      {/* Shown, hidden or draft is changed by the buttons at the top of the car's page (Hide from the website, Publish). The form sends
-          the car's state as it is now, so Save changes never undoes a press of those. A new car is added or kept as a draft by its buttons. */}
-      
-
+      {/* Shown, hidden or draft is changed by the buttons at the top of the car's page (Hide from the website, Publish), never by Save
+          changes (car-form.ts keeps a saved car's state). A new car is added or kept as a draft by its buttons. */}
       <div className="flex flex-wrap gap-3">
         <button type="submit" name={car ? undefined : "listing"} value={car ? undefined : "live"} disabled={pending} className={adminButton}>
           {pending ? "Saving" : car ? "Save changes" : "Add car"}

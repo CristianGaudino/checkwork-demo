@@ -86,7 +86,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
     .sort((x, y) => y.at - x.at);
   const filters: FilterGroup[] = [
     { name: "show", label: "Show", any: "Posts and ads", options: [["post", "Posts"], ["ad", "Ads"]] },
-    { name: "status", label: "Status", any: "Any status", options: Object.entries(STATUS).map(([k, v]) => [k, v.label] as const) },
+    { name: "status", label: "Status", any: "Any status", options: Object.entries(STATUS).filter(([k]) => !PENDING.has(k)).map(([k, v]) => [k, v.label] as const) }, // drafts and scheduled are in Waiting on you
   ];
 
   const paged = pageOf(feed, sp);

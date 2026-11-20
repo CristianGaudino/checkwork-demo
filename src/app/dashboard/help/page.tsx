@@ -37,7 +37,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ f
     ...(mods.has("testDrives") ? [{ title: "Book a test drive", icon: <CalendarIcon />, steps: ["Press Book a test drive on the Overview.", "Pick the car, the day and a free time.", "Requests from your website show under To do: press Confirm."], href: "/dashboard/test-drives/new", go: "Book a test drive" }] : []),
     synced
       ? { title: "Add or change a car", icon: <CarIcon />, steps: [`Your cars come from ${LISTING_SITE}: add or change them there.`, "The website and this dashboard update by themselves.", "Costs and notes for a car are added here, on its page in Stock."], href: "/dashboard/stock", go: "Go to stock" }
-      : { title: "Add a car", icon: <CarIcon />, steps: ["Press Add a car on the Overview or in Stock.", "Add the photos, the price and the details.", "Press Publish, or keep it as a draft for later."], href: "/dashboard/stock/new", go: "Add a car" },
+      : { title: "Add a car", icon: <CarIcon />, steps: ["Press Add a car on the Overview or in Stock.", "Add the photos, the price and the details.", "Press Add car, or Save draft to finish it later."], href: "/dashboard/stock/new", go: "Add a car" },
     synced
       ? { title: "Record a sale", icon: <ReceiptIcon />, steps: [`When a car's ad comes down on ${LISTING_SITE}, it shows under To do.`, "Press Record sale.", "Add the buyer and the price."], href: "/dashboard/stock?view=sold", go: "Go to sold cars" }
       : { title: "Mark a car as sold", icon: <ReceiptIcon />, steps: ["Open Stock and find the car.", "Press Mark sold.", "Add the buyer and the price. It shows as Sold on your website."], href: "/dashboard/stock", go: "Go to stock" },

@@ -18,7 +18,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ c
   return (
     <>
       <PageHeader title="Book a test drive" back={{ href: "/dashboard/test-drives", label: "Test drives" }} />
-      <BookDriveForm cars={carCards(onSale)} team={settings.team.map((t) => t.name)} me={me.name} slots={{ ...slotData(drives), windowMin: settings.driveSlotMinutes }} initialCar={sp.car ?? lead?.carSlug ?? ""} person={lead && { name: lead.name, phone: lead.phone, email: lead.email }} />
+      <BookDriveForm cars={carCards(onSale)} team={settings.team.map((t) => t.name)} me={me.name} slots={{ ...slotData(drives), windowMin: settings.driveSlotMinutes }} initialCar={sp.car ?? lead?.carSlug ?? ""} person={lead && { leadId: lead.id, name: lead.name, phone: lead.phone, email: lead.email }} />
     </>
   );
 }

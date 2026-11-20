@@ -18,9 +18,9 @@ import { forSale, isSold, onRequest } from "@/lib/stock/types";
 import { isSalesLead } from "@/lib/admin/leads";
 import { enabledModules } from "@/lib/modules";
 import type { ModuleId } from "@/lib/modules-rules";
-import { telHref } from "@/lib/phone";
 import { setDriveStatusAction } from "@/app/dashboard/test-drives/actions";
 import { DRIVE_STATUS_LABELS } from "@/lib/admin/drives";
+import { CallButton } from "@/components/admin/LeadActions";
 
 // The layout's "%s | Dealer dashboard" template reaches only the pages under it, not this one beside it.
 export const metadata = { title: { absolute: "Overview | Dealer dashboard" } };
@@ -42,22 +42,13 @@ const GROUPED: Record<string, { noun: string; verb: string; icon: React.ReactNod
 
 // A lead in a line: the car, else the first line of the message.
 const about = (l: Lead) => l.carTitle ?? (l.message.trim().split("\n")[0] || undefined);
-function CallButton({ phone, name }: { phone: string; name: string }) {
-  const tel = phone ? telHref(phone) : undefined;
-  return tel ? (
-    <a href={tel} aria-label={`Call ${name}`} className={rowButton}>
-      <PhoneIcon className="size-4" />
-      Call
-    </a>
-  ) : null;
-}
 const ReplyButton = ({ id, name }: { id: string; name: string }) => (
   <Link href={`/dashboard/leads/${id}`} aria-label={`Reply to ${name}`} className={rowButton}>
     Reply
   </Link>
 );
 const ConfirmDrive = ({ id, name, status }: { id: string; name: string; status: string }) => (
-  <ActButton act={setDriveStatusAction.bind(null, id, "confirmed")} undo={setDriveStatusAction.bind(null, id, status)} done={`${name}: ${DRIVE_STATUS_LABELS.confirmed}`} label={`Confirm ${name}'s test drive`} className={rowButton}>
+  <ActButton act={setDriveStatusAction.bind(null, id, "confirmed", status)} undo={setDriveStatusAction.bind(null, id, status, "confirmed")} done={`${name}: ${DRIVE_STATUS_LABELS.confirmed}`} label={`Confirm ${name}'s test drive`} className={rowButton}>
     <CheckIcon className="size-4" />
     Confirm
   </ActButton>
@@ -168,7 +159,7 @@ export default async function Page() {
                           <span className="truncate text-meta text-text-2">{d.carTitle}</span>
                         </span>
                         <Link href={`/dashboard/test-drives/${d.id}`} aria-label={`${d.name}, ${fmtTime(d.startsAt)}`} className="absolute inset-0" />
-                        <span className="relative z-10 flex shrink-0 gap-2">{d.status === "requested" && !confirmInToDo.has(d.id) ? <ConfirmDrive id={d.id} name={d.name} status={d.status} /> : <CallButton phone={d.phone} name={d.name} />}</span>
+                        <span className="relative z-10 flex shrink-0 gap-2">{d.status === "requested" && !confirmInToDo.has(d.id) && d.startsAt > o.now ? <ConfirmDrive id={d.id} name={d.name} status={d.status} /> : <CallButton phone={d.phone} name={d.name} />}</span>
                       </li>
                     ))}
                   </ul>

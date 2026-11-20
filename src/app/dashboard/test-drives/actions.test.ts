@@ -4,7 +4,7 @@ vi.mock("server-only", () => ({}));
 vi.mock("next/cache", () => ({ revalidatePath: () => {} }));
 vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => undefined }), headers: async () => ({ get: () => null }) }));
 const { addDriveAction, assignDriveAction, moveDriveAction, setDriveStatusAction } = await import("./actions");
-const { drivesStore, getSettings } = await import("@/lib/admin/collections");
+const { drivesStore, getSettings, leadsStore, leadStatusSteps } = await import("@/lib/admin/collections");
 const { noticesStore } = await import("@/lib/admin/notifications");
 const { adminCars } = await import("@/lib/admin/stock-admin");
 const { addDays, dublinDay } = await import("@/lib/admin/format");
@@ -58,13 +58,30 @@ describe("a booking taken at the desk", () => {
   });
 });
 
+describe("a booking made from a lead", () => {
+  it("moves a new lead on to Appointment set, with a note, so it leaves the to-answer lists", async () => {
+    const lead = (await leadsStore.list()).find((l) => l.status === "new" && leadStatusSteps(l.type).includes("appointment"))!;
+    const r = await addDriveAction(undefined, form(await base({ name: lead.name, date: open(25), time: "12:00", leadId: lead.id })));
+    expect(r?.done).toBeTruthy();
+    const after = (await leadsStore.get(lead.id))!;
+    expect(after.status).toBe("appointment");
+    expect(after.notes.at(-1)?.text).toMatch(/^Booked a test drive in /);
+  });
+});
+
 describe("a booking's status and who takes it out", () => {
   it("moves only to a known status", async () => {
     const drive = (await drivesStore.list()).find((d) => d.status === "requested")!;
     await setDriveStatusAction(drive.id, "hacked");
     expect((await drivesStore.get(drive.id))!.status).toBe("requested");
-    await setDriveStatusAction(drive.id, "confirmed");
+    await setDriveStatusAction(drive.id, "confirmed", "requested");
     expect((await drivesStore.get(drive.id))!.status).toBe("confirmed");
+  });
+  it("refuses a press from a page loaded before someone else moved the drive", async () => {
+    const drive = (await drivesStore.list()).find((d) => d.status === "requested")!;
+    await setDriveStatusAction(drive.id, "cancelled", "requested");
+    expect(await setDriveStatusAction(drive.id, "confirmed", "requested")).toMatchObject({ error: expect.any(String) });
+    expect((await drivesStore.get(drive.id))!.status).toBe("cancelled");
   });
   it("is someone on the team, or nobody; any other name is refused", async () => {
     const drive = (await drivesStore.list())[0];
