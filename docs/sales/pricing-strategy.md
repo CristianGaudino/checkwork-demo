@@ -26,7 +26,7 @@ Going ahead with this model (owner, 20 Nov 2026). Prices are a month, before VAT
 
 **Showroom:** the website.
 - Own-brand site, with stock synced from DoneDeal or CarsIreland
-- Google reviews on the site, shown from the dealer's Google Business Profile
+- Google reviews on the site, from the dealer's public Google listing (no sign-in needed)
 - Enquiry form (leads go to the dealer by email) and WhatsApp click to chat
 - Finance estimator
 - Trade-in form with 25 registration lookups a month
@@ -102,10 +102,8 @@ None of the Irish platforms publish dealer prices.
 
 So Checkwork is a second bill alongside their listings. It has to pay for itself in leads.
 
-## Needs building before we sell
-1. **Reviews without the dashboard:** show Google reviews from the Business Profile on Showroom sites, and keep replies for Dealer (today reviews need the dashboard).
-2. **Monthly allowances:** billing has no included lookups, WhatsApp messages or AI drafts yet; today every use is charged.
-3. **AI descriptions for synced stock:** an "Improve this description" button on synced cars that copies the draft for DoneDeal (today synced cars can't be edited on the site).
-4. **Multi-branch:** one dashboard and inbox across branches isn't built. Until it is, sell a group one Dealer per branch.
-5. **New-car brands:** the brand count in the new-cars price.
-6. **Code prices and terms:** the new prices, the €0.03 WhatsApp reply, 1 month free for a year upfront, and setup waived on 2 years, in `src/lib/billing/rules.ts`.
+## Built
+Reviews on Showroom sites without the dashboard (#224), the tiers with allowances, new-car brand pricing and payment terms (#223), and "Improve this description" for synced cars (#225). Prices stay hidden on screen until we go public (`SHOW_PRICING`).
+
+## Later
+Multi-branch, one inbox across a group's branches (#226): built when an actual franchise or multi-branch dealer signs up. Until then, a group buys one Dealer per branch.
