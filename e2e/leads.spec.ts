@@ -162,7 +162,7 @@ test("Test drive asks for a day and a time, reaches the dealer's dashboard as a 
   await d.getByLabel("Phone").fill("087 123 4567");
   await d.getByRole("checkbox").check();
   // The form opens on the first day with a free time, and that time, so Book sends it as it stands.
-  await expect(d.getByLabel("Day")).toHaveValue(/^\w{3} \d+ \w{3}$/);
+  await expect(d.getByLabel("Day")).toHaveValue(/^\w{3}, \d+ \w{3}$/);
   await expect(d.getByLabel("Time")).toHaveValue(/^\d{2}:\d{2}$/);
   await expect(d.getByText("No match")).toHaveCount(0);
   await d.getByRole("button", { name: "Book" }).click();

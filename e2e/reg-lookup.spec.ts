@@ -25,7 +25,7 @@ test("adding a car in the dashboard starts from the registration", async ({ page
   await page.getByRole("textbox", { name: /^Registration/ }).fill("242-D-98");
   await page.getByRole("button", { name: "Look up" }).click();
   await expect(page.getByText(/Registered in Dublin, July to December 2024/)).toBeVisible();
-  await expect(page.getByRole("spinbutton", { name: "Year" })).toHaveValue("2024");
+  await expect(page.getByRole("spinbutton", { name: "Year", exact: true })).toHaveValue("2024");
   await expect(page.getByRole("textbox", { name: /^Make/ })).not.toHaveValue("");
 });
 
