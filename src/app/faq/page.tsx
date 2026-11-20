@@ -49,7 +49,7 @@ const GROUPS: { title: string; items: QA[] }[] = [
   {
     title: "Selling and trading in",
     items: [
-      { module: "tradeIn", q: "Will you buy my car if I'm not buying one?", a: <>Yes, we buy good cars. Tell us about it and send some photos, and we come back with an offer. <Link href="/sell-your-car" className={inline}>Sell your car</Link></> },
+      { module: "tradeIn", q: "Will you buy my car if I'm not buying one?", a: <>Yes, we buy good cars. Tell us about it and send photos, and we come back with an offer. <Link href="/sell-your-car" className={inline}>Sell your car</Link></> },
       { module: "tradeIn", q: "Can I trade in my car against one of yours?", a: <>Yes. We value yours and take it off the price of the car you buy, and can usually offer more than for a straight sale. <Link href="/trade-in" className={inline}>Trade in your car</Link></> },
       { module: "tradeIn", q: "Is the price you give me final?", a: <>It&apos;s an estimate until we&apos;ve seen the car.</> },
       { module: "tradeIn", q: "How do you pay for my car?", a: <>By bank transfer when we collect it.</> },

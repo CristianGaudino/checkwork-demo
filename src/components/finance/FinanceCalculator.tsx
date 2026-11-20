@@ -78,8 +78,9 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
                   {(
                     [
                       ["Amount borrowed", q.borrowedEur],
-                      ["Estimated total to repay", q.totalEur],
                       ["Estimated interest", q.interestEur],
+                      ["Total you repay", q.totalEur],
+                      ["Total cost, with your deposit", q.totalEur + depositEur],
                     ] as const
                   ).map(([label, value]) => (
                     <div key={label} className="flex justify-between gap-4">
