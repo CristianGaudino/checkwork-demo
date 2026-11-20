@@ -17,6 +17,10 @@ import { PLUG_FUELS, type Car, type Fuel } from "@/lib/stock/types";
 import type { WriteRequest } from "@/lib/ai/tasks";
 import type { FormState } from "@/lib/admin/validation";
 
+// The parts of the form: a plainer name on screen, and the anchor the car page's links go to.
+const GROUP_TITLES: Partial<Record<(typeof FIELD_GROUPS)[number], string>> = { Basics: "About the car" };
+const GROUP_IDS: Record<(typeof FIELD_GROUPS)[number], string> = { Basics: "basics", Price: "price", Details: "details", "Battery and charging": "battery", "Description and equipment": "description" };
+
 // What Write with AI sends for the description: the form's boxes, or nothing until the make and model are in (the writer then says so).
 const carRequest = (form: HTMLFormElement | null | undefined): WriteRequest | null => {
   if (!form) return null;
@@ -73,7 +77,8 @@ export function CarForm({ car, cost, reg: startReg = "", photosMax }: { car?: Ca
     <form {...action} className="flex flex-col gap-6" noValidate>
       {/* Adding a car starts from its registration: the lookup fills the basics and details, and every box can still be changed. */}
       {!car && (
-        <Panel title="Look up the car">
+        <Panel title="1. Look up the registration">
+          <p className="max-w-measure text-body text-text-2">It fills in the make, model, year and more. You can change anything after. No registration? Skip to the boxes below.</p>
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start">
             <Field label="Registration" className="flex-1 sm:max-w-xs">
               <input value={reg} onChange={(e) => setReg(e.target.value.toUpperCase())} autoCapitalize="characters" spellCheck={false} maxLength={12} placeholder="191-KY-1234" className={adminInput} />
@@ -88,11 +93,14 @@ export function CarForm({ car, cost, reg: startReg = "", photosMax }: { car?: Ca
           </div>
         </Panel>
       )}
-      {photosMax !== undefined && <NewCarPhotos photos={photos} onChange={setPhotos} max={photosMax} error={errors.photos} />}
+      {photosMax !== undefined && <NewCarPhotos title="2. Add photos" photos={photos} onChange={setPhotos} max={photosMax} error={errors.photos} />}
+      {!car && <h2 className="-mb-2 text-section font-semibold">3. Check the details and set the price</h2>}
       <div key={drawn} className="flex flex-col gap-6">
       {FIELD_GROUPS.map((group) => (
         // Hidden, not left out, for any other fuel: what was typed comes back if the fuel is changed back. The server drops it on save.
-        <Panel key={group} title={group} className={group === "Battery and charging" && !PLUG_FUELS.includes(fuel as Fuel) ? "hidden" : ""}>
+        // Each part has an id, so the car page's links (Price, Details, Description) go straight to it.
+        <div key={group} id={GROUP_IDS[group]} className={`scroll-mt-24 ${group === "Battery and charging" && !PLUG_FUELS.includes(fuel as Fuel) ? "hidden" : ""}`}>
+        <Panel title={GROUP_TITLES[group] ?? group}>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {CAR_FIELDS.filter((f) => f.group === group).map((f) => f.name === "description" ? (
               // The description has the AI writer under it, so it is not inside the label the other boxes use.
@@ -116,25 +124,23 @@ export function CarForm({ car, cost, reg: startReg = "", photosMax }: { car?: Ca
             ))}
           </div>
         </Panel>
+        </div>
       ))}
 
       </div>
       {cost && (
+        <div id="cost" className="scroll-mt-24">
         <Panel title="Cost">
           <Field label="Cost price (€)" hint="What the car cost you. Only people with the margins permission see this." error={errors.costEur} className="sm:max-w-xs">
             <input name="costEur" type="number" min={0} step={50} inputMode="decimal" defaultValue={cost.eur ?? ""} className={adminInput} />
           </Field>
         </Panel>
+        </div>
       )}
 
-      {/* A new car is added or kept as a draft by its buttons. Selling is Mark sold on the stock list, which records the sale with it. */}
-      {car && (
-        <Panel title="Status">
-          <Field label="On the website" className="sm:max-w-md" hint={car.soldAt ? "Sold. A sold car stays on the website for a while, marked Sold." : "A hidden car or a draft is not on the website, and its link is not found."}>
-            <Select name="listing" defaultValue={car.listing ?? "live"} options={[["live", "Shown"], ["hidden", "Hidden"], ["draft", "Draft"]]} />
-          </Field>
-        </Panel>
-      )}
+      {/* Shown, hidden or draft is changed by the buttons at the top of the car's page (Hide from the website, Publish). The form sends
+          the car's state as it is now, so Save changes never undoes a press of those. A new car is added or kept as a draft by its buttons. */}
+      {car && <input type="hidden" name="listing" value={car.listing ?? "live"} />}
 
       <div className="flex flex-wrap gap-3">
         <button type="submit" name={car ? undefined : "listing"} value={car ? undefined : "live"} disabled={pending} className={adminButton}>

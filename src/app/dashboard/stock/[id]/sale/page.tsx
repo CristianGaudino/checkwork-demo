@@ -6,7 +6,7 @@ import { dublinDay, fmtDate, fmtEur } from "@/lib/admin/format";
 import { adminCar } from "@/lib/admin/stock-admin";
 import { can, currentMember } from "@/lib/permissions";
 import { stockSource } from "@/lib/stock-source";
-import { carName } from "@/lib/stock/format";
+import { carName, priceLabel } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
 
 // One name for the action on its button, heading and tab: Mark sold, Record sale (a sold car with none), Change the sale.
@@ -30,7 +30,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const held = heldFor(reservations, car.id);
   return (
     <>
-      <PageHeader title={title} text={carName(car)} back={isSold(car) ? { href: "/dashboard/stock?view=sold", label: "Sold cars" } : { href: "/dashboard/stock", label: "Stock" }} />
+      <PageHeader title={title} text={was ? carName(car) : `${carName(car)}, ${priceLabel(car)}`} back={isSold(car) ? { href: "/dashboard/stock?view=sold", label: "Sold cars" } : { href: "/dashboard/stock", label: "Stock" }} />
       <Panel>
         {held && <p className="max-w-measure text-body">A deposit of {fmtEur(held.depositEur)} was paid on this car. It is recorded as part of this sale.</p>}
         <SaleForm

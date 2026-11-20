@@ -38,7 +38,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const late = held.until < today;
   return (
     <>
-      <PageHeader title="Reserved" text={carName(car)} back={back} />
+      <PageHeader title="Reserved" text={`${carName(car)}. When the buyer pays the rest, mark it sold.`} back={back} />
       <Panel title="The deposit">
         <Facts
           items={[
