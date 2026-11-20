@@ -104,7 +104,7 @@ Most big Galway franchise dealers already have decent sites (CarsIreland, HappyD
 - Little else to fault from the outside.
 **Sales points:**
 1. "More Google reviews than any group in the West: who answers them?" Your main Google listing's reviews on the site, replies from the dashboard with AI drafts (Reviews, AI writing).
-2. "14 dealerships, one place for every lead and follow-up." (Dealer dashboard, WhatsApp).
+2. "14 dealerships' used-car leads in one place, with follow-ups." (Dealer dashboard, WhatsApp).
 3. "Margins and stock age across 10 brands." (Margins and reports, Sales and customers).
 **Pitch:** Group, if anything: €749 plus €149 for each extra branch, sold to head office. They have a good site, so ours as their used-car site is a long shot.
 **Opener:** "You have more Google reviews than any dealer group in the West; we'd put your main listing's reviews on your site and let you answer them from one dashboard."
