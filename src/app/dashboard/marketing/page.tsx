@@ -200,7 +200,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
             <StatCard label="Posted in the last 30 days" value={fmtNum(recent.length)} href="/dashboard/marketing?status=posted" />
             <StatCard label="People who saw them" value={fmtNum(recent.reduce((n, p) => n + (p.reach ?? 0), 0))} href="/dashboard/marketing?status=posted" />
             <StatCard label="Clicks to your site" value={fmtNum(recent.reduce((n, p) => n + (p.clicks ?? 0), 0))} href="/dashboard/marketing?status=posted" />
-            <StatCard label="Leads from ads" value={fmtNum(ads.reduce((n, a) => n + a.leads, 0))} hint={`${plural(ads.filter((a) => a.status === "running").length, "ad")} running now`} href="/dashboard/marketing?show=ad" />
+            <StatCard label="Leads from ads" value={fmtNum(ads.filter((a) => a.createdAt >= since).reduce((n, a) => n + a.leads, 0))} hint={`${plural(ads.filter((a) => a.status === "running").length, "ad")} running now`} href="/dashboard/marketing?show=ad" />
           </StatGrid>
 
           <TableToolbar filters={filters} />

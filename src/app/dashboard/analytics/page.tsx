@@ -42,7 +42,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
   // Cars sold is the sales recorded in the period (as Reports counts them), never a generated figure; the funnel ends on the same number.
   const from = addDays(dublinDay(), -range);
   const sold = sales.filter((s) => !s.returnedOn && s.soldOn > from).length;
-  const funnel = a.funnel.map((s, i, f) => (i === f.length - 1 ? { ...s, count: Math.min(sold, f[i - 1]?.count ?? sold) } : s));
+  // The funnel is the dealership's: its last step only for those who see every sale, never one person's sales under it.
+  const funnel = whole ? a.funnel.map((s, i, f) => (i === f.length - 1 ? { ...s, count: Math.min(sold, f[i - 1]?.count ?? sold) } : s)) : a.funnel.slice(0, -1);
   const best = [...a.sources].sort((x, y) => y.leads - x.leads)[0];
 
   return (

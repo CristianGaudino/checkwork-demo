@@ -75,7 +75,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
       cell: (c) => (
         <span className="relative z-10 flex justify-end gap-2">
           <CallButton phone={c.phone} name={c.name} />
-          {c.email && <a href={`mailto:${c.email}`} className={rowButton}>Email</a>}
+          {c.email && <a href={`mailto:${c.email}`} aria-label={`Email ${c.name}`} className={rowButton}>Email</a>}
         </span>
       ),
     },

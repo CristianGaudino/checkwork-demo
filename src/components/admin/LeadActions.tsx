@@ -24,14 +24,14 @@ export function ReachButton({ lead }: { lead: Pick<Lead, "name" | "phone" | "ema
   const wa = lead.phone ? waHref(lead.phone) : undefined;
   if (via === "whatsapp" && wa)
     return (
-      <a href={wa} {...NEW_TAB} className={rowButton}>
+      <a href={wa} {...NEW_TAB} aria-label={`WhatsApp ${lead.name} (opens in a new tab)`} className={rowButton}>
         <WhatsAppIcon className="size-4 text-whatsapp" />
-        WhatsApp<span className="sr-only"> (opens in a new tab)</span>
+        WhatsApp
       </a>
     );
   if ((via === "email" || !tel) && lead.email)
     return (
-      <a href={`mailto:${lead.email}`} className={rowButton}>
+      <a href={`mailto:${lead.email}`} aria-label={`Email ${lead.name}`} className={rowButton}>
         <InboxIcon className="size-4" />
         Email
       </a>

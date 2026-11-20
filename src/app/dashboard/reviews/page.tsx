@@ -43,7 +43,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ f
           <p className="flex items-center gap-3">
             <span className="font-display text-[2rem] font-semibold leading-none tabular-nums">{s.average.toFixed(1)}</span>
             <span className="flex flex-col">
-              <Stars rating={Math.round(s.average)} />
+              <span aria-hidden="true"><Stars rating={Math.round(s.average)} /></span>
               <span className="text-meta text-text-2">out of 5, from {plural(s.count, "review")}</span>
             </span>
           </p>
