@@ -1,4 +1,3 @@
-<!-- /founder:pricing-strategy · 2026-11-20 · input: Checkwork dealer site and suite; re-run pricing plans with the prospect research of 255 dealers in Cork, Limerick, Galway, Waterford and Kerry -->
 # Pricing
 
 Going ahead with this model (owner, 20 Nov 2026). Prices are a month, before VAT.
@@ -45,7 +44,7 @@ Going ahead with this model (owner, 20 Nov 2026). Prices are a month, before VAT
 - Reply to Google reviews from the dashboard
 - AI writing, 100 uses a month (each draft or rewrite is one):
   - replies to leads and reviews
-  - better car descriptions, copied to DoneDeal in one click for synced stock
+  - better car descriptions for synced stock, copied in one click to paste into DoneDeal
 - Deposits and sale records
 - Site analytics: visitors, and which ads bring leads
 - Staff logins with roles, as many as needed
