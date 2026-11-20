@@ -40,7 +40,7 @@ test("the demo bar's role decides what the dealer sees, the owner by default", a
   await bar.getByRole("link", { name: "Dealer" }).click();
   await expect(role).toHaveValue("Owner");
   await page.goto("/dashboard");
-  const margins = page.getByRole("navigation", { name: "Dealer dashboard" }).getByRole("link", { name: "Margins", exact: true });
+  const margins = await sideLink(page, "Margins"); // opens its group, which stays open as the role changes
   await expect(margins).toBeVisible();
   await role.selectOption("Sales");
   await expect(margins).toHaveCount(0);

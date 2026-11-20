@@ -24,16 +24,17 @@ test("the sidebar stays in place while the page scrolls, and its groups fold, re
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto("/dashboard/settings");
   const side = sideMenu(page);
-  // The page you are on opens its group; Sales starts open.
-  await expect(side.getByRole("button", { name: "Dealership", exact: true })).toHaveAttribute("aria-expanded", "true");
-  await expect(side.getByRole("button", { name: "Sales", exact: true })).toHaveAttribute("aria-expanded", "true");
-  await expect(side.getByRole("button", { name: "Marketing and reports", exact: true })).toHaveAttribute("aria-expanded", "false");
-  await expect(side.getByRole("link", { name: "Marketing", exact: true })).toBeHidden(); // shut: out of reach, not only out of sight
-  // Fold Sales, and it stays folded on the next page, drawn that way by the server.
-  await side.getByRole("button", { name: "Sales", exact: true }).click();
-  await expect(side.getByRole("link", { name: "Leads", exact: true })).toBeHidden();
-  await page.goto("/dashboard/reviews");
-  await expect(side.getByRole("button", { name: "Sales", exact: true })).toHaveAttribute("aria-expanded", "false");
+  // The everyday places are always there, never in a group; the page you are on opens its group; Customers starts open.
+  for (const label of ["Leads", "Test drives", "Stock", "Posts and emails"]) await expect(side.getByRole("link", { name: label, exact: true })).toBeVisible();
+  await expect(side.getByRole("button", { name: "Settings and help", exact: true })).toHaveAttribute("aria-expanded", "true");
+  await expect(side.getByRole("button", { name: "Customers", exact: true })).toHaveAttribute("aria-expanded", "true");
+  await expect(side.getByRole("button", { name: "Results", exact: true })).toHaveAttribute("aria-expanded", "false");
+  await expect(side.getByRole("link", { name: "Analytics", exact: true })).toBeHidden(); // shut: out of reach, not only out of sight
+  // Fold Customers, and it stays folded on the next page, drawn that way by the server.
+  await side.getByRole("button", { name: "Customers", exact: true }).click();
+  await expect(side.getByRole("link", { name: "Reviews", exact: true })).toBeHidden();
+  await page.goto("/dashboard/analytics");
+  await expect(side.getByRole("button", { name: "Customers", exact: true })).toHaveAttribute("aria-expanded", "false");
   // Scrolled to the foot of a long page, the menu has not moved.
   const top = (await side.boundingBox())!.y;
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));

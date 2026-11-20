@@ -21,7 +21,7 @@ test("a follow-up set on a lead shows on the lead and in the list's Follow-ups d
   await page.goto("/dashboard/leads?due=1");
   await expect(page.getByRole("row", { name: /Aleksandra/ })).toContainText("Follow up today");
   await page.goto("/dashboard");
-  await expect(page.getByRole("link", { name: /Follow-ups due/ })).toBeVisible();
+  await expect(page.getByRole("list", { name: "To do" }).getByText(/^Follow up with |follow-ups? due$/).first()).toBeVisible();
   await page.goto("/dashboard/leads/lead-edge-1");
   await panel.getByRole("button", { name: "Clear the follow-up" }).click();
   await expect(panel.getByRole("button", { name: "Clear the follow-up" })).toHaveCount(0);
@@ -31,7 +31,7 @@ test("in the DoneDeal version a sold car's sale is asked for and recorded with a
   await page.setViewportSize({ width: 1280, height: 900 });
   await context.addCookies([{ name: "checkwork-demo-stock", value: "donedeal", url: BASE }]);
   await page.goto("/dashboard");
-  await expect(page.getByRole("link", { name: /Sold cars with no sale recorded/ })).toBeVisible();
+  await expect(page.getByRole("list", { name: "To do" }).getByRole("link", { name: "Record sale" }).first()).toBeVisible();
   await page.goto("/dashboard/stock?view=sold");
   const row = page.getByRole("row").filter({ has: page.getByRole("link", { name: "Record sale" }) }).first();
   await row.getByRole("link", { name: "Record sale" }).click();

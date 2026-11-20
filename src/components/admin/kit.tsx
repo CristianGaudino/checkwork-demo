@@ -5,7 +5,7 @@ import { Tween } from "@/components/Tween";
 import { AppliedFilters, DensityToggle, Filters, LiveSearch, SortHeader, type FilterGroup } from "./TableTools";
 import { PER_PAGE_DEFAULT, perPage } from "@/lib/admin/paging";
 import { fmtNum } from "@/lib/admin/format";
-import { ChevronLeftIcon } from "@/components/stock/icons";
+import { ChevronLeftIcon, ChevronRightIcon } from "@/components/stock/icons";
 export { TableFooter, type FilterGroup } from "./TableTools";
 
 // The admin kit: the few pieces every admin page is made of. Same tokens as the site, denser and calmer.
@@ -33,19 +33,25 @@ export function PageHeader({ title, text, actions, back }: { title: string; text
   );
 }
 
-// A titled panel is a region named by its heading, so a screen reader can jump to it. Two kinds: the work of the page (raised, the default),
-// and `quiet` for what sits beside it (details, settings of the record): flat on a tint, so the eye goes to the work first.
-export function Panel({ title, count, action, children, className = "", quiet = false }: { title?: string; count?: number; action?: React.ReactNode; children: React.ReactNode; className?: string; quiet?: boolean }) {
+// A titled panel is a region named by its heading, so a screen reader can jump to it. Three kinds: the work of the page (raised, the
+// default); `quiet` for what sits beside it (details, settings of the record), flat on a tint, so the eye goes to the work first; and
+// `plain`, no frame at all, for a supporting block of a heading and a few lines (a card would make it look as important as the work).
+// `text`: one short line under the title, when the title alone cannot say what the panel is for.
+export function Panel({ title, text, count, action, children, className = "", quiet = false, plain = false }: { title?: string; text?: string; count?: number; action?: React.ReactNode; children: React.ReactNode; className?: string; quiet?: boolean; plain?: boolean }) {
   const id = useId();
+  const frame = plain ? "" : quiet ? "rounded-card border border-hairline bg-row-alt p-5" : `${card} p-5`;
   return (
-    <section aria-labelledby={title ? id : undefined} className={`${quiet ? "rounded-card border border-hairline bg-row-alt" : card} flex min-w-0 flex-col gap-4 p-5 ${className}`}>
+    <section aria-labelledby={title ? id : undefined} className={`${frame} flex min-w-0 flex-col gap-4 ${className}`}>
       {(title || action) && (
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex items-start justify-between gap-3">
           {title && (
-            <h2 id={id} className="text-section font-semibold">
-              {title}
-              {count !== undefined && <span className="ml-2 font-normal text-text-2 tabular-nums">{count}</span>}
-            </h2>
+            <div className="flex min-w-0 flex-col gap-0.5">
+              <h2 id={id} className="text-section font-semibold">
+                {title}
+                {count !== undefined && <span className="ml-2 font-normal text-text-2 tabular-nums">{count}</span>}
+              </h2>
+              {text && <p className="text-meta text-text-2">{text}</p>}
+            </div>
           )}
           {action}
         </div>
@@ -55,8 +61,29 @@ export function Panel({ title, count, action, children, className = "", quiet = 
   );
 }
 
+// A page in two columns from 1280px: the work on the left, wider, and `aside` (what supports it) on the right. Under 1280px one column,
+// the aside after the work, or before it with `asideFirst`.
+export function Columns({ children, aside, asideFirst = false }: { children: React.ReactNode; aside: React.ReactNode; asideFirst?: boolean }) {
+  return (
+    <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+      <div className="flex min-w-0 flex-col gap-6">{children}</div>
+      <div className={`flex min-w-0 flex-col gap-6 ${asideFirst ? "max-xl:order-first" : ""}`}>{aside}</div>
+    </div>
+  );
+}
+
+// The link in a panel's corner to the whole list behind it ("All leads"): one look for it everywhere.
+export function PanelLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <Link href={href} className="inline-flex min-h-11 shrink-0 items-center gap-0.5 text-meta font-medium text-accent-text hover:underline">
+      {children}
+      <ChevronRightIcon aria-hidden="true" className="size-4" />
+    </Link>
+  );
+}
+
 // With `href` the whole tile is a link to the page behind the number. `tone` colours the hint only when it says something good or to act on.
-// A tile is a number: a chart belongs in its own panel (the overview's LeadsByWeek).
+// A tile is a number: a chart belongs in its own panel (Analytics).
 export function StatCard({ label, value, hint, tone, href }: { label: string; value: string; hint?: string; tone?: "good" | "bad" | "warn"; href?: string }) {
   const body = (
     <>
@@ -104,12 +131,15 @@ export function Badge({ tone = "neutral", strong = false, children }: { tone?: T
   return <span className={`inline-flex h-6 items-center whitespace-nowrap rounded-full px-2.5 text-meta font-medium ${look}`}>{children}</span>;
 }
 
-export function EmptyState({ title, text, action }: { title: string; text?: string; action?: React.ReactNode }) {
+// Nothing to show: what that means and, with `action`, the button for the next step. `icon` sits above the title in a soft circle.
+// `compact`: inside a panel beside others (the overview's lists), where a tall empty block would leave a hole.
+export function EmptyState({ title, text, action, icon, compact = false }: { title: string; text?: string; action?: React.ReactNode; icon?: React.ReactNode; compact?: boolean }) {
   return (
-    <div className="flex flex-col items-center gap-2 px-4 py-12 text-center">
-      <p className="text-heading font-semibold">{title}</p>
+    <div className={`flex flex-col items-center gap-2 px-4 text-center ${compact ? "py-6" : "py-12"}`}>
+      {icon && <span aria-hidden="true" className="mb-1 grid size-12 place-items-center rounded-full bg-row-alt text-text-2 [&>svg]:size-6">{icon}</span>}
+      <p className={`${compact ? "text-body" : "text-heading"} font-semibold`}>{title}</p>
       {text && <p className="max-w-[45ch] text-body text-text-2">{text}</p>}
-      {action}
+      {action && <div className="mt-2 flex flex-wrap justify-center gap-2">{action}</div>}
     </div>
   );
 }
@@ -345,10 +375,11 @@ export function TaskList({ children, label }: { children: React.ReactNode; label
 }
 export function Task({ title, detail, href, action, icon, urgency = "info", count }: { title: string; detail?: React.ReactNode; href?: string; action?: React.ReactNode; icon?: React.ReactNode; urgency?: TaskUrgency; count?: number }) {
   return (
-    <li className="relative flex min-h-16 items-center gap-3 py-3 pl-4 pr-1 transition-colors has-[>a:hover]:bg-surface">
+    // On a phone the buttons drop under the words when both do not fit, so a name is never squeezed to a word a line.
+    <li className="relative flex min-h-16 flex-wrap items-center gap-x-3 gap-y-2 py-3 pl-4 pr-1 transition-colors has-[>a:hover]:bg-surface">
       <span aria-hidden="true" className={`absolute inset-y-3 left-0 w-1 rounded-full ${TASK_MARK[urgency]}`} />
-      {icon && <span aria-hidden="true" className={`grid size-10 shrink-0 place-items-center rounded-control [&>svg]:size-5 ${TASK_ICON[urgency]}`}>{icon}</span>}
-      <span className="flex min-w-0 flex-1 flex-col">
+      {icon && <span aria-hidden="true" className={`hidden size-10 shrink-0 place-items-center sm:grid rounded-control [&>svg]:size-5 ${TASK_ICON[urgency]}`}>{icon}</span>}
+      <span className="flex min-w-[min(12rem,100%)] flex-1 flex-col">
         <span className="font-medium">
           {count !== undefined && <span className="mr-1.5 tabular-nums">{fmtNum(count)}</span>}
           {title}
@@ -356,7 +387,7 @@ export function Task({ title, detail, href, action, icon, urgency = "info", coun
         {detail && <span className="text-meta text-text-2">{detail}</span>}
       </span>
       {href && <Link href={href} aria-label={count !== undefined ? `${count} ${title}` : title} className="absolute inset-0" />}
-      {action && <span className="relative z-10 flex shrink-0 flex-wrap justify-end gap-2">{action}</span>}
+      {action && <span className="relative z-10 ml-auto flex shrink-0 flex-wrap justify-end gap-2">{action}</span>}
     </li>
   );
 }
@@ -370,17 +401,28 @@ export function ActionTiles({ children, label = "Quick actions" }: { children: R
     </nav>
   );
 }
-export function ActionTile({ href, icon, label, text, primary = false }: { href: string; icon: React.ReactNode; label: string; text?: string; primary?: boolean }) {
-  return (
-    <Link
-      href={href}
-      className={`flex min-h-24 flex-col justify-between gap-3 rounded-card border p-4 transition-colors ${primary ? "border-accent bg-accent text-on-accent" : `${card} hover:border-control`} ${press}`}
-    >
+// `external`: another site (DoneDeal), opened in a new tab and said so to screen readers.
+export function ActionTile({ href, icon, label, text, primary = false, external = false }: { href: string; icon: React.ReactNode; label: string; text?: string; primary?: boolean; external?: boolean }) {
+  const className = `flex min-h-24 flex-col justify-between gap-3 rounded-card border p-4 transition-colors ${primary ? "border-accent bg-accent text-on-accent" : `${card} hover:border-control`} ${press}`;
+  const body = (
+    <>
       <span aria-hidden="true" className={`grid size-10 place-items-center rounded-control [&>svg]:size-5 ${primary ? "bg-card text-accent-text" : "bg-row-alt text-accent-text"}`}>{icon}</span>
       <span className="flex flex-col">
-        <span className="font-semibold">{label}</span>
+        <span className="font-semibold">
+          {label}
+          {external && <span className="sr-only"> (opens in a new tab)</span>}
+        </span>
         {text && <span className={`text-meta ${primary ? "" : "text-text-2"}`}>{text}</span>}
       </span>
+    </>
+  );
+  return external ? (
+    <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
+      {body}
+    </a>
+  ) : (
+    <Link href={href} className={className}>
+      {body}
     </Link>
   );
 }

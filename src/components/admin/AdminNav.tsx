@@ -20,7 +20,7 @@ const saveOpenGroups = (open: string[]) => {
   document.cookie = openGroupsCookie(open);
 };
 
-// The dealer area's navigation (docs/mobile-navigation.md). From 1024px a sidebar: Overview, then the groups, each folding open and shut
+// The dealer area's navigation (docs/mobile-navigation.md). From 1024px a sidebar: Overview and the everyday places, then the groups, each folding open and shut
 // under its heading. Under 1024px a tab bar at the foot of the screen. The current section is marked in both.
 export function AdminNav({ items, label, openGroups, rail = false }: { items: NavItem[]; label: string; openGroups: string[]; rail?: boolean }) {
   const path = usePathname();
@@ -66,6 +66,7 @@ export function AdminNav({ items, label, openGroups, rail = false }: { items: Na
             {top.map((it) => (
               <NavLink key={it.href} item={it} on={current(it.href)} />
             ))}
+            {groups.length > 0 && <div aria-hidden className="mx-3 mt-3 border-t border-hairline" />}
             {groups.map((g) => (
               <NavSection key={g.name} group={g} open={open.has(g.name)} holdsCurrent={g.name === here} onToggle={() => toggle(g.name)} current={current} />
             ))}
@@ -158,7 +159,7 @@ function TabBar({ items, label, current }: { items: NavItem[]; label: string; cu
           const on = current(it.href);
           return (
             <div key={it.href} className="contents">
-              {it.section !== more[i - 1]?.section && <p className={`pb-1 text-meta text-text-2 ${i ? "pt-4" : ""}`}>{it.section}</p>}
+              {it.section && it.section !== more[i - 1]?.section && <p className={`pb-1 text-meta text-text-2 ${i ? "pt-4" : ""}`}>{it.section}</p>}
               <Link href={it.href} aria-current={on ? "page" : undefined} onClick={leaveSheet} className={`flex min-h-12 items-center gap-3 text-body font-medium ${on ? "text-accent-text" : ""}`}>
                 <Icon className="size-5 shrink-0 text-text-2" />
                 {it.label}
