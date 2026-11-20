@@ -25,7 +25,7 @@ test("the composer goes car, where, text, when: it suggests text for the car, sh
   const preview = page.getByRole("figure", { name: "Preview" });
   await expect(preview).toContainText("Facebook");
   await expect(preview).toContainText("Just in, come and see it.");
-  await page.getByRole("button", { name: "Publish", exact: true }).click();
+  await page.getByRole("button", { name: /^Post to [A-Za-z]+ now$/ }).click();
   await expect(page.getByRole("status")).toContainText("Post published");
   await expect(page).toHaveURL(/\/dashboard\/marketing\?tab=posts/);
 });
@@ -82,7 +82,7 @@ test("the ad switch adds a budget, and publishing starts the ad with the post", 
   await expect(page.getByLabel("Budget (€)")).toHaveCount(0);
   await page.getByLabel("Also run it as an ad").check();
   await page.getByLabel("Budget (€)").fill("150");
-  await page.getByRole("button", { name: "Publish", exact: true }).click();
+  await page.getByRole("button", { name: /^Post to [A-Za-z]+ now$/ }).click();
   await expect(page.getByRole("status")).toContainText("Post published and ad started");
   await expect(page.getByRole("listitem").filter({ hasText: "Facebook and Instagram ad" }).filter({ hasText: "Running" }).filter({ hasText: "€150" }).first()).toBeVisible();
 });
@@ -116,4 +116,14 @@ test("write a newsletter from the newest cars, and sending sends it", async ({ p
 test("an unknown notice code shows nothing", async ({ page }) => {
   await page.goto("/dashboard/marketing?notice=<script>alert(1)</script>");
   await expect(page.getByRole("status")).toHaveCount(0);
+});
+
+test("what waits on you is at the top with Post now in the row; the list below is what went out; a chosen car can be changed", async ({ page }) => {
+  await page.goto("/dashboard/marketing");
+  const waiting = page.getByRole("region", { name: "Waiting on you" });
+  if (await waiting.count()) await expect(waiting.getByRole("button", { name: /^(Post now|Start ad)$/ }).first()).toBeVisible();
+  await expect(page.getByRole("region", { name: "Posts and ads" }).getByText("Draft", { exact: true })).toHaveCount(0);
+  await startPost(page);
+  await page.getByRole("button", { name: "Change car" }).click();
+  await expect(page.getByRole("heading", { name: /Step 1 of 4/ })).toBeVisible();
 });

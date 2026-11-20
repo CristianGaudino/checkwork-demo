@@ -21,7 +21,7 @@ export type ComposerCar = { slug: string; title: string; photos: { src: string; 
 // What the composer needs of a library file.
 export type LibraryFile = Pick<MediaItem, "id" | "kind" | "src" | "name" | "durationSec" | "carSlug">;
 
-const STEPS = ["Choose a car", "Where to post", "Write it", "When to post"];
+const STEPS = ["Choose a car", "Where to post", "Words and photos", "Check and post"];
 // Now, as datetime-local wants it (this device's time). Only read once "Later" is picked, so never on the server.
 const localNow = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
 const card = (on: boolean) => `rounded-card border bg-card text-left ${on ? "border-accent ring-2 ring-accent" : "border-hairline"} ${press}`;
@@ -89,6 +89,22 @@ export function PostComposer({ cars, initialSlug, initialFormat = "post", initia
         <input type="hidden" name="timing" value={later ? "later" : "now"} />
         {photos.map((src) => <input key={src} type="hidden" name="photos" value={src} />)}
 
+        {/* The car stays in view after step 1, with the way back to change it, so nobody loses track of what they are posting. */}
+        {picked && step > 0 && (
+          <div className="flex items-center gap-3 rounded-card border border-hairline bg-row-alt p-2 pr-3">
+            <span aria-hidden="true" className="size-14 shrink-0 overflow-hidden rounded-control bg-photo-bg">
+              {picked.photo && <img src={picked.photo} alt="" className="size-full object-cover" />}
+            </span>
+            <span className="flex min-w-0 flex-1 flex-col">
+              <span className="line-clamp-2 font-medium">{picked.title}</span>
+              <span className="text-meta text-text-2">{picked.price}</span>
+            </span>
+            <button type="button" onClick={() => setStep(0)} className={`${adminButtonQuiet} px-3`}>
+              Change car
+            </button>
+          </div>
+        )}
+
         <section hidden={step !== 0}>
           <CarPicker
             cars={cars}
@@ -105,7 +121,6 @@ export function PostComposer({ cars, initialSlug, initialFormat = "post", initia
         </section>
 
         <section hidden={step !== 1} className="flex flex-col gap-3">
-          {picked && <p className="text-body text-text-2">{picked.title}</p>}
           <div role="radiogroup" aria-label="Where" className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             {NETWORKS.map((n) => (
               <button key={n} type="button" role="radio" aria-checked={network === n} onClick={() => pick(n, format)} className={`${card(network === n)} flex min-h-14 items-center justify-between gap-3 px-4 text-body font-medium`}>
@@ -200,9 +215,12 @@ export function PostComposer({ cars, initialSlug, initialFormat = "post", initia
           )}
           {/* An ad starts with the post, so it is only offered for a post that goes out now. */}
           {!later && (
-            <label className="flex min-h-11 items-center gap-3">
-              <input type="checkbox" name="ad" checked={ad} onChange={(e) => setAd(e.target.checked)} className="size-5 accent-[var(--color-accent)]" />
-              <span className="text-body">Also run it as an ad</span>
+            <label className="flex min-h-11 items-start gap-3 py-1">
+              <input type="checkbox" name="ad" checked={ad} onChange={(e) => setAd(e.target.checked)} className="mt-0.5 size-5 shrink-0 accent-[var(--color-accent)]" />
+              <span className="flex flex-col">
+                <span className="text-body">Also run it as an ad</span>
+                <span className="text-meta text-text-2">You pay to show it to more people near you. It never spends more than the budget you set.</span>
+              </span>
             </label>
           )}
           {ad && !later && (
@@ -232,7 +250,7 @@ export function PostComposer({ cars, initialSlug, initialFormat = "post", initia
             )
           ) : (
             <>
-              <SubmitButton name="intent" value="publish" className={adminButton}>{later ? "Schedule" : "Publish"}</SubmitButton>
+              <SubmitButton name="intent" value="publish" className={adminButton}>{later ? "Schedule" : `Post to ${network} now`}</SubmitButton>
               <SubmitButton name="intent" value="draft" formNoValidate className={adminButtonQuiet}>Save draft</SubmitButton>
             </>
           )}

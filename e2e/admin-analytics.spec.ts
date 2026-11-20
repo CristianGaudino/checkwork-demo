@@ -14,6 +14,7 @@ test("analytics shows the totals, a chart with a text alternative, and a range t
 
 test("every section is there, and the funnel never grows", async ({ page }) => {
   await page.goto("/dashboard/analytics");
+  await page.getByText("More detail", { exact: true }).click(); // where in Ireland and devices are folded under the main figures
   for (const name of ["From visit to sale", "Where visitors come from", "Where in Ireland", "Devices", "Most viewed cars"]) await expect(page.getByRole("heading", { name })).toBeVisible();
   // The first text of each number is the count; the share beside it is a second element.
   const counts = await page.getByRole("region", { name: "From visit to sale" }).locator("li span.font-semibold").evaluateAll((els) => els.map((e) => e.firstChild!.textContent!));

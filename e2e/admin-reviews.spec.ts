@@ -27,3 +27,10 @@ test("a reply goes to Google first and says so; flags are gone, since Google can
   await expect(page.getByRole("status")).toHaveText("Reply posted on Google.");
 });
 
+
+test("the reviews waiting for a reply come first, each with Reply in place", async ({ page }) => {
+  await page.goto("/dashboard/reviews");
+  const first = page.locator("[data-review]").first();
+  await expect(page.getByRole("region", { name: "Needs a reply" }).locator("[data-review]").first()).toHaveText((await first.textContent())!);
+  await expect(first.getByText("Reply", { exact: true })).toBeVisible();
+});
