@@ -65,6 +65,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ m
         }))
       : undefined;
   const topTypes = Object.entries(s.leads.byType).sort((x, y) => y[1] - x[1]);
+  const sources = Object.entries(s.leads.bySource).sort((x, y) => y[1] - x[1]);
+  const topSource = sources[0];
 
   return (
     <>
@@ -83,16 +85,31 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ m
         <p className="text-body">{advice(s)}</p>
       </Panel>
 
+      {/* The month in short: the few numbers an owner asks about first, each against the month before. The sections below say more. */}
+      <StatGrid>
+        <StatCard label="Leads" value={fmtNum(s.leads.total)} hint={compare(s.leads.total, p.leads.total)} href="/dashboard/leads" />
+        {a && <StatCard label="Visitors" value={fmtNum(a.totals.visitors)} hint={compare(a.totals.visitors, a.previous.visitors)} href="/dashboard/analytics" />}
+        {real && <StatCard label="Visits" value={fmtNum(real.now.totals.visits)} hint={compare(real.now.totals.visits, real.before.totals.visits)} href="/dashboard/analytics" />}
+        {hasSales ? (
+          <StatCard label="Cars sold" value={fmtNum(s.sales.count)} hint={compare(s.sales.count, p.sales.count)} href="/dashboard/reports" />
+        ) : (
+          whole && <StatCard label="Cars sold" value={fmtNum(s.stock.sold)} hint={compare(s.stock.sold, p.stock.sold)} />
+        )}
+        {topSource && <StatCard label="Most leads from" value={topSource[0]} hint={plural(topSource[1], "lead")} />}
+      </StatGrid>
+
       <h2 className="text-heading font-semibold">Leads</h2>
       <StatGrid>
-        <StatCard label="Leads" value={fmtNum(s.leads.total)} hint={compare(s.leads.total, p.leads.total)} />
         <StatCard label="Out of hours" value={fmtNum(s.leads.outOfHours)} hint={s.leads.total ? `${Math.round((s.leads.outOfHours / s.leads.total) * 100)}% of leads` : undefined} />
         <StatCard label="First reply, when open" value={fmtWait(s.replies.medianInHoursMin)} hint="Typical" />
         <StatCard label="First reply, when closed" value={fmtWait(s.replies.medianOutOfHoursMin)} hint="Typical" />
-        <StatCard label="No reply in 24 hours" value={fmtNum(s.replies.none)} tone={s.replies.none ? "warn" : undefined} />
+        <StatCard label="No reply in 24 hours" value={fmtNum(s.replies.none)} tone={s.replies.none ? "warn" : undefined} href="/dashboard/leads" />
       </StatGrid>
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Panel title="By type">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
+        <Panel title="Where they came from">
+          {sources.length ? <BarList items={sources.map(([name, n]) => ({ label: name, value: n }))} /> : <p className="text-meta text-text-2">No leads this month.</p>}
+        </Panel>
+        <Panel title="What they asked about">
           {topTypes.length ? <BarList items={topTypes.map(([t, n]) => ({ label: LEAD_TYPE_LABELS[t as LeadType] ?? t, value: n }))} /> : <p className="text-meta text-text-2">No leads this month.</p>}
         </Panel>
         <Panel title="By day of the week">
@@ -103,11 +120,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ m
       {a && (
         <>
           <h2 className="text-heading font-semibold">Visitors</h2>
-          <StatGrid>
-            <StatCard label="Visitors" value={fmtNum(a.totals.visitors)} hint={compare(a.totals.visitors, a.previous.visitors)} />
-            <StatCard label="Page views" value={fmtNum(a.totals.pageviews)} hint={compare(a.totals.pageviews, a.previous.pageviews)} />
-          </StatGrid>
           <Panel title="Top 5 cars viewed">
+            <p className="text-meta text-text-2">
+              {fmtNum(a.totals.pageviews)} pages viewed in all. {compare(a.totals.pageviews, a.previous.pageviews)}.
+            </p>
             <DataTable bare rows={a.topCars.slice(0, 5)} rowKey={(c) => c.slug} columns={[{ key: "t", header: "Car", cell: (c) => <span className="font-medium">{c.title}</span> }, { key: "v", header: "Views", align: "right", cell: (c) => fmtNum(c.views) }]} />
           </Panel>
         </>
@@ -117,7 +133,6 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ m
         <>
           <h2 className="text-heading font-semibold">Visitors</h2>
           <StatGrid>
-            <StatCard label="Visits" value={fmtNum(real.now.totals.visits)} hint={compare(real.now.totals.visits, real.before.totals.visits)} />
             <StatCard label="Visits that became leads" value={fmtPct(real.now.totals.conversion)} />
           </StatGrid>
           {real.now.sources.length > 0 && (
@@ -133,34 +148,36 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ m
           <h2 className="text-heading font-semibold">Stock</h2>
           <StatGrid>
             <StatCard label="Cars added" value={fmtNum(s.stock.added)} hint={compare(s.stock.added, p.stock.added)} />
-            {/* With sales recorded, Cars sold is in Sales below, once. */}
-            {!hasSales && <StatCard label="Cars sold" value={fmtNum(s.stock.sold)} hint={compare(s.stock.sold, p.stock.sold)} />}
             <StatCard label="Days in stock" value={s.stock.avgDaysInStock === null ? "None" : fmtNum(s.stock.avgDaysInStock)} hint="Average, cars for sale now" />
             <StatCard href="/dashboard/stock?view=old" label={`${OLD_STOCK_DAYS} days or more`} value={fmtNum(s.stock.oldStock)} tone={s.stock.oldStock ? "warn" : undefined} hint="Cars for sale now" />
           </StatGrid>
         </>
       )}
 
-      {hasSales && (
-        <>
-          <h2 className="text-heading font-semibold">Sales</h2>
-          <StatGrid>
-            <StatCard label="Cars sold" value={fmtNum(s.sales.count)} hint={compare(s.sales.count, p.sales.count)} />
-            {s.sales.valueEur !== undefined && <StatCard label="Sales" value={fmtEur(s.sales.valueEur)} />}
-            {profit !== undefined && <StatCard label="Profit" value={fmtEur(profit)} hint="Cars with their cost entered" />}
-          </StatGrid>
-        </>
-      )}
+      {/* Sales and reviews side by side on a wide screen: each is two or three figures, too few to fill the width alone. */}
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        {hasSales && (
+          <section className="flex flex-col gap-4">
+            <h2 className="text-heading font-semibold">Sales</h2>
+            <StatGrid>
+              {/* Cars sold is in the month in short at the top; here it shows only when there is no money to show beside it. */}
+              {s.sales.valueEur === undefined && profit === undefined && <StatCard label="Cars sold" value={fmtNum(s.sales.count)} hint={compare(s.sales.count, p.sales.count)} />}
+              {s.sales.valueEur !== undefined && <StatCard label="Sales" value={fmtEur(s.sales.valueEur)} />}
+              {profit !== undefined && <StatCard label="Profit" value={fmtEur(profit)} hint="Cars with their cost entered" />}
+            </StatGrid>
+          </section>
+        )}
 
-      {whole && hasReviews && (
-        <>
-          <h2 className="text-heading font-semibold">Reviews</h2>
-          <StatGrid>
-            <StatCard label="New reviews" value={fmtNum(s.reviews.count)} hint={compare(s.reviews.count, p.reviews.count)} />
-            <StatCard label="Average rating" value={s.reviews.average === null ? "None" : `${s.reviews.average.toFixed(1)} average`} hint={plural(s.reviews.count, "review")} />
-          </StatGrid>
-        </>
-      )}
+        {whole && hasReviews && (
+          <section className="flex flex-col gap-4">
+            <h2 className="text-heading font-semibold">Reviews</h2>
+            <StatGrid>
+              <StatCard label="New reviews" value={fmtNum(s.reviews.count)} hint={compare(s.reviews.count, p.reviews.count)} />
+              <StatCard label="Average rating" value={s.reviews.average === null ? "None" : `${s.reviews.average.toFixed(1)} average`} hint={plural(s.reviews.count, "review")} />
+            </StatGrid>
+          </section>
+        )}
+      </div>
     </>
   );
 }

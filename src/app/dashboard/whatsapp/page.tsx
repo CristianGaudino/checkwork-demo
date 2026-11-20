@@ -4,7 +4,7 @@ import { ActButton } from "@/components/admin/ActButton";
 import { askModuleAction } from "@/app/dashboard/billing/actions";
 import { SHOW_PRICING } from "@/lib/billing/rules";
 import { Phones } from "@/components/admin/whatsapp/Phones";
-import { CalculatorIcon, CalendarIcon, CarIcon, InboxIcon, MegaphoneIcon, ReceiptIcon, ReportIcon, StarIcon, SwapIcon, WrenchIcon } from "@/components/stock/icons";
+import { CalculatorIcon, CalendarIcon, CarIcon, ChevronDownIcon, InboxIcon, MegaphoneIcon, ReceiptIcon, ReportIcon, StarIcon, SwapIcon, WrenchIcon } from "@/components/stock/icons";
 import { getSettings } from "@/lib/admin/collections";
 import { MODULES } from "@/lib/modules-rules";
 import { enabledModules, requireModule } from "@/lib/modules";
@@ -89,7 +89,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ n
             const canEdit = mayEditAll || t.name === me.name;
             return (
               <li key={t.id} data-wa-person={t.name}>
-                <details>
+                <details className="group">
                   <summary className="flex min-h-16 cursor-pointer list-none items-center gap-3 py-2 [&::-webkit-details-marker]:hidden">
                     <Avatar name={t.name} className="size-10" />
                     <span className="flex min-w-0 flex-1 flex-col">
@@ -100,6 +100,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ n
                     </span>
                     {p?.phone ? <Badge tone="good">Linked</Badge> : <Badge>Not linked</Badge>}
                     <span className={`${rowButton} max-sm:hidden`}>{canEdit ? "Change" : "See"}</span>
+                    {/* A phone has no room for the button; the chevron says the row opens. */}
+                    <ChevronDownIcon aria-hidden="true" className="size-5 shrink-0 text-text-2 transition-transform group-open:rotate-180 sm:hidden" />
                   </summary>
                   {canEdit ? (
                     <form action={saveStaffAction.bind(null, t.id)} className="flex flex-col gap-5 pb-5 pt-2 sm:pl-13">

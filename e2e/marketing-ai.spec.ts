@@ -49,7 +49,7 @@ test("make a story from a car: pick the layout, see it drawn on the photo, and p
   const preview = page.locator("[data-preview=story]");
   await expect(preview).toContainText("Price drop");
   await expect(preview).toContainText("See it");
-  await page.getByRole("button", { name: "Publish", exact: true }).click();
+  await page.getByRole("button", { name: /^Post to [A-Za-z]+ now$/ }).click();
   await expect(page.getByRole("status")).toContainText("Post published");
   await expect(page.getByRole("listitem").filter({ hasText: "Facebook story" }).first()).toBeVisible();
 });
@@ -86,7 +86,7 @@ test("a post that goes out shows on the calendar's week, and the week can move",
   await next(page);
   await expect(text(page)).not.toHaveValue("");
   await next(page);
-  await page.getByRole("button", { name: "Publish", exact: true }).click();
+  await page.getByRole("button", { name: /^Post to [A-Za-z]+ now$/ }).click();
   await expect(page.getByRole("status")).toContainText("Post published");
   await page.goto("/dashboard/marketing?tab=calendar");
   const week = page.getByRole("region", { name: "Week" });
