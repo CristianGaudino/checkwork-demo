@@ -102,8 +102,10 @@ function seedLeads(): Lead[] {
     const type = r.pick(SEED_TYPES);
     const p = person(r);
     const car = type === "find-a-car" || type === "general" || type === "sell" ? undefined : livePicks(r);
-    const age = i < 6 ? r.int(1, 30) * HOUR : (i - 4) * r.int(6, 14) * HOUR + r.int(0, 5) * HOUR;
-    const status: LeadStatus = age < 30 * HOUR ? "new" : r.pick(["new", "contacted", "contacted", "appointment", "won", "lost"] as const);
+    // The newest came in this morning, so they stay within the reply target through the day after the daily reset (worker.mjs). An older
+    // one has been answered, so only a few new leads are late, as at a real dealer.
+    const age = i < 6 ? r.int(1, 10) * HOUR : (i - 4) * r.int(6, 14) * HOUR + r.int(0, 5) * HOUR;
+    const status: LeadStatus = age < 30 * HOUR ? "new" : r.pick(["contacted", "contacted", "appointment", "won", "lost"] as const);
     return {
       id: `lead-${1000 + i}`,
       type,

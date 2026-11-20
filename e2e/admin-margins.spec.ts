@@ -52,7 +52,7 @@ test("only an owner or manager changes the team and the settings; a manager cann
   await as(context, "Sales");
   await page.goto("/dashboard/settings");
   await expect(page.getByText("Only an owner or manager can change these settings.")).toBeVisible();
-  await expect(page.getByLabel("Reply to a new lead within (hours)")).toBeDisabled();
+  await expect(page.getByLabel("Reply to a new lead within (hours)")).toHaveCount(0); // read only: the value as text
   await page.goto("/dashboard/settings?section=team");
   await expect(page.getByRole("button", { name: "Remove" })).toHaveCount(0);
   await as(context, "Manager");

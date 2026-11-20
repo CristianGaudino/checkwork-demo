@@ -23,7 +23,7 @@ const APP_JOBS = {
     { job: "whatsapp-daily", path: "/api/whatsapp/daily" }, // src/lib/whatsapp/alerts.ts: slow stock, new reviews, the Monday summary
   ],
   "0 7 1 * *": { job: "monthly-report", path: "/api/reports/monthly" }, // src/lib/reports/send.ts, the 1st, 7am or 8am Irish time
-  "30 6 * * 1": { job: "demo-reset", path: "/api/demo/reset" }, // the demo only: after the Monday 06:00 deploy moves the sold dates (deploy.yml)
+  "30 6 * * *": { job: "demo-reset", path: "/api/demo/reset" }, // the demo only, each morning: the seed dated from today (so its new leads are not all late), and on a Monday after the 06:00 deploy moves the sold dates (deploy.yml)
 };
 
 async function runAppJob({ job, path }, env, ctx) {

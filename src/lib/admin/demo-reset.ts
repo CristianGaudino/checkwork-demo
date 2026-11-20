@@ -10,8 +10,8 @@ import { getBindings } from "@/lib/leads/bindings";
 import { adminCars, saveCar } from "./stock-admin";
 import { messagesStore, staffStore } from "@/lib/whatsapp/store";
 
-// The demo's made-up records back to their seed, dated from today: Settings, Reset demo data, and every Monday after the deploy moves the
-// demo cars' sold dates (worker.mjs). What visitors sent (ids starting "real-") stays. The callers check that this is the demo.
+// The demo's made-up records back to their seed, dated from today: Settings, Reset demo data, and each morning (worker.mjs), on a Monday after
+// the deploy moves the demo cars' sold dates. What visitors sent (ids starting "real-") stays. The callers check that this is the demo.
 export async function resetDemoRecords() {
   // The usage, bills and Help records too, so the Billing page's month and bills are dated from today and a reached limit is lifted.
   for (const c of [...DEALER_COLLECTIONS, noticesStore, readsStore, usageStore, sentAlertsStore, billsStore, helpStore, feedbackStore, messagesStore, staffStore]) await c.reset();

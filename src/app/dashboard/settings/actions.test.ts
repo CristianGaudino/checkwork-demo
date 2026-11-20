@@ -169,9 +169,28 @@ describe("the other settings", () => {
     expect((await sendTestEmailAction())?.errors?.test).toMatch(/^The test email did not go/);
   });
 
-  it("refuses all of them for Sales", async () => {
+  it("refuses all of them for Sales and Finance, and writes nothing", async () => {
+    const before = await getSettings();
+    for (const r of ["Sales", "Finance"]) {
+      role = r;
+      const results = [
+        await saveTargetsAction(undefined, form({ leadSlaHours: "2", driveSlotMinutes: "30" })),
+        await saveNotificationsAction(undefined, form({})),
+        await saveMarketingAction(undefined, form({ voice: "x", hashtags: "", signOff: "" })),
+        await saveLeadEmailsAction(undefined, form({ leadEmails: "sneaky@example.com" })),
+        await sendTestEmailAction(),
+      ];
+      for (const res of results) expect(Object.values(res?.errors ?? {})).toEqual(["Only an owner or manager can change this"]);
+    }
+    expect(await getSettings()).toEqual(before);
+  });
+
+  it("does not reset the demo for Sales", async () => {
+    vi.stubEnv("DEMO_RECORDS", "on");
+    await saveTargetsAction(undefined, form({ leadSlaHours: "12", driveSlotMinutes: "30" })); // as the owner: a change a reset would undo
     role = "Sales";
-    for (const r of [await saveNotificationsAction(undefined, form({})), await saveMarketingAction(undefined, form({ voice: "x", hashtags: "", signOff: "" })), await sendTestEmailAction()]) expect(r?.saved).toBeFalsy();
+    await resetDemoAction();
+    expect((await getSettings()).leadSlaHours).toBe(12);
   });
 });
 
