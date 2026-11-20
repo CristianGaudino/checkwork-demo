@@ -56,7 +56,7 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
   // A plan without the dashboard (Showroom) has no dealer side, so the demo is the customer's view only, with the Plan switch to go back.
   const dashboard = useModules().has("dashboard");
   // In the dealer area the route is the role. On a public page it is the remembered one.
-  const role = inApp ? roleForPath(path) : saved;
+  const role = !dashboard ? "customer" : inApp ? roleForPath(path) : saved;
   const theme = useSyncExternalStore(subscribe, read, () => "light" as Theme);
   const dealerRole = useDealerRole();
   const donedeal = useStockSource() === "donedeal";
@@ -93,7 +93,6 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
           ))}
         </nav>
       )}
-      {!dashboard && showAreas && <ModuleSwitches chip={chip} inline={phone} />}
       {role === "dealer" && showAreas && (
         <div className={`flex items-center gap-2 ${phone ? "w-full flex-wrap" : ""}`}>
           {/* Which member of the team the demo acts as: the role decides what they may see (src/lib/permissions.ts). The browser's own
@@ -128,10 +127,10 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
           >
             {LISTING_SITE} sync<span className="ml-1">{donedeal ? "on" : "off"}</span>
           </button>
-          {/* Which modules the dealer has (#173), so a smaller site can be shown. */}
-          <ModuleSwitches chip={chip} inline={phone} />
         </div>
       )}
+      {/* Which modules the dealer has (#173), so a smaller site can be shown. One switch in one place, so choosing a plan keeps it open. */}
+      {showAreas && (role === "dealer" || !dashboard) && <ModuleSwitches chip={chip} inline={phone} />}
       <button type="button" aria-pressed={theme === "dark"} onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className={`flex h-11 items-center px-2 text-text-2 ${press}`}>
         {theme === "dark" ? "Dark" : "Light"}
       </button>

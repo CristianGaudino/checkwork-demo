@@ -7,6 +7,7 @@ Going ahead with this model (owner, 20 Nov 2026). Prices are a month, before VAT
 - **Monthly:** the list price.
 - **A year paid upfront:** 1 month free (11 months' price).
 - **2-year contract:** setup waived.
+- **Moving up a tier:** pay only the setup difference (Dealer to Group: €1,000).
 
 ## Why these tiers
 - **Most prospects already have a site:** about 88% pay for CarsIreland, HappyDealer or DoneDeal, and DoneDeal gives one away free. So the base site is the hard sale.
@@ -29,42 +30,43 @@ Going ahead with this model (owner, 20 Nov 2026). Prices are a month, before VAT
 - Google reviews on the site, from the dealer's public Google listing (no sign-in needed)
 - Enquiry form (leads go to the dealer by email) and WhatsApp click to chat
 - Finance estimator
-- Trade-in form with 25 registration lookups a month
+- Trade-in form with 25 registration lookups a month; extra lookups stop at €15 a month, then buyers type their car in
 - Car finder: a "find me a car" form for cars not in stock
 - No dashboard, so no staff logins and no AI
 
 **Dealer:** Showroom plus the dashboard.
 - Leads inbox with follow-ups
-- WhatsApp alerts (500 a month)
+- WhatsApp alerts to staff and confirmations to buyers (500 messages a month)
 - Test drive booking and calendar
 - Trade-in with 100 lookups a month
 - Reply to Google reviews from the dashboard
-- AI writing, 100 drafts a month:
+- AI writing, 100 uses a month (each draft or rewrite is one):
   - replies to leads and reviews
   - better car descriptions, copied to DoneDeal in one click for synced stock
 - Deposits and sale records
 - Site analytics: visitors, and which ads bring leads
-- 10 staff logins with roles
+- Staff logins with roles, as many as needed
 
-**Group:** Dealer for every branch, with one inbox, plus:
+**Group:** Dealer for every branch, plus:
 - Margins and reports
-- Social posts and ads, with AI writing raised to 300 drafts a month
+- Social posts and ads, with AI writing raised to 300 uses a month
 - Newsletter and stock alerts
 - New cars and factory orders
 - Commercial vehicles section
 
 **Add-ons:**
 - **Any tier:** commercial vehicles €29.
-- **Dealer only** (they need the dashboard):
-  - Service and aftersales €49 (service booking and warranty claims, for dealers with a workshop)
+- **Dealer or Group:** service and aftersales €49 (service booking and warranty claims, for dealers with a workshop).
+- **Dealer only** (they need the dashboard; Group has them):
+  - Margins and reports €49
   - New cars €99, covering up to 2 brands, then €29 per extra brand (setup €400, plus €100 per extra brand)
-  - Social €99
+  - Social €99, with 200 more AI uses a month (300 in all, as Group)
   - Newsletter €59
 
 **Over an allowance:**
 - lookup €0.30
 - WhatsApp alert €0.05, reply €0.03, marketing message €0.12
-- AI draft €0.04 (Standard) or €0.08 (Premium)
+- AI use €0.04 (Standard) or €0.08 (Premium)
 
 ## Price rises
 At renewal with 60 days' notice, once any of these is true:

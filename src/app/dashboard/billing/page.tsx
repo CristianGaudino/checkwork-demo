@@ -9,8 +9,8 @@ import { enabledModules } from "@/lib/modules";
 import { can, currentMember } from "@/lib/permissions";
 import { billingDetails, listBills } from "@/lib/billing/bills";
 import { eur, fmtMonth, itemise, nextBillDate, scopeName, billedServices } from "@/lib/billing/bills-rules";
-import { AI_MODELS, KINDS, MODULE_EUR, SHOW_PRICING, TERM_LABELS, allowanceFor, setupEur, setupLines, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, capOf, planEur, planFor, planLines, termSetupEur, usageEstimate, round2, withVat, yearUpfrontEur, type BillingSettings, type Scope, type Service } from "@/lib/billing/rules";
-import { billingSettings, monthUsage } from "@/lib/billing/usage";
+import { AI_MODELS, KINDS, MODULE_EUR, SHOW_PRICING, TERM_LABELS, allowanceFor, setupEur, setupLines, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, capOf, planEur, planFor, planLines, termSetupEur, usageEstimate, round2, withVat, yearUpfrontEur, type BillingSettings, type Scope, type Service, type UsageCount } from "@/lib/billing/rules";
+import { billingSettings, monthCounts, monthUsage } from "@/lib/billing/usage";
 import { askModuleAction, removeAlertAction, saveAiModelAction } from "./actions";
 import { dublinDay } from "@/lib/admin/format";
 
@@ -34,7 +34,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
   if (!SHOW_PRICING) return <WithoutPrices />;
   const sp = await searchParams;
   const section = SECTIONS.find(([k]) => k === sp.section)?.[0] ?? "plan";
-  const [modules, b, usage, me] = await Promise.all([enabledModules(), billingSettings(), monthUsage(), currentMember()]);
+  const [modules, b, usage, counts, me] = await Promise.all([enabledModules(), billingSettings(), monthUsage(), monthCounts(), currentMember()]);
   const services = billedServices(modules, usage);
   const scopes: Scope[] = [...services, "total"];
   return (
@@ -42,7 +42,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
       <PageHeader title="Billing" />
       <Segmented label="Billing sections" items={SECTIONS.map(([k, label]) => ({ label, href: k === "plan" ? "/dashboard/billing" : `/dashboard/billing?section=${k}`, active: k === section }))} />
 
-      {section === "plan" && <PlanAndUsage modules={modules} services={services} usage={usage} b={b} now={today()} />}
+      {section === "plan" && <PlanAndUsage modules={modules} services={services} usage={usage} counts={counts} b={b} now={today()} />}
 
       {section === "limits" && (
         <>
@@ -111,13 +111,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
   );
 }
 
-function PlanAndUsage({ modules, services, usage, b, now }: { modules: Modules; services: Service[]; usage: Usage; b: BillingSettings; now: Date }) {
+function PlanAndUsage({ modules, services, usage, counts, b, now }: { modules: Modules; services: Service[]; usage: Usage; counts: UsageCount[]; b: BillingSettings; now: Date }) {
   // What adding a module costs: with what it needs, and a tier it completes. 0 when the plan already pays for it.
   const addEur = (id: (typeof MODULES)[number]["id"]) => planFor(withModule(modules, id), b).eur - planFor(modules, b).eur;
   const others = MODULES.filter((m) => !modules.has(m.id) && MODULE_EUR[m.id] > 0);
   const plan = planEur(modules, b);
   const sofar = usage.totalEur;
-  const estimate = usageEstimate(usage, b, dublinDay(now.getTime()));
+  const estimate = usageEstimate(counts, allowanceFor(modules, b), b, dublinDay(now.getTime()));
   const bill = round2(plan + estimate);
   const setup = setupLines(modules, b);
   const setupFull = setupEur(modules, b);

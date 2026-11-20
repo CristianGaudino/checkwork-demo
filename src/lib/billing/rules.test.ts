@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { MODULE_IDS } from "@/lib/modules-rules";
-import { BILLING_DEFAULT, allowanceFor, alertsCrossed, setupEur, setupLines, capOf, monthEndEstimate, planEur, planFor, planLines, presetName, termSetupEur, usageCosts, usageEstimate, withinCaps, yearUpfrontEur, type BillingSettings, type UsageCount } from "./rules";
+import { BILLING_DEFAULT, inAllowance, allowanceFor, alertsCrossed, setupEur, setupLines, capOf, monthEndEstimate, planEur, planFor, planLines, presetName, termSetupEur, usageCosts, usageEstimate, withinCaps, yearUpfrontEur, type BillingSettings, type UsageCount } from "./rules";
 
 const c = (service: UsageCount["service"], kind: string, count: number): UsageCount => ({ id: `m:${service}:${kind}`, month: "2026-11", service, kind, count });
 
@@ -32,6 +32,8 @@ describe("usage costs", () => {
     expect(allowanceFor(SHOWROOM, opts())).toEqual({ lookup: 25 });
     expect(allowanceFor(DEALER, opts())).toEqual({ lookup: 100, whatsapp: 500, ai: 100 });
     expect(allowanceFor(GROUP, opts({ branches: 3 }))).toEqual({ lookup: 300, whatsapp: 1500, ai: 300 });
+    expect(allowanceFor([...DEALER, "social"], opts())).toEqual({ lookup: 100, whatsapp: 500, ai: 300 }); // Social as an add-on: 200 more AI
+    expect(allowanceFor([...GROUP, "service"], opts())).toMatchObject({ ai: 300 }); // Group's own Social is not counted twice
     expect(allowanceFor(["dashboard", "ai"], opts())).toEqual({ lookup: 100, whatsapp: 500, ai: 100 }); // AI needs the dashboard: Dealer
   });
 });
@@ -133,10 +135,23 @@ describe("the plan and the estimate", () => {
     expect(monthEndEstimate(1, "2026-12-01")).toBe(31); // the 1st in Dublin, whatever the UTC day
   });
   it("stops each service at its own limit, then all of it at the total limit, and never below what is spent", () => {
-    const costs = (lookup: number, ai: number) => ({ ...usageCosts([], {}), lookup: { count: 0, costEur: lookup, kinds: [] }, ai: { count: 0, costEur: ai, kinds: [] }, totalEur: lookup + ai });
+    const counts = [c("lookup", "website", 30), c("ai", "sonnet", 25)]; // EUR 9 and EUR 1 by the 10th, so 27 and 3 at that pace
     const b = (caps: BillingSettings["caps"]): BillingSettings => ({ ...BILLING_DEFAULT, caps, ceilings: {} });
-    expect(usageEstimate(costs(9, 1), b({ lookup: 10 }), "2026-11-10")).toBe(13); // lookups stop at 10, AI goes on to 3
-    expect(usageEstimate(costs(9, 1), b({ total: 12 }), "2026-11-10")).toBe(12);
-    expect(usageEstimate(costs(9, 1), b({ lookup: 5 }), "2026-11-10")).toBe(12); // a limit lowered below the spend: 9 spent, AI to 3
+    expect(usageEstimate(counts, {}, b({ lookup: 10 }), "2026-11-10")).toBe(13); // lookups stop at 10, AI goes on to 3
+    expect(usageEstimate(counts, {}, b({ total: 12 }), "2026-11-10")).toBe(12);
+    expect(usageEstimate(counts, {}, b({ lookup: 5 }), "2026-11-10")).toBe(12); // a limit lowered below the spend: 9 spent, AI to 3
+  });
+  it("estimates past the allowance at the month's pace, not from what is billed so far", () => {
+    expect(usageEstimate([c("lookup", "website", 60)], { lookup: 100 }, opts(), "2026-11-10")).toBe(24); // 180 at that pace, 80 x 0.30
+  });
+  it("lets a use the plan still includes past any limit, as it costs nothing; WhatsApp only for alerts", () => {
+    const allowance = { lookup: 25, whatsapp: 500 };
+    const used = usageCosts([c("lookup", "website", 24), c("whatsapp", "alert", 10)], allowance);
+    expect(inAllowance(used, allowance, "lookup")).toBe(true);
+    expect(inAllowance(usageCosts([c("lookup", "website", 25)], allowance), allowance, "lookup")).toBe(false);
+    expect(inAllowance(used, allowance, "whatsapp", "alert")).toBe(true);
+    expect(inAllowance(used, allowance, "whatsapp", "reply")).toBe(false);
+    expect(inAllowance(used, allowance, "whatsapp")).toBe(false);
+    expect(inAllowance(used, allowance, "ai")).toBe(false);
   });
 });

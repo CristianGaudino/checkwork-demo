@@ -37,7 +37,7 @@ export const MODULE_EUR: Record<ModuleId, number> = {
 export const NEW_CAR_BRANDS = { included: 2, eur: 29, setupEur: 100 } as const;
 const extraBrands = (o: PlanOptions) => Math.max(0, o.brands - NEW_CAR_BRANDS.included);
 // One-off fees at launch, before VAT: the tier's, and the add-ons set up with outside accounts.
-export const MODULE_SETUP_EUR: Partial<Record<ModuleId, number>> = { social: 150, newCars: 400, whatsapp: 150 };
+export const MODULE_SETUP_EUR: Partial<Record<ModuleId, number>> = { social: 150, newCars: 400 };
 export function setupLines(modules: Iterable<ModuleId>, o: PlanOptions = ONE_SITE): { label: string; eur: number }[] {
   const set = new Set(modules);
   const { tier, extras } = planFor(set, o);
@@ -76,6 +76,12 @@ export type ServiceCost = { count: number; costEur: number; kinds: { kind: strin
 // marketing messages are always billed).
 export type Allowance = Partial<Record<Service, number>>;
 const allowanceCovers = (s: Service, kind: string) => s !== "whatsapp" || kind === "alert";
+// Whether one more use (of `kind`, when known) is still inside the plan's allowance: it costs nothing, so no limit stops it. A WhatsApp use
+// of unknown kind is not, as only alerts are included.
+export function inAllowance(c: ReturnType<typeof usageCosts>, allowance: Allowance, s: Service, kind?: string): boolean {
+  if (kind === undefined ? s === "whatsapp" : !allowanceCovers(s, kind)) return false;
+  return (allowance[s] ?? 0) > c[s].kinds.reduce((n, k) => n + (k.included ?? 0), 0);
+}
 // What the month's usage costs: each kind's uses past what the allowance still has, in the order of KINDS.
 export function usageCosts(counts: Pick<UsageCount, "service" | "kind" | "count">[], allowance: Allowance): Record<Service, ServiceCost> & { totalEur: number } {
   const out = Object.fromEntries(SERVICES.map((s) => [s, { count: 0, costEur: 0, kinds: [] as ServiceCost["kinds"] }])) as Record<Service, ServiceCost>;
@@ -153,19 +159,22 @@ export function monthEndEstimate(sofarEur: number, today: string): number {
   return round2((sofarEur / day) * days);
 }
 
-// The month's usage at month end: each service at its pace, stopped at its own limit, then all of it at the total limit; never less than
-// what is already spent (a limit lowered mid-month).
-export function usageEstimate(costs: Record<Service, ServiceCost> & { totalEur: number }, b: BillingSettings, today: string): number {
-  const each = SERVICES.reduce((sum, s) => sum + Math.max(costs[s].costEur, Math.min(monthEndEstimate(costs[s].costEur, today), capOf(b, s) ?? Infinity)), 0);
-  return round2(Math.max(costs.totalEur, Math.min(each, capOf(b, "total") ?? Infinity)));
+// The month's usage at month end: each count at its pace, less the allowance, each service stopped at its own limit, then all of it at the
+// total limit; never less than what is already spent (a limit lowered mid-month).
+export function usageEstimate(counts: UsageCount[], allowance: Allowance, b: BillingSettings, today: string): number {
+  const now = usageCosts(counts, allowance);
+  const pace = usageCosts(counts.map((c) => ({ ...c, count: Math.round(monthEndEstimate(c.count, today)) })), allowance);
+  const each = SERVICES.reduce((sum, s) => sum + Math.max(now[s].costEur, Math.min(pace[s].costEur, capOf(b, s) ?? Infinity)), 0);
+  return round2(Math.max(now.totalEur, Math.min(each, capOf(b, "total") ?? Infinity)));
 }
 // The tiers (#223, docs/sales/pricing-strategy.md), the only plans sold: the site and a set of modules for one price a month before VAT, a
 // setup fee, and a monthly allowance of per-use services. Group is priced per branch, and some of its allowance too. Other modules are
 // add-ons on top.
 const SHOWROOM: ModuleId[] = ["tradeIn", "finance", "carFinder", "lookupWebsite", "reviews"];
 const DEALER: ModuleId[] = [...SHOWROOM, "dashboard", "testDrives", "sales", "analytics", "whatsapp", "ai", "lookupDashboard"];
-export const TIERS: { id: string; label: string; modules: readonly ModuleId[]; eur: number; branchEur?: number; setupEur: number; allowance: Allowance; perBranch?: readonly Service[] }[] = [
-  { id: "showroom", label: "Showroom", modules: SHOWROOM, eur: 249, setupEur: 950, allowance: { lookup: 25 } },
+// `ceilings`: our limit for a tier, unless the owner's program sets another. Showroom has no dashboard to see or limit its lookups.
+export const TIERS: { id: string; label: string; modules: readonly ModuleId[]; eur: number; branchEur?: number; setupEur: number; allowance: Allowance; perBranch?: readonly Service[]; ceilings?: Partial<Record<Scope, number>> }[] = [
+  { id: "showroom", label: "Showroom", modules: SHOWROOM, eur: 249, setupEur: 950, allowance: { lookup: 25 }, ceilings: { lookup: 15 } },
   { id: "dealer", label: "Dealer", modules: DEALER, eur: 449, setupEur: 950, allowance: { lookup: 100, whatsapp: 500, ai: 100 } },
   { id: "group", label: "Group", modules: [...DEALER, "margins", "social", "newsletter", "newCars", "commercial"], eur: 749, branchEur: 149, setupEur: 1950, allowance: { lookup: 100, whatsapp: 500, ai: 300 }, perBranch: ["lookup", "whatsapp"] },
 ];
@@ -218,6 +227,9 @@ export const planEur = (modules: Iterable<ModuleId>, o: PlanOptions = ONE_SITE):
 // What the plan includes each month before usage is billed: the tier's allowance, Group's lookups and alerts per branch. AI past it is
 // billed per action.
 export function allowanceFor(modules: Iterable<ModuleId>, o: PlanOptions): Allowance {
-  const { tier } = planFor(modules, o);
-  return Object.fromEntries(Object.entries(tier.allowance).map(([s, n]) => [s, tier.perBranch?.includes(s as Service) ? n * Math.max(1, o.branches) : n]));
+  const { tier, extras } = planFor(modules, o);
+  const own: Allowance = Object.fromEntries(Object.entries(tier.allowance).map(([s, n]) => [s, tier.perBranch?.includes(s as Service) ? n * Math.max(1, o.branches) : n]));
+  // Social as an add-on brings its own AI uses, as Group's 300 has them (Dealer's 100 plus these).
+  return extras.includes("social") ? { ...own, ai: (own.ai ?? 0) + SOCIAL_AI } : own;
 }
+export const SOCIAL_AI = 200;

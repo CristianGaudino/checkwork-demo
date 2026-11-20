@@ -52,3 +52,13 @@ describe("a stored AI assistant plan", () => {
     expect(await monthAllowance(await billingSettings())).toEqual({ lookup: 25 });
   });
 });
+
+describe("Showroom's lookups", () => {
+  it("stop at our EUR 15 a month past the allowance, as Showroom has no Billing page to set a limit; the dealer's lower limit still counts", async () => {
+    const { billingSettings } = await import("./usage");
+    const { capOf } = await import("./rules");
+    const b = await billingSettings();
+    expect(b.ceilings.lookup).toBe(15);
+    expect(capOf(b, "lookup")).toBe(1); // the stored limit of EUR 1 is lower
+  });
+});

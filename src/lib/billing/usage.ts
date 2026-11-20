@@ -3,7 +3,7 @@ import { defineCollection } from "@/lib/admin/docs";
 import { dublinDay } from "@/lib/admin/format";
 import { SETTINGS_DEFAULT, getSettings, settingsStore, type DealerSettings } from "@/lib/admin/collections";
 import { notify } from "@/lib/admin/notifications";
-import { SHOW_PRICING, alertsCrossed, allowanceFor, usageCosts, usageId, withinCaps, type BillingSettings, type Kind, type Service, type UsageCount, withBillingDefaults } from "./rules";
+import { BILLING_DEFAULT, SHOW_PRICING, alertsCrossed, allowanceFor, inAllowance, planFor, usageCosts, usageId, withinCaps, type BillingSettings, type Kind, type Service, type UsageCount, withBillingDefaults } from "./rules";
 import { enabledModules } from "@/lib/modules";
 import { roleCan } from "@/lib/permission-rules";
 
@@ -16,8 +16,13 @@ export const sentAlertsStore = defineCollection<{ id: string }>("usage-alerts", 
 
 export const monthOf = (t: number = Date.now()) => dublinDay(t).slice(0, 7);
 
-// A record saved before the AI assistant was dropped may still carry `aiPlan`: nothing reads it.
-export const billingSettings = async (): Promise<BillingSettings> => withBillingDefaults((await getSettings()).billing);
+// A record saved before the AI assistant was dropped may still carry `aiPlan`: nothing reads it. The tier's own limits (Showroom's
+// lookups) apply unless the owner's program set others.
+export async function billingSettings(): Promise<BillingSettings> {
+  const [s, on] = await Promise.all([getSettings(), enabledModules()]);
+  const b = withBillingDefaults(s.billing);
+  return { ...b, ceilings: { ...BILLING_DEFAULT.ceilings, ...planFor(on, b).tier.ceilings, ...s.billing?.ceilings } };
+}
 // What the plan includes this month before usage is billed.
 export const monthAllowance = async (b: BillingSettings) => allowanceFor(await enabledModules(), b);
 export async function monthCounts(month = monthOf()): Promise<UsageCount[]> {
@@ -27,10 +32,14 @@ export async function monthUsage(month = monthOf()) {
   return usageCosts(await monthCounts(month), await monthAllowance(await billingSettings()));
 }
 
-// Whether one more use is allowed: false once the month's spend reaches a cap (the dealer's or ours). The caller falls back without it.
-export async function usageAllowed(service: Service): Promise<boolean> {
+// Whether one more use is allowed: false once the month's spend reaches a cap (the dealer's or ours), unless the plan still includes it
+// (a use inside the allowance costs nothing, so even a EUR 0 limit lets it through). The caller falls back without it.
+export async function usageAllowed(service: Service, kind?: string): Promise<boolean> {
   try {
-    return withinCaps(await monthUsage(), await billingSettings(), service);
+    const b = await billingSettings();
+    const allowance = await monthAllowance(b);
+    const usage = usageCosts(await monthCounts(), allowance);
+    return withinCaps(usage, b, service) || inAllowance(usage, allowance, service, kind);
   } catch {
     return true; // a meter that cannot be read never stops the dealer's work; the cap is checked again on the next use
   }

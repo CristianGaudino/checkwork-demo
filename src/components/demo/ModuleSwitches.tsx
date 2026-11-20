@@ -34,7 +34,7 @@ export function ModuleSwitches({ chip, inline = false }: { chip: string; inline?
     const list = [...next];
     setDemoModules(list);
     // Without the dashboard the dealer area is gone (404), so the demo goes to the site's home page.
-    if (isAppPath(path) && !list.includes("dashboard")) router.push("/");
+    if (isAppPath(path) && !list.includes("dashboard")) router.replace("/"); // replace: Back would bring the dealer area back on a plan without it
     else router.refresh();
   };
 
