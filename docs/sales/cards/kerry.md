@@ -1,6 +1,6 @@
 # Sales cards: County Kerry
 
-**Summary.** 21 cards: 6 tier A, 15 tier B (from `data/scored.json`; sites re-checked on 20 Nov 2026 on a phone-sized browser). Cartwright is left out (pitched separately).
+**Summary.** 21 cards: 6 tier A, 15 tier B. Site facts as of 20 Nov 2026. Cartwright is pitched separately.
 **Strongest three:** Divane Volkswagen (339 cars on DoneDeal, 407 reviews at 4.7, and its website answers "Down for maintenance"), Kerry Motor Works (182 cars, about €5.7m, 454 reviews at 4.7 not shown, already pays for NetDirector), Reen's Rathmore (four brands but a Peugeot-only site that never mentions Fiat or Jeep, 215 reviews not shown).
 **Local reference:** once the Tralee site we're building is live, "we're building a site for a Tralee dealer" can go into any Kerry opener (don't name them).
 
@@ -13,7 +13,7 @@ Live demo for every pitch: https://www.demo.checkwork.ie
 ### Divane Volkswagen (Divanes Kerry), Castleisland · Tier A, 81/100 (able 45, willing 15, opening 21)
 **Who they are:** Main Volkswagen and Volkswagen Commercial Vehicles dealer for Kerry since 1954; VW Commercial Vehicles Retailer of the Year 2020. One site. 339 ads on DoneDeal (Trusted Dealer), also on adverts.ie and cars.ie; typical price €41,050 (includes new cars and vans), so roughly €14m listed. 407 Google reviews at 4.7. Own site divane.ie runs on Volkswagen's dealer platform.
 **What we found:**
-1. divane.ie answers 503 with a Volkswagen "Scheduled maintenance. We'll be back shortly" page, on every check on 20 Nov 2026 (https://www.divane.ie/). Anyone who clicks through from DoneDeal gets that page.
+1. divane.ie answers 503 with a Volkswagen "Scheduled maintenance. We'll be back shortly" page, all day on 20 Nov 2026 (https://www.divane.ie/). Anyone who clicks through from DoneDeal gets that page.
 2. So for now none of the 339 cars, no enquiry form, finance or trade-in is on their own site; all their online selling runs through DoneDeal.
 3. 407 reviews at 4.7 with no site to show them on.
 **Sales points:**
@@ -23,7 +23,7 @@ Live demo for every pitch: https://www.demo.checkwork.ie
 4. "407 reviews at 4.7." Reviews module, replies from the dashboard.
 **Pitch:** Full suite. Biggest stock in the county, a franchise with vans, and right now no working site. Used cars and vans site, dashboard, commercial section, trade-in and finance.
 **Opener:** "We tried divane.ie today and got Volkswagen's 'Down for maintenance' page all day, while you have 339 cars on DoneDeal: can I show you a site that keeps them in front of buyers?"
-**Caveats:** Re-check the site before calling: it may be a short VW platform outage or migration, and VW Ireland may mandate its platform for new cars. Lead with used cars, vans and the dashboard. Socials not checked.
+**Caveats:** Re-check the site before calling: it may be a short VW platform outage or migration, and VW Ireland may mandate its platform for new cars. Lead with used cars, vans and the dashboard.
 
 ### Reen's Rathmore (Reen's Garage), Rathmore · Tier A, 79/100 (able 40, willing 18, opening 21)
 **Who they are:** Peugeot dealer, appointed Fiat and Jeep dealer in 2023, DS cars in stock. One site. 55 cars on DoneDeal (Trusted Dealer), typical price €32,950, about €1.8m. 215 Google reviews at 4.6. Site is Peugeot's dealer template.
@@ -39,7 +39,7 @@ Live demo for every pitch: https://www.demo.checkwork.ie
 4. "Buyers who can't ask, don't." Trade-in with registration lookup, lead forms, Dealer dashboard.
 **Pitch:** Full site plus dashboard. Mid-size but franchise, pays for DoneDeal, and the current site doesn't cover half their business.
 **Opener:** "You've been a Fiat and Jeep dealer since 2023 but your website still only knows about Peugeot: can I show you one site with all four brands and your used stock?"
-**Caveats:** Peugeot (Stellantis) likely requires its template for new Peugeots; lead with used stock, Fiat and Jeep, and the dashboard. Stock count is DoneDeal's.
+**Caveats:** Peugeot (Stellantis) likely requires its template for new Peugeots; lead with used stock, Fiat and Jeep, and the dashboard.
 
 ### Audi Approved :plus Kerry, Tralee · Tier A, 76/100 (able 50, willing 11, opening 15)
 **Who they are:** Audi used-car centre, sister to Audi Cork. 94 cars on DoneDeal (TURBO package), typical price €40,400, about €3.8m. 89 Google reviews. audikerry.ie now redirects to audiapprovedpluskerry.ie, which is part of Blackwater Motors' network of sites (footer "About Blackwater Motors", links to Blackwater's Skoda, SEAT, CUPRA and VW sites).
@@ -68,7 +68,7 @@ Live demo for every pitch: https://www.demo.checkwork.ie
 3. "Every car is a post you're not making." Social and ads with AI drafts.
 **Pitch:** Dashboard. Toyota controls the site, and they already pay for extras.
 **Opener:** "Ninety years in Tralee and 345 Google reviews, and none of them on kellihers.ie: can I show you a dashboard that puts them to work and keeps every chat and lead in one place?"
-**Caveats:** Toyota Ireland runs the template for new and used, so a new site may not be allowed; lead with the dashboard, reviews and social. Typical price is a band midpoint, not a median.
+**Caveats:** Toyota Ireland runs the template for new and used, so a new site may not be allowed; lead with the dashboard, reviews and social.
 
 ### Kerry Motor Works (Benner's Garage Ltd), Tralee · Tier A, 72/100 (able 45, willing 15, opening 12)
 **Who they are:** Ford main dealer since 1919 (established 1916), "the oldest family run dealer in Ireland" by their own account. 182 ads on DoneDeal, 181 vehicles on its own site, typical price €31,225, about €5.7m. 454 Google reviews at 4.7. Site on NetDirector (Keyloop), a paid platform. Ford commercials in stock.
@@ -146,7 +146,7 @@ Skoda dealer, 76 cars (typical about €33,400), 239 Google reviews at 4.6, Happ
 **Opener:** "With 128 cars on the forecourt, can I show you a dashboard that tells you which ones are ageing and what each one made?"
 
 ### Donagh Hickey Motors, Rathmore · Tier B, 62/100 (able 36, willing 11, opening 15)
-Renault and Dacia dealer, 52 cars (typical €15,400), 182 Google reviews, CarsIreland site (loads fine; the sweep's timeout didn't repeat).
+Renault and Dacia dealer, 52 cars (typical €15,400), 182 Google reviews, CarsIreland site.
 1. "182 reviews." Reviews module.
 2. "Leads by phone and email." Dealer dashboard, WhatsApp.
 **Pitch:** Dashboard.

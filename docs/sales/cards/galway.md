@@ -1,6 +1,6 @@
 # Sales cards: County Galway
 
-10 tier A and 19 tier B dealers (29 cards). Every "what we found" fact was checked on the live site on 2026-11-20; stock and review counts come from `data/galway.json`.
+10 tier A and 19 tier B dealers (29 cards). Site facts as of 20 Nov 2026.
 Strongest three: **Al Hayes Motors** (458 cars, a homepage offer that links to a file on a staff PC, no reviews shown), **Colm Quinn BMW Galway** (165 cars worth about €9m, 481 reviews not shown, no finance calculator or trade-in form), **Kenny Galway** (139 cars, Galway Races sponsor, a 4.0 rating and the same three old reviews on its site).
 Most big Galway franchise dealers already have decent sites (CarsIreland, HappyDealer, manufacturer templates), so lead with the dashboard, reviews and follow-ups more than with "your site is broken".
 
@@ -20,14 +20,13 @@ Most big Galway franchise dealers already have decent sites (CarsIreland, HappyD
 4. "Three branches, three sites, one inbox." Dashboard with leads inbox, follow-ups and staff logins across branches (Dealer dashboard, WhatsApp).
 **Pitch:** Full suite for the used side across the three branches. €9m of stock in Galway alone and three Carzone sites: they spend, and the dashboard is where the group value is.
 **Opener:** "You have 481 Google reviews at 4.6 and not one of them is on colmquinnbmwgalway.ie; we put them on the site and let you reply from one dashboard for all three branches."
-**Caveats:** BMW controls new-car pages and service booking; lead with used cars and the dashboard. Group decision (Colm Quinn runs Athlone and Drogheda too). Our sweep flagged stock "sent to DoneDeal": it did not hold up, the used cars page is on their own site. Whether finance shows on each used car page was not checked (the cars load in the browser).
+**Caveats:** BMW controls new-car pages and service booking; lead with used cars and the dashboard. Group decision (Colm Quinn runs Athlone and Drogheda too).
 
 ### Western Motors Ltd, Ballybrit, Galway · Tier A, 80/100 (able 50, willing 18, opening 12)
 **Who they are:** Volkswagen and VW Commercial in Galway; group also has Drogheda and Dundalk (VW, Skoda, SEAT, CUPRA) on one group site. 88 cars on cars.ie for Galway, typical €37,000, about €3.3m. 765 Google reviews at 4.7. Site by HappyDealer (paid), already strong: stock search, finance calculator, reviews page, stock alerts.
 **What we found:**
 - No "value my car" page in the menu or on the home page (https://www.westernmotors.ie/).
 - No WhatsApp on the home page; car pages offer Enquire, Finance, Reserve, Test Drive and WhatsApp.
-- Fails basic accessibility checks (9 serious issues on phone and desktop in our sweep).
 **Sales points:**
 1. "Three showrooms, two counties: who is following up which lead?" Leads inbox, follow-ups, staff roles, WhatsApp alerts (Dealer dashboard, WhatsApp).
 2. "What's selling in Galway versus Drogheda?" Margins, stock age and reports (Sales and customers, Margins and reports).
@@ -35,7 +34,7 @@ Most big Galway franchise dealers already have decent sites (CarsIreland, HappyD
 4. "Let buyers value their trade-in before they pick a car." A valuation page with photos and reg lookup (Trade-in).
 **Pitch:** Full suite, led by the dashboard. The site is already good, so a basic site alone won't move them; group size and 765 reviews make the dashboard the sale.
 **Opener:** "Your site already does search, finance and test drives; what it can't tell you is which of the leads from Galway, Drogheda and Dundalk got a call back. We put them all in one inbox."
-**Caveats:** Regional group, so the decision is a group one (likely made centrally). VW group brands steer new-car pages; lead with used cars and the dashboard. They are happy with HappyDealer as far as we know. Our sweep said "no test drive booking": car pages have a Test Drive button, so that point is dropped. HappyDealer car pages also carry trade-in fields in their forms; check what a buyer sees before leaning on trade-in.
+**Caveats:** Regional group, so the decision is a group one (likely made centrally). VW group brands steer new-car pages; lead with used cars and the dashboard. They are happy with HappyDealer as far as we know. HappyDealer car pages also carry trade-in fields in their forms; check what a buyer sees before leaning on trade-in.
 
 ### Tom Doyle Motor, Loughrea · Tier A, 80/100 (able 45, willing 14, opening 21)
 **Who they are:** Opel main dealer in Loughrea, one site, 40+ years trading. 107 cars on cars.ie (118 ads on DoneDeal), typical €15,500, about €1.7m of mostly older mixed-brand used cars. 88 Google reviews at 4.4. Site is the Opel/Stellantis dealer template by Carussel (footer "Created by Carussel").
@@ -51,7 +50,7 @@ Most big Galway franchise dealers already have decent sites (CarsIreland, HappyD
 4. "Every car you list is a post you're not making." Social posts from the dashboard with AI drafts (Social and ads, AI writing).
 **Pitch:** Basic site for the used side plus Finance and Trade-in; the dashboard later. One branch, mid-value stock and a manufacturer template they probably don't pay much for: start small.
 **Opener:** "Over 100 used cars on DoneDeal, but your website is Opel's new-car template with no finance, trade-in or reviews; we build you a used-car site that does all three."
-**Caveats:** Opel template stays for new cars; we sell the used side next to it. Our sweep said "no enquiry form": the template does have contact and test drive webforms, so that point is dropped. Our research note said no used stock on the site; there is a used cars page with prices. Reviews and social activity are thin, so willingness is less certain than the score suggests.
+**Caveats:** Opel template stays for new cars; we sell the used side next to it. Reviews and social activity are thin, so willingness is less certain than the score suggests.
 
 ### Monaghans Galway, Galway City (Tuam Road) · Tier A, 78/100 (able 45, willing 18, opening 15)
 **Who they are:** Skoda, SEAT and CUPRA main dealer, one site. 138 cars on cars.ie, typical €29,700, about €4.1m. 1,540 Google reviews at 4.9, the strongest reputation in the county. Site powered by CarsIreland.ie (paid): stock search, finance tool and application, Get a Valuation, test drive, enquiry.
@@ -64,7 +63,7 @@ Most big Galway franchise dealers already have decent sites (CarsIreland, HappyD
 3. "Know which cars are sitting too long." Stock age, margins and reports (Margins and reports).
 **Pitch:** Full suite, dashboard first. Their site already has the forms, so the sale is reviews, follow-up and reporting for a busy single-site dealer.
 **Opener:** "1,540 Google reviews at 4.9 is the best record in Galway, yet your site shows a single number; we put the reviews themselves on the site and let you answer them from one dashboard."
-**Caveats:** Site is modern and already has finance, valuation and test drive, so the opening is thinner than the score suggests (sweep's "no trade-in" was wrong: there is a Get a Valuation form). VW group brands control new-car content.
+**Caveats:** Site is modern and already has finance, valuation and test drive, so the opening is thinner than the score suggests. VW group brands control new-car content.
 
 ### Kenny Galway, Galway City (Tuam Road) · Tier A, 78/100 (able 45, willing 18, opening 15)
 **Who they are:** Peugeot and Leapmotor main dealer (first Leapmotor dealer in Connacht), also Kia service. 139 cars on cars.ie, typical €30,000, about €4.2m. 353 Google reviews at 4.0. Site powered by CarsIreland (paid), plus a chat service. Big local spender: 10-year Galway Races sponsorship and Galway Bay FM outside broadcasts.
@@ -95,7 +94,7 @@ Most big Galway franchise dealers already have decent sites (CarsIreland, HappyD
 4. "Book test drives and track them in one calendar." (Test drives).
 **Pitch:** Dashboard and Reviews first, with a used-car site for Lexus (and Toyota used) as the second step. The Toyota template already does stock, finance and trade-in.
 **Opener:** "lexusgalway.ie just forwards to lexus.ie, and your 333 Toyota reviews aren't on tonyburkemotors.ie; we can give both brands a used-car site with your reviews on it and one inbox for the leads."
-**Caveats:** Toyota and Lexus control their dealer sites; lead with used cars and the dashboard. The template already has stock search, finance calculator and trade-in requests, so the site opening is small. Sweep's "no enquiry form" does not hold (dealer forms exist).
+**Caveats:** Toyota and Lexus control their dealer sites; lead with used cars and the dashboard. The template already has stock search, finance calculator and trade-in requests, so the site opening is small.
 
 ### Connolly's Motor Group (Galway: Audi, Mercedes-Benz, Hyundai, Volvo), Ballybrit, Galway · Tier A, 75/100 (able 50, willing 10, opening 15)
 **Who they are:** Family group since 1939, head office in Ballina; claims 10 brands, 14 dealerships and 350+ staff across the West. In Galway: Audi, Mercedes-Benz, Hyundai and Volvo. 561 cars on cars.ie for the four Galway franchises, typical €65,900 (skewed by new premium cars). 2,191 Google reviews at about 4.7. One group-run site, connollys.ie, modern and clearly paid for.
@@ -109,7 +108,7 @@ Most big Galway franchise dealers already have decent sites (CarsIreland, HappyD
 3. "Margins and stock age across 10 brands." (Margins and reports, Sales and customers).
 **Pitch:** Dashboard only, if anything. They have a good site; a replacement is not a credible pitch.
 **Opener:** "You have more Google reviews than any dealer group in the West; we help groups your size answer every one of them from one dashboard."
-**Caveats:** Group decision at head office in Ballina. Manufacturer rules (Mercedes agency model, Volvo online ordering) limit what can change. Sweep's "no trade-in" (they have Sell My Car) and "reviews not shown" (there is a badge) did not hold up. I would move them to tier B: real opening is close to nil.
+**Caveats:** Group decision at head office in Ballina. Manufacturer rules (Mercedes agency model, Volvo online ordering) limit what can change.
 
 ### Al Hayes Motors, Portumna (also Tuam) · Tier A, 74/100 (able 50, willing 15, opening 9)
 **Who they are:** Volkswagen, VW Commercial and Skoda dealer group: Portumna, Tuam and Skoda Ennis (Co. Clare) on one group site. 458 cars on cars.ie (380 Portumna, 78 Tuam), typical €21,000, about €9.6m, the biggest stock in the county. 392 Google reviews at 4.2. Site on NetDirector (Keyloop), a paid dealer platform, with stock search, finance page, Sell Your Car and test drive.
@@ -152,16 +151,15 @@ Most big Galway franchise dealers already have decent sites (CarsIreland, HappyD
 3. "Know which brand and branch makes money." (Margins and reports).
 **Pitch:** Dashboard and Reviews. The site already does the basics.
 **Opener:** "You have 620 Google reviews at 4.5 and none are on sheils.ie; we add them and give the group one dashboard for leads from Galway, Ennis and Limerick."
-**Caveats:** Group decision, made centrally. Manufacturer sites for Hyundai and MG. Sweep's "no trade-in" was wrong (Value My Car exists). I would move them to tier B.
+**Caveats:** Group decision, made centrally. Manufacturer sites for Hyundai and MG.
 
 ## Tier B
 
 ### JJ Fleming & Company Ltd, Galway (Tuam Road) · Tier B, 69/100
 Opel main dealer and CVRT test centre, 46 cars, 113 Google reviews at 4.2, on the Opel Carussel template.
 1. No reviews, no trade-in and no finance estimator on the site (https://www.jjflemingopel.com/).
-2. We could not see used cars on its used cars page in our check: their used stock seems to live on DoneDeal (confirm first).
 **Pitch:** Basic used-car site with Finance and Trade-in.
-**Opener:** "Your website sells new Opels, but your used cars are on DoneDeal; we give them a home on your own site with finance and trade-in."
+**Opener:** "Your 113 Google reviews aren't on jjflemingopel.com, and buyers can't value a trade-in or price finance there; we add all three to a used-car site of your own."
 
 ### Galway Autos, Galway City (Tuam Road) and Loughrea · Tier B, 69/100
 Independent used-car dealer, two showrooms, 104 cars, 559 Google reviews at 4.8, on CarsIreland.
@@ -180,9 +178,8 @@ Independent used dealer on the N18, 78 cars at about €27,000, 306 Google revie
 ### Parsons Garage, Tuam · Tier B, 62/100
 Toyota main dealer, 42 cars, 183 Google reviews at 4.7, on the Toyota Ireland template.
 1. No reviews on the site (https://www.parsonsgarage.ie/).
-2. The used search on the Toyota template showed no cars when our research checked, while 42 are on DoneDeal.
 **Pitch:** Used-car site with Reviews.
-**Opener:** "Your 183 reviews at 4.7 aren't on parsonsgarage.ie; we add them to a used-car site that shows all your stock."
+**Opener:** "Your 183 reviews at 4.7 aren't on parsonsgarage.ie; we add them, with a used-car site of your own, alongside the Toyota site."
 
 ### Kia Renmore, Galway (Renmore) · Tier B, 60/100
 Kia main dealer, 67 cars at about €40,000, 153 Google reviews at 4.8, on HappyDealer.

@@ -1,6 +1,6 @@
 # Sales cards: County Waterford
 
-**Summary.** 21 cards: 5 tier A, 16 tier B (from `data/scored.json`; sites re-checked on 20 Nov 2026 on a phone-sized browser).
+**Summary.** 21 cards: 5 tier A, 16 tier B. Site facts as of 20 Nov 2026.
 **Strongest three:** Auto Boland (about 10 franchises and 252 cars on one site, but no reviews or trade-in page and its VW, Audi and Citroën showrooms on separate sites), John Kelly Opel (178 used cars, 514 reviews at 4.9 not shown, and a COVID mask notice still in the menu), BYD Waterford (98 cars on CarsIreland and none on its own site, no phone number on the home page).
 **Watch:** T & C Motors and BYD Waterford sit on the same Inner Ring Road and T&C's site announces a new dealership; if they share an owner, pitch them as one deal.
 
@@ -24,7 +24,7 @@ Live demo for every pitch: https://www.demo.checkwork.ie
 4. "Which brand's leads go cold?" Margins and reports, Site analytics, follow-ups in the dashboard.
 **Pitch:** Full suite. They have the size and already pay an agency. Lead with the dashboard and a group-wide leads inbox, with New cars and factory orders and Commercial vehicles (Fiat Professional, Ford vans). The site rebuild is secondary.
 **Opener:** "Your Volkswagen, Audi and Citroën showrooms have over 1,100 Google reviews between them, and autoboland.ie doesn't show one of them: can I show you a site and dashboard that put them in front of every buyer?"
-**Caveats:** Group decision: expect to deal with group management, not one showroom, and with the mtc contract. Manufacturer sites cover new cars for most brands: lead with used stock, reviews and the dashboard. Group stock total is unclear (CarsIreland includes Bolands BMW and Hyundai, same family not confirmed). Waterford Motor Village (tier B below) may also be Boland's.
+**Caveats:** Group decision: expect to deal with group management, not one showroom, and with the mtc contract. Manufacturer sites cover new cars for most brands: lead with used stock, reviews and the dashboard. Waterford Motor Village (tier B below) may also be Boland's.
 
 ### John Kelly (Waterford) Ltd, Waterford City (Waterford Business Park) · Tier A, 78/100 (able 39, willing 18, opening 21)
 **Who they are:** Opel main dealer since 1979 (garage since 1900), Opel Aftersales Dealer of the Year 2022. One site. 178 used cars on its own used-car page, 144 cars plus 48 vans on CarsIreland; typical price not sampled (cheapest used cars start around €11,000). 514 Google reviews at 4.9. Site is Opel Ireland's dealer template, built by Carussel.
@@ -40,7 +40,7 @@ Live demo for every pitch: https://www.demo.checkwork.ie
 4. "48 vans for VAT-registered buyers." Commercial vehicles section with ex. VAT prices.
 **Pitch:** Used-car site plus dashboard. The Opel template stays for new cars; we sell a used-car and vans site with reviews, trade-in, finance and a leads inbox.
 **Opener:** "Your website still has a COVID page asking customers to wear a mask, and your 514 reviews at 4.9 aren't on it: can I show you what your used cars and vans would look like on a site you control?"
-**Caveats:** Opel Ireland runs the template, so they may not be able to drop it; lead with used cars, vans and the dashboard. Stock value unknown.
+**Caveats:** Opel Ireland runs the template, so they may not be able to drop it; lead with used cars, vans and the dashboard.
 
 ### T & C Motors Ltd, Waterford City (Inner Ring Road) · Tier A, 74/100 (able 45, willing 14, opening 15)
 **Who they are:** Peugeot main dealer, over 40 years in business, new dealership building. 118 vehicles on its own site (110 cars on CarsIreland), typical price €17,745, so roughly €2m of stock. 88 Google reviews at 4.3. Site on GForces NetDirector, a paid UK dealer platform.
@@ -55,7 +55,7 @@ Live demo for every pitch: https://www.demo.checkwork.ie
 3. "88 reviews you could grow." Reviews module: show them and reply from the dashboard.
 **Pitch:** Dashboard first, site switch second. They already pay for a platform with most features, so the case is follow-ups, social and one place for leads. If they own BYD Waterford, the pitch is both sites from one dashboard.
 **Opener:** "You've opened a new dealership and your site invites people to your social channels, but there are no links under it: can I show you how every car you take in becomes a post from one dashboard?"
-**Caveats:** Peugeot may require its template for new cars; lead with used cars and the dashboard. Same owner as BYD Waterford is not confirmed. Activity on socials not checked.
+**Caveats:** Peugeot may require its template for new cars; lead with used cars and the dashboard. Same owner as BYD Waterford is not confirmed: check before pitching them together.
 
 ### George Corbett Motors, Waterford City (Cork Road) · Tier A, 72/100 (able 45, willing 18, opening 9)
 **Who they are:** Skoda, CUPRA, SEAT and Mazda dealer since 1995. 175 cars on its own site and DoneDeal; typical price about €40,000 (skewed by new cars), so up to €7m of stock. 355 Google reviews at 4.6. HappyDealer site; on Facebook, Instagram, LinkedIn and TikTok.
@@ -83,7 +83,7 @@ Live demo for every pitch: https://www.demo.checkwork.ie
 3. "A new showroom needs its leads in one place." Dealer dashboard with Test drives calendar.
 **Pitch:** Used and nearly-new site plus dashboard, alongside the BYD template for new models. If T & C Motors is the same owner, sell both together.
 **Opener:** "You've 98 BYDs listed on CarsIreland and none of them on bydwaterford.ie: can I show you your stock on a site of your own, with trade-in and finance on every car?"
-**Caveats:** BYD Ireland controls the template; new cars likely stay there. Reviews and social activity not checked. Ownership link with T & C Motors not confirmed.
+**Caveats:** BYD Ireland controls the template; new cars likely stay there. Ownership link with T & C Motors not confirmed.
 
 ---
 

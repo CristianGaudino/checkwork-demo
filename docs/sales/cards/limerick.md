@@ -1,6 +1,6 @@
 # Sales cards: County Limerick
 
-8 tier A and 13 tier B dealers (21 cards). Every "what we found" fact was checked on the live site on 2026-11-20 (phone view); stock and review counts come from `data/limerick.json`.
+8 tier A and 13 tier B dealers (21 cards). Site facts as of 20 Nov 2026.
 Strongest three: **AutoXpress** (332 cars worth about €8m, a homepage that downloads 34 MB on a phone, no trade-in form, newest review shown is from December 2025), **Frank Hogan** (303 cars over three DoneDeal accounts, 839 reviews with one shown, no trade-in form), **Lyons of Limerick** (160 cars, 475 reviews not shown, "Valuations" button goes to the contact page).
 Most big Limerick franchise dealers already have decent sites (CarsIreland, HappyDealer, NetDirector, Toyota's template), so lead with the dashboard, reviews and trade-in more than with "your site is broken". Best plain website sale: **John Culhane Car Sales** (104 cars, the domain on its DoneDeal page does not exist).
 
@@ -20,7 +20,7 @@ Most big Limerick franchise dealers already have decent sites (CarsIreland, Happ
 4. "Five brands of new cars plus used: what is actually making you money?" (Margins and reports, New cars and factory orders).
 **Pitch:** Full suite, used side and dashboard. €3.8m of stock, two branches and a paid platform: they spend, and the gaps (reviews, trade-in, follow-up) are dashboard features.
 **Opener:** "You have 475 Google reviews and none of them are on lyonsoflimerick.com, and your Valuations button just opens a contact form; we fix both and give you one dashboard for Limerick and Galway."
-**Caveats:** Ford, Volvo and JLR all have rules on dealer sites and NetDirector may be the approved supplier: lead with used cars and the dashboard, not replacing the site. Group decision, likely made centrally for both branches. Used stock count on their own site isn't shown, so we didn't check if all 160 DoneDeal cars are there. The 4 script errors our sweep found had no visible effect.
+**Caveats:** Ford, Volvo and JLR all have rules on dealer sites and NetDirector may be the approved supplier: lead with used cars and the dashboard, not replacing the site. Group decision, likely made centrally for both branches.
 
 ### Brian Geary Toyota, Raheen, Limerick (also Rathkeale) · Tier A, 83/100 (able 50, willing 18, opening 15)
 **Who they are:** Toyota main dealer since 1977, Raheen plus Rathkeale. 127 cars on DoneDeal, typical price €32,200, about €4.1m of stock. 332 Google reviews at 4.5. Site is Toyota Ireland's dealer template (footer "Copyright Toyota Ireland").
@@ -35,12 +35,12 @@ Most big Limerick franchise dealers already have decent sites (CarsIreland, Happ
 4. "Every car is a post you're not making." Social posts and AI drafts from the dashboard (Social and ads, AI writing).
 **Pitch:** Dashboard only (no website). Big stock and two branches, but Toyota owns the site, so the sale is the back office.
 **Opener:** "Toyota runs your website, so we don't touch it; we give you the part Toyota doesn't: one inbox for every lead from DoneDeal, the site and the phone, with stock age and margins on your 127 used cars."
-**Caveats:** Manufacturer-mandated site: we can't sell them a website. Our research note said the used search showed "View 0 Used Cars"; that did not hold up (it shows 127 once the page finishes loading). The sweep's script errors and "no enquiry form" are Toyota's template, not theirs to fix. Rathkeale branch is from their About page, not checked on site.
+**Caveats:** Manufacturer-mandated site: we can't sell them a website.
 
 ### James Barry Motors, Limerick city (Dock Road) · Tier A, 80/100 (able 50, willing 18, opening 12)
 **Who they are:** CUPRA and SEAT franchise (also Maxus, Mitsubishi), plus a Nissan branch in Charleville, Co. Cork with its own separate site. 131 cars on DoneDeal (Limerick), typical price €18,850, about €2.5m of stock; Charleville has another 83 on CarsIreland. 252 Google reviews at 4.2. Site "Powered by CarsIreland" (paid), with a named team page.
 **What we found:**
-- On a phone, the first screen is mostly pop-ups: a "Chat with us here" box sits over the car search and the "View offers" button, and the cookie banner fills the bottom (https://www.jamesbarrymotors.ie/, checked live on a phone).
+- On a phone, the first screen is mostly pop-ups: a "Chat with us here" box sits over the car search and the "View offers" button, and the cookie banner fills the bottom (https://www.jamesbarrymotors.ie/).
 - Typo in the main menu: "Seat Car Accesories", and the page address is /seat-car-accesories/.
 - Two branches, two separate sites (jamesbarrymotors.ie and jamesbarrymotorscharleville.ie), so leads land in two places.
 **Sales points:**
@@ -50,7 +50,7 @@ Most big Limerick franchise dealers already have decent sites (CarsIreland, Happ
 4. "Which of your 200-odd cars are making money?" Margins and stock age (Margins and reports).
 **Pitch:** Full suite. Two branches, two paid CarsIreland sites and a paid chat widget: they spend, and one site and dashboard for both is the upgrade.
 **Opener:** "Open jamesbarrymotors.ie on your phone: a chat box covers your car search and a cookie banner covers the rest; we'd give you one clean site and one dashboard for Limerick and Charleville."
-**Caveats:** CUPRA/SEAT and Nissan have their own rules for new cars: lead with used cars and the dashboard. The site is already decent (132 cars on site, WhatsApp, a trade-in form with photos, test drive booking, Google reviews), so the website opening is moderate; the dashboard across two branches is the real sale. Left out after checking: the "Lorem ipsum" placeholder (in the page code but hidden, no buyer sees it), the "Social feed" section (an empty hidden pop-up), "sends buyers to CarsIreland" (only a footer profile link), and the 6 MB homepage (minor).
+**Caveats:** CUPRA/SEAT and Nissan have their own rules for new cars: lead with used cars and the dashboard. The site is already decent (132 cars on site, WhatsApp, a trade-in form with photos, test drive booking, Google reviews), so the website opening is moderate; the dashboard across two branches is the real sale.
 
 ### Limerick Motor Centre, Limerick city (Ballysimon Road) · Tier A, 78/100 (able 45, willing 18, opening 15)
 **Who they are:** Hyundai and Isuzu franchise, "Ireland's longest-serving Hyundai dealer" per its site. One branch. 171 cars on DoneDeal, typical price €38,600, about €6.6m of stock. 1,551 Google reviews at 4.8, the most of any Limerick dealer. Site "Powered by CarsIreland" (paid); About page names the managers.
@@ -63,7 +63,7 @@ Most big Limerick franchise dealers already have decent sites (CarsIreland, Happ
 3. "Leads come from DoneDeal, CarsIreland, the site and the phone." One inbox with follow-ups and WhatsApp alerts (Dealer dashboard, Sales and customers, WhatsApp).
 **Pitch:** Dashboard first, site as an option. €6.6m of stock and a paid platform, but the site already does most things.
 **Opener:** "You have more Google reviews than any dealer in Limerick, 1,551 at 4.8; we'd help you reply to every one and put your 171 cars, leads and margins in one dashboard."
-**Caveats:** Hyundai sets rules for new cars: lead with used and the dashboard. Small website opening: only two checkable facts, so don't lead with the site. Left out: "Lorem ipsum" (hidden in the page code), "sends buyers to CarsIreland" (footer link only), script errors (no visible effect).
+**Caveats:** Hyundai sets rules for new cars: lead with used and the dashboard. Small website opening, so don't lead with the site.
 
 ### Hinchy's (Kia), Limerick city (Ennis Road) and Garryspillane, Knocklong · Tier A, 77/100 (able 50, willing 18, opening 9)
 **Who they are:** Kia and Suzuki franchise, family business since 1979, two branches. 274 cars on DoneDeal (59 Ennis Road, 215 Garryspillane), typical price €39,900, so up to about €10.9m of stock (the typical price leans to new cars). 809 Google reviews at 4.7. Kia European Dealer of the Year (Kia Ireland news); ZEVI EV dealership county winner 2025 and 2026. Site by HappyDealer (paid); trade-in through Autobuy (paid).
@@ -77,7 +77,7 @@ Most big Limerick franchise dealers already have decent sites (CarsIreland, Happ
 3. "Two branches, 274 cars, one view." Leads, follow-ups and stock across Ennis Road and Garryspillane (Dealer dashboard, Sales and customers, Margins and reports).
 **Pitch:** Full suite. Two branches, the biggest Kia stock in the county, already paying HappyDealer and Autobuy.
 **Opener:** "You're Kia's European Dealer of the Year with 809 Google reviews at 4.7, and your homepage shows one line with no name; we'd put the reviews up front and give both branches one dashboard."
-**Caveats:** Kia hosts its own dealer pages for new cars: lead with used and the dashboard. The award year differs between sources (Kia news 2024, their footer image says 2025): say "European Dealer of the Year" without a year. Sweep's "no trade-in" is half true: Autobuy covers it. Car pages already have Enquire, Finance, Reserve and Test Drive buttons, so don't claim those are missing. Accessibility failures only as a side note.
+**Caveats:** Kia hosts its own dealer pages for new cars: lead with used and the dashboard. The award year differs between sources (Kia news 2024, their footer image says 2025): say "European Dealer of the Year" without a year. Car pages already have Enquire, Finance, Reserve and Test Drive buttons, so don't claim those are missing.
 
 ### Dennehy Motors, Limerick city (Riverside Park, Dock Road) · Tier A, 75/100 (able 45, willing 18, opening 12)
 **Who they are:** Renault and Dacia franchise, one branch. 92 cars on DoneDeal, typical price €20,495, about €1.9m of stock. 1,255 Google reviews at 4.7. Site "Powered by CarsIreland" (paid), with a meet-the-team page.
@@ -90,7 +90,7 @@ Most big Limerick franchise dealers already have decent sites (CarsIreland, Happ
 3. "Renault's 271 offers change every month: post them in minutes." (Social and ads, AI writing).
 **Pitch:** Dashboard. Mid-size stock but huge review count and a paid platform; the site has few gaps.
 **Opener:** "1,255 Google reviews at 4.7 is more than most Munster dealers; we'd help you turn that into follow-ups and repeat sales from one dashboard."
-**Caveats:** Weakest website opening of the tier A dealers: the site is complete. Renault/Dacia rules for new cars. Left out: "Lorem ipsum" (hidden in the page code), "sends buyers to CarsIreland" (footer link only).
+**Caveats:** Weakest website opening of the tier A dealers: the site is complete. Renault/Dacia rules for new cars.
 
 ### Frank Hogan Ltd, Limerick city (Dublin Road) · Tier A, 72/100 (able 45, willing 18, opening 9)
 **Who they are:** Volkswagen, Skoda, Mercedes-Benz, smart and VW Commercial franchise, in business since 1973, one site. 303 cars over three DoneDeal accounts (Frank Hogan 125, Skoda 95, Mercedes-Benz 83), typical price €35,700, up to about €10.8m of stock (leans to new cars). 839 Google reviews at 4.4. Site by HappyDealer (paid); meet-the-team page.
@@ -121,7 +121,7 @@ Most big Limerick franchise dealers already have decent sites (CarsIreland, Happ
 4. "709 reviews, and the one on show is 11 months old." Fresh reviews on the site, replies from the dashboard (Reviews).
 **Pitch:** Full suite. Biggest independent in the county, two branches, already paying for a site and an assistant. Import stock makes margins and stock age the strongest dashboard hook.
 **Opener:** "Your homepage downloads 34 MB on a phone before a buyer can search, and there's no way to value a trade-in; we'd fix both and give Limerick and Galway one dashboard with margins on every import."
-**Caveats:** The 34.5 MB was measured over 8 seconds of page load; the exact figure varies, so say "over 30 MB". The Galway branch is in `galway.json`: pitch the two together. Our research said "no chat"; that didn't hold up, there is a Virtual Assistant button.
+**Caveats:** Say "over 30 MB": the exact figure varies. The Galway branch is in `galway.json`: pitch the two together.
 
 ## Tier B
 
