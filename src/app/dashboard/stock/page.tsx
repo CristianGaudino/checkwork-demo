@@ -62,8 +62,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
   // A view keeps the search and the filters; the sort and the page start again.
   const href = (v: StockView) => `/dashboard/stock?${new URLSearchParams(Object.entries({ view: v, q, make, fuel, gearbox }).filter((e): e is [string, string] => Boolean(e[1])))}`;
   // Where a row goes: the car's editor here, or, for synced stock, the car on the site (it is changed on DoneDeal).
-  // A synced car off the website (its ad came down) has no page there, so it opens here.
-  const open = (c: Car) => (synced && !c.listing ? carHref(c.slug) : `/dashboard/stock/${c.id}`);
+  // A synced car off the website (its ad came down) has no page there, so it opens here; so does every car with AI, to improve its description.
+  const ai = synced && (await hasModule("ai"));
+  const open = (c: Car) => (synced && !ai && !c.listing ? carHref(c.slug) : `/dashboard/stock/${c.id}`);
   const takenDown = synced ? all.filter((c) => c.takenDownAt) : [];
   const canUndo = await can("settings"); // undoing a sale is money going back: owners and managers
   const undoSale = (c: Car) =>

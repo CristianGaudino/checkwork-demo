@@ -201,6 +201,9 @@ cars are added, changed and sold on DoneDeal only. The dashboard never edits the
   lists is hidden (its link is not found), because DoneDeal does not say why an ad came down: Stock and Overview ask the dealer whether it
   sold (the sale form, which marks it sold so its page shows Sold for a while) or did not (it stays hidden). If the ad goes up again the car
   comes back. Each change is in the activity history as "DoneDeal sync".
+- **Improve this description** (#225, with the AI module): a car opens on its dashboard page, where AI rewrites the feed's description
+  from the car's facts (an AI action like any draft: the monthly cap and usage) and "Copy for DoneDeal" copies it to paste into the ad.
+  The site's text changes only when the ad does, at the next sync.
 - **It never empties the site:** an answer with no cars, or with more than half the cars for sale gone, is held and changes nothing.
   Owners and managers can Apply anyway.
 - **When it fails** the site keeps the stock from the last good sync, Stock, Overview and Settings say so, and after an hour the owners and
