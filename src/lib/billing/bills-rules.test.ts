@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { afterDiscount, foundingEnd, itemise, nextBillDate, parseAlert, parseEuro, parseLimits, type Bill } from "./bills-rules";
+import { afterDiscount, foundingEnd, itemise, nextBillDate, parseAlert, parseEuro, parseLimits, usageLines, type Bill } from "./bills-rules";
 
 describe("parseEuro", () => {
   it("reads blank, whole euros and cents", () => {
@@ -51,6 +51,12 @@ describe("itemise", () => {
     expect(t.total).toBe(197.78);
     expect(t.usage).toHaveLength(1); // a line with no uses is left out
     expect(t.usage[0].detail).toBe("10 x €0.05");
+  });
+  it("bills only the uses past what the plan includes", () => {
+    const usage = usageLines([{ service: "lookup", kind: "website", count: 20 }, { service: "lookup", kind: "dashboard", count: 10 }, { service: "whatsapp", kind: "reply", count: 10 }], { lookup: 25 });
+    const t = itemise({ ...bill, usage });
+    expect(t.usage.map((l) => l.detail)).toEqual(["5 x €0.30", "10 x €0.03"]);
+    expect(t.usageEur).toBe(1.8);
   });
 });
 

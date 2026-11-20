@@ -4,11 +4,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import { setDemoModules, useModules } from "@/lib/demo-role";
 import { MODULES, withModule, withoutModule, type ModuleId } from "@/lib/modules-rules";
-import { BASE_EUR, BUNDLES, MODULE_EUR, SHOW_PRICING, eur, planFor, presetName, setupEur } from "@/lib/billing/rules";
+import { BASE_EUR, MODULE_EUR, TIERS, SHOW_PRICING, eur, planFor, presetName, setupEur } from "@/lib/billing/rules";
 import { press } from "@/components/ui";
 
-// The presets: the base site alone, then each bundle. Prices a month, before VAT, as the Billing page shows them.
-const PLANS: { label: string; modules: readonly ModuleId[]; eur: number }[] = [{ label: "Base only", modules: [], eur: BASE_EUR }, ...BUNDLES];
+// The presets: the base site alone, then each tier (one branch). Prices a month, before VAT, as the Billing page shows them.
+const PLANS: { label: string; modules: readonly ModuleId[]; eur: number }[] = [{ label: "Base only", modules: [], eur: BASE_EUR }, ...TIERS];
 
 // The demo bar's module switches (#173): show the site as a dealer with only some modules, so each version can be shown. A real site has
 // none: its modules are the build setting NEXT_PUBLIC_SITE_MODULES. Turning one on brings what it needs; turning one off takes what needs it.

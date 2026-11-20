@@ -1,5 +1,5 @@
 import type { ModuleId } from "@/lib/modules-rules";
-import { KINDS, SERVICES, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, round2, type AiPlan, type Scope, type Service } from "./rules";
+import { KINDS, SERVICES, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, round2, usageCosts, type AiPlan, type Allowance, type Scope, type Service } from "./rules";
 
 // The Billing page's pure rules: reading the limit and alert forms, the founding discount, and what a bill is made of. No server code,
 // so the forms (browser) and the tests use them too.
@@ -57,7 +57,7 @@ export function parseAlert(scopeRaw: string, amountRaw: string, scopes: Scope[],
 }
 
 // What a bill is made of, as stored: the plan lines, the discount, the usage counts. The totals are worked out from them, never stored.
-export type BillUsage = { service: Service; kind: string; count: number; unitEur: number };
+export type BillUsage = { service: Service; kind: string; count: number; included?: number; unitEur: number }; // `included`: in the plan's allowance
 export type Bill = {
   id: string; // the month, YYYY-MM
   issuedOn: string; // YYYY-MM-DD
@@ -73,7 +73,8 @@ export type BillLine = { label: string; detail?: string; eur: number };
 export function itemise(b: Bill) {
   // `base` is 0 when a bundle's line (which has the base in it) is among the modules.
   const plan: BillLine[] = [...(b.base ? [{ label: "Website", eur: b.base }] : []), ...b.modules, ...(b.aiAssistantEur ? [{ label: "AI assistant", eur: b.aiAssistantEur }] : [])];
-  const usage: BillLine[] = b.usage.filter((u) => u.count > 0).map((u) => ({ label: `${SERVICE_LABELS[u.service]}: ${(KINDS[u.service] as Record<string, string>)[u.kind] ?? u.kind}`, detail: `${u.count} x ${eur(u.unitEur)}`, eur: round2(u.count * u.unitEur) }));
+  const billed = (u: BillUsage) => u.count - (u.included ?? 0);
+  const usage: BillLine[] = b.usage.filter((u) => billed(u) > 0).map((u) => ({ label: `${SERVICE_LABELS[u.service]}: ${(KINDS[u.service] as Record<string, string>)[u.kind] ?? u.kind}`, detail: `${billed(u)} x ${eur(u.unitEur)}`, eur: round2(billed(u) * u.unitEur) }));
   const planEur = round2(plan.reduce((n, l) => n + l.eur, 0));
   const discountEur = round2((planEur * b.discountPct) / 100);
   const usageEur = round2(usage.reduce((n, l) => n + l.eur, 0));
@@ -82,9 +83,10 @@ export function itemise(b: Bill) {
   return { plan, usage, planEur, discountEur, usageEur, net, vatEur, total: round2(net + vatEur) };
 }
 
-// The usage lines of a bill from a month's counts at today's prices (the seed's history and the estimate use it).
-export function usageLines(counts: { service: Service; kind: string; count: number }[]): BillUsage[] {
-  return SERVICES.flatMap((service) => Object.keys(KINDS[service]).map((kind) => ({ service, kind, count: counts.find((c) => c.service === service && c.kind === kind)?.count ?? 0, unitEur: (UNIT_PRICE_EUR[service] as Record<string, number>)[kind] })));
+// The usage lines of a bill from a month's counts at today's prices, with what the plan's allowance covers (the seed's history uses it).
+export function usageLines(counts: { service: Service; kind: string; count: number }[], allowance: Allowance = {}): BillUsage[] {
+  const c = usageCosts(counts, allowance);
+  return SERVICES.flatMap((service) => c[service].kinds.map(({ kind, count, included }) => ({ service, kind, count, included, unitEur: (UNIT_PRICE_EUR[service] as Record<string, number>)[kind] })));
 }
 
 export const AI_PLAN_LABELS: Record<AiPlan, string> = { perAction: "Pay per action", assistant: "AI assistant" };

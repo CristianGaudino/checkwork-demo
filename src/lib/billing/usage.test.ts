@@ -8,7 +8,7 @@ vi.mock("@/lib/admin/collections", () => ({
 }));
 const notices = vi.hoisted(() => [] as { for?: string }[]);
 vi.mock("@/lib/admin/notifications", () => ({ notify: async (n: { for?: string }) => void notices.push(n) }));
-vi.mock("@/lib/modules", () => ({ hasModule: async () => true }));
+vi.mock("@/lib/modules", () => ({ enabledModules: async () => new Set(["lookupWebsite", "lookupDashboard", "ai"]) })); // no tier, so no allowance
 vi.mock("./rules", async (real) => ({ ...(await real<typeof import("./rules")>()), SHOW_PRICING: true })); // the notices as they work with pricing shown
 const { recordUsage, usageStore, sentAlertsStore } = await import("./usage");
 
