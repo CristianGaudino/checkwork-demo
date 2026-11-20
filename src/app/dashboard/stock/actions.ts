@@ -54,10 +54,16 @@ export async function saveCarAction(id: string | null, _prev: FormState, data: F
   if (cost === "invalid") return { errors: { costEur: BAD_COST } };
   const wasCost = cost === undefined || !id ? undefined : (await costsStore.get(id))?.costEur;
   let car = existing ? (await saveCar(result.car), result.car) : await addCar(result.car); // a new car takes the id still free as it is written
-  // Stored under the id the car was given, then saved with it. If storing fails the car is there without them, to add on its page.
+  // Stored under the id the car was given, then saved with it. If storing fails the car is already saved: say so on its page, where the
+  // photos can be added, rather than an error that invites a second Save and a second copy of the car.
+  let photosFailed = false;
   if (photos.length) {
-    car = { ...car, photos: await Promise.all(photos.map((p) => storeCarPhoto(car.id, p.bytes, p.width, p.height))) };
-    await saveCar(car);
+    try {
+      car = { ...car, photos: await Promise.all(photos.map((p) => storeCarPhoto(car.id, p.bytes, p.width, p.height))) };
+      await saveCar(car);
+    } catch {
+      photosFailed = true;
+    }
   }
   if (cost === null) await costsStore.remove(car.id);
   else if (cost !== undefined) await costsStore.put({ id: car.id, costEur: cost });
@@ -65,7 +71,7 @@ export async function saveCarAction(id: string | null, _prev: FormState, data: F
   if (!car.listing && (!existing || (existing.listing && !existing.listedAt))) await alertNewIn(car); // on the website for the first time
   const costChange = cost === undefined ? null : costText(wasCost, cost);
   if (costChange) await logActivity("stock", costChange, carRef(car));
-  redirect(`/dashboard/stock?saved=${car.id}`);
+  redirect(photosFailed ? `/dashboard/stock/${car.id}?photos=failed` : `/dashboard/stock?saved=${car.id}`);
 }
 
 // The cost is the dealer's own figure, never DoneDeal's, so it can be set on synced stock too. Margins permission only; a bad figure saves nothing.
