@@ -1985,8 +1985,8 @@
     "brands": [],
     "branches": null,
     "stock": {
-      "count": 12,
-      "source": "https://www.cars.ie/dealers/vp-motors-2411/",
+      "count": 16,
+      "source": "https://www.carsireland.ie/car-dealers/county/galway",
       "checkedAt": "2026-11-20"
     },
     "typicalPriceEur": null,
@@ -1994,8 +1994,8 @@
     "adSignals": [],
     "platform": null,
     "activity": null,
-    "glanceNotes": "",
-    "skip": "Only 12 cars listed on cars.ie.",
+    "glanceNotes": " Unskipped 2026-11-20: 16 cars on CarsIreland.",
+    "skip": null,
     "sources": [
       "https://www.cars.ie/dealers/vp-motors-2411/",
       "https://www.cars.ie/dealers/?county=galway"
