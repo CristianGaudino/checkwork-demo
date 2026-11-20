@@ -5,13 +5,13 @@ import { LeadPage } from "@/components/leads/LeadPage";
 import { LeadPageForm } from "@/components/leads/LeadPageForm";
 import { PageCar } from "@/components/PageHeading";
 import { showroomPhoto } from "@/lib/stock/showroom";
-import { PHOTO_MIN_COUNT, PHOTO_SLOTS } from "@/lib/leads/constants";
+import { PHOTO_NOTES } from "@/lib/leads/constants";
 import { stock } from "@/lib/stock";
 import { carChoices } from "@/lib/stock/options";
 
 export const metadata: Metadata = {
   title: "Trade in your car",
-  description: `Trade in your car against one of ours at ${SITE_NAME} in ${DEALER_LOCATION}. Tell us about it, send some photos and we'll take the value off your next car.`,
+  description: `Trade in your car against one of ours at ${SITE_NAME} in ${DEALER_LOCATION}. Tell us about it, send photos and we'll take the value off your next car.`,
 };
 
 // Read per request: the car list is the live stock, and ?car= picks one.
@@ -38,7 +38,7 @@ export default async function TradeInPage({ searchParams }: PageProps<"/trade-in
         {
           title: "Tell us about yours",
           text: "Registration, mileage, condition and photos.",
-          more: [`At least ${PHOTO_MIN_COUNT} photos: ${PHOTO_SLOTS.filter((s) => s !== "Any damage").join(", ")}.`, "Include photos of any damage, even small marks."],
+          more: PHOTO_NOTES,
         },
         { title: "We come back with a price", text: "Taken off the car you buy.", more: ["The valuation is an estimate until we see the car."] },
       ]}

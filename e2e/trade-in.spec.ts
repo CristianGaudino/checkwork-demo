@@ -76,7 +76,7 @@ async function encodeTo(page: Page, bytes: number, ms = 0) {
 test("on a phone the form comes first and How it works follows it; from 640px the steps sit above the form", async ({ page }) => {
   await open(page);
   const form = page.locator("main form").first();
-  const how = page.locator("ol", { hasText: "Send some photos" });
+  const how = page.locator("ol", { hasText: "Send photos" });
   const top = async (l: typeof form) => (await l.boundingBox())!.y;
   await expect(page.getByRole("heading", { level: 2, name: "How it works" })).toBeVisible();
   expect(await top(form)).toBeLessThan(await top(how));
@@ -88,9 +88,9 @@ test("it is a trade-in valuation page that explains itself, in four steps, with 
   await open(page);
   await expect(page.getByRole("heading", { level: 1, name: "Sell your car" })).toBeVisible();
   // The three steps sit open, with the notes under the step they belong to: nothing to tap, and no column of tips beside the form.
-  const how = page.locator("ol", { hasText: "Send some photos" });
+  const how = page.locator("ol", { hasText: "Send photos" });
   await expect(how.locator("details")).toHaveCount(0);
-  await expect(how.getByText(new RegExp(`At least ${PHOTO_MIN_COUNT} photos.*Front.*Dashboard and mileage\.$`))).toBeVisible(); // the angles in one line, not one each
+  await expect(how.getByText(new RegExp(`The ${PHOTO_MIN_COUNT} we need: Front.*Interior back\.$`))).toBeVisible(); // the angles in one line, not one each
   await expect(how.getByText("Include photos of any damage, even small marks.")).toBeVisible();
   await expect(how.getByText("The offer is an estimate until we see the car.")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Required photos" })).toHaveCount(0);

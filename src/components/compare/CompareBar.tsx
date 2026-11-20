@@ -14,7 +14,7 @@ export function CompareBar() {
   const carId = /^\/used-cars\/[a-z0-9-]+-(\d{1,12})$/.exec(path)?.[1];
   if (ids.length === 0 || path === "/compare") return null;
   return (
-    <div role="region" aria-label="Compare cars" className="pointer-events-auto flex items-center gap-3 rounded-control border border-hairline bg-card py-1 pl-4 pr-1 shadow-lift transition-[opacity,translate] duration-200 starting:translate-y-2 starting:opacity-0 motion-reduce:transition-none">
+    <div data-compare-bar role="region" aria-label="Compare cars" className="pointer-events-auto flex items-center gap-3 rounded-control border border-hairline bg-card py-1 pl-4 pr-1 shadow-lift transition-[opacity,translate] duration-200 starting:translate-y-2 starting:opacity-0 motion-reduce:transition-none">
       <p className="text-meta font-semibold">
         {ids.length} of {MAX_COMPARE} to compare
       </p>

@@ -42,6 +42,14 @@ function simulateDays(count: number, endMs: number, seed: number): Day[] {
 
 const sum = (days: Day[], k: keyof Omit<Day, "date">) => days.reduce((s, d) => s + d[k], 0);
 export const change = (now: number, before: number) => (before ? ((now - before) / before) * 100 : 0);
+// A change on the period before, in words. A count moves by a share of itself (%). A rate is already a percentage, so it moves by points:
+// 1.3% to 1.9% is "Up 0.6 points", where "Up 46%" would read as a different thing.
+export function changeText(now: number, before: number, rate = false): string {
+  const r = (x: number) => Math.round(x * 10) / 10; // to the 0.1 the figures show, so the change matches them
+  const d = rate ? r(now) - r(before) : change(now, before);
+  const n = r(Math.abs(d));
+  return `${d >= 0 ? "Up" : "Down"} ${n}${rate ? (n === 1 ? " point" : " points") : "%"} on the period before`;
+}
 
 // `leadTimes` are the real times leads arrived (the Leads inbox). When given, each day's leads are counted from them, so this page and the
 // inbox agree; visitors and the rest stay generated.

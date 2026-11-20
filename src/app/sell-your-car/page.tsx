@@ -3,12 +3,12 @@ import Link from "next/link";
 import { DEALER_LOCATION, SITE_NAME } from "@/lib/site";
 import { LeadPage } from "@/components/leads/LeadPage";
 import { LeadPageForm } from "@/components/leads/LeadPageForm";
-import { PHOTO_MIN_COUNT, PHOTO_SLOTS } from "@/lib/leads/constants";
+import { PHOTO_MIN_COUNT, PHOTO_NOTES } from "@/lib/leads/constants";
 import { carChoices } from "@/lib/stock/options";
 
 export const metadata: Metadata = {
   title: "Sell your car",
-  description: `Sell your car to ${SITE_NAME} in ${DEALER_LOCATION}. No need to buy from us. Tell us about it, send some photos and we'll come back with an offer.`,
+  description: `Sell your car to ${SITE_NAME} in ${DEALER_LOCATION}. No need to buy from us. Tell us about it, send photos and we'll come back with an offer.`,
 };
 
 export const dynamic = "force-dynamic";
@@ -26,9 +26,9 @@ export default async function SellYourCarPage() {
       how={[
         { title: "Tell us about your car", text: "Registration, mileage and condition." },
         {
-          title: "Send some photos",
-          text: "A few clear photos, including any damage.",
-          more: [`At least ${PHOTO_MIN_COUNT} photos: ${PHOTO_SLOTS.filter((s) => s !== "Any damage").join(", ")}.`, "Include photos of any damage, even small marks."],
+          title: "Send photos",
+          text: `At least ${PHOTO_MIN_COUNT} clear photos, including any damage.`,
+          more: PHOTO_NOTES,
         },
         { title: "We make you an offer", text: "We call or email with a price.", more: ["The offer is an estimate until we see the car.", "We pay by bank transfer when we collect it."] },
       ]}
