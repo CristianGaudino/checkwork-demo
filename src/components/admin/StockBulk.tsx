@@ -55,7 +55,7 @@ export function StockBulk({ canDelete }: { canDelete: boolean }) {
   const drop = unit === "eur" ? fmtEur(Number(amount)) : `${amount}%`;
   const question = op === "price" ? `Drop the price of ${cars} by ${drop}?` : op === "sold" ? `Mark ${cars} sold?` : `Delete ${cars}?`;
   const text =
-    op === "price" ? "The earlier price shows beside each new one on the website. Sold cars keep their price." : op === "sold" ? "They come off sale on the website. Record each sale from its row. A car with a deposit held is left as it is." : "This cannot be undone. A car with a deposit held is left as it is.";
+    op === "price" ? "The earlier price shows beside each new one on the website. Sold cars keep their price." : op === "sold" ? "They show as Sold on the website. Record each sale from its row. A car with a deposit held is left as it is." : "This cannot be undone. A car with a deposit held is left as it is.";
 
   const run = () =>
     start(async () => {
@@ -85,7 +85,7 @@ export function StockBulk({ canDelete }: { canDelete: boolean }) {
   const names = picked.length > 3 ? `${picked.slice(0, 3).join(", ")} and ${picked.length - 3} more` : picked.join(", ");
   const choices: [Op, string, string, React.ReactNode][] = [
     ["price", "Drop the price", "Lower each price by euros or a percentage. The old price shows beside it.", <PercentIcon key="i" className="size-4" />],
-    ["sold", "Mark sold", "Take them off sale on the website. Record each sale after.", <CheckIcon key="i" className="size-4" />],
+    ["sold", "Mark sold", "Show them as Sold on the website. Record each sale after.", <CheckIcon key="i" className="size-4" />],
     ...(canDelete ? [["delete", "Delete", "Remove them from the website for good.", <TrashIcon key="i" className="size-4" />] as [Op, string, string, React.ReactNode]] : []),
   ];
 

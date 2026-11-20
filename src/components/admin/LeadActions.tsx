@@ -43,7 +43,7 @@ export function NextStatusButton({ lead }: { lead: Pick<Lead, "id" | "name" | "s
   const Icon = ICON[to as keyof typeof ICON];
   const label = leadStatusLabel(lead.type, to);
   return (
-    <ChoiceAct action={setStatusAction.bind(null, lead.id)} set={{ status: to }} back={{ status: lead.status, ...(lead.followUpOn && { on: lead.followUpOn }) }} active={false} done={`${lead.name}: ${label}`} className={rowButton}>
+    <ChoiceAct action={setStatusAction.bind(null, lead.id)} set={{ status: to, from: lead.status }} back={{ status: lead.status, from: to, ...(lead.followUpOn && { on: lead.followUpOn }) }} active={false} done={`${lead.name}: ${label}`} className={rowButton}>
       <Icon className="size-4" />
       Mark {label.toLowerCase()}
     </ChoiceAct>

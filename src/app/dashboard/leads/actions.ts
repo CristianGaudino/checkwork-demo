@@ -10,6 +10,7 @@ import { appendNote } from "@/lib/admin/notes";
 import { notify } from "@/lib/admin/notifications";
 import { currentMember } from "@/lib/permissions";
 import { requireStaff } from "@/lib/staff";
+import { STALE_STATUS, movedSince } from "@/lib/admin/stale";
 
 const ref = (id: string) => ({ kind: "lead" as const, id });
 
@@ -24,6 +25,7 @@ export async function setStatusAction(id: string, data: FormData) {
   const parsed = status.safeParse(data.get("status"));
   const lead = await leadsStore.get(id);
   if (!parsed.success || !lead || lead.status === parsed.data) return;
+  if (movedSince(data, lead.status)) return { error: STALE_STATUS };
   if (parsed.data !== "new" && !leadStatusSteps(lead.type).includes(parsed.data)) return; // a warranty request is never won, even posted by hand
   const on = String(data.get("on") ?? "");
   const why = reason.safeParse(data.get("reason"));

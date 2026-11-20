@@ -92,7 +92,7 @@ export default async function Page() {
       case "slow":
         return [
           ...o.late.slice(0, EACH).map((l) => (
-            <Task key={`slow-${l.id}`} urgency="now" icon={<InboxIcon />} title={`Reply to ${l.name}`} detail={[about(l), `waiting since ${fmtAgo(l.createdAt)}`].filter(Boolean).join(" · ")} action={<><CallButton phone={l.phone} name={l.name} /><ReplyButton id={l.id} name={l.name} /></>} />
+            <Task key={`slow-${l.id}`} urgency="now" icon={<InboxIcon />} title={`Reply to ${l.name}`} detail={[about(l), `came in ${fmtAgo(l.createdAt)}`].filter(Boolean).join(" · ")} action={<><CallButton phone={l.phone} name={l.name} /><ReplyButton id={l.id} name={l.name} /></>} />
           )),
           ...rest(a.key, o.late.length, "lead past your reply target", "leads past your reply target", a.href, "now"),
         ];
@@ -127,6 +127,8 @@ export default async function Page() {
     }
   });
 
+  // A request already in To do keeps its Confirm there; here it gets Call, so one drive never shows two Confirm buttons.
+  const confirmInToDo = new Set(o.toConfirm.slice(0, EACH).map((d) => d.id));
   return (
     <>
       <PageHeader title="Overview" text={`${fmtDay(today)}. ${urgent ? `${plural(urgent, "thing")} need${urgent === 1 ? "s" : ""} you.` : "Nothing urgent."}`} />
@@ -166,7 +168,7 @@ export default async function Page() {
                           <span className="truncate text-meta text-text-2">{d.carTitle}</span>
                         </span>
                         <Link href={`/dashboard/test-drives/${d.id}`} aria-label={`${d.name}, ${fmtTime(d.startsAt)}`} className="absolute inset-0" />
-                        <span className="relative z-10 flex shrink-0 gap-2">{d.status === "requested" ? <ConfirmDrive id={d.id} name={d.name} status={d.status} /> : <CallButton phone={d.phone} name={d.name} />}</span>
+                        <span className="relative z-10 flex shrink-0 gap-2">{d.status === "requested" && !confirmInToDo.has(d.id) ? <ConfirmDrive id={d.id} name={d.name} status={d.status} /> : <CallButton phone={d.phone} name={d.name} />}</span>
                       </li>
                     ))}
                   </ul>

@@ -114,6 +114,7 @@ export default async function Page({ params, searchParams }: { params: Promise<{
         )}
         {/* DoneDeal has the car; the cost is the dealer's own, so it is still entered here. */}
         {cost && (
+          <div id="cost" className="scroll-mt-24">
           <Panel title="Cost price">
             {costSaved && <Notice>Cost saved.</Notice>}
             <form action={saveCostAction.bind(null, car.id)} className="flex flex-wrap items-end gap-3">
@@ -123,6 +124,7 @@ export default async function Page({ params, searchParams }: { params: Promise<{
               <button type="submit" className={adminButton}>Save cost</button>
             </form>
           </Panel>
+          </div>
         )}
         {prep}
         {history}

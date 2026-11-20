@@ -33,14 +33,14 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ f
   const synced = source === "donedeal";
   // The common jobs, only the ones this dealer has: a module that is off, or stock kept on DoneDeal, changes them.
   const guides: Guide[] = [
-    { title: "Answer a new lead", icon: <InboxIcon />, steps: ["Open Leads and press the person's name.", "Call, email or WhatsApp them from the Contact box.", "Set the status to Contacted so the team knows."], href: "/dashboard/leads?status=new", go: "Go to leads" },
+    { title: "Answer a new lead", icon: <InboxIcon />, steps: ["Open Leads and press the person's name.", "Call, email or WhatsApp them from the top of the lead.", "Set the status to Contacted so the team knows."], href: "/dashboard/leads?status=new", go: "Go to leads" },
     ...(mods.has("testDrives") ? [{ title: "Book a test drive", icon: <CalendarIcon />, steps: ["Press Book a test drive on the Overview.", "Pick the car, the day and a free time.", "Requests from your website show under To do: press Confirm."], href: "/dashboard/test-drives/new", go: "Book a test drive" }] : []),
     synced
       ? { title: "Add or change a car", icon: <CarIcon />, steps: [`Your cars come from ${LISTING_SITE}: add or change them there.`, "The website and this dashboard update by themselves.", "Costs and notes for a car are added here, on its page in Stock."], href: "/dashboard/stock", go: "Go to stock" }
       : { title: "Add a car", icon: <CarIcon />, steps: ["Press Add a car on the Overview or in Stock.", "Add the photos, the price and the details.", "Press Publish, or keep it as a draft for later."], href: "/dashboard/stock/new", go: "Add a car" },
     synced
       ? { title: "Record a sale", icon: <ReceiptIcon />, steps: [`When a car's ad comes down on ${LISTING_SITE}, it shows under To do.`, "Press Record sale.", "Add the buyer and the price."], href: "/dashboard/stock?view=sold", go: "Go to sold cars" }
-      : { title: "Mark a car as sold", icon: <ReceiptIcon />, steps: ["Open Stock and find the car.", "Press Mark sold.", "Add the buyer and the price. The car comes off the website."], href: "/dashboard/stock", go: "Go to stock" },
+      : { title: "Mark a car as sold", icon: <ReceiptIcon />, steps: ["Open Stock and find the car.", "Press Mark sold.", "Add the buyer and the price. It shows as Sold on your website."], href: "/dashboard/stock", go: "Go to stock" },
     ...(mods.has("social") ? [{ title: "Post a car to Facebook and Instagram", icon: <ShareIcon />, steps: ["Press New post on the Overview.", "Pick the car and the photos, and write a line or two.", "Post now, or choose a day and time."], href: "/dashboard/marketing/new", go: "New post" }] : []),
     { title: "Add someone to your team", icon: <UsersIcon />, steps: ["Open Settings, then Team.", "Enter their name and email, and choose their role.", "Only an owner or manager can do this."], href: "/dashboard/settings?section=team", go: "Open team settings" },
   ];

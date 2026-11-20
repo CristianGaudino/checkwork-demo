@@ -116,7 +116,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
     .flatMap((l): { lead: Lead; why: string; urgency: TaskUrgency }[] => {
       if (l.status === "new") {
         const now = lateIds.has(l.id) || isHotLead(l);
-        const why = lateIds.has(l.id) ? `Waiting since ${fmtAgo(l.createdAt)}, past your reply time` : isHotLead(l) ? `In a hurry: ${leadTags(l.topic!, l.answers ?? {}).join(", ")}` : `New, came in ${fmtAgo(l.createdAt)}`;
+        const why = lateIds.has(l.id) ? `Came in ${fmtAgo(l.createdAt)}, past your reply time` : isHotLead(l) ? `In a hurry: ${leadTags(l.topic!, l.answers ?? {}).join(", ")}` : `New, came in ${fmtAgo(l.createdAt)}`;
         return [{ lead: l, why, urgency: now ? "now" : "soon" }];
       }
       if (!followUpDue(l, today)) return [];

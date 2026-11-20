@@ -13,6 +13,7 @@ import { fieldErrors, isoDay, type FormState } from "@/lib/admin/validation";
 import { can } from "@/lib/permissions";
 import { requireModule } from "@/lib/modules";
 import { requireStaff } from "@/lib/staff";
+import { STALE_STATUS, movedSince } from "@/lib/admin/stale";
 
 // Warranty claims: anyone on the team opens one and moves it along; what the repair cost is for staff who see margins, since it counts
 // against the car's margin. Recorded against the car in the activity history, never with the fault or the person.
@@ -55,6 +56,7 @@ export async function setClaimStatusAction(id: string, data: FormData) {
   const to = status.safeParse(data.get("status"));
   const claim = await claimsStore.get(id);
   if (!to.success || !claim || claim.status === to.data) return;
+  if (movedSince(data, claim.status)) return { error: STALE_STATUS };
   await claimsStore.put({ ...claim, status: to.data });
   await logActivity("customers", `Moved the warranty claim from ${CLAIM_STATUS_LABELS[claim.status]} to ${CLAIM_STATUS_LABELS[to.data]}`, carRef(claim));
   paths(id);

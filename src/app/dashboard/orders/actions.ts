@@ -19,6 +19,7 @@ import type { Car } from "@/lib/stock/types";
 import { LISTING_SITE } from "@/lib/stock-source-rules";
 import { requireModule } from "@/lib/modules";
 import { requireStaff } from "@/lib/staff";
+import { STALE_STATUS, movedSince } from "@/lib/admin/stale";
 
 // Factory orders, our version only (a DoneDeal dealer's new cars arrive on DoneDeal). Anyone on the team places one and moves it along;
 // cancelling, with money going back or kept, is for owners and managers. Recorded in the activity history by the car, never the buyer.
@@ -94,6 +95,7 @@ export async function setOrderStatusAction(id: string, data: FormData) {
   await requireModule("newCars"); // and only while the dealer has it
   const to = steps.safeParse(data.get("status"));
   const o = await ordersStore.get(id);
+  if (o && movedSince(data, o.status)) return { error: STALE_STATUS };
   if (!to.success || !o || !orderOpen(o.status) || o.status === "arrived" || o.status === to.data || !(await theirs())) return;
   let carId = o.carId;
   if (to.data === "arrived" && !carId) {

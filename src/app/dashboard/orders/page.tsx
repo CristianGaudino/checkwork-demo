@@ -42,8 +42,8 @@ function NextStep({ o }: { o: Order }) {
     <span className="relative z-10">
       <ChoiceAct
         action={setOrderStatusAction.bind(null, o.id)}
-        set={{ status: next.to }}
-        back={next.to === "arrived" ? undefined : { status: o.status }}
+        set={{ status: next.to, from: o.status }}
+        back={next.to === "arrived" ? undefined : { status: o.status, from: next.to }}
         confirm={next.to === "arrived" ? { title: "Mark it arrived?", text: "The car goes into stock, held for the buyer. This cannot be stepped back.", yes: "It has arrived" } : undefined}
         active={false}
         done={`${o.make} ${o.model}: ${ORDER_STATUS_LABELS[next.to]}`}

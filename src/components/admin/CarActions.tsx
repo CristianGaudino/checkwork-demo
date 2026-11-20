@@ -49,7 +49,7 @@ export const daysInStock = (listedAt: string) => {
 };
 
 // What needs doing about a car, in words: off the website, too few photos, in stock too long. Nothing for a sold car.
-export function carWarnings(car: Car): string[] {
+function carWarnings(car: Car): string[] {
   if (isSold(car)) return [];
   const out: string[] = [];
   if (car.listing === "hidden") out.push("Hidden from the website");
