@@ -3,13 +3,13 @@ import { PlusIcon, TrashIcon } from "@/components/stock/icons";
 import { DAY } from "@/lib/time";
 import { ActButton } from "@/components/admin/ActButton";
 import { sendDuePosts } from "@/lib/admin/scheduler";
-import { adsStore, mediaStore, newslettersStore, postsStore, subscribersStore } from "@/lib/admin/collections";
+import { adsStore, mediaStore, newslettersStore, postsStore, subscribersStore, type SocialPost } from "@/lib/admin/collections";
 import { LibraryUpload } from "@/components/admin/MediaUpload";
 import { NewsletterFields } from "@/components/admin/NewsletterFields";
 import { hasModule } from "@/lib/modules";
 import { notFound } from "next/navigation";
 import { TIME_ZONE } from "@/lib/site";
-import { AD_PLATFORM_LABELS, FORMAT_LABELS } from "@/lib/admin/networks";
+import { AD_PLATFORM_LABELS, FORMAT_LABELS, PUBLISH_MODE } from "@/lib/admin/networks";
 import { addDays, dublinDay, fmtDate, fmtDateTime, fmtEur, fmtNum, fmtPct, isIsoDay, plural, threeLetter } from "@/lib/admin/format";
 import Link from "next/link";
 import { calendarWeek, newestForSale, weekDays, worthPosting } from "@/lib/admin/marketing";
@@ -146,8 +146,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                           detail={[item.p.status === "scheduled" && `Goes out ${fmtDateTime(item.p.scheduledFor ?? item.p.createdAt)}`, item.p.carTitle].filter(Boolean).join(", ") || item.p.text}
                           action={
                             <>
-                              <ActButton act={publishPostAction.bind(null, item.p.id)} confirm={{ title: "Post this now?", text: `It goes out on ${item.p.network} at once.`, yes: "Post now" }} label={`Post now: ${postName(item.p)}${item.p.carTitle ? `, ${item.p.carTitle}` : ""}`} className={rowButton}>Post now</ActButton>
-                              <ActButton act={deletePostAction.bind(null, item.p.id)} confirm={{ title: "Delete this post?", text: "This cannot be undone.", yes: "Delete" }} label={`Delete the ${postName(item.p)}`} className={`${rowButton} w-11 px-0 text-bad`}><TrashIcon className="size-4" /></ActButton>
+                              <PostNow p={item.p} />
+                              <ActButton act={deletePostAction.bind(null, item.p.id)} confirm={{ title: "Delete this post?", text: "This cannot be undone.", yes: "Delete" }} label={`Delete the ${postName(item.p)}${item.p.carTitle ? `, ${item.p.carTitle}` : ""}`} className={`${rowButton} w-11 px-0 text-bad`}><TrashIcon className="size-4" /></ActButton>
                             </>
                           }
                         />
@@ -161,7 +161,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                           action={
                             <>
                               <ActButton act={startAdAction.bind(null, item.a.id)} confirm={{ title: "Start this ad?", text: `It runs on ${AD_PLATFORM_LABELS[item.a.platform]} with a budget of ${fmtEur(item.a.budgetEur)}.`, yes: "Start ad" }} label={`Start ad: ${AD_PLATFORM_LABELS[item.a.platform]} ad, ${item.a.carTitle}`} className={rowButton}>Start ad</ActButton>
-                              <ActButton act={deleteAdAction.bind(null, item.a.id)} confirm={{ title: "Delete this ad?", text: "This cannot be undone.", yes: "Delete" }} label="Delete this ad" className={`${rowButton} w-11 px-0 text-bad`}><TrashIcon className="size-4" /></ActButton>
+                              <ActButton act={deleteAdAction.bind(null, item.a.id)} confirm={{ title: "Delete this ad?", text: "This cannot be undone.", yes: "Delete" }} label={`Delete the ${AD_PLATFORM_LABELS[item.a.platform]} ad, ${item.a.carTitle}`} className={`${rowButton} w-11 px-0 text-bad`}><TrashIcon className="size-4" /></ActButton>
                             </>
                           }
                         />
@@ -198,10 +198,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
 
           {/* How the posts did, after what needs doing: the few numbers a dealer asks about, each a link to the posts behind it. */}
           <StatGrid>
-            <StatCard label="Posted in the last 30 days" value={fmtNum(recent.length)} href="/dashboard/marketing?status=posted" />
-            <StatCard label="People who saw them" value={fmtNum(recent.reduce((n, p) => n + (p.reach ?? 0), 0))} href="/dashboard/marketing?status=posted" />
-            <StatCard label="Clicks to your site" value={fmtNum(recent.reduce((n, p) => n + (p.clicks ?? 0), 0))} href="/dashboard/marketing?status=posted" />
-            <StatCard label="Leads from ads" value={fmtNum(ads.filter((a) => a.createdAt >= since).reduce((n, a) => n + a.leads, 0))} hint={`${plural(ads.filter((a) => a.status === "running").length, "ad")} running now`} href="/dashboard/marketing?show=ad" />
+            <StatCard label="Posted in the last 30 days" value={fmtNum(recent.length)} />
+            <StatCard label="People who saw them" value={fmtNum(recent.reduce((n, p) => n + (p.reach ?? 0), 0))} />
+            <StatCard label="Clicks to your site" value={fmtNum(recent.reduce((n, p) => n + (p.clicks ?? 0), 0))} />
+            <StatCard label="Leads from ads" value={fmtNum(ads.filter((a) => a.createdAt >= since).reduce((n, a) => n + a.leads, 0))} hint="From ads started in the last 30 days" href="/dashboard/marketing?show=ad" />
           </StatGrid>
 
           <TableToolbar filters={filters} />
@@ -233,7 +233,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                       {item.p.status === "posted" ? (
                         <Results items={[[item.p.reach ?? 0, "saw it"], [item.p.clicks ?? 0, "clicks"]]} />
                       ) : (
-                        <ActButton act={publishPostAction.bind(null, item.p.id)} confirm={{ title: "Post this now?", text: `It goes out on ${item.p.network} at once.`, yes: "Post now" }} label={`Post now: ${postName(item.p)}${item.p.carTitle ? `, ${item.p.carTitle}` : ""}`} className={rowButton}>Post now</ActButton>
+                        <PostNow p={item.p} />
                       )}
                     </li>
                   ) : (
@@ -388,6 +388,21 @@ function Calendar({ posts, ads, week }: { posts: Awaited<ReturnType<typeof posts
   );
 }
 
+// Post a waiting post now. A story, or anything on TikTok, is only made ready to post from the phone (PUBLISH_MODE), and says so.
+function PostNow({ p }: { p: SocialPost }) {
+  const ready = PUBLISH_MODE[p.network][p.format ?? "post"] === "prepare";
+  const verb = ready ? "Get it ready" : "Post now";
+  return (
+    <ActButton
+      act={publishPostAction.bind(null, p.id)}
+      confirm={ready ? { title: "Get it ready now?", text: `It is made ready here and posted on ${p.network} from your phone.`, yes: verb } : { title: "Post this now?", text: `It goes out on ${p.network} at once.`, yes: verb }}
+      label={`${verb}: ${postName(p)}${p.carTitle ? `, ${p.carTitle}` : ""}`}
+      className={rowButton}
+    >
+      {verb}
+    </ActButton>
+  );
+}
 const postName = (p: { network: string; format?: keyof typeof FORMAT_LABELS }) => `${p.network} ${(p.format ? FORMAT_LABELS[p.format] : "Post").toLowerCase()}`;
 
 // The post's first photo, or the network's mark when it has none.

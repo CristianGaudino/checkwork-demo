@@ -9,7 +9,7 @@ import { daysSince } from "@/lib/admin/format";
 import { OLD_STOCK_DAYS } from "@/lib/admin/overview";
 import { FEW_PHOTOS } from "@/lib/admin/stock-views";
 import { carHref, carName } from "@/lib/stock/format";
-import { forSale, isSold, type Car } from "@/lib/stock/types";
+import { forSale, isSold, onPublicSite, type Car } from "@/lib/stock/types";
 
 // What a dealer does with one car, the same on the stock list and on the car's own page, and the warnings that say what a car needs.
 
@@ -30,9 +30,10 @@ export function PostToSocial({ car, className, short = false }: { car: Car; clas
 }
 
 // The car as a customer sees it, in a new tab. A hidden car or a draft has no page on the website.
-export function ViewOnSite({ car, className, short = false }: { car: Car; className: string; short?: boolean }) {
+// `shown`: the car's kind (new, commercial) is on the site with the dealer's modules (conditionShown).
+export function ViewOnSite({ car, shown, className, short = false }: { car: Car; shown: boolean; className: string; short?: boolean }) {
   const at = short && "2xl";
-  if (car.listing) return null;
+  if (!shown || !onPublicSite(car)) return null; // no link to a page that answers "gone" or not found
   return (
     <a href={carHref(car.slug)} {...NEW_TAB} title="Open the car's page on your website" aria-label={`View on the website: ${carName(car)} (opens in a new tab)`} className={className}>
       <ExternalIcon className="size-4 shrink-0" />

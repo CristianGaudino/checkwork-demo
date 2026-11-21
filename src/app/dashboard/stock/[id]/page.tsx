@@ -22,7 +22,8 @@ import { carName, priceLabel } from "@/lib/stock/format";
 import { stockSource } from "@/lib/stock-source";
 import { forSale, isReduced } from "@/lib/stock/types";
 import { deleteCarAction, saveCostAction } from "../actions";
-import { hasModule } from "@/lib/modules";
+import { enabledModules, hasModule } from "@/lib/modules";
+import { conditionShown } from "@/lib/modules-rules";
 
 export const metadata = { title: "Edit car" };
 
@@ -66,7 +67,7 @@ export default async function Page({ params, searchParams }: { params: Promise<{
   const quiet = `${adminButtonQuiet} px-4`;
   const actions = [
     (await hasModule("social")) && <PostToSocial key="post" car={car} className={quiet} />,
-    <ViewOnSite key="view" car={car} className={quiet} />,
+    <ViewOnSite key="view" car={car} shown={conditionShown(await enabledModules(), car.condition)} className={quiet} />,
     deposits && !synced && !sold && (held || forSale(car)) && <Link key="reserve" href={`/dashboard/stock/${id}/reserve`} className={quiet}>{held ? "See the deposit" : "Reserve with a deposit"}</Link>,
     !synced && <ListingButton key="listing" car={car} className={quiet} />, // a sold car too: it stays on the site as Sold until hidden
     synced && sold && !sale && <a key="dd" href={listingHref(car)} {...NEW_TAB} className={quiet}>Edit on {LISTING_SITE}<span className="sr-only"> (opens in a new tab)</span></a>,

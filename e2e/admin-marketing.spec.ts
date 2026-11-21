@@ -121,7 +121,7 @@ test("an unknown notice code shows nothing", async ({ page }) => {
 test("what waits on you is at the top with Post now in the row; the list below is what went out; a chosen car can be changed", async ({ page }) => {
   await page.goto("/dashboard/marketing");
   const waiting = page.getByRole("region", { name: "Waiting on you" });
-  await expect(waiting.getByRole("button", { name: /^(Post now|Start ad)/ }).first()).toBeVisible(); // the demo seeds drafts and a scheduled post
+  await expect(waiting.getByRole("button", { name: /^(Post now|Get it ready|Start ad)/ }).first()).toBeVisible(); // the demo seeds drafts and a scheduled post
   await expect(page.getByRole("region", { name: "Posts and ads" }).getByText("Draft", { exact: true })).toHaveCount(0);
   await startPost(page);
   await page.getByRole("button", { name: "Change car" }).click();

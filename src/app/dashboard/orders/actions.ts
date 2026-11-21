@@ -121,8 +121,10 @@ export async function setOrderStatusAction(id: string, data: FormData) {
       await reservationsStore.put({ id: newId("res"), carId, carTitle: title(o), customerId: o.customerId, depositEur: o.depositEur, method: o.depositMethod ?? "Card", paidOn: o.orderedOn, until: addDays(today, 30), salesperson: o.salesperson, status: "held", createdAt: Date.now() });
     }
   }
-  // Never over a cancel or a hand-over landed meanwhile.
-  await ordersStore.update(id, (cur) => (orderOpen(cur.status) ? { ...cur, status: to.data, ...(carId && { carId }) } : cur));
+  // Never over a cancel or a hand-over landed meanwhile, nor over a step someone else took since it was read (Arrived claimed it above).
+  let moved = false;
+  await ordersStore.update(id, (cur) => ((moved = orderOpen(cur.status) && (to.data === "arrived" || cur.status === o.status)) ? { ...cur, status: to.data, ...(carId && { carId }) } : cur));
+  if (!moved) return { error: STALE_STATUS };
   await logActivity("stock", `Moved the factory order ${title(o)} from ${ORDER_STATUS_LABELS[o.status]} to ${ORDER_STATUS_LABELS[to.data]}`, carId ? { kind: "car", id: carId, label: title(o) } : undefined);
   paths(id);
 }

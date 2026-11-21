@@ -32,7 +32,9 @@ export async function setDriveStatusAction(id: string, status: string, from?: st
   const drive = await drivesStore.get(id);
   if (!next || !drive || drive.status === next) return;
   if (changedSince(from, drive.status)) return { error: STALE_STATUS };
-  if (!(await drivesStore.update(id, (d) => ({ ...d, status: next })))) return;
+  let moved = false; // only if nobody moved it between the read and the write
+  if (!(await drivesStore.update(id, (d) => ((moved = d.status === drive.status) ? { ...d, status: next } : d)))) return;
+  if (!moved) return { error: STALE_STATUS };
   await logActivity("test-drives", `Changed the test drive from ${DRIVE_STATUS_LABELS[drive.status]} to ${DRIVE_STATUS_LABELS[next]}`, { kind: "drive", id });
   revalidatePath("/dashboard/test-drives");
 }

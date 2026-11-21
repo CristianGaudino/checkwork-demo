@@ -23,7 +23,8 @@ import { FEW_PHOTOS, STOCK_VIEWS, parseStockList, stockList, type StockView } fr
 import { salesStore } from "@/lib/admin/collections";
 import { syncStatus } from "@/lib/donedeal/sync";
 import { toggleSoldAction, withdrawnAction } from "./actions";
-import { hasModule } from "@/lib/modules";
+import { enabledModules, hasModule } from "@/lib/modules";
+import { conditionShown } from "@/lib/modules-rules";
 
 export const metadata = { title: "Stock" };
 
@@ -68,6 +69,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
       </Link>
     ) : null;
   const social = await hasModule("social");
+  const mods = await enabledModules();
 
   const columns: Column<Car>[] = [
     // Tick several cars to change them at once (#104). Our version only: DoneDeal stock is changed on DoneDeal.
@@ -152,7 +154,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         <div className="relative z-10 flex justify-end gap-2">
           {recordSale(c)}
           {social && <PostToSocial car={c} short className={rowButton} />}
-          <ViewOnSite car={c} short className={rowButton} />
+          <ViewOnSite car={c} shown={conditionShown(mods, c.condition)} short className={rowButton} />
           {synced ? (
             <>
               {undoSale(c)}

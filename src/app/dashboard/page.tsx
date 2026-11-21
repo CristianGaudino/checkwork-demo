@@ -66,7 +66,8 @@ export default async function Page() {
   const costs = (await can("margins")) ? new Map([...(await carCosts())].map(([id, c]) => [id, c.total])) : null;
   const o = overview({ leads: leads.filter(isSalesLead), drives, reviews, cars: all, costs: costs ? new Set(costs.keys()) : undefined, sales: new Set(sales.map((s) => s.id)), reservations, orders, syncProblem: Boolean(sync?.problem), slaHours: settings.leadSlaHours });
   // What a module that is off would show goes with it (#173): its buttons, figures and to-dos.
-  const attention = o.attention.filter((a) => !MODULE_OF[a.key] || mods.has(MODULE_OF[a.key]));
+  // Orders are our version only: with DoneDeal stock the Orders page is not there, so its to-do goes too.
+  const attention = o.attention.filter((a) => (!MODULE_OF[a.key] || mods.has(MODULE_OF[a.key])) && !(synced && a.key === "orders"));
   const margin = costs ? cars.filter((c) => costs.has(c.id) && !onRequest(c)).reduce((s, c) => s + marginOf(c.priceEur, costs.get(c.id)!).eur, 0) : 0;
   const drivesOn = mods.has("testDrives");
   const today = dublinDay();
@@ -107,7 +108,7 @@ export default async function Page() {
       case "sales":
         return [
           ...o.unrecorded.slice(0, EACH).map((c) => (
-            <Task key={`sale-${c.id}`} urgency="soon" icon={<ReceiptIcon />} title={`Record the sale of the ${c.year} ${c.make} ${c.model}`} detail={`Sold ${fmtDay(c.soldAt!, "dayMonth")}, no buyer or price yet`} action={<Link href={`/dashboard/stock/${c.id}/sale`} className={rowButton}>Record sale</Link>} />
+            <Task key={`sale-${c.id}`} urgency="soon" icon={<ReceiptIcon />} title={`Record the sale of the ${c.year} ${c.make} ${c.model}`} detail={`Sold ${fmtDay(c.soldAt!, "dayMonth")}, no buyer or price yet`} action={<Link href={`/dashboard/stock/${c.id}/sale`} aria-label={`Record sale: ${c.year} ${c.make} ${c.model}`} className={rowButton}>Record sale</Link>} />
           )),
           ...rest(a.key, o.unrecorded.length, "sold car with no sale recorded", "sold cars with no sale recorded", a.href, "soon"),
         ];
@@ -168,7 +169,7 @@ export default async function Page() {
             )}
             <Panel plain title="Your numbers">
               <StatGrid>
-                <StatCard href="/dashboard/leads" label="Leads this week" value={fmtNum(thisWeek)} hint={`${fmtNum(o.usualWeek)} in a usual week`} tone={thisWeek > o.usualWeek ? "good" : undefined} />
+                <StatCard label="Leads this week" value={fmtNum(thisWeek)} hint={`${fmtNum(o.usualWeek)} in a usual week`} tone={thisWeek > o.usualWeek ? "good" : undefined} />
                 <StatCard href="/dashboard/stock" label="Cars for sale" value={fmtNum(cars.filter(forSale).length)} hint={o.oldStock ? `${o.oldStock} for sale ${OLD_STOCK_DAYS} days or more` : undefined} tone={o.oldStock ? "warn" : undefined} />
                 {costs && <StatCard href="/dashboard/margins" label="Expected margin" value={fmtEur(margin)} />}
                 {mods.has("reviews") && <StatCard href="/dashboard/reviews" label="Review rating" value={o.reviewCount ? o.averageRating.toFixed(1) : "None"} hint={plural(o.reviewCount, "review")} />}

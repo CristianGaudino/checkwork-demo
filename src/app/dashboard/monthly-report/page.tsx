@@ -88,7 +88,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ m
 
       {/* The month in short: the few numbers an owner asks about first, each against the month before. The sections below say more. */}
       <StatGrid>
-        <StatCard label="Leads" value={fmtNum(s.leads.total)} hint={compare(s.leads.total, p.leads.total)} href="/dashboard/leads" />
+        <StatCard label="Leads" value={fmtNum(s.leads.total)} hint={compare(s.leads.total, p.leads.total)} />
         {a && <StatCard label="Visitors" value={fmtNum(a.totals.visitors)} hint={compare(a.totals.visitors, a.previous.visitors)} href="/dashboard/analytics" />}
         {real && <StatCard label="Visits" value={fmtNum(real.now.totals.visits)} hint={compare(real.now.totals.visits, real.before.totals.visits)} href="/dashboard/analytics" />}
         {hasSales ? (
@@ -104,7 +104,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ m
         <StatCard label="Out of hours" value={fmtNum(s.leads.outOfHours)} hint={s.leads.total ? `${Math.round((s.leads.outOfHours / s.leads.total) * 100)}% of leads` : undefined} />
         <StatCard label="First reply, when open" value={fmtWait(s.replies.medianInHoursMin)} hint="Typical" />
         <StatCard label="First reply, when closed" value={fmtWait(s.replies.medianOutOfHoursMin)} hint="Typical" />
-        <StatCard label="No reply in 24 hours" value={fmtNum(s.replies.none)} tone={s.replies.none ? "warn" : undefined} href="/dashboard/leads" />
+        <StatCard label="No reply in 24 hours" value={fmtNum(s.replies.none)} tone={s.replies.none ? "warn" : undefined} />
       </StatGrid>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
         <Panel title="Where they came from">

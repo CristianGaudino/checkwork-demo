@@ -32,7 +32,10 @@ export async function setStatusAction(id: string, data: FormData) {
   // A won or lost lead needs no follow-up. The reason belongs to a lost lead only: moving it on clears it.
   const followUpOn = isOpenLead({ status: parsed.data }) ? (lead.followUpOn ?? (isIsoDay(on) ? on : undefined)) : undefined;
   const lostReason = parsed.data === "lost" ? (lead.lostReason ?? (why.success ? why.data : undefined)) : undefined;
-  if (!(await leadsStore.update(id, (l) => ({ ...l, status: parsed.data, followUpOn, lostReason })))) return;
+  // Written only if nobody moved it between the read and the write (the update runs again on a clash).
+  let moved = false;
+  if (!(await leadsStore.update(id, (l) => ((moved = l.status === lead.status) ? { ...l, status: parsed.data, followUpOn, lostReason } : l)))) return;
+  if (!moved) return { error: STALE_STATUS };
   await logActivity("leads", `Moved the lead from ${leadStatusLabel(lead.type, lead.status)} to ${leadStatusLabel(lead.type, parsed.data)}`, ref(id));
   revalidatePath("/dashboard/leads");
   revalidatePath(`/dashboard/leads/${id}`);

@@ -49,7 +49,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const openDrives = drivesOn ? theirDrives.filter((d) => isOpenDrive(d) && dublinDay(d.startsAt) >= today).reverse() : [];
   // A warranty request that became a claim is done, as on Aftersales: the claim is what is open.
   const openRequests = new Set(openWarrantyRequests(theirLeads, claims).map((l) => l.id));
-  const openLeads = theirLeads.filter((l) => (l.type === "warranty" ? openRequests.has(l.id) : isOpenLead(l)));
+  const openLeads = theirLeads.filter((l) => (l.type === "warranty" ? service && openRequests.has(l.id) : isOpenLead(l)));
   const openClaims = service ? theirClaims.filter((k) => claimOpen(k.status)) : [];
   const openOrders = ordersOn ? theirOrders.filter((o) => orderOpen(o.status)) : [];
   const held = synced ? [] : deposits.filter((r) => r.status === "held");
