@@ -10,7 +10,6 @@ import { isOpenDrive } from "@/lib/admin/drives";
 import { isOpenLead, openWarrantyRequests } from "@/lib/admin/leads";
 import { matchesAny, parsePersonQuery, type PersonQuery } from "@/lib/admin/person-match";
 import { hasModule } from "@/lib/modules";
-import { NotInPlan } from "@/components/admin/NotInPlan";
 import { ContactButtons } from "@/components/admin/ContactButtons";
 import { stockSource } from "@/lib/stock-source";
 
@@ -24,7 +23,6 @@ const item = "flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-3";
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  if (!(await hasModule("sales"))) return <NotInPlan id="sales" />; // the customer list is the sales module (src/lib/modules-rules.ts)
   const c = await customersStore.get(id);
   if (!c) notFound();
   // Claims, orders and test drives are modules of their own: with one off, its records stay but its links go (#173).
