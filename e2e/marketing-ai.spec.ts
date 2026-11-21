@@ -134,27 +134,3 @@ test("write a car description, a lead reply and a review reply with AI", async (
   await expect(page.getByRole("textbox", { name: /^Reply to / }).first()).not.toHaveValue("");
   await expect(page.getByRole("button", { name: "More apologetic" }).first()).toBeVisible();
 });
-
-test("with the AI module off there is no AI anywhere; with Social off there are no posts, with only Newsletter the page is newsletters", async ({ page, context, baseURL }) => {
-  const modules = (value: string) => context.addCookies([{ name: "checkwork-demo-modules", value, url: baseURL! }]);
-  await modules("dashboard,social,newsletter,reviews");
-  await startPost(page);
-  await next(page);
-  await expect(text(page)).toBeVisible();
-  await expect(page.getByRole("button", { name: "Write with AI" })).toHaveCount(0);
-  await page.goto("/dashboard/leads/lead-1000");
-  await expect(page.getByRole("button", { name: "Write with AI" })).toHaveCount(0);
-  await expect(page.getByRole("heading", { name: "Draft a reply" })).toHaveCount(0);
-
-  await modules("dashboard,newsletter,ai");
-  await page.goto("/dashboard/marketing");
-  await expect(page).toHaveURL(/marketing/);
-  await expect(page.getByRole("link", { name: "New post" })).toHaveCount(0);
-  await expect(page.getByRole("link", { name: /^Calendar/ })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Write from the newest cars" })).toBeVisible();
-  await page.goto("/dashboard/marketing/new");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Not in your plan");
-
-  await modules("dashboard,ai");
-  expect((await page.goto("/dashboard/marketing"))?.status()).toBe(404);
-});

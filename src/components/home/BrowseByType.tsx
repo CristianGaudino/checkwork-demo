@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { IfModule } from "@/components/IfModule";
 import { card, press, sectionTitle } from "@/components/ui";
 import { countLabel } from "@/lib/stock/format";
 import type { Photo } from "@/lib/stock/types";
@@ -16,9 +15,7 @@ export function BrowseByType({ tiles }: { tiles: TypeTile[] }) {
       <h2 id="browse-by-type" className={sectionTitle}>Browse by type</h2>
       <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {tiles.map((t) => (
-          // New cars and vans are modules (#173): their tiles go with them.
-          <IfModule key={t.key} href={t.href}>
-          <li>
+          <li key={t.key}>
             <Link href={t.href} className={`${card} group flex h-full flex-col overflow-hidden transition-shadow hover:shadow-lift ${press}`}>
               <span className="block aspect-photo overflow-hidden bg-photo-bg">
                 {t.photo && (
@@ -31,7 +28,6 @@ export function BrowseByType({ tiles }: { tiles: TypeTile[] }) {
               </span>
             </Link>
           </li>
-          </IfModule>
         ))}
       </ul>
     </section>

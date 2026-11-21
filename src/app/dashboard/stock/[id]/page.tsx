@@ -23,7 +23,6 @@ import { stockSource } from "@/lib/stock-source";
 import { forSale, isReduced, onPublicSite } from "@/lib/stock/types";
 import { deleteCarAction, saveCostAction } from "../actions";
 import { enabledModules, hasModule } from "@/lib/modules";
-import { conditionShown } from "@/lib/modules-rules";
 
 export const metadata = { title: "Edit car" };
 
@@ -70,7 +69,7 @@ export default async function Page({ params, searchParams }: { params: Promise<{
   const quiet = `${adminButtonQuiet} px-4`;
   const actions = [
     (await hasModule("social")) && <PostToSocial key="post" car={car} className={quiet} />,
-    <ViewOnSite key="view" car={car} shown={conditionShown(await enabledModules(), car.condition)} className={quiet} />,
+    <ViewOnSite key="view" car={car} className={quiet} />,
     deposits && !synced && !sold && (held || forSale(car)) && <Link key="reserve" href={`/dashboard/stock/${id}/reserve`} className={quiet}>{held ? "See the deposit" : "Reserve with a deposit"}</Link>,
     // A sold car too, while it is still on the site as Sold; one sold long ago is off it already.
     !synced && (!sold || onPublicSite({ soldAt: car.soldAt })) && <ListingButton key="listing" car={car} className={quiet} />,

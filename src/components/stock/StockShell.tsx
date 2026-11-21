@@ -22,7 +22,6 @@ import { stateButton } from "./StockError";
 import { setView, useView } from "./view";
 import { pageMain, subTitle } from "@/components/ui";
 import { VEHICLE_TYPES } from "@/lib/nav";
-import { IfModule } from "@/components/IfModule";
 
 type Summary = { total: number; facets: Facets } | null;
 type Stock = {
@@ -139,11 +138,9 @@ export function StockShell({ query, title, summary, orderable, children }: { que
             <h1 className="text-display font-bold lg:text-hero">{title ?? kind.title}</h1>
             <p className="mt-2 max-w-measure text-pretty text-body text-text-2">{kind.intro}</p>
             {orderable && kind.condition === "new" && (
-              <IfModule href="/new-cars">
               <Link href="/new-cars/order" className="mt-2 inline-flex min-h-11 items-center text-body font-semibold text-accent-text underline">
                 Not the spec you want? Order one from the factory
               </Link>
-              </IfModule>
             )}
             {/* Under the intro and above the count on a phone; from 1024px the search is in the filter panel. */}
             <div className="mt-4 lg:hidden">
@@ -207,21 +204,17 @@ export function EmptyState() {
   if (appliedFilters(query, null).length === 0) {
     return (
       <StateBlock title="No cars listed right now" text="New cars arrive often.">
-        <IfModule href="/find-a-car">
         <Link href="/find-a-car" className="mx-auto flex min-h-11 w-fit items-center text-body underline">
           Can&apos;t find it? Ask us to find it for you.
         </Link>
-        </IfModule>
       </StateBlock>
     );
   }
   return (
     <StateBlock title="No cars match these filters" text="Try removing a filter.">
-      <IfModule href="/find-a-car">
-        <Link href={sourcingHref(query, facets)} className="mx-auto flex min-h-11 w-fit items-center text-body underline">
-          Can&apos;t find it? Ask us to find it for you.
-        </Link>
-      </IfModule>
+      <Link href={sourcingHref(query, facets)} className="mx-auto flex min-h-11 w-fit items-center text-body underline">
+        Can&apos;t find it? Ask us to find it for you.
+      </Link>
       <button type="button" onClick={() => navigate(clearFilters(query))} className={stateButton}>
         Clear all filters
       </button>

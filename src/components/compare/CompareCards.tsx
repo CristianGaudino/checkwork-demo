@@ -16,7 +16,6 @@ import { financeMonthlyEur, payableEur, priceInfo } from "@/lib/stock/price";
 import { carTitle, featureLabel, fmtEur, specRows, carHref } from "@/lib/stock/format";
 import { PRICING } from "@/lib/stock/pricing.config";
 import { FINANCE } from "@/lib/finance/finance.config";
-import { useModules } from "@/lib/demo-role";
 import { Mileage } from "@/components/Mileage";
 import { UnitToggle } from "@/components/UnitToggle";
 import { isSold, onRequest } from "@/lib/stock/types";
@@ -34,7 +33,7 @@ export const ROWS: Row[] = [
       // Ranked on what the buyer pays, so an ex. VAT price shows that figure too.
       return p.incVat ? <span className="flex flex-col items-end">{p.headline}<span className="text-meta font-normal text-text-2">{p.incVat}</span></span> : p.headline;
     }, better: "low" },
-  // The car page's own estimate (the calculator's defaults), with the lender's wording under the cards. Only with the finance module on.
+  // The car page's own estimate (the calculator's defaults), with the lender's wording under the cards.
   { label: "Finance", number: financeMonthlyEur, text: (c) => { const m = financeMonthlyEur(c); return m === undefined ? undefined : `${fmtEur(m)} ${PRICING.labels.perMonth}`; }, better: "low" },
   { label: "Year", number: (c) => c.year, text: (c) => String(c.year), better: "high" },
   { label: "Mileage", number: (c) => c.mileageKm, text: (c) => (c.mileageKm === undefined ? undefined : <Mileage km={c.mileageKm} />), better: "low" },
@@ -88,8 +87,6 @@ function Placeholder() {
 // its card straight away and does not fetch again.
 export function CompareCards() {
   const live = useCompareIds();
-  const finance = useModules().has("finance");
-  const rows = finance ? ROWS : ROWS.filter((r) => r.label !== "Finance");
   // False on the server and during hydration, when the list still reads as the server's empty one.
   const read = useSyncExternalStore(never, () => true, () => false);
   const [ids, setIds] = useState<string[] | null>(null);
@@ -108,7 +105,7 @@ export function CompareCards() {
   const cars = live.flatMap((id) => loaded.cars.filter((c) => c.id === id));
   if (cars.length === 0) return <Empty />;
 
-  const ranks = rows.map((row) => (row.number ? rank(cars.map(row.number)) : []));
+  const ranks = ROWS.map((row) => (row.number ? rank(cars.map(row.number)) : []));
 
   return (
     <>
@@ -156,7 +153,7 @@ export function CompareCards() {
               </h2>
             </div>
             <dl className="flex flex-col divide-y divide-hairline px-4 pb-2">
-              {rows.map((row, ri) => (
+              {ROWS.map((row, ri) => (
                 <div key={row.label} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 py-3">
                   <dt className="text-meta text-text-2">{row.label}</dt>
                   <dd className="flex flex-wrap items-center justify-end gap-2 text-right">
@@ -182,7 +179,7 @@ export function CompareCards() {
         ))}
         {cars.length < MAX_COMPARE && <Placeholder />}
       </div>
-      {finance && cars.some((c) => financeMonthlyEur(c) !== undefined) && <p className="mt-6 max-w-measure text-meta text-text-2">{FINANCE.notice}</p>}
+      {cars.some((c) => financeMonthlyEur(c) !== undefined) && <p className="mt-6 max-w-measure text-meta text-text-2">{FINANCE.notice}</p>}
     </>
   );
 }

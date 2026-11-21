@@ -7,17 +7,15 @@ import { dealerDirectionsUrl } from "@/lib/dealer";
 import { DEALER_ADDRESS, DEALER_LOCATION, SITE_NAME } from "@/lib/site";
 import { PageHeading, PagePhoto } from "@/components/PageHeading";
 import { AffiliationList } from "@/components/Affiliations";
-import { IfModule } from "@/components/IfModule";
 
 export const metadata: Metadata = { title: "About us", description: `${SITE_NAME} is a car dealer in ${DEALER_LOCATION}: carefully chosen cars, plain answers and no pressure.` };
 
 // The dealer's own story replaces this copy: no history, awards, years trading or staff names are invented here.
-// `href`: a point about a module's page shows only while the dealer has that module.
-const WHY: { title: string; text: string; href?: string }[] = [
+const WHY = [
   { title: "Carefully selected cars", text: "Cars chosen with care, each shown with its details and photos." },
   { title: "Straightforward buying", text: "Plain answers and no pressure. Ask us anything about a car before you decide." },
-  { title: "Finance", text: "Estimate your monthly payment online before you call.", href: "/finance" },
-  { title: "Trade-ins", text: "Get a valuation on the car you're trading in.", href: "/trade-in" },
+  { title: "Finance", text: "Estimate your monthly payment online before you call." },
+  { title: "Trade-ins", text: "Get a valuation on the car you're trading in." },
 ];
 const EXPECT = [
   { title: "Browse", text: "Look through the stock online, save the cars you like and compare them." },
@@ -39,10 +37,8 @@ export default function AboutPage() {
           <section className="flex flex-col gap-4">
             <h2 className={subTitle}>Why choose us</h2>
             <ul className="grid grid-cols-1 gap-4">
-              {WHY.map(({ href, ...f }) => (
-                <IfModule key={f.title} href={href}>
-                  <FeatureCard {...f} />
-                </IfModule>
+              {WHY.map((f) => (
+                <FeatureCard key={f.title} {...f} />
               ))}
             </ul>
           </section>

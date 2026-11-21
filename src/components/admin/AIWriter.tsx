@@ -3,7 +3,6 @@
 import { useId, useRef, useState, useTransition } from "react";
 import { SparkleIcon } from "@/components/stock/icons";
 import { press } from "@/components/ui";
-import { useModules } from "@/lib/demo-role";
 import { SHOW_PRICING } from "@/lib/billing/rules";
 import { writeAction } from "@/lib/ai/actions";
 import { ADJUSTS, adjustsFor, type Adjust, type Task, type WriteRequest } from "@/lib/ai/tasks";
@@ -16,15 +15,12 @@ const SAID = { limit: `The monthly AI limit is reached. Your text is unchanged.$
 
 // "Write with AI" for any text box (#179): a first draft from the record's facts, then buttons that rewrite it, Undo for one step back, and a
 // label so AI text is never taken for the dealer's own. The box stays the host's own and stays editable. `request` is read when a button is
-// pressed (the car form's boxes may have changed). Hidden entirely when the dealer has no AI module.
+// pressed (the car form's boxes may have changed).
 export function AIWriter({ task, request, text, onText, format }: { task: Task; request: () => WriteRequest | null; text: string; onText: (text: string, subject?: string) => void; format?: PostFormat }) {
-  const has = useModules().has("ai");
   const [pending, start] = useTransition();
   const [said, setSaid] = useState("");
   const [ai, setAi] = useState<string | null>(null); // the last text AI wrote
   const [back, setBack] = useState<{ text: string; ai: string | null } | null>(null);
-  if (!has) return null;
-
   const run = (adjust?: Adjust) => {
     const req = request();
     if (!req) return setSaid("Fill in the car's details first.");

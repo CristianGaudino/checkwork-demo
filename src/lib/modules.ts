@@ -1,13 +1,9 @@
 import "server-only";
-import { cache } from "react";
-import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
-import { demoCookiesCount } from "@/lib/demo";
-import { MODULES_COOKIE, parseModules, type ModuleId } from "./modules-rules";
+import { MODULE_IDS, type ModuleId } from "./modules-rules";
 
-// What this dealer has (#173). On the demo the bar's switches say (so each version can be shown); on a real site the build setting
-// NEXT_PUBLIC_SITE_MODULES does, and a cookie never can. The same rule as the stock source (src/lib/stock-source.ts).
-export const enabledModules = cache(async (): Promise<Set<ModuleId>> => (demoCookiesCount() ? parseModules((await cookies()).get(MODULES_COOKIE)?.value) : parseModules(process.env.NEXT_PUBLIC_SITE_MODULES)));
+// The archived dashboard's modules (#173), every one on. The public site has none: it always shows everything (owner, 2026-11-22).
+export const enabledModules = async (): Promise<Set<ModuleId>> => new Set(MODULE_IDS);
 export const hasModule = async (id: ModuleId) => (await enabledModules()).has(id);
 // A page or action of a module that is off answers as if it were not there.
 export async function requireModule(id: ModuleId) {

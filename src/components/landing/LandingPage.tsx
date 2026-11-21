@@ -10,7 +10,6 @@ import type { Landing } from "@/lib/stock/landing";
 import { DEFAULT_QUERY, stockHref } from "@/lib/stock/query";
 import type { FacetOption } from "@/lib/stock/types";
 import type { LandingData } from "./data";
-import { IfModule } from "@/components/IfModule";
 
 const SHOWN = 12;
 
@@ -105,15 +104,13 @@ export function LandingPage({ data }: { data: LandingData }) {
               <ListingCard key={car.id} car={car} priority={i < 2} />
             ))}
             {/* A short list would leave the grid mostly empty; this fills the space with the next step. */}
-            <IfModule href="/find-a-car">
-              <div className={`${card} flex flex-col items-start justify-center gap-3 p-6`}>
-                <h2 className={subTitle}>Not quite right?</h2>
-                <p className="text-body text-text-2">Tell us what you&apos;re looking for and we&apos;ll look for it.</p>
-                <Link href="/find-a-car" className={`inline-flex h-12 items-center px-6 ${secondaryButton}`}>
-                  Find me a car
-                </Link>
-              </div>
-            </IfModule>
+            <div className={`${card} flex flex-col items-start justify-center gap-3 p-6`}>
+              <h2 className={subTitle}>Not quite right?</h2>
+              <p className="text-body text-text-2">Tell us what you&apos;re looking for and we&apos;ll look for it.</p>
+              <Link href="/find-a-car" className={`inline-flex h-12 items-center px-6 ${secondaryButton}`}>
+                Find me a car
+              </Link>
+            </div>
           </div>
           {facts.n > SHOWN && (
             <Link href={stockHref({ ...DEFAULT_QUERY, ...landingFilter(landing) })} className={`mt-8 inline-flex h-12 items-center px-6 ${secondaryButton}`}>
@@ -143,11 +140,9 @@ export function LandingPage({ data }: { data: LandingData }) {
             </section>
           )}
           {/* D-15: the empty page's call to action, in place of the plain used-cars button (Phase 2 D-08). */}
-          <IfModule href="/find-a-car">
           <Link href="/find-a-car" className="mt-8 flex min-h-11 w-fit items-center text-body underline">
             Can&apos;t find it? Ask us to find it for you.
           </Link>
-          </IfModule>
         </>
       )}
     </main>

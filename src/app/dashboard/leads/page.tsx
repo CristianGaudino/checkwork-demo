@@ -9,7 +9,6 @@ import { LEAD_SOURCES, LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_TYPE_LABELS, getS
 import { dublinDay, fmtAgo, fmtDate } from "@/lib/admin/format";
 import { SALES_LEAD_TYPES, countByStatus, filterLeads, followUpDue, isHotLead, isOpenLead, isSalesLead, parseLeadFilter, urgentFirst } from "@/lib/admin/leads";
 import { TOPICS, isUrgent, leadTags } from "@/lib/leads/contact-topics";
-import { enabledModules } from "@/lib/modules";
 import { BrandIcon } from "@/components/admin/BrandIcon";
 
 export const metadata = { title: "Leads" };
@@ -22,7 +21,7 @@ type Params = { status?: string; type?: string; topic?: string; q?: string; due?
 export default async function Page({ searchParams }: { searchParams: Promise<Params> }) {
   const sp = await searchParams;
   const f = parseLeadFilter(sp);
-  const [everyLead, { leadSlaHours, team }, modules] = await Promise.all([leadsStore.list(), getSettings(), enabledModules()]);
+  const [everyLead, { leadSlaHours, team }] = await Promise.all([leadsStore.list(), getSettings()]);
   const all = everyLead.filter(isSalesLead);
   const counts = countByStatus(all);
   const today = dublinDay();
@@ -95,7 +94,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
   // Every filter in one panel: what kind of lead, whether it needs a reply, who has it, where it came from.
   const filters: FilterGroup[] = [
     { name: "type", label: "What they want", any: "Anything", options: SALES_LEAD_TYPES.map((t) => [t, LEAD_TYPE_LABELS[t]] as const) },
-    { name: "topic", label: "Topic", any: "Any topic", options: TOPICS.filter((t) => t.id !== "bought" && (!("module" in t) || modules.has(t.module))).map((t) => [t.id, t.label] as const) }, // "bought" is filed in Aftersales
+    { name: "topic", label: "Topic", any: "Any topic", options: TOPICS.filter((t) => t.id !== "bought").map((t) => [t.id, t.label] as const) }, // "bought" is filed in Aftersales
     { name: "need", label: "Needs a reply", any: "Any", options: [["due", `Follow-up due (${due})`], ["late", `Waiting too long (${late})`]] },
     { name: "with", label: "Who has it", any: "Anyone", options: [["none", "Nobody"], ...team.map((t) => [t.name, t.name] as const)] },
     { name: "source", label: "Where it came from", any: "Any source", options: LEAD_SOURCES.map((s) => [s, s] as const) },

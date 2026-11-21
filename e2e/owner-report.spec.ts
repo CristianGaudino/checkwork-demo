@@ -25,16 +25,10 @@ test("the counter takes an event from the list and nothing else", async ({ reque
   expect((await request.post("/api/count", { data: "not json", headers: { "content-type": "text/plain" } })).status()).toBe(400);
 });
 
-test("the monthly report shows a section for each module on, and none for a module off", async ({ page, context, baseURL }) => {
+test("the monthly report shows a section for each module", async ({ page }) => {
   await page.goto("/dashboard/monthly-report");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Monthly report");
   for (const h of ["Leads", "Visitors", "Stock", "Sales", "Reviews"]) await expect(page.getByRole("heading", { level: 2, name: h, exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Print or save as PDF" })).toBeVisible();
   await expect(page.getByRole("link", { name: /Download/ })).toHaveCount(0);
-
-  await context.addCookies([{ name: "checkwork-demo-modules", value: "dashboard", url: baseURL! }]);
-  await page.goto("/dashboard/monthly-report");
-  await expect(page.getByRole("heading", { level: 2, name: "Leads", exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { level: 2, name: "Stock", exact: true })).toBeVisible();
-  for (const h of ["Visitors", "Sales", "Reviews"]) await expect(page.getByRole("heading", { level: 2, name: h, exact: true })).toHaveCount(0);
 });

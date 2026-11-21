@@ -12,7 +12,7 @@ sent. A failed or slow send (5 seconds) never loses the lead or shows the buyer 
 id, type and HTTP status only. Photos stay in this site's bucket; the dashboard is told how many came.
 
 The live demo is a public, view-only showroom (owner, 2026-11-22): the deploy builds with `NEXT_PUBLIC_DEMO_BAR=off`, so it has no demo
-bar, no role, plan or sync switches and no link to a dashboard, exactly like a real dealer's site, with every module on. The bar is still
+bar, no role or sync switches and no link to a dashboard, exactly like a real dealer's site, with every page on. The bar is still
 there in `next dev` and the E2E run.
 
 ## The archived dashboard
@@ -21,11 +21,9 @@ The demo has two views. The public site is `/`. The dealer dashboard is `/dashbo
 
 ## Modules
 
-A dealer has the base site plus the modules they pay for (#173, `src/lib/modules-rules.ts`). A module that is off has its pages answer
-404 (the proxy checks, for public and dashboard pages alike), its links leave the menus, footer and pages (`IfModule`), and its server
-actions refuse. On the demo the bar's Modules switches choose them (a cookie); on a real site `NEXT_PUBLIC_SITE_MODULES` does, and a
-cookie never can. Data is never deleted when a module goes off. Stock kept in the dashboard is not a module switch: it follows where the
-stock comes from.
+The public site has no modules or plans: every page and link is always there (owner, 2026-11-22). The archived dashboard still reads
+modules for its Billing page and its checks (`src/lib/modules-rules.ts`, `hasModule`, `requireModule`), always with every one on: there
+is no switch, cookie or setting for them. Stock kept in the dashboard is not a module: it follows where the stock comes from.
 
 ## Usage billed per use
 

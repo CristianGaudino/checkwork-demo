@@ -58,11 +58,4 @@ describe("sendFollowUpDigest", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     expect((await sendFollowUpDigest()).sent).toBe(sent - 1);
   });
-  it("sends nothing to a dealer without the dashboard", async () => {
-    vi.stubEnv("NEXT_PUBLIC_SITE_MODULES", "tradeIn");
-    sendTo.mockClear();
-    expect(await sendFollowUpDigest()).toEqual({ sent: 0 });
-    expect(sendTo).not.toHaveBeenCalled();
-    vi.unstubAllEnvs();
-  });
 });

@@ -1,6 +1,5 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL, indexable } from "@/lib/site";
-import { parseModules, pathAllowed } from "@/lib/modules-rules";
 import { queryAll } from "@/lib/stock";
 import { isSold } from "@/lib/stock/types";
 import { carHref } from "@/lib/stock/format";
@@ -12,12 +11,10 @@ export const dynamic = "force-dynamic";
 // Landing pages are listed once each, only while a car of theirs is in stock (D-08, D-09).
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (!indexable()) return [];
-  // Only the pages of the modules this dealer has (#173): the others answer 404, so they are never offered to a search engine.
-  const modules = parseModules(process.env.NEXT_PUBLIC_SITE_MODULES);
   const { cars } = await queryAll({ sold: "include" });
-  const others = [...(modules.has("newCars") ? (await queryAll({ condition: "new" })).cars : []), ...(modules.has("commercial") ? (await queryAll({ condition: "commercial" })).cars : [])];
+  const others = [...(await queryAll({ condition: "new" })).cars, ...(await queryAll({ condition: "commercial" })).cars];
   const landing = new Set(cars.filter((c) => !isSold(c)).flatMap((c) => [c.makeSlug, ...(c.bodySlug ? [c.bodySlug] : []), `${c.makeSlug}/${c.modelSlug}`]));
-  const all: MetadataRoute.Sitemap = [
+  return [
     { url: `${SITE_URL}/` },
     { url: `${SITE_URL}/used-cars` },
     { url: `${SITE_URL}/new-cars` },
@@ -42,5 +39,4 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...[...new Set(others.map((c) => `${c.condition === "new" ? "new-cars" : "commercial"}/${c.makeSlug}`))].map((p) => ({ url: `${SITE_URL}/${p}` })),
     ...[...cars, ...others].map((c) => ({ url: `${SITE_URL}${carHref(c.slug)}`, ...(c.listedAt && { lastModified: c.listedAt }) })),
   ];
-  return all.filter((e) => pathAllowed(new URL(e.url).pathname, modules));
 }

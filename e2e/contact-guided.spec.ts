@@ -1,6 +1,5 @@
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
-import { MODULE_IDS, MODULES_COOKIE } from "../src/lib/modules-rules";
 import { choose } from "./combo";
 import { stubTurnstile } from "./turnstile";
 
@@ -142,27 +141,13 @@ test("a visit from a tagged Facebook post: the lead says it came from Facebook",
   await expect(page.getByRole("row").filter({ hasText: name })).toContainText("Website, from Facebook");
 });
 
-test.describe("modules", () => {
-  const without = (...off: string[]) => MODULE_IDS.filter((m) => !off.includes(m)).join(",");
-
-  test("no Service card without the service module, and no Selling or Finance cards without theirs", async ({ page, baseURL }) => {
-    await page.context().addCookies([{ name: MODULES_COOKIE, value: without("service", "tradeIn", "finance"), url: baseURL! }]);
-    await open(page);
-    await expect(page.getByText("Buying a car", { exact: true })).toBeVisible();
-    for (const card of ["Service or repair", "Selling or trading in my car", "Finance"]) await expect(page.getByText(card, { exact: true })).toHaveCount(0);
-    await expect(page.getByText("Something else", { exact: true })).toBeVisible();
-  });
-
-  test("the WhatsApp opt-in shows only with the WhatsApp module", async ({ page, baseURL }) => {
-    await open(page);
-    await pick(page, "Buying a car");
-    await next(page);
-    await next(page);
-    await expect(page.getByRole("switch", { name: "Send me updates on WhatsApp" })).toBeVisible();
-    await page.context().addCookies([{ name: MODULES_COOKIE, value: without("whatsapp"), url: baseURL! }]);
-    await open(page);
-    await expect(page.getByRole("switch", { name: "Send me updates on WhatsApp" })).toHaveCount(0);
-  });
+test("every need has its card, and the WhatsApp opt-in is offered: the site has no plans", async ({ page }) => {
+  await open(page);
+  for (const card of ["Buying a car", "Selling or trading in my car", "Finance", "Service or repair", "A car I bought from you", "Something else"]) await expect(page.getByText(card, { exact: true })).toBeVisible();
+  await pick(page, "Buying a car");
+  await next(page);
+  await next(page);
+  await expect(page.getByRole("switch", { name: "Send me updates on WhatsApp" })).toBeVisible();
 });
 
 test("an urgent lead is listed before the others, and the list filters by topic", async ({ page }) => {

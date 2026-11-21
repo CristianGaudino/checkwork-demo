@@ -1,18 +1,16 @@
-import type { ModuleId } from "@/lib/modules-rules";
 import { PRODUCT_LABELS, type FinanceProduct } from "@/lib/finance/finance.config";
 
 // The guided contact form (#176): what the buyer needs, a few taps about it, how to reach them. No zod here: the form imports this file,
 // and schema.ts, the dealer's email and the leads list read the same words.
 
-// `module`: the card shows only with that module on; without it, that need goes to "Something else".
 export const TOPICS = [
   { id: "buying", label: "Buying a car", subject: "Buying" },
-  { id: "selling", label: "Selling or trading in my car", subject: "Selling", module: "tradeIn" },
-  { id: "finance", label: "Finance", subject: "Finance", module: "finance" },
-  { id: "service", label: "Service or repair", subject: "Service", module: "service" },
-  { id: "bought", label: "A car I bought from you", subject: "Aftersales", module: "service" }, // filed in Aftersales
+  { id: "selling", label: "Selling or trading in my car", subject: "Selling" },
+  { id: "finance", label: "Finance", subject: "Finance" },
+  { id: "service", label: "Service or repair", subject: "Service" },
+  { id: "bought", label: "A car I bought from you", subject: "Aftersales" }, // filed in Aftersales
   { id: "other", label: "Something else", subject: "Message" },
-] as const satisfies readonly { id: string; label: string; subject: string; module?: ModuleId }[];
+] as const satisfies readonly { id: string; label: string; subject: string }[];
 export type TopicId = (typeof TOPICS)[number]["id"];
 export const TOPIC_IDS = TOPICS.map((t) => t.id) as [TopicId, ...TopicId[]];
 

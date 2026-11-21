@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { InfoPage, InfoSection } from "@/components/InfoPage";
 import { LEAD_RETENTION_MONTHS, SALE_KEEP_YEARS } from "@/lib/leads/constants";
 import Link from "next/link";
-import { IfModule } from "@/components/IfModule";
 import { NEW_TAB } from "@/components/ui";
 import { DEALER_ADDRESS_TEXT, DEALER_EMAIL, DEALER_FACTS_CONFIRMED, SITE_NAME } from "@/lib/site";
 
@@ -63,15 +62,11 @@ export default function PrivacyPage() {
           Cloudflare hosts this site, runs the bot check on our forms, counts page visits for us (without cookies) and delivers your request to us by email. Cloudflare also keeps the
           requests in a database, and trade-in photos, in the EU.
         </p>
-        <IfModule id="ai">
-          <p>When our staff draft a reply to your request or review, its text goes to our AI provider, which writes a draft for them to check. Phone numbers and email addresses are taken out first.</p>
-        </IfModule>
-        <IfModule id="newsletter">
-          <p>
-            If you ask us to tell you when a car comes back or drops in price, we keep your email and what you asked for, only to tell you. Any email we send you
-            about it has a link to stop them, with no login.
-          </p>
-        </IfModule>
+        <p>When our staff draft a reply to your request or review, its text goes to our AI provider, which writes a draft for them to check. Phone numbers and email addresses are taken out first.</p>
+        <p>
+          If you ask us to tell you when a car comes back or drops in price, we keep your email and what you asked for, only to tell you. Any email we send you
+          about it has a link to stop them, with no login.
+        </p>
         <p>
           The maps on this site come from Google Maps. When one loads, Google receives your IP address and may set its own cookies, as{" "}
           <a href="https://policies.google.com/privacy" {...NEW_TAB} className="font-semibold underline">
@@ -80,9 +75,7 @@ export default function PrivacyPage() {
           </a>{" "}
           describes.
         </p>
-        <IfModule id="whatsapp">
-          <p>If you give us your WhatsApp number or message us there, your number and messages go to WhatsApp, which delivers them to us. We can also send you updates about your request on WhatsApp.</p>
-        </IfModule>
+        <p>If you give us your WhatsApp number or message us there, your number and messages go to WhatsApp, which delivers them to us. We can also send you updates about your request on WhatsApp.</p>
       </InfoSection>
       <InfoSection title="How long we keep it">
         <p>We keep each request for {LEAD_RETENTION_MONTHS} months, then delete it.</p>
