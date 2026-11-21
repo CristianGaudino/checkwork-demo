@@ -1,4 +1,5 @@
 import "server-only";
+import { after } from "next/server";
 import { getDb } from "@/lib/db";
 import { requireEnv } from "@/lib/env";
 import { isProduction } from "@/lib/site";
@@ -7,6 +8,7 @@ import { getBindings } from "./bindings";
 import type { Deps, LeadStore, Mailer } from "./process";
 import { mirrorLead } from "@/lib/admin/real-leads";
 import { leadRecipients, sendToDealer } from "./mail";
+import { sendToDash } from "./dash";
 import { createDrizzleStore } from "./store";
 import { verifyTurnstile } from "./turnstile";
 
@@ -48,6 +50,13 @@ const store: LeadStore = {
   },
   markNotified: (id) => db().markNotified(id),
 };
+// The archived /dashboard's copy and the dealer dashboard (checkwork-dash). The send runs after the buyer's answer is out (`after`, kept
+// alive by the Worker), so a slow or down dashboard never makes them wait; sendToDash never throws, so it never touches the copy.
+const toAdmin: Deps["toAdmin"] = async (row, emailed) => {
+  const dash = getBindings().DASH; // read now, while the request is live
+  after(() => sendToDash(row, emailed, dash));
+  await mirrorLead(row, emailed);
+};
 let fakes: Deps | undefined;
 
 export function getDeps(): Deps {
@@ -65,7 +74,7 @@ export function getDeps(): Deps {
     demo: !isProduction(),
     bucket,
     photoLinkSecret: () => requireEnv("PHOTO_LINK_SECRET"),
-    toAdmin: mirrorLead,
+    toAdmin,
   };
 }
 

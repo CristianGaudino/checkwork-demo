@@ -37,3 +37,16 @@ describe("adminReachable", () => {
     expect(adminReachable("production", "1")).toBe(true);
   });
 });
+
+import { DEMO_ROLES, roleHref } from "@/lib/demo";
+describe("roleHref", () => {
+  afterEach(() => vi.unstubAllEnvs());
+  const [customer, dealer] = DEMO_ROLES;
+  it("sends Dealer to the dealer dashboard when NEXT_PUBLIC_DASH_URL is set, else to /dashboard; Customer always to the site", () => {
+    vi.stubEnv("NEXT_PUBLIC_DASH_URL", "");
+    expect(roleHref(dealer)).toBe("/dashboard");
+    vi.stubEnv("NEXT_PUBLIC_DASH_URL", "https://www.dash.checkwork.ie");
+    expect(roleHref(dealer)).toBe("https://www.dash.checkwork.ie");
+    expect(roleHref(customer)).toBe("/");
+  });
+});
