@@ -63,7 +63,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                     action={setOrderStatusAction.bind(null, o.id)}
                     set={{ status: s }}
                     back={s === "arrived" ? undefined : { status: o.status }}
-                    confirm={s === "arrived" ? { title: "Mark it arrived?", text: "The car goes into stock, held for the buyer. This cannot be stepped back.", yes: "It has arrived" } : undefined}
+                    confirm={s === "arrived" ? { title: "Mark it arrived?", text: "The car goes into stock, held for the buyer. This cannot be stepped back.", yes: "It has arrived", safe: true } : undefined}
                     active={o.status === s}
                     done={`Order: ${ORDER_STATUS_LABELS[s]}`}
                   >

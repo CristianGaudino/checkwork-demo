@@ -106,7 +106,8 @@ export async function LeadView({ id }: { id: string }) {
                     Test drive {fmtDay(dublinDay(drive.startsAt), "weekday")} {fmtDay(dublinDay(drive.startsAt), "day")} {fmtDay(dublinDay(drive.startsAt), "month")}, {fmtTime(drive.startsAt)}
                   </Link>
                 ) : (
-                  <Link href={`/dashboard/test-drives/new?lead=${lead.id}`} className={adminButton}>
+                  // An order request's main job is Place the order, so the drive is the quiet one there: one filled button.
+                  <Link href={`/dashboard/test-drives/new?lead=${lead.id}`} className={lead.type === "order" ? adminButtonQuiet : adminButton}>
                     <CalendarIcon className="size-4" />
                     Book a test drive
                   </Link>

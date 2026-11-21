@@ -14,9 +14,8 @@ import { fmtNum, fmtPct, threeLetter } from "@/lib/admin/format";
 import { leadsStore } from "@/lib/admin/collections";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { simulating } from "@/lib/integrations";
-import { can, currentMember } from "@/lib/permissions";
+import { currentMember } from "@/lib/permissions";
 import { roleCan } from "@/lib/permission-rules";
-import { hasModule } from "@/lib/modules";
 import { carName, carHref } from "@/lib/stock/format";
 import { forSale } from "@/lib/stock/types";
 import { BrandName } from "@/components/admin/BrandIcon";
@@ -29,10 +28,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
   const range = parseRange((await searchParams).range);
   // The demo shows generated figures; a dealer's own site shows what its visitors really did.
   if (!simulating()) return <RealAnalytics range={range} />;
-  const [all, leads, allSales, mayReport, me, marginsOn] = await Promise.all([adminCars(), leadsStore.list(), salesStore.list(), can("reports"), currentMember(), hasModule("margins")]);
+  const [all, leads, allSales, me] = await Promise.all([adminCars(), leadsStore.list(), salesStore.list(), currentMember()]);
   // As on Reports (owner's decision): the roles allowed margins see the dealership's sales; a salesperson sees their own.
   const whole = roleCan(me.role, "margins");
-  const reports = mayReport && marginsOn; // Reports is the margins module's page: without it the link would be a dead end
   const sales = whole ? allSales : allSales.filter((s) => s.salesperson === me.name);
   const cars = all.filter(forSale).map((c) => ({ slug: c.slug, title: carName(c) }));
   const a = buildAnalytics({ range, cars, leadTimes: leads.map((l) => l.createdAt) });
@@ -61,8 +59,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
 
       <StatGrid>
         <StatCard label="Visitors" value={fmtNum(a.totals.visitors)} hint={changeText(a.totals.visitors, a.previous.visitors)} tone={dv >= 0 ? "good" : "bad"} />
-        <StatCard label="Leads" value={fmtNum(a.totals.leads)} hint={changeText(a.totals.leads, a.previous.leads)} tone={dl >= 0 ? "good" : "bad"} href="/dashboard/leads" />
-        <StatCard label="Cars sold" value={fmtNum(sold)} hint={whole ? "Sales you recorded" : "Your own sales"} href={reports ? "/dashboard/reports" : undefined} />
+        <StatCard label="Leads" value={fmtNum(a.totals.leads)} hint={changeText(a.totals.leads, a.previous.leads)} tone={dl >= 0 ? "good" : "bad"} />
+        <StatCard label="Cars sold" value={fmtNum(sold)} hint={whole ? "Sales you recorded" : "Your own sales"} />
         <StatCard label="Visitors who got in touch" value={fmtPct(a.totals.conversion)} hint={changeText(a.totals.conversion, convBefore, true)} tone={a.totals.conversion >= convBefore ? "good" : "bad"} />
       </StatGrid>
 

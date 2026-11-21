@@ -60,7 +60,8 @@ export default async function Page({ params, searchParams }: { params: Promise<{
   const main = sold && !sale ? (
     <Link href={`/dashboard/stock/${id}/sale`} className={adminButton}><ReceiptIcon className="size-4" />Record sale</Link>
   ) : synced ? (
-    <a href={listingHref(car)} {...NEW_TAB} className={adminButton}><PencilIcon className="size-4" />Edit on {LISTING_SITE}<span className="sr-only"> (opens in a new tab)</span></a>
+    // An ad that came down has nothing to edit: the car is dealt with under Ads taken down on the stock list.
+    !car.takenDownAt && <a href={listingHref(car)} {...NEW_TAB} className={adminButton}><PencilIcon className="size-4" />Edit on {LISTING_SITE}<span className="sr-only"> (opens in a new tab)</span></a>
   ) : !sold ? (
     <Link href={`/dashboard/stock/${id}/sale`} className={adminButton}><CheckIcon className="size-4" />Mark sold</Link>
   ) : undefined;
@@ -70,12 +71,12 @@ export default async function Page({ params, searchParams }: { params: Promise<{
     <ViewOnSite key="view" car={car} shown={conditionShown(await enabledModules(), car.condition)} className={quiet} />,
     deposits && !synced && !sold && (held || forSale(car)) && <Link key="reserve" href={`/dashboard/stock/${id}/reserve`} className={quiet}>{held ? "See the deposit" : "Reserve with a deposit"}</Link>,
     !synced && <ListingButton key="listing" car={car} className={quiet} />, // a sold car too: it stays on the site as Sold until hidden
-    synced && sold && !sale && <a key="dd" href={listingHref(car)} {...NEW_TAB} className={quiet}>Edit on {LISTING_SITE}<span className="sr-only"> (opens in a new tab)</span></a>,
+    synced && sold && !sale && !car.takenDownAt && <a key="dd" href={listingHref(car)} {...NEW_TAB} className={quiet}>Edit on {LISTING_SITE}<span className="sr-only"> (opens in a new tab)</span></a>,
     sold && sale && canDelete && <Link key="change" href={`/dashboard/stock/${id}/sale`} className={quiet}>Change the sale</Link>,
     sold && sale && canDelete && <Link key="undo" href={`/dashboard/stock/${id}/undo-sale`} className={quiet}>Undo sale</Link>,
   ].filter(Boolean);
   const facts = [
-    car.listedAt && !sold ? `${daysInStock(car.listedAt)} in stock` : sale ? `Sold for ${fmtEur(sale.priceEur)} on ${day(sale.soldOn)}` : sold ? `Sold ${day(car.soldAt!)}` : undefined,
+    car.listedAt && !sold ? (daysInStock(car.listedAt) === "Today" ? "Added today" : `${daysInStock(car.listedAt)} in stock`) : sale ? `Sold for ${fmtEur(sale.priceEur)} on ${day(sale.soldOn)}` : sold ? `Sold ${day(car.soldAt!)}` : undefined,
     `${car.photos.length} ${car.photos.length === 1 ? "photo" : "photos"}`,
     car.mileageKm !== undefined ? `${fmtNum(car.mileageKm)} km` : undefined,
   ].filter(Boolean).join(" · ");

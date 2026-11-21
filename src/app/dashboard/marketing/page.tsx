@@ -99,7 +99,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
     ...posts.filter((p) => p.status === "scheduled").sort((x, y) => (x.scheduledFor ?? 0) - (y.scheduledFor ?? 0)).map((p) => ({ kind: "post" as const, p })),
   ];
   const since = today() - 30 * DAY;
-  const recent = posts.filter((p) => p.status === "posted" && (p.postedAt ?? p.createdAt) >= since);
+  // What really went out: a post made ready for the phone (a story, TikTok) may never have been posted, so it is not counted.
+  const recent = posts.filter((p) => p.status === "posted" && !prepared(p) && (p.postedAt ?? p.createdAt) >= since);
   const sentLetters = pageOf([...letters].sort((a, b) => b.createdAt - a.createdAt), sp);
 
   return (
@@ -160,7 +161,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                           detail={`${item.a.carTitle}, budget ${fmtEur(item.a.budgetEur)}`}
                           action={
                             <>
-                              <ActButton act={startAdAction.bind(null, item.a.id)} confirm={{ title: "Start this ad?", text: `It runs on ${AD_PLATFORM_LABELS[item.a.platform]} with a budget of ${fmtEur(item.a.budgetEur)}.`, yes: "Start ad" }} label={`Start ad: ${AD_PLATFORM_LABELS[item.a.platform]} ad, ${item.a.carTitle}`} className={rowButton}>Start ad</ActButton>
+                              <ActButton act={startAdAction.bind(null, item.a.id)} confirm={{ title: "Start this ad?", text: `It runs on ${AD_PLATFORM_LABELS[item.a.platform]} with a budget of ${fmtEur(item.a.budgetEur)}.`, yes: "Start ad", safe: true }} label={`Start ad: ${AD_PLATFORM_LABELS[item.a.platform]} ad, ${item.a.carTitle}`} className={rowButton}>Start ad</ActButton>
                               <ActButton act={deleteAdAction.bind(null, item.a.id)} confirm={{ title: "Delete this ad?", text: "This cannot be undone.", yes: "Delete" }} label={`Delete the ${AD_PLATFORM_LABELS[item.a.platform]} ad, ${item.a.carTitle}`} className={`${rowButton} w-11 px-0 text-bad`}><TrashIcon className="size-4" /></ActButton>
                             </>
                           }
@@ -222,7 +223,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                           <span className="inline-flex items-center gap-1.5 font-medium">{item.p.photos?.[0] && <BrandIcon name={item.p.network} />}{postName(item.p)}</span>
-                          <Badge tone={STATUS[item.p.status].tone}>{STATUS[item.p.status].label}</Badge>
+                          {item.p.status === "posted" && prepared(item.p) ? <Badge tone="info">Ready on your phone</Badge> : <Badge tone={STATUS[item.p.status].tone}>{STATUS[item.p.status].label}</Badge>}
                         </div>
                         <span className="truncate text-meta text-text-2">
                           {item.p.carTitle ? `${item.p.carTitle}, ` : ""}
@@ -231,7 +232,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                         <p className="line-clamp-1 max-w-measure text-meta text-text-2 max-sm:hidden">{item.p.text}</p>
                       </div>
                       {item.p.status === "posted" ? (
-                        <Results items={[[item.p.reach ?? 0, "saw it"], [item.p.clicks ?? 0, "clicks"]]} />
+                        // Made ready for the phone: we do not know how it did, so no figures.
+                        !prepared(item.p) && <Results items={[[item.p.reach ?? 0, "saw it"], [item.p.clicks ?? 0, "clicks"]]} />
                       ) : (
                         <PostNow p={item.p} />
                       )}
@@ -247,7 +249,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
                         <span className="truncate text-meta text-text-2">{item.a.carTitle}, {fmtEur(item.a.budgetEur)}</span>
                       </div>
                       {item.a.status === "draft" ? (
-                        <ActButton act={startAdAction.bind(null, item.a.id)} confirm={{ title: "Start this ad?", text: `It runs on ${AD_PLATFORM_LABELS[item.a.platform]} with a budget of ${fmtEur(item.a.budgetEur)}.`, yes: "Start ad" }} label={`Start ad: ${AD_PLATFORM_LABELS[item.a.platform]} ad, ${item.a.carTitle}`} className={rowButton}>Start ad</ActButton>
+                        <ActButton act={startAdAction.bind(null, item.a.id)} confirm={{ title: "Start this ad?", text: `It runs on ${AD_PLATFORM_LABELS[item.a.platform]} with a budget of ${fmtEur(item.a.budgetEur)}.`, yes: "Start ad", safe: true }} label={`Start ad: ${AD_PLATFORM_LABELS[item.a.platform]} ad, ${item.a.carTitle}`} className={rowButton}>Start ad</ActButton>
                       ) : (
                         <Results items={[[item.a.impressions, "saw it"], [item.a.clicks, "clicks"], [item.a.leads, "leads"]]} />
                       )}
@@ -389,13 +391,14 @@ function Calendar({ posts, ads, week }: { posts: Awaited<ReturnType<typeof posts
 }
 
 // Post a waiting post now. A story, or anything on TikTok, is only made ready to post from the phone (PUBLISH_MODE), and says so.
+const prepared = (p: Pick<SocialPost, "network" | "format">) => PUBLISH_MODE[p.network][p.format ?? "post"] === "prepare";
 function PostNow({ p }: { p: SocialPost }) {
-  const ready = PUBLISH_MODE[p.network][p.format ?? "post"] === "prepare";
+  const ready = prepared(p);
   const verb = ready ? "Get it ready" : "Post now";
   return (
     <ActButton
       act={publishPostAction.bind(null, p.id)}
-      confirm={ready ? { title: "Get it ready now?", text: `It is made ready here and posted on ${p.network} from your phone.`, yes: verb } : { title: "Post this now?", text: `It goes out on ${p.network} at once.`, yes: verb }}
+      confirm={ready ? { title: "Get it ready now?", text: `It is made ready here and posted on ${p.network} from your phone.`, yes: verb, safe: true } : { title: "Post this now?", text: `It goes out on ${p.network} at once.`, yes: verb, safe: true }}
       label={`${verb}: ${postName(p)}${p.carTitle ? `, ${p.carTitle}` : ""}`}
       className={rowButton}
     >

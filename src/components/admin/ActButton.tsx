@@ -4,9 +4,10 @@ import { useId, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { showToast } from "@/components/toast";
-import { adminButtonQuiet, choicePill, dangerButton as danger } from "./kit";
+import { adminButton, adminButtonQuiet, choicePill, dangerButton as danger } from "./kit";
 
-export type Confirm = { title: string; text?: string; yes: string };
+// `safe`: the yes deletes or loses nothing (post it now, mark it arrived), so it is the main button, not the red one.
+export type Confirm = { title: string; text?: string; yes: string; safe?: boolean };
 
 // One dashboard button that runs a server action. Two safety nets, chosen per button:
 // - `confirm`: something that cannot be taken back (a delete, a send) asks first, in a native modal dialog. Escape or Cancel does nothing.
@@ -32,7 +33,7 @@ export function ActButton({ act, undo, done, confirm, label, pressed, className,
       <button type="button" aria-label={label} aria-pressed={pressed} disabled={pending} aria-busy={pending || undefined} onClick={() => (pressed ? undefined : confirm ? setAsking(true) : run())} className={className}>
         {children}
       </button>
-      {confirm && asking && <ConfirmDialog confirm={confirm} onYes={run} onClose={() => setAsking(false)} />}
+      {confirm && asking && <ConfirmDialog confirm={confirm} onYes={run} onClose={() => setAsking(false)} yesClassName={confirm.safe ? adminButton : danger} />}
     </>
   );
 }

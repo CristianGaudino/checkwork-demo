@@ -89,10 +89,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ m
       {/* The month in short: the few numbers an owner asks about first, each against the month before. The sections below say more. */}
       <StatGrid>
         <StatCard label="Leads" value={fmtNum(s.leads.total)} hint={compare(s.leads.total, p.leads.total)} />
-        {a && <StatCard label="Visitors" value={fmtNum(a.totals.visitors)} hint={compare(a.totals.visitors, a.previous.visitors)} href="/dashboard/analytics" />}
-        {real && <StatCard label="Visits" value={fmtNum(real.now.totals.visits)} hint={compare(real.now.totals.visits, real.before.totals.visits)} href="/dashboard/analytics" />}
+        {a && <StatCard label="Visitors" value={fmtNum(a.totals.visitors)} hint={compare(a.totals.visitors, a.previous.visitors)} />}
+        {real && <StatCard label="Visits" value={fmtNum(real.now.totals.visits)} hint={compare(real.now.totals.visits, real.before.totals.visits)} />}
         {hasSales ? (
-          <StatCard label="Cars sold" value={fmtNum(s.sales.count)} hint={compare(s.sales.count, p.sales.count)} href={hasMargins ? "/dashboard/reports" : undefined} />
+          <StatCard label="Cars sold" value={fmtNum(s.sales.count)} hint={compare(s.sales.count, p.sales.count)} />
         ) : (
           whole && <StatCard label="Cars sold" value={fmtNum(s.stock.sold)} hint={compare(s.stock.sold, p.stock.sold)} />
         )}

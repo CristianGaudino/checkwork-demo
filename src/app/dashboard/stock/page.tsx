@@ -11,7 +11,7 @@ import { adminCars } from "@/lib/admin/stock-admin";
 import { can } from "@/lib/permissions";
 import { daysSince, fmtDate, fmtEur, fmtNum } from "@/lib/admin/format";
 import { carName, carHref, priceLabel } from "@/lib/stock/format";
-import { FUEL_LABELS, FUELS, GEARBOXES, GEARBOX_LABELS, forSale, isReduced, isSold, onRequest, type Car } from "@/lib/stock/types";
+import { FUEL_LABELS, FUELS, GEARBOXES, GEARBOX_LABELS, forSale, isReduced, isSold, onRequest, type Car, onPublicSite } from "@/lib/stock/types";
 import { stockSource } from "@/lib/stock-source";
 import { LISTING_SITE, DONEDEAL_DEALER_URL, listingHref } from "@/lib/stock-source-rules";
 import { SyncPanel } from "@/components/admin/SyncPanel";
@@ -59,7 +59,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
   // Where a row goes: the car's editor here, or, for synced stock, the car on the site (it is changed on DoneDeal).
   // A synced car off the website (its ad came down) has no page there, so it opens here; so does every car with AI, to improve its description.
   const ai = synced && (await hasModule("ai"));
-  const open = (c: Car) => (synced && !ai && !c.listing ? carHref(c.slug) : `/dashboard/stock/${c.id}`);
+  const mods = await enabledModules();
+  const open = (c: Car) => (synced && !ai && onPublicSite(c) && conditionShown(mods, c.condition) ? carHref(c.slug) : `/dashboard/stock/${c.id}`);
   const takenDown = synced ? all.filter((c) => c.takenDownAt) : [];
   const canUndo = await can("settings"); // undoing a sale is money going back: owners and managers
   const undoSale = (c: Car) =>
@@ -69,7 +70,6 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
       </Link>
     ) : null;
   const social = await hasModule("social");
-  const mods = await enabledModules();
 
   const columns: Column<Car>[] = [
     // Tick several cars to change them at once (#104). Our version only: DoneDeal stock is changed on DoneDeal.
@@ -158,10 +158,12 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
           {synced ? (
             <>
               {undoSale(c)}
+              {!c.takenDownAt && (
               <a href={listingHref(c)} {...NEW_TAB} className={rowButton} aria-label={`Edit ${carName(c)} on ${LISTING_SITE} (opens in a new tab)`}>
                 <PencilIcon className="size-4" />
                 Edit on {LISTING_SITE}
               </a>
+              )}
             </>
           ) : (
             <>
@@ -307,7 +309,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
           </ul>
         </Panel>
       )}
-      {todo.length > 0 && (
+      {/* On the plain list only, as on Leads: its counts are of the whole stock, a search is looking for something else. */}
+      {todo.length > 0 && !q && !make && !fuel && !gearbox && (
         <Panel title="To do" count={todo.length}>
           <TaskList label="To do">{todo}</TaskList>
         </Panel>
