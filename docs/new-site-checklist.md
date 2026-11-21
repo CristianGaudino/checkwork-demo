@@ -58,8 +58,8 @@ deploy fails its tests while it is false.
 ### The dashboard
 - It starts empty on a production site (no made-up leads, reviews or team). Set `ADMIN_OWNER_EMAILS` to the owner's Access email; the
   owner then adds the team in Settings, each with a role, then Lead emails.
-- Cloudflare Access: an application for `/dashboard*` on the dealer's domain, allowing only their staff. Set `CF_ACCESS_TEAM_DOMAIN`,
-  `CF_ACCESS_AUD` and `NEXT_PUBLIC_ACCESS_ENABLED=1`. Without them the dashboard answers 404 (it fails closed).
+- Cloudflare Access: an application for `/dashboard*` on the dealer's domain, allowing only their staff. Set `CF_ACCESS_TEAM_DOMAIN`
+  and `CF_ACCESS_AUD`. Without them the dashboard answers 404 (it fails closed).
 - Who sees what: the team's roles in Settings (Owner, Manager, Sales, Finance). See `docs/dealer-admin.md`.
 
 ### Switches for a real site

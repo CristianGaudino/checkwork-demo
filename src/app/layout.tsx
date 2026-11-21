@@ -44,7 +44,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Suspense fallback={null}>
           <NavProgress />
         </Suspense>
-        {DEMO_BAR_ENABLED && <DemoBar showAreas={adminReachable() || process.env.NEXT_PUBLIC_ACCESS_ENABLED === "1"} />}
+        {DEMO_BAR_ENABLED && <DemoBar showAreas={adminReachable()} />}
         <SiteChrome>
           <SiteHeader />
           <VisitStart />
