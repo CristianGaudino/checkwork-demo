@@ -311,7 +311,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         </Panel>
       )}
       {/* On the plain list only, as on Leads: its counts are of the whole stock, a search is looking for something else. */}
-      {todo.length > 0 && !q && !make && !fuel && !gearbox && (
+      {todo.length > 0 && view === "for-sale" && !q && !make && !fuel && !gearbox && (!sp.page || sp.page === "1") && (
         <Panel title="To do" count={todo.length}>
           <TaskList label="To do">{todo}</TaskList>
         </Panel>

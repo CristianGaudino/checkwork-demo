@@ -20,7 +20,7 @@ import { adminCar } from "@/lib/admin/stock-admin";
 import { can } from "@/lib/permissions";
 import { carName, priceLabel } from "@/lib/stock/format";
 import { stockSource } from "@/lib/stock-source";
-import { forSale, isReduced } from "@/lib/stock/types";
+import { forSale, isReduced, onPublicSite } from "@/lib/stock/types";
 import { deleteCarAction, saveCostAction } from "../actions";
 import { enabledModules, hasModule } from "@/lib/modules";
 import { conditionShown } from "@/lib/modules-rules";
@@ -72,7 +72,8 @@ export default async function Page({ params, searchParams }: { params: Promise<{
     (await hasModule("social")) && <PostToSocial key="post" car={car} className={quiet} />,
     <ViewOnSite key="view" car={car} shown={conditionShown(await enabledModules(), car.condition)} className={quiet} />,
     deposits && !synced && !sold && (held || forSale(car)) && <Link key="reserve" href={`/dashboard/stock/${id}/reserve`} className={quiet}>{held ? "See the deposit" : "Reserve with a deposit"}</Link>,
-    !synced && <ListingButton key="listing" car={car} className={quiet} />, // a sold car too: it stays on the site as Sold until hidden
+    // A sold car too, while it is still on the site as Sold; one sold long ago is off it already.
+    !synced && (!sold || onPublicSite({ soldAt: car.soldAt })) && <ListingButton key="listing" car={car} className={quiet} />,
     synced && sold && !sale && !car.takenDownAt && <a key="dd" href={listingHref(car)} {...NEW_TAB} className={quiet}>Edit on {LISTING_SITE}<span className="sr-only"> (opens in a new tab)</span></a>,
     sold && sale && canDelete && <Link key="change" href={`/dashboard/stock/${id}/sale`} className={quiet}>Change the sale</Link>,
     sold && sale && canDelete && <Link key="undo" href={`/dashboard/stock/${id}/undo-sale`} className={quiet}>Undo sale</Link>,

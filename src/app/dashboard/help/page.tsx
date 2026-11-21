@@ -5,7 +5,7 @@ import { CalendarIcon, CarIcon, InboxIcon, PhoneIcon, ReceiptIcon, ShareIcon, Us
 import { fmtDateTime } from "@/lib/admin/format";
 import { feedbackStore, requestsOf } from "@/lib/admin/help";
 import { STATUS_LABELS, SUPPORT, feedbackDue, safeFrom, supportTel, supportWhatsApp, typesFor, type HelpStatus } from "@/lib/admin/help-rules";
-import { currentMember } from "@/lib/permissions";
+import { can, currentMember } from "@/lib/permissions";
 import { DEALER_NAV } from "@/lib/admin/nav";
 import { enabledModules } from "@/lib/modules";
 import { stockSource } from "@/lib/stock-source";
@@ -31,12 +31,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ f
   const first = types.find((t) => t === sp.type) ?? types[0];
   const [mine, last] = await Promise.all([requestsOf(me.name), feedbackStore.get(me.name.toLowerCase())]);
   const synced = source === "donedeal";
+  const margins = await can("margins"); // the cost and prep panels are only for those who see margins
   // The common jobs, only the ones this dealer has: a module that is off, or stock kept on DoneDeal, changes them.
   const guides: Guide[] = [
     { title: "Answer a new lead", icon: <InboxIcon />, steps: ["Open Leads and press the person's name.", "Call, email or WhatsApp them from the top of the lead.", "Set the status to Contacted so the team knows."], href: "/dashboard/leads?status=new", go: "Go to leads" },
     ...(mods.has("testDrives") ? [{ title: "Book a test drive", icon: <CalendarIcon />, steps: ["Press Book a test drive on the Overview.", "Pick the car, the day and a free time.", "Requests from your website show under To do: press Confirm."], href: "/dashboard/test-drives/new", go: "Book a test drive" }] : []),
     synced
-      ? { title: "Add or change a car", icon: <CarIcon />, steps: [`Your cars come from ${LISTING_SITE}: add or change them there.`, "The website and this dashboard update by themselves.", "Costs and notes for a car are added here, on its page in Stock."], href: "/dashboard/stock", go: "Go to stock" }
+      ? { title: "Add or change a car", icon: <CarIcon />, steps: [`Your cars come from ${LISTING_SITE}: add or change them there.`, "The website and this dashboard update by themselves.", ...(margins ? ["Its cost and prep are added here, on its page in Stock."] : [])], href: "/dashboard/stock", go: "Go to stock" }
       : { title: "Add a car", icon: <CarIcon />, steps: ["Press Add a car on the Overview or in Stock.", "Add the photos, the price and the details.", "Press Add car, or Save draft to finish it later."], href: "/dashboard/stock/new", go: "Add a car" },
     synced
       ? { title: "Record a sale", icon: <ReceiptIcon />, steps: [`When a car's ad comes down on ${LISTING_SITE}, it shows under To do.`, "Press Check, then It sold.", "Add the buyer and the price."], href: "/dashboard/stock?view=sold", go: "Go to sold cars" }

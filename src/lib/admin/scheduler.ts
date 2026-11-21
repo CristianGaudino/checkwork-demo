@@ -3,6 +3,8 @@ import { postsStore } from "./collections";
 import { simulatedPost } from "./marketing";
 import { publishPost } from "./publishers";
 import { MINUTE } from "@/lib/time";
+import { logActivity } from "./activity";
+import { PUBLISH_MODE } from "./networks";
 
 // Sends the scheduled posts whose time has come. Anything can call it: today the marketing page does when it opens, and a cron trigger on the
 // Worker can call it on a timer (wrangler.jsonc "triggers") when a real publisher is connected. A post that fails to send stays scheduled.
@@ -19,6 +21,8 @@ export async function sendDuePosts(now = Date.now()): Promise<number> {
     const r = await publishPost(p);
     if (!r.ok) continue;
     await postsStore.put({ ...p, status: "posted", postedAt: p.scheduledFor, claimedAt: undefined, ...(r.simulated && { simulated: true, ...simulatedPost(p.id) }) });
+    // In the history like a post sent by hand; a story or TikTok post is only made ready for the phone, and says so.
+    await logActivity("marketing", PUBLISH_MODE[p.network][p.format ?? "post"] === "prepare" ? `Made a scheduled ${p.network} post ready to post from the phone` : `Published a scheduled ${p.network} post`, { kind: "post", id: p.id }, "Scheduler");
     sent++;
   }
   return sent;

@@ -35,7 +35,7 @@ export function overview(input: { leads: Lead[]; drives: TestDrive[]; reviews: A
   const due = leads.filter((l) => followUpDue(l, today)).sort((a, b) => a.followUpOn!.localeCompare(b.followUpOn!));
   const late = leads.filter((l) => pastReplyTarget(l, now, slaHours)).sort((a, b) => a.createdAt - b.createdAt);
   const toConfirm = drives.filter((d) => d.status === "requested" && d.startsAt >= now).sort((a, b) => a.startsAt - b.startsAt);
-  const unrecorded = input.sales ? cars.filter((c) => isSold(c) && daysSince(c.soldAt!, now) <= SALE_NUDGE_DAYS && !input.sales!.has(c.id)) : [];
+  const unrecorded = input.sales ? cars.filter((c) => isSold(c) && daysSince(c.soldAt!, now) <= SALE_NUDGE_DAYS && !input.sales!.has(c.id)).sort((a, b) => a.soldAt!.localeCompare(b.soldAt!)) : []; // oldest first, as on Stock
   // Reservations past their date; with just one, its task opens it.
   const overdue = (input.reservations ?? []).filter((r) => r.status === "held" && r.until < today);
   const attention = ([
