@@ -45,8 +45,7 @@ test("a half-filled form survives a reload, without the contact details", async 
   await page.goto("/contact");
   const form = page.locator("form").filter({ has: page.getByLabel("Name") });
   const next = form.getByRole("button", { name: "Next", exact: true });
-  await form.getByText("Something else", { exact: true }).click();
-  await next.click();
+  await form.getByText("Something else", { exact: true }).click(); // moves on by itself
   await form.getByLabel("How can we help?").fill("Do you have a blue one?");
   await next.click();
   await form.getByLabel("Email", { exact: true }).fill("buyer@example.com");
@@ -116,14 +115,9 @@ test.describe("on a computer", () => {
     expect(asked).toBe(1);
   });
 
-  test("contact: copy the number, and directions under the map", async ({ page, context }) => {
-    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  test("contact: directions under the map, and no copy number button (owner, 2026-11-22)", async ({ page }) => {
     await page.goto("/contact");
     await expect(page.getByRole("link", { name: /Get directions/ })).toHaveAttribute("target", "_blank");
-    const copy = page.getByRole("button", { name: /^Copy / });
-    const number = (await copy.textContent())!.replace(/^Copy /, "");
-    await copy.click();
-    await expect(page.getByRole("button", { name: "Number copied" })).toBeVisible();
-    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(number);
+    await expect(page.getByRole("button", { name: /^Copy / })).toHaveCount(0);
   });
 });

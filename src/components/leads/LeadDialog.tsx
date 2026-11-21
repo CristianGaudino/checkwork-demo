@@ -159,7 +159,7 @@ export function StockAlertButton({ car, kind }: { car: CarSummary; kind: "back-i
           {({ bind }) => (
             <>
               <input type="hidden" name="alertKind" value={kind} />
-              <Field {...bind("email")} label="Email" type="email" autoComplete="email" maxLength={LIMITS.email} enterKeyHint="send" />
+              <Field {...bind("email")} label="Email" required type="email" autoComplete="email" maxLength={LIMITS.email} enterKeyHint="send" />
             </>
           )}
         </LeadForm>

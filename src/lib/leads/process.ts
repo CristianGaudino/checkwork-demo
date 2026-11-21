@@ -51,7 +51,7 @@ export interface Deps {
   mailer: Mailer;
   getCar(id: string): Promise<Car | null>;
   limiter: { allow(key: string): Promise<boolean> };
-  verifyTurnstile(token: string, ip: string): Promise<boolean>;
+  verifyTurnstile(token: string, ip: string): Promise<true | string[]>; // true, or why it failed as fixed codes (turnstile.ts)
   demo: boolean;
   bucket: Pick<PhotoBucket, "put" | "delete">; // LEAD_PHOTOS, private EU R2 (D-13); only the signed route reads it
   photoLinkSecret(): string; // read only when a lead has photos, so other leads never need it
@@ -127,8 +127,9 @@ export async function processLead(fd: FormData, ctx: { ip: string }, deps: Deps)
     const input = parsed.data;
     type = input.type;
 
-    if (!(await deps.verifyTurnstile(String(fd.get("cf-turnstile-response") ?? ""), ctx.ip))) {
-      logLead({ type, outcome: "captcha" });
+    const bot = await deps.verifyTurnstile(String(fd.get("cf-turnstile-response") ?? ""), ctx.ip);
+    if (bot !== true) {
+      logLead({ type, outcome: "captcha", codes: bot });
       return { status: "failed", kind: "captcha" };
     }
 
