@@ -12,7 +12,7 @@ import type { LeadType } from "./schema";
 
 // The whole lead pipeline, framework-free (research Pattern 1): the server action only builds Deps and calls processLead.
 
-export type Outcome = "stored" | "notify_failed" | "mirror_failed" | "duplicate" | "invalid" | "captcha" | "rate" | "honeypot" | "error";
+export type Outcome = "stored" | "notify_failed" | "mirror_failed" | "dash_failed" | "duplicate" | "invalid" | "captcha" | "rate" | "honeypot" | "error";
 export type LeadResult =
   | { status: "ok" }
   | { status: "invalid"; fieldErrors: Record<string, string[]> }

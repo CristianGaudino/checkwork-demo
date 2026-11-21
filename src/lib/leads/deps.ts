@@ -7,6 +7,7 @@ import { getBindings } from "./bindings";
 import type { Deps, LeadStore, Mailer } from "./process";
 import { mirrorLead } from "@/lib/admin/real-leads";
 import { leadRecipients, sendToDealer } from "./mail";
+import { sendToDash } from "./dash";
 import { createDrizzleStore } from "./store";
 import { verifyTurnstile } from "./turnstile";
 
@@ -48,6 +49,16 @@ const store: LeadStore = {
   },
   markNotified: (id) => db().markNotified(id),
 };
+// The archived /dashboard's copy and the dealer dashboard (checkwork-dash), side by side. sendToDash never throws, so a failed send never
+// stops the copy; a failed copy still waits for the send (the Worker may stop once the response is out) and is logged as mirror_failed.
+const toAdmin: Deps["toAdmin"] = async (row, emailed) => {
+  const sent = sendToDash(row, emailed);
+  try {
+    await mirrorLead(row, emailed);
+  } finally {
+    await sent;
+  }
+};
 let fakes: Deps | undefined;
 
 export function getDeps(): Deps {
@@ -65,7 +76,7 @@ export function getDeps(): Deps {
     demo: !isProduction(),
     bucket,
     photoLinkSecret: () => requireEnv("PHOTO_LINK_SECRET"),
-    toAdmin: mirrorLead,
+    toAdmin,
   };
 }
 

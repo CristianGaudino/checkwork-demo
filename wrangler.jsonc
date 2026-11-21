@@ -7,6 +7,9 @@
 	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
 	"assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
 	"services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "checkwork-demo" }],
+	// Leads also go to the dealer dashboard (checkwork-dash, src/lib/leads/dash.ts). Once that Worker is deployed in this account, add
+	// { "binding": "DASH", "service": "checkwork-dash" } to services above: Worker to Worker, past Cloudflare Access on its host. Not added
+	// yet because a service binding to a Worker that does not exist fails the deploy. Without it, DASH_URL is used over a normal fetch.
 	// The bare domain is a second custom domain: worker.mjs redirects it to www.
 	"routes": [{ "pattern": "www.demo.checkwork.ie", "custom_domain": true }, { "pattern": "demo.checkwork.ie", "custom_domain": true }],
 	"workers_dev": false,

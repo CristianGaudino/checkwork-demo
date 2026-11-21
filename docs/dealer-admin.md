@@ -1,5 +1,19 @@
 # Dealer dashboard
 
+## It moved
+
+The dealer dashboard is now its own app, one for every dealer: repo `checkwork-dash`, https://www.dash.checkwork.ie. The `/dashboard`
+in this repo is archived: it still runs and still gets a copy of each lead, but new dashboard work goes in checkwork-dash.
+
+The demo sends each lead it stores to the dashboard's site API (`POST /api/site/v1/leads`, `src/lib/leads/dash.ts`), after the dealer
+email was tried and next to the archived copy. The site key (`DASH_SITE_KEY`, a Worker secret) decides the dealer. It goes Worker to
+Worker through the `DASH` service binding when wrangler.jsonc has one, else over a normal fetch to `DASH_URL`. With no key nothing is
+sent. A failed or slow send (5 seconds) never loses the lead or shows the buyer an error: it is logged as `dash_failed` with the lead's
+id, type and HTTP status only. Photos stay in this site's bucket; the dashboard is told how many came. With `NEXT_PUBLIC_DASH_URL` set
+at build, the demo bar's Dealer choice opens the dashboard instead of `/dashboard`.
+
+## The archived dashboard
+
 The demo has two views. The public site is `/`. The dealer dashboard is `/dashboard`. The demo bar at the foot of every page switches between them: choosing Dealer opens the dashboard. The public site is always the customer's view, with no dealer links or tools on it; editing a car and posting it to social start from the dashboard's stock list. There is no login of our own: on a deployed site Cloudflare Access is the login (see below). There is no superuser role and no platform in this site: running many dealers is a separate program, not part of what a dealer is sold. The platform that was here is in git history (PR #30).
 
 ## Modules
