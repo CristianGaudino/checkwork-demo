@@ -143,7 +143,7 @@ test("a visit from a tagged Facebook post: the lead says it came from Facebook",
 
 test("every need has its card, and the WhatsApp opt-in is offered: the site has no plans", async ({ page }) => {
   await open(page);
-  for (const card of ["Buying a car", "Selling or trading in my car", "Finance", "Service or repair", "A car I bought from you", "Something else"]) await expect(page.getByText(card, { exact: true })).toBeVisible();
+  for (const card of ["Buying a car", "Selling or trading in my car", "Finance", "Service or repair", "A car I bought from you", "Something else"]) await expect(page.getByRole("main").getByText(card, { exact: true })).toBeVisible();
   await pick(page, "Buying a car");
   await next(page);
   await next(page);
