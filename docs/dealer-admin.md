@@ -58,9 +58,10 @@ permissions, each checked on the server in every page and action that needs it (
   person and period. Changes only, never page views. See below.
 
 Who the person is:
-- **On the demo** (the demo bar is on) the bar's role buttons (Owner, Manager, Sales, Finance), shown while viewing as the dealer, set a
-  cookie the server reads, and the demo acts as the first team member with that role. It opens as the owner, so every feature shows.
-- **On a real site** (the demo bar is off, `NEXT_PUBLIC_DEMO_BAR=off`) the signed-in Access email, which the proxy verifies and passes on.
+- **On the demo** (the demo deploy, `APP_ENV=demo`, with or without the bar; or `next dev` and the E2E run with the bar on) a role cookie
+  decides, and the demo acts as the first team member with that role. With no cookie it is the owner, so every feature shows. The bar's
+  role buttons set the cookie where the bar shows; the live demo has no bar, so Access-signed staff are the owner there.
+- **On a real site** (`APP_ENV=production`) the signed-in Access email, which the proxy verifies and passes on.
   An address in `ADMIN_OWNER_EMAILS` is an owner (that is how a new dealer, with no team yet, gets in to set one up); anyone else has the
   role their email has on the team in Settings, or none. A cookie never grants anything there.
 
@@ -256,7 +257,7 @@ and their add-ons are sold:
 - **Add-ons** at module prices (`MODULE_EUR`): any module the tier lacks, such as commercial EUR 29, service EUR 49, margins EUR 49, social EUR 99 (with 200 more AI actions a month),
   newsletter EUR 59, new cars EUR 99. New cars covers 2 brands; each more brand is EUR 29 a month and EUR 100 at setup, in a tier or not
   (setup EUR 400 as an add-on). A plan is the cheapest tier for the dealer's modules plus add-ons; no modules is Showroom. Showroom takes
-  no add-on that is or needs the dashboard, and more than one branch is Group. The demo bar names the plan as the Billing page does, and each switch shows what turning it on adds.
+  no add-on that is or needs the dashboard, and more than one branch is Group.
 - **Over the allowance** each use is billed: lookup EUR 0.30, WhatsApp alert EUR 0.05, reply EUR 0.03, marketing message EUR 0.12, AI
   action EUR 0.04 (Standard) or EUR 0.08 (Premium). Replies and marketing messages are never included.
 - **Payment terms** (`term`): monthly at list price, a year upfront for 11 months' price, or a 2-year contract with no setup fee.
@@ -267,7 +268,7 @@ and their add-ons are sold:
 the plan and this month's usage (with the payment term, what
 the allowance covers, and an "Estimate" for the month end), the setup fees (the tier's, and those of add-ons set up with
 outside accounts (Social, New cars), none on a 2-year contract;
-`setupLines` in `src/lib/billing/rules.ts`, also totalled in the demo bar's plans panel), the limits and alerts (a euro limit per service
+`setupLines` in `src/lib/billing/rules.ts`), the limits and alerts (a euro limit per service
 and for all usage, never above ours (by default EUR 15 of lookups, EUR 20 of WhatsApp (EUR 20 per branch on Group: a WhatsApp ceiling the owner's program sets is per branch too) and EUR 50 of AI past the allowance, `DEFAULT_CEILINGS`); the 80% alert; "tell me when X passes EUR N"; AI writing's quality, Premium (Claude Opus) at EUR 0.08
 an action or Standard (Claude Sonnet) at EUR 0.04, each action counted under the model that wrote it; the dealer never sees the model
 or provider's name), and the bills. With `SHOW_PRICING` false the page shows only the plan's name, its modules, the payment

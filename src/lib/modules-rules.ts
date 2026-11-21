@@ -26,25 +26,8 @@ export const MODULES = [
 
 export type ModuleId = (typeof MODULES)[number]["id"];
 export const MODULE_IDS = MODULES.map((m) => m.id) as ModuleId[];
-const isModule = (v: string): v is ModuleId => (MODULE_IDS as string[]).includes(v);
 const needsOf = (id: ModuleId): readonly ModuleId[] => (MODULES.find((m) => m.id === id) as { needs?: readonly ModuleId[] }).needs ?? [];
 
-// A comma list of ids, "all" or nothing; unset means all. A module without what it needs is off.
-export function parseModules(v: string | undefined): Set<ModuleId> {
-  const raw = v === undefined || v.trim() === "all" ? MODULE_IDS : v.split(",").map((s) => s.trim()).filter(isModule);
-  const on = new Set<ModuleId>(raw);
-  // Drop anything whose needs are off, until nothing changes (margins needs sales needs dashboard).
-  for (let changed = true; changed; ) {
-    changed = false;
-    for (const id of on) {
-      if (!needsOf(id).some((n) => !on.has(n))) continue;
-      on.delete(id);
-      changed = true;
-    }
-  }
-  return on;
-}
-export const modulesValue = (on: Iterable<ModuleId>) => [...on].join(",");
 // Turning one on brings what it needs (the Billing page's prices).
 export function withModule(on: Set<ModuleId>, id: ModuleId): Set<ModuleId> {
   const next = new Set(on).add(id);

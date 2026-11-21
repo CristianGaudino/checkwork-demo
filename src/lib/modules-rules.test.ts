@@ -1,23 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { MODULE_IDS, moduleForPath, parseModules, pathAllowed, withModule } from "./modules-rules";
+import { moduleForPath, pathAllowed, withModule, type ModuleId } from "./modules-rules";
+
+const on = (...ids: ModuleId[]) => new Set<ModuleId>(ids);
 
 // The archived dashboard's plans (Billing). The public site has no modules.
 describe("modules", () => {
-  it("reads unset or 'all' as every module", () => {
-    expect(parseModules(undefined).size).toBe(MODULE_IDS.length);
-    expect(parseModules("all").size).toBe(MODULE_IDS.length);
-  });
-
-  it("reads an empty setting as none, and ignores what it does not know", () => {
-    expect([...parseModules("")]).toEqual([]);
-    expect([...parseModules("finance,rocket")]).toEqual(["finance"]);
-  });
-
-  it("drops a module whose needs are off, through the chain", () => {
-    expect(parseModules("margins,sales").has("margins")).toBe(false); // sales needs the dashboard
-    expect([...parseModules("margins,sales,dashboard")].sort()).toEqual(["dashboard", "margins", "sales"]);
-  });
-
   it("turning one on brings what it needs", () => {
     expect([...withModule(new Set(), "margins")].sort()).toEqual(["dashboard", "margins", "sales"]);
   });
@@ -29,9 +16,9 @@ describe("modules", () => {
   });
 
   it("allows a dashboard page only with its module and the dashboard", () => {
-    expect(pathAllowed("/dashboard", parseModules(""))).toBe(false);
-    expect(pathAllowed("/dashboard/reviews", parseModules("reviews"))).toBe(false);
-    expect(pathAllowed("/dashboard/test-drives", parseModules("dashboard,testDrives"))).toBe(true);
-    expect(pathAllowed("/finance", parseModules(""))).toBe(true);
+    expect(pathAllowed("/dashboard", on())).toBe(false);
+    expect(pathAllowed("/dashboard/reviews", on("reviews"))).toBe(false);
+    expect(pathAllowed("/dashboard/test-drives", on("dashboard", "testDrives"))).toBe(true);
+    expect(pathAllowed("/finance", on())).toBe(true);
   });
 });

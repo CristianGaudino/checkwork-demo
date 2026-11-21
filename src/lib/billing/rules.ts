@@ -1,4 +1,4 @@
-import { MODULES, MODULE_IDS, modulesValue, parseModules, type ModuleId } from "@/lib/modules-rules";
+import { MODULES, MODULE_IDS, type ModuleId } from "@/lib/modules-rules";
 
 // What a dealer pays us, and the rules for the usage billed on top (#181). Plain data and pure functions, so the Billing page, the
 // meters and the tests agree. The prices are the demo's: a real site reads the dealer's own prices, discounts and bills from the owner's
@@ -205,13 +205,6 @@ export function planFor(modules: Iterable<ModuleId>, o: PlanOptions = ONE_SITE):
   });
   const best = ways.reduce((a, w) => (w.eur < a.eur ? w : a));
   return { ...best, name: best.tier.label };
-}
-// Choosing a tier keeps the add-ons the dealer had on top of the plan before. One that needs what the new tier lacks (a dashboard add-on on
-// Showroom) cannot stay: it is dropped, and listed so the switch can say so.
-export function switchTier(modules: Iterable<ModuleId>, tier: Tier): { modules: Set<ModuleId>; dropped: ModuleId[] } {
-  const { extras } = planFor(modules);
-  const next = parseModules(modulesValue([...tier.modules, ...extras]));
-  return { modules: next, dropped: extras.filter((m) => !next.has(m)) };
 }
 // The plan's name when the paid modules are exactly a tier's, else "Custom". Per-use modules (€0) do not count.
 const paid = (ms: Iterable<ModuleId>) => [...new Set(ms)].filter((m) => MODULE_EUR[m] > 0).sort().join(",");
