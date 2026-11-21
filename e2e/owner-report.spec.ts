@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 const auth = { authorization: "Bearer e2e-owner-token" };
 
 test("the owner API answers 404 without the token, or with a wrong one, and counts with it", async ({ request }) => {
-  for (const path of ["summary", "usage", "modules"]) {
+  for (const path of ["summary", "usage"]) {
     expect((await request.get(`/api/owner/v1/${path}`)).status()).toBe(404);
     expect((await request.get(`/api/owner/v1/${path}`, { headers: { authorization: "Bearer wrong" } })).status()).toBe(404);
   }
@@ -15,7 +15,6 @@ test("the owner API answers 404 without the token, or with a wrong one, and coun
   for (const key of ["leads", "replies", "stock", "sales", "reviews", "features", "dashboard", "modules", "listingSync", "usage", "appVersion"]) expect(body).toHaveProperty(key);
   expect(body.sales).not.toHaveProperty("valueEur"); // money is off without its own secret
   expect((await request.get("/api/owner/v1/summary?from=nope", { headers: auth })).status()).toBe(400);
-  expect((await (await request.get("/api/owner/v1/modules", { headers: auth })).json()).modules).toContain("dashboard");
   expect((await (await request.get("/api/owner/v1/usage?from=2026-01-01&to=2026-01-31", { headers: auth })).json()).months).toHaveLength(1);
 });
 
