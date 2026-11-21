@@ -49,6 +49,7 @@ describe("on the demo", () => {
     const fresh = await import("./permissions");
     expect((await import("@/lib/demo")).DEMO_BAR_ENABLED).toBe(false);
     email = "visitor@example.com";
+    cookie = "Sales"; // left from when the live demo had a bar: nothing can change it now, so it counts for nothing
     expect(await fresh.currentMember()).toMatchObject({ name: "Aoife Brennan", role: "Owner" });
     expect(await fresh.can("margins")).toBe(true);
   });

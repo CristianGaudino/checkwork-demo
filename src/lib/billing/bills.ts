@@ -3,9 +3,6 @@ import { defineCollection } from "@/lib/admin/docs";
 import { addDays, dublinDay } from "@/lib/admin/format";
 import { getSettings } from "@/lib/admin/collections";
 import { MODULE_IDS } from "@/lib/modules-rules";
-import { DEMO_BAR_ENABLED } from "@/lib/demo";
-import { enabledModules } from "@/lib/modules";
-import { billingSettings } from "./usage";
 import { usageLines, type Bill, type BillingDetails } from "./bills-rules";
 import { BILLING_DEFAULT, allowanceFor, planLines, type Service } from "./rules";
 import { SITE_NAME, DEALER_ADDRESS_TEXT, DEALER_EMAIL } from "@/lib/site";
@@ -15,22 +12,11 @@ import { SITE_NAME, DEALER_ADDRESS_TEXT, DEALER_EMAIL } from "@/lib/site";
 // "bills-v2": bills stored by builds before the tiers had other plan lines and a discount, so they start again.
 export const billsStore = defineCollection<Bill>("bills-v2", seedBills);
 
+// As issued: every module is always on and the demo reset rebuilds the bills each morning, so they always match the Plan tab.
 export async function listBills(): Promise<Bill[]> {
-  const shown = await asShown();
-  return (await billsStore.list()).map(shown).sort((a, b) => b.id.localeCompare(a.id));
+  return (await billsStore.list()).sort((a, b) => b.id.localeCompare(a.id));
 }
-export async function getBill(id: string): Promise<Bill | undefined> {
-  const bill = await billsStore.get(id);
-  return bill && (await asShown())(bill);
-}
-// With the demo bar on (next dev, the E2E run) the bills follow the modules on, so the Bills tab never disagrees with the Plan tab. Elsewhere,
-// the live demo included, they are as issued.
-async function asShown(): Promise<(bill: Bill) => Bill> {
-  if (!DEMO_BAR_ENABLED) return (bill) => bill;
-  const [modules, b] = await Promise.all([enabledModules(), billingSettings()]);
-  const allowance = allowanceFor(modules, b);
-  return (bill) => ({ ...bill, modules: planLines(modules, b), usage: usageLines(bill.usage, allowance) });
-}
+export const getBill = (id: string): Promise<Bill | undefined> => billsStore.get(id);
 
 export async function billingDetails(): Promise<BillingDetails> {
   const s = await getSettings();

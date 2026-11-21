@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { MODULE_IDS } from "@/lib/modules-rules";
-import { BILLING_DEFAULT, inAllowance, withBranchCeilings, allowanceFor, alertsCrossed, setupEur, setupLines, capOf, monthEndEstimate, planEur, planFor, planLines, presetName, termSetupEur, TIERS, usageCosts, usageEstimate, withinCaps, yearUpfrontEur, type BillingSettings, type UsageCount } from "./rules";
+import { BILLING_DEFAULT, inAllowance, withBranchCeilings, allowanceFor, alertsCrossed, setupEur, setupLines, capOf, monthEndEstimate, planEur, planFor, planLines, presetName, termSetupEur, usageCosts, usageEstimate, withinCaps, yearUpfrontEur, type BillingSettings, type UsageCount } from "./rules";
 
 const c = (service: UsageCount["service"], kind: string, count: number): UsageCount => ({ id: `m:${service}:${kind}`, month: "2026-11", service, kind, count });
 

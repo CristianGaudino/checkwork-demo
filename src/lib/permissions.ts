@@ -2,7 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { cookies } from "next/headers";
 import { getSettings } from "@/lib/admin/collections";
-import { demoCookiesCount } from "@/lib/demo";
+import { DEMO_BAR_ENABLED, demoCookiesCount } from "@/lib/demo";
 import { hasModule } from "@/lib/modules";
 import { staffIdentity } from "@/lib/staff";
 import { ROLE_COOKIE, emailHas, parseRole, roleCan, type Permission, type Role } from "./permission-rules";
@@ -20,7 +20,8 @@ export type Member = { name: string; email: string; role: Role | null };
 export const currentMember = cache(async (): Promise<Member> => {
   const { team } = await getSettings();
   if (demoCookiesCount()) {
-    const role = parseRole((await cookies()).get(ROLE_COOKIE)?.value);
+    // With no bar to change it, a role cookie left from when the live demo had one is ignored: the owner, as with no cookie.
+    const role = parseRole(DEMO_BAR_ENABLED ? (await cookies()).get(ROLE_COOKIE)?.value : undefined);
     const m = team.find((t) => t.role === role);
     return { name: m?.name ?? role, email: m?.email ?? "", role };
   }
