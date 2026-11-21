@@ -57,7 +57,10 @@ export async function setClaimStatusAction(id: string, data: FormData) {
   const claim = await claimsStore.get(id);
   if (!to.success || !claim || claim.status === to.data) return;
   if (movedSince(data, claim.status)) return { error: STALE_STATUS };
-  await claimsStore.put({ ...claim, status: to.data });
+  // Written only if nobody moved it between the read and the write (the update runs again on a clash).
+  let moved = false;
+  await claimsStore.update(id, (k) => ((moved = k.status === claim.status) ? { ...k, status: to.data } : k));
+  if (!moved) return { error: STALE_STATUS };
   await logActivity("customers", `Moved the warranty claim from ${CLAIM_STATUS_LABELS[claim.status]} to ${CLAIM_STATUS_LABELS[to.data]}`, carRef(claim));
   paths(id);
 }

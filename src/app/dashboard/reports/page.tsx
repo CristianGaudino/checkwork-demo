@@ -37,7 +37,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
       {/* The answer first, in words. */}
       <p className="max-w-measure text-body">
         You sold {plural(r.totals.sold, "car")} for {fmtEur(r.totals.value)}
-        {r.totals.costed > 0 && <>, {fmtEur(r.totals.profit)} of it profit</>}.{best && best.value > 0 && ` Your best month was ${monthLabel(best.month)}, at ${fmtEur(best.value)}.`}
+        {r.totals.costed > 0 && (r.totals.costed === r.totals.sold ? <>, {fmtEur(r.totals.profit)} of it profit</> : <>, with {fmtEur(r.totals.profit)} profit on the {r.totals.costed} with a cost entered</>)}.{best && best.value > 0 && ` Your best month was ${monthLabel(best.month)}, at ${fmtEur(best.value)}.`}
       </p>
       <StatGrid>
         <StatCard label="Cars sold" value={fmtNum(r.totals.sold)} />
@@ -76,7 +76,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
             </div>
           </details>
         </Panel>
-        <Panel title="Where your sales came from">
+        <Panel title="Where the won leads came from">
           {r.sources.length ? <BarList items={r.sources.map((s) => ({ label: s.source, value: s.won, note: `of ${plural(s.leads, "lead")}, ${s.winRate}%` }))} /> : <p className="text-body text-text-2">No leads in this period.</p>}
         </Panel>
       </div>

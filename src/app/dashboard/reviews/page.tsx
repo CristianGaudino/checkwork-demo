@@ -103,7 +103,7 @@ function ReviewList({ rows, label }: { rows: AdminReview[]; label: string }) {
             </p>
           )}
           <details className="group">
-            <summary className={`${r.reply ? rowButton : `${rowButton} border-accent text-accent-text`} w-fit cursor-pointer list-none [&::-webkit-details-marker]:hidden`}>{r.reply ? "Edit reply" : "Reply"}</summary>
+            <summary className={`${r.reply ? rowButton : `${rowButton} border-accent text-accent-text`} w-fit cursor-pointer list-none [&::-webkit-details-marker]:hidden`} aria-label={`${r.reply ? "Edit reply" : "Reply"} to ${r.author}`}>{r.reply ? "Edit reply" : "Reply"}</summary>
             <form action={replyAction.bind(null, r.id)} className="mt-2 flex max-w-measure flex-col gap-2">
               <AITextarea id={`reply-${r.id}`} name="reply" label={`Reply to ${r.author}`} rows={3} maxLength={500} defaultValue={r.reply ?? ""} task="reviewReply" request={{ task: "reviewReply", reviewId: r.id }} />
               <SubmitButton className={`${adminButton} self-start`}>{r.reply ? "Update reply" : "Post reply"}</SubmitButton>

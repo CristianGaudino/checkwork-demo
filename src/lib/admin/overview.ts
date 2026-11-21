@@ -2,7 +2,7 @@ import type { AdminReview, Lead, Order, Reservation, TestDrive } from "./collect
 import { DAY } from "@/lib/time";
 import { forSale, isSold, type Car } from "@/lib/stock/types";
 import { isOpenDrive } from "./drives";
-import { dublinDay } from "./format";
+import { daysSince, dublinDay } from "./format";
 import { followUpDue, pastReplyTarget } from "./follow-ups";
 import { LISTING_SITE } from "@/lib/stock-source-rules";
 import { DEALER_RULES } from "@/lib/dealer.config";
@@ -35,7 +35,7 @@ export function overview(input: { leads: Lead[]; drives: TestDrive[]; reviews: A
   const due = leads.filter((l) => followUpDue(l, today)).sort((a, b) => a.followUpOn!.localeCompare(b.followUpOn!));
   const late = leads.filter((l) => pastReplyTarget(l, now, slaHours)).sort((a, b) => a.createdAt - b.createdAt);
   const toConfirm = drives.filter((d) => d.status === "requested" && d.startsAt >= now).sort((a, b) => a.startsAt - b.startsAt);
-  const unrecorded = input.sales ? cars.filter((c) => isSold(c) && Date.parse(`${c.soldAt}T00:00:00Z`) >= now - SALE_NUDGE_DAYS * DAY && !input.sales!.has(c.id)) : [];
+  const unrecorded = input.sales ? cars.filter((c) => isSold(c) && daysSince(c.soldAt!, now) <= SALE_NUDGE_DAYS && !input.sales!.has(c.id)) : [];
   const attention = ([
     // Overdue follow-ups are late; ones due today are not yet.
     { key: "follow", label: "Follow-ups due", count: due.length, href: "/dashboard/leads?need=due", urgency: due.some((l) => l.followUpOn! < today) ? "now" : "soon" },

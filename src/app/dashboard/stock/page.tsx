@@ -43,7 +43,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
   // A sold car with no sale recorded gets the button: Mark sold in our version records it; after the DoneDeal sync it is asked for here.
   const recordSale = (c: Car) =>
     isSold(c) && !sales.has(c.id) ? (
-      <Link href={`/dashboard/stock/${c.id}/sale`} className={rowButton}>
+      <Link href={`/dashboard/stock/${c.id}/sale`} aria-label={`Record sale: ${carName(c)}`} className={rowButton}>
         Record sale
       </Link>
     ) : null;
@@ -164,7 +164,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
           ) : (
             <>
               {!isSold(c) && (
-                <Link href={`/dashboard/stock/${c.id}/sale`} className={rowButton}>
+                <Link href={`/dashboard/stock/${c.id}/sale`} aria-label={`Mark sold: ${carName(c)}`} className={rowButton}>
                   <CheckIcon className="size-4" />
                   Mark sold
                 </Link>

@@ -251,7 +251,7 @@ export function PostComposer({ cars, initialSlug, initialFormat = "post", initia
             )
           ) : (
             <>
-              <SubmitButton name="intent" value="publish" className={adminButton}>{later ? "Schedule" : `Post to ${network} now`}</SubmitButton>
+              <SubmitButton name="intent" value="publish" className={adminButton}>{later ? "Schedule" : mode === "prepare" ? `Get it ready for ${network}` : `Post to ${network} now`}</SubmitButton>
               <SubmitButton name="intent" value="draft" formNoValidate className={adminButtonQuiet}>Save draft</SubmitButton>
             </>
           )}

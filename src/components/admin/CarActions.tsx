@@ -22,7 +22,7 @@ export function PostToSocial({ car, className, short = false }: { car: Car; clas
   const at = short && "xl";
   if (!forSale(car)) return null; // the composer offers only cars for sale: a hidden car, a draft or a sold one would be dropped there
   return (
-    <Link href={`/dashboard/marketing/new?car=${encodeURIComponent(car.slug)}`} title="Post to Facebook and Instagram" className={className}>
+    <Link href={`/dashboard/marketing/new?car=${encodeURIComponent(car.slug)}`} title="Post to Facebook and Instagram" aria-label={`Post to social: ${carName(car)}`} className={className}>
       <ShareIcon className="size-4 shrink-0" />
       {words("Post to social", at)}
     </Link>
@@ -34,10 +34,9 @@ export function ViewOnSite({ car, className, short = false }: { car: Car; classN
   const at = short && "2xl";
   if (car.listing) return null;
   return (
-    <a href={carHref(car.slug)} {...NEW_TAB} title="Open the car's page on your website" className={className}>
+    <a href={carHref(car.slug)} {...NEW_TAB} title="Open the car's page on your website" aria-label={`View on the website: ${carName(car)} (opens in a new tab)`} className={className}>
       <ExternalIcon className="size-4 shrink-0" />
       {words("View on the website", at)}
-      <span className="sr-only"> (opens in a new tab)</span>
     </a>
   );
 }
