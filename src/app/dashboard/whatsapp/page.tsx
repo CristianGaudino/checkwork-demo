@@ -39,7 +39,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ n
   const mayEditAll = await can("settings");
   const mayBill = await can("billing");
   const allowed = eventsFor(modules);
-  // Every alert, the ones the plan has first, each with the module it comes with.
+  // Every alert, each with the module it comes with.
   const events = EVENT_IDS.map((e) => ({ id: e, module: MODULES.find((m) => m.id === EVENTS[e].module)! }));
   const note = notice ? NOTICES[notice] : undefined;
 

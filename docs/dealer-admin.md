@@ -275,7 +275,7 @@ or provider's name), and the bills. With `SHOW_PRICING` false the page shows onl
 term, the writing quality and the billing details, with no euro. On a year paid upfront the month's estimated bill is the usage only. Every change is written to the activity log. Rules and maths: `src/lib/billing/bills-rules.ts`
 (unit tested); the bills are a seeded collection, `src/lib/billing/bills.ts`. There is no PDF and no download: invoices come from the
 payment provider chosen at clone time and are emailed when issued. Billing details (company, VAT number, address, email) are the
-Owner's, stored in settings as `billingDetails`. "Ask us to add" sends a Help request of type "Add to my plan"; it switches nothing on.
+Owner's, stored in settings as `billingDetails`.
 
 `/dashboard/help` is for every team member: our phone, email and WhatsApp, a message form (Question, Something isn't working with steps
 and an optional screenshot, Request a change, Feedback or an idea, Billing and Add to my plan for the Owner and Manager), their own requests
