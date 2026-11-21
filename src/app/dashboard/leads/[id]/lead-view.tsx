@@ -1,4 +1,4 @@
-import { enabledModules, hasModule } from "@/lib/modules";
+import { hasModule } from "@/lib/modules";
 import { onPublicSite } from "@/lib/stock/types";
 import { sourceText } from "@/lib/visit-rules";
 import { NEW_TAB } from "@/components/ui";

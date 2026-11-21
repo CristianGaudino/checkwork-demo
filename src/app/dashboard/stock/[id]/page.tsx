@@ -22,7 +22,7 @@ import { carName, priceLabel } from "@/lib/stock/format";
 import { stockSource } from "@/lib/stock-source";
 import { forSale, isReduced, onPublicSite } from "@/lib/stock/types";
 import { deleteCarAction, saveCostAction } from "../actions";
-import { enabledModules, hasModule } from "@/lib/modules";
+import { hasModule } from "@/lib/modules";
 
 export const metadata = { title: "Edit car" };
 

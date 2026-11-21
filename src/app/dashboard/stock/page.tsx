@@ -23,7 +23,7 @@ import { FEW_PHOTOS, STOCK_VIEWS, parseStockList, stockList, type StockView } fr
 import { salesStore } from "@/lib/admin/collections";
 import { syncStatus } from "@/lib/donedeal/sync";
 import { toggleSoldAction, withdrawnAction } from "./actions";
-import { enabledModules, hasModule } from "@/lib/modules";
+import { hasModule } from "@/lib/modules";
 
 export const metadata = { title: "Stock" };
 
@@ -58,7 +58,6 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
   // Where a row goes: the car's editor here, or, for synced stock, the car on the site (it is changed on DoneDeal).
   // A synced car off the website (its ad came down) has no page there, so it opens here; so does every car with AI, to improve its description.
   const ai = synced && (await hasModule("ai"));
-  const mods = await enabledModules();
   const open = (c: Car) => (synced && !ai && onPublicSite(c) ? carHref(c.slug) : `/dashboard/stock/${c.id}`);
   const takenDown = synced ? all.filter((c) => c.takenDownAt) : [];
   const canUndo = await can("settings"); // undoing a sale is money going back: owners and managers
