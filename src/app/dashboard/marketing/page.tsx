@@ -123,7 +123,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
       <SummaryTabs
         label="Marketing"
         items={[
-          social && { label: "Posts and ads", count: fmtNum(posts.length + ads.length), hint: `${posts.filter((p) => p.status === "posted").length} posted, ${ads.filter((a) => a.status === "running").length} ads running`, href: "/dashboard/marketing?tab=posts", active: tab === "posts" },
+          social && { label: "Posts and ads", count: fmtNum(posts.length + ads.length), hint: `${posts.filter((p) => p.status === "posted" && !prepared(p)).length} posted, ${ads.filter((a) => a.status === "running").length} ads running`, href: "/dashboard/marketing?tab=posts", active: tab === "posts" },
           social && { label: "Calendar", count: fmtNum(posts.filter((p) => p.status === "scheduled").length), hint: "scheduled", href: "/dashboard/marketing?tab=calendar", active: tab === "calendar" },
           social && { label: "Media", count: fmtNum(library.length), hint: "photos and videos", href: "/dashboard/marketing?tab=media", active: tab === "media" },
           news && { label: "Newsletters", count: fmtNum(live), hint: "subscribers", href: "/dashboard/marketing?tab=newsletters", active: tab === "newsletters" },
@@ -202,7 +202,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
             <StatCard label="Posted in the last 30 days" value={fmtNum(recent.length)} />
             <StatCard label="People who saw them" value={fmtNum(recent.reduce((n, p) => n + (p.reach ?? 0), 0))} />
             <StatCard label="Clicks to your site" value={fmtNum(recent.reduce((n, p) => n + (p.clicks ?? 0), 0))} />
-            <StatCard label="Leads from ads" value={fmtNum(ads.filter((a) => a.createdAt >= since).reduce((n, a) => n + a.leads, 0))} hint="From ads started in the last 30 days" href="/dashboard/marketing?show=ad" />
+            <StatCard label="Leads from ads" value={fmtNum(ads.filter((a) => (a.startedAt ?? a.createdAt) >= since).reduce((n, a) => n + a.leads, 0))} hint="From ads started in the last 30 days" href="/dashboard/marketing?show=ad" />
           </StatGrid>
 
           <TableToolbar filters={filters} />

@@ -63,7 +63,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
         return b ? <span className="flex flex-col"><span className="line-clamp-2">{b.car}</span><span className="text-meta text-text-2">{fmtDate(`${b.on}T12:00:00Z`)}</span></span> : <span className="text-text-2">Nothing yet</span>;
       },
     },
-    { key: "open", header: "Open for them", hide: "sm", sort: (c) => open.get(c.id)?.length ?? 0, cell: (c) => <span className="flex flex-wrap gap-1">{(open.get(c.id) ?? []).map((w) => <Badge key={w} tone="info">{w}</Badge>)}</span> },
+    { key: "open", header: "Deposit, claim or order", hide: "sm", sort: (c) => open.get(c.id)?.length ?? 0, cell: (c) => <span className="flex flex-wrap gap-1">{(open.get(c.id) ?? []).map((w) => <Badge key={w} tone="info">{w}</Badge>)}</span> },
     { key: "source", header: "Came from", sort: (c) => c.source, cell: (c) => <BrandName name={c.source} />, hide: "2xl" },
     { key: "consent", header: "Marketing", hide: "xl", sort: (c) => (c.marketingConsent ? 0 : 1), cell: (c) => (c.marketingConsent ? <Badge tone="good">Agreed</Badge> : <Badge>No</Badge>) },
     { key: "last", header: "Last contact", sort: (c) => c.lastContactAt, cell: (c) => fmtAgo(c.lastContactAt), align: "right", nowrap: true },

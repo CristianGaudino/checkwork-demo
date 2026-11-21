@@ -43,7 +43,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const theirLeads = qs.length ? leads.filter((l) => matchesAny(l, qs)).sort((a, b) => b.createdAt - a.createdAt) : [];
   const theirDrives = qs.length ? drives.filter((d) => matchesAny(d, qs)).sort((a, b) => b.startsAt - a.startsAt) : [];
   const none = (what: string) => <p className="text-body text-text-2">{what}</p>;
-  const leadHref = (l: { id: string; type: string }) => (l.type === "warranty" ? `/dashboard/aftersales/requests/${l.id}` : `/dashboard/leads/${l.id}`);
+  const leadHref = (l: { id: string; type: string }) => (l.type === "warranty" && service ? `/dashboard/aftersales/requests/${l.id}` : `/dashboard/leads/${l.id}`);
 
   // What is still open for them, as tasks to open. Soonest needs first: a drive coming up, a lead to answer, then the longer-running ones.
   const openDrives = drivesOn ? theirDrives.filter((d) => isOpenDrive(d) && dublinDay(d.startsAt) >= today).reverse() : [];

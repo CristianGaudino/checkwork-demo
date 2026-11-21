@@ -66,8 +66,8 @@ export default async function Page() {
   const costs = (await can("margins")) ? new Map([...(await carCosts())].map(([id, c]) => [id, c.total])) : null;
   const o = overview({ leads: leads.filter(isSalesLead), drives, reviews, cars: all, costs: costs ? new Set(costs.keys()) : undefined, sales: new Set(sales.map((s) => s.id)), reservations, orders, syncProblem: Boolean(sync?.problem), slaHours: settings.leadSlaHours });
   // What a module that is off would show goes with it (#173): its buttons, figures and to-dos.
-  // Orders are our version only: with DoneDeal stock the Orders page is not there, so its to-do goes too.
-  const attention = o.attention.filter((a) => (!MODULE_OF[a.key] || mods.has(MODULE_OF[a.key])) && !(synced && a.key === "orders"));
+  // Orders and deposits are our version only: with DoneDeal stock their pages are not there, so their to-dos go too.
+  const attention = o.attention.filter((a) => (!MODULE_OF[a.key] || mods.has(MODULE_OF[a.key])) && !(synced && (a.key === "orders" || a.key === "deposits")));
   const margin = costs ? cars.filter((c) => costs.has(c.id) && !onRequest(c)).reduce((s, c) => s + marginOf(c.priceEur, costs.get(c.id)!).eur, 0) : 0;
   const drivesOn = mods.has("testDrives");
   const today = dublinDay();

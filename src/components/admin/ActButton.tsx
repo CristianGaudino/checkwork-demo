@@ -15,6 +15,8 @@ export type Confirm = { title: string; text?: string; yes: string; safe?: boolea
 // An action that redirects (a delete that leaves the page) goes there itself; the toast is for the actions that stay.
 // The dialog is made when asked for, in the page's body, so a button inside a menu that closes (RowMenu) can still ask.
 // `pressed`: the button is one choice of a few (a status, who has it) and this is the one now; choosing it again does nothing.
+const errorOf = (r: unknown) => (r && typeof r === "object" && "error" in r && typeof r.error === "string" ? r.error : undefined);
+
 export function ActButton({ act, undo, done, confirm, label, pressed, className, children }: { act: () => Promise<unknown>; undo?: () => Promise<unknown>; done?: string; confirm?: Confirm; label?: string; pressed?: boolean; className: string; children: React.ReactNode }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -23,10 +25,16 @@ export function ActButton({ act, undo, done, confirm, label, pressed, className,
     start(async () => {
       const r = await act();
       router.refresh();
-      // An action that refused says why ({ error }); the toast says that, never `done`.
-      const error = r && typeof r === "object" && "error" in r && typeof r.error === "string" ? r.error : undefined;
+      // An action that refused says why ({ error }); the toast says that, never `done`. Undo too: refused, it says why.
+      const error = errorOf(r);
       if (error) showToast(error);
-      else if (done) showToast(done, undo && (() => start(async () => void (await undo(), router.refresh()))));
+      else if (done)
+        showToast(done, undo && (() => start(async () => {
+          const back = await undo();
+          router.refresh();
+          const e = errorOf(back);
+          if (e) showToast(e);
+        })));
     });
   return (
     <>

@@ -212,7 +212,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
 
   // What needs doing about the stock, at the top, each with the button that does it. A sale is asked for while it is recent, as the
   // overview does; photos and price drops for the cars still to sell. Drafts only in our version (DoneDeal stock has none).
-  const toRecord = all.filter((c) => isSold(c) && !sales.has(c.id) && daysSince(c.soldAt!) <= SALE_NUDGE_DAYS);
+  const toRecord = all.filter((c) => isSold(c) && !sales.has(c.id) && daysSince(c.soldAt!) <= SALE_NUDGE_DAYS).sort((a, b) => a.soldAt!.localeCompare(b.soldAt!));
   const needPhotos = all.filter((c) => !isSold(c) && c.photos.length < FEW_PHOTOS);
   const old = all.filter((c) => STOCK_VIEWS.old.test(c));
   const drafts = synced ? [] : all.filter((c) => c.listing === "draft" && !isSold(c));
@@ -220,9 +220,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
   // The why under each task is for a laptop: on a phone the task and its button, so the cars are on the first screen.
   const phoneless = (text: string) => <span className="max-sm:hidden">{text}</span>;
   const todo = [
+    // One at a time, oldest first: the row and its button open the next sale to record, so the count and the page behind it agree.
     toRecord.length > 0 && (
-      <Task key="sale" urgency="now" icon={<ReceiptIcon />} count={toRecord.length} title={one(toRecord, "sold cars with no sale recorded", "sold car with no sale recorded")} detail={phoneless("Add the buyer and the price, so your reports are right.")} href={href("sold")}
-        action={toRecord.length === 1 ? <Link href={`/dashboard/stock/${toRecord[0].id}/sale`} className={rowButton}>Record sale</Link> : <Link href={href("sold")} className={rowButton}>Record sales</Link>} />
+      <Task key="sale" urgency="now" icon={<ReceiptIcon />} count={toRecord.length} title={one(toRecord, "sold cars with no sale recorded", "sold car with no sale recorded")} detail={phoneless("Add the buyer and the price, so your reports are right.")} href={`/dashboard/stock/${toRecord[0].id}/sale`}
+        action={<Link href={`/dashboard/stock/${toRecord[0].id}/sale`} aria-label={`Record sale: ${carName(toRecord[0])}`} className={rowButton}>Record sale</Link>} />
     ),
     !synced && needPhotos.length > 0 && (
       <Task key="photos" urgency="soon" icon={<CameraIcon />} count={needPhotos.length} title={one(needPhotos, "cars need more photos", "car needs more photos")} detail={phoneless(`Cars with ${FEW_PHOTOS} or more photos get more enquiries.`)} href={href("photos")}

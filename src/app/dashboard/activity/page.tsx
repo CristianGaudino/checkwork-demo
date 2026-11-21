@@ -7,7 +7,7 @@ import { perPage } from "@/lib/admin/paging";
 import { ACTIVITY_AREAS, AREA_LABELS, PERSONAL_KINDS, listActivity, type ActivityArea, type ActivityEntry } from "@/lib/admin/activity";
 import { refView } from "@/lib/admin/activity-refs";
 import { alertsStore, drivesStore, leadsStore, reviewsStore, subscribersStore } from "@/lib/admin/collections";
-import { addDays, dublinDay, fmtDateTime, fmtDay, fmtNum, fmtTime } from "@/lib/admin/format";
+import { addDays, dublinDay, fmtDateTime, fmtDay, fmtNum, fmtTime, dublinMs } from "@/lib/admin/format";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { can } from "@/lib/permissions";
 import { DAY } from "@/lib/time";
@@ -22,7 +22,8 @@ const PERIODS = [
 ] as const;
 type Params = { area?: string; who?: string; period?: string; page?: string; per?: string };
 // The start of a period, from now. Out of the component, like the stock page's days in stock: a page rendered per request.
-const sinceOf = (span: number, now = Date.now()) => (span ? now - span : undefined);
+// Today is the Irish calendar day, from midnight, so it matches the Today heading; the others are rolling.
+const sinceOf = (key: string, span: number, now = Date.now()) => (key === "today" ? dublinMs(dublinDay(now), "00:00") : span ? now - span : undefined);
 
 // Owners and managers only (the "activity" permission). Without it the page is not there: a hidden link is never the only protection.
 export default async function Page({ searchParams }: { searchParams: Promise<Params> }) {
@@ -32,7 +33,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
   const period = PERIODS.find(([k]) => k === sp.period) ?? PERIODS[3];
   const askedPage = Math.max(1, Number.parseInt(sp.page ?? "1", 10) || 1);
   const size = perPage(sp.per);
-  const since = sinceOf(period[2]);
+  const since = sinceOf(period[0], period[2]);
   const first = await listActivity({ area, actor: sp.who || undefined, since }, askedPage, size);
   const actor = first.actors.includes(sp.who ?? "") ? sp.who : undefined; // an unknown name is dropped, like a bad filter elsewhere
   const pageCount = Math.max(1, Math.ceil(first.total / size));

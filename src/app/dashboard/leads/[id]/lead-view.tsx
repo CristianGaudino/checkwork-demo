@@ -1,3 +1,4 @@
+import { hasModule } from "@/lib/modules";
 import { sourceText } from "@/lib/visit-rules";
 import { NEW_TAB } from "@/components/ui";
 import Link from "next/link";
@@ -59,7 +60,7 @@ export async function LeadView({ id }: { id: string }) {
         title={lead.name}
         text={`${LEAD_TYPE_LABELS[lead.type]} · ${sourceText(lead)} · ${fmtDateTime(lead.createdAt)}`}
         // A warranty request is aftersales work: it is listed there, so the way back is there.
-        back={lead.type === "warranty" ? { href: "/dashboard/aftersales?view=requests", label: "Aftersales" } : { href: "/dashboard/leads", label: "Leads" }}
+        back={lead.type === "warranty" && (await hasModule("service")) ? { href: "/dashboard/aftersales?view=requests", label: "Aftersales" } : { href: "/dashboard/leads", label: "Leads" }}
       />
       {/* The top answers what a call starts with: what they asked, how to reach them, and what happens next. */}
       <Panel>
