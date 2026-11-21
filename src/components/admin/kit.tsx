@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { useId } from "react";
-import { card, press } from "@/components/ui";
+import { NEW_TAB, card, press } from "@/components/ui";
 import { Tween } from "@/components/Tween";
 import { AppliedFilters, DensityToggle, Filters, LiveSearch, SortHeader, type FilterGroup } from "./TableTools";
 import { PER_PAGE_DEFAULT, perPage } from "@/lib/admin/paging";
 import { fmtNum } from "@/lib/admin/format";
-import { ChevronLeftIcon } from "@/components/stock/icons";
+import { ChevronLeftIcon, ChevronRightIcon } from "@/components/stock/icons";
 export { TableFooter, type FilterGroup } from "./TableTools";
 
 // The admin kit: the few pieces every admin page is made of. Same tokens as the site, denser and calmer.
@@ -33,19 +33,25 @@ export function PageHeader({ title, text, actions, back }: { title: string; text
   );
 }
 
-// A titled panel is a region named by its heading, so a screen reader can jump to it. Two kinds: the work of the page (raised, the default),
-// and `quiet` for what sits beside it (details, settings of the record): flat on a tint, so the eye goes to the work first.
-export function Panel({ title, count, action, children, className = "", quiet = false }: { title?: string; count?: number; action?: React.ReactNode; children: React.ReactNode; className?: string; quiet?: boolean }) {
+// A titled panel is a region named by its heading, so a screen reader can jump to it. Three kinds: the work of the page (raised, the
+// default); `quiet` for what sits beside it (details, settings of the record), flat on a tint, so the eye goes to the work first; and
+// `plain`, no frame at all, for a supporting block of a heading and a few lines (a card would make it look as important as the work).
+// `text`: one short line under the title, when the title alone cannot say what the panel is for.
+export function Panel({ title, text, count, action, children, className = "", quiet = false, plain = false }: { title?: string; text?: string; count?: number; action?: React.ReactNode; children: React.ReactNode; className?: string; quiet?: boolean; plain?: boolean }) {
   const id = useId();
+  const frame = plain ? "" : quiet ? "rounded-card border border-hairline bg-row-alt p-5" : `${card} p-5`;
   return (
-    <section aria-labelledby={title ? id : undefined} className={`${quiet ? "rounded-card border border-hairline bg-row-alt" : card} flex min-w-0 flex-col gap-4 p-5 ${className}`}>
+    <section aria-labelledby={title ? id : undefined} className={`${frame} flex min-w-0 flex-col gap-4 ${className}`}>
       {(title || action) && (
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex items-start justify-between gap-3">
           {title && (
-            <h2 id={id} className="text-section font-semibold">
-              {title}
-              {count !== undefined && <span className="ml-2 font-normal text-text-2 tabular-nums">{count}</span>}
-            </h2>
+            <div className="flex min-w-0 flex-col gap-0.5">
+              <h2 id={id} className="text-section font-semibold">
+                {title}
+                {count !== undefined && <span className="ml-2 font-normal text-text-2 tabular-nums">{count}</span>}
+              </h2>
+              {text && <p className="text-meta text-text-2">{text}</p>}
+            </div>
           )}
           {action}
         </div>
@@ -55,8 +61,29 @@ export function Panel({ title, count, action, children, className = "", quiet = 
   );
 }
 
+// A page in two columns from 1280px: the work on the left, wider, and `aside` (what supports it) on the right. Under 1280px one column,
+// the aside after the work.
+export function Columns({ children, aside }: { children: React.ReactNode; aside: React.ReactNode }) {
+  return (
+    <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+      <div className="flex min-w-0 flex-col gap-6">{children}</div>
+      <div className="flex min-w-0 flex-col gap-6">{aside}</div>
+    </div>
+  );
+}
+
+// The link in a panel's corner to the whole list behind it ("All leads"): one look for it everywhere.
+export function PanelLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <Link href={href} className="inline-flex min-h-11 shrink-0 items-center gap-0.5 text-meta font-medium text-accent-text hover:underline">
+      {children}
+      <ChevronRightIcon aria-hidden="true" className="size-4" />
+    </Link>
+  );
+}
+
 // With `href` the whole tile is a link to the page behind the number. `tone` colours the hint only when it says something good or to act on.
-// A tile is a number: a chart belongs in its own panel (the overview's LeadsByWeek).
+// A tile is a number: a chart belongs in its own panel (Analytics).
 export function StatCard({ label, value, hint, tone, href }: { label: string; value: string; hint?: string; tone?: "good" | "bad" | "warn"; href?: string }) {
   const body = (
     <>
@@ -104,12 +131,15 @@ export function Badge({ tone = "neutral", strong = false, children }: { tone?: T
   return <span className={`inline-flex h-6 items-center whitespace-nowrap rounded-full px-2.5 text-meta font-medium ${look}`}>{children}</span>;
 }
 
-export function EmptyState({ title, text, action }: { title: string; text?: string; action?: React.ReactNode }) {
+// Nothing to show: what that means and, with `action`, the button for the next step. `icon` sits above the title in a soft circle.
+// `compact`: inside a panel beside others (the overview's lists), where a tall empty block would leave a hole.
+export function EmptyState({ title, text, action, icon, compact = false }: { title: string; text?: string; action?: React.ReactNode; icon?: React.ReactNode; compact?: boolean }) {
   return (
-    <div className="flex flex-col items-center gap-2 px-4 py-12 text-center">
-      <p className="text-heading font-semibold">{title}</p>
+    <div className={`flex flex-col items-center gap-2 px-4 text-center ${compact ? "py-6" : "py-12"}`}>
+      {icon && <span aria-hidden="true" className="mb-1 grid size-12 place-items-center rounded-full bg-row-alt text-text-2 [&>svg]:size-6">{icon}</span>}
+      <p className={`${compact ? "text-body" : "text-heading"} font-semibold`}>{title}</p>
       {text && <p className="max-w-[45ch] text-body text-text-2">{text}</p>}
-      {action}
+      {action && <div className="mt-2 flex flex-wrap justify-center gap-2">{action}</div>}
     </div>
   );
 }
@@ -328,3 +358,73 @@ export function Avatar({ name, className = "" }: { name: string; className?: str
 // One choice among several, as a button that posts on its own: a server action gets the `name` and `value`. The chosen one is filled.
 // A choice among a few (a status, who has it), filled when it is the one now. ChoiceAct (ActButton.tsx) runs it with Undo in its toast.
 export const choicePill = (active: boolean) => `inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-meta font-medium ${active ? "border-text bg-text text-ink" : "border-control bg-card text-text"} ${press}`;
+
+// What needs doing, as a list a person works down: each row says what it is, why it matters now (`detail`) and has the button that does
+// it (`action`), so nobody has to work out where to go. The marker on the left is the urgency: `now` (red) is late or due today, `soon`
+// (amber) is coming up, `info` is worth knowing. The row's own link (`href`) opens the thing; the action sits above it and is what a press
+// on it hits. Inside a Panel, or on its own as the page's first block.
+const TASK_MARK = { now: "bg-bad", soon: "bg-warn", info: "bg-hairline" } as const;
+const TASK_ICON = { now: "bg-bad-soft text-bad", soon: "bg-warn-soft text-warn", info: "bg-row-alt text-text-2" } as const;
+export type TaskUrgency = keyof typeof TASK_MARK;
+export function TaskList({ children, label }: { children: React.ReactNode; label?: string }) {
+  return (
+    <ul aria-label={label} className="-mx-1 flex flex-col divide-y divide-hairline">
+      {children}
+    </ul>
+  );
+}
+// `mark`: a small mark before the title, on every screen (a network's logo), where `icon` is the big one from 640px.
+export function Task({ title, detail, href, action, icon, mark, urgency = "info", count }: { title: string; detail?: React.ReactNode; href?: string; action?: React.ReactNode; icon?: React.ReactNode; mark?: React.ReactNode; urgency?: TaskUrgency; count?: number }) {
+  return (
+    // On a phone the buttons drop under the words when both do not fit, so a name is never squeezed to a word a line.
+    <li className="relative flex min-h-16 flex-wrap items-center gap-x-3 gap-y-2 py-3 pl-4 pr-1 transition-colors has-[>a:hover]:bg-surface">
+      <span aria-hidden="true" className={`absolute inset-y-3 left-0 w-1 rounded-full ${TASK_MARK[urgency]}`} />
+      {icon && <span aria-hidden="true" className={`hidden size-10 shrink-0 place-items-center sm:grid rounded-control [&>svg]:size-5 ${TASK_ICON[urgency]}`}>{icon}</span>}
+      <span className="flex min-w-[min(12rem,100%)] flex-1 flex-col">
+        <span className={`font-medium ${mark ? "inline-flex items-center gap-1.5" : ""}`}>
+          {mark}
+          {count !== undefined && <span className="mr-1.5 tabular-nums">{fmtNum(count)}</span>}
+          {title}
+        </span>
+        {detail && <span className="text-meta text-text-2">{detail}</span>}
+      </span>
+      {href && <Link href={href} aria-label={count !== undefined ? `${count} ${title}` : title} className="absolute inset-0" />}
+      {action && <span className="relative z-10 ml-auto flex shrink-0 flex-wrap justify-end gap-2">{action}</span>}
+    </li>
+  );
+}
+
+// The page's main jobs as big buttons, each an icon, a verb and one line on what it is for: what a person who has never used the dashboard
+// presses first. Two across on a phone, up to four across from 640px. The first is the page's primary job and is filled.
+export function ActionTiles({ children, label = "Quick actions" }: { children: React.ReactNode; label?: string }) {
+  return (
+    <nav aria-label={label} className="grid grid-cols-2 gap-3 sm:grid-cols-[repeat(auto-fit,minmax(12rem,1fr))]">
+      {children}
+    </nav>
+  );
+}
+// `external`: another site (DoneDeal), opened in a new tab and said so to screen readers.
+export function ActionTile({ href, icon, label, text, primary = false, external = false }: { href: string; icon: React.ReactNode; label: string; text?: string; primary?: boolean; external?: boolean }) {
+  const className = `flex min-h-24 flex-col justify-between gap-3 rounded-card border p-4 transition-colors ${primary ? "border-accent bg-accent text-on-accent" : `${card} hover:border-control`} ${press}`;
+  const body = (
+    <>
+      <span aria-hidden="true" className={`grid size-10 place-items-center rounded-control [&>svg]:size-5 ${primary ? "bg-card text-accent-text" : "bg-row-alt text-accent-text"}`}>{icon}</span>
+      <span className="flex flex-col">
+        <span className="font-semibold">
+          {label}
+          {external && <span className="sr-only"> (opens in a new tab)</span>}
+        </span>
+        {text && <span className={`text-meta ${primary ? "" : "text-text-2"}`}>{text}</span>}
+      </span>
+    </>
+  );
+  return external ? (
+    <a href={href} {...NEW_TAB} className={className}>
+      {body}
+    </a>
+  ) : (
+    <Link href={href} className={className}>
+      {body}
+    </Link>
+  );
+}

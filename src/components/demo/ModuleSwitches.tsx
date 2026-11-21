@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { isAppPath } from "@/lib/demo";
 import { useEffect, useId, useRef, useState } from "react";
-import { setDemoModules, setDemoRole, useModules } from "@/lib/demo-role";
+import { setDemoModules, useModules } from "@/lib/demo-role";
 import { MODULES, MODULE_IDS, withModule, withoutModule, type ModuleId } from "@/lib/modules-rules";
 import { MODULE_EUR, TIERS, SHOW_PRICING, eur, planFor, setupEur, switchTier } from "@/lib/billing/rules";
 import { press } from "@/components/ui";
@@ -33,7 +33,6 @@ export function ModuleSwitches({ chip, inline = false }: { chip: string; inline?
     const list = [...next];
     setDropped(note);
     setDemoModules(list);
-    if (list.includes("dashboard")) setDemoRole("dealer"); // choosing a plan is the dealer's act, so the switch stays in view
     // Without the dashboard the dealer area is gone (404), so the demo goes to the site's home page.
     if (isAppPath(path) && !list.includes("dashboard")) router.replace("/"); // replace: Back would bring the dealer area back on a plan without it
     else router.refresh();

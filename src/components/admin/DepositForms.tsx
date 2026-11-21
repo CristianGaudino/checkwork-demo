@@ -3,7 +3,7 @@
 import { useKeptForm } from "@/components/admin/useKeptForm";
 import { useState } from "react";
 import { Select } from "@/components/Select";
-import { Choice, Field, adminButton, adminInput } from "@/components/admin/kit";
+import { Choice, Field, adminButton, adminButtonQuiet, adminInput } from "@/components/admin/kit";
 import { BuyerFields } from "@/components/admin/BuyerFields";
 import { endReservationAction, reserveAction, undoSaleAction } from "@/app/dashboard/stock/actions";
 import { DEPOSIT_METHODS } from "@/lib/admin/deposits";
@@ -55,7 +55,7 @@ export function EndReservationForm({ carId, depositEur }: { carId: string; depos
         </Field>
       )}
       <div className={full}>
-        <button type="submit" disabled={pending} className={adminButton}>{pending ? "Saving" : "End reservation"}</button>
+        <button type="submit" disabled={pending} className={adminButtonQuiet}>{pending ? "Saving" : "End reservation"}</button>
       </div>
     </form>
   );

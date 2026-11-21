@@ -20,7 +20,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ r
   const cost = (await can("margins")) ? {} : undefined;
   return (
     <>
-      <PageHeader title="Add a car" back={{ href: "/dashboard/stock", label: "Stock" }} />
+      <PageHeader title="Add a car" text="Look up the registration, add photos, then check the details and the price." back={{ href: "/dashboard/stock", label: "Stock" }} />
       <CarForm cost={cost} photosMax={CAR_PHOTOS_MAX} reg={((await searchParams).reg ?? "").toUpperCase().replace(/[^A-Z0-9-]/g, "").slice(0, 12)} />
     </>
   );

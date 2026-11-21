@@ -17,7 +17,7 @@ test("sales and finance have no Activity page; owners and managers do", async ({
     await page.goto("/dashboard");
     await (await sideLink(page, "Activity")).click();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Activity");
-    expect(await page.getByRole("table").getByRole("row").count()).toBeGreaterThan(10); // the demo's history, not empty
+    expect(await page.getByRole("region", { name: "Changes" }).getByRole("listitem").count()).toBeGreaterThan(10); // the demo's history, not empty
   }
 });
 
@@ -32,7 +32,7 @@ test("a change shows at the top, by the person who made it, and the filters narr
   await expect(page.getByLabel(`Role for ${name}`)).toBeVisible();
 
   await page.goto("/dashboard/activity?area=settings");
-  const row = page.getByRole("row").filter({ hasText: `Added ${name} to the team as Sales` });
+  const row = page.getByRole("listitem").filter({ hasText: `Added ${name} to the team as Sales` });
   await expect(row).toContainText("Aoife Brennan");
   await expect(row.getByRole("link", { name })).toHaveAttribute("href", "/dashboard/settings?section=team");
   await expect(page.getByRole("navigation", { name: "Area" }).getByRole("link", { name: /Settings/ })).toHaveAttribute("aria-current", "true");
@@ -41,7 +41,7 @@ test("a change shows at the top, by the person who made it, and the filters narr
   await page.getByRole("radio", { name: "Conor Doyle" }).check();
   await expect(page).toHaveURL(/who=Conor/);
   await page.getByRole("button", { name: "Done", exact: true }).click();
-  await expect(page.getByRole("row").filter({ hasText: name })).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "Changes" }).getByRole("listitem").filter({ hasText: name })).toHaveCount(0);
   // A bad filter is ignored, not an error.
   expect((await page.request.get("/dashboard/activity?area=nope&who=nobody&period=x&page=999")).status()).toBe(200);
 
@@ -53,7 +53,7 @@ test("a change shows at the top, by the person who made it, and the filters narr
 
 test("a lead in the history is named from the lead itself, and links to it", async ({ page }) => {
   await page.goto("/dashboard/activity?area=leads");
-  const link = page.getByRole("table").getByRole("link").first();
+  const link = page.getByRole("region", { name: "Changes" }).getByRole("link").first();
   await expect(link).toHaveAttribute("href", /^\/dashboard\/leads\/lead-/);
   await link.click();
   await expect(page).toHaveURL(/\/dashboard\/leads\/lead-/);

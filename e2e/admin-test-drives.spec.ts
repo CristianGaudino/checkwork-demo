@@ -65,3 +65,11 @@ test("a booking is made in steps, and the same car's time is then taken", async 
   await expect(page.getByRole("button", { name: "11:00" })).toBeDisabled(); // that car is out then
   await expect(page.getByRole("button", { name: "12:00" })).toBeEnabled();
 });
+
+test("the picker opens on the car's first free time, never on a day with nothing left (#238)", async ({ page }) => {
+  await page.goto("/dashboard/test-drives/new");
+  await page.getByRole("main").locator("li > button[aria-pressed]").first().click();
+  // A time is chosen already, so Next works at once.
+  await expect(page.getByRole("button", { name: "Next", exact: true })).toBeEnabled();
+  await expect(page.getByText("No time left that day.")).toHaveCount(0);
+});

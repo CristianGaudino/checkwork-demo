@@ -5,7 +5,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@/components/stock/icons";
 import { press } from "@/components/ui";
 import { driveTimes } from "@/lib/leads/constants";
 import { fmtDay } from "@/lib/admin/format";
-import { slotState } from "@/lib/admin/slots";
+import { firstOpen, slotState } from "@/lib/admin/slots";
 
 
 // A test drive's day and time, picked rather than typed: a week of open days at a time, then that day's times. A time the car is already
@@ -16,6 +16,9 @@ export function SlotPicker({ days, taken, windowMin, now, date, time, onChange, 
   const shown = days.slice(week * 7, week * 7 + 7);
   const times = date ? driveTimes(date) : [];
   const states = times.map((t) => [t, slotState(date, t, taken, windowMin, now)] as const);
+  // A day with nothing left offers the next one that has a time (#238), and moves the week to it.
+  const next = date ? firstOpen(days, taken, windowMin, now, date) : undefined;
+  const go = (d: string, t: string) => (setWeek(Math.max(0, Math.floor(days.indexOf(d) / 7))), onChange(d, t));
   return (
     <div className="flex flex-col gap-5">
       <input type="hidden" name="date" value={date} />
@@ -57,7 +60,14 @@ export function SlotPicker({ days, taken, windowMin, now, date, time, onChange, 
         <fieldset className="flex flex-col gap-2">
           <legend className="mb-2 text-meta font-medium">Time on {fmtDay(date)}</legend>
           {states.every(([, s]) => s !== "open") ? (
-            <p className="text-body text-text-2">No time left that day. Pick another day.</p>
+            <div className="flex flex-col items-start gap-2">
+              <p className="text-body text-text-2">No time left that day.</p>
+              {next && (
+                <button type="button" onClick={() => go(next.date, next.time)} className="min-h-11 text-body font-semibold text-accent-text underline underline-offset-4">
+                  Next available: {fmtDay(next.date)}, {next.time}
+                </button>
+              )}
+            </div>
           ) : (
             <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-6">
               {states.map(([t, s]) => (

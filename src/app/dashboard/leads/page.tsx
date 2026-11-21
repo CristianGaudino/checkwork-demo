@@ -1,15 +1,21 @@
 import { sourceText } from "@/lib/visit-rules";
 import Link from "next/link";
 import { LeadStatusBadge } from "@/components/admin/badges";
-import { Avatar, Badge, DataTable, EmptyState, PageHeader, SummaryTabs, TableFooter, TableToolbar, pageOf, sortRows, type Column, type FilterGroup } from "@/components/admin/kit";
+import { Avatar, Badge, DataTable, EmptyState, PageHeader, Panel, SummaryTabs, TableFooter, TableToolbar, Task, TaskList, pageOf, sortRows, type Column, type FilterGroup, type TaskUrgency } from "@/components/admin/kit";
+import { NextStatusButton, ReachButton } from "@/components/admin/LeadActions";
+import { AlertIcon, CalendarIcon, InboxIcon } from "@/components/stock/icons";
 import { can } from "@/lib/permissions";
 import { LEAD_SOURCES, LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_TYPE_LABELS, getSettings, leadsStore, type Lead } from "@/lib/admin/collections";
 import { dublinDay, fmtAgo, fmtDate } from "@/lib/admin/format";
 import { SALES_LEAD_TYPES, countByStatus, filterLeads, followUpDue, isHotLead, isOpenLead, isSalesLead, parseLeadFilter, urgentFirst } from "@/lib/admin/leads";
 import { TOPICS, isUrgent, leadTags } from "@/lib/leads/contact-topics";
 import { enabledModules } from "@/lib/modules";
+import { BrandIcon } from "@/components/admin/BrandIcon";
 
 export const metadata = { title: "Leads" };
+
+// What each status means, in a few words under it.
+const STATUS_HINTS = { new: "Not answered yet", contacted: "Answered", appointment: "Coming in", won: "Bought", lost: "Did not buy" } as const;
 
 type Params = { status?: string; type?: string; topic?: string; q?: string; due?: string; late?: string; need?: string; with?: string; source?: string; sort?: string; dir?: string; page?: string; per?: string };
 
@@ -36,7 +42,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
             {l.name}
           </Link>
           <span className="truncate text-meta text-text-2">
-            {LEAD_TYPE_LABELS[l.type]} · {sourceText(l)}
+            {LEAD_TYPE_LABELS[l.type]} · <BrandIcon name={sourceText(l)} className="size-3.5 align-[-2px]" /> {sourceText(l)}
           </span>
           {l.topic && (
             <span className={`truncate text-meta ${l.status === "new" && isUrgent(l.answers ?? {}) ? "font-medium text-warn" : "text-text-2"}`}>{leadTags(l.topic, l.answers ?? {}).join(" · ")}</span>
@@ -75,8 +81,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
         </span>
       ),
     },
-    { key: "owner", header: "Who has it", hide: "lg", nowrap: true, sort: (l) => l.assignedTo, cell: (l) => (l.assignedTo ? <span className="inline-flex items-center gap-2"><Avatar name={l.assignedTo} />{l.assignedTo.split(" ")[0]}</span> : <span className="text-text-2">Nobody</span>) },
+    { key: "owner", header: "Who has it", hide: "xl", nowrap: true, sort: (l) => l.assignedTo, cell: (l) => (l.assignedTo ? <span className="inline-flex items-center gap-2"><Avatar name={l.assignedTo} />{l.assignedTo.split(" ")[0]}</span> : <span className="text-text-2">Nobody</span>) },
     { key: "when", header: "Received", sort: (l) => l.createdAt, cell: (l) => fmtAgo(l.createdAt), align: "right", nowrap: true, hide: "sm" }, // on a phone it is in the Who column
+    // The two things done most from the list: reach them the way they asked, and move it on a step. Above the row's link.
+    { key: "act", header: "Next step", quietHeader: true, hide: "md", nowrap: true, cell: (l) => <span className="relative z-10 flex justify-end gap-2">{isOpenLead(l) && <ReachButton lead={l} />}<NextStatusButton lead={l} /></span> },
   ];
   const ordered = sortRows(filterLeads(all, f, today, leadSlaHours), columns, sp, { key: "when", dir: "desc" });
   // Unless a column was chosen, the urgent new ones come first.
@@ -86,9 +94,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
   const rows = paged.rows;
   // Every filter in one panel: what kind of lead, whether it needs a reply, who has it, where it came from.
   const filters: FilterGroup[] = [
-    { name: "type", label: "Type", any: "Every type", options: SALES_LEAD_TYPES.map((t) => [t, LEAD_TYPE_LABELS[t]] as const) },
-    { name: "topic", label: "About", any: "Any topic", options: TOPICS.filter((t) => t.id !== "bought" && (!("module" in t) || modules.has(t.module))).map((t) => [t.id, t.label] as const) }, // "bought" is filed in Aftersales
-    { name: "need", label: "Needs a reply", any: "Any", options: [["due", `Follow-ups due (${due})`], ["late", `Past reply target (${late})`]] },
+    { name: "type", label: "What they want", any: "Anything", options: SALES_LEAD_TYPES.map((t) => [t, LEAD_TYPE_LABELS[t]] as const) },
+    { name: "topic", label: "Topic", any: "Any topic", options: TOPICS.filter((t) => t.id !== "bought" && (!("module" in t) || modules.has(t.module))).map((t) => [t.id, t.label] as const) }, // "bought" is filed in Aftersales
+    { name: "need", label: "Needs a reply", any: "Any", options: [["due", `Follow-up due (${due})`], ["late", `Waiting too long (${late})`]] },
     { name: "with", label: "Who has it", any: "Anyone", options: [["none", "Nobody"], ...team.map((t) => [t.name, t.name] as const)] },
     { name: "source", label: "Where it came from", any: "Any source", options: LEAD_SOURCES.map((s) => [s, s] as const) },
   ];
@@ -102,12 +110,66 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
     return `/dashboard/leads${qs ? `?${qs}` : ""}`;
   };
 
+  // What to answer now, worked down from the top: new leads waiting too long or in a hurry and follow-ups overdue, then the other new
+  // ones and today's follow-ups. On the plain list only: a filter or a search is looking for something else.
+  const filtered = Boolean(f.status || f.type || f.topic || f.q || f.due || f.late || f.with || f.source || (sp.page && sp.page !== "1"));
+  // The longest waiting first, as on the Overview: a new lead since it came in, a follow-up since the day it was due.
+  const waitingSince = (l: Lead) => (l.status === "new" ? l.createdAt : Date.parse(`${l.followUpOn}T00:00:00Z`));
+  const todo = all
+    .flatMap((l): { lead: Lead; why: string; urgency: TaskUrgency }[] => {
+      if (l.status === "new") {
+        const now = lateIds.has(l.id) || isHotLead(l);
+        const why = lateIds.has(l.id) ? `Came in ${fmtAgo(l.createdAt)}, past your reply time` : isHotLead(l) ? `In a hurry: ${leadTags(l.topic!, l.answers ?? {}).join(", ")}` : `New, came in ${fmtAgo(l.createdAt)}`;
+        return [{ lead: l, why, urgency: now ? "now" : "soon" }];
+      }
+      if (!followUpDue(l, today)) return [];
+      const late = l.followUpOn! < today;
+      return [{ lead: l, why: late ? `Follow-up was due ${fmtDate(`${l.followUpOn}T12:00:00Z`)}` : "Follow up today", urgency: late ? "now" : "soon" }];
+    })
+    .sort((a, b) => (a.urgency === b.urgency ? waitingSince(a.lead) - waitingSince(b.lead) : a.urgency === "now" ? -1 : 1));
+  const SHOWN = 8;
+
   return (
     <>
-      <PageHeader title="Leads" text="Everyone who got in touch. Open one to reply, set its status or give it to someone." />
+      <PageHeader title="Leads" text="Everyone who got in touch. Answer the ones at the top first." />
+      {!filtered && (
+        <Panel title="To answer now" count={todo.length}>
+          {todo.length === 0 ? (
+            <p className="text-body text-text-2">All caught up. No new leads and no follow-ups due.</p>
+          ) : (
+            <TaskList label="Leads to answer now">
+              {todo.slice(0, SHOWN).map(({ lead: l, why, urgency }) => (
+                <Task
+                  key={l.id}
+                  href={`/dashboard/leads/${l.id}`}
+                  urgency={urgency}
+                  icon={l.status !== "new" ? <CalendarIcon /> : urgency === "now" ? <AlertIcon /> : <InboxIcon />}
+                  title={`${l.name}: ${l.carTitle ?? LEAD_TYPE_LABELS[l.type]}`}
+                  detail={why}
+                  action={
+                    <>
+                      <ReachButton lead={l} />
+                      <span className="contents max-sm:hidden">
+                        <NextStatusButton lead={l} />
+                      </span>
+                    </>
+                  }
+                />
+              ))}
+            </TaskList>
+          )}
+          {todo.length > SHOWN && (
+            <p className="flex flex-wrap gap-x-4 text-meta text-text-2">
+              {todo.length - SHOWN} more waiting.
+              <Link href="/dashboard/leads?status=new" className="font-medium text-text underline">New leads ({counts.new})</Link>
+              {due > 0 && <Link href="/dashboard/leads?need=due" className="font-medium text-text underline">Follow-ups due ({due})</Link>}
+            </p>
+          )}
+        </Panel>
+      )}
       <SummaryTabs
         label="Lead status"
-        items={[{ label: "All", href: href({ status: undefined }), active: !f.status, count: all.length }, ...LEAD_STATUSES.map((s) => ({ label: LEAD_STATUS_LABELS[s], href: href({ status: s }), active: f.status === s, count: counts[s] }))]}
+        items={[{ label: "All", href: href({ status: undefined }), active: !f.status, count: all.length }, ...LEAD_STATUSES.map((s) => ({ label: LEAD_STATUS_LABELS[s], hint: STATUS_HINTS[s], href: href({ status: s }), active: f.status === s, count: counts[s] }))]}
       />
       <TableToolbar search={{ placeholder: "Search", label: "Search leads" }} filters={filters} />
       <DataTable label="Leads" linkRows rows={rows} rowKey={(l) => l.id} columns={columns} sort={sp.sort ? sort : { key: "", dir: "desc" }} empty={<EmptyState title="No leads match" text="Try another filter or search." />} />

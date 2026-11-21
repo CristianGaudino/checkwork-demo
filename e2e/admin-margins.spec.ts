@@ -40,7 +40,7 @@ test("the demo bar's role decides what the dealer sees, the owner by default", a
   await bar.getByRole("link", { name: "Dealer" }).click();
   await expect(role).toHaveValue("Owner");
   await page.goto("/dashboard");
-  const margins = page.getByRole("navigation", { name: "Dealer dashboard" }).getByRole("link", { name: "Margins", exact: true });
+  const margins = await sideLink(page, "Margins"); // opens its group, which stays open as the role changes
   await expect(margins).toBeVisible();
   await role.selectOption("Sales");
   await expect(margins).toHaveCount(0);
@@ -50,13 +50,13 @@ test("the demo bar's role decides what the dealer sees, the owner by default", a
 
 test("only an owner or manager changes the team and the settings; a manager cannot change an owner", async ({ page, context }) => {
   await as(context, "Sales");
-  await page.goto("/dashboard/settings");
+  await page.goto("/dashboard/settings?section=targets");
   await expect(page.getByText("Only an owner or manager can change these settings.")).toBeVisible();
   await expect(page.getByLabel("Reply to a new lead within (hours)")).toHaveCount(0); // read only: the value as text
   await page.goto("/dashboard/settings?section=team");
   await expect(page.getByRole("button", { name: "Remove" })).toHaveCount(0);
   await as(context, "Manager");
-  await page.goto("/dashboard/settings");
+  await page.goto("/dashboard/settings?section=targets");
   await expect(page.getByLabel("Reply to a new lead within (hours)")).toBeEnabled();
   await page.goto("/dashboard/settings?section=team");
   await expect(page.getByLabel("Role for Conor Doyle")).toBeVisible();

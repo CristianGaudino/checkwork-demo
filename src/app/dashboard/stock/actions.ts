@@ -27,6 +27,7 @@ import { LISTING_SITE } from "@/lib/stock-source-rules";
 import { requireStaff } from "@/lib/staff";
 import { requireModule } from "@/lib/modules";
 import { alertNewIn, alertStaff } from "@/lib/whatsapp/alerts";
+import { STALE_STATUS, changedSince } from "@/lib/admin/stale";
 
 const carRef = (c: Car) => ({ kind: "car" as const, id: c.id, label: carTitleOf(c) });
 
@@ -105,12 +106,15 @@ export async function toggleSoldAction(id: string) {
 // On or off the website: publish a draft, hide a car, show it again. Anyone on the team (deleting is for managers). Our version only:
 // DoneDeal stock is shown or hidden there. Undone from the toast by calling it again with the old state.
 const LISTINGS = { live: "Put it on the website", hidden: "Hid it from the website", draft: "Made it a draft" } as const;
-export async function setListingAction(id: string, to: string) {
+// `from`: the state the button showed ("live", "hidden", "draft"); a press from a page loaded before a colleague changed it is refused.
+export async function setListingAction(id: string, to: string, from?: string) {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   if (!Object.hasOwn(LISTINGS, to) || (await readOnly())) return;
   const car = await adminCar(id);
   const listing = to === "live" ? undefined : (to as "hidden" | "draft");
-  if (!car || car.listing === listing) return;
+  if (!car) return;
+  if (changedSince(from, car.listing ?? "live")) return { error: STALE_STATUS };
+  if (car.listing === listing) return;
   await saveCar({ ...car, listing, listedAt: listedOn(car, !listing, dublinDay()) });
   await logActivity("stock", LISTINGS[to as keyof typeof LISTINGS], carRef(car));
   if (!listing && car.listing && !car.listedAt) await alertNewIn(car); // on the website for the first time (a draft, or an arrived order)

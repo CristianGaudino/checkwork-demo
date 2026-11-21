@@ -56,6 +56,9 @@ export function carFromForm(data: FormData, id: string, existing?: Car, today = 
   const f = parsed.data;
   const base = { id, make: f.make, model: f.model, year: f.year };
   const plug = f.fuel !== undefined && PLUG_FUELS.includes(f.fuel);
+  // A new car is added live or as a draft. A saved car keeps what it has: only Hide, Show and Publish change that, so a form left open
+  // in another tab never puts a hidden car back on the website.
+  const listing = existing ? existing.listing : f.listing === "live" ? undefined : f.listing;
   const car: Car = {
     ...existing,
     ...base,
@@ -89,8 +92,8 @@ export function carFromForm(data: FormData, id: string, existing?: Car, today = 
     description: f.description,
     features: f.features.length ? f.features : undefined,
     photos: existing?.photos ?? [],
-    listing: f.listing === "live" ? undefined : f.listing,
-    listedAt: listedOn(existing, f.listing === "live", today),
+    listing,
+    listedAt: listedOn(existing, !listing, today),
   };
   // JSON drops undefined, but a stored car with empty keys is noise: leave them out.
   return { ok: true, car: JSON.parse(JSON.stringify(car)) as Car };

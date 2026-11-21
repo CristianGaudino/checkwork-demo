@@ -9,7 +9,8 @@ export function placeSheet(panel: HTMLElement | null, button: HTMLElement | null
     const b = button?.getBoundingClientRect();
     if (!panel || !b || !panel.matches(":popover-open")) return;
     const desk = window.matchMedia("(min-width: 640px)").matches;
-    panel.style.top = desk ? `${b.bottom + 6}px` : "";
+    // Under the button, but moved up when that would run off the foot of the screen (a toolbar low on a page), so the whole panel shows.
+    panel.style.top = desk ? `${Math.max(8, Math.min(b.bottom + 6, window.innerHeight - panel.offsetHeight - 8))}px` : "";
     panel.style.left = desk ? `${Math.max(8, Math.min(b.left, window.innerWidth - panel.offsetWidth - 8))}px` : "";
     opened?.();
   });

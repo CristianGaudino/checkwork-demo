@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { CarStatusBadge } from "@/components/admin/badges";
-import { DataTable, EmptyState, Notice, PageHeader, Panel, SummaryTabs, TableFooter, TableToolbar, adminButton, pageOf, rowButton, sortRows, type Column, type FilterGroup } from "@/components/admin/kit";
+import { DataTable, EmptyState, Notice, PageHeader, Panel, SummaryTabs, TableFooter, TableToolbar, Task, TaskList, adminButton, pageOf, rowButton, sortRows, type Column, type FilterGroup } from "@/components/admin/kit";
+import { CarFlags, ListingButton, PostToSocial, ViewOnSite, daysInStock } from "@/components/admin/CarActions";
 import { ActButton } from "@/components/admin/ActButton";
 import { RowMenu } from "@/components/admin/RowMenu";
-import { ExternalIcon, PlusIcon, SyncIcon } from "@/components/stock/icons";
+import { CameraIcon, CheckIcon, HistoryIcon, PencilIcon, PlusIcon, ReceiptIcon, SyncIcon } from "@/components/stock/icons";
 import { NEW_TAB } from "@/components/ui";
 import { carCosts } from "@/lib/admin/costs";
 import { marginOf } from "@/lib/admin/margins";
@@ -11,27 +11,22 @@ import { adminCars } from "@/lib/admin/stock-admin";
 import { can } from "@/lib/permissions";
 import { daysSince, fmtDate, fmtEur, fmtNum } from "@/lib/admin/format";
 import { carName, carHref, priceLabel } from "@/lib/stock/format";
-import { FUEL_LABELS, FUELS, GEARBOXES, GEARBOX_LABELS, forSale, isReduced, isSold, onRequest, type Car } from "@/lib/stock/types";
+import { FUEL_LABELS, FUELS, GEARBOXES, GEARBOX_LABELS, forSale, isReduced, isSold, onRequest, type Car, onPublicSite } from "@/lib/stock/types";
 import { stockSource } from "@/lib/stock-source";
 import { LISTING_SITE, DONEDEAL_DEALER_URL, listingHref } from "@/lib/stock-source-rules";
 import { SyncPanel } from "@/components/admin/SyncPanel";
 import { StockBulk, StockPick } from "@/components/admin/StockBulk";
 import { CarThumb } from "@/components/admin/CarThumb";
 import { AgeBar } from "@/components/admin/charts";
-import { OLD_STOCK_DAYS } from "@/lib/admin/overview";
+import { OLD_STOCK_DAYS, SALE_NUDGE_DAYS } from "@/lib/admin/overview";
 import { FEW_PHOTOS, STOCK_VIEWS, parseStockList, stockList, type StockView } from "@/lib/admin/stock-views";
 import { salesStore } from "@/lib/admin/collections";
 import { syncStatus } from "@/lib/donedeal/sync";
-import { setListingAction, toggleSoldAction, withdrawnAction } from "./actions";
-import { hasModule } from "@/lib/modules";
+import { toggleSoldAction, withdrawnAction } from "./actions";
+import { enabledModules, hasModule } from "@/lib/modules";
+import { conditionShown } from "@/lib/modules-rules";
 
 export const metadata = { title: "Stock" };
-
-// Whole days since a YYYY-MM-DD listing date, and the same in words: "Today", "1 day", "23 days".
-const daysIn = (listedAt: string) => {
-  const d = daysSince(listedAt);
-  return d === 0 ? "Today" : d === 1 ? "1 day" : `${d} days`;
-};
 
 // The views (src/lib/admin/stock-views.ts) are the summary: each is a tile with its count, and the chosen one filters the table.
 
@@ -49,7 +44,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
   // A sold car with no sale recorded gets the button: Mark sold in our version records it; after the DoneDeal sync it is asked for here.
   const recordSale = (c: Car) =>
     isSold(c) && !sales.has(c.id) ? (
-      <Link href={`/dashboard/stock/${c.id}/sale`} className={rowButton}>
+      <Link href={`/dashboard/stock/${c.id}/sale`} aria-label={`Record sale: ${carName(c)}`} className={rowButton}>
         Record sale
       </Link>
     ) : null;
@@ -64,7 +59,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
   // Where a row goes: the car's editor here, or, for synced stock, the car on the site (it is changed on DoneDeal).
   // A synced car off the website (its ad came down) has no page there, so it opens here; so does every car with AI, to improve its description.
   const ai = synced && (await hasModule("ai"));
-  const open = (c: Car) => (synced && !ai && !c.listing ? carHref(c.slug) : `/dashboard/stock/${c.id}`);
+  const mods = await enabledModules();
+  const open = (c: Car) => (synced && !ai && onPublicSite(c) && conditionShown(mods, c.condition) ? carHref(c.slug) : `/dashboard/stock/${c.id}`);
   const takenDown = synced ? all.filter((c) => c.takenDownAt) : [];
   const canUndo = await can("settings"); // undoing a sale is money going back: owners and managers
   const undoSale = (c: Car) =>
@@ -73,16 +69,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         Undo sale
       </Link>
     ) : null;
-  // Hide, show or publish, with Undo in the toast. Our version only: DoneDeal stock is shown and hidden there.
-  const listingButton = (c: Car) => {
-    const name = carName(c);
-    const [to, label, done] = c.listing === "draft" ? ["live", "Publish", `Published ${name}`] : c.listing ? ["live", "Show", `${name} is on the website again`] : ["hidden", "Hide", `Hid ${name} from the website`];
-    return (
-      <ActButton act={setListingAction.bind(null, c.id, to)} undo={setListingAction.bind(null, c.id, c.listing ?? "live")} done={done} className={rowButton}>
-        {label}
-      </ActButton>
-    );
-  };
+  const social = await hasModule("social");
 
   const columns: Column<Car>[] = [
     // Tick several cars to change them at once (#104). Our version only: DoneDeal stock is changed on DoneDeal.
@@ -97,17 +84,24 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
           <div className="hidden h-12 w-16 shrink-0 overflow-hidden rounded-control bg-photo-bg min-[25rem]:block group-data-[density=compact]/shell:hidden">
             <CarThumb src={c.photos[0]?.src} />
           </div>
-          {/* The name and the variant wrap to two lines; the year goes first so a long variant never cuts it off. */}
-          <div className="min-w-0">
-            <Link href={open(c)} title={`${c.make} ${c.model}`} className="line-clamp-2 font-medium after:absolute after:inset-0">
-              {c.make} {c.model}
-            </Link>
-            <span title={[c.year, c.variant].filter(Boolean).join(" · ")} className="line-clamp-2 text-meta text-text-2">{[c.year, c.variant].filter(Boolean).join(" · ")}</span>
+          {/* The name, then the year and variant, then what needs doing about the car (few photos, hidden, in stock too long). */}
+          <div className="flex min-w-0 flex-col gap-1 py-1">
+            <span className="min-w-0">
+              <Link href={open(c)} title={`${c.make} ${c.model}`} className="line-clamp-2 font-medium after:absolute after:inset-0">
+                {c.make} {c.model}
+              </Link>
+              <span title={[c.year, c.variant].filter(Boolean).join(" · ")} className="line-clamp-2 text-meta text-text-2">
+                {[c.year, c.variant].filter(Boolean).join(" · ")}
+                {/* The days in stock have their own column from 1024px. */}
+                {c.listedAt && !isSold(c) && <span className="lg:hidden"> · {daysInStock(c.listedAt)}</span>}
+              </span>
+            </span>
+            <CarFlags car={c} status={view === "all"} />
           </div>
         </div>
       ),
       // A truncated name still asks for its whole width in a table: the cap lets the car and its price fit a 360px phone.
-      className: "max-w-[10rem] min-[25rem]:max-w-[15rem] sm:max-w-[20rem]",
+      className: "max-w-[10rem] min-[25rem]:max-w-[15rem] sm:min-w-[13rem] sm:max-w-[18rem]",
     },
     {
       key: "price",
@@ -117,7 +111,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
       sort: (c) => c.priceEur,
       cell: (c) => (
         <span className="flex flex-col items-end">
-          {priceLabel(c)}
+          <span className="font-medium">{priceLabel(c)}</span>
           {isSold(c) && sales.has(c.id) ? (
             <span className="text-meta text-text-2">sold for {fmtEur(sales.get(c.id)!.priceEur)}</span>
           ) : (
@@ -140,60 +134,68 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         c.listedAt && !isSold(c) ? (
           <span className="inline-flex items-center gap-2">
             {/* Amber exactly for the cars the old stock view counts (for sale: not reserved or hidden). */}
-            <AgeBar days={daysSince(c.listedAt)} late={forSale(c) ? OLD_STOCK_DAYS : Infinity} />
-            <span className={forSale(c) && daysSince(c.listedAt) >= OLD_STOCK_DAYS ? "font-medium text-warn" : ""}>{daysIn(c.listedAt)}</span>
+            <span className="hidden 2xl:contents">
+              <AgeBar days={daysSince(c.listedAt)} late={forSale(c) ? OLD_STOCK_DAYS : Infinity} />
+            </span>
+            <span className={STOCK_VIEWS.old.test(c) ? "font-medium text-warn" : ""}>{daysInStock(c.listedAt)}</span>
           </span>
         ) : (
           <span className="text-text-2">-</span>
         ),
     },
-    // In the All view the Status column needs the room: the mileage steps aside below the widest screens, so the actions stay in the row.
-    { key: "km", header: "Mileage", align: "right", hide: view === "all" ? "2xl" : "md", nowrap: true, sort: (c) => c.mileageKm, cell: (c) => (c.mileageKm !== undefined ? `${fmtNum(c.mileageKm)} km` : "") },
-    { key: "photos", header: "Photos", align: "right", hide: "2xl", sort: (c) => c.photos.length, cell: (c) => (c.photos.length < FEW_PHOTOS ? <span className="text-warn">{c.photos.length}</span> : c.photos.length) },
-    // Only in the All view: the other views already say it.
-    ...(view === "all" ? [{ key: "status", header: "Status", hide: "md" as const, cell: (c: Car) => <CarStatusBadge car={c} /> }] : []),
+    { key: "km", header: "Mileage", align: "right", hide: "2xl", nowrap: true, sort: (c) => c.mileageKm, cell: (c) => (c.mileageKm !== undefined ? `${fmtNum(c.mileageKm)} km` : "") },
     {
       key: "actions",
       header: "",
-      hide: "sm", // on a phone the row itself opens the car
-      cell: (c) =>
-        // Above the row's own link, so these buttons are what a press on them hits.
-        synced ? (
-          <div className="relative z-10 flex justify-end gap-2">
-            {recordSale(c)}
-            {undoSale(c)}
-            <a href={listingHref(c)} {...NEW_TAB} className={rowButton} aria-label={`Edit ${carName(c)} on ${LISTING_SITE} (opens in a new tab)`}>
-              {LISTING_SITE}
-              <ExternalIcon className="size-4" />
-            </a>
-          </div>
-        ) : (
-          <div className="relative z-10 flex justify-end gap-2">
-            {/* No Edit: the row itself opens the car. */}
-            {/* The main next step, then the rest behind More, so the row fits a laptop screen. */}
-            {recordSale(c)}
-            {!isSold(c) && (
-              <Link href={`/dashboard/stock/${c.id}/sale`} className={rowButton}>
-                Mark sold
-              </Link>
-            )}
-            <RowMenu label={`More for ${carName(c)}`}>
-              {listingButton(c)}
-              {deposits && (forSale(c) || c.reserved) && !isSold(c) && (
-                <Link href={`/dashboard/stock/${c.id}/reserve`} className={rowButton}>
-                  {c.reserved ? "Deposit" : "Reserve"}
+      hide: "sm", // on a phone the row opens the car, and its page has these at the top
+      cell: (c) => (
+        // Above the row's own link, so these buttons are what a press on them hits. The most used ones are in the row, labelled; the rest
+        // are under More. On a smaller laptop Post and View show their icon only (CarActions), so the row fits.
+        <div className="relative z-10 flex justify-end gap-2">
+          {recordSale(c)}
+          {social && <PostToSocial car={c} short className={rowButton} />}
+          <ViewOnSite car={c} shown={conditionShown(mods, c.condition)} short className={rowButton} />
+          {synced ? (
+            <>
+              {undoSale(c)}
+              {!c.takenDownAt && (
+              <a href={listingHref(c)} {...NEW_TAB} className={rowButton} aria-label={`Edit ${carName(c)} on ${LISTING_SITE} (opens in a new tab)`}>
+                <PencilIcon className="size-4" />
+                Edit on {LISTING_SITE}
+              </a>
+              )}
+            </>
+          ) : (
+            <>
+              {!isSold(c) && (
+                <Link href={`/dashboard/stock/${c.id}/sale`} aria-label={`Mark sold: ${carName(c)}`} className={rowButton}>
+                  <CheckIcon className="size-4" />
+                  Mark sold
                 </Link>
               )}
-              {undoSale(c)}
-              {/* Back on sale only where no sale is recorded: undoing a recorded sale keeps its record (Undo sale). */}
-              {isSold(c) && !sales.has(c.id) && (
-                <ActButton act={toggleSoldAction.bind(null, c.id)} confirm={{ title: `Put ${carName(c)} back on sale?`, text: c.listing ? "It stays off the website until you show it." : "It goes back on the website for sale.", yes: "Put back on sale" }} className={rowButton}>
-                  Back on sale
-                </ActButton>
-              )}
-            </RowMenu>
-          </div>
-        ),
+              <RowMenu label={`More for ${carName(c)}`}>
+                <Link href={`/dashboard/stock/${c.id}`} className={rowButton}>
+                  <PencilIcon className="size-4" />
+                  Edit details and photos
+                </Link>
+                {deposits && (forSale(c) || c.reserved) && !isSold(c) && (
+                  <Link href={`/dashboard/stock/${c.id}/reserve`} className={rowButton}>
+                    {c.reserved ? "Deposit" : "Reserve"}
+                  </Link>
+                )}
+                <ListingButton car={c} className={rowButton} />
+                {undoSale(c)}
+                {/* Back on sale only where no sale is recorded: undoing a recorded sale keeps its record (Undo sale). */}
+                {isSold(c) && !sales.has(c.id) && (
+                  <ActButton act={toggleSoldAction.bind(null, c.id)} confirm={{ title: `Put ${carName(c)} back on sale?`, text: c.listing ? "It stays off the website until you show it." : "It goes back on the website for sale.", yes: "Put back on sale" }} className={rowButton}>
+                    Back on sale
+                  </ActButton>
+                )}
+              </RowMenu>
+            </>
+          )}
+        </div>
+      ),
     },
   ];
 
@@ -208,11 +210,40 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
     { name: "gearbox", label: "Gearbox", any: "Any gearbox", options: GEARBOXES.map((g) => [g, GEARBOX_LABELS[g]] as const) },
   ];
 
+  // What needs doing about the stock, at the top, each with the button that does it. A sale is asked for while it is recent, as the
+  // overview does; photos and price drops for the cars still to sell. Drafts only in our version (DoneDeal stock has none).
+  const toRecord = all.filter((c) => isSold(c) && !sales.has(c.id) && daysSince(c.soldAt!) <= SALE_NUDGE_DAYS).sort((a, b) => a.soldAt!.localeCompare(b.soldAt!));
+  const needPhotos = all.filter((c) => !isSold(c) && c.photos.length < FEW_PHOTOS);
+  const old = all.filter((c) => STOCK_VIEWS.old.test(c));
+  const drafts = synced ? [] : all.filter((c) => c.listing === "draft" && !isSold(c));
+  const one = (cars: Car[], many: string, single: string) => (cars.length === 1 ? single : many);
+  // The why under each task is for a laptop: on a phone the task and its button, so the cars are on the first screen.
+  const phoneless = (text: string) => <span className="max-sm:hidden">{text}</span>;
+  const todo = [
+    // One at a time, oldest first: the row and its button open the next sale to record, so the count and the page behind it agree.
+    toRecord.length > 0 && (
+      <Task key="sale" urgency="now" icon={<ReceiptIcon />} count={toRecord.length} title={one(toRecord, "sold cars with no sale recorded", "sold car with no sale recorded")} detail={phoneless("Add the buyer and the price, so your reports are right.")} href={`/dashboard/stock/${toRecord[0].id}/sale`}
+        action={<Link href={`/dashboard/stock/${toRecord[0].id}/sale`} aria-label={`Record sale: ${carName(toRecord[0])}`} className={rowButton}>Record sale</Link>} />
+    ),
+    !synced && needPhotos.length > 0 && (
+      <Task key="photos" urgency="soon" icon={<CameraIcon />} count={needPhotos.length} title={one(needPhotos, "cars need more photos", "car needs more photos")} detail={phoneless(`Cars with ${FEW_PHOTOS} or more photos get more enquiries.`)} href={href("photos")}
+        action={<Link href={`/dashboard/stock/${needPhotos[0].id}#photos`} className={rowButton}>Add photos</Link>} />
+    ),
+    old.length > 0 && (
+      <Task key="old" urgency="soon" icon={<HistoryIcon />} count={old.length} title={one(old, `cars for sale ${OLD_STOCK_DAYS} days or more`, `car for sale ${OLD_STOCK_DAYS} days or more`)} detail={phoneless(synced ? `Think about a price drop on ${LISTING_SITE}.` : social ? "Tick them below to drop the price, or post them to social." : "Tick them below to drop the price.")} href={href("old")}
+        action={<Link href={href("old")} className={rowButton}>See them</Link>} />
+    ),
+    drafts.length > 0 && (
+      <Task key="drafts" icon={<PencilIcon />} count={drafts.length} title={one(drafts, "drafts not on the website yet", "draft not on the website yet")} detail={phoneless("Finish them and publish when ready.")} href={href("drafts")}
+        action={<Link href={href("drafts")} className={rowButton}>See drafts</Link>} />
+    ),
+  ].filter(Boolean);
+
   return (
     <>
       <PageHeader
         title="Stock"
-        text={synced ? `Your cars come from ${LISTING_SITE}. Add, change and sell them there; changes show here within 15 minutes.` : "Every car on your site. Open one to change it, or mark it sold when it goes."}
+        text={synced ? `Your cars come from ${LISTING_SITE}. Add, change and sell them there; changes show here within 15 minutes.` : "Every car on your website. Press a car to change its price, photos or details."}
         actions={
           <>
             {synced ? (
@@ -277,6 +308,12 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
               </li>
             ))}
           </ul>
+        </Panel>
+      )}
+      {/* On the plain list only, as on Leads: its counts are of the whole stock, a search is looking for something else. */}
+      {todo.length > 0 && view === "for-sale" && !q && !make && !fuel && !gearbox && (!sp.page || sp.page === "1") && (
+        <Panel title="To do" count={todo.length}>
+          <TaskList label="To do">{todo}</TaskList>
         </Panel>
       )}
       {/* Hidden and Drafts only show when they hold a car (or are open), so a dealer who never uses them never sees them. */}

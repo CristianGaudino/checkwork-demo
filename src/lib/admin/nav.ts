@@ -11,27 +11,28 @@ export type NavItem = { href: string; label: string; icon: NavIcon; group?: stri
 
 export const DEALER_NAV: NavItem[] = [
   { href: "/dashboard", label: "Overview", icon: "home" },
-  { href: "/dashboard/leads", label: "Leads", icon: "inbox", group: "Sales" },
-  { href: "/dashboard/test-drives", label: "Test drives", icon: "calendar", group: "Sales" },
-  { href: "/dashboard/stock", label: "Stock", icon: "car", group: "Sales" },
-  { href: "/dashboard/orders", label: "Orders", icon: "truck", group: "Sales", ours: true },
-  { href: "/dashboard/margins", label: "Margins", icon: "percent", group: "Sales", permission: "margins" },
-  { href: "/dashboard/whatsapp", label: "WhatsApp", icon: "whatsapp", group: "Sales" },
-  { href: "/dashboard/customers", label: "Customers", icon: "users", group: "After the sale", module: ["sales", "newsletter"] },
-  { href: "/dashboard/aftersales", label: "Aftersales", icon: "wrench", group: "After the sale" },
-  { href: "/dashboard/reviews", label: "Reviews", icon: "star", group: "After the sale" },
-  { href: "/dashboard/marketing", label: "Marketing", icon: "megaphone", group: "Marketing and reports", module: ["social", "newsletter"] },
-  { href: "/dashboard/analytics", label: "Analytics", icon: "chart", group: "Marketing and reports" },
-  { href: "/dashboard/reports", label: "Reports", icon: "report", group: "Marketing and reports", permission: "reports" },
-  { href: "/dashboard/monthly-report", label: "Monthly report", icon: "report", group: "Marketing and reports" },
-  { href: "/dashboard/activity", label: "Activity", icon: "history", group: "Dealership", permission: "activity" },
-  { href: "/dashboard/data-requests", label: "Data requests", icon: "shield", group: "Dealership", permission: "data" },
-  { href: "/dashboard/settings", label: "Settings", icon: "cog", group: "Dealership" },
-  { href: "/dashboard/billing", label: "Billing", icon: "receipt", group: "Dealership", permission: "billing" },
-  { href: "/dashboard/help", label: "Help", icon: "help", group: "Dealership" },
+  // The places staff use all day stand alone at the top, never folded away.
+  { href: "/dashboard/leads", label: "Leads", icon: "inbox" },
+  { href: "/dashboard/test-drives", label: "Test drives", icon: "calendar" },
+  { href: "/dashboard/stock", label: "Stock", icon: "car" },
+  { href: "/dashboard/marketing", label: "Marketing", icon: "megaphone", module: ["social", "newsletter"] },
+  { href: "/dashboard/customers", label: "Customers", icon: "users", group: "Customers", module: ["sales", "newsletter"] },
+  { href: "/dashboard/whatsapp", label: "WhatsApp", icon: "whatsapp", group: "Customers" },
+  { href: "/dashboard/orders", label: "Orders", icon: "truck", group: "Customers", ours: true },
+  { href: "/dashboard/aftersales", label: "Aftersales", icon: "wrench", group: "Customers" },
+  { href: "/dashboard/reviews", label: "Reviews", icon: "star", group: "Customers" },
+  { href: "/dashboard/margins", label: "Margins", icon: "percent", group: "Results", permission: "margins" },
+  { href: "/dashboard/reports", label: "Reports", icon: "report", group: "Results", permission: "reports" },
+  { href: "/dashboard/monthly-report", label: "Monthly report", icon: "report", group: "Results" },
+  { href: "/dashboard/analytics", label: "Analytics", icon: "chart", group: "Results" },
+  { href: "/dashboard/settings", label: "Settings", icon: "cog", group: "Settings and help" },
+  { href: "/dashboard/help", label: "Help", icon: "help", group: "Settings and help" },
+  { href: "/dashboard/billing", label: "Billing", icon: "receipt", group: "Settings and help", permission: "billing" },
+  { href: "/dashboard/activity", label: "Activity", icon: "history", group: "Settings and help", permission: "activity" },
+  { href: "/dashboard/data-requests", label: "Data requests", icon: "shield", group: "Settings and help", permission: "data" },
 ];
 
-// The sidebar's groups: the items with no group stand alone on top (Overview), then each group with its items, in the menu's order.
+// The sidebar's groups: the items with no group stand alone on top (Overview and the everyday places), then each group with its items, in the menu's order.
 export type NavGroup = { name: string; items: NavItem[] };
 export function navGroups(items: NavItem[]): { top: NavItem[]; groups: NavGroup[] } {
   const groups: NavGroup[] = [];
@@ -44,10 +45,10 @@ export function navGroups(items: NavItem[]): { top: NavItem[]; groups: NavGroup[
   return { top: items.filter((i) => !i.group), groups };
 }
 
-// Which groups are open in the sidebar, kept in a cookie so the page is drawn that way from the server (no jump after it loads). Sales, where
-// staff spend the day, is open until they close it.
+// Which groups are open in the sidebar, kept in a cookie so the page is drawn that way from the server (no jump after it loads). Customers,
+// the next most used after the places on top, is open until they close it.
 export const NAV_COOKIE = "checkwork-demo-nav";
-export const DEFAULT_OPEN = ["Sales"];
+export const DEFAULT_OPEN = ["Customers"];
 // The browser can send anything back: a value that does not decode is the default, never an error that takes the dashboard down.
 export function parseOpenGroups(v: string | undefined): string[] {
   if (v === undefined) return DEFAULT_OPEN;

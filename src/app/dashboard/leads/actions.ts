@@ -10,6 +10,7 @@ import { appendNote } from "@/lib/admin/notes";
 import { notify } from "@/lib/admin/notifications";
 import { currentMember } from "@/lib/permissions";
 import { requireStaff } from "@/lib/staff";
+import { STALE_STATUS, movedSince } from "@/lib/admin/stale";
 
 const ref = (id: string) => ({ kind: "lead" as const, id });
 
@@ -23,14 +24,19 @@ export async function setStatusAction(id: string, data: FormData) {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const parsed = status.safeParse(data.get("status"));
   const lead = await leadsStore.get(id);
-  if (!parsed.success || !lead || lead.status === parsed.data) return;
+  if (!parsed.success || !lead) return;
+  if (movedSince(data, lead.status)) return { error: STALE_STATUS }; // first: a second press from an old page is refused, not "done"
+  if (lead.status === parsed.data) return;
   if (parsed.data !== "new" && !leadStatusSteps(lead.type).includes(parsed.data)) return; // a warranty request is never won, even posted by hand
   const on = String(data.get("on") ?? "");
   const why = reason.safeParse(data.get("reason"));
   // A won or lost lead needs no follow-up. The reason belongs to a lost lead only: moving it on clears it.
   const followUpOn = isOpenLead({ status: parsed.data }) ? (lead.followUpOn ?? (isIsoDay(on) ? on : undefined)) : undefined;
   const lostReason = parsed.data === "lost" ? (lead.lostReason ?? (why.success ? why.data : undefined)) : undefined;
-  if (!(await leadsStore.update(id, (l) => ({ ...l, status: parsed.data, followUpOn, lostReason })))) return;
+  // Written only if nobody moved it between the read and the write (the update runs again on a clash).
+  let moved = false;
+  if (!(await leadsStore.update(id, (l) => ((moved = l.status === lead.status) ? { ...l, status: parsed.data, followUpOn, lostReason } : l)))) return;
+  if (!moved) return { error: STALE_STATUS };
   await logActivity("leads", `Moved the lead from ${leadStatusLabel(lead.type, lead.status)} to ${leadStatusLabel(lead.type, parsed.data)}`, ref(id));
   revalidatePath("/dashboard/leads");
   revalidatePath(`/dashboard/leads/${id}`);

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useId, useState, useSyncExternalStore } from "react";
 import { DEMO_ROLES, THEME_KEY, isAppPath, roleForPath, type Theme } from "@/lib/demo";
-import { setDealerRole, setDemoRole, setDemoStockSource, useDealerRole, useDemoRole, useModules, useStockSource } from "@/lib/demo-role";
+import { setDealerRole, setDemoStockSource, useDealerRole, useModules, useStockSource } from "@/lib/demo-role";
 import { ROLES, type Role } from "@/lib/permission-rules";
 import { LISTING_SITE } from "@/lib/stock-source-rules";
 import { ChevronDownIcon } from "@/components/stock/icons";
@@ -52,11 +52,10 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
   const path = usePathname();
   const router = useRouter();
   const inApp = isAppPath(path);
-  const saved = useDemoRole();
   // A plan without the dashboard (Showroom) has no dealer side, so the demo is the customer's view only, with the Plan switch to go back.
   const dashboard = useModules().has("dashboard");
-  // In the dealer area the route is the role. On a public page it is the remembered one.
-  const role = !dashboard ? "customer" : inApp ? roleForPath(path) : saved;
+  // The route is the role: the public site is always the customer's, with no dealer tools on it; Dealer opens the dashboard.
+  const role = dashboard ? roleForPath(path) : "customer";
   const theme = useSyncExternalStore(subscribe, read, () => "light" as Theme);
   const dealerRole = useDealerRole();
   const donedeal = useStockSource() === "donedeal";
@@ -77,14 +76,6 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
               key={r.id}
               href={r.href}
               prefetch={isAppPath(r.href) ? false : undefined} // the dealer area sits behind Cloudflare Access: a prefetch from a public page gets its login page
-              onClick={(e) => {
-                setDemoRole(r.id);
-                // From a public page, Dealer changes that page (a Dashboard link in the header, and stock and social links on a car) instead of leaving it.
-                if (!inApp && r.id !== "customer") {
-                  e.preventDefault();
-                  router.refresh();
-                }
-              }}
               aria-current={r.id === role ? "true" : undefined}
               className={`flex h-11 items-center px-2 sm:px-3 ${r.id === role ? "font-semibold text-text underline decoration-accent decoration-2 underline-offset-8" : "text-text-2"} ${press}`}
             >
@@ -130,7 +121,7 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
         </div>
       )}
       {/* Which modules the dealer has (#173), so a smaller site can be shown. One switch in one place, so choosing a plan keeps it open. */}
-      {showAreas && (role === "dealer" || !dashboard) && <ModuleSwitches chip={chip} inline={phone} />}
+      {showAreas && <ModuleSwitches chip={chip} inline={phone} />}
       <button type="button" aria-pressed={theme === "dark"} onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className={`flex h-11 items-center px-2 text-text-2 ${press}`}>
         {theme === "dark" ? "Dark" : "Light"}
       </button>

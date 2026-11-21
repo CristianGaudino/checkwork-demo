@@ -2,8 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ActButton } from "@/components/admin/ActButton";
 import { AlertForm, DetailsForm, LimitsForm } from "@/components/admin/BillingForms";
-import { Badge, DataTable, EmptyState, PageHeader, Panel, Segmented, StatCard, StatGrid, adminButtonQuiet, rowButton } from "@/components/admin/kit";
-import { fmtDay, fmtNum } from "@/lib/admin/format";
+import { Badge, DataTable, EmptyState, PageHeader, Panel, Segmented, adminButtonQuiet, rowButton } from "@/components/admin/kit";
+import { fmtDay, fmtNum, plural } from "@/lib/admin/format";
 import { MODULES, withModule } from "@/lib/modules-rules";
 import { enabledModules } from "@/lib/modules";
 import { can, currentMember } from "@/lib/permissions";
@@ -24,6 +24,7 @@ const AT_LIMIT: Record<Service, string> = {
   whatsapp: "Replies go by email instead and marketing messages are not sent. Alerts your plan includes still go by WhatsApp.",
 };
 const INCLUDED: Record<Service, string> = { lookup: "lookups", ai: "AI actions", whatsapp: "WhatsApp alerts" };
+const USE_WORD: Record<Service, [string, string]> = { lookup: ["lookup", "lookups"], ai: ["AI action", "AI actions"], whatsapp: ["message", "messages"] };
 const today = () => new Date();
 const UNIT = UNIT_PRICE_EUR as Record<Service, Record<string, number>>;
 type Modules = Awaited<ReturnType<typeof enabledModules>>;
@@ -125,14 +126,53 @@ function PlanAndUsage({ modules, services, usage, counts, b, now }: { modules: M
   const setupNet = termSetupEur(setupFull, b.term);
   const allowance = allowanceFor(modules, b);
   const lines = planLines(modules, b).map((l) => [l.label, l.eur] as const);
+  const total = withVat(bill);
   return (
     <>
-      {/* What most people come for first: this month's bill. The detail is below it. */}
-      <StatGrid>
-        <StatCard label={`This month's bill with ${VAT_PCT}% VAT`} value={eur(withVat(bill))} hint="Estimate" />
-        <StatCard label="Before VAT" value={eur(bill)} hint="Estimate" />
-        {services.length > 0 && <StatCard label="Usage so far" value={eur(sofar)} hint={`About ${eur(estimate)} by month end`} />}
-      </StatGrid>
+      {/* What most people come for first: this month's bill, and what it is made of, in one place. Beside it, what to do if it looks wrong. */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
+        <Panel title="This month's bill">
+          <div>
+            <p className="font-display text-[2.5rem] font-semibold leading-none tracking-[-0.02em] tabular-nums">{eur(total)}</p>
+            <p className="mt-2 text-meta text-text-2">Estimate with {VAT_PCT}% VAT. Next bill on {nextBillDate(now)}</p>
+          </div>
+          <dl className="flex flex-col divide-y divide-hairline text-body">
+            <div className="flex justify-between gap-4 py-2">
+              <dt>{b.term === "annual" ? "Your plan, paid for the year" : "Your plan"}</dt>
+              <dd className="tabular-nums">{b.term === "annual" ? eur(0) : eur(plan)}</dd>
+            </div>
+            {services.length > 0 && (
+              <div className="flex justify-between gap-4 py-2">
+                <dt className="flex flex-col">
+                  Pay as you go, by month end
+                  <span className="text-meta text-text-2">{eur(sofar)} so far</span>
+                </dt>
+                <dd className="tabular-nums">{eur(estimate)}</dd>
+              </div>
+            )}
+            <div className="flex justify-between gap-4 py-2">
+              <dt>VAT at {VAT_PCT}%</dt>
+              <dd className="tabular-nums">{eur(round2(total - bill))}</dd>
+            </div>
+            <div className="flex justify-between gap-4 py-2 font-semibold">
+              <dt>Total</dt>
+              <dd className="tabular-nums">{eur(total)}</dd>
+            </div>
+          </dl>
+        </Panel>
+        <Panel title="Something look wrong?" quiet>
+          <p className="text-body text-text-2">Tell us what you expected and we check it. Our reply shows in Help.</p>
+          <div className="flex flex-wrap gap-2">
+            <Link href="/dashboard/help?type=Billing&from=/dashboard/billing" className={adminButtonQuiet}>
+              Ask about my bill
+            </Link>
+            <Link href="/dashboard/billing?section=bills" className={rowButton}>
+              Past bills
+            </Link>
+          </div>
+        </Panel>
+      </div>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
       <Panel title="Your plan">
         <dl className="flex flex-col divide-y divide-hairline text-body">
           {lines.map(([label, n]) => (
@@ -148,7 +188,7 @@ function PlanAndUsage({ modules, services, usage, counts, b, now }: { modules: M
         </dl>
         <p className="text-meta text-text-2">
           {TERM_LABELS[b.term]}
-          {b.term === "annual" && `: ${eur(yearUpfrontEur(plan))} a year, before VAT`}. Next bill: {nextBillDate(now)}
+          {b.term === "annual" && `: ${eur(yearUpfrontEur(plan))} a year, before VAT`}
         </p>
         {others.length > 0 && (
           <details className="rounded-control border border-hairline px-3">
@@ -169,7 +209,7 @@ function PlanAndUsage({ modules, services, usage, counts, b, now }: { modules: M
         )}
       </Panel>
 
-      <Panel title="Usage this month">
+      <Panel title="Pay as you go this month" action={services.length > 0 ? <Link href="/dashboard/billing?section=limits" className="text-meta font-medium text-accent-text underline underline-offset-2">Set a limit</Link> : undefined}>
         {services.length === 0 ? (
           <EmptyState title="No usage is billed" text="Nothing on your site is charged per use." />
         ) : (
@@ -179,7 +219,14 @@ function PlanAndUsage({ modules, services, usage, counts, b, now }: { modules: M
                 {/* One line each, the detail one tap away. */}
                 <details className="group">
                   <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-4 py-2 text-body [&::-webkit-details-marker]:hidden">
-                    <span className="font-medium">{SERVICE_LABELS[s]}</span>
+                    {/* The uses in words beside the name, so the cost reads as something done: 48 messages, €7.20. */}
+                    <span className="flex flex-col">
+                      <span className="font-medium">{SERVICE_LABELS[s]}</span>
+                      <span className="text-meta text-text-2">
+                        {plural(usage[s].kinds.reduce((n, k) => n + k.count, 0), USE_WORD[s][0], USE_WORD[s][1])}
+                        {allowance[s] ? `, ${fmtNum(allowance[s])} ${INCLUDED[s]} in your plan` : ""}
+                      </span>
+                    </span>
                     <span className="flex items-center gap-2 tabular-nums">
                       {eur(usage[s].costEur)}
                       <ChevronDownIcon aria-hidden="true" className="size-4 text-text-2 transition-transform group-open:rotate-180" />
@@ -205,8 +252,9 @@ function PlanAndUsage({ modules, services, usage, counts, b, now }: { modules: M
           </ul>
         )}
       </Panel>
+      </div>
 
-      <Panel title="Setup fees">
+      <Panel title="Setup fees" quiet>
         <dl className="flex flex-col divide-y divide-hairline text-body">
           {setup.map((l) => (
             <div key={l.label} className="flex justify-between gap-4 py-2">

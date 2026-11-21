@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useVehicleHint } from "@/components/vehicleHint";
-import { useDemoRole, useModules } from "@/lib/demo-role";
+import { useModules } from "@/lib/demo-role";
 import { isAppPath } from "@/lib/demo";
-import { DASHBOARD_LINK, HEADER_LINKS, VEHICLE_TYPES } from "@/lib/nav";
+import { HEADER_LINKS, VEHICLE_TYPES } from "@/lib/nav";
 import { pathAllowed } from "@/lib/modules-rules";
 
 // The desktop links (from 1024px). Used, New and Commercial are the first three, like any other section. A red bar under the current one.
@@ -20,8 +20,7 @@ export function HeaderLinks() {
   const hint = useVehicleHint(); // a car page's address does not say whether it is used, new or a van; the page says so
   const modules = useModules();
   const vehicles = VEHICLE_TYPES.filter((t) => pathAllowed(t.href, modules)).map((t) => ({ href: t.href, label: t.nav, current: hint ? hint === t.condition : within(path, t.href) }));
-  const dealer = useDemoRole() === "dealer"; // viewing the demo as the dealer's staff: a way into their dashboard
-  const others = (dealer ? [...HEADER_LINKS, DASHBOARD_LINK] : HEADER_LINKS).filter((l) => pathAllowed(l.href, modules)).map((l) => ({ ...l, current: within(path, l.href) }));
+  const others = HEADER_LINKS.filter((l) => pathAllowed(l.href, modules)).map((l) => ({ ...l, current: within(path, l.href) }));
   return (
     <div className="hidden items-center gap-4 lg:flex xl:gap-6">
       {[...vehicles, ...others].map((l) => (

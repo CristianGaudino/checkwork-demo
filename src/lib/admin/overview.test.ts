@@ -39,6 +39,12 @@ describe("overview", () => {
     // Without the margins permission there is no cost item at all, and a sold car is never old stock.
     expect(overview({ leads: [], drives: [], reviews: [], cars: [car("gone", "2026-01-01", { soldAt: "2026-02-01" })], now }).attention).toEqual([]);
   });
+  it("lists the records behind the to-dos in the order to work them, and today's open drives", () => {
+    const o = overview({ leads: [lead("newer", 30 * HOUR), lead("older", 50 * HOUR), lead("fresh", HOUR)], drives: [drive("later", 2 * DAY, "requested"), drive("sooner", HOUR, "requested"), drive("past", -HOUR, "confirmed"), drive("off", 2 * HOUR, "cancelled")], reviews: [], now });
+    expect(o.late.map((l) => l.id)).toEqual(["older", "newer"]); // the longest waiting first
+    expect(o.toConfirm.map((d) => d.id)).toEqual(["sooner", "later"]);
+    expect(o.todayDrives.map((d) => d.id)).toEqual(["past", "sooner"]); // this morning's still counts; a cancelled one does not
+  });
   it("averages ratings, and is 0 with no reviews", () => {
     expect(overview({ leads: [], drives: [], reviews: [review("a", 5), review("b", 4)], now }).averageRating).toBe(4.5);
     expect(overview({ leads: [], drives: [], reviews: [], now }).averageRating).toBe(0);

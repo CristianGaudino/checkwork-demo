@@ -35,8 +35,8 @@ describe("demo records", () => {
     const leads = (await (await fresh()).leadsStore.list()).filter(isSalesLead);
     for (const now of [Date.now(), Date.now() + 10 * HOUR]) {
       const o = overview({ leads, drives: [], reviews: [], now, slaHours: 24 });
-      expect(o.lateLeads).toBeGreaterThan(0);
-      expect(o.lateLeads).toBeLessThan(o.newLeads / 2);
+      expect(o.late.length).toBeGreaterThan(0);
+      expect(o.late.length).toBeLessThan(o.newLeads / 2);
     }
   });
 });

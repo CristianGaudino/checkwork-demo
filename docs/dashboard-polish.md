@@ -38,7 +38,7 @@ audit at the end of each.
 | 77 | Marketing is one composer: car, text with a suggestion, photos, a live preview, an optional ad toggle, publish now or schedule (owner decision: post and ad in the composer, newsletters in a list). |
 | 78 | The hero image fades into the page background at the bottom edge in both themes (a mask, not a hard cut). |
 | 79 | The tokens above: weights, radius scale, status tones, no sheen, no tinted overlays, in light and dark. |
-| 80 | Dealer tools on the car page: a labelled strip (Dealer) above the gallery with two buttons and icons: Edit car, Post to social. Visible, not loud. |
+| 80 | Dealer tools on the car page: a labelled strip (Dealer) above the gallery with two buttons and icons: Edit car, Post to social. Visible, not loud. Removed 2026-11-20: the public site is customer-only (docs/dashboard-usability.md). |
 | 81, 82 | The unslop pass and the copy and button cut over every page, applying rules 1 to 10. |
 
 Owner decisions (2026-11-11): sentence case across the public site and the dashboard; the dashboard URL becomes `/dashboard`; marketing keeps post and ad in one composer, newsletters in a list.

@@ -70,17 +70,16 @@ describe("carFromForm", () => {
     expect(carFromForm(form({ status: "sold" }), "1", undefined, "2026-11-10")).toMatchObject({ ok: true, car: { listedAt: "2026-11-10" } });
     expect(carFromForm(form({ status: "sold" }), "1")).not.toHaveProperty("car.soldAt");
   });
-  it("hides a car or keeps it as a draft, and a draft gets its listing date when it is published", () => {
+  it("adds a car as a draft with no listing date, and an edit never changes whether a saved car is on the website", () => {
     const draft = carFromForm(form({ listing: "draft" }), "7", undefined, "2026-11-01");
     expect(draft.ok && draft.car).toMatchObject({ listing: "draft" });
     expect(draft.ok && draft.car).not.toHaveProperty("listedAt");
-    const published = carFromForm(form({}), "7", draft.ok ? draft.car : undefined, "2026-11-12");
-    expect(published.ok && published.car).toMatchObject({ listedAt: "2026-11-12" });
-    expect(published.ok && published.car).not.toHaveProperty("listing");
-    const hidden = carFromForm(form({ listing: "hidden" }), "7", published.ok ? published.car : undefined, "2026-11-20");
-    expect(hidden.ok && hidden.car).toMatchObject({ listing: "hidden", listedAt: "2026-11-12" });
-    const shownAgain = carFromForm(form({}), "7", hidden.ok ? hidden.car : undefined, "2026-11-25");
-    expect(shownAgain.ok && shownAgain.car.listedAt).toBe("2026-11-12");
+    // A form left open while the car was hidden elsewhere sends "live": the car stays hidden, its date unmoved.
+    const hiddenCar = { ...(draft.ok ? draft.car : ({} as Car)), listing: "hidden" as const, listedAt: "2026-11-12" };
+    const edited = carFromForm(form({ listing: "live", priceEur: "9999" }), "7", hiddenCar, "2026-11-20");
+    expect(edited.ok && edited.car).toMatchObject({ listing: "hidden", listedAt: "2026-11-12", priceEur: 9999 });
+    const stillDraft = carFromForm(form({}), "7", draft.ok ? draft.car : undefined, "2026-11-12");
+    expect(stillDraft.ok && stillDraft.car).toMatchObject({ listing: "draft" });
     expect(carFromForm(form({ listing: "public" }), "7").ok).toBe(false);
   });
 });

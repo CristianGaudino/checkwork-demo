@@ -1,6 +1,6 @@
 # Dealer dashboard
 
-The demo has two views. The public site is `/`. The dealer dashboard is `/dashboard`. The demo bar at the foot of every page switches between them: choosing Dealer on a public page keeps that page and adds a Dashboard link to the header (and stock and social links on a car page). There is no login of our own: on a deployed site Cloudflare Access is the login (see below). There is no superuser role and no platform in this site: running many dealers is a separate program, not part of what a dealer is sold. The platform that was here is in git history (PR #30).
+The demo has two views. The public site is `/`. The dealer dashboard is `/dashboard`. The demo bar at the foot of every page switches between them: choosing Dealer opens the dashboard. The public site is always the customer's view, with no dealer links or tools on it; editing a car and posting it to social start from the dashboard's stock list. There is no login of our own: on a deployed site Cloudflare Access is the login (see below). There is no superuser role and no platform in this site: running many dealers is a separate program, not part of what a dealer is sold. The platform that was here is in git history (PR #30).
 
 ## Modules
 
@@ -82,7 +82,7 @@ with no D1). The actor is the signed-in person (`currentMember`), or a named one
 - **Every car is Shown, Hidden or a Draft** (`listing` on the car). Hidden cars and drafts are left out by the stock engine itself
   (`src/lib/stock/engine.ts`), so no list, count, page or sitemap has them and their link is not found. A new car can be saved as a draft;
   its listing date (days in stock) is set when it first goes on the website. Anyone on the team can hide, show or publish, from the
-  stock list (with Undo) or the car form. Deleting is for owners and managers.
+  stock list or the car's page (with Undo); Save changes on the car form never changes it. Deleting is for owners and managers.
 - **"For sale"** in the dashboard (`forSale`) means on the website and not sold: posts, test drives and the overview use it. Margins and
   stock age still count a hidden car, since it is stock the dealer owns.
 - **Several cars at once** (#104): tick cars on Stock, then drop their price (euros or up to 50%), mark them sold, or delete them

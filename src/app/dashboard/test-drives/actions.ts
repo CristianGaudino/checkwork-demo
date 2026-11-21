@@ -5,7 +5,7 @@ import { z } from "zod";
 import { logActivity } from "@/lib/admin/activity";
 import { notify } from "@/lib/admin/notifications";
 import { currentMember } from "@/lib/permissions";
-import { DRIVE_STATUS_LABELS, drivesStore, getSettings } from "@/lib/admin/collections";
+import { DRIVE_STATUS_LABELS, drivesStore, getSettings, leadStatusLabel, leadStatusSteps, leadsStore } from "@/lib/admin/collections";
 import { DRIVE_LIMITS, clashes, parseDriveStatus } from "@/lib/admin/drives";
 import { adminCars } from "@/lib/admin/stock-admin";
 import { carName } from "@/lib/stock/format";
@@ -14,22 +14,28 @@ import { HOUR, MINUTE } from "@/lib/time";
 import { EMAIL_INVALID, NAME_REQUIRED } from "@/lib/copy";
 import { newId } from "@/lib/admin/ids";
 import { fieldErrors, isoDay } from "@/lib/admin/validation";
-import { addMonths, dublinDay, dublinMs } from "@/lib/admin/format";
+import { addMonths, dublinDay, dublinMs, fmtDateTime } from "@/lib/admin/format";
 import { isBankHoliday } from "@/lib/bank-holidays";
 import { LIMITS, TEST_DRIVE, driveTimes, inDriveHours } from "@/lib/leads/constants";
 import { requireModule } from "@/lib/modules";
 import { requireStaff } from "@/lib/staff";
+import { STALE_STATUS, changedSince } from "@/lib/admin/stale";
 
 // `day`: the booked day, so the page can open the diary on it.
 export type DriveFormState = { errors?: Record<string, string>; done?: string; day?: string } | undefined;
 
-export async function setDriveStatusAction(id: string, status: string) {
+// `from`: the status the button showed; a press from a page loaded before someone else moved the drive is refused, never undoing it.
+export async function setDriveStatusAction(id: string, status: string, from?: string) {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   await requireModule("testDrives"); // and only while the dealer has it
   const next = parseDriveStatus(status);
   const drive = await drivesStore.get(id);
-  if (!next || !drive || drive.status === next) return;
-  if (!(await drivesStore.update(id, (d) => ({ ...d, status: next })))) return;
+  if (!next || !drive) return;
+  if (changedSince(from, drive.status)) return { error: STALE_STATUS }; // first: a second press from an old page is refused, not "done"
+  if (drive.status === next) return;
+  let moved = false; // only if nobody moved it between the read and the write
+  if (!(await drivesStore.update(id, (d) => ((moved = d.status === drive.status) ? { ...d, status: next } : d)))) return;
+  if (!moved) return { error: STALE_STATUS };
   await logActivity("test-drives", `Changed the test drive from ${DRIVE_STATUS_LABELS[drive.status]} to ${DRIVE_STATUS_LABELS[next]}`, { kind: "drive", id });
   revalidatePath("/dashboard/test-drives");
 }
@@ -110,6 +116,18 @@ export async function addDriveAction(_prev: DriveFormState, data: FormData): Pro
   const who = b.assignedTo && (await getSettings()).team.some((t) => t.name === b.assignedTo) ? b.assignedTo : undefined;
   await drivesStore.put({ id, name: b.name, phone: b.phone, email: b.email ?? "", carSlug: car.slug, carTitle: carName(car), startsAt, status: "confirmed", notes: b.notes ?? "", ...(who && { assignedTo: who }), createdAt: Date.now() });
   await logActivity("test-drives", "Booked a test drive", { kind: "drive", id });
+  // Booked from a lead: the lead is answered, so it leaves the to-answer lists and shows the appointment.
+  const leadId = data.get("leadId");
+  const lead = typeof leadId === "string" && leadId ? await leadsStore.get(leadId.slice(0, 80)) : undefined;
+  const open = (s: string) => s === "new" || s === "contacted";
+  if (lead && open(lead.status) && leadStatusSteps(lead.type).includes("appointment")) {
+    // Checked again inside the write: a lead marked Won or Lost a moment ago is left as it is.
+    let moved = false;
+    await leadsStore.update(lead.id, (l) => ((moved = open(l.status)) ? { ...l, status: "appointment" as const, notes: [...l.notes, { at: Date.now(), text: `Booked a test drive in ${carName(car)} for ${fmtDateTime(startsAt)}.` }] } : l));
+    if (moved) await logActivity("leads", `Moved the lead from ${leadStatusLabel(lead.type, lead.status)} to ${leadStatusLabel(lead.type, "appointment")}`, { kind: "lead", id: lead.id });
+    revalidatePath(`/dashboard/leads/${lead.id}`);
+    revalidatePath("/dashboard/leads");
+  }
   revalidatePath("/dashboard/test-drives");
   return { done: `Booked ${b.name} for ${carName(car)}.`, day: b.date };
 }

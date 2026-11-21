@@ -9,6 +9,7 @@ import type { Photo } from "@/lib/stock/types";
 import { ActButton } from "./ActButton";
 import { CarThumb } from "./CarThumb";
 import { Panel, adminButtonQuiet, rowButton } from "./kit";
+import { CameraIcon } from "@/components/stock/icons";
 
 // The photos with their buttons, the first marked as the main one. The same for a saved car and one being added.
 function PhotoGrid({ srcs, makeMain, remove }: { srcs: string[]; makeMain: (src: string, i: number) => React.ReactNode; remove: (src: string, i: number) => React.ReactNode }) {
@@ -90,6 +91,7 @@ export function CarPhotos({ carId, photos, max }: { carId: string; photos: Photo
       )} />
       <div className="flex flex-wrap items-center gap-3">
         <label className={`${adminButtonQuiet} cursor-pointer ${pending || photos.length >= max ? "pointer-events-none opacity-60" : ""}`}>
+          <CameraIcon className="size-4" />
           {pending ? "Adding photos" : "Add photos"}
           <input ref={input} type="file" accept={PHOTO_TYPES.join(",")} multiple disabled={pending || photos.length >= max} onChange={(e) => add([...(e.target.files ?? [])])} className="sr-only" />
         </label>
@@ -107,7 +109,7 @@ export function CarPhotos({ carId, photos, max }: { carId: string; photos: Photo
 export type PickedPhoto = { blob: Blob; width: number; height: number; url: string };
 const SEND_MAX_BYTES = 15 * 1024 * 1024; // under the server actions' 18 MB body limit (next.config.ts), with room for the form
 
-export function NewCarPhotos({ photos, onChange, max, error }: { photos: PickedPhoto[]; onChange: (photos: PickedPhoto[]) => void; max: number; error?: string }) {
+export function NewCarPhotos({ photos, onChange, max, error, title = "Photos" }: { photos: PickedPhoto[]; onChange: (photos: PickedPhoto[]) => void; max: number; error?: string; title?: string }) {
   const input = useRef<HTMLInputElement>(null);
   const [said, setSaid] = useState("");
   const [pending, start] = useTransition();
@@ -145,7 +147,7 @@ export function NewCarPhotos({ photos, onChange, max, error }: { photos: PickedP
   const first = (i: number) => onChange([photos[i], ...photos.filter((_, j) => j !== i)]);
 
   return (
-    <Panel title="Photos">
+    <Panel title={title}>
       <PhotoGrid srcs={photos.map((p) => p.url)} makeMain={(_, i) => (
         <button type="button" onClick={() => first(i)} aria-label={`Make photo ${i + 1} the main photo`} className={rowButton}>
           Make main
@@ -157,6 +159,7 @@ export function NewCarPhotos({ photos, onChange, max, error }: { photos: PickedP
       )} />
       <div className="flex flex-wrap items-center gap-3">
         <label className={`${adminButtonQuiet} cursor-pointer ${pending || photos.length >= max ? "pointer-events-none opacity-60" : ""}`}>
+          <CameraIcon className="size-4" />
           {pending ? "Adding photos" : "Add photos"}
           <input ref={input} type="file" accept={PHOTO_TYPES.join(",")} multiple disabled={pending || photos.length >= max} onChange={(e) => add([...(e.target.files ?? [])])} className="sr-only" />
         </label>

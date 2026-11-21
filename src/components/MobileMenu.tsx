@@ -3,11 +3,11 @@
 import { Sheet, leaveSheet } from "@/components/Sheet";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useDemoRole, useModules } from "@/lib/demo-role";
+import { useModules } from "@/lib/demo-role";
 import { isAppPath } from "@/lib/demo";
 import { pathAllowed } from "@/lib/modules-rules";
 import { useVehicleHint } from "@/components/vehicleHint";
-import { DASHBOARD_LINK, VEHICLE_TYPES } from "@/lib/nav";
+import { VEHICLE_TYPES } from "@/lib/nav";
 import { PhoneLink } from "@/components/PhoneLink";
 import { ChevronDownIcon, MenuIcon, PhoneIcon } from "@/components/stock/icons";
 import { accentButton, press } from "@/components/ui";
@@ -21,8 +21,8 @@ export function MobileMenu({ home, primary: allPrimary, groups: allGroups }: { h
   const primary = allPrimary.filter((l) => pathAllowed(l.href, modules));
   const groups = allGroups.map((g) => ({ ...g, links: g.links.filter((l) => pathAllowed(l.href, modules)) })).filter((g) => g.links.length > 0);
   const path = usePathname();
-  // Viewing as the dealer's staff: their dashboard first. Home only away from home.
-  const top = [...(useDemoRole() === "dealer" && modules.has("dashboard") ? [DASHBOARD_LINK] : []), ...(path !== "/" ? [home] : []), ...primary];
+  // Home only away from home.
+  const top = [...(path !== "/" ? [home] : []), ...primary];
 
   const hint = useVehicleHint(); // a car page's address does not say whether it is used, new or a van; the page says so
   const here = (href: string) => {

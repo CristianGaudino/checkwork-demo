@@ -216,6 +216,11 @@ export const InstagramIcon = (p: Props) => (
     <circle cx="17.2" cy="6.8" r=".6" />
   </Icon>
 );
+export const GoogleIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M19.6 10.5H12.5v3h4.2a4.9 4.9 0 1 1-1.3-5.1l2.1-2.1A8 8 0 1 0 20 12c0-.5 0-1-.1-1.5Z" />
+  </Icon>
+);
 export const TikTokIcon = (p: Props) => (
   <Icon {...p}>
     <path d="M14 4v10.5a3.5 3.5 0 1 1-3.5-3.5M14 4c.3 2.3 1.8 3.8 4 4" />
@@ -325,5 +330,17 @@ export const SparkleIcon = (p: Props) => (
   <Icon {...p}>
     <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z" />
     <path d="M19 15l.7 2.3L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.7z" />
+  </Icon>
+);
+// Shown or hidden on the website: a car's Show and Hide buttons in the dashboard.
+export const EyeIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" />
+    <circle cx="12" cy="12" r="3" />
+  </Icon>
+);
+export const EyeOffIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M4 4l16 16M9.9 5.8A9.6 9.6 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-2.9 3.7M6.6 7.6A16.7 16.7 0 0 0 2.5 12S6 18.5 12 18.5a9.3 9.3 0 0 0 4.4-1.1M9.9 9.9a3 3 0 0 0 4.2 4.2" />
   </Icon>
 );
