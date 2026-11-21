@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useId, useState, useSyncExternalStore } from "react";
-import { DEMO_ROLES, THEME_KEY, isAppPath, roleForPath, roleHref, type Theme } from "@/lib/demo";
+import { DEMO_ROLES, THEME_KEY, isAppPath, roleForPath, type Theme } from "@/lib/demo";
 import { setDealerRole, setDemoStockSource, useDealerRole, useModules, useStockSource } from "@/lib/demo-role";
 import { ROLES, type Role } from "@/lib/permission-rules";
 import { LISTING_SITE } from "@/lib/stock-source-rules";
@@ -74,7 +74,7 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
           {DEMO_ROLES.filter((r) => showAreas || r.id === "customer").map((r) => (
             <Link
               key={r.id}
-              href={roleHref(r)}
+              href={r.href}
               prefetch={isAppPath(r.href) ? false : undefined} // the dealer area sits behind Cloudflare Access: a prefetch from a public page gets its login page
               aria-current={r.id === role ? "true" : undefined}
               className={`flex h-11 items-center px-2 sm:px-3 ${r.id === role ? "font-semibold text-text underline decoration-accent decoration-2 underline-offset-8" : "text-text-2"} ${press}`}

@@ -12,10 +12,6 @@ export const DEMO_ROLES = [
 
 export type DemoRole = (typeof DEMO_ROLES)[number]["id"];
 
-// Where the bar's choice goes: Dealer opens the dealer dashboard (checkwork-dash) when the build sets NEXT_PUBLIC_DASH_URL, else the
-// archived /dashboard in this site.
-export const roleHref = (r: (typeof DEMO_ROLES)[number]) => (r.id === "dealer" && process.env.NEXT_PUBLIC_DASH_URL) || r.href;
-
 export function roleForPath(pathname: string): DemoRole {
   return DEMO_ROLES.find((r) => r.prefix && (pathname === r.prefix || pathname.startsWith(r.prefix + "/")))?.id ?? "customer";
 }
