@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { AD_PLATFORMS, FORMATS_FOR, FORMAT_LIMITS, POST_FORMATS, POST_LIMITS, STORY_LAYOUTS } from "@/lib/admin/networks";
+import { AD_PLATFORMS, FORMATS_FOR, FORMAT_LIMITS, POST_FORMATS, POST_LIMITS, PUBLISH_MODE, STORY_LAYOUTS } from "@/lib/admin/networks";
 import { requireModule } from "@/lib/modules";
 import { checkUpload, MEDIA_LIMITS } from "@/lib/admin/media-rules";
 import { dropMedia, storeMedia } from "@/lib/admin/media";
@@ -89,7 +89,8 @@ export async function composeAction(data: FormData) {
   }
   await postsStore.put({ ...post, status: "posted", postedAt: Date.now(), ...(sent.simulated && { simulated: true, ...simulatedPost(post.id) }) });
   await logActivity("marketing", `Published ${aOrAn(d.network)} post`, postRef(post));
-  if (!adDraft) return go("posts", "post-published");
+  // A story, or anything on TikTok, is made ready here and posted from the phone (PUBLISH_MODE): the notice says so.
+  if (!adDraft) return go("posts", PUBLISH_MODE[d.network][d.format] === "prepare" ? "post-ready" : "post-published");
   const started = await startAd(adDraft);
   if (started.ok) {
     await adsStore.put({ ...adDraft, status: "running", startedAt: Date.now(), ...(started.simulated && simulatedAd(adDraft.id)) });
@@ -108,7 +109,7 @@ export async function publishPostAction(id: string) {
     await postsStore.put({ ...post, status: "posted", postedAt: Date.now(), ...(r.simulated && { simulated: true, ...simulatedPost(post.id) }) });
     await logActivity("marketing", `Published ${aOrAn(post.network)} post`, postRef(post));
   }
-  outcome("posts", "social", r, "post-published");
+  outcome("posts", "social", r, PUBLISH_MODE[post.network][post.format ?? "post"] === "prepare" ? "post-ready" : "post-published");
 }
 
 export async function deletePostAction(id: string) {

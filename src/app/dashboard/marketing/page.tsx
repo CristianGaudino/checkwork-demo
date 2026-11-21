@@ -31,6 +31,7 @@ const NOTICES: Record<string, { tone: "good" | "warn"; text: string }> = {
   "draft-ad": { tone: "good", text: "Draft and ad draft saved." },
   "post-scheduled": { tone: "good", text: "Post scheduled." },
   "post-published": { tone: "good", text: "Post published." },
+  "post-ready": { tone: "good", text: "Ready to post from your phone." },
   "published-ad": { tone: "good", text: "Post published and ad started." },
   "published-ad-draft": { tone: "warn", text: "Post published. The ad is saved as a draft because ads are not connected." },
   "ad-started": { tone: "good", text: "Ad started." },
