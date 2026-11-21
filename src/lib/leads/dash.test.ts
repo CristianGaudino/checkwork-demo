@@ -135,14 +135,30 @@ describe("sendToDash", () => {
     expect(logs).toEqual([]);
   });
 
-  it("swallows a 500 or a 401 and logs only the id, type and status", async () => {
-    fetchMock.mockResolvedValue(new Response("boom", { status: 500 }));
+  it("swallows a 500 (after one retry) or a 401 (no retry) and logs only the id, type and status", async () => {
+    fetchMock.mockImplementation(async () => new Response("boom", { status: 500 }));
     await expect(sendToDash(row, true)).resolves.toBeUndefined();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
     expectQuietFailure(500);
     logs = [];
-    fetchMock.mockResolvedValue(new Response("no", { status: 401 }));
+    fetchMock.mockClear().mockImplementation(async () => new Response("no", { status: 401 }));
     await sendToDash(row, true);
+    expect(fetchMock).toHaveBeenCalledOnce();
     expectQuietFailure(401);
+  });
+
+  it("retries once after a server error, and a good second try logs nothing", async () => {
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 503 })).mockResolvedValueOnce(new Response('{"id":"x"}', { status: 201 }));
+    await sendToDash(row, true);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(logs).toEqual([]);
+  });
+
+  it("does not follow a redirect: Access's login page is a failure, not a delivery", async () => {
+    fetchMock.mockImplementation(async () => new Response(null, { status: 302, headers: { location: "https://team.cloudflareaccess.com/login" } }));
+    await sendToDash(row, true);
+    expect(sent(fetchMock).redirect).toBe("manual");
+    expectQuietFailure(302);
   });
 
   it("swallows a throw, with nothing personal in the log", async () => {
@@ -151,14 +167,19 @@ describe("sendToDash", () => {
     expectQuietFailure();
   });
 
-  it("gives up after 5 seconds", async () => {
+  it("gives up after 5 seconds a try, two tries, and aborts the request", async () => {
     vi.useFakeTimers();
-    fetchMock.mockImplementation(() => new Promise(() => {}));
+    const signals: AbortSignal[] = [];
+    fetchMock.mockImplementation((req: Request) => (signals.push(req.signal), new Promise(() => {})));
     const done = sendToDash(row, true);
     await vi.advanceTimersByTimeAsync(4999);
     expect(logs).toEqual([]);
     await vi.advanceTimersByTimeAsync(1);
+    expect(signals[0].aborted).toBe(true);
+    expect(logs).toEqual([]); // the second try is under way
+    await vi.advanceTimersByTimeAsync(5000);
     await expect(done).resolves.toBeUndefined();
+    expect(signals).toHaveLength(2);
     expectQuietFailure();
   });
 });

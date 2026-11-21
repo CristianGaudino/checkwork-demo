@@ -53,7 +53,8 @@ const store: LeadStore = {
 // The archived /dashboard's copy and the dealer dashboard (checkwork-dash). The send runs after the buyer's answer is out (`after`, kept
 // alive by the Worker), so a slow or down dashboard never makes them wait; sendToDash never throws, so it never touches the copy.
 const toAdmin: Deps["toAdmin"] = async (row, emailed) => {
-  after(() => sendToDash(row, emailed));
+  const dash = getBindings().DASH; // read now, while the request is live
+  after(() => sendToDash(row, emailed, dash));
   await mirrorLead(row, emailed);
 };
 let fakes: Deps | undefined;
