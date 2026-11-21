@@ -105,16 +105,19 @@ export function FieldError({ id, children }: { id?: string; children: React.Reac
 export function ContactFields({ bind }: { bind(name: string): FieldBinding }) {
   const email = bind("email");
   const both = email.error === CONTACT_ERROR;
+  const either = `${email.id}-either`; // the line saying one of the two will do, read with each of them
   // Phone and Email sit side by side once the form itself is wide enough (a container query, so a narrow dialog stays in one column).
   return (
     <div className="@container flex flex-col gap-4">
       <Field {...bind("name")} label="Name" required autoComplete="name" maxLength={LIMITS.name} enterKeyHint="next" />
       {/* The line sits with the pair it explains (tight below it, a larger gap above), not under Name. */}
       <div className="mt-2 flex flex-col gap-2">
-        <p className="text-meta text-text-2">Add a phone number or an email, so we can reply.</p>
+        <p id={either} className="text-meta text-text-2">
+          Add a phone number or an email, so we can reply.
+        </p>
         <div className="grid grid-cols-1 gap-4 @xl:grid-cols-2">
-          <PhoneField {...bind("phone")} invalid={both} describedBy={both ? `${email.id}-error` : undefined} />
-          <Field {...email} label="Email" type="email" autoComplete="email" maxLength={LIMITS.email} enterKeyHint="next" />
+          <PhoneField {...bind("phone")} invalid={both} describedBy={both ? `${either} ${email.id}-error` : either} />
+          <Field {...email} label="Email" type="email" autoComplete="email" maxLength={LIMITS.email} enterKeyHint="next" describedBy={either} />
         </div>
         <WhatsAppOptIn {...bind("whatsappOptIn")} />
       </div>
