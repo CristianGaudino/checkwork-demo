@@ -23,7 +23,8 @@ export async function getBill(id: string): Promise<Bill | undefined> {
   const bill = await billsStore.get(id);
   return bill && (await asShown())(bill);
 }
-// The demo's bills follow the plan the demo bar shows now, so the Bills tab never disagrees with the Plan tab. A real site's are as issued.
+// With the demo bar on (next dev, the E2E run) the bills follow the modules on, so the Bills tab never disagrees with the Plan tab. Elsewhere,
+// the live demo included, they are as issued.
 async function asShown(): Promise<(bill: Bill) => Bill> {
   if (!DEMO_BAR_ENABLED) return (bill) => bill;
   const [modules, b] = await Promise.all([enabledModules(), billingSettings()]);
