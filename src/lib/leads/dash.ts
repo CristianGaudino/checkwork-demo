@@ -36,6 +36,8 @@ export async function sendToDash(row: LeadRow, emailed: boolean): Promise<void> 
     const res = await Promise.race([dash ? dash.fetch(req) : fetch(req), timeout]);
     // 201 stored, 200 already received (a retry). Anything else is a failure.
     if (res.status !== 200 && res.status !== 201) fail(res.status);
+    await res.body?.cancel(); // nothing in the answer is needed; an unread body holds the connection open
+
   } catch {
     fail();
   } finally {

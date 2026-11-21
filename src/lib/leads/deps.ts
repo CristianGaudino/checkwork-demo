@@ -1,4 +1,5 @@
 import "server-only";
+import { after } from "next/server";
 import { getDb } from "@/lib/db";
 import { requireEnv } from "@/lib/env";
 import { isProduction } from "@/lib/site";
@@ -49,15 +50,11 @@ const store: LeadStore = {
   },
   markNotified: (id) => db().markNotified(id),
 };
-// The archived /dashboard's copy and the dealer dashboard (checkwork-dash), side by side. sendToDash never throws, so a failed send never
-// stops the copy; a failed copy still waits for the send (the Worker may stop once the response is out) and is logged as mirror_failed.
+// The archived /dashboard's copy and the dealer dashboard (checkwork-dash). The send runs after the buyer's answer is out (`after`, kept
+// alive by the Worker), so a slow or down dashboard never makes them wait; sendToDash never throws, so it never touches the copy.
 const toAdmin: Deps["toAdmin"] = async (row, emailed) => {
-  const sent = sendToDash(row, emailed);
-  try {
-    await mirrorLead(row, emailed);
-  } finally {
-    await sent;
-  }
+  after(() => sendToDash(row, emailed));
+  await mirrorLead(row, emailed);
 };
 let fakes: Deps | undefined;
 
