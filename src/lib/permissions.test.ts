@@ -40,6 +40,18 @@ describe("on the demo", () => {
     cookie = "nonsense";
     expect((await currentMember()).role).toBe("Owner");
   });
+
+  it("keeps the owner with the demo bar off (the live demo), where Access lets people in with no ADMIN_OWNER_EMAILS", async () => {
+    vi.stubEnv("APP_ENV", "demo");
+    vi.stubEnv("NEXT_PUBLIC_DEMO_BAR", "off");
+    vi.stubEnv("NEXT_PUBLIC_ADMIN_OPEN", "");
+    vi.resetModules(); // the bar's setting is read when src/lib/demo.ts loads
+    const fresh = await import("./permissions");
+    expect((await import("@/lib/demo")).DEMO_BAR_ENABLED).toBe(false);
+    email = "visitor@example.com";
+    expect(await fresh.currentMember()).toMatchObject({ name: "Aoife Brennan", role: "Owner" });
+    expect(await fresh.can("margins")).toBe(true);
+  });
 });
 
 describe("on a production site", () => {

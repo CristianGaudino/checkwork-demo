@@ -24,9 +24,10 @@ export const isAppPath = (pathname: string) => roleForPath(pathname) !== "custom
 // which the proxy checks (src/lib/access.ts). Closed by default, so a build that misses a setting never opens a dealer's data.
 export const adminReachable = (nodeEnv: string | undefined = process.env.NODE_ENV, open: string | undefined = process.env.NEXT_PUBLIC_ADMIN_OPEN) => nodeEnv === "development" || open === "1";
 
-// Whether the demo bar's cookies (the role, the stock version) count: on the demo deploy and where the dashboard is open. A client site
-// (APP_ENV=production) or a build with no APP_ENV never lets a cookie grant a role (src/lib/permissions.ts, src/lib/stock-source.ts).
-export const demoCookiesCount = () => DEMO_BAR_ENABLED && (isDemoSite() || adminReachable());
+// Whether the demo's cookies (the role, the stock version) count: always on the demo deploy, so the archived dashboard behind Access keeps
+// its roles (the owner by default) with the bar off, and where the bar is on and the dashboard open. A client site (APP_ENV=production)
+// or a build with no APP_ENV never lets a cookie grant a role (src/lib/permissions.ts, src/lib/stock-source.ts).
+export const demoCookiesCount = () => isDemoSite() || (DEMO_BAR_ENABLED && adminReachable());
 
 // The visitor's theme (src/components/ThemeSwitch.tsx): Light or Dark stored in this browser, or nothing for Auto (the device's setting).
 export const THEME_KEY = `${SITE_SLUG}:theme`;

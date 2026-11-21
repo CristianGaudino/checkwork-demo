@@ -9,10 +9,11 @@ import { ROLE_COOKIE, emailHas, parseRole, roleCan, type Permission, type Role }
 
 // Who is making this request, as the team knows them. Checked on the server, in every page and action that shows or changes something
 // sensitive, so a hidden link is never the only protection.
-// - The demo (demoCookiesCount: the demo bar is on, and this is the demo deploy, next dev, or the admin is open for the tests): the bar's
-//   role cookie says, and the person is the first team member with that role. The demo has one login, so this is how a viewer tries each role.
-// - Any other site (APP_ENV=production, no APP_ENV at all, or the demo bar off): the email in the verified Access token. An address in
-//   ADMIN_OWNER_EMAILS is an owner; otherwise the team member with that email has their role. Anyone else Access let in works the everyday
+// - The demo (demoCookiesCount: the demo deploy, bar or not, or the bar is on in next dev or with the admin open for the tests): the bar's
+//   role cookie says (the owner when there is none), and the person is the first team member with that role. The demo has one login, so
+//   this is how a viewer tries each role.
+// - Any other site (APP_ENV=production, no APP_ENV at all, or the demo bar off anywhere but the demo deploy): the email in the verified
+//   Access token. An address in ADMIN_OWNER_EMAILS is an owner; otherwise the team member with that email has their role. Anyone else Access let in works the everyday
 //   dashboard with no permissions. A cookie never grants anything, even if the demo bar was left on by mistake.
 export type Member = { name: string; email: string; role: Role | null };
 
