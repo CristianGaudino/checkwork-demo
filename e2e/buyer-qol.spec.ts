@@ -45,8 +45,7 @@ test("a half-filled form survives a reload, without the contact details", async 
   await page.goto("/contact");
   const form = page.locator("form").filter({ has: page.getByLabel("Name") });
   const next = form.getByRole("button", { name: "Next", exact: true });
-  await form.getByText("Something else", { exact: true }).click();
-  await next.click();
+  await form.getByText("Something else", { exact: true }).click(); // moves on by itself
   await form.getByLabel("How can we help?").fill("Do you have a blue one?");
   await next.click();
   await form.getByLabel("Email", { exact: true }).fill("buyer@example.com");

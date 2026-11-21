@@ -91,8 +91,7 @@ async function next(page: Page) {
 test("/contact: Something else needs the message text, then ends on the thanks", async ({ page }) => {
   await open(page, "/contact");
   await expect(page.getByRole("heading", { level: 1, name: "Contact" })).toBeVisible();
-  await page.getByText("Something else", { exact: true }).click();
-  await next(page);
+  await page.getByText("Something else", { exact: true }).click(); // moves on by itself
   await expect(page.getByText("Step 2 of 3")).toBeVisible(); // a second tap too soon lands on the step that is leaving
   await next(page); // nothing typed yet
   await expect(page.locator("p", { hasText: "Tell us how we can help." })).toBeVisible();
@@ -122,8 +121,7 @@ test("/service: a service opens the form on its topic, with no message needed", 
 
 test("after a general message the button goes home, not to the stock list", async ({ page }) => {
   await open(page, "/contact");
-  await page.getByText("Something else", { exact: true }).click();
-  await next(page);
+  await page.getByText("Something else", { exact: true }).click(); // moves on by itself
   await page.getByLabel("How can we help?").fill("Hello");
   await next(page);
   await page.getByLabel("Phone", { exact: true }).fill("087 123 4567");

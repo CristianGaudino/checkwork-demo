@@ -58,7 +58,7 @@ export function LeadForm({
   back?: { href: string; label: string }; // where the page variant's success button goes
   prefill?: Record<string, string>; // a new object overwrites those fields and keeps the rest (the calculator's deposit and term)
   steps?: FormStep[]; // more than one: guided stages with Back and Next, every step's fields kept in the form
-  children: (form: { bind(name: string): FieldBinding; photos: PhotoBinding; step: number }) => React.ReactNode;
+  children: (form: { bind(name: string): FieldBinding; photos: PhotoBinding; step: number; advance(): void }) => React.ReactNode;
 }) {
   const uid = useId();
   const [values, setValues] = useState<Record<string, string>>(prefill ?? {});
@@ -84,7 +84,7 @@ export function LeadForm({
   // What is wrong with the typed fields, by the server's own rules. A Promise kept in a ref, so the rules load once.
   const rules = useRef<ReturnType<typeof validator>>(undefined);
   const check = async (v: Record<string, string>) => (await (rules.current ??= validator())).fieldErrors(type, v, car?.id);
-  const { step, setStep, wizard, last, heading: stepHeading, go, next, firstWith } = useSteps(
+  const { step, setStep, wizard, last, heading: stepHeading, go, next, advance, firstWith } = useSteps(
     steps,
     async (s) => {
       const all = await check(values);
@@ -244,7 +244,7 @@ export function LeadForm({
       onSubmit={onSubmit}
       // With no submit button on a step, Enter in a field would do nothing at all: it moves to the next step instead.
       onKeyDown={(e) => {
-        if (!last && e.key === "Enter" && e.target instanceof HTMLInputElement && e.target.type !== "file" && e.target.type !== "checkbox") {
+        if (!last && !e.defaultPrevented && e.key === "Enter" && e.target instanceof HTMLInputElement && e.target.type !== "file" && e.target.type !== "checkbox") {
           e.preventDefault();
           next();
         }
@@ -301,7 +301,7 @@ export function LeadForm({
               )}
             </div>
           )}
-          <div className="flex flex-col gap-4">{children({ bind, step, photos: { id: `${uid}-photos`, error: shown.photos?.[0], photos, onChange: setPhotos, onBusy: setShrinking } })}</div>
+          <div className="flex flex-col gap-4">{children({ bind, step, advance, photos: { id: `${uid}-photos`, error: shown.photos?.[0], photos, onChange: setPhotos, onBusy: setShrinking } })}</div>
           <div hidden={!last}>
             <ConsentRow {...bind("consent")} />
           </div>
@@ -336,7 +336,8 @@ export function LeadForm({
           )}
           {/* Keyed, so React never turns the Next button into the submit one while the click that moved on is still being handled: that sent
               the form on arriving at the last step. */}
-          {last ? (
+          {/* An `auto` step moves on when its answer is picked, so it has no Next. */}
+          {steps?.[step]?.auto ? null : last ? (
             <button key="send" type="submit" disabled={pending || shrinking} aria-busy={pending || shrinking} className={`${accentButton} ${button} disabled:opacity-60`}>
               {pending ? "Sending" : submitLabel}
             </button>

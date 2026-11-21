@@ -21,6 +21,11 @@ async function next(page: Page) {
   await expect(page.getByText(`Step ${Number(at) + 1} of ${of}`)).toBeVisible();
 }
 const pick = (page: Page, label: string) => page.getByRole("main").getByText(label, { exact: true }).click();
+// The first step is one question: picking a topic moves on by itself, with no Next.
+async function topic(page: Page, label: string) {
+  await pick(page, label);
+  await expect(page.getByText("Step 2 of 3")).toBeVisible();
+}
 
 // The last step: details, consent, send.
 async function finish(page: Page, name: string) {
@@ -49,8 +54,7 @@ for (const [where, viewport] of [["on a phone", undefined], ["on a computer", { 
       test(`${t.card}: taps, details, thanks, and the dealer sees the tags`, async ({ page }) => {
         const name = who(t.topic);
         await open(page);
-        await pick(page, t.card);
-        await next(page);
+        await topic(page, t.card);
         if ("message" in t) await page.getByLabel("How can we help?").fill(t.message);
         for (const tap of t.taps) await pick(page, tap);
         await next(page);
@@ -65,8 +69,7 @@ for (const [where, viewport] of [["on a phone", undefined], ["on a computer", { 
     test("a car you bought: the claim goes to Aftersales, not to Leads", async ({ page }) => {
       const name = who("Bought");
       await open(page);
-      await pick(page, "A car I bought from you");
-      await next(page);
+      await topic(page, "A car I bought from you");
       await page.getByLabel("Registration").fill("191-KY-1234");
       for (const tap of ["In the last month", "A fault", "Can't be driven"]) await pick(page, tap);
       await next(page);
@@ -79,8 +82,7 @@ for (const [where, viewport] of [["on a phone", undefined], ["on a computer", { 
 
 test("two taps and a message: Something else, then the words", async ({ page }) => {
   await open(page);
-  await pick(page, "Something else");
-  await next(page);
+  await topic(page, "Something else");
   await expect(page.getByLabel("How can we help?")).toBeVisible();
 });
 
@@ -89,16 +91,14 @@ test("on a phone the topic step and a topic's questions fit the screen, buttons 
   // The whole form, buttons included, is no taller than the screen.
   const inView = async () => expect(await page.locator("main form").evaluate((f) => f.getBoundingClientRect().height)).toBeLessThanOrEqual(page.viewportSize()!.height);
   await inView();
-  await pick(page, "Service or repair");
-  await next(page);
+  await topic(page, "Service or repair");
   await expect(page.getByLabel("Registration")).toBeVisible();
   await inView();
 });
 
 test("selling hands over to the valuation forms", async ({ page }) => {
   await open(page);
-  await pick(page, "Selling or trading in my car");
-  await next(page);
+  await topic(page, "Selling or trading in my car");
   await expect(page.getByRole("link", { name: "Sell my car" })).toHaveAttribute("href", "/sell-your-car");
   await page.getByRole("link", { name: "Trade it in" }).click();
   await expect(page).toHaveURL(/\/trade-in$/);
@@ -106,8 +106,7 @@ test("selling hands over to the valuation forms", async ({ page }) => {
 
 test("a car to trade in: the trade-in form opens with the car chosen", async ({ page }) => {
   await open(page);
-  await pick(page, "Buying a car");
-  await next(page);
+  await topic(page, "Buying a car");
   await choose(page.getByRole("combobox", { name: /Which car/ }), 1); // 0 is "Not sure yet"
   const car = (await page.getByRole("combobox", { name: /Which car/ }).inputValue()).trim();
   expect(car).not.toBe("");
@@ -120,8 +119,7 @@ test("a car to trade in: the trade-in form opens with the car chosen", async ({ 
 test("a message sent by only typing is still valid, so the old free-text path stands", async ({ page }) => {
   const name = who("Typed");
   await open(page);
-  await pick(page, "Something else");
-  await next(page);
+  await topic(page, "Something else");
   await page.getByLabel("How can we help?").fill("Is the blue Golf still there?");
   await next(page);
   await finish(page, name);
@@ -132,8 +130,7 @@ test("a visit from a tagged Facebook post: the lead says it came from Facebook",
   await page.goto("/?utm_source=facebook&utm_medium=social");
   await page.waitForFunction(() => sessionStorage.getItem("visit-channel") === "facebook");
   await open(page); // a later page of the same visit keeps the channel
-  await pick(page, "Something else");
-  await next(page);
+  await topic(page, "Something else");
   await page.getByLabel("How can we help?").fill("Is the blue Golf still there?");
   await next(page);
   await finish(page, name);
@@ -144,8 +141,7 @@ test("a visit from a tagged Facebook post: the lead says it came from Facebook",
 test("every need has its card, and the WhatsApp opt-in is offered: the site has no plans", async ({ page }) => {
   await open(page);
   for (const card of ["Buying a car", "Selling or trading in my car", "Finance", "Service or repair", "A car I bought from you", "Something else"]) await expect(page.getByRole("main").getByText(card, { exact: true })).toBeVisible();
-  await pick(page, "Buying a car");
-  await next(page);
+  await topic(page, "Buying a car");
   await next(page);
   await expect(page.getByRole("switch", { name: "Send me updates on WhatsApp" })).toBeVisible();
 });
@@ -153,8 +149,7 @@ test("every need has its card, and the WhatsApp opt-in is offered: the site has 
 test("an urgent lead is listed before the others, and the list filters by topic", async ({ page }) => {
   const name = who("Urgent");
   await open(page);
-  await pick(page, "Service or repair");
-  await next(page);
+  await topic(page, "Service or repair");
   await pick(page, "A noise");
   await pick(page, "This week");
   await next(page);
@@ -170,4 +165,28 @@ test("an urgent lead is listed before the others, and the list filters by topic"
   const filtered = await page.getByRole("row").allTextContents();
   expect(filtered.length).toBeGreaterThan(1);
   for (const r of filtered.slice(1)) expect(r).toContain("Service ·");
+});
+
+test("picking a topic moves on by itself: keys too, and Back keeps the choice", async ({ page }) => {
+  await open(page);
+  await expect(page.getByRole("button", { name: "Next", exact: true })).toHaveCount(0); // nothing to press after a pick
+  // Arrow keys only move through the topics; Space picks one and moves on, with focus on the new step's heading.
+  await page.getByRole("radio", { name: "Buying a car" }).focus();
+  await page.keyboard.press("ArrowDown");
+  await expect(page.getByRole("radio", { name: "Selling or trading in my car" })).toBeChecked();
+  await expect(page.getByText("Step 1 of 3")).toBeVisible();
+  await page.keyboard.press("ArrowDown");
+  await page.keyboard.press("Space");
+  await expect(page.getByRole("heading", { name: /Step 2 of 3/ })).toBeFocused();
+  await expect(page.getByRole("link", { name: "Work out a payment" })).toBeVisible(); // Finance
+  // Back keeps the choice; picking it again moves on, and so does picking another, with Enter.
+  await page.getByRole("button", { name: "Back", exact: true }).click();
+  await expect(page.getByRole("radio", { name: "Finance" })).toBeChecked();
+  await pick(page, "Finance");
+  await expect(page.getByText("Step 2 of 3")).toBeVisible();
+  await page.getByRole("button", { name: "Back", exact: true }).click();
+  await page.getByRole("radio", { name: "Something else" }).focus();
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("heading", { name: /Step 2 of 3/ })).toBeFocused();
+  await expect(page.getByLabel("How can we help?")).toBeVisible();
 });

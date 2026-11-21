@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRef } from "react";
 import { LIMITS } from "@/lib/leads/constants";
 import { CHOICES, TOPICS, URGENCY_FOR, type TopicId } from "@/lib/leads/contact-topics";
 import { count } from "@/lib/count-client";
@@ -11,9 +12,10 @@ import { ContactFields, Field } from "./Field";
 import type { FieldBinding, FormStep } from "./LeadForm";
 
 // The guided contact form (#176), in three steps: what the buyer needs, a few taps about it, how to reach them. /service and /warranty
-// start at step two with the topic already set (`fixed`), so their steps are CONTACT_STEPS without the first.
+// start at step two with the topic already set (`fixed`), so their steps are CONTACT_STEPS without the first. The first is one question,
+// so picking a topic moves on (`auto`); the others have several questions each, so they keep Next.
 export const CONTACT_STEPS: FormStep[] = [
-  { title: "What you need", fields: ["topic"], check: ({ values }) => (values.topic ? undefined : { topic: ["Choose what we can help with."] }) },
+  { title: "What you need", auto: true, fields: ["topic"], check: ({ values }) => (values.topic ? undefined : { topic: ["Choose what we can help with."] }) },
   { title: "A few questions", fields: ["carId", "timing", "hasTradeIn", "serviceNeed", "reg", "urgency", "boughtWhen", "concern", "message"] },
   { title: "Your details", fields: ["name", "phone", "email", "contactVia", "contactWhen", "consent"] },
 ];
@@ -51,10 +53,18 @@ function Handover({ href, children, carry }: { href: string; children: React.Rea
   );
 }
 
-export function GeneralFields({ bind, step, cars = [], fixed }: { bind(name: string): FieldBinding; step: number; cars?: [string, string][]; fixed?: TopicId }) {
+export function GeneralFields({ bind, step, advance, cars = [], fixed }: { bind(name: string): FieldBinding; step: number; advance(): void; cars?: [string, string][]; fixed?: TopicId }) {
   const at = fixed ? step + 1 : step; // the step in CONTACT_STEPS
   const topicBind = bind("topic");
   const topic = fixed ?? ((topicBind.value || undefined) as TopicId | undefined);
+  const pick = (id: TopicId) => {
+    if (id === topic) return;
+    topicBind.onChange(id);
+    count("contact-topic");
+  };
+  // Arrow keys move through the topics (the browser checks each one with a click) without leaving the step; a tap, a click, Space or Enter
+  // picks one and moves on. Picking the one already chosen (after Back) moves on too.
+  const arrowed = useRef(false);
   const carPick = [{ value: "", label: "Not sure yet" }, ...cars.map(([value, label]) => ({ value, label }))];
   const reg = <Field {...bind("reg")} label="Registration" optional autoCapitalize="characters" spellCheck={false} maxLength={12} placeholder="191-KY-1234" enterKeyHint="next" />;
   // Every step stays in the form (hidden, not removed) so the send reads all of it; only the current one shows.
@@ -63,17 +73,38 @@ export function GeneralFields({ bind, step, cars = [], fixed }: { bind(name: str
       {fixed ? (
         <input type="hidden" name="topic" value={fixed} />
       ) : (
-        <fieldset hidden={at !== 0} className="flex flex-col gap-3">
+        <fieldset
+          hidden={at !== 0}
+          onKeyDown={(e) => {
+            arrowed.current = e.key.startsWith("Arrow");
+          }}
+          onKeyUp={() => {
+            arrowed.current = false;
+          }}
+          className="flex flex-col gap-3"
+        >
           <legend className="mb-3 text-body text-text-2">What can we help with?</legend>
           {/* Two across only when the form is wide enough (not the screen): beside the contact page's map a label would wrap to three lines. */}
           <div className="@container">
             <div className="grid grid-cols-1 gap-2 @md:grid-cols-2">
               {TOPICS.map((t) => (
                 <label key={t.id} className={`${chip} min-h-14 rounded-card px-4 font-semibold`}>
-                  <input type="radio" name="topic" value={t.id} checked={topic === t.id} onChange={() => {
-                        topicBind.onChange(t.id);
-                        count("contact-topic");
-                      }} className="sr-only" />
+                  <input
+                    type="radio"
+                    name="topic"
+                    value={t.id}
+                    checked={topic === t.id}
+                    onChange={() => pick(t.id)}
+                    onClick={() => arrowed.current || advance()}
+                    // Space and Enter by hand: a browser gives no click for Space on the topic already checked, and Enter would be the form's own.
+                    onKeyDown={(e) => {
+                      if (e.key !== "Enter" && e.key !== " ") return;
+                      e.preventDefault();
+                      pick(t.id);
+                      advance();
+                    }}
+                    className="sr-only"
+                  />
                   {t.label}
                 </label>
               ))}
