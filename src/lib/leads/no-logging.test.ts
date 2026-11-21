@@ -54,7 +54,7 @@ function deps(over: Partial<Deps> = {}): Deps {
     mailer: { send: async () => {} },
     getCar: async (id) => cars.find((c) => c.id === id) ?? null,
     limiter: { allow: async () => true },
-    verifyTurnstile: async (t) => t === "ok",
+    verifyTurnstile: async (t) => t === "ok" || ["invalid-input-response"],
     demo: true,
     bucket: { put: async () => {}, delete: async () => {} },
     photoLinkSecret: () => "test-secret",
@@ -149,11 +149,11 @@ describe("no lead payload reaches a log (D-08)", () => {
     const out = [...consoleCalls, ...streamSpies.flatMap((s) => s.mock.calls as unknown[][])].map(serialise).join("\n");
     for (const s of SENTINELS) expect(out).not.toContain(s);
 
-    // Exactly one logLead line: a single JSON string with only the lead id, type and outcome.
+    // Exactly one logLead line: a single JSON string with only the lead id, type, outcome and (for the bot check) its fixed codes.
     expect(consoleCalls).toHaveLength(1);
     expect(consoleCalls[0]).toHaveLength(1);
     const line = JSON.parse(String(consoleCalls[0][0]));
-    expect(Object.keys(line).every((k) => ["leadId", "type", "outcome"].includes(k))).toBe(true);
+    expect(Object.keys(line).every((k) => ["leadId", "type", "outcome", "codes"].includes(k))).toBe(true);
     expect(line.outcome).toBe(outcome);
   });
 });

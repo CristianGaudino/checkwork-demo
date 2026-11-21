@@ -3,6 +3,7 @@ import demoCars from "@/lib/stock/demo-cars.json";
 import { carTitle } from "@/lib/stock/format";
 import type { Car } from "@/lib/stock/types";
 import { processLead, snapshotCar } from "./process";
+import { verifyTurnstile } from "./turnstile";
 import type { Deps, LeadRow } from "./process";
 import { CONSENT, PHOTO_MIN_COUNT } from "./constants";
 
@@ -25,7 +26,7 @@ function fakeDeps(over: Partial<Deps["store"]> = {}) {
     mailer: { send: async (m) => void mail.push(m) },
     getCar: async (id) => cars.find((c) => c.id === id) ?? null,
     limiter: { allow: async () => true },
-    verifyTurnstile: async (token) => token === "ok-token",
+    verifyTurnstile: async (token) => token === "ok-token" || [token ? "invalid-input-response" : "no-token"],
     demo: true,
     bucket: { put: async () => {}, delete: async () => {} },
     photoLinkSecret: () => "test-secret",
@@ -201,7 +202,24 @@ describe("processLead bot checks (D-05)", () => {
     expect(await processLead(enquiryForm({ "cf-turnstile-response": "forged" }), ctx, deps)).toEqual({ status: "failed", kind: "captcha" });
     expect(rows).toHaveLength(0);
     expect(mail).toHaveLength(0);
-    expect(lines().map((l) => l.outcome)).toEqual(["captcha", "captcha"]);
+    expect(lines()).toEqual([
+      { type: "enquiry", outcome: "captcha", codes: ["no-token"] },
+      { type: "enquiry", outcome: "captcha", codes: ["invalid-input-response"] },
+    ]);
+  });
+
+  it("logs why Cloudflare refused the token, as its codes only: never the token, the IP, the secret or the buyer", async () => {
+    const { deps } = fakeDeps();
+    deps.verifyTurnstile = (token, ip) => verifyTurnstile(token, ip, "ZZ-SECRET");
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ success: false, "error-codes": ["timeout-or-duplicate", "buyer@example.com"], hostname: "example.com" }))));
+    try {
+      expect(await processLead(enquiryForm({ "cf-turnstile-response": "ZZ-TOKEN" }), ctx, deps)).toEqual({ status: "failed", kind: "captcha" });
+    } finally {
+      vi.unstubAllGlobals();
+    }
+    expect(lines()).toEqual([{ type: "enquiry", outcome: "captcha", codes: ["timeout-or-duplicate", "other"] }]);
+    const out = JSON.stringify([...log.mock.calls, ...error.mock.calls]);
+    for (const s of ["ZZ-SECRET", "ZZ-TOKEN", ctx.ip, "buyer@example.com", "Test buyer", "example.com"]) expect(out).not.toContain(s);
   });
 
   // Confirms the 03-05 snapshotCar rule for a car-less type: if this fails, fix snapshotCar, never the test.

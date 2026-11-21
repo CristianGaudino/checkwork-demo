@@ -30,7 +30,7 @@ function fakeDeps(): Deps {
     mailer: { send: async () => {} },
     getCar,
     limiter: { allow: async () => true },
-    verifyTurnstile: async (token) => token !== "",
+    verifyTurnstile: async (token) => token !== "" || ["no-token"],
     demo: true,
     bucket: { put: async () => {}, delete: async () => {} }, // photos are dropped, like the mail
     photoLinkSecret: () => "e2e-photo-link-secret",
