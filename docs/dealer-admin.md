@@ -9,8 +9,11 @@ The demo sends each lead it stores to the dashboard's site API (`POST /api/site/
 email was tried and next to the archived copy. The site key (`DASH_SITE_KEY`, a Worker secret) decides the dealer. It goes Worker to
 Worker through the `DASH` service binding when wrangler.jsonc has one, else over a normal fetch to `DASH_URL`. With no key nothing is
 sent. A failed or slow send (5 seconds) never loses the lead or shows the buyer an error: it is logged as `dash_failed` with the lead's
-id, type and HTTP status only. Photos stay in this site's bucket; the dashboard is told how many came. With `NEXT_PUBLIC_DASH_URL` set
-at build, the demo bar's Dealer choice opens the dashboard instead of `/dashboard`.
+id, type and HTTP status only. Photos stay in this site's bucket; the dashboard is told how many came.
+
+The live demo is a public, view-only showroom (owner, 2026-11-22): the deploy builds with `NEXT_PUBLIC_DEMO_BAR=off`, so it has no demo
+bar, no role, plan or sync switches and no link to a dashboard, exactly like a real dealer's site, with every module on. The bar is still
+there in `next dev` and the E2E run.
 
 ## The archived dashboard
 

@@ -35,10 +35,9 @@ jobs:
       # The demo deploy is not production: every page is noindex, the sitemap is empty and robots.txt only lets the
       # share-preview bots in. Set production only when this deploys the client's live domain (owner decision 1).
       APP_ENV: demo
-      # The dealer dashboard (/dashboard) sits behind Cloudflare Access. The Worker also checks Access's signed token itself
-      # (src/lib/access.ts), so they stay closed (404) until CF_ACCESS_TEAM_DOMAIN and CF_ACCESS_AUD are set on the Worker. This flag only
-      # shows the Dealer link in the demo bar. Set-up steps: docs/dealer-admin.md, "Cloudflare Access".
-      NEXT_PUBLIC_ACCESS_ENABLED: 1
+      # The public demo is a view-only showroom (owner, 2026-11-22): no demo bar, so no role, plan or sync switches and no dealer links,
+      # as on a real dealer's site. The archived dashboard (/dashboard) stays behind Cloudflare Access; the dashboard now lives in checkwork-dash.
+      NEXT_PUBLIC_DEMO_BAR: "off"
       # Turnstile site key: public, inlined into the browser bundle at build. Its secret is a Worker secret.
       NEXT_PUBLIC_TURNSTILE_SITE_KEY: 0x4AAAAAAF6rFQ-bqDaE2f7y
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

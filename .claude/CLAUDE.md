@@ -12,7 +12,7 @@ A generic, all-inclusive demo of the dealer website Checkwork builds, with a mad
 - Saved cars live in localStorage.
 - Design: modernised, not a copy of the current site. The logo is the only locked asset. Design with the skills in `.agents/skills`, primarily `apple-design`, and write the contract before building UI.
 - The dealer dashboard (`/dashboard`) is built on demo data plus what visitors send. Read `docs/dealer-admin.md` before touching it: on a deployed site it answers only behind Cloudflare Access (the Worker checks the token), sensitive figures (margins) need a permission checked on the server, and posting, ads and newsletters are simulated on the demo (`SIMULATE_INTEGRATIONS=off` for a real site) and send nothing outside.
-- Scope: the public site and the dealer dashboard are built and live. The demo opens as the all-inclusive version (every module on); the demo bar's Plan switch shows it as a smaller plan (modules on and off, `src/lib/modules-rules.ts`). Checkwork's own prices show on screen (`SHOW_PRICING` in `src/lib/billing/rules.ts`; false hides them). What is still open is only what the open issues say; the launch steps for a client site are in `docs/new-site-checklist.md`. Before calling anything outstanding, check git log and closed issues.
+- Scope: the public site and the dealer dashboard are built and live. The live demo is a public, view-only showroom with every module on: no demo bar, no dealer controls or links (owner, 2026-11-22; the deploy sets `NEXT_PUBLIC_DEMO_BAR=off`). The bar, with its Plan switch (modules on and off, `src/lib/modules-rules.ts`), is only in `next dev` and the E2E run. The dealer dashboard is its own app in checkwork-dash; the one here is archived (#243). Checkwork's own prices show on screen (`SHOW_PRICING` in `src/lib/billing/rules.ts`; false hides them). What is still open is only what the open issues say; the launch steps for a client site are in `docs/new-site-checklist.md`. Before calling anything outstanding, check git log and closed issues.
 - Look: the site must not look like a copy of any other dealer site we have built. Function stays, the look, feel and layout change.
 - Planning lives in GitHub issues. Some code comments cite decision ids (D-08, T-03-27 and so on) from planning notes that were removed from this repo: treat them as history, and put new planning in issues.
 
@@ -44,6 +44,6 @@ Every merge to `main` deploys to production (deploy.yml). For now there are no r
 ## Product rules
 - On-screen text is plain, short and human. No em dashes anywhere on the site. If a label already says it, drop the helper text.
 - Finance figures are representative only and carry the dealer's required wording. Never invent APRs or terms in the product: use the client's.
-- No demo, draft or placeholder pills, badges or labels anywhere on the site. It looks and feels like a real site. (The demo bar and the dev-only data toggle are the only chrome that says "demo".)
+- No demo, draft or placeholder pills, badges or labels anywhere on the site. It looks and feels like a real site. (The demo bar, in development only, and the dev-only data toggle are the only chrome that says "demo".)
 - Real customer data (leads, subscribers) is personal data: collect with consent, keep it minimal, and never log it.
 - Mobile first. Fast on a mid-range phone is a feature, not a polish step.
