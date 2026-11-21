@@ -1,13 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { moduleForPath, pathAllowed, withModule, type ModuleId } from "./modules-rules";
+import { moduleForPath, pathAllowed, type ModuleId } from "./modules-rules";
 
 const on = (...ids: ModuleId[]) => new Set<ModuleId>(ids);
 
 // The archived dashboard's plans (Billing). The public site has no modules.
 describe("modules", () => {
-  it("turning one on brings what it needs", () => {
-    expect([...withModule(new Set(), "margins")].sort()).toEqual(["dashboard", "margins", "sales"]);
-  });
 
   it("finds the module of a dashboard path by its longest prefix; a public path has none", () => {
     expect(moduleForPath("/dashboard/test-drives/abc")).toBe("testDrives");

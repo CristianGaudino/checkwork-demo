@@ -26,14 +26,7 @@ export const MODULES = [
 
 export type ModuleId = (typeof MODULES)[number]["id"];
 export const MODULE_IDS = MODULES.map((m) => m.id) as ModuleId[];
-const needsOf = (id: ModuleId): readonly ModuleId[] => (MODULES.find((m) => m.id === id) as { needs?: readonly ModuleId[] }).needs ?? [];
 
-// Turning one on brings what it needs (the Billing page's prices).
-export function withModule(on: Set<ModuleId>, id: ModuleId): Set<ModuleId> {
-  const next = new Set(on).add(id);
-  for (const n of needsOf(id)) for (const m of withModule(next, n)) next.add(m);
-  return next;
-}
 
 // The module a path belongs to, or none (base). The longest matching prefix wins, so /dashboard/test-drives is Test drives, not the dashboard.
 const within = (path: string, prefix: string) => path === prefix || path.startsWith(prefix + "/");

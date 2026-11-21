@@ -4,14 +4,14 @@ import { ActButton } from "@/components/admin/ActButton";
 import { AlertForm, DetailsForm, LimitsForm } from "@/components/admin/BillingForms";
 import { Badge, DataTable, EmptyState, PageHeader, Panel, Segmented, adminButtonQuiet, rowButton } from "@/components/admin/kit";
 import { fmtDay, fmtNum, plural } from "@/lib/admin/format";
-import { MODULES, withModule } from "@/lib/modules-rules";
+import { MODULES } from "@/lib/modules-rules";
 import { enabledModules } from "@/lib/modules";
 import { can, currentMember } from "@/lib/permissions";
 import { billingDetails, listBills } from "@/lib/billing/bills";
 import { eur, fmtMonth, itemise, nextBillDate, scopeName, billedServices } from "@/lib/billing/bills-rules";
-import { AI_MODELS, KINDS, MODULE_EUR, SHOW_PRICING, TERM_LABELS, allowanceFor, setupEur, setupLines, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, capOf, planEur, planFor, planLines, termSetupEur, usageEstimate, round2, withVat, yearUpfrontEur, type BillingSettings, type Scope, type Service, type UsageCount } from "@/lib/billing/rules";
+import { AI_MODELS, KINDS, SHOW_PRICING, TERM_LABELS, allowanceFor, setupEur, setupLines, SERVICE_LABELS, UNIT_PRICE_EUR, VAT_PCT, capOf, planEur, planFor, planLines, termSetupEur, usageEstimate, round2, withVat, yearUpfrontEur, type BillingSettings, type Scope, type Service, type UsageCount } from "@/lib/billing/rules";
 import { billingSettings, monthCounts, monthUsage } from "@/lib/billing/usage";
-import { askModuleAction, removeAlertAction, saveAiModelAction } from "./actions";
+import { removeAlertAction, saveAiModelAction } from "./actions";
 import { dublinDay } from "@/lib/admin/format";
 import { ChevronDownIcon } from "@/components/stock/icons";
 
@@ -114,9 +114,6 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
 }
 
 function PlanAndUsage({ modules, services, usage, counts, b, now }: { modules: Modules; services: Service[]; usage: Usage; counts: UsageCount[]; b: BillingSettings; now: Date }) {
-  // What adding a module costs: with what it needs, and a tier it completes. 0 when the plan already pays for it.
-  const addEur = (id: (typeof MODULES)[number]["id"]) => planFor(withModule(modules, id), b).eur - planFor(modules, b).eur;
-  const others = MODULES.filter((m) => !modules.has(m.id) && MODULE_EUR[m.id] > 0);
   const plan = planEur(modules, b);
   const sofar = usage.totalEur;
   const estimate = usageEstimate(counts, allowanceFor(modules, b), b, dublinDay(now.getTime()));
@@ -190,23 +187,6 @@ function PlanAndUsage({ modules, services, usage, counts, b, now }: { modules: M
           {TERM_LABELS[b.term]}
           {b.term === "annual" && `: ${eur(yearUpfrontEur(plan))} a year, before VAT`}
         </p>
-        {others.length > 0 && (
-          <details className="rounded-control border border-hairline px-3">
-            <summary className="min-h-11 cursor-pointer py-2.5 text-body font-medium">Add more to your plan</summary>
-            <ul className="flex flex-col divide-y divide-hairline pb-2">
-              {others.map((m) => (
-                <li key={m.id} className="flex flex-wrap items-center justify-between gap-3 py-2">
-                  <span>
-                    {m.label} <span className="text-text-2">{addEur(m.id) ? `${eur(addEur(m.id))} a month` : "Included in your plan"}</span>
-                  </span>
-                  <ActButton act={askModuleAction.bind(null, m.id)} done="We have your request. Our reply will show in Help." label={`Ask us to add ${m.label}`} className={rowButton}>
-                    Ask us to add
-                  </ActButton>
-                </li>
-              ))}
-            </ul>
-          </details>
-        )}
       </Panel>
 
       <Panel title="Pay as you go this month" action={services.length > 0 ? <Link href="/dashboard/billing?section=limits" className="text-meta font-medium text-accent-text underline underline-offset-2">Set a limit</Link> : undefined}>
@@ -283,14 +263,12 @@ function PlanAndUsage({ modules, services, usage, counts, b, now }: { modules: M
 async function WithoutPrices() {
   const [modules, b, me, details] = await Promise.all([enabledModules(), billingSettings(), currentMember(), billingDetails()]);
   const on = MODULES.filter((m) => modules.has(m.id));
-  const off = MODULES.filter((m) => !modules.has(m.id));
   return (
     <>
       <PageHeader title="Billing" text="What you pay us each month, and what you have used so far." />
       <Panel title={`Your plan: ${planFor(modules, b).name}`}>
-        {on.length > 0 ? (
-          // Folded: a long list would bury the billing details below it on a phone.
-          <details className="rounded-control border border-hairline px-3">
+        {/* Folded: a long list would bury the billing details below it on a phone. */}
+        <details className="rounded-control border border-hairline px-3">
             <summary className="min-h-11 cursor-pointer py-2.5 text-body font-medium">What is included ({on.length})</summary>
             <ul className="flex flex-col divide-y divide-hairline pb-2 text-body">
               {on.map((m) => (
@@ -301,25 +279,7 @@ async function WithoutPrices() {
               ))}
             </ul>
           </details>
-        ) : (
-          <p className="text-body text-text-2">The website, with your stock and the enquiry and contact forms.</p>
-        )}
         <p className="text-meta text-text-2">{TERM_LABELS[b.term]}</p>
-        {off.length > 0 && (
-          <details className="rounded-control border border-hairline px-3">
-            <summary className="min-h-11 cursor-pointer py-2.5 text-body font-medium">Add more to your plan</summary>
-            <ul className="flex flex-col divide-y divide-hairline pb-2">
-              {off.map((m) => (
-                <li key={m.id} className="flex flex-wrap items-center justify-between gap-3 py-2">
-                  <span>{m.label}</span>
-                  <ActButton act={askModuleAction.bind(null, m.id)} done="We have your request. Our reply will show in Help." label={`Ask us to add ${m.label}`} className={rowButton}>
-                    Ask us to add
-                  </ActButton>
-                </li>
-              ))}
-            </ul>
-          </details>
-        )}
       </Panel>
       {modules.has("ai") && (
         <Panel title="AI writing">

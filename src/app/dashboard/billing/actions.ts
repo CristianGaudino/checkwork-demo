@@ -4,8 +4,6 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { logActivity } from "@/lib/admin/activity";
 import { SETTINGS_DEFAULT, settingsStore, type DealerSettings } from "@/lib/admin/collections";
-import { addRequest, helpStore } from "@/lib/admin/help";
-import { MODULES, type ModuleId } from "@/lib/modules-rules";
 import { enabledModules } from "@/lib/modules";
 import { can, currentMember } from "@/lib/permissions";
 import { fieldErrors } from "@/lib/admin/validation";
@@ -89,14 +87,3 @@ export async function saveDetailsAction(_p: BillingState, data: FormData): Promi
   return done();
 }
 
-// "Ask us to add": sends us a request; nothing is switched on. Asking twice for the same one while we have not finished is one request.
-export async function askModuleAction(id: ModuleId) {
-  await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
-  const m = MODULES.find((x) => x.id === id);
-  if (!m || !(await can("billing")) || (await enabledModules()).has(id)) return;
-  const me = await currentMember();
-  const message = `Please add ${m.label} to our site.`;
-  if ((await helpStore.list()).some((r) => r.name === me.name && r.message === message && r.status !== "done")) return;
-  await addRequest({ type: "Add to my plan", message, from: "/dashboard/billing", name: me.name, role: me.role ?? "" });
-  revalidatePath("/dashboard/help");
-}
