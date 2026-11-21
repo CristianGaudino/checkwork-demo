@@ -8,6 +8,7 @@ import { CHECKWORK_URL, DEALER_ADDRESS_LINES, SITE_NAME, SOCIAL_LINKS } from "@/
 import { Logo } from "@/components/Logo";
 import { PhoneLink } from "@/components/PhoneLink";
 import { BackToTop } from "@/components/BackToTop";
+import { ThemeSwitch } from "@/components/ThemeSwitch";
 
 // Below 1024px the footer is a way to every page (with the menu): each group folds into one row, so it is about half the height it was.
 // From 1024px the groups are open columns. The groups are in src/lib/nav.ts (docs/mobile-navigation.md).
@@ -110,6 +111,7 @@ export function SiteFooter() {
               </li>
             ))}
           </ul>
+          <ThemeSwitch />
           <p className="lg:ml-auto">© {SITE_NAME}</p>
           <a href={CHECKWORK_URL} {...NEW_TAB} className="inline-flex min-h-11 items-center gap-2 transition-colors hover:text-text">
             Powered by

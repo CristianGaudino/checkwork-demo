@@ -2,31 +2,14 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useId, useState, useSyncExternalStore } from "react";
-import { DEMO_ROLES, THEME_KEY, isAppPath, roleForPath, type Theme } from "@/lib/demo";
+import { useCallback, useId, useState } from "react";
+import { DEMO_ROLES, isAppPath, roleForPath } from "@/lib/demo";
 import { setDealerRole, setDemoStockSource, useDealerRole, useStockSource } from "@/lib/demo-role";
 import { ROLES, type Role } from "@/lib/permission-rules";
 import { LISTING_SITE } from "@/lib/stock-source-rules";
 import { ChevronDownIcon } from "@/components/stock/icons";
 import { press } from "@/components/ui";
-
-// The theme lives on <html data-theme>; this watches that attribute, so the button is right on first paint and after any change.
-function subscribe(cb: () => void) {
-  const o = new MutationObserver(cb);
-  o.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
-  return () => o.disconnect();
-}
-const read = (): Theme => (document.documentElement.dataset.theme === "dark" ? "dark" : "light");
-
-function setTheme(t: Theme) {
-  if (t === "dark") document.documentElement.dataset.theme = "dark";
-  else delete document.documentElement.dataset.theme;
-  try {
-    localStorage.setItem(THEME_KEY, t);
-  } catch {
-    // Private window or blocked storage: the choice lasts for this page view only.
-  }
-}
+import { ThemeSwitch } from "@/components/ThemeSwitch";
 
 // The page keeps room for whichever form of the bar is showing (--demo-bar-h): the whole bar from 640px, the pill and its gap on a phone.
 // Hidden (display: none) forms report nothing, so the two never fight.
@@ -53,7 +36,6 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
   const inApp = isAppPath(path);
   // The route is the role: the public site is always the customer's, with no dealer tools on it; Dealer opens the dashboard.
   const role = roleForPath(path);
-  const theme = useSyncExternalStore(subscribe, read, () => "light" as Theme);
   const dealerRole = useDealerRole();
   const donedeal = useStockSource() === "donedeal";
   const [open, setOpen] = useState(false); // mirrors the popover, for the chevron and aria-expanded
@@ -115,9 +97,7 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
           </button>
         </div>
       )}
-      <button type="button" aria-pressed={theme === "dark"} onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className={`flex h-11 items-center px-2 text-text-2 ${press}`}>
-        {theme === "dark" ? "Dark" : "Light"}
-      </button>
+      <ThemeSwitch />
     </>
   );
 

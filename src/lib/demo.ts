@@ -28,9 +28,11 @@ export const adminReachable = (nodeEnv: string | undefined = process.env.NODE_EN
 // (APP_ENV=production) or a build with no APP_ENV never lets a cookie grant a role (src/lib/permissions.ts, src/lib/stock-source.ts).
 export const demoCookiesCount = () => DEMO_BAR_ENABLED && (isDemoSite() || adminReachable());
 
+// The visitor's theme (src/components/ThemeSwitch.tsx): Light or Dark stored in this browser, or nothing for Auto (the device's setting).
 export const THEME_KEY = `${SITE_SLUG}:theme`;
-export const THEMES = ["light", "dark"] as const;
+export const THEMES = ["auto", "light", "dark"] as const;
 export type Theme = (typeof THEMES)[number];
 
-// Runs before first paint (inline in <head>) so a stored dark choice never flashes light. Storage can throw, so it is wrapped.
-export const THEME_SCRIPT = `try{var t=localStorage.getItem(${JSON.stringify(THEME_KEY)});if(t==="dark")document.documentElement.dataset.theme=t}catch(e){}`;
+// Runs before first paint (inline in <head>), so the first paint has the right theme: the stored choice, else the device's. On Auto it
+// follows the device when that changes. Storage can throw (blocked, private window), which reads as Auto.
+export const THEME_SCRIPT = `(function(){var m=matchMedia("(prefers-color-scheme: dark)");function a(){var t;try{t=localStorage.getItem(${JSON.stringify(THEME_KEY)})}catch(e){}document.documentElement.dataset.theme=t==="light"||t==="dark"?t:m.matches?"dark":"light"}a();m.addEventListener("change",a)})()`;

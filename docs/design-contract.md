@@ -108,3 +108,9 @@ direction, the picture beside the title and the order of sections stay.
 - **Choices fit their column.** The contact form's topic buttons go two across only when the form is wide enough (a container query), so a label
   never wraps to three lines.
 - **Footer:** the desktop link columns use 32px rows (above the 24px WCAG target); the phone keeps 44px rows.
+
+## Theme switch (owner, 2026-11-22)
+The site follows the device's light or dark setting until the visitor picks one. The switch (Auto, Light, Dark) sits in the footer's
+bottom line beside the legal links: the place people look for site settings, quiet on every page, and the same spot on a phone and a
+desktop, so the menu and the header stay about the cars. It is a small segmented control of native radio buttons (one choice of three,
+announced as such, arrow keys move it), remembered in this browser. The demo bar in `next dev` shows the same control.

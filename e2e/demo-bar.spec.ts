@@ -36,16 +36,10 @@ test("on a phone the demo bar folds into a small pill that opens its controls an
   await expect(dealer).toBeHidden();
 });
 
-test("light is the default, dark is a choice that sticks and does not flash", async ({ page }) => {
+test("the demo bar's theme control is the footer's: one choice, shown in both", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/");
-  const html = page.locator("html");
-  await expect(html).not.toHaveAttribute("data-theme", "dark");
-  await expect(html).toHaveCSS("background-color", "rgb(244, 246, 251)");
-  await (await demoBar(page)).getByRole("button", { name: "Light" }).click();
-  await expect(html).toHaveAttribute("data-theme", "dark");
-  await expect(html).toHaveCSS("background-color", "rgb(11, 15, 31)");
-  await page.reload();
-  await expect(html).toHaveAttribute("data-theme", "dark");
-  await (await demoBar(page)).getByRole("button", { name: "Dark" }).click();
-  await expect(html).not.toHaveAttribute("data-theme", "dark");
+  await (await demoBar(page)).getByRole("radiogroup", { name: "Theme" }).getByText("Dark").click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(page.getByRole("contentinfo").getByRole("radio", { name: "Dark" })).toBeChecked();
 });

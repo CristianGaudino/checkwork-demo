@@ -107,7 +107,8 @@
   --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-/* Dark, by choice (demo bar toggle, stored in localStorage and set on <html> before first paint). .theme-dark does the same for one
+/* Dark: the visitor's choice or, on Auto, the device's (THEME_SCRIPT sets data-theme on <html> before first paint, so an explicit Light
+   on a dark device stays light: no media query here). .theme-dark does the same for one
    element, so a band that is always dark (header, footer) keeps its light-on-dark children in both themes. */
 :root[data-theme="dark"],
 .theme-dark {
@@ -159,7 +160,7 @@
   scrollbar-width: none;
 }
 
-/* dark: follows the demo bar choice (data-theme on <html>), not the device setting. */
+/* dark: follows data-theme on <html> (the theme switch, or the device on Auto). */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 @custom-variant reduce-transparency (@media (prefers-reduced-transparency: reduce));
