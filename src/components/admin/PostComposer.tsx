@@ -214,8 +214,8 @@ export function PostComposer({ cars, initialSlug, initialFormat = "post", initia
               <input name="when" type="datetime-local" required min={localNow()} className={`${adminInput} w-60`} />
             </Field>
           )}
-          {/* An ad starts with the post, so it is only offered for a post that goes out now. */}
-          {!later && (
+          {/* An ad starts with the post, so it is only offered for a post that goes out now, and that we send (not one made ready for the phone). */}
+          {!later && mode === "auto" && (
             <label className="flex min-h-11 items-start gap-3 py-1">
               <input type="checkbox" name="ad" checked={ad} onChange={(e) => setAd(e.target.checked)} className="mt-0.5 size-5 shrink-0 accent-[var(--color-accent)]" />
               <span className="flex flex-col">

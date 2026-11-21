@@ -71,7 +71,9 @@ export async function composeAction(data: FormData) {
   if (!(FORMATS_FOR[d.network] as readonly string[]).includes(d.format) || (d.intent === "publish" && !ready)) return go("posts", "invalid");
   const post: SocialPost = { id: newId("post"), network: d.network, carSlug: car.slug, carTitle: carName(car), text: d.text, ...(photos.length && { photos }), ...(d.format !== "post" && { format: d.format }), ...(d.format === "story" && d.layout && { layout: d.layout }), ...(clip && { video: clip.src }), status: later ? "scheduled" : "draft", ...(later && { scheduledFor: when }), createdAt: Date.now() };
   await postsStore.put(post);
-  const withAd = d.ad === "on" && !later && d.platform && d.budgetEur; // an ad starts with the post, so not for a scheduled one
+  const prepared = PUBLISH_MODE[d.network][d.format] === "prepare";
+  // An ad starts with the post, so not for a scheduled one, nor for one made ready for the phone (it is not out yet).
+  const withAd = d.ad === "on" && !later && !prepared && d.platform && d.budgetEur;
   const adDraft: Ad | null = withAd ? { id: newId("ad"), name: `${carName(car)} ${d.platform} ad`, platform: d.platform!, carTitle: carName(car), budgetEur: d.budgetEur!, status: "draft", impressions: 0, clicks: 0, leads: 0, createdAt: Date.now() } : null;
   if (adDraft) await adsStore.put(adDraft);
   if (d.intent === "draft") {
@@ -88,9 +90,9 @@ export async function composeAction(data: FormData) {
     return outcome("posts", "social", sent, "");
   }
   await postsStore.put({ ...post, status: "posted", postedAt: Date.now(), ...(sent.simulated && { simulated: true, ...simulatedPost(post.id) }) });
-  await logActivity("marketing", `Published ${aOrAn(d.network)} post`, postRef(post));
+  await logActivity("marketing", prepared ? `Made ${aOrAn(d.network)} post ready to post from the phone` : `Published ${aOrAn(d.network)} post`, postRef(post));
   // A story, or anything on TikTok, is made ready here and posted from the phone (PUBLISH_MODE): the notice says so.
-  if (!adDraft) return go("posts", PUBLISH_MODE[d.network][d.format] === "prepare" ? "post-ready" : "post-published");
+  if (!adDraft) return go("posts", prepared ? "post-ready" : "post-published");
   const started = await startAd(adDraft);
   if (started.ok) {
     await adsStore.put({ ...adDraft, status: "running", startedAt: Date.now(), ...(started.simulated && simulatedAd(adDraft.id)) });
@@ -107,7 +109,7 @@ export async function publishPostAction(id: string) {
   const r = await publishPost(post);
   if (r.ok) {
     await postsStore.put({ ...post, status: "posted", postedAt: Date.now(), ...(r.simulated && { simulated: true, ...simulatedPost(post.id) }) });
-    await logActivity("marketing", `Published ${aOrAn(post.network)} post`, postRef(post));
+    await logActivity("marketing", PUBLISH_MODE[post.network][post.format ?? "post"] === "prepare" ? `Made ${aOrAn(post.network)} post ready to post from the phone` : `Published ${aOrAn(post.network)} post`, postRef(post));
   }
   outcome("posts", "social", r, PUBLISH_MODE[post.network][post.format ?? "post"] === "prepare" ? "post-ready" : "post-published");
 }
