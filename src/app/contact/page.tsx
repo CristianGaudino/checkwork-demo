@@ -8,7 +8,6 @@ import { MapBox } from "@/components/MapBox";
 import { OpeningHours } from "@/components/OpeningHours";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { dealerDirectionsUrl, dealerJsonLd, mapEmbedUrl } from "@/lib/dealer";
-import { CopyPhone } from "@/components/CopyPhone";
 import { DirectionsButton } from "@/components/DirectionsButton";
 import { getReviews } from "@/lib/reviews";
 import { carChoices } from "@/lib/stock/options";
@@ -35,7 +34,6 @@ export default async function ContactPage() {
           <div className="order-1 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <CallButton sizing="w-full">Call {DEALER_PHONE}</CallButton>
             <WhatsAppButton sizing="w-full px-6" />
-            <CopyPhone />
           </div>
           {/* A placeholder address that does not forward yet (#54): shown only once the dealer confirms. */}
           {DEALER_FACTS_CONFIRMED && (

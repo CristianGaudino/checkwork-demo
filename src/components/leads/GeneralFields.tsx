@@ -15,7 +15,7 @@ import type { FieldBinding, FormStep } from "./LeadForm";
 // start at step two with the topic already set (`fixed`), so their steps are CONTACT_STEPS without the first. The first is one question,
 // so picking a topic moves on (`auto`); the others have several questions each, so they keep Next.
 export const CONTACT_STEPS: FormStep[] = [
-  { title: "What you need", auto: true, fields: ["topic"], check: ({ values }) => (values.topic ? undefined : { topic: ["Choose what we can help with."] }) },
+  { title: "What you need", auto: true, fields: ["topic"] }, // no check: picking a topic is the only way on
   { title: "A few questions", fields: ["carId", "timing", "hasTradeIn", "serviceNeed", "reg", "urgency", "boughtWhen", "concern", "message"] },
   { title: "Your details", fields: ["name", "phone", "email", "contactVia", "contactWhen", "consent"] },
 ];
