@@ -55,7 +55,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             <ContactButtons phone={d.phone} email={d.email || undefined} />
           </Panel>
           <Panel title="Status" action={<DriveStatusBadge status={d.status} />}>
-            {DRIVE_NEXT[d.status] ? <DriveSteps drive={d} /> : <p className="text-body text-text-2">Nothing more to do.</p>}
+            {DRIVE_NEXT[d.status] ? <DriveSteps drive={d} ahead={dublinDay(d.startsAt) > dublinDay()} /> : <p className="text-body text-text-2">Nothing more to do.</p>}
           </Panel>
           <Panel title="Taking them out">
             <div className="flex flex-wrap gap-2">

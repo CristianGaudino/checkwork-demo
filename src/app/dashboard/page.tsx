@@ -78,7 +78,7 @@ export default async function Page() {
 
   // One kind of to-do as rows: the first few records each with their own buttons, then one row for the rest.
   const rest = (key: string, n: number, one: string, many: string, href: string, urgency: TaskUrgency) =>
-    n > EACH ? [<Task key={`${key}-more`} title={`${n - EACH} more ${n - EACH === 1 ? one : many}`} urgency={urgency} action={<Link href={href} className={rowButton}>See all</Link>} />] : [];
+    n > EACH ? [<Task key={`${key}-more`} title={`${n - EACH} more ${n - EACH === 1 ? one : many}`} urgency={urgency} action={<Link href={href} className={rowButton}>{key === "sales" ? "Record the next" : "See all"}</Link>} />] : []; // sales: Stock opens them one at a time
   const tasks = attention.flatMap((a) => {
     switch (a.key) {
       case "slow":
@@ -101,7 +101,7 @@ export default async function Page() {
       case "drives":
         return [
           ...o.toConfirm.slice(0, EACH).map((d) => (
-            <Task key={`drive-${d.id}`} urgency="soon" icon={<CalendarIcon />} title={`Confirm ${d.name}'s test drive`} detail={`${d.carTitle} · ${fmtDateTime(d.startsAt)}`} href={`/dashboard/test-drives/${d.id}`} action={<ConfirmDrive id={d.id} name={d.name} status={d.status} />} />
+            <Task key={`drive-${d.id}`} urgency="soon" icon={<CalendarIcon />} title={`${d.name} asked for a test drive`} detail={`${d.carTitle} · ${fmtDateTime(d.startsAt)}`} href={`/dashboard/test-drives/${d.id}`} action={<ConfirmDrive id={d.id} name={d.name} status={d.status} />} />
           )),
           ...rest(a.key, o.toConfirm.length, "test drive to confirm", "test drives to confirm", a.href, "soon"),
         ];
