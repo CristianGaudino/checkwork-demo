@@ -1,31 +1,39 @@
 "use client";
 
 import { useId, useSyncExternalStore } from "react";
-import { THEMES, THEME_KEY, type Theme } from "@/lib/demo";
+import { THEMES, THEME_KEY, themeChoice, type Theme } from "@/lib/demo";
 
 // The one theme store, for the footer and the demo bar. Auto is no stored value: THEME_SCRIPT in the head then follows the device.
+// The choice is also kept on <html> (data-theme-choice), so it holds for this page view when storage is blocked, and the head script reads
+// it before following a change of the device's theme. A choice made in another tab arrives as a storage event.
 const listeners = new Set<() => void>();
-const subscribe = (cb: () => void) => (listeners.add(cb), () => void listeners.delete(cb));
-let choice: Theme | undefined; // kept here too, so a choice lasts the page view when storage is blocked
-function stored(): Theme {
+function subscribe(cb: () => void) {
+  listeners.add(cb);
+  addEventListener("storage", cb); // after the head script's own listener, which has applied it by then
+  return () => {
+    listeners.delete(cb);
+    removeEventListener("storage", cb);
+  };
+}
+function stored(): string | null {
   try {
-    const t = localStorage.getItem(THEME_KEY);
-    return t === "light" || t === "dark" ? t : "auto";
+    return localStorage.getItem(THEME_KEY);
   } catch {
-    return "auto";
+    return null;
   }
 }
-const read = () => (choice ??= stored());
+const read = () => themeChoice(document.documentElement.dataset.themeChoice, stored());
 
 function setTheme(t: Theme) {
-  choice = t;
+  const html = document.documentElement;
+  html.dataset.themeChoice = t;
   try {
     if (t === "auto") localStorage.removeItem(THEME_KEY);
     else localStorage.setItem(THEME_KEY, t);
   } catch {
-    // Private window or blocked storage: the choice lasts for this page view only.
+    // Private window or blocked storage: data-theme-choice keeps it for this page view.
   }
-  document.documentElement.dataset.theme = t === "auto" ? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : t;
+  html.dataset.theme = t === "auto" ? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : t;
   listeners.forEach((l) => l());
 }
 
@@ -37,7 +45,7 @@ export function ThemeSwitch({ className = "" }: { className?: string }) {
   const id = useId();
   const current = useSyncExternalStore(subscribe, read, () => "auto" as Theme);
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
+    <div data-theme-switch className={`flex items-center gap-2 ${className}`}>
       <span id={id} className="text-meta text-text-2">
         Theme
       </span>
@@ -45,7 +53,7 @@ export function ThemeSwitch({ className = "" }: { className?: string }) {
         {THEMES.map((t) => (
           <label key={t} className="flex cursor-pointer">
             <input type="radio" name={id} value={t} checked={current === t} onChange={() => setTheme(t)} className="peer sr-only" />
-            <span className="flex h-10 items-center rounded-full px-3 text-meta text-text-2 transition-colors peer-checked:bg-text peer-checked:font-medium peer-checked:text-ink peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-text motion-reduce:transition-none">
+            <span className="flex min-h-11 items-center rounded-full px-3 text-meta text-text-2 transition-colors peer-checked:bg-text peer-checked:font-medium peer-checked:text-ink peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-text motion-reduce:transition-none">
               {LABELS[t]}
             </span>
           </label>
