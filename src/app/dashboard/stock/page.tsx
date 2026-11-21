@@ -23,8 +23,7 @@ import { FEW_PHOTOS, STOCK_VIEWS, parseStockList, stockList, type StockView } fr
 import { salesStore } from "@/lib/admin/collections";
 import { syncStatus } from "@/lib/donedeal/sync";
 import { toggleSoldAction, withdrawnAction } from "./actions";
-import { enabledModules, hasModule } from "@/lib/modules";
-import { conditionShown } from "@/lib/modules-rules";
+import { hasModule } from "@/lib/modules";
 
 export const metadata = { title: "Stock" };
 
@@ -59,8 +58,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
   // Where a row goes: the car's editor here, or, for synced stock, the car on the site (it is changed on DoneDeal).
   // A synced car off the website (its ad came down) has no page there, so it opens here; so does every car with AI, to improve its description.
   const ai = synced && (await hasModule("ai"));
-  const mods = await enabledModules();
-  const open = (c: Car) => (synced && !ai && onPublicSite(c) && conditionShown(mods, c.condition) ? carHref(c.slug) : `/dashboard/stock/${c.id}`);
+  const open = (c: Car) => (synced && !ai && onPublicSite(c) ? carHref(c.slug) : `/dashboard/stock/${c.id}`);
   const takenDown = synced ? all.filter((c) => c.takenDownAt) : [];
   const canUndo = await can("settings"); // undoing a sale is money going back: owners and managers
   const undoSale = (c: Car) =>
@@ -154,7 +152,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ v
         <div className="relative z-10 flex justify-end gap-2">
           {recordSale(c)}
           {social && <PostToSocial car={c} short className={rowButton} />}
-          <ViewOnSite car={c} shown={conditionShown(mods, c.condition)} short className={rowButton} />
+          <ViewOnSite car={c} short className={rowButton} />
           {synced ? (
             <>
               {undoSale(c)}

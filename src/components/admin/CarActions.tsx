@@ -30,10 +30,9 @@ export function PostToSocial({ car, className, short = false }: { car: Car; clas
 }
 
 // The car as a customer sees it, in a new tab. A hidden car or a draft has no page on the website.
-// `shown`: the car's kind (new, commercial) is on the site with the dealer's modules (conditionShown).
-export function ViewOnSite({ car, shown, className, short = false }: { car: Car; shown: boolean; className: string; short?: boolean }) {
+export function ViewOnSite({ car, className, short = false }: { car: Car; className: string; short?: boolean }) {
   const at = short && "2xl";
-  if (!shown || !onPublicSite(car)) return null; // no link to a page that answers "gone" or not found
+  if (!onPublicSite(car)) return null; // no link to a page that answers "gone" or not found
   return (
     <a href={carHref(car.slug)} {...NEW_TAB} title="Open the car's page on your website" aria-label={`View on the website: ${carName(car)} (opens in a new tab)`} className={className}>
       <ExternalIcon className="size-4 shrink-0" />

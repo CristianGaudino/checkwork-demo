@@ -48,18 +48,18 @@ deploy fails its tests while it is false.
   `src/lib/stock/demo-cars*.json` first, so a deploy adds none of the demo cars to a stock that DoneDeal owns.
 - Replace `src/lib/stock/demo-cars.json` and `public/stock/` with photos you have the right to use, or start the D1 `cars` table empty.
 
-### Modules (what the dealer pays for)
-- `NEXT_PUBLIC_SITE_MODULES`: a comma list of the modules the dealer has (ids in `src/lib/modules-rules.ts`), or `all`. Empty means the
-  base site only. Unset means all, so set it for every real dealer. A module's pages answer 404 without it and its links go (#173).
-- The registration lookup is two modules: `lookupWebsite` and `lookupDashboard` (#180).
+### What the site includes
+- A dealer's site includes everything: used, new and commercial cars, finance, trade-in and sell your car, test drives, the car finder,
+  service, warranty, reviews, contact, saved cars, compare and alerts. There is no setting that turns a section off. Leaving a section out
+  for one dealer is a code change in that dealer's own repo (owner, 2026-11-22).
 - The prices on the Billing page are the demo's (`src/lib/billing/rules.ts`). Before a real dealer goes live, choose the payment
   provider and how invoices are made, and connect the dealer's prices and bills from the owner's billing program (#181).
 
 ### The dashboard
 - It starts empty on a production site (no made-up leads, reviews or team). Set `ADMIN_OWNER_EMAILS` to the owner's Access email; the
   owner then adds the team in Settings, each with a role, then Lead emails.
-- Cloudflare Access: an application for `/dashboard*` on the dealer's domain, allowing only their staff. Set `CF_ACCESS_TEAM_DOMAIN`,
-  `CF_ACCESS_AUD` and `NEXT_PUBLIC_ACCESS_ENABLED=1`. Without them the dashboard answers 404 (it fails closed).
+- Cloudflare Access: an application for `/dashboard*` on the dealer's domain, allowing only their staff. Set `CF_ACCESS_TEAM_DOMAIN`
+  and `CF_ACCESS_AUD`. Without them the dashboard answers 404 (it fails closed).
 - Who sees what: the team's roles in Settings (Owner, Manager, Sales, Finance). See `docs/dealer-admin.md`.
 
 ### Switches for a real site

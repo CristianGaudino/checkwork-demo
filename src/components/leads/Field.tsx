@@ -2,7 +2,6 @@
 
 import { Combobox } from "@/components/Combobox";
 import { useState } from "react";
-import { IfModule } from "@/components/IfModule";
 import { AlertIcon } from "@/components/stock/icons";
 import { CONTACT_ERROR, COUNTRIES, LIMITS } from "@/lib/leads/constants";
 import type { FieldBinding } from "./LeadForm";
@@ -117,9 +116,7 @@ export function ContactFields({ bind }: { bind(name: string): FieldBinding }) {
           <PhoneField {...bind("phone")} invalid={both} describedBy={both ? `${email.id}-error` : undefined} />
           <Field {...email} label="Email" type="email" autoComplete="email" maxLength={LIMITS.email} enterKeyHint="next" />
         </div>
-        <IfModule id="whatsapp">
-          <WhatsAppOptIn {...bind("whatsappOptIn")} />
-        </IfModule>
+        <WhatsAppOptIn {...bind("whatsappOptIn")} />
       </div>
     </div>
   );

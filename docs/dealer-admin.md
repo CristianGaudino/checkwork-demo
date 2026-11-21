@@ -9,20 +9,21 @@ The demo sends each lead it stores to the dashboard's site API (`POST /api/site/
 email was tried and next to the archived copy. The site key (`DASH_SITE_KEY`, a Worker secret) decides the dealer. It goes Worker to
 Worker through the `DASH` service binding when wrangler.jsonc has one, else over a normal fetch to `DASH_URL`. With no key nothing is
 sent. A failed or slow send (5 seconds) never loses the lead or shows the buyer an error: it is logged as `dash_failed` with the lead's
-id, type and HTTP status only. Photos stay in this site's bucket; the dashboard is told how many came. With `NEXT_PUBLIC_DASH_URL` set
-at build, the demo bar's Dealer choice opens the dashboard instead of `/dashboard`.
+id, type and HTTP status only. Photos stay in this site's bucket; the dashboard is told how many came.
+
+The live demo is a public, view-only showroom (owner, 2026-11-22): the deploy builds with `NEXT_PUBLIC_DEMO_BAR=off`, so it has no demo
+bar, no role or sync switches and no link to a dashboard, exactly like a real dealer's site, with every page on. The bar is still
+there in `next dev` and the E2E run.
 
 ## The archived dashboard
 
-The demo has two views. The public site is `/`. The dealer dashboard is `/dashboard`. The demo bar at the foot of every page switches between them: choosing Dealer opens the dashboard. The public site is always the customer's view, with no dealer links or tools on it; editing a car and posting it to social start from the dashboard's stock list. There is no login of our own: on a deployed site Cloudflare Access is the login (see below). There is no superuser role and no platform in this site: running many dealers is a separate program, not part of what a dealer is sold. The platform that was here is in git history (PR #30).
+The demo has two views. The public site is `/`. The archived dealer dashboard is `/dashboard`, behind Cloudflare Access. In `next dev` and the E2E run the demo bar at the foot of every page switches between them; the live demo has no bar. The public site is always the customer's view, with no dealer links or tools on it; editing a car and posting it to social start from the dashboard's stock list. There is no login of our own: on a deployed site Cloudflare Access is the login (see below). There is no superuser role and no platform in this site: running many dealers is a separate program, not part of what a dealer is sold. The platform that was here is in git history (PR #30).
 
 ## Modules
 
-A dealer has the base site plus the modules they pay for (#173, `src/lib/modules-rules.ts`). A module that is off has its pages answer
-404 (the proxy checks, for public and dashboard pages alike), its links leave the menus, footer and pages (`IfModule`), and its server
-actions refuse. On the demo the bar's Modules switches choose them (a cookie); on a real site `NEXT_PUBLIC_SITE_MODULES` does, and a
-cookie never can. Data is never deleted when a module goes off. Stock kept in the dashboard is not a module switch: it follows where the
-stock comes from.
+The public site has no modules or plans: every page and link is always there (owner, 2026-11-22). The archived dashboard still reads
+modules for its Billing page and its checks (`src/lib/modules-rules.ts`, `hasModule`, `requireModule`), always with every one on: there
+is no switch, cookie or setting for them. Stock kept in the dashboard is not a module: it follows where the stock comes from.
 
 ## Usage billed per use
 
@@ -57,9 +58,10 @@ permissions, each checked on the server in every page and action that needs it (
   person and period. Changes only, never page views. See below.
 
 Who the person is:
-- **On the demo** (the demo bar is on) the bar's role buttons (Owner, Manager, Sales, Finance), shown while viewing as the dealer, set a
-  cookie the server reads, and the demo acts as the first team member with that role. It opens as the owner, so every feature shows.
-- **On a real site** (the demo bar is off, `NEXT_PUBLIC_DEMO_BAR=off`) the signed-in Access email, which the proxy verifies and passes on.
+- **On the demo** (the demo deploy, `APP_ENV=demo`, with or without the bar; or `next dev` and the E2E run with the bar on) a role cookie
+  decides, and the demo acts as the first team member with that role. With no cookie it is the owner, so every feature shows. The bar's
+  role buttons set the cookie where the bar shows; the live demo has no bar, so Access-signed staff are the owner there.
+- **On a real site** (`APP_ENV=production`) the signed-in Access email, which the proxy verifies and passes on.
   An address in `ADMIN_OWNER_EMAILS` is an owner (that is how a new dealer, with no team yet, gets in to set one up); anyone else has the
   role their email has on the team in Settings, or none. A cookie never grants anything there.
 
@@ -255,7 +257,7 @@ and their add-ons are sold:
 - **Add-ons** at module prices (`MODULE_EUR`): any module the tier lacks, such as commercial EUR 29, service EUR 49, margins EUR 49, social EUR 99 (with 200 more AI actions a month),
   newsletter EUR 59, new cars EUR 99. New cars covers 2 brands; each more brand is EUR 29 a month and EUR 100 at setup, in a tier or not
   (setup EUR 400 as an add-on). A plan is the cheapest tier for the dealer's modules plus add-ons; no modules is Showroom. Showroom takes
-  no add-on that is or needs the dashboard, and more than one branch is Group. The demo bar names the plan as the Billing page does, and each switch shows what turning it on adds.
+  no add-on that is or needs the dashboard, and more than one branch is Group.
 - **Over the allowance** each use is billed: lookup EUR 0.30, WhatsApp alert EUR 0.05, reply EUR 0.03, marketing message EUR 0.12, AI
   action EUR 0.04 (Standard) or EUR 0.08 (Premium). Replies and marketing messages are never included.
 - **Payment terms** (`term`): monthly at list price, a year upfront for 11 months' price, or a 2-year contract with no setup fee.
@@ -266,14 +268,14 @@ and their add-ons are sold:
 the plan and this month's usage (with the payment term, what
 the allowance covers, and an "Estimate" for the month end), the setup fees (the tier's, and those of add-ons set up with
 outside accounts (Social, New cars), none on a 2-year contract;
-`setupLines` in `src/lib/billing/rules.ts`, also totalled in the demo bar's plans panel), the limits and alerts (a euro limit per service
+`setupLines` in `src/lib/billing/rules.ts`), the limits and alerts (a euro limit per service
 and for all usage, never above ours (by default EUR 15 of lookups, EUR 20 of WhatsApp (EUR 20 per branch on Group: a WhatsApp ceiling the owner's program sets is per branch too) and EUR 50 of AI past the allowance, `DEFAULT_CEILINGS`); the 80% alert; "tell me when X passes EUR N"; AI writing's quality, Premium (Claude Opus) at EUR 0.08
 an action or Standard (Claude Sonnet) at EUR 0.04, each action counted under the model that wrote it; the dealer never sees the model
 or provider's name), and the bills. With `SHOW_PRICING` false the page shows only the plan's name, its modules, the payment
 term, the writing quality and the billing details, with no euro. On a year paid upfront the month's estimated bill is the usage only. Every change is written to the activity log. Rules and maths: `src/lib/billing/bills-rules.ts`
 (unit tested); the bills are a seeded collection, `src/lib/billing/bills.ts`. There is no PDF and no download: invoices come from the
 payment provider chosen at clone time and are emailed when issued. Billing details (company, VAT number, address, email) are the
-Owner's, stored in settings as `billingDetails`. "Ask us to add" sends a Help request of type "Add to my plan"; it switches nothing on.
+Owner's, stored in settings as `billingDetails`.
 
 `/dashboard/help` is for every team member: our phone, email and WhatsApp, a message form (Question, Something isn't working with steps
 and an optional screenshot, Request a change, Feedback or an idea, Billing and Add to my plan for the Owner and Manager), their own requests

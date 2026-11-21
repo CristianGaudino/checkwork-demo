@@ -19,6 +19,7 @@ export const monthOf = (t: number = Date.now()) => dublinDay(t).slice(0, 7);
 // A record saved before the AI assistant was dropped may still carry `aiPlan`: nothing reads it.
 export const billingSettings = async (): Promise<BillingSettings> => withBranchCeilings(withBillingDefaults((await getSettings()).billing));
 // What the plan includes this month before usage is billed.
+// shortcut: every module is on (src/lib/modules.ts), so this is always the top plan's allowance; plans live in checkwork-dash now.
 export const monthAllowance = async (b: BillingSettings) => allowanceFor(await enabledModules(), b);
 export async function monthCounts(month = monthOf()): Promise<UsageCount[]> {
   return (await usageStore.list()).filter((c) => c.month === month);

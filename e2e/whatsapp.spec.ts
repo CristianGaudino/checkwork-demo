@@ -30,12 +30,3 @@ test("reply with a price: the lead gets the offer, and the buyer answers", async
   await phone.getByRole("link", { name: "Open" }).last().click();
   await expect(page.getByText("Offer sent by WhatsApp: €8,500").first()).toBeVisible();
 });
-
-test("without the WhatsApp module the page says it is not in the plan, and the owner can ask for it", async ({ page, context, baseURL }) => {
-  await context.addCookies([{ name: "checkwork-demo-modules", value: "dashboard", url: baseURL! }]);
-  await page.goto("/dashboard/whatsapp");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Not in your plan");
-  await expect(page.getByText("Leads to your phone, and replies from WhatsApp that the site sends on.")).toBeVisible();
-  await page.getByRole("button", { name: "Ask us to add WhatsApp" }).click();
-  await expect(page.getByText("We have your request. Our reply will show in Help.")).toBeVisible();
-});

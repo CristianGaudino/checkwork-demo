@@ -7,32 +7,17 @@ const processLead = vi.fn(async (fd: FormData) => (void fd, { status: "ok" as co
 vi.mock("@/lib/leads/process", () => ({ processLead: (fd: FormData) => processLead(fd) }));
 const { submitLead } = await import("./lead");
 
-afterEach(() => {
-  vi.unstubAllEnvs();
-  processLead.mockClear();
-});
+afterEach(() => processLead.mockClear());
 const form = (fields: Record<string, string>) => {
   const fd = new FormData();
   for (const [k, v] of Object.entries(fields)) fd.set(k, v);
   return fd;
 };
 
-describe("the public lead action and the dealer's modules (#173)", () => {
-  it("refuses each kind of lead whose module the dealer does not have, before anything is stored", async () => {
-    vi.stubEnv("NEXT_PUBLIC_SITE_MODULES", "dashboard");
-    for (const type of ["finance", "trade_in", "test_drive", "sourcing", "order", "alert"]) expect(await submitLead(form({ type }))).toEqual({ status: "failed", kind: "server" });
-    expect(processLead).not.toHaveBeenCalled();
-  });
-
-  it("takes an enquiry on the base site, without the WhatsApp opt-in when the dealer has no WhatsApp", async () => {
-    vi.stubEnv("NEXT_PUBLIC_SITE_MODULES", "");
-    expect(await submitLead(form({ type: "enquiry", whatsappOptIn: "yes" }))).toEqual({ status: "ok" });
-    expect(processLead.mock.calls[0][0].get("whatsappOptIn")).toBeNull();
-  });
-
-  it("keeps the opt-in with WhatsApp", async () => {
-    vi.stubEnv("NEXT_PUBLIC_SITE_MODULES", "dashboard,whatsapp,finance");
-    await submitLead(form({ type: "finance", whatsappOptIn: "yes" }));
+describe("the public lead action", () => {
+  it("takes every kind of lead, with the WhatsApp opt-in as sent: the site has no modules", async () => {
+    for (const type of ["enquiry", "finance", "trade_in", "test_drive", "sourcing", "order", "alert"]) expect(await submitLead(form({ type, whatsappOptIn: "yes" }))).toEqual({ status: "ok" });
+    expect(processLead).toHaveBeenCalledTimes(7);
     expect(processLead.mock.calls[0][0].get("whatsappOptIn")).toBe("yes");
   });
 });

@@ -3,9 +3,7 @@
 import { Sheet, leaveSheet } from "@/components/Sheet";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useModules } from "@/lib/demo-role";
 import { isAppPath } from "@/lib/demo";
-import { pathAllowed } from "@/lib/modules-rules";
 import { useVehicleHint } from "@/components/vehicleHint";
 import { VEHICLE_TYPES } from "@/lib/nav";
 import { PhoneLink } from "@/components/PhoneLink";
@@ -15,11 +13,7 @@ import { accentButton, press } from "@/components/ui";
 // Every page within two taps, below 1024px (the header links show from there). A bottom sheet (Sheet.tsx), like the filter sheet. The stock
 // comes first as big rows; the rest sits in groups that fold open, closed unless they hold the page you are on (docs/mobile-navigation.md).
 type Item = { href: string; label: string; long?: string };
-export function MobileMenu({ home, primary: allPrimary, groups: allGroups }: { home: Item; primary: readonly Item[]; groups: readonly { title: string; links: readonly Item[] }[] }) {
-  // Only the pages of modules the dealer has (#173).
-  const modules = useModules();
-  const primary = allPrimary.filter((l) => pathAllowed(l.href, modules));
-  const groups = allGroups.map((g) => ({ ...g, links: g.links.filter((l) => pathAllowed(l.href, modules)) })).filter((g) => g.links.length > 0);
+export function MobileMenu({ home, primary, groups }: { home: Item; primary: readonly Item[]; groups: readonly { title: string; links: readonly Item[] }[] }) {
   const path = usePathname();
   // Home only away from home.
   const top = [...(path !== "/" ? [home] : []), ...primary];

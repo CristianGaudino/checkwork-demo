@@ -1,7 +1,5 @@
 import Link from "next/link";
 import { Avatar, Badge, Field, Notice, PageHeader, Panel, adminButton, adminInput, rowButton } from "@/components/admin/kit";
-import { ActButton } from "@/components/admin/ActButton";
-import { askModuleAction } from "@/app/dashboard/billing/actions";
 import { SHOW_PRICING } from "@/lib/billing/rules";
 import { Phones } from "@/components/admin/whatsapp/Phones";
 import { CalculatorIcon, CalendarIcon, CarIcon, ChevronDownIcon, InboxIcon, MegaphoneIcon, ReceiptIcon, ReportIcon, StarIcon, SwapIcon, WrenchIcon } from "@/components/stock/icons";
@@ -41,8 +39,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ n
   const mayEditAll = await can("settings");
   const mayBill = await can("billing");
   const allowed = eventsFor(modules);
-  // Every alert, the ones the plan has first, each with the module it comes with.
-  const events = EVENT_IDS.map((e) => ({ id: e, module: MODULES.find((m) => m.id === EVENTS[e].module)!, on: modules.has(EVENTS[e].module) })).sort((a, b) => Number(b.on) - Number(a.on));
+  // Every alert, each with the module it comes with.
+  const events = EVENT_IDS.map((e) => ({ id: e, module: MODULES.find((m) => m.id === EVENTS[e].module)! }));
   const note = notice ? NOTICES[notice] : undefined;
 
   return (
@@ -147,12 +145,12 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ n
           What reaches your phone
         </h2>
         <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 2xl:grid-cols-3">
-          {events.map(({ id, module, on }) => {
+          {events.map(({ id, module }) => {
             const Icon = ICONS[id];
             return (
-              <li key={id} data-wa-module={module.id} className={`flex flex-col gap-3 rounded-card border border-hairline p-4 ${on ? "bg-card" : "bg-row-alt"}`}>
+              <li key={id} data-wa-module={module.id} className="flex flex-col gap-3 rounded-card border border-hairline bg-card p-4">
                 <div className="flex items-start gap-3">
-                  <span aria-hidden="true" className={`flex size-10 shrink-0 items-center justify-center rounded-control ${on ? "bg-accent text-on-accent" : "bg-hairline text-text-2"}`}>
+                  <span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-control bg-accent text-on-accent">
                     <Icon className="size-5" />
                   </span>
                   <div className="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -160,26 +158,14 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ n
                     <p className="text-meta text-text-2">{EVENTS[id].does}</p>
                   </div>
                 </div>
-                {on ? (
-                  // The buttons the message comes with, drawn as WhatsApp draws them. A picture, not controls.
-                  <ul aria-label="Its buttons" className="mt-auto flex flex-wrap gap-1.5">
-                    {EVENTS[id].buttons.map((b) => (
-                      <li key={b} className="rounded-full bg-wa-chat px-3 py-1 text-meta font-medium text-wa-link">
-                        {BUTTON_LABELS[b]}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <div className="mt-auto flex flex-wrap items-center justify-between gap-2">
-                    <span className="text-meta text-text-2">Comes with {module.label}</span>
-                    {/* As on Billing: a request to us, for the owners and managers. Switches nothing on. */}
-                    {mayBill && (
-                      <ActButton act={askModuleAction.bind(null, module.id)} done="We have your request. Our reply will show in Help." label={`Ask us to add ${module.label}`} className={rowButton}>
-                        Ask us to add
-                      </ActButton>
-                    )}
-                  </div>
-                )}
+                {/* The buttons the message comes with, drawn as WhatsApp draws them. A picture, not controls. */}
+                <ul aria-label="Its buttons" className="mt-auto flex flex-wrap gap-1.5">
+                  {EVENTS[id].buttons.map((b) => (
+                    <li key={b} className="rounded-full bg-wa-chat px-3 py-1 text-meta font-medium text-wa-link">
+                      {BUTTON_LABELS[b]}
+                    </li>
+                  ))}
+                </ul>
               </li>
             );
           })}

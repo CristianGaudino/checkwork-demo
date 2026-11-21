@@ -5,7 +5,6 @@ import { LIMITS } from "@/lib/leads/constants";
 import { CHOICES, TOPICS, URGENCY_FOR, type TopicId } from "@/lib/leads/contact-topics";
 import { count } from "@/lib/count-client";
 import { readDraft, saveDraft } from "@/lib/leads/draft";
-import { useModules } from "@/lib/demo-role";
 import { SITE_SLUG } from "@/lib/site";
 import { secondaryButton } from "@/components/ui";
 import { ContactFields, Field } from "./Field";
@@ -53,12 +52,9 @@ function Handover({ href, children, carry }: { href: string; children: React.Rea
 }
 
 export function GeneralFields({ bind, step, cars = [], fixed }: { bind(name: string): FieldBinding; step: number; cars?: [string, string][]; fixed?: TopicId }) {
-  const modules = useModules();
   const at = fixed ? step + 1 : step; // the step in CONTACT_STEPS
   const topicBind = bind("topic");
   const topic = fixed ?? ((topicBind.value || undefined) as TopicId | undefined);
-  // A need whose module is off has no card: it goes to "Something else".
-  const cards = TOPICS.filter((t) => !("module" in t) || modules.has(t.module));
   const carPick = [{ value: "", label: "Not sure yet" }, ...cars.map(([value, label]) => ({ value, label }))];
   const reg = <Field {...bind("reg")} label="Registration" optional autoCapitalize="characters" spellCheck={false} maxLength={12} placeholder="191-KY-1234" enterKeyHint="next" />;
   // Every step stays in the form (hidden, not removed) so the send reads all of it; only the current one shows.
@@ -72,7 +68,7 @@ export function GeneralFields({ bind, step, cars = [], fixed }: { bind(name: str
           {/* Two across only when the form is wide enough (not the screen): beside the contact page's map a label would wrap to three lines. */}
           <div className="@container">
             <div className="grid grid-cols-1 gap-2 @md:grid-cols-2">
-              {cards.map((t) => (
+              {TOPICS.map((t) => (
                 <label key={t.id} className={`${chip} min-h-14 rounded-card px-4 font-semibold`}>
                   <input type="radio" name="topic" value={t.id} checked={topic === t.id} onChange={() => {
                         topicBind.onChange(t.id);
@@ -96,7 +92,7 @@ export function GeneralFields({ bind, step, cars = [], fixed }: { bind(name: str
             {cars.length > 0 && <Field {...bind("carId")} label="Which car?" optional options={carPick} />}
             <Choice bind={bind("timing")} label="When are you hoping to buy?" options={CHOICES.timing} />
             <Choice bind={bind("hasTradeIn")} label="Do you have a car to trade in?" options={CHOICES.hasTradeIn} />
-            {bind("hasTradeIn").value === "yes" && modules.has("tradeIn") && (
+            {bind("hasTradeIn").value === "yes" && (
               <div>
                 <Handover href="/trade-in" carry={{ type: "trade_in", values: { carId: bind("carId").value } }}>
                   Value my car now

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseModules } from "@/lib/modules-rules";
+import { MODULE_IDS, type ModuleId } from "@/lib/modules-rules";
 import { ROLES } from "@/lib/permission-rules";
 import { BUTTON_LABELS, EVENTS, EVENT_IDS, alertText, channelFor, defaultAlerts, eventOfLead, eventsFor, firstName, inQuiet, parsePrice } from "./rules";
 
@@ -18,7 +18,7 @@ describe("parsePrice", () => {
 });
 
 describe("templates by module", () => {
-  const some = (v: string) => parseModules(v);
+  const some = (v: string) => new Set<ModuleId>(v === "all" ? MODULE_IDS : (v.split(",") as ModuleId[]));
   it("a trade-in request uses its own template only with the module, else the plain enquiry", () => {
     expect(eventOfLead("trade-in", some("dashboard,tradeIn,whatsapp"))).toBe("trade-in");
     expect(eventOfLead("sell", some("dashboard,tradeIn,whatsapp"))).toBe("trade-in");

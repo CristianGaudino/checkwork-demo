@@ -2,32 +2,14 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useId, useState, useSyncExternalStore } from "react";
-import { DEMO_ROLES, THEME_KEY, isAppPath, roleForPath, roleHref, type Theme } from "@/lib/demo";
-import { setDealerRole, setDemoStockSource, useDealerRole, useModules, useStockSource } from "@/lib/demo-role";
+import { useCallback, useId, useState } from "react";
+import { DEMO_ROLES, isAppPath, roleForPath } from "@/lib/demo";
+import { setDealerRole, setDemoStockSource, useDealerRole, useStockSource } from "@/lib/demo-role";
 import { ROLES, type Role } from "@/lib/permission-rules";
 import { LISTING_SITE } from "@/lib/stock-source-rules";
 import { ChevronDownIcon } from "@/components/stock/icons";
-import { ModuleSwitches } from "./ModuleSwitches";
 import { press } from "@/components/ui";
-
-// The theme lives on <html data-theme>; this watches that attribute, so the button is right on first paint and after any change.
-function subscribe(cb: () => void) {
-  const o = new MutationObserver(cb);
-  o.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
-  return () => o.disconnect();
-}
-const read = (): Theme => (document.documentElement.dataset.theme === "dark" ? "dark" : "light");
-
-function setTheme(t: Theme) {
-  if (t === "dark") document.documentElement.dataset.theme = "dark";
-  else delete document.documentElement.dataset.theme;
-  try {
-    localStorage.setItem(THEME_KEY, t);
-  } catch {
-    // Private window or blocked storage: the choice lasts for this page view only.
-  }
-}
+import { ThemeSwitch } from "@/components/ThemeSwitch";
 
 // The page keeps room for whichever form of the bar is showing (--demo-bar-h): the whole bar from 640px, the pill and its gap on a phone.
 // Hidden (display: none) forms report nothing, so the two never fight.
@@ -52,11 +34,8 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
   const path = usePathname();
   const router = useRouter();
   const inApp = isAppPath(path);
-  // A plan without the dashboard (Showroom) has no dealer side, so the demo is the customer's view only, with the Plan switch to go back.
-  const dashboard = useModules().has("dashboard");
   // The route is the role: the public site is always the customer's, with no dealer tools on it; Dealer opens the dashboard.
-  const role = dashboard ? roleForPath(path) : "customer";
-  const theme = useSyncExternalStore(subscribe, read, () => "light" as Theme);
+  const role = roleForPath(path);
   const dealerRole = useDealerRole();
   const donedeal = useStockSource() === "donedeal";
   const [open, setOpen] = useState(false); // mirrors the popover, for the chevron and aria-expanded
@@ -65,25 +44,23 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
   const pillRoom = useRoomFor(20); // the pill and the 12px gap under it, and a little air above
 
   const chip = "flex h-9 shrink-0 items-center rounded-full border px-3 text-meta";
-  // `phone`: the controls in the pill's panel, where the row wraps and the module list opens in place; else the slim bar.
+  // `phone`: the controls in the pill's panel, where the row wraps; else the slim bar.
   const controls = (phone: boolean) => (
     <>
-      {dashboard && (
-        <nav aria-label="View the demo as" className="flex items-center">
-          <span className="pl-2 pr-1 text-text-2">View as</span>
-          {DEMO_ROLES.filter((r) => showAreas || r.id === "customer").map((r) => (
-            <Link
-              key={r.id}
-              href={roleHref(r)}
-              prefetch={isAppPath(r.href) ? false : undefined} // the dealer area sits behind Cloudflare Access: a prefetch from a public page gets its login page
-              aria-current={r.id === role ? "true" : undefined}
-              className={`flex h-11 items-center px-2 sm:px-3 ${r.id === role ? "font-semibold text-text underline decoration-accent decoration-2 underline-offset-8" : "text-text-2"} ${press}`}
-            >
-              {r.label}
-            </Link>
-          ))}
-        </nav>
-      )}
+      <nav aria-label="View the demo as" className="flex items-center">
+        <span className="pl-2 pr-1 text-text-2">View as</span>
+        {DEMO_ROLES.filter((r) => showAreas || r.id === "customer").map((r) => (
+          <Link
+            key={r.id}
+            href={r.href}
+            prefetch={isAppPath(r.href) ? false : undefined} // the dealer area sits behind Cloudflare Access: a prefetch from a public page gets its login page
+            aria-current={r.id === role ? "true" : undefined}
+            className={`flex h-11 items-center px-2 sm:px-3 ${r.id === role ? "font-semibold text-text underline decoration-accent decoration-2 underline-offset-8" : "text-text-2"} ${press}`}
+          >
+            {r.label}
+          </Link>
+        ))}
+      </nav>
       {role === "dealer" && showAreas && (
         <div className={`flex items-center gap-2 ${phone ? "w-full flex-wrap" : ""}`}>
           {/* Which member of the team the demo acts as: the role decides what they may see (src/lib/permissions.ts). The browser's own
@@ -120,11 +97,7 @@ export function DemoBar({ showAreas = true }: { showAreas?: boolean }) {
           </button>
         </div>
       )}
-      {/* Which modules the dealer has (#173), so a smaller site can be shown. One switch in one place, so choosing a plan keeps it open. */}
-      {showAreas && <ModuleSwitches chip={chip} inline={phone} />}
-      <button type="button" aria-pressed={theme === "dark"} onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className={`flex h-11 items-center px-2 text-text-2 ${press}`}>
-        {theme === "dark" ? "Dark" : "Light"}
-      </button>
+      <ThemeSwitch />
     </>
   );
 

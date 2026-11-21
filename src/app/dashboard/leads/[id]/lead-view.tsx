@@ -1,5 +1,4 @@
-import { enabledModules, hasModule } from "@/lib/modules";
-import { conditionShown } from "@/lib/modules-rules";
+import { hasModule } from "@/lib/modules";
 import { onPublicSite } from "@/lib/stock/types";
 import { sourceText } from "@/lib/visit-rules";
 import { NEW_TAB } from "@/components/ui";
@@ -10,7 +9,6 @@ import { stopWhatsAppAction } from "@/app/dashboard/whatsapp/actions";
 import { LeadStatusBadge } from "@/components/admin/badges";
 import { RegLookup } from "@/components/leads/RegLookup";
 import { AITextarea } from "@/components/admin/AIWriter";
-import { IfModule } from "@/components/IfModule";
 import { lookupRegStaffAction } from "@/app/dashboard/reg-action";
 import { Avatar, Badge, Field, PageHeader, Panel, adminButton, adminButtonQuiet, adminInput, rowButton } from "@/components/admin/kit";
 import { LEAD_TYPE_LABELS, LOST_REASONS, drivesStore, getSettings, leadStatusLabel, leadStatusSteps, leadsStore } from "@/lib/admin/collections";
@@ -72,7 +70,7 @@ export async function LeadView({ id }: { id: string }) {
             {lead.carTitle && (
               <p className="text-heading font-semibold">
                 {/* A link only while the car has a page on the site: not hidden, a draft or sold long ago, and its kind on the plan. */}
-                {lead.carSlug && car && onPublicSite(car) && conditionShown(await enabledModules(), car.condition) ? (
+                {lead.carSlug && car && onPublicSite(car) ? (
                   <Link href={carHref(lead.carSlug)} className="underline-offset-4 hover:underline">
                     {lead.carTitle}
                   </Link>
@@ -102,33 +100,25 @@ export async function LeadView({ id }: { id: string }) {
             <h2 id="next" className="text-meta font-medium text-text-2">Next step</h2>
             <ContactButtons phone={lead.phone} email={lead.email} />
             {/* Booking a drive from the lead carries their car, name and number into the form. */}
-            {lead.type !== "warranty" && isOpenLead(lead) && (
-              <IfModule id="testDrives">
-                {drive ? (
-                  <Link href={`/dashboard/test-drives/${drive.id}`} className={adminButtonQuiet}>
-                    <CalendarIcon className="size-4" />
-                    Test drive {fmtDay(dublinDay(drive.startsAt), "weekday")} {fmtDay(dublinDay(drive.startsAt), "day")} {fmtDay(dublinDay(drive.startsAt), "month")}, {fmtTime(drive.startsAt)}
-                  </Link>
-                ) : (
-                  // An order request's main job is Place the order, so the drive is the quiet one there: one filled button.
-                  <Link href={`/dashboard/test-drives/new?lead=${lead.id}`} className={lead.type === "order" ? adminButtonQuiet : adminButton}>
-                    <CalendarIcon className="size-4" />
-                    Book a test drive
-                  </Link>
-                )}
-              </IfModule>
-            )}
+            {lead.type !== "warranty" && isOpenLead(lead) && (drive ? (
+              <Link href={`/dashboard/test-drives/${drive.id}`} className={adminButtonQuiet}>
+                <CalendarIcon className="size-4" />
+                Test drive {fmtDay(dublinDay(drive.startsAt), "weekday")} {fmtDay(dublinDay(drive.startsAt), "day")} {fmtDay(dublinDay(drive.startsAt), "month")}, {fmtTime(drive.startsAt)}
+              </Link>
+            ) : (
+              // An order request's main job is Place the order, so the drive is the quiet one there: one filled button.
+              <Link href={`/dashboard/test-drives/new?lead=${lead.id}`} className={lead.type === "order" ? adminButtonQuiet : adminButton}>
+                <CalendarIcon className="size-4" />
+                Book a test drive
+              </Link>
+            ))}
             {/* A factory order request from the website: place it, copying from what they asked for. Orders are for stock kept here. */}
             {lead.type === "order" && (await stockSource()) !== "donedeal" && (
-              <IfModule id="newCars">
-                <Link href={`/dashboard/orders/new?lead=${lead.id}`} className={adminButton}>Place the order</Link>
-              </IfModule>
+              <Link href={`/dashboard/orders/new?lead=${lead.id}`} className={adminButton}>Place the order</Link>
             )}
             {/* A warranty claim from the website: open it on the sale, with the buyer found from their details. */}
             {lead.type === "warranty" && (
-              <IfModule id="service">
-                <Link href={`/dashboard/aftersales/new?lead=${lead.id}`} className={adminButton}>Open a claim</Link>
-              </IfModule>
+              <Link href={`/dashboard/aftersales/new?lead=${lead.id}`} className={adminButton}>Open a claim</Link>
             )}
             <div role="group" aria-label="Status" className="flex flex-col gap-2">
               <p className="flex items-center gap-2 text-meta text-text-2">
@@ -161,14 +151,12 @@ export async function LeadView({ id }: { id: string }) {
             )}
             {/* They ticked the WhatsApp box on the form: the site's messages reach them there until someone stops it. */}
             {lead.whatsappOptIn && (
-              <IfModule id="whatsapp">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="text-meta text-text-2">WhatsApp updates: on</p>
-                  <ActButton act={stopWhatsAppAction.bind(null, lead.id)} done="WhatsApp updates stopped" confirm={{ title: "Stop WhatsApp?", text: "Nothing more goes to them on WhatsApp. They get email instead, if they gave an address.", yes: "Stop WhatsApp" }} className={rowButton}>
-                    Stop WhatsApp
-                  </ActButton>
-                </div>
-              </IfModule>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-meta text-text-2">WhatsApp updates: on</p>
+                <ActButton act={stopWhatsAppAction.bind(null, lead.id)} done="WhatsApp updates stopped" confirm={{ title: "Stop WhatsApp?", text: "Nothing more goes to them on WhatsApp. They get email instead, if they gave an address.", yes: "Stop WhatsApp" }} className={rowButton}>
+                  Stop WhatsApp
+                </ActButton>
+              </div>
             )}
           </section>
         </div>
@@ -178,11 +166,9 @@ export async function LeadView({ id }: { id: string }) {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <div className="flex min-w-0 flex-col gap-6">
           {/* A reply to copy into email or WhatsApp: written from their message and the car, never from their phone or email. */}
-          <IfModule id="ai">
-            <Panel title="Draft a reply">
-              <AITextarea label="Reply draft" task="leadReply" rows={6} copy request={{ task: "leadReply", leadId: lead.id }} />
-            </Panel>
-          </IfModule>
+          <Panel title="Draft a reply">
+            <AITextarea label="Reply draft" task="leadReply" rows={6} copy request={{ task: "leadReply", leadId: lead.id }} />
+          </Panel>
           {photos.length > 0 && (
             <Panel title="Photos">
               <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">

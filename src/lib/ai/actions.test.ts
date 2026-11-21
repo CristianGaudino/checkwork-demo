@@ -14,7 +14,6 @@ const count = async (kind: string) => (await monthCounts()).find((c) => c.servic
 describe("writeWithAI behind the dashboard", () => {
   afterEach(async () => {
     await saveBilling({ caps: {}, aiModel: "opus" });
-    delete process.env.NEXT_PUBLIC_SITE_MODULES;
   });
 
   it("writes a post from the car, counted under the dealer's model, and an adjust the same way", async () => {
@@ -49,10 +48,5 @@ describe("writeWithAI behind the dashboard", () => {
     expect(await writeAction({ task: "post", carSlug: "x", network: "Nowhere", format: "post" } as never)).toEqual({ ok: false, reason: "failed" });
     expect(await writeAction({ task: "newsletter" }, "nonsense" as never)).toEqual({ ok: false, reason: "failed" });
     expect(await count("opus")).toBe(before);
-  });
-
-  it("does not exist for a dealer without the AI module", async () => {
-    process.env.NEXT_PUBLIC_SITE_MODULES = "dashboard";
-    await expect(writeAction({ task: "newsletter" })).rejects.toThrow("not-found");
   });
 });

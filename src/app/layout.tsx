@@ -36,15 +36,17 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en-IE" className={`${sora.variable} ${inter.variable}`} suppressHydrationWarning>
       <head>
-        {/* Sets a stored dark choice before first paint. */}
+        {/* Sets the theme before first paint. */}
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+        {/* The theme switch needs JavaScript: without it, it is not shown. */}
+        <noscript dangerouslySetInnerHTML={{ __html: "<style>[data-theme-switch]{display:none}</style>" }} />
       </head>
       <body className="flex min-h-dvh flex-col">
         {/* Suspense: it reads the search params, which a static page only has in the browser. */}
         <Suspense fallback={null}>
           <NavProgress />
         </Suspense>
-        {DEMO_BAR_ENABLED && <DemoBar showAreas={adminReachable() || process.env.NEXT_PUBLIC_ACCESS_ENABLED === "1"} />}
+        {DEMO_BAR_ENABLED && <DemoBar showAreas={adminReachable()} />}
         <SiteChrome>
           <SiteHeader />
           <VisitStart />

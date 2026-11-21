@@ -6,8 +6,6 @@ import { LeadPage } from "@/components/leads/LeadPage";
 import { TestDrivePicker } from "@/components/leads/TestDrivePicker";
 import { DEALER_LOCATION, DEALER_PHONE, SITE_NAME } from "@/lib/site";
 import { everyKindOrNull } from "@/lib/stock";
-import { enabledModules } from "@/lib/modules";
-import { conditionShown } from "@/lib/modules-rules";
 import { forSale } from "@/lib/stock/types";
 import { carSummary, fold } from "@/lib/stock/format";
 import { paginate } from "@/components/admin/kit";
@@ -31,8 +29,7 @@ export default async function TestDrivePage({ searchParams }: PageProps<"/test-d
   const q = typeof sp.q === "string" ? sp.q.trim().slice(0, 80) : "";
   // Used, new and commercial: a test drive is as likely on a new car or a van. Searched and paged here, so the page carries 24 cars
   // whatever the size of the stock.
-  const modules = await enabledModules(); // new cars and vans only with their module
-  const all = ((await everyKindOrNull()) ?? []).filter((c) => forSale(c) && conditionShown(modules, c.condition)).sort((a, b) => Number(b.id) - Number(a.id)).map((c) => ({ ...carSummary(c), vatLine: priceInfo(c).vatLine })); // newest first, whatever the kind; only cars for sale; a van says its price is ex. VAT, as on its stock card
+  const all = ((await everyKindOrNull()) ?? []).filter(forSale).sort((a, b) => Number(b.id) - Number(a.id)).map((c) => ({ ...carSummary(c), vatLine: priceInfo(c).vatLine })); // newest first, whatever the kind; only cars for sale; a van says its price is ex. VAT, as on its stock card
   const found = q ? all.filter((c) => fold(`${c.name} ${c.title}`).includes(fold(q))) : all;
   const { rows, page, pageCount, total, per } = paginate(found, typeof sp.page === "string" ? sp.page : undefined, PER_PAGE);
   const href = (n: number) => `/test-drive?${q ? `q=${encodeURIComponent(q)}&` : ""}page=${n}`;

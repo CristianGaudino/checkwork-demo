@@ -9,10 +9,9 @@ beforeEach(() => {
   vi.stubEnv("SIMULATE_INTEGRATIONS", "on");
 });
 let role = "Owner";
-let modules: string | undefined; // the demo bar's module switches; unset is every module
 vi.mock("react", async (orig) => ({ ...(await orig<typeof import("react")>()), cache: <T,>(fn: T) => fn }));
 vi.mock("next/headers", () => ({
-  cookies: async () => ({ get: (n: string) => (n === "checkwork-demo-role" ? { value: role } : n === "checkwork-demo-modules" && modules ? { value: modules } : undefined) }),
+  cookies: async () => ({ get: (n: string) => (n === "checkwork-demo-role" ? { value: role } : undefined) }),
   headers: async () => ({ get: () => null }),
 }));
 const { pauseAlertAction, removeAlertAction, unsubscribeAction } = await import("./customers/actions");
@@ -45,15 +44,6 @@ describe("stock alerts and the newsletter", () => {
     await removeAlertAction(alert.id);
     expect(await alertsStore.get(alert.id)).toBeUndefined();
     await removeAlertAction(alert.id); // gone: nothing
-  });
-  it("belongs to the newsletter module, where visitors sign up, not to sales", async () => {
-    const sub = (await subscribersStore.list()).find((s) => s.status === "subscribed")!;
-    modules = "dashboard,sales";
-    await expect(unsubscribeAction(sub.id)).rejects.toThrow("not-found");
-    modules = "dashboard,newsletter";
-    await unsubscribeAction(sub.id);
-    expect((await subscribersStore.get(sub.id))!.status).toBe("unsubscribed");
-    modules = undefined;
   });
 });
 

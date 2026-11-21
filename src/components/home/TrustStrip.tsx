@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { IfModule } from "@/components/IfModule";
 import { IconBadge, TitleText } from "@/components/Feature";
 import { CalculatorIcon, CarIcon, LayersIcon, ShieldCheckIcon, SwapIcon } from "@/components/stock/icons";
 import { WARRANTY } from "@/lib/site";
@@ -23,23 +22,12 @@ export function TrustStrip() {
       <ul className="grid grid-cols-1 divide-y divide-hairline sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-5 lg:divide-x">
         {ITEMS.map(({ Icon, title, text, href }) => (
           <li key={title} className="sm:max-lg:border-b sm:max-lg:border-hairline sm:max-lg:odd:border-r sm:max-lg:last:border-b-0">
-            {/* The promise stays; the link only while its page is there (#173). */}
-            <IfModule href={href}>
-              <Link href={href} className="flex h-full min-h-11 items-start gap-4 p-5 transition-colors hover:bg-hairline/50 lg:flex-col lg:gap-3">
-                <IconBadge>
-                  <Icon className="size-6" />
-                </IconBadge>
-                <TitleText title={title} text={text} />
-              </Link>
-            </IfModule>
-            <IfModule href={href} not>
-              <div className="flex h-full min-h-11 items-start gap-4 p-5 lg:flex-col lg:gap-3">
-                <IconBadge>
-                  <Icon className="size-6" />
-                </IconBadge>
-                <TitleText title={title} text={text} />
-              </div>
-            </IfModule>
+            <Link href={href} className="flex h-full min-h-11 items-start gap-4 p-5 transition-colors hover:bg-hairline/50 lg:flex-col lg:gap-3">
+              <IconBadge>
+                <Icon className="size-6" />
+              </IconBadge>
+              <TitleText title={title} text={text} />
+            </Link>
           </li>
         ))}
       </ul>

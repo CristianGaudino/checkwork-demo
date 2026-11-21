@@ -21,7 +21,8 @@ import { LISTING_SITE } from "@/lib/stock-source-rules";
 // A failed or held sync changes nothing: the site keeps the stock from the last good one. After an hour of failures the owners and
 // managers get one email, then no more until a sync works again.
 export const SYNC_ACTOR = `${LISTING_SITE} sync`;
-// Where the sync runs: a site whose stock comes from DoneDeal, and the demo (which shows both versions; its feed changes nothing).
+// Where the sync runs: a site whose stock comes from DoneDeal, and wherever the demo bar is on (next dev, the E2E run: its feed changes nothing).
+// The live demo has no bar and its own stock, so the route answers 404 there and the Worker skips it.
 export const syncRunsHere = () => DEMO_BAR_ENABLED || process.env.NEXT_PUBLIC_STOCK_SOURCE === "donedeal";
 export const ALERT_AFTER = HOUR;
 

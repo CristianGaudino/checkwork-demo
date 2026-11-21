@@ -1,7 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
-import { MODULE_IDS } from "@/lib/modules-rules";
-
-vi.mock("@/lib/modules", () => ({ enabledModules: async () => new Set(MODULE_IDS) })); // every module on, as the demo opens
+import { describe, expect, it } from "vitest";
 import { POPULAR_MAKES } from "@/lib/leads/makes";
 import { everyKindOrNull } from "./index";
 import { carsOfMake, findMake, makeDirectory } from "./makes";

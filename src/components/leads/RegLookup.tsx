@@ -6,7 +6,6 @@ import { lookupRegAction } from "@/app/actions/reg";
 import { SearchIcon } from "@/components/stock/icons";
 import { secondaryButton } from "@/components/ui";
 import { regSummary } from "@/lib/reg";
-import { useModules } from "@/lib/demo-role";
 import type { CarFound, RegLookup as Found } from "@/lib/reg-lookup";
 
 // The "Look up" beside a registration box, on the visitor's forms and the dealer's. It asks the server (src/lib/reg-lookup.ts) and hands
@@ -16,9 +15,8 @@ import type { CarFound, RegLookup as Found } from "@/lib/reg-lookup";
 // `lookup`: the dashboard passes its own action (no per-visitor limits, behind Access); the visitor's forms use the public one.
 // Pressing again for the same plate reuses the last answer: a repeat never reaches the server, let alone the paid service.
 const plate = (reg: string) => reg.toUpperCase().replace(/[^A-Z0-9]/g, "");
-// `place`: where it is (#180). A dealer may have the lookup on the website, in the dashboard, both or neither; where it is off there is no button.
+// `place`: where it is (#180), for the wording when the month's lookups are used up.
 export function RegLookup({ reg, onFound, lookup = lookupRegAction, place = "website", className = "" }: { reg: string; onFound?(found: { year: number; car?: CarFound }): void; lookup?: (reg: unknown) => Promise<Found | null>; place?: "website" | "dashboard"; className?: string }) {
-  const on = useModules().has(place === "website" ? "lookupWebsite" : "lookupDashboard");
   const [said, setSaid] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const last = useRef<{ plate: string; r: Found } | null>(null);
@@ -30,7 +28,6 @@ export function RegLookup({ reg, onFound, lookup = lookupRegAction, place = "web
       onFound?.({ year: r.year, car: r.car });
       setSaid(r.car ? `${r.car.make} ${r.car.model}. ${regSummary(r)}.` : r.limited ? `${regSummary(r)}. ${place === "dashboard" ? `Lookups have reached this month's limit${SHOW_PRICING ? "" : " (ask us in Help to raise it)"}, so fill` : "Fill"} in the rest below.` : `${regSummary(r)}.`);
     });
-  if (!on) return null;
   // Two pieces for the parent's row: the button sits beside the box, and the line under the whole row.
   // `className` sets the height to match the box beside it (h-12 public, h-11 dashboard) and the offset past its label.
   return (
