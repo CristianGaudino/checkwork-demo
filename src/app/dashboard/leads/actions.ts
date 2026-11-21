@@ -24,8 +24,9 @@ export async function setStatusAction(id: string, data: FormData) {
   await requireStaff(); // a server action can be posted to any page: only staff Access let in (src/lib/staff.ts)
   const parsed = status.safeParse(data.get("status"));
   const lead = await leadsStore.get(id);
-  if (!parsed.success || !lead || lead.status === parsed.data) return;
-  if (movedSince(data, lead.status)) return { error: STALE_STATUS };
+  if (!parsed.success || !lead) return;
+  if (movedSince(data, lead.status)) return { error: STALE_STATUS }; // first: a second press from an old page is refused, not "done"
+  if (lead.status === parsed.data) return;
   if (parsed.data !== "new" && !leadStatusSteps(lead.type).includes(parsed.data)) return; // a warranty request is never won, even posted by hand
   const on = String(data.get("on") ?? "");
   const why = reason.safeParse(data.get("reason"));

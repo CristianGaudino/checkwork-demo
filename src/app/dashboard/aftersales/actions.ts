@@ -55,8 +55,9 @@ export async function setClaimStatusAction(id: string, data: FormData) {
   await requireModule("service"); // and only while the dealer has it
   const to = status.safeParse(data.get("status"));
   const claim = await claimsStore.get(id);
-  if (!to.success || !claim || claim.status === to.data) return;
-  if (movedSince(data, claim.status)) return { error: STALE_STATUS };
+  if (!to.success || !claim) return;
+  if (movedSince(data, claim.status)) return { error: STALE_STATUS }; // first: a second press from an old page is refused, not "done"
+  if (claim.status === to.data) return;
   // Written only if nobody moved it between the read and the write (the update runs again on a clash).
   let moved = false;
   await claimsStore.update(id, (k) => ((moved = k.status === claim.status) ? { ...k, status: to.data } : k));

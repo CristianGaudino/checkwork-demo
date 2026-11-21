@@ -202,7 +202,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
             <StatCard label="Posted in the last 30 days" value={fmtNum(recent.length)} />
             <StatCard label="People who saw them" value={fmtNum(recent.reduce((n, p) => n + (p.reach ?? 0), 0))} />
             <StatCard label="Clicks to your site" value={fmtNum(recent.reduce((n, p) => n + (p.clicks ?? 0), 0))} />
-            <StatCard label="Leads from ads" value={fmtNum(ads.filter((a) => (a.startedAt ?? a.createdAt) >= since).reduce((n, a) => n + a.leads, 0))} hint="From ads started in the last 30 days" href="/dashboard/marketing?show=ad" />
+            <StatCard label="Leads from ads" value={fmtNum(ads.filter((a) => (a.startedAt ?? a.createdAt) >= since).reduce((n, a) => n + a.leads, 0))} hint="From ads started in the last 30 days" />
           </StatGrid>
 
           <TableToolbar filters={filters} />
@@ -378,7 +378,7 @@ function Calendar({ posts, ads, week }: { posts: Awaited<ReturnType<typeof posts
                   <li key={i.id} data-calendar-item className="flex min-w-0 flex-col gap-0.5 rounded-control bg-row-alt p-2">
                     <span className="flex min-w-0 items-center gap-1.5 text-meta font-medium"><BrandIcon name={i.title} /><span className="truncate">{i.title}</span></span>
                     {i.sub && <span className="truncate text-meta text-text-2">{i.sub}</span>}
-                    <span className="text-meta text-text-2">{new Date(i.at).toLocaleTimeString("en-IE", { hour: "2-digit", minute: "2-digit", timeZone: TIME_ZONE })} · {STATUS[i.status].label}</span>
+                    <span className="text-meta text-text-2">{new Date(i.at).toLocaleTimeString("en-IE", { hour: "2-digit", minute: "2-digit", timeZone: TIME_ZONE })} · {i.ready && i.status === "posted" ? "Ready on your phone" : STATUS[i.status].label}</span>
                   </li>
                 ))}
               </ul>

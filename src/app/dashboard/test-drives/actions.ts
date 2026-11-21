@@ -30,8 +30,9 @@ export async function setDriveStatusAction(id: string, status: string, from?: st
   await requireModule("testDrives"); // and only while the dealer has it
   const next = parseDriveStatus(status);
   const drive = await drivesStore.get(id);
-  if (!next || !drive || drive.status === next) return;
-  if (changedSince(from, drive.status)) return { error: STALE_STATUS };
+  if (!next || !drive) return;
+  if (changedSince(from, drive.status)) return { error: STALE_STATUS }; // first: a second press from an old page is refused, not "done"
+  if (drive.status === next) return;
   let moved = false; // only if nobody moved it between the read and the write
   if (!(await drivesStore.update(id, (d) => ((moved = d.status === drive.status) ? { ...d, status: next } : d)))) return;
   if (!moved) return { error: STALE_STATUS };

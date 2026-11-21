@@ -86,6 +86,11 @@ describe("a booking's status and who takes it out", () => {
     expect(await setDriveStatusAction(drive.id, "confirmed", "requested")).toMatchObject({ error: expect.any(String) });
     expect((await drivesStore.get(drive.id))!.status).toBe("cancelled");
   });
+  it("refuses a second press from an old page, so its Undo can never revert a colleague's", async () => {
+    const drive = (await drivesStore.list()).find((d) => d.status === "requested")!;
+    await setDriveStatusAction(drive.id, "confirmed", "requested");
+    expect(await setDriveStatusAction(drive.id, "confirmed", "requested")).toMatchObject({ error: expect.any(String) });
+  });
   it("is someone on the team, or nobody; any other name is refused", async () => {
     const drive = (await drivesStore.list())[0];
     const name = (await getSettings()).team[1].name;

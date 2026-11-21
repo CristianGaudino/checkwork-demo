@@ -36,6 +36,8 @@ export function overview(input: { leads: Lead[]; drives: TestDrive[]; reviews: A
   const late = leads.filter((l) => pastReplyTarget(l, now, slaHours)).sort((a, b) => a.createdAt - b.createdAt);
   const toConfirm = drives.filter((d) => d.status === "requested" && d.startsAt >= now).sort((a, b) => a.startsAt - b.startsAt);
   const unrecorded = input.sales ? cars.filter((c) => isSold(c) && daysSince(c.soldAt!, now) <= SALE_NUDGE_DAYS && !input.sales!.has(c.id)) : [];
+  // Reservations past their date; with just one, its task opens it.
+  const overdue = (input.reservations ?? []).filter((r) => r.status === "held" && r.until < today);
   const attention = ([
     // Overdue follow-ups are late; ones due today are not yet.
     { key: "follow", label: "Follow-ups due", count: due.length, href: "/dashboard/leads?need=due", urgency: due.some((l) => l.followUpOn! < today) ? "now" : "soon" },
@@ -44,11 +46,11 @@ export function overview(input: { leads: Lead[]; drives: TestDrive[]; reviews: A
     { key: "reviews", label: "Reviews without a reply", count: reviews.filter((r) => !r.reply).length, href: "/dashboard/reviews?filter=unreplied", urgency: "info" },
     { key: "sync", label: `${LISTING_SITE} stock is not updating`, count: input.syncProblem ? 1 : 0, href: "/dashboard/stock", urgency: "now" },
     { key: "sold-drives", label: "Test drives booked on a car no longer for sale", count: drives.filter((d) => d.startsAt >= now && isOpenDrive(d) && offSale.has(d.carSlug)).length, href: "/dashboard/test-drives?view=list&car=gone&when=ahead", urgency: "now" },
-    { key: "deposits", label: "Reservations past their date", count: (input.reservations ?? []).filter((r) => r.status === "held" && r.until < today).length, href: "/dashboard/stock?view=reserved", urgency: "now" },
+    { key: "deposits", label: "Reservations past their date", count: overdue.length, href: overdue.length === 1 ? `/dashboard/stock/${overdue[0].carId}/reserve` : "/dashboard/stock?view=reserved", urgency: "now" },
     { key: "orders", label: "Ordered cars arrived, to hand over", count: (input.orders ?? []).filter((o) => o.status === "arrived").length, href: "/dashboard/orders?view=arrived", urgency: "soon" },
     { key: "taken-down", label: `${LISTING_SITE} ads taken down: did they sell?`, count: cars.filter((c) => c.takenDownAt).length, href: "/dashboard/stock?view=hidden", urgency: "soon" },
     { key: "old", label: `Cars for sale ${OLD_STOCK_DAYS} days or more`, count: cars.filter((c) => isOldStock(c, now)).length, href: "/dashboard/stock?view=old", urgency: "info" },
-    { key: "sales", label: "Sold cars with no sale recorded", count: unrecorded.length, href: "/dashboard/stock?view=sold", urgency: "soon" },
+    { key: "sales", label: "Sold cars with no sale recorded", count: unrecorded.length, href: "/dashboard/stock", urgency: "soon" }, // Stock's To do opens each sale to record in turn
     { key: "costs", label: "Cars for sale with no cost price", count: input.costs ? cars.filter((c) => !isSold(c) && !input.costs!.has(c.id)).length : 0, href: "/dashboard/margins", urgency: "info" },
   ] satisfies Attention[])
     .filter((a) => a.count > 0)

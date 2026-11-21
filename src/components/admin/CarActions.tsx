@@ -78,7 +78,7 @@ export function ListingButton({ car, className }: { car: Car; className: string 
   const name = carName(car);
   const [to, label, done] = car.listing === "draft" ? ["live", "Publish", `Published ${name}`] : car.listing ? ["live", "Show on the website", `${name} is on the website again`] : ["hidden", "Hide from the website", `Hid ${name} from the website`];
   return (
-    <ActButton act={setListingAction.bind(null, car.id, to)} undo={setListingAction.bind(null, car.id, car.listing ?? "live")} done={done} className={className}>
+    <ActButton act={setListingAction.bind(null, car.id, to, car.listing ?? "live")} undo={setListingAction.bind(null, car.id, car.listing ?? "live", to)} done={done} className={className}>
       {car.listing ? <EyeIcon className="size-4 shrink-0" /> : <EyeOffIcon className="size-4 shrink-0" />}
       {label}
     </ActButton>

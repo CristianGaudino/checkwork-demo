@@ -59,8 +59,10 @@ export default async function Page({ params, searchParams }: { params: Promise<{
   const sale = sales.find((s) => s.id === id);
   const main = sold && !sale ? (
     <Link href={`/dashboard/stock/${id}/sale`} className={adminButton}><ReceiptIcon className="size-4" />Record sale</Link>
+  ) : synced && car.takenDownAt && !sold ? (
+    // The ad came down on DoneDeal: the question is whether it sold (It did not sell is on the stock list, with the other taken-down ads).
+    <Link href={`/dashboard/stock/${id}/sale`} className={adminButton}><ReceiptIcon className="size-4" />It sold</Link>
   ) : synced ? (
-    // An ad that came down has nothing to edit: the car is dealt with under Ads taken down on the stock list.
     !car.takenDownAt && <a href={listingHref(car)} {...NEW_TAB} className={adminButton}><PencilIcon className="size-4" />Edit on {LISTING_SITE}<span className="sr-only"> (opens in a new tab)</span></a>
   ) : !sold ? (
     <Link href={`/dashboard/stock/${id}/sale`} className={adminButton}><CheckIcon className="size-4" />Mark sold</Link>

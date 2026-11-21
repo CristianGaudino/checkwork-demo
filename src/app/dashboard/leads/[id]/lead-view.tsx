@@ -1,4 +1,6 @@
-import { hasModule } from "@/lib/modules";
+import { enabledModules, hasModule } from "@/lib/modules";
+import { conditionShown } from "@/lib/modules-rules";
+import { onPublicSite } from "@/lib/stock/types";
 import { sourceText } from "@/lib/visit-rules";
 import { NEW_TAB } from "@/components/ui";
 import Link from "next/link";
@@ -69,7 +71,8 @@ export async function LeadView({ id }: { id: string }) {
             <h2 id="asked" className="text-meta font-medium text-text-2">What they asked</h2>
             {lead.carTitle && (
               <p className="text-heading font-semibold">
-                {lead.carSlug ? (
+                {/* A link only while the car has a page on the site: not hidden, a draft or sold long ago, and its kind on the plan. */}
+                {lead.carSlug && car && onPublicSite(car) && conditionShown(await enabledModules(), car.condition) ? (
                   <Link href={carHref(lead.carSlug)} className="underline-offset-4 hover:underline">
                     {lead.carTitle}
                   </Link>

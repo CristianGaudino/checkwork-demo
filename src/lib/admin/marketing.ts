@@ -5,7 +5,7 @@ import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { DAY } from "@/lib/time";
 import type { Ad, DealerSettings, Network, SocialPost } from "./collections";
 import { addDays, dublinDay } from "./format";
-import type { PostFormat } from "./networks";
+import { PUBLISH_MODE, type PostFormat } from "./networks";
 import type { CarFacts } from "@/lib/ai/tasks";
 
 // The writers for posts and newsletters. Plain templates over the car's own facts and the dealer's voice settings: the same car and
@@ -51,14 +51,14 @@ export function postText(c: CarFacts, network: Network, voice: Voice, format: Po
 // The calendar's week (#177): the Monday to Sunday that holds `day` (an Irish YYYY-MM-DD), and what falls on each day. A post is on the day
 // it is set for or went out; an ad on the day it started. Drafts have no day, so they are not on it.
 export const weekDays = (day: string) => Array.from({ length: 7 }, (_, i) => addDays(day, i - ((new Date(`${day}T12:00:00Z`).getUTCDay() + 6) % 7)));
-export type CalendarItem = { id: string; kind: "post" | "ad"; at: number; title: string; sub: string; status: "scheduled" | "posted" | "running" | "paused" | "ended" };
+export type CalendarItem = { id: string; kind: "post" | "ad"; at: number; title: string; sub: string; status: "scheduled" | "posted" | "running" | "paused" | "ended"; ready?: boolean };
 export function calendarWeek(posts: SocialPost[], ads: Ad[], days: string[]): Record<string, CalendarItem[]> {
   const out: Record<string, CalendarItem[]> = Object.fromEntries(days.map((d) => [d, []]));
   const add = (i: CalendarItem) => out[dublinDay(i.at)]?.push(i);
   for (const p of posts) {
     if (p.status === "draft") continue;
     const at = p.status === "scheduled" ? p.scheduledFor : (p.postedAt ?? p.createdAt);
-    if (at) add({ id: p.id, kind: "post", at, title: `${p.network} ${p.format ?? "post"}`, sub: p.carTitle ?? "", status: p.status });
+    if (at) add({ id: p.id, kind: "post", at, title: `${p.network} ${p.format ?? "post"}`, sub: p.carTitle ?? "", status: p.status, ...(PUBLISH_MODE[p.network][p.format ?? "post"] === "prepare" && { ready: true }) }); // made ready for the phone, not sent
   }
   for (const a of ads) if (a.status !== "draft") add({ id: a.id, kind: "ad", at: a.startedAt ?? a.createdAt, title: `${a.platform} ad`, sub: a.carTitle, status: a.status });
   for (const d of days) out[d].sort((x, y) => x.at - y.at);
