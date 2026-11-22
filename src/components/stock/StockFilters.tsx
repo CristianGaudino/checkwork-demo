@@ -163,7 +163,7 @@ export function SearchBox() {
     <input
       type="search"
       aria-label={SEARCH_MAKE_MODEL}
-      placeholder={SEARCH_MAKE_MODEL}
+      placeholder="Make or model" // short enough for the sidebar; the label keeps the full words
       maxLength={80}
       enterKeyHint="search"
       onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()} // closes the phone keyboard; the debounced search still runs

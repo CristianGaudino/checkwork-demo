@@ -34,18 +34,20 @@ export const COUNTRIES = [
   { code: "PT", name: "Portugal", dial: "+351", example: "912 345 678" },
   { code: "AU", name: "Australia", dial: "+61", example: "412 345 678" },
 ] as const;
-export const BAD_PHONE = "Enter a phone number we can call, like 087 123 4567.";
+// No example: the box shows one for the country picked, without the leading 0.
+export const BAD_PHONE = "Enter a phone number we can call.";
 export const BAD_IRISH_PHONE = "Irish numbers have 7 to 9 digits after +353, like 87 123 4567.";
 
 /** Checks a phone number. Returns the message to show, or undefined if it is fine. Used by the server and, through it, the form. */
 export function phoneError(v: string): string | undefined {
   if (!/^\+?[0-9 ()-]+$/.test(v)) return BAD_PHONE;
   const digits = v.replace(/\D/g, "");
-  if (digits.length < 7 || digits.length > 15) return BAD_PHONE; // E.164 allows at most 15 digits
+  // Irish first, so a short number beside +353 gets the message that matches the box's example.
   if (v.startsWith("+353")) {
     const national = digits.slice(3).replace(/^0/, "");
     if (national.length < 7 || national.length > 9) return BAD_IRISH_PHONE;
   }
+  if (digits.length < 7 || digits.length > 15) return BAD_PHONE; // E.164 allows at most 15 digits
 }
 
 // The kinds of car a find-a-car request can name, and what it says when make, model and type are all empty.

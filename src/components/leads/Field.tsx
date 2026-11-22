@@ -9,7 +9,7 @@ import type { FieldBinding } from "./LeadForm";
 // Inputs read as wells: ink inside a dialog or a card marked data-wells, card on a page (UI-SPEC Color).
 const control = "w-full rounded-control border border-control bg-card text-body in-[dialog]:bg-surface in-data-wells:bg-surface aria-[invalid=true]:border-destructive";
 
-type InputProps = Pick<React.InputHTMLAttributes<HTMLInputElement>, "type" | "autoComplete" | "autoCapitalize" | "spellCheck" | "placeholder" | "maxLength" | "enterKeyHint" | "inputMode" | "min">;
+type InputProps = Pick<React.InputHTMLAttributes<HTMLInputElement>, "type" | "autoComplete" | "autoCapitalize" | "spellCheck" | "placeholder" | "maxLength" | "enterKeyHint" | "inputMode" | "min" | "onBlur">;
 
 // One labelled control with its helper and error lines (UI-SPEC Form fields, Accessibility baseline).
 // invalid and describedBy let ContactFields mark Phone with the one contact error that shows under Email.
@@ -92,6 +92,12 @@ export function Field({
     </div>
   );
 }
+
+// An onBlur that tidies what was typed (a plate, a mileage). Only a real change is passed on, so leaving an empty box changes nothing.
+export const tidyOnBlur = ({ value, onChange }: FieldBinding, tidy: (v: string) => string) => () => {
+  const t = tidy(value);
+  if (t !== value) onChange(t);
+};
 
 // A field's error: the alert icon first, so it reads as a problem without relying on colour.
 export function FieldError({ id, children }: { id?: string; children: React.ReactNode }) {

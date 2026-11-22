@@ -137,7 +137,7 @@ test("the Test Drive page lists the cars, books the one chosen, and the dealer s
   await page.goto("/test-drive?q=Niro");
   await expect(page.getByRole("listitem").filter({ hasText: "Niro" })).toHaveCount(1); // new cars are bookable too
   await page.goto("/test-drive?q=Vito");
-  await expect(page.getByRole("listitem").filter({ hasText: "Vito" }).first()).toContainText("Ex. VAT, reclaimable"); // and vans, priced as on their stock card
+  await expect(page.getByRole("listitem").filter({ hasText: "Vito" }).first()).toContainText("Ex. VAT"); // and vans, priced as on their stock card
   await page.goto("/test-drive");
   const row = page.getByRole("listitem").filter({ hasText: "€" }).first();
   await row.getByRole("button", { name: "Book" }).click();

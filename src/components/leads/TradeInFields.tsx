@@ -1,7 +1,8 @@
 "use client";
 
 import { LIMITS, PHOTO_MIN_COUNT, PHOTO_MIN_ERROR, PHOTO_SLOTS } from "@/lib/leads/constants";
-import { ContactFields, Field } from "./Field";
+import { ContactFields, Field, tidyOnBlur } from "./Field";
+import { tidyKm, tidyReg } from "@/lib/reg";
 import type { FieldBinding, FormStep, PhotoBinding } from "./LeadForm";
 import { PhotoPicker } from "./PhotoPicker";
 import { RegLookup } from "./RegLookup";
@@ -42,6 +43,7 @@ export function TradeInFields({ bind, photos, step, mode = "sell", cars = [] }: 
           <div className="min-w-0 flex-1">
             <Field
               {...bind("reg")}
+              onBlur={tidyOnBlur(bind("reg"), tidyReg)}
               label="Registration"
               required
               autoCapitalize="characters"
@@ -65,7 +67,7 @@ export function TradeInFields({ bind, photos, step, mode = "sell", cars = [] }: 
             }}
           />
         </div>
-        <Field {...bind("mileage")} label="Mileage" required inputMode="numeric" suffix="km" maxLength={9} enterKeyHint="next" />
+        <Field {...bind("mileage")} onBlur={tidyOnBlur(bind("mileage"), tidyKm)} label="Mileage" required inputMode="numeric" suffix="km" maxLength={9} enterKeyHint="next" />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Field {...bind("make")} label="Make" optional maxLength={60} enterKeyHint="next" />
           <Field {...bind("model")} label="Model" optional maxLength={60} enterKeyHint="next" />

@@ -80,11 +80,17 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
       <ul className="grid grid-cols-2 gap-2 min-[480px]:grid-cols-3 sm:grid-cols-4">
         {photos.map((photo, i) => (
           <li key={i} className="relative aspect-photo overflow-hidden rounded-control bg-photo-bg">
-            <Preview blob={photo} alt={`Photo ${i + 1}`} />
+            {/* Photos fill the slots in order, so a photo keeps the name of the slot it took. */}
+            <Preview blob={photo} alt={`Photo ${i + 1}${slots[i] ? `: ${slots[i]}` : ""}`} />
+            {slots[i] && (
+              <span aria-hidden="true" className={`absolute bottom-1 left-1 max-w-[calc(100%-0.5rem)] truncate px-2 py-0.5 text-meta font-semibold ${glass}`}>
+                {slots[i]}
+              </span>
+            )}
             <button
               type="button"
               onClick={() => remove(i)}
-              aria-label={`Remove photo ${i + 1}`}
+              aria-label={`Remove photo ${i + 1}${slots[i] ? `: ${slots[i]}` : ""}`}
               className={`absolute right-0 top-0 flex size-11 items-center justify-center ${press}`}
             >
               <span className={`flex size-7 items-center justify-center ${glass}`}>

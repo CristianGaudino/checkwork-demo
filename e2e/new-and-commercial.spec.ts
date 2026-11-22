@@ -32,7 +32,7 @@ test("vans say their price is without VAT, give the price with VAT, and show a d
   await expect(page.getByRole("heading", { level: 1, name: "Commercial vehicles" })).toBeVisible();
   const transit = page.locator("article").filter({ hasText: "1.5 EcoBlue 100 Trend" });
   await expect(transit.getByText("€22,450", { exact: true })).toBeVisible();
-  await expect(transit.getByText("Ex. VAT, reclaimable")).toBeVisible();
+  await expect(transit.getByText("Ex. VAT", { exact: true })).toBeVisible();
   await expect(transit.getByText("€27,614 inc. VAT")).toBeVisible();
   await expect(transit.getByText("Reduced by €1,500")).toBeVisible();
 });
@@ -43,7 +43,7 @@ test("a new car is not in the used list, and a van's page says its VAT and links
   await expect(page.locator("article").filter({ hasText: "Niro" })).toHaveCount(0);
   await page.goto("/commercial");
   await page.locator("article").filter({ hasText: "Vito" }).getByRole("link").first().click();
-  await expect(page.getByTestId("buy-box").getByText("Ex. VAT, reclaimable")).toBeVisible();
+  await expect(page.getByTestId("buy-box").getByText("Ex. VAT", { exact: true })).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Breadcrumb" }).getByRole("link", { name: "Commercial" })).toHaveAttribute("href", "/commercial");
 });
 
