@@ -12,8 +12,9 @@ export const CAR_ID = /^\d{1,12}$/;
 export const NOTE_KEY = `${SITE_SLUG}:visit-note`;
 export const NOTE_EVENT = "visit-note"; // fired on this window after each write, so an open form shows the latest
 
-type Note = { start: number } & Omit<Journey, "v" | "minutes">;
 type Count = "saved" | "compared";
+// `added`: the cars this tab saved or compared, so a list kept from an earlier visit is not counted. Ids only; never sent, only the counts.
+type Note = { start: number; added?: Partial<Record<Count, string[]>> } & Omit<Journey, "v" | "minutes">;
 
 // Storage blocked, full or edited by hand: nothing is noted, and the page carries on.
 function update(change: (n: Note) => void) {
@@ -59,10 +60,15 @@ export const noteFinance = (monthlyEur?: number) =>
     n.tools.finance = { ...n.tools.finance, ...(monthlyEur !== undefined && Number.isFinite(monthlyEur) && { monthlyEur: Math.max(0, Math.min(JOURNEY_CAPS.monthlyEur, Math.round(monthlyEur))) }) };
   });
 export const noteTradeIn = () => update((n) => void (n.tools.tradeIn = true));
-// How many cars are saved or compared now; the stores call it after every change, so undo, clear and the compare bar count too.
-export const noteCount = (k: Count, n: number) =>
+// The saved or compared list changed (`added`: the car a tap just added). The stores call it after every change, so the compare bar,
+// remove, clear and undo count too. The count is the cars added in this visit that are still on the list: undo brings one back, and a car
+// kept from an earlier visit never counts.
+export const noteList = (k: Count, list: string[], added?: string) =>
   update((t) => {
-    const v = Math.max(0, Math.min(JOURNEY_CAPS.count, n));
+    const was = t.added?.[k];
+    const mine = (Array.isArray(was) ? was : []).filter((id): id is string => typeof id === "string" && id !== added);
+    t.added = { ...t.added, [k]: (added ? [added, ...mine] : mine).slice(0, JOURNEY_CAPS.count) };
+    const v = t.added[k]!.filter((id) => list.includes(id)).length;
     if (v) t.tools[k] = v;
     else delete t.tools[k];
   });

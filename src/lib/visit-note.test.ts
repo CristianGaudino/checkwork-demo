@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { journeySchema } from "@/lib/leads/journey";
 import { DEFAULT_QUERY } from "@/lib/stock/query";
 import type { StockQuery } from "@/lib/stock/types";
-import { JOURNEY_CAPS, NOTE_KEY, journeyOf, noteCar, noteCount, noteFinance, noteSearch, noteTradeIn, readNote, searchOf, sharedLines, startNote } from "./visit-note";
+import { JOURNEY_CAPS, NOTE_KEY, journeyOf, noteCar, noteFinance, noteList, noteSearch, noteTradeIn, readNote, searchOf, sharedLines, startNote } from "./visit-note";
 
 let data: Map<string, string>;
 let events: number;
@@ -73,9 +73,10 @@ describe("the visit note", () => {
     expect(journey()!.tools.finance).toEqual({ monthlyEur: 304 });
     noteFinance(99999);
     noteTradeIn();
-    noteCount("saved", 150);
-    noteCount("compared", 1);
-    noteCount("compared", 0);
+    const many = Array.from({ length: 150 }, (_, i) => String(i));
+    for (const id of many) noteList("saved", many, id);
+    noteList("compared", ["1"], "1");
+    noteList("compared", []);
     vi.setSystemTime(Date.parse("2026-11-22T19:00:00Z"));
     const j = journey()!;
     expect(j.minutes).toBe(JOURNEY_CAPS.minutes);
@@ -89,8 +90,8 @@ describe("the visit note", () => {
     for (let i = 0; i < 20; i++) noteSearch(q({ make: ["m".repeat(39) + (i % 10)], model: ["x".repeat(40)], body: ["b".repeat(40)], fuel: ["plug-in-hybrid"], gearbox: "automatic", priceMin: 60000 }));
     noteFinance(5000);
     noteTradeIn();
-    noteCount("saved", 1);
-    noteCount("compared", 1);
+    noteList("saved", ["1"], "1");
+    noteList("compared", ["1"], "1");
     const j = journey()!;
     expect(journeySchema.parse(j)).toEqual(j);
     expect(new TextEncoder().encode(JSON.stringify(j)).length).toBeLessThanOrEqual(JOURNEY_CAPS.bytes);
@@ -101,7 +102,7 @@ describe("the visit note", () => {
       throw new DOMException("blocked", "SecurityError");
     };
     vi.stubGlobal("sessionStorage", { getItem: blocked, setItem: blocked, removeItem: blocked });
-    expect(() => (startNote(), noteCar("1"), noteSearch(q({ make: ["audi"] })), noteFinance(100), noteTradeIn(), noteCount("saved", 1))).not.toThrow();
+    expect(() => (startNote(), noteCar("1"), noteSearch(q({ make: ["audi"] })), noteFinance(100), noteTradeIn(), noteList("saved", ["1"], "1"))).not.toThrow();
     expect(readNote()).toBeNull();
     expect(journey()).toBeNull();
     expect(events).toBe(0);
@@ -149,23 +150,26 @@ describe("the visit note", () => {
     noteFinance(312);
     expect(sharedLines(journey()!)).toEqual(["3 cars you looked at", "2 searches", "the finance calculator, at €312 a month", "how long you've been on the site"]);
     noteTradeIn();
-    noteCount("saved", 1);
-    noteCount("compared", 2);
+    noteList("saved", ["1"], "1");
+    noteList("compared", ["1"], "1");
+    noteList("compared", ["2", "1"], "2");
     expect(sharedLines(journey()!).slice(3, 6)).toEqual(["that you started a valuation of your car", "1 car you saved", "2 cars you compared"]);
   });
 });
 
-// The stores note the count after every change, whatever made it: a button, the compare bar, clear, remove or undo.
+// The stores note the count after every change, whatever made it: a button, the compare bar, clear, remove or undo. Only cars added in
+// this visit count: the lists are kept in localStorage and outlive the tab.
 describe("the saved and compared counts", () => {
+  let local: Map<string, string>;
   beforeEach(() => {
-    const local = new Map<string, string>();
+    local = new Map();
     vi.stubGlobal("localStorage", { getItem: (k: string) => local.get(k) ?? null, setItem: (k: string, v: string) => void local.set(k, v) });
     vi.stubGlobal("window", new EventTarget());
     vi.resetModules();
   });
   const tools = () => journey()?.tools ?? {};
 
-  it("follow the compare list", async () => {
+  it("follow the cars this visit added to the compare list", async () => {
     const c = await import("@/lib/compare/store");
     c.toggleCompare("1");
     c.toggleCompare("2");
@@ -180,15 +184,20 @@ describe("the saved and compared counts", () => {
     expect(tools().compared).toBe(2);
   });
 
-  it("follow the saved list", async () => {
-    const s = await import("@/lib/saved/store");
+  it("never count a car saved on an earlier visit, and undo brings the count back", async () => {
+    const { SAVED_KEY, ...s } = await import("@/lib/saved/store");
+    local.set(SAVED_KEY, JSON.stringify(["7", "8"])); // saved on an earlier visit
     s.toggleSaved("1");
-    s.toggleSaved("2");
-    s.toggleSaved("2");
     expect(tools().saved).toBe(1);
-    s.removeSaved(["1"]);
+    s.toggleSaved("1");
     expect(tools()).not.toHaveProperty("saved");
     s.restoreSaved(["1"]);
     expect(tools().saved).toBe(1);
+    s.removeSaved(["7"]);
+    s.restoreSaved(["7"]); // undo of an earlier visit's car: still not this visit's
+    expect(tools().saved).toBe(1);
+    // The ids stay in the tab: only the count is in the journey.
+    expect(JSON.stringify(journey())).not.toContain('"1"');
+    expect(JSON.parse(readNote()!).added.saved).toEqual(["1"]);
   });
 });
