@@ -148,7 +148,8 @@ export default async function Home() {
         {/* Below the fold: it arrives after hydration, so it must not sit where it would push what is in view. */}
         <RecentlyViewed max={3} />
 
-        <BrowseByMake makes={makes.slice(0, HOME.makeChipsMax)} />
+        {/* Only the makes we have: a chip with nothing behind it says nothing. The rest are on the Makes page ("All makes"). */}
+        <BrowseByMake makes={makes.filter((m) => m.count > 0).slice(0, HOME.makeChipsMax)} />
 
         <BrowseByType tiles={typeTiles} />
 
