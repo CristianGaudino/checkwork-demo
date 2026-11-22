@@ -76,8 +76,9 @@ describe("the visit note", () => {
     expect(searchOf(q({ make: ["ring-ann-0871234567"], fuel: ["diesel"] }), F)).toEqual({ fuel: "diesel", condition: "used" });
     expect(searchOf(q({ make: ["audi"], model: ["ann-0871234567"], body: ["call-me"] }), F)).toEqual({ make: "audi", condition: "used" });
     // The engine echoes a picked value no car has back into its facet with a count of 0 (contract.test.ts): that is still typed text.
-    const echoed: Facets = { ...F, make: [...F.make, { value: "mary-0871234567", label: "mary-0871234567", count: 0 }] };
+    const echoed: Facets = { ...F, make: [...F.make, { value: "mary-0871234567", label: "mary-0871234567", count: 0, echo: true }, { value: "tesla", label: "Tesla", count: 0 }] };
     expect(searchOf(q({ make: ["mary-0871234567"], fuel: ["diesel"] }), echoed)).toEqual({ fuel: "diesel", condition: "used" });
+    expect(searchOf(q({ make: ["tesla"], fuel: ["diesel"] }), echoed)).toEqual({ make: "tesla", fuel: "diesel", condition: "used" }); // real, no cars left by the filters
     expect(searchOf(q({ make: ["audi"] }), null)).toBeNull();
     expect(journey()!.searches).toEqual([{ make: "audi", condition: "used" }]);
     for (let i = 0; i < 10; i++) noteSearch(q({ make: [`make-${i}`] }), F);
