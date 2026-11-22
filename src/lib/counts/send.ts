@@ -3,12 +3,12 @@ import type { BaseSQLiteDatabase } from "drizzle-orm/sqlite-core";
 import { adminDocs } from "../db/schema";
 import type * as schema from "../db/schema";
 import { askDash, DASH_HOST } from "../dash-request";
-import { TIME_ZONE } from "../site";
+import { addDays, dublinDay } from "../format";
 import { BUYER_EVENTS } from "./rules";
 
 // The nightly send of the day counts to the dealer dashboard (site API v1, POST /api/site/v1/counts), so it keeps them past this site's own
 // retention. The dashboard replaces a day's counts, so sending the last 7 days every night is safe and a missed night heals itself.
-// Relative imports only (wrangler bundles this outside Next's "@/" alias), and none that import server-only or the bindings.
+// wrangler bundles this outside Next (its esbuild reads the tsconfig "@/" alias), so nothing under these imports may reach server-only or the bindings.
 export const COUNTS_SEND_DAYS = 7;
 const TIMEOUT_MS = 5000;
 
@@ -21,8 +21,8 @@ export async function sendCountsToDash(db: BaseSQLiteDatabase<"async", unknown, 
   const key = env.DASH_SITE_KEY;
   const base = env.DASH_URL || (env.DASH ? DASH_HOST : "");
   if (!key || !base) return none;
-  const today = new Date(now).toLocaleDateString("en-CA", { timeZone: TIME_ZONE });
-  const from = new Date(Date.parse(`${today}T12:00:00Z`) - COUNTS_SEND_DAYS * 86_400_000).toISOString().slice(0, 10);
+  const today = dublinDay(now);
+  const from = addDays(today, -COUNTS_SEND_DAYS);
   let rows: { id: string; data: Record<string, unknown> }[];
   try {
     // Yesterday back 7 days: today is still counting, and the dashboard takes no day in the future.

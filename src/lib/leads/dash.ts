@@ -48,12 +48,23 @@ const TAKEN = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
 const TAKEN_MAX = 2000; // a car's slots over the two months ahead are far fewer
 
 // The slot starts already taken for a car ("YYYY-MM-DD HH:MM"), asked of the dashboard like a lead is sent. Never throws: no key, no binding,
-// a failure, a timeout or an answer that is not the contract all give [], so the form works as if nothing were taken. A short timeout: the
-// buyer's Book waits behind this call (server actions run one at a time per page).
+// a failure, a timeout (the whole call, the body too) or an answer that is not the contract all give [], so the form works as if nothing were
+// taken and a lead is never refused because the dashboard is down. Asked for the picker, and again when a test drive is submitted. A short
+// timeout: the buyer's Book waits behind this call (server actions run one at a time per page).
 export async function takenDriveTimesFromDash(carId: string, dash = getBindings().DASH): Promise<string[]> {
   const key = process.env.DASH_SITE_KEY;
   const base = process.env.DASH_URL || (dash ? DASH_HOST : "");
   if (!key || !base) return [];
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const late = new Promise<string[]>((resolve) => (timer = setTimeout(() => resolve([]), TAKEN_TIMEOUT_MS)));
+  try {
+    return await Promise.race([fetchTaken(carId, dash, base, key), late]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function fetchTaken(carId: string, dash: Parameters<typeof askDash>[0], base: string, key: string): Promise<string[]> {
   const url = new URL("/api/site/v1/drives/taken", base);
   url.searchParams.set("carId", carId);
   const res = await askDash(dash, new Request(url, { redirect: "manual", headers: { Authorization: `Bearer ${key}` } }), TAKEN_TIMEOUT_MS);

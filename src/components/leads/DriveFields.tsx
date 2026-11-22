@@ -14,7 +14,7 @@ const dayLabel = (iso: string) => threeLetter(new Date(`${iso}T12:00:00Z`).toLoc
 const noop = () => () => {};
 
 // A booking: a day we are open and a time on it, then contact details. The days are worked out in the browser (they depend on today), so
-// the list is empty until the page loads; the server checks the choice again against the opening hours.
+// the list is empty until the page loads; the server checks the choice again against the opening hours and the times the dashboard has booked.
 // The form opens on the first day with a time and that time: an empty value would show the list's first day (Combobox) with no
 // times under it. A chosen day that has none left says so and offers the next one.
 export function DriveFields({ bind, carId }: { bind(name: string): FieldBinding; carId?: string }) {
@@ -63,7 +63,7 @@ export function DriveFields({ bind, carId }: { bind(name: string): FieldBinding;
         {day.value && !times.length ? (
           <div className="flex flex-col gap-1">
             <p className="text-meta font-semibold">Time</p>
-            <p className="text-body text-text-2">No times left that day.</p>
+            <p className="text-body text-text-2">{next ? "No times left that day." : "No times free online. Call us to book."}</p>
             {next && (
               <button type="button" onClick={() => pick(next)} className="self-start text-body font-semibold text-accent-text underline underline-offset-4">
                 Next available: {dayLabel(next)}, {free(next)[0]}

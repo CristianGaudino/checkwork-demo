@@ -8,7 +8,7 @@ import { stock } from "@/lib/stock";
 import { getBindings } from "./bindings";
 import type { Deps, LeadStore, Mailer } from "./process";
 import { leadRecipients, sendToDealer } from "./mail";
-import { sendToDash } from "./dash";
+import { sendToDash, takenDriveTimesFromDash } from "./dash";
 import { createDrizzleStore } from "./store";
 import { verifyTurnstile } from "./turnstile";
 
@@ -36,6 +36,7 @@ function fakeDeps(): Deps {
     photoLinkSecret: () => "e2e-photo-link-secret",
     // The real send, so the E2E run sees a lead reach the stub dashboard its config points at.
     toDash,
+    takenDriveTimes: (carId) => takenDriveTimesFromDash(carId),
   };
 }
 
@@ -80,6 +81,7 @@ export function getDeps(): Deps {
     bucket,
     photoLinkSecret: () => requireEnv("PHOTO_LINK_SECRET"),
     toDash,
+    takenDriveTimes: (carId) => takenDriveTimesFromDash(carId),
   };
 }
 

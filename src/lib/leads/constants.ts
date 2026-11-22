@@ -90,6 +90,7 @@ export const PHOTO_NOTES = [`The ${PHOTO_MIN_COUNT} we need: ${PHOTO_SLOTS.slice
 const TEST_DRIVE = { monthsAhead: 2, stepMinutes: 30 } as const;
 export const BAD_DRIVE_DAY = "Choose a day from the list.";
 export const BAD_DRIVE_TIME = "Choose a time from the list.";
+export const DRIVE_TIME_TAKEN = "That time was just taken. Pick another.";
 const mins = (hhmm: string) => Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3, 5));
 const hhmm = (m: number) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
 const hoursFor = (iso: string) => OPENING_HOURS[(new Date(`${iso}T12:00:00Z`).getUTCDay() + 6) % 7]; // OPENING_HOURS starts on Monday

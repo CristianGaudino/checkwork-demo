@@ -33,7 +33,8 @@ const worker = {
     for (const [job, key, run] of jobs) {
       try {
         const out = await run();
-        console.log(JSON.stringify({ job, ...(key ? { [key]: out } : out) }));
+        const none = out?.of > 0 && out.days === 0; // the dashboard took no day (a wrong key, say): make it visible, counts only
+        (none ? console.error : console.log)(JSON.stringify({ job, ...(key ? { [key]: out } : out), ...(none && { error: "none accepted" }) }));
       } catch {
         failed++;
         console.error(JSON.stringify({ job, error: "failed" })); // never the error itself: a database error carries the values
