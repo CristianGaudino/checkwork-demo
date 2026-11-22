@@ -25,6 +25,9 @@ createServer((req, res) => {
         bodies.push(JSON.parse(raw));
       } catch {}
     }
+    if (req.method === "POST" && req.url === "/api/site/v1/counts" && req.headers.authorization === "Bearer e2e-dash-key") {
+      return res.writeHead(204).end();
+    }
     res.writeHead(201, { "content-type": "application/json" }).end('{"id":"stub"}');
   });
 })
