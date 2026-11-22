@@ -33,8 +33,7 @@ export type ChoiceKey = keyof typeof CHOICES;
 export const URGENCY_FOR: Record<"service" | "bought", string[]> = { service: ["this-week", "next-week", "no-rush"], bought: ["cant-drive", "this-week", "no-rush"] };
 
 // The answers stored on a lead, besides the topic: what the dashboard shows as tags.
-const ANSWER_KEYS = ["timing", "hasTradeIn", "serviceNeed", "boughtWhen", "concern", "urgency", "reg", "contactVia", "contactWhen"] as const;
-export type Answers = Partial<Record<(typeof ANSWER_KEYS)[number], string>>;
+export type Answers = Partial<Record<"timing" | "hasTradeIn" | "serviceNeed" | "boughtWhen" | "concern" | "urgency" | "reg" | "contactVia" | "contactWhen", string>>;
 
 const word = (key: ChoiceKey, v: string | undefined) => CHOICES[key].find((o) => o.value === v)?.label;
 // "Can't be driven" reads as "can't be driven" in a line, but "NCT check" keeps its capitals.

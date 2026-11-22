@@ -1,9 +1,10 @@
 name: CI
 
-# Run by hand only (owner, 2026-11-13), as in vintage: each merge already deploys (deploy.yml runs lint and the tests first),
-# and CI on every push added about 11 more minutes per merge when the shared 2,000 a month were nearly gone. Pull requests are
-# checked locally before they are opened (.claude/CLAUDE.md). Run it from the Actions tab when a second opinion is worth the minutes.
+# Every pull request: lint, typecheck, unit tests, the migrations check and the Worker check. The E2E suite is e2e.yml. The repo is
+# public, so Actions minutes are free. A merge to main is not checked again here: deploy.yml runs lint and the unit tests before it deploys.
+# No secrets: a pull request from a fork must be able to run this.
 on:
+  pull_request:
   workflow_dispatch:
 
 concurrency:
@@ -19,6 +20,7 @@ env:
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -27,6 +29,12 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run stock:redate # sold cars leave the 30 day window; keep the demo dates fresh
+      # The E2E job runs in the Playwright image of the locked version: a bump that leaves the tag behind would only fail there
+      - name: E2E image matches the locked Playwright
+        run: |
+          locked=$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")
+          image=$(grep -o 'playwright:v[0-9.]*-' .github/workflows/e2e.yml | head -1 | sed 's/playwright:v//; s/-$//')
+          [ "$locked" = "$image" ] || { echo "::error file=.github/workflows/e2e.yml::The image is Playwright $image but package-lock.json has $locked: change the tag"; exit 1; }
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test # unit and integration (lead store on in-memory SQLite)
@@ -34,7 +42,9 @@ jobs:
         run: npx drizzle-kit check
       # The deploy migrates before the new code is live, so a new migration may only add things
       - name: Migrations only add
-        run: bash scripts/check-migrations.sh "${{ github.event.before || 'main' }}" # what main was before this push
+        run: bash scripts/check-migrations.sh "${BASE:-main}" # the script fetches the base itself
+        env:
+          BASE: ${{ github.base_ref }}
 
   # The Worker has to start before a change reaches production: the normal build can't see what only fails on Cloudflare.
   # OpenNext runs the Next build, so there is no separate build job.
@@ -112,25 +122,3 @@ jobs:
           if grep -rlE 'worst-cars|DevDataToggle|break-ui' .next --include='*.js' --include='*.html' --include='*.rsc' 2>/dev/null | grep -q .; then echo 'the dev-only data switch is in the production build'; fail=1; fi
           if grep -q 'ERROR' wrangler.log; then echo 'the Worker logged an error'; fail=1; fi
           if [ $fail = 1 ]; then grep -iE 'error|failed' wrangler.log | sort -u | head -20; tail -n 20 wrangler.log; exit 1; fi
-
-  # A plain production build, not the Worker build: faster, and the worker job covers Cloudflare.
-  e2e:
-    runs-on: ubuntu-latest
-    timeout-minutes: 12
-    container:
-      image: mcr.microsoft.com/playwright:v1.64.1-noble
-      options: --ipc=host
-    env:
-      APP_ENV: production
-      SIMULATE_INTEGRATIONS: "on" # the registration lookup specs use the simulated lookup, and this job builds as production
-      NEXT_PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000BB # Cloudflare's always-pass test key; specs stub the script anyway
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - run: npm ci
-      - run: npm run stock:redate # sold cars leave the 30 day window; keep the demo dates fresh
-      - run: npm run build
-      - run: npm run e2e

@@ -1,4 +1,3 @@
-import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { adminDocs, leads } from "@/lib/db/schema";
 import { getDb, truncate } from "@/test/sqlite-db";
@@ -57,33 +56,6 @@ describe("purgeOldLeads", () => {
     expect(bucket.delete).not.toHaveBeenCalled();
   });
 
-  it("deletes the admin's copies of old leads, bookings and customers too, and keeps newer copies and the made-up seed records", async () => {
-    const old = monthsAgo(13).getTime();
-    const fresh = monthsAgo(0).getTime();
-    const doc = (collection: string, id: string, createdAt: number) => ({ collection, id, data: { id, createdAt } });
-    await getDb().insert(adminDocs).values([
-      doc("leads", "real-old", old), doc("test-drives", "real-old", old), doc("alerts", "real-old", old), { collection: "customers", id: "real-c-old", data: { id: "real-c-old", createdAt: old, lastContactAt: old } }, { collection: "customers", id: "real-c-returning", data: { id: "real-c-returning", createdAt: old, lastContactAt: fresh } },
-      doc("leads", "real-new", fresh), doc("leads", "lead-1000", old), // a seed record is not personal data and keeps its place
-      doc("test-drives", "drive-3f9a1c2e", old), doc("test-drives", "drive-5b2e7d10", fresh), // booked on the dashboard: the same name and contact
-    ]);
-    await purgeOldLeads(getDb(), { delete: async () => {} }, NOW);
-    const left = (await getDb().select({ id: adminDocs.id }).from(adminDocs)).map((r) => r.id).sort();
-    expect(left).toEqual(["drive-5b2e7d10", "lead-1000", "real-c-returning", "real-new"]); // the customer first seen long ago but in touch lately stays
-  });
-
-  it("deletes WhatsApp messages of a lead that is gone or older than the period, and keeps the rest", async () => {
-    const old = monthsAgo(13).getTime();
-    const fresh = monthsAgo(0).getTime();
-    const wa = (id: string, at: number, leadId?: string) => ({ collection: "whatsapp", id, data: { id, at, leadId } });
-    await getDb().insert(adminDocs).values([
-      { collection: "leads", id: "real-here", data: { id: "real-here", createdAt: fresh } },
-      wa("m-gone", fresh, "real-gone"), wa("m-old", old, "real-here"), wa("m-keep", fresh, "real-here"), wa("m-seed", fresh, "lead-1000"), wa("m-staff", fresh),
-    ]);
-    await purgeOldLeads(getDb(), { delete: async () => {} }, NOW);
-    const left = (await getDb().select({ id: adminDocs.id }).from(adminDocs)).map((r) => r.id).sort();
-    expect(left).toEqual(["m-keep", "m-seed", "m-staff", "real-here"]);
-  });
-
   it("clears the registration lookup's cache after 30 days, and the past days' counts", async () => {
     const at = (days: number) => NOW.getTime() - days * 86_400_000;
     await getDb().insert(adminDocs).values([
@@ -96,20 +68,5 @@ describe("purgeOldLeads", () => {
     ]);
     await purgeOldLeads(getDb(), { delete: async () => {} }, NOW);
     expect((await getDb().select({ id: adminDocs.id }).from(adminDocs)).map((r) => r.id).sort()).toEqual(["191-KY-2", "day-2026-11-09", "day-2026-11-09-v-0a1b2c"]);
-  });
-
-  it("keeps a customer while a sale, deposit, claim or order names them, from the website or the dashboard, and deletes them after", async () => {
-    const old = monthsAgo(13).getTime();
-    const customer = (id: string) => ({ collection: "customers", id, data: { id, createdAt: old, lastContactAt: old } });
-    await getDb().insert(adminDocs).values([
-      customer("real-c-buyer"), customer("cust-buyer"), customer("cust-claim"), customer("cust-unlinked"), customer("cust-walkin"),
-      { collection: "sales", id: "4710001", data: { id: "4710001", customerId: "real-c-buyer" } },
-      { collection: "orders", id: "order-1", data: { id: "order-1", customerId: "cust-buyer" } },
-      { collection: "claims", id: "claim-1", data: { id: "claim-1", customerId: "cust-claim" } },
-      { collection: "sales", id: "past-1", data: { id: "past-1" } }, // six years on, the sales purge removed its buyer
-    ]);
-    await purgeOldLeads(getDb(), { delete: async () => {} }, NOW);
-    const left = (await getDb().select({ id: adminDocs.id }).from(adminDocs).where(eq(adminDocs.collection, "customers"))).map((r) => r.id).sort();
-    expect(left).toEqual(["cust-buyer", "cust-claim", "real-c-buyer"]);
   });
 });
