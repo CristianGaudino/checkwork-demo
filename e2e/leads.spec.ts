@@ -3,14 +3,14 @@ import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import { SOLD_VISIBLE_DAYS } from "../src/lib/stock/types";
-import { choose } from "./combo";
+import { choose, optionLabels } from "./combo";
 import { dashBodies, leadSentTo } from "./dash-stub";
 import { stubTurnstile } from "./turnstile";
 
 // Runs only on the local server with fake backends: it must never send a lead to a deployed site.
 test.skip(Boolean(process.env.E2E_BASE_URL), "Lead specs never run against a deployed site");
 
-type Demo = { slug: string; soldAt?: string };
+type Demo = { id: string; slug: string; soldAt?: string };
 const cars: Demo[] = JSON.parse(readFileSync(join(process.cwd(), "src/lib/stock/demo-cars.json"), "utf8"));
 const live = cars.find((c) => !c.soldAt)!;
 const sold = cars.find((c) => c.soldAt && Date.parse(c.soldAt) + SOLD_VISIBLE_DAYS * 86_400_000 > Date.now());
@@ -172,6 +172,20 @@ test("Test drive asks for a day and a time, reaches the dealer dashboard as a bo
   const sent = await leadSentTo("Drive booker");
   expect(sent.lead).toMatchObject({ type: "test_drive", carSlug: live.slug });
   expect(sent.lead.details).toHaveProperty("driveTime");
+});
+
+test("a time the dashboard says is taken for this car is not offered, and is for another car", async ({ page }) => {
+  const other = cars.filter((c) => !c.soldAt)[1];
+  for (const [slug, offered] of [[live.slug, false], [other.slug, true]] as const) {
+    await open(page, slug);
+    await page.getByRole("button", { name: "Test drive", exact: true }).click();
+    const time = page.getByRole("dialog").getByLabel("Time");
+    await page.getByRole("dialog").getByLabel("Day").click(); // the first touch asks the dashboard
+    await page.keyboard.press("Escape");
+    // The answer is a moment behind the first touch, so wait for the list to settle on what is expected.
+    await expect.poll(async () => (await optionLabels(time)).includes("10:00")).toBe(offered);
+    await page.keyboard.press("Escape");
+  }
 });
 
 test("a price drop alert takes an email and says what happens next", async ({ page }) => {

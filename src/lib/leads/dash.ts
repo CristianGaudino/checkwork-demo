@@ -53,3 +53,33 @@ async function tryOnce(dash: ReturnType<typeof getBindings>["DASH"], url: URL, k
     clearTimeout(timer);
   }
 }
+
+const TAKEN = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
+const TAKEN_MAX = 2000; // a car's slots over the two months ahead are far fewer
+
+// The slot starts already taken for a car ("YYYY-MM-DD HH:MM"), asked of the dashboard like a lead is sent. Never throws: no key, no binding,
+// a failure, a timeout or an answer that is not the contract all give [], so the form works as if nothing were taken.
+export async function takenDriveTimesFromDash(carId: string, dash = getBindings().DASH): Promise<string[]> {
+  const key = process.env.DASH_SITE_KEY;
+  const base = process.env.DASH_URL || (dash ? DASH_HOST : "");
+  if (!key || !base) return [];
+  const abort = new AbortController();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const url = new URL("/api/site/v1/drives/taken", base);
+    url.searchParams.set("carId", carId);
+    const req = new Request(url, { redirect: "manual", signal: abort.signal, headers: { Authorization: `Bearer ${key}` } });
+    const timeout = new Promise<never>((_, reject) => (timer = setTimeout(() => (abort.abort(), reject(new Error("timeout"))), TIMEOUT_MS)));
+    const res = await Promise.race([dash ? dash.fetch(req) : fetch(req), timeout]);
+    if (res.status !== 200) {
+      res.body?.cancel().catch(() => {});
+      return [];
+    }
+    const times = ((await Promise.race([res.json(), timeout])) as { times?: unknown })?.times;
+    return Array.isArray(times) && times.length <= TAKEN_MAX && times.every((t) => typeof t === "string" && TAKEN.test(t)) ? (times as string[]) : [];
+  } catch {
+    return [];
+  } finally {
+    clearTimeout(timer);
+  }
+}
