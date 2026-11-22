@@ -32,7 +32,8 @@ export const DRIVE_LIMITS = { name: 80, phone: 30, notes: 300 } as const;
 
 // Two bookings for the same car within the slot (an hour by default) of each other clash: one car cannot be out twice.
 export function clashes(drives: TestDrive[], carSlug: string, startsAt: number, ignoreId?: string, windowMs = HOUR): TestDrive[] {
-  return drives.filter((d) => d.id !== ignoreId && d.carSlug === carSlug && isOpenDrive(d) && Math.abs(d.startsAt - startsAt) < windowMs);
+  const id = carSlug.split("-").at(-1); // by the car id: an edit to make, model or year gives the car a new slug
+  return drives.filter((d) => d.id !== ignoreId && d.carSlug.split("-").at(-1) === id && isOpenDrive(d) && Math.abs(d.startsAt - startsAt) < windowMs);
 }
 
 export const isOpenDrive = (d: Pick<TestDrive, "status">) => d.status === "requested" || d.status === "confirmed";
