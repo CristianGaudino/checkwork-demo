@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { REDUCED_MOTION, useMediaQuery } from "@/components/useMediaQuery";
 import { LeadPageForm } from "@/components/leads/LeadPageForm";
 import { MESSAGE_SENT } from "@/lib/leads/constants";
-import { CheckIcon } from "@/components/stock/icons";
 import { PhoneLink } from "@/components/PhoneLink";
 import { card, subTitle } from "@/components/ui";
 
@@ -16,22 +15,17 @@ const WIDE = "(min-width: 640px)";
 
 const NEED: Record<string, string> = { Servicing: "service-due", Tyres: "tyres" };
 
-// What a service covers, as ruled rows with a call prompt under them, and the message form beside them.
+// What a service covers, as plain bullets with a call prompt under them, and the message form beside them.
 function Panel({ service }: { service: Service }) {
   // One object per service, so the form is not told to refill its message on every render.
-  // The form opens on its topic, with what the card says already chosen.
-  const prefill = useMemo(() => ({ topic: "service", ...(NEED[service.name] && { serviceNeed: NEED[service.name] }), message: `I'd like to ask about ${service.name.toLowerCase()}.` }), [service.name]);
+  // The form opens on its topic, with what the card says already chosen. No message: the buyer's own words, or none.
+  const prefill = useMemo(() => ({ topic: "service", ...(NEED[service.name] && { serviceNeed: NEED[service.name] }) }), [service.name]);
   return (
     <div className={`grid grid-cols-1 gap-6 ${card} p-5 sm:p-6 lg:grid-cols-2 lg:gap-10`}>
       <div className="flex flex-col gap-6">
-        <ul className="flex flex-col">
+        <ul className="flex list-disc flex-col gap-1 pl-5 text-body">
           {service.types.map((t) => (
-            <li key={t} className="flex items-center gap-4 border-b border-hairline py-3 text-body last:border-b-0">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-info-soft text-info">
-                <CheckIcon className="size-5" />
-              </span>
-              {t}
-            </li>
+            <li key={t}>{t}</li>
           ))}
         </ul>
         <p className="mt-auto rounded-control bg-info-soft p-4 text-body text-text">
@@ -75,6 +69,13 @@ export function ServiceMenu({ services }: { services: readonly Service[] }) {
     }, reduced ? 0 : 320);
     return () => clearTimeout(t);
   }, [open, wide, services]);
+  // The page's "Book a service" button links to #book: that opens the first service, so the form is there without finding the cards.
+  useEffect(() => {
+    const book = () => window.location.hash === "#book" && setOpen((o) => o ?? services[0]?.name);
+    book();
+    window.addEventListener("hashchange", book);
+    return () => window.removeEventListener("hashchange", book);
+  }, [services]);
   const current = services.find((s) => s.name === (open ?? last));
   return (
     <div className="flex flex-col gap-4">

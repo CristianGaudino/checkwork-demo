@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { describe, expect, it } from "vitest";
-import { CONTACT_ERROR, LIMITS } from "./constants";
+import { CONTACT_ERROR, LIMITS, PHONE_FOR_CONTACT_ERROR } from "./constants";
 import { leadSchema } from "./schema";
 import { regPeriods } from "./reg-periods";
 import { dublinDay } from "@/lib/format";
@@ -116,6 +116,13 @@ describe("guided contact", () => {
     expect(topic("service", { reg: "!!" }).reg).toBeDefined();
     expect(topic("buying", { carId: "abc" }).carId).toBeDefined();
     expect(topic("buying", { contactVia: "post" }).contactVia).toBeDefined();
+  });
+  it("needs a phone to call or WhatsApp, not to email", () => {
+    const email = { phone: "", email: "ann@example.com" };
+    expect(topic("service", { ...email, contactVia: "call" }).phone).toEqual([PHONE_FOR_CONTACT_ERROR]);
+    expect(topic("service", { ...email, contactVia: "whatsapp" }).phone).toEqual([PHONE_FOR_CONTACT_ERROR]);
+    expect(topic("service", { ...email, contactVia: "email" })).toEqual({});
+    expect(topic("service", { contactVia: "call" })).toEqual({});
   });
   it("keeps the WhatsApp opt-in only as yes", () => {
     expect(topic("buying", { whatsappOptIn: "yes" })).toEqual({});

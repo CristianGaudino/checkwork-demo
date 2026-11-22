@@ -170,7 +170,7 @@ export function GeneralFields({ bind, step, advance, cars = [], fixed }: { bind(
         <ContactFields bind={bind} />
         <Choice bind={bind("contactVia")} label="How should we reach you?" options={CHOICES.contactVia} />
         <Choice bind={bind("contactWhen")} label="When is best?" options={CHOICES.contactWhen} />
-        {topic !== "other" && <Field {...bind("message")} label="Anything else?" optional multiline maxLength={LIMITS.message} />}
+        {topic !== "other" && <Field {...bind("message")} label="Anything else?" optional multiline maxLength={LIMITS.message} placeholder={topic === "service" ? "For example, the mileage or what you have noticed" : undefined} />}
       </div>
     </>
   );

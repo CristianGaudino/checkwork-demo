@@ -78,12 +78,11 @@ test("on a phone each service opens its own form under its card, and only one fo
   const [servicing, repairs] = [page.getByRole("button", { name: /^Servicing/ }), page.getByRole("button", { name: /^Repairs/ })];
   await servicing.click();
   await expect(forms).toHaveCount(1);
-  await expect(page.getByLabel("Anything else?")).toHaveValue("I'd like to ask about servicing.");
+  await expect(page.getByLabel("Anything else?")).toHaveValue(""); // a placeholder, never words the buyer did not write
   const [card, form] = await Promise.all([servicing.boundingBox(), forms.boundingBox()]);
   expect(form!.y).toBeGreaterThan(card!.y + card!.height); // right under the card that opened it
   await repairs.click();
   await expect(page.getByLabel("Anything else?")).toHaveCount(1); // the first form goes once it has slid shut
-  await expect(page.getByLabel("Anything else?")).toHaveValue("I'd like to ask about repairs.");
   await expect(forms.filter({ visible: true })).toHaveCount(1);
   await expect(servicing).toHaveAttribute("aria-expanded", "false");
 });
