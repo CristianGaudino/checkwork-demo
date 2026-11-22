@@ -1,6 +1,6 @@
 import type { Journey, JourneySearch } from "@/lib/leads/journey";
 import { SITE_SLUG } from "@/lib/site";
-import { CONDITIONS, FUELS, GEARBOXES, type StockQuery } from "@/lib/stock/types";
+import { CONDITIONS, FUELS, GEARBOXES, type FacetOption, type Facets, type StockQuery } from "@/lib/stock/types";
 import { PRICE_BANDS, bandOf } from "@/lib/visit-rules";
 
 // What this visit looked at (#249), kept in this tab only (sessionStorage) and gone when it closes: never a cookie, never localStorage, no
@@ -12,7 +12,7 @@ export const CAR_ID = /^\d{1,12}$/;
 export const NOTE_KEY = `${SITE_SLUG}:visit-note`;
 export const NOTE_EVENT = "visit-note"; // fired on this window after each write, so an open form shows the latest
 
-type Count = "saved" | "compared";
+export type Count = "saved" | "compared";
 // `added`: the cars this tab saved or compared, so a list kept from an earlier visit is not counted. Ids only; never sent, only the counts.
 type Note = { start: number; added?: Partial<Record<Count, string[]>> } & Omit<Journey, "v" | "minutes">;
 
@@ -41,14 +41,17 @@ const fixed = <T extends string>(v: string | undefined, ok: readonly T[] | RegEx
   v !== undefined && (ok instanceof RegExp ? ok.test(v) : ok.includes(v as T)) ? (v as T) : undefined;
 
 // The filters of a stock list, as fixed values: the first of each kind picked, never the search box's text. A list with no filter is not a search.
-export function searchOf(q: StockQuery): JourneySearch | null {
-  const s = { make: fixed(q.make[0], SLUG), model: fixed(q.model[0], SLUG), body: fixed(q.body[0], SLUG), fuel: fixed(q.fuel[0], FUELS), gearbox: fixed(q.gearbox, GEARBOXES), priceBand: bandOf(q) ?? undefined };
+// Make, model and body must be options the list itself offered (`facets`), so a value typed into the link (a name, a phone number) is
+// dropped; with no facets (the list failed to load) they are left out.
+const offered = (v: string | undefined, options: FacetOption[] | undefined) => (options?.some((o) => o.value === v) ? fixed(v, SLUG) : undefined);
+export function searchOf(q: StockQuery, facets: Facets | null): JourneySearch | null {
+  const s = { make: offered(q.make[0], facets?.make), model: offered(q.model[0], facets?.model), body: offered(q.body[0], facets?.body), fuel: fixed(q.fuel[0], FUELS), gearbox: fixed(q.gearbox, GEARBOXES), priceBand: bandOf(q) ?? undefined };
   const set = Object.fromEntries(Object.entries(s).filter(([, v]) => v !== undefined));
   return Object.keys(set).length ? ({ ...set, condition: fixed(q.condition ?? "used", CONDITIONS) } as JourneySearch) : null;
 }
 // Latest first, each search once (a new page or sort of the same search is not another one).
-export function noteSearch(q: StockQuery) {
-  const s = searchOf(q);
+export function noteSearch(q: StockQuery, facets: Facets | null) {
+  const s = searchOf(q, facets);
   if (!s) return;
   const same = JSON.stringify(s);
   update((n) => void (n.searches = [s, ...n.searches.filter((x) => JSON.stringify(x) !== same)].slice(0, JOURNEY_CAPS.searches)));
@@ -60,17 +63,13 @@ export const noteFinance = (monthlyEur?: number) =>
     n.tools.finance = { ...n.tools.finance, ...(monthlyEur !== undefined && Number.isFinite(monthlyEur) && { monthlyEur: Math.max(0, Math.min(JOURNEY_CAPS.monthlyEur, Math.round(monthlyEur))) }) };
   });
 export const noteTradeIn = () => update((n) => void (n.tools.tradeIn = true));
-// The saved or compared list changed (`added`: the car a tap just added). The stores call it after every change, so the compare bar,
-// remove, clear and undo count too. The count is the cars added in this visit that are still on the list: undo brings one back, and a car
-// kept from an earlier visit never counts.
-export const noteList = (k: Count, list: string[], added?: string) =>
+// A tap saved or compared a car. The count is worked out when the note is read (journeyOf): the cars added in this visit that are still on
+// the list now, so remove, clear, undo and another tab all show, and a car kept from an earlier visit never counts.
+export const noteAdded = (k: Count, id: string) =>
   update((t) => {
     const was = t.added?.[k];
-    const mine = (Array.isArray(was) ? was : []).filter((id): id is string => typeof id === "string" && id !== added);
-    t.added = { ...t.added, [k]: (added ? [added, ...mine] : mine).slice(0, JOURNEY_CAPS.count) };
-    const v = t.added[k]!.filter((id) => list.includes(id)).length;
-    if (v) t.tools[k] = v;
-    else delete t.tools[k];
+    const mine = (Array.isArray(was) ? was : []).filter((x) => x !== id);
+    t.added = { ...t.added, [k]: [id, ...mine].slice(0, JOURNEY_CAPS.count) };
   });
 
 export function readNote(): string | null {
@@ -110,11 +109,18 @@ const isJourney = obj({
 }) as (v: unknown) => v is Journey;
 
 // The note as the site API's `journey`, or null when there is nothing to share or the note is not one the server would take (edited by
-// hand), so "What's shared" never lists what the server would drop.
-export function journeyOf(raw: string | null, now = Date.now()): Journey | null {
+// hand), so "What's shared" never lists what the server would drop. `lists`: the saved and compare lists as they are now.
+export function journeyOf(raw: string | null, lists: Record<Count, readonly string[]>, now = Date.now()): Journey | null {
   try {
     const n = JSON.parse(raw ?? "null") as Note;
-    const j = { v: 1, minutes: Math.max(0, Math.min(JOURNEY_CAPS.minutes, Math.floor((now - n.start) / 60_000))), cars: n.cars, searches: n.searches, tools: n.tools };
+    const tools: Record<string, unknown> = { ...n.tools };
+    for (const k of ["saved", "compared"] as const) {
+      const mine = n.added?.[k];
+      const v = Array.isArray(mine) ? mine.filter((id) => lists[k].includes(id)).length : 0;
+      if (v) tools[k] = v;
+      else delete tools[k];
+    }
+    const j = { v: 1, minutes: Math.max(0, Math.min(JOURNEY_CAPS.minutes, Math.floor((now - n.start) / 60_000))), cars: n.cars, searches: n.searches, tools };
     if (!isJourney(j) || (!j.cars.length && !j.searches.length && !Object.keys(j.tools).length)) return null;
     return new TextEncoder().encode(JSON.stringify(j)).length <= JOURNEY_CAPS.bytes ? j : null;
   } catch {

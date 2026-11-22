@@ -9,6 +9,8 @@ import { PHOTO_LIMITS, PHOTO_TOTAL_ERROR, PHOTO_TOTAL_MAX_BYTES } from "@/lib/le
 import { readDraft, saveDraft } from "@/lib/leads/draft";
 import { visitChannel } from "@/lib/count-client";
 import { journeyOf, noteTradeIn, readNote } from "@/lib/visit-note";
+import { useCompareIds } from "@/lib/compare/store";
+import { useSavedIds } from "@/lib/saved/store";
 import { SITE_SLUG } from "@/lib/site";
 import type { LeadType } from "@/lib/leads/schema";
 import type { LeadResult } from "@/lib/leads/process";
@@ -77,6 +79,7 @@ export function LeadForm({
   const [failure, setFailure] = useState<Failure>();
   const [done, setDone] = useState(false);
   const [share, setShare] = useState(false); // the buyer's switch for sending this visit's note; off until they turn it on
+  const lists = { saved: useSavedIds(), compared: useCompareIds() }; // the visit's counts are of the lists as they are at the send
   const valuing = useRef(false); // a valuation started: noted for the visit once, not on every keystroke
   const [pending, start] = useTransition();
   const clientRef = useRef<string>(undefined); // one per form instance, renewed after a success
@@ -190,7 +193,7 @@ export function LeadForm({
     fd.set("sourcePath", location.pathname);
     const channel = visitChannel();
     if (channel) fd.set("channel", channel);
-    const journey = share ? journeyOf(readNote()) : null; // read now, so the minutes run to the send
+    const journey = share ? journeyOf(readNote(), lists) : null; // read now, so the minutes run to the send
     if (journey) fd.set("journey", JSON.stringify(journey));
     fd.set("clientRef", (clientRef.current ??= crypto.randomUUID()));
     start(async () => {

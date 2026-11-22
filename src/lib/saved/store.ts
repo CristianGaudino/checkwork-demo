@@ -1,12 +1,12 @@
 import { createIdStore } from "@/lib/id-store";
 import { SITE_SLUG } from "@/lib/site";
-import { noteList } from "@/lib/visit-note";
+import { noteAdded } from "@/lib/visit-note";
 import { MAX_SAVED } from "./ids";
 
 export { MAX_SAVED };
 
 export const SAVED_KEY = `${SITE_SLUG}:saved-ids`;
-const saved = createIdStore(SAVED_KEY, MAX_SAVED, (ids, added) => noteList("saved", ids, added));
+const saved = createIdStore(SAVED_KEY, MAX_SAVED, (id) => noteAdded("saved", id));
 
 export const subscribe = saved.subscribe;
 export const useSavedIds = saved.useIds;

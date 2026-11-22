@@ -2,6 +2,8 @@
 
 import { useSyncExternalStore } from "react";
 import { ChevronDownIcon } from "@/components/stock/icons";
+import { useCompareIds } from "@/lib/compare/store";
+import { useSavedIds } from "@/lib/saved/store";
 import { SITE_NAME } from "@/lib/site";
 import { NOTE_EVENT, journeyOf, readNote, sharedLines } from "@/lib/visit-note";
 
@@ -13,7 +15,7 @@ const subscribe = (changed: () => void) => {
 // Above the consent on an enquiry (#249): off until the buyer turns it on, and only then does the form send this visit's note. With
 // nothing noted (a first page, or storage blocked) it is not shown at all. Read after mount: the server has no sessionStorage.
 export function ShareVisit({ id, on, onChange }: { id: string; on: boolean; onChange(on: boolean): void }) {
-  const journey = journeyOf(useSyncExternalStore(subscribe, readNote, () => null));
+  const journey = journeyOf(useSyncExternalStore(subscribe, readNote, () => null), { saved: useSavedIds(), compared: useCompareIds() });
   if (!journey) return null;
   return (
     <div className="flex flex-col">

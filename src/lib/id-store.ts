@@ -2,9 +2,8 @@ import { useMemo } from "react";
 import { createLocalStore } from "@/lib/local-store";
 import { ID } from "@/lib/saved/ids";
 
-// A list of car ids kept in this browser, for saved cars and the compare list. onSet hears the new list after every change, and the id a
-// toggle just added.
-export function createIdStore(key: string, max: number, onSet?: (ids: string[], added?: string) => void) {
+// A list of car ids kept in this browser, for saved cars and the compare list. onAdd hears the id a toggle just added.
+export function createIdStore(key: string, max: number, onAdd?: (id: string) => void) {
   const store = createLocalStore(key, "[]");
 
   // The stored value can be edited by the user or an extension: keep digit-string ids only, deduped, capped.
@@ -19,11 +18,7 @@ export function createIdStore(key: string, max: number, onSet?: (ids: string[], 
     return [...new Set(value.filter((v): v is string => typeof v === "string" && ID.test(v)))].slice(0, max);
   }
 
-  function set(ids: string[], added?: string) {
-    const kept = ids.slice(0, max);
-    store.write(JSON.stringify(kept));
-    onSet?.(kept, added);
-  }
+  const set = (ids: string[]) => store.write(JSON.stringify(ids.slice(0, max)));
 
   function useIds(): string[] {
     const raw = store.useRaw();
@@ -43,7 +38,8 @@ export function createIdStore(key: string, max: number, onSet?: (ids: string[], 
       return "removed";
     }
     if (ids.length >= max) return "full";
-    set([id, ...ids], id);
+    set([id, ...ids]);
+    onAdd?.(id);
     return "added";
   }
 
