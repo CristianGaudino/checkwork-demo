@@ -251,7 +251,7 @@ export function LeadForm({
   // The buttons sit on the right (a row of them fills the width on a phone). One width for Back, Next and Send, so they never jump about.
   const footer = `flex shrink-0 justify-end gap-3 pt-3 ${dialog ? "border-t border-hairline px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))]" : ""}`;
   // On a page the body is not its own scroll area.
-  const body = dialog ? "min-h-0 flex-1 overflow-y-auto overscroll-contain" : "";
+  const body = dialog ? "overflow-y-auto overscroll-contain" : "";
   const button = "flex-1 px-6 sm:w-48 sm:flex-none";
 
   // The form element stays put after a success so the Turnstile slot inside it keeps its widget for the next request.
@@ -270,70 +270,73 @@ export function LeadForm({
       }}
       className="flex min-h-0 flex-1 flex-col"
     >
-      {done ? (
-        <div aria-live="polite" className={`flex flex-col items-start gap-4 py-6 ${pad}`}>
-          <span className={doneBadge}>
-            <CheckIcon />
-          </span>
-          <h2 ref={heading} tabIndex={-1} className="text-heading font-semibold outline-none">
-            {success.heading}
-          </h2>
-          <p className="max-w-measure text-body">{success.body}</p>
-        </div>
-      ) : (
-        // A form page with steps puts its progress in a column on the left from 1024px: the stepper's list takes the first column, everything else the second.
-        <div className={`relative flex flex-col gap-6 py-2 ${body} ${pad} ${rail ? "lg:grid lg:grid-cols-[12rem_minmax(0,1fr)] lg:gap-x-10 lg:[&>*]:col-start-2 lg:[&>[data-rail]]:sticky lg:[&>[data-rail]]:top-6 lg:[&>[data-rail]]:col-start-1 lg:[&>[data-rail]]:row-span-6 lg:[&>[data-rail]]:row-start-1 lg:[&>[data-rail]]:self-start" : ""}`}>
-          {wizard && steps && <Stepper titles={steps.map((s) => s.title)} step={step} headingRef={stepHeading} rail={rail} />}
-          {car && (
-            <div className="flex items-center gap-3 rounded-card border border-hairline bg-surface p-3">
-              <div className="h-[60px] w-20 shrink-0 overflow-hidden rounded-control bg-photo-bg">
-                {car.photo && <Image src={car.photo} width={80} height={60} alt="" loading="lazy" className="size-full object-cover" />}
-              </div>
-              <div className="min-w-0">
-                <p className="line-clamp-2 font-semibold">{car.title}</p>
-                <p className="text-meta text-text-2">{car.price}</p>
-              </div>
-            </div>
-          )}
-          {/* Fixed copy and our own field messages only: nothing from a thrown error ever shows (T-03-45). */}
-          {failure && (
-            <div role="alert" className="flex flex-col gap-1 rounded-card border border-hairline p-4">
-              {failure === "rate" ? (
-                <p className="font-semibold text-destructive">Too many requests. Wait a minute and try again.</p>
-              ) : failure === "gone" ? (
-                <>
-                  <p className="font-semibold text-destructive">This car is no longer available.</p>
-                  <p className="text-meta">
-                    <Link href="/used-cars" className="font-semibold underline">
-                      See the cars we have
-                    </Link>
-                  </p>
-                </>
-              ) : (
-                <>
-                  <p className="font-semibold text-destructive">{failure === "captcha" ? "We couldn't check this request." : "We couldn't send this."}</p>
-                  <p className="text-meta">
-                    Your details are still here. Try again, or call us on{" "}
-                    <PhoneLink />.
-                  </p>
-                </>
-              )}
-            </div>
-          )}
-          <div className="flex flex-col gap-4">{children({ bind, step, advance, photos: { id: `${uid}-photos`, error: shown.photos?.[0], photos, onChange: setPhotos, onBusy: setShrinking } })}</div>
-          <div hidden={!last}>
-            {/* A stock alert is a subscription, not an enquiry: it does not offer the visit. */}
-            {type !== "alert" && <ShareVisit id={`${uid}-share`} on={share} onChange={setShare} />}
-            <ConsentRow {...bind("consent")} />
+      {/* The scroll area holds the Turnstile slot too, so a challenge sits inline above the buttons instead of squeezing the form (#265). */}
+      <div className={`flex min-h-0 flex-1 flex-col ${body}`}>
+        {done ? (
+          <div aria-live="polite" className={`flex flex-col items-start gap-4 py-6 ${pad}`}>
+            <span className={doneBadge}>
+              <CheckIcon />
+            </span>
+            <h2 ref={heading} tabIndex={-1} className="text-heading font-semibold outline-none">
+              {success.heading}
+            </h2>
+            <p className="max-w-measure text-body">{success.body}</p>
           </div>
-          {/* Honeypot (D-05): off-screen, not display:none, so bots fill it and people never meet it. */}
-          <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
-            <input type="text" name="website" tabIndex={-1} autoComplete="off" defaultValue="" />
+        ) : (
+          // A form page with steps puts its progress in a column on the left from 1024px: the stepper's list takes the first column, everything else the second.
+          <div className={`relative flex flex-col gap-6 py-2 ${pad} ${rail ? "lg:grid lg:grid-cols-[12rem_minmax(0,1fr)] lg:gap-x-10 lg:[&>*]:col-start-2 lg:[&>[data-rail]]:sticky lg:[&>[data-rail]]:top-6 lg:[&>[data-rail]]:col-start-1 lg:[&>[data-rail]]:row-span-6 lg:[&>[data-rail]]:row-start-1 lg:[&>[data-rail]]:self-start" : ""}`}>
+            {wizard && steps && <Stepper titles={steps.map((s) => s.title)} step={step} headingRef={stepHeading} rail={rail} />}
+            {car && (
+              <div className="flex items-center gap-3 rounded-card border border-hairline bg-surface p-3">
+                <div className="h-[60px] w-20 shrink-0 overflow-hidden rounded-control bg-photo-bg">
+                  {car.photo && <Image src={car.photo} width={80} height={60} alt="" loading="lazy" className="size-full object-cover" />}
+                </div>
+                <div className="min-w-0">
+                  <p className="line-clamp-2 font-semibold">{car.title}</p>
+                  <p className="text-meta text-text-2">{car.price}</p>
+                </div>
+              </div>
+            )}
+            {/* Fixed copy and our own field messages only: nothing from a thrown error ever shows (T-03-45). */}
+            {failure && (
+              <div role="alert" className="flex flex-col gap-1 rounded-card border border-hairline p-4">
+                {failure === "rate" ? (
+                  <p className="font-semibold text-destructive">Too many requests. Wait a minute and try again.</p>
+                ) : failure === "gone" ? (
+                  <>
+                    <p className="font-semibold text-destructive">This car is no longer available.</p>
+                    <p className="text-meta">
+                      <Link href="/used-cars" className="font-semibold underline">
+                        See the cars we have
+                      </Link>
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="font-semibold text-destructive">{failure === "captcha" ? "We couldn't check this request." : "We couldn't send this."}</p>
+                    <p className="text-meta">
+                      Your details are still here. Try again, or call us on{" "}
+                      <PhoneLink />.
+                    </p>
+                  </>
+                )}
+              </div>
+            )}
+            <div className="flex flex-col gap-4">{children({ bind, step, advance, photos: { id: `${uid}-photos`, error: shown.photos?.[0], photos, onChange: setPhotos, onBusy: setShrinking } })}</div>
+            <div hidden={!last}>
+              {/* A stock alert is a subscription, not an enquiry: it does not offer the visit. */}
+              {type !== "alert" && <ShareVisit id={`${uid}-share`} on={share} onChange={setShare} />}
+              <ConsentRow {...bind("consent")} />
+            </div>
+            {/* Honeypot (D-05): off-screen, not display:none, so bots fill it and people never meet it. */}
+            <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+              <input type="text" name="website" tabIndex={-1} autoComplete="off" defaultValue="" />
+            </div>
           </div>
-        </div>
-      )}
-      {/* Turnstile slot: zero height until Cloudflare shows a challenge (03-01: 0px, 71px with one). */}
-      <div ref={slot} className={`shrink-0 ${pad}`} />
+        )}
+        {/* Turnstile slot: zero height until Cloudflare shows a challenge (03-01: 0px, 71px with one). */}
+        <div ref={slot} className={`shrink-0 ${pad}`} />
+      </div>
       {done ? (
         dialog ? (
           <div className={`mt-auto ${footer}`}>
