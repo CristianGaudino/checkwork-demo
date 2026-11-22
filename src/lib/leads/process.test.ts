@@ -5,7 +5,7 @@ import type { Car } from "@/lib/stock/types";
 import { processLead, snapshotCar } from "./process";
 import { verifyTurnstile } from "./turnstile";
 import type { Deps, LeadRow } from "./process";
-import { CONSENT, PHOTO_MIN_COUNT } from "./constants";
+import { CONSENT, DRIVE_TIME_TAKEN, PHOTO_MIN_COUNT, driveDays, driveTimes } from "./constants";
 
 const cars = demoCars as Car[];
 const live = cars.find((c) => !c.soldAt)!;
@@ -361,5 +361,27 @@ describe("processLead bot checks (D-05)", () => {
     deps.limiter.allow = allow;
     expect(await processLead(enquiryForm({ website: "x" }), ctx, deps)).toEqual({ status: "ok" });
     expect(allow).not.toHaveBeenCalled();
+  });
+});
+
+describe("a test drive slot the dashboard says is taken", () => {
+  const driveDate = driveDays().find((d) => driveTimes(d).length > 1)!;
+  const driveTime = driveTimes(driveDate).at(-1)!; // the last slot of the day: still ahead whenever the test runs on a day in driveDays
+  const form = () => enquiryForm({ type: "test_drive", driveDate, driveTime, phone: "087 123 4567" });
+
+  it("is refused with an error on the time, and nothing is stored", async () => {
+    const { deps, rows } = fakeDeps();
+    deps.takenDriveTimes = async (id) => (id === live.id ? [`${driveDate} ${driveTime}`] : []);
+    expect(await processLead(form(), ctx, deps)).toEqual({ status: "invalid", fieldErrors: { driveTime: [DRIVE_TIME_TAKEN] } });
+    expect(rows).toHaveLength(0);
+  });
+
+  it("goes through when the dashboard lists none (or another slot), as when it is down", async () => {
+    for (const taken of [[], [`${driveDate} ${driveTimes(driveDate)[0]}`]]) {
+      const { deps, rows } = fakeDeps();
+      deps.takenDriveTimes = async () => taken;
+      expect(await processLead(form(), ctx, deps)).toEqual({ status: "ok" });
+      expect(rows).toHaveLength(1);
+    }
   });
 });

@@ -17,6 +17,13 @@ the E2E stub in `e2e/dash-stub-server.mjs`). With no key nothing is sent.
   id, type and HTTP status only, never a name or a contact detail. The lead is still in this site's `leads` table and in the dealer's email.
 - The body is the fields of the v1 contract only: the lead, whether the email went (`emailed`), how many trade-in photos came
   (`photoCount`) and, only when the buyer switched sharing on, the visit note (`journey`). Photos stay in this site's private bucket.
+- Two more calls use the same key and route:
+  - `GET /api/site/v1/drives/taken?carId=<id>` (`takenDriveTimesFromDash` in `src/lib/leads/dash.ts`) answers 200 `{"times": ["YYYY-MM-DD HH:MM"]}`,
+    the slots already booked for that car, in Irish time, at most 2000. The test drive picker hides them, and a booking submit checks its slot
+    again. Anything else (an error, a timeout of 1.5 seconds, a bad body) counts as none taken, so a down dashboard never blocks a booking.
+  - `POST /api/site/v1/counts` with `{"day": "YYYY-MM-DD", "counts": {"<event>": <n>}}` (`src/lib/counts/send.ts`); 204 means accepted. The
+    nightly job sends the last 7 finished days, and the dashboard replaces a day's counts. If it takes none of the days, the run logs
+    `send-counts` with `error: "none accepted"`.
 - The contract, and what the dashboard does with it, is in checkwork-dash (`docs/site-api.md`).
 
 ## What stayed here

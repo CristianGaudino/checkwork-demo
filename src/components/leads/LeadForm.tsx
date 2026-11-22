@@ -198,10 +198,14 @@ export function LeadForm({
     fd.set("clientRef", (clientRef.current ??= crypto.randomUUID()));
     start(async () => {
       let r: LeadResult;
+      let local = false;
       try {
         // The server's own field rules first, so a form with a mistake answers at once instead of waiting for the bot check.
         const found = await check(values);
-        if (Object.keys(found).length) r = { status: "invalid", fieldErrors: found };
+        if (Object.keys(found).length) {
+          r = { status: "invalid", fieldErrors: found };
+          local = true;
+        }
         else {
           fd.set("cf-turnstile-response", await turnstile.ready());
           r = await submitLead(fd);
@@ -209,8 +213,9 @@ export function LeadForm({
       } catch {
         r = { status: "failed", kind: "server" }; // network, a new deploy, a body the server refused
       }
-      // A field error or the rate limit is answered before the token is checked, so only the other answers spend it.
-      if (r.status !== "invalid" && !(r.status === "failed" && r.kind === "rate")) turnstile.reset();
+      // Any answer from the server may have spent the single-use token (a refused slot is checked after it), except the rate limit, which comes
+      // first. The local check never sent it. Resetting an unspent token is harmless.
+      if (!local && !(r.status === "failed" && r.kind === "rate")) turnstile.reset();
       setInvalid(undefined);
       if (r.status === "ok") {
         setValues(prefill ?? {}); // back to how it started, so a form that carries a fixed answer (an alert kind) still does

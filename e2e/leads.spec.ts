@@ -3,14 +3,14 @@ import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import { SOLD_VISIBLE_DAYS } from "../src/lib/stock/types";
-import { choose } from "./combo";
-import { dashBodies, leadSentTo } from "./dash-stub";
+import { choose, optionLabels } from "./combo";
+import { DASH_STUB_URL, dashBodies, leadSentTo } from "./dash-stub";
 import { stubTurnstile } from "./turnstile";
 
 // Runs only on the local server with fake backends: it must never send a lead to a deployed site.
 test.skip(Boolean(process.env.E2E_BASE_URL), "Lead specs never run against a deployed site");
 
-type Demo = { slug: string; soldAt?: string };
+type Demo = { id: string; slug: string; soldAt?: string };
 const cars: Demo[] = JSON.parse(readFileSync(join(process.cwd(), "src/lib/stock/demo-cars.json"), "utf8"));
 const live = cars.find((c) => !c.soldAt)!;
 const sold = cars.find((c) => c.soldAt && Date.parse(c.soldAt) + SOLD_VISIBLE_DAYS * 86_400_000 > Date.now());
@@ -172,6 +172,64 @@ test("Test drive asks for a day and a time, reaches the dealer dashboard as a bo
   const sent = await leadSentTo("Drive booker");
   expect(sent.lead).toMatchObject({ type: "test_drive", carSlug: live.slug });
   expect(sent.lead.details).toHaveProperty("driveTime");
+});
+
+test("a slot booked behind the buyer's back is refused, the picker moves off it, and the next send goes through", async ({ page }) => {
+  const car = cars.filter((c) => !c.soldAt)[3];
+  await open(page, car.slug);
+  await page.getByRole("button", { name: "Test drive", exact: true }).click();
+  const d = page.getByRole("dialog");
+  await d.getByLabel("Name").fill("Slot loser");
+  await d.getByLabel("Phone").fill("087 123 4567");
+  await d.getByRole("checkbox").check();
+  await d.getByLabel("Day").click(); // the first touch asks the dashboard: nothing is taken yet
+  await page.keyboard.press("Escape");
+  await expect(d.getByLabel("Time")).toHaveValue(/^\d{2}:\d{2}$/);
+  const offered = await d.getByLabel("Time").inputValue();
+  // Another buyer takes that time on every day, after the form has asked.
+  const post = (times: string[]) => fetch(`${DASH_STUB_URL}/set-taken`, { method: "POST", body: JSON.stringify({ carId: car.id, times }) });
+  await post(Array.from({ length: 70 }, (_, i) => `${new Date(Date.now() + (i + 1) * 864e5).toISOString().slice(0, 10)} ${offered}`));
+  try {
+    await d.getByRole("button", { name: "Book" }).click();
+    // The refusal makes the form ask again: the taken time is cleared and the message stays until the buyer picks. The E2E Turnstile stub
+    // accepts any token, so a spent token is not reproducible here: this proves the second send is made and goes through.
+    await expect(d.getByText("That time was just taken. Pick another.")).toBeVisible();
+    await expect(d.locator('input[name="driveTime"]')).toHaveValue(""); // nothing chosen yet: Book would ask for a time
+    await expect(d.getByRole("heading", { name: "Thanks, we have your request." })).toHaveCount(0);
+    await expect(d.getByLabel("Time")).toHaveValue("Pick a time"); // not a time the buyer never chose
+    await choose(d.getByLabel("Time"), 1); // 0 is "Pick a time"
+    await expect(d.getByLabel("Time")).not.toHaveValue(offered);
+    await expect(d.getByText("That time was just taken. Pick another.")).toHaveCount(0);
+    await d.getByRole("button", { name: "Book" }).click();
+    await expect(d.getByRole("heading", { name: "Thanks, we have your request." })).toBeFocused();
+    expect((await leadSentTo("Slot loser")).lead).toMatchObject({ type: "test_drive", carSlug: car.slug });
+  } finally {
+    await post([]);
+  }
+});
+
+test("a time the dashboard says is taken for this car is not offered, and is for another car", async ({ page }) => {
+  const [, other, full] = cars.filter((c) => !c.soldAt);
+  let firstDay = "";
+  for (const [slug, offered] of [[live.slug, false], [other.slug, true]] as const) {
+    await open(page, slug);
+    await page.getByRole("button", { name: "Test drive", exact: true }).click();
+    const time = page.getByRole("dialog").getByLabel("Time");
+    await page.getByRole("dialog").getByLabel("Day").click(); // the first touch asks the dashboard
+    await page.keyboard.press("Escape");
+    // The answer is a moment behind the first touch, so wait for the list to settle on what is expected.
+    await expect.poll(async () => (await optionLabels(time)).includes("10:00")).toBe(offered);
+    if (offered) firstDay = await page.getByRole("dialog").getByLabel("Day").inputValue(); // no slot taken for this car: the first day offered
+    await page.keyboard.press("Escape");
+  }
+  // Every slot of the first open day is taken for this car: the form opens on it, then moves to a day with free times.
+  await open(page, full.slug);
+  await page.getByRole("button", { name: "Test drive", exact: true }).click();
+  const d = page.getByRole("dialog");
+  await d.getByLabel("Day").click();
+  await page.keyboard.press("Escape");
+  await expect(d.getByLabel("Day")).not.toHaveValue(firstDay);
+  await expect(d.getByLabel("Time")).not.toHaveValue("");
 });
 
 test("a price drop alert takes an email and says what happens next", async ({ page }) => {

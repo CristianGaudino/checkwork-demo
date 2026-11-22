@@ -5,7 +5,7 @@ import type { Car } from "@/lib/stock/types";
 import { carTitle } from "@/lib/stock/format";
 import { buildLeadEmail } from "./email";
 import type { PhotoBucket } from "./bindings";
-import { CONSENT, PHOTO_LIMITS, PHOTO_MIN_ERROR, PHOTO_STORED_MAX_BYTES, PHOTO_TOTAL_ERROR, PHOTO_TOTAL_MAX_BYTES, photoCountError, photoError } from "./constants";
+import { CONSENT, DRIVE_TIME_TAKEN, PHOTO_LIMITS, PHOTO_MIN_ERROR, PHOTO_STORED_MAX_BYTES, PHOTO_TOTAL_ERROR, PHOTO_TOTAL_MAX_BYTES, photoCountError, photoError } from "./constants";
 import { parseJourney } from "./journey";
 import type { Journey } from "./journey";
 import { signPhotoPath, sniffImage } from "./photos";
@@ -58,6 +58,7 @@ export interface Deps {
   demo: boolean;
   bucket: Pick<PhotoBucket, "put" | "delete">; // LEAD_PHOTOS, private EU R2 (D-13); only the signed route reads it
   photoLinkSecret(): string; // read only when a lead has photos, so other leads never need it
+  takenDriveTimes?(carId: string): Promise<string[]>; // the slots the dashboard has booked ("YYYY-MM-DD HH:MM"); [] when it cannot say
   toDash?(row: LeadRow, emailed: boolean): Promise<void>; // best effort, once the email was tried: the copy sent to the dealer dashboard
 }
 
@@ -146,6 +147,11 @@ export async function processLead(fd: FormData, ctx: { ip: string }, deps: Deps)
     if (await deps.store.exists(input.clientRef)) {
       logLead({ type: input.type, outcome: "duplicate" });
       return OK;
+    }
+    // Two buyers can pick the same slot: ask the dashboard again now. It fails open ([]), so a dashboard that is down never blocks a lead.
+    if (input.type === "test_drive" && car.carId && (await deps.takenDriveTimes?.(car.carId))?.includes(`${input.driveDate} ${input.driveTime}`)) {
+      logLead({ type: input.type, outcome: "invalid" });
+      return { status: "invalid", fieldErrors: { driveTime: [DRIVE_TIME_TAKEN] } };
     }
 
     const row: LeadRow = {

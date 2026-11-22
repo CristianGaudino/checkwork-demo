@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { createServer } from "node:http";
 
 // A stand-in for the dealer dashboard's site API (src/lib/leads/dash.ts), on this machine only, for the whole E2E run (playwright.config.ts
@@ -6,15 +7,37 @@ import { createServer } from "node:http";
 const port = Number(process.argv[2]);
 const bodies = [];
 
+// GET /api/site/v1/drives/taken?carId=: the first car for sale has 10:00 taken on each of the next 70 days (open or not). The third has every
+// slot of the next 4 days taken (so the first open day is full: the picker must move on); every other car has none.
+const forSale = JSON.parse(readFileSync("src/lib/stock/demo-cars.json", "utf8")).filter((c) => !c.soldAt);
+const day = (i) => new Date(Date.now() + (i + 1) * 864e5).toISOString().slice(0, 10);
+const taken = Array.from({ length: 70 }, (_, i) => `${day(i)} 10:00`);
+const slots = Array.from({ length: 48 }, (_, i) => `${String(i >> 1).padStart(2, "0")}:${i % 2 ? "30" : "00"}`);
+const fullDays = Array.from({ length: 4 }, (_, i) => slots.map((t) => `${day(i)} ${t}`)).flat();
+const times = { [forSale[0]?.id]: taken, [forSale[2]?.id]: fullDays };
+// POST /set-taken {carId, times}: from then on that car's taken list is this one (a spec books a slot behind the buyer's back).
+
 createServer((req, res) => {
   let raw = "";
   req.on("data", (c) => (raw += c));
   req.on("end", () => {
     if (req.method === "GET" && req.url === "/bodies") return res.writeHead(200, { "content-type": "application/json" }).end(JSON.stringify(bodies));
+    const url = new URL(req.url, "http://stub");
+    if (req.method === "GET" && url.pathname === "/api/site/v1/drives/taken" && req.headers.authorization === "Bearer e2e-dash-key") {
+      return res.writeHead(200, { "content-type": "application/json" }).end(JSON.stringify({ times: times[url.searchParams.get("carId")] ?? [] }));
+    }
+    if (req.method === "POST" && req.url === "/set-taken") {
+      const b = JSON.parse(raw);
+      times[b.carId] = b.times;
+      return res.writeHead(204).end();
+    }
     if (req.method === "POST" && req.url === "/api/site/v1/leads" && req.headers.authorization === "Bearer e2e-dash-key") {
       try {
         bodies.push(JSON.parse(raw));
       } catch {}
+    }
+    if (req.method === "POST" && req.url === "/api/site/v1/counts" && req.headers.authorization === "Bearer e2e-dash-key") {
+      return res.writeHead(204).end();
     }
     res.writeHead(201, { "content-type": "application/json" }).end('{"id":"stub"}');
   });

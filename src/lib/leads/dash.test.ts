@@ -8,7 +8,7 @@ vi.mock("./bindings", () => ({ getBindings: () => bindings.value }));
 const later = vi.hoisted(() => ({ jobs: [] as Promise<unknown>[] }));
 vi.mock("next/server", () => ({ after: (fn: () => Promise<unknown>) => void later.jobs.push(fn()) }));
 const afterwork = () => Promise.all(later.jobs.splice(0));
-const { sendToDash } = await import("./dash");
+const { sendToDash, takenDriveTimesFromDash } = await import("./dash");
 const { journeySchema } = await import("./journey");
 const { getDeps } = await import("./deps");
 
@@ -224,5 +224,20 @@ describe("the real toDash", () => {
     fetchMock.mockReturnValue(new Promise(() => {})); // a dashboard that never answers
     await expect(getDeps().toDash!(row, true)).resolves.toBeUndefined();
     later.jobs.splice(0);
+  });
+});
+
+describe("takenDriveTimesFromDash", () => {
+  it("gives the times of a good answer", async () => {
+    fetchMock.mockResolvedValue(new Response('{"times":["2026-11-23 10:00"]}', { status: 200 }));
+    expect(await takenDriveTimesFromDash("1")).toEqual(["2026-11-23 10:00"]);
+  });
+
+  it("gives [] when the body never ends, once the time is up", async () => {
+    vi.useFakeTimers();
+    fetchMock.mockResolvedValue(new Response(new ReadableStream({ start() {} }), { status: 200 }));
+    const asked = takenDriveTimesFromDash("1");
+    await vi.advanceTimersByTimeAsync(1600);
+    expect(await asked).toEqual([]);
   });
 });
