@@ -38,6 +38,9 @@ test("/service has a call button with the number, WhatsApp, services that open, 
   await main(page).getByRole("button", { name: /^Tyres/ }).click();
   await main(page).getByRole("link", { name: "Book a service" }).click();
   await expect(main(page).getByRole("button", { name: /^Servicing/ })).toHaveAttribute("aria-expanded", "true"); // the button opens a form
+  await main(page).getByRole("button", { name: /^Servicing/ }).click();
+  await main(page).getByRole("link", { name: "Book a service" }).click(); // a second tap, with #book already in the address
+  await expect(main(page).getByRole("button", { name: /^Servicing/ })).toHaveAttribute("aria-expanded", "true");
 });
 
 test("/about has the photo on the right on desktop with the hours and directions under it, and no Visit us", async ({ page }) => {

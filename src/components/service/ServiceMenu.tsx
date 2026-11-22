@@ -70,11 +70,13 @@ export function ServiceMenu({ services }: { services: readonly Service[] }) {
     return () => clearTimeout(t);
   }, [open, wide, services]);
   // The page's "Book a service" button links to #book: that opens the first service, so the form is there without finding the cards.
+  // A click, not hashchange: once the address ends in #book a second tap changes nothing. The load check covers a link from another page.
   useEffect(() => {
-    const book = () => window.location.hash === "#book" && setOpen((o) => o ?? services[0]?.name);
-    book();
-    window.addEventListener("hashchange", book);
-    return () => window.removeEventListener("hashchange", book);
+    const first = () => setOpen((o) => o ?? services[0]?.name);
+    const click = (e: MouseEvent) => (e.target as Element).closest?.('a[href="#book"]') && first();
+    if (window.location.hash === "#book") first();
+    document.addEventListener("click", click);
+    return () => document.removeEventListener("click", click);
   }, [services]);
   const current = services.find((s) => s.name === (open ?? last));
   return (
