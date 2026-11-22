@@ -146,8 +146,8 @@ test("the Test Drive page lists the cars, books the one chosen, and the dealer s
   await d.getByLabel("Phone").fill("087 123 4567");
   await d.getByRole("checkbox").check();
   await choose(d.getByLabel("Day"), 0);
-  await choose(d.getByLabel("Time"), 0);
-  await d.getByRole("button", { name: "Book" }).click();
+  await choose(d.getByLabel("Time"), 1); // 0 is "Pick a time"
+  await d.getByRole("button", { name: "Request test drive" }).click();
   await expect(d.getByRole("heading", { name: "Thanks, we have your request." })).toBeFocused();
   const sent = await leadSentTo("Page booker");
   expect(sent.lead.type).toBe("test_drive");
@@ -163,12 +163,18 @@ test("Test drive asks for a day and a time, reaches the dealer dashboard as a bo
   await d.getByLabel("Name").fill("Drive booker");
   await d.getByLabel("Phone").fill("087 123 4567");
   await d.getByRole("checkbox").check();
-  // The form opens on the first day with a free time, and that time, so Book sends it as it stands.
+  await expect(d.getByText("About 30 minutes. Bring a full, valid driving licence, and your insurance details if you have them.")).toBeVisible();
+  // The form opens on the first day with a free time, and no time: the buyer picks one.
   await expect(d.getByLabel("Day")).toHaveValue(/^\w{3}, \d+ \w{3}$/);
-  await expect(d.getByLabel("Time")).toHaveValue(/^\d{2}:\d{2}$/);
+  await expect(d.getByLabel("Time")).toHaveValue("Pick a time");
   await expect(d.getByText("No match")).toHaveCount(0);
-  await d.getByRole("button", { name: "Book" }).click();
+  await d.getByRole("button", { name: "Request test drive" }).click();
+  await expect(d.locator("p", { hasText: "Choose a time from the list." })).toBeVisible();
+  await choose(d.getByLabel("Time"), 1); // 0 is "Pick a time"
+  await expect(d.getByLabel("Time")).toHaveValue(/^\d{1,2}(:\d{2})?(am|pm)$/); // as the opening hours read
+  await d.getByRole("button", { name: "Request test drive" }).click();
   await expect(d.getByRole("heading", { name: "Thanks, we have your request." })).toBeFocused();
+  await expect(d.getByText(/ on \w+, \d+ \w+ at \d{1,2}(:\d{2})?(am|pm) by phone or email\.$/)).toBeVisible(); // the day and time asked for
   const sent = await leadSentTo("Drive booker");
   expect(sent.lead).toMatchObject({ type: "test_drive", carSlug: live.slug });
   expect(sent.lead.details).toHaveProperty("driveTime");
@@ -184,13 +190,13 @@ test("a slot booked behind the buyer's back is refused, the picker moves off it,
   await d.getByRole("checkbox").check();
   await d.getByLabel("Day").click(); // the first touch asks the dashboard: nothing is taken yet
   await page.keyboard.press("Escape");
-  await expect(d.getByLabel("Time")).toHaveValue(/^\d{2}:\d{2}$/);
-  const offered = await d.getByLabel("Time").inputValue();
+  await choose(d.getByLabel("Time"), 1); // 0 is "Pick a time"
+  const offered = await d.locator('input[name="driveTime"]').inputValue();
   // Another buyer takes that time on every day, after the form has asked.
   const post = (times: string[]) => fetch(`${DASH_STUB_URL}/set-taken`, { method: "POST", body: JSON.stringify({ carId: car.id, times }) });
   await post(Array.from({ length: 70 }, (_, i) => `${new Date(Date.now() + (i + 1) * 864e5).toISOString().slice(0, 10)} ${offered}`));
   try {
-    await d.getByRole("button", { name: "Book" }).click();
+    await d.getByRole("button", { name: "Request test drive" }).click();
     // The refusal makes the form ask again: the taken time is cleared and the message stays until the buyer picks. The E2E Turnstile stub
     // accepts any token, so a spent token is not reproducible here: this proves the second send is made and goes through.
     await expect(d.getByText("That time was just taken. Pick another.")).toBeVisible();
@@ -198,9 +204,9 @@ test("a slot booked behind the buyer's back is refused, the picker moves off it,
     await expect(d.getByRole("heading", { name: "Thanks, we have your request." })).toHaveCount(0);
     await expect(d.getByLabel("Time")).toHaveValue("Pick a time"); // not a time the buyer never chose
     await choose(d.getByLabel("Time"), 1); // 0 is "Pick a time"
-    await expect(d.getByLabel("Time")).not.toHaveValue(offered);
+    await expect(d.locator('input[name="driveTime"]')).not.toHaveValue(offered);
     await expect(d.getByText("That time was just taken. Pick another.")).toHaveCount(0);
-    await d.getByRole("button", { name: "Book" }).click();
+    await d.getByRole("button", { name: "Request test drive" }).click();
     await expect(d.getByRole("heading", { name: "Thanks, we have your request." })).toBeFocused();
     expect((await leadSentTo("Slot loser")).lead).toMatchObject({ type: "test_drive", carSlug: car.slug });
   } finally {
@@ -218,7 +224,7 @@ test("a time the dashboard says is taken for this car is not offered, and is for
     await page.getByRole("dialog").getByLabel("Day").click(); // the first touch asks the dashboard
     await page.keyboard.press("Escape");
     // The answer is a moment behind the first touch, so wait for the list to settle on what is expected.
-    await expect.poll(async () => (await optionLabels(time)).includes("10:00")).toBe(offered);
+    await expect.poll(async () => (await optionLabels(time)).includes("10am")).toBe(offered);
     if (offered) firstDay = await page.getByRole("dialog").getByLabel("Day").inputValue(); // no slot taken for this car: the first day offered
     await page.keyboard.press("Escape");
   }
@@ -229,17 +235,22 @@ test("a time the dashboard says is taken for this car is not offered, and is for
   await d.getByLabel("Day").click();
   await page.keyboard.press("Escape");
   await expect(d.getByLabel("Day")).not.toHaveValue(firstDay);
-  await expect(d.getByLabel("Time")).not.toHaveValue("");
+  await expect(d.getByLabel("Time")).toHaveValue("Pick a time");
 });
 
-test("a price drop alert takes an email and says what happens next", async ({ page }) => {
+test("a price drop alert takes an email, says what happens next, and shows it is set", async ({ page }) => {
   await open(page, live.slug);
   await page.getByRole("button", { name: "Price alert" }).click();
   const d = page.getByRole("dialog");
   await d.getByLabel("Email", { exact: true }).fill("alert.person@example.com");
+  await expect(d).toHaveAccessibleName("Tell me if the price drops");
+  await expect(d.getByText("I agree to Checkwork Motors emailing me this alert.")).toBeVisible();
   await d.getByRole("checkbox").check();
   await d.getByRole("button", { name: "Set alert" }).click();
   await expect(d.getByRole("heading", { name: "You're on the list." })).toBeFocused();
+  await expect(d.getByText(/price of the .+ drops\.$/)).toBeVisible();
+  await d.getByRole("button", { name: "Close" }).last().click();
+  await expect(page.getByRole("button", { name: "Alert set" })).toBeVisible();
   const sent = (await dashBodies()).find((b) => b.lead.email === "alert.person@example.com");
   expect(sent?.lead.type).toBe("alert");
 });

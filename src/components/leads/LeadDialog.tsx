@@ -5,6 +5,7 @@ import { PhoneLink } from "@/components/PhoneLink";
 import { BellIcon, CalendarIcon, CloseIcon, PhoneIcon } from "@/components/stock/icons";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { LIMITS } from "@/lib/leads/constants";
+import { clock12, fmtDay } from "@/lib/format";
 import { DEALER_TEL } from "@/lib/site";
 import { ContactFields, Field } from "./Field";
 import { DriveFields } from "./DriveFields";
@@ -120,11 +121,23 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
   );
 }
 
-// The test drive form inside a dialog: a day and a time, then the thanks. Used on a car page and on the Test Drive page.
+// The test drive form inside a dialog: a day and a time, then the thanks with them. Used on a car page and on the Test Drive page.
+// The notes are the Test Drive page's own.
 export function TestDriveForm({ car }: { car: CarSummary }) {
   return (
-    <LeadForm type="test_drive" car={car} variant="dialog" submitLabel="Book" success={{ heading: "Thanks, we have your request.", body: `We'll confirm your test drive in the ${car.name} by phone or email.` }}>
-      {({ bind }) => <DriveFields bind={bind} carId={car.id} />}
+    <LeadForm
+      type="test_drive"
+      car={car}
+      variant="dialog"
+      submitLabel="Request test drive"
+      success={{ heading: "Thanks, we have your request.", body: (v) => `We'll confirm your test drive in the ${car.name} on ${fmtDay(v.driveDate)} at ${clock12(v.driveTime)} by phone or email.` }}
+    >
+      {({ bind }) => (
+        <>
+          <p className="text-meta text-text-2">About 30 minutes. Bring a full, valid driving licence, and your insurance details if you have them.</p>
+          <DriveFields bind={bind} carId={car.id} />
+        </>
+      )}
     </LeadForm>
   );
 }
@@ -132,13 +145,14 @@ export function TestDriveForm({ car }: { car: CarSummary }) {
 // "Tell me if it comes back" on a sold car, "Tell me if the price drops" on one for sale. Just an email.
 export function StockAlertButton({ car, kind }: { car: CarSummary; kind: "back-in-stock" | "price-drop" }) {
   const [open, setOpen] = useState(false);
+  const [set, setSet] = useState(false); // for this page view only: nothing about the alert is kept in the browser
   const opener = useRef<HTMLButtonElement>(null);
   const back = kind === "back-in-stock";
   return (
     <>
       <button ref={opener} type="button" onClick={() => setOpen(true)} className={`flex h-12 w-full items-center justify-center gap-2 px-3 text-text ${secondaryButton}`}>
         <BellIcon className="size-5 text-accent-text" />
-        {back ? "Notify me" : "Price alert"}
+        {set ? "Alert set" : back ? "Notify me" : "Price alert"}
       </button>
       <LeadDialog
         title={back ? "Tell me if one comes back" : "Tell me if the price drops"}
@@ -154,7 +168,8 @@ export function StockAlertButton({ car, kind }: { car: CarSummary; kind: "back-i
           variant="dialog"
           prefill={{ alertKind: kind }}
           submitLabel="Set alert"
-          success={{ heading: "You're on the list.", body: back ? `We'll email you if another ${car.name} comes in.` : `We'll email you if the price of the ${car.name} changes.` }}
+          onDone={() => setSet(true)}
+          success={{ heading: "You're on the list.", body: back ? `We'll email you if another ${car.name} comes in.` : `We'll email you if the price of the ${car.name} drops.` }}
         >
           {({ bind }) => (
             <>

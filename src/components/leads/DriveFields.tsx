@@ -6,7 +6,7 @@ import { DRIVE_TIME_TAKEN, driveDays, driveTimes } from "@/lib/leads/constants";
 import { LIMITS } from "@/lib/leads/constants";
 import { ContactFields, Field } from "./Field";
 import type { FieldBinding } from "./LeadForm";
-import { threeLetter } from "@/lib/format";
+import { clock12, threeLetter } from "@/lib/format";
 
 // "Tue 11 Nov", read at noon UTC so no time zone can move the day.
 const dayLabel = (iso: string) => threeLetter(new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-IE", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" }));
@@ -15,8 +15,8 @@ const noop = () => () => {};
 
 // A booking: a day we are open and a time on it, then contact details. The days are worked out in the browser (they depend on today), so
 // the list is empty until the page loads; the server checks the choice again against the opening hours and the times the dashboard has booked.
-// The form opens on the first day with a time and that time: an empty value would show the list's first day (Combobox) with no
-// times under it. A chosen day that has none left says so and offers the next one.
+// The form opens on the first day with a time and no time: the buyer picks one ("Pick a time" until then). An empty day would show the
+// list's first day (Combobox) with no times under it. A chosen day that has none left says so and offers the next one.
 export function DriveFields({ bind, carId }: { bind(name: string): FieldBinding; carId?: string }) {
   const mounted = useSyncExternalStore(noop, () => true, () => false); // false on the server and first paint, so both match
   // The slots already booked for this car, asked once on the first touch of the form (the dialog's fields exist before it opens).
@@ -46,18 +46,17 @@ export function DriveFields({ bind, carId }: { bind(name: string): FieldBinding;
   };
   const first = days[0];
   useEffect(() => {
-    if (first && !day.value) pick(first);
+    if (first && !day.value) pick(first, "");
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only when the days arrive or the day is cleared (a fresh form)
   }, [first, day.value]);
-  // The slot the form opened on turned out to be taken: the first free time that day, or the next day with one if the day is full. After a
-  // refusal the buyer chooses: the time is cleared (the message stays until they pick, the form's recheck keeps it while the field is empty).
+  // The chosen day or time turned out to be taken: the next day with a time if the day is full, and the buyer picks the time again (after a
+  // refusal the message stays until they pick, the form's recheck keeps it while the field is empty).
   useEffect(() => {
-    if (!day.value || !time.value) return;
-    const refused = time.error === DRIVE_TIME_TAKEN;
+    if (!day.value) return;
     if (!times.length) {
-      if (next) pick(next, refused ? "" : undefined);
+      if (next) pick(next, "");
     }
-    else if (!times.includes(time.value)) time.onChange(refused ? "" : times[0]);
+    else if (time.value && !times.includes(time.value)) time.onChange("");
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only when the answer arrives
   }, [taken]);
   return (
@@ -67,7 +66,7 @@ export function DriveFields({ bind, carId }: { bind(name: string): FieldBinding;
           {...day}
           label="Day"
           options={(day.value && !days.includes(day.value) ? [day.value, ...days] : days).map((d) => ({ value: d, label: dayLabel(d) }))}
-          onChange={(v) => pick(v, free(v).includes(time.value) ? time.value : undefined)}
+          onChange={(v) => pick(v, free(v).includes(time.value) ? time.value : "")}
         />
         {day.value && !times.length ? (
           <div className="flex flex-col gap-1">
@@ -75,13 +74,13 @@ export function DriveFields({ bind, carId }: { bind(name: string): FieldBinding;
             <p className="text-body text-text-2">{next ? "No times left that day." : "No times free online. Call us to book."}</p>
             {next && (
               <button type="button" onClick={() => pick(next)} className="self-start text-body font-semibold text-accent-text underline underline-offset-4">
-                Next available: {dayLabel(next)}, {free(next)[0]}
+                Next available: {dayLabel(next)}, {clock12(free(next)[0])}
               </button>
             )}
           </div>
         ) : (
-          // An empty time (after a refusal) reads "Pick a time", not the list's first time (Combobox's fallback).
-          <Field {...time} label="Time" options={[...(time.value ? [] : [{ value: "", label: "Pick a time" }]), ...times.map((t) => ({ value: t, label: t }))]} />
+          // An empty time (a fresh form, a refusal) reads "Pick a time", not the list's first time (Combobox's fallback).
+          <Field {...time} label="Time" options={[...(time.value ? [] : [{ value: "", label: "Pick a time" }]), ...times.map((t) => ({ value: t, label: clock12(t) }))]} />
         )}
       </div>
       <Field {...bind("message")} label="Anything we should know" optional multiline maxLength={LIMITS.message} />

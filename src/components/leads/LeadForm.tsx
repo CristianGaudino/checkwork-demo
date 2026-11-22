@@ -52,16 +52,18 @@ export function LeadForm({
   back = { href: "/used-cars", label: "Back to used cars" },
   prefill,
   steps,
+  onDone,
   children,
 }: {
   type: LeadType;
   car?: CarSummary;
   variant: "dialog" | "page";
   submitLabel: string;
-  success: { heading: string; body: string };
+  success: { heading: string; body: string | ((sent: Record<string, string>) => string) }; // a function repeats what was sent (a test drive's day and time)
   back?: { href: string; label: string }; // where the page variant's success button goes
   prefill?: Record<string, string>; // a new object overwrites those fields and keeps the rest (the calculator's deposit and term)
   steps?: FormStep[]; // more than one: guided stages with Back and Next, every step's fields kept in the form
+  onDone?(): void; // after each success (an alert button says it is set)
   children: (form: { bind(name: string): FieldBinding; photos: PhotoBinding; step: number; advance(): void }) => React.ReactNode;
 }) {
   const uid = useId();
@@ -78,6 +80,7 @@ export function LeadForm({
   const [invalid, setInvalid] = useState<{ first: string }>();
   const [failure, setFailure] = useState<Failure>();
   const [done, setDone] = useState(false);
+  const [sent, setSent] = useState<Record<string, string>>({}); // the values of the last success, for the thanks
   const [share, setShare] = useState(false); // the buyer's switch for sending this visit's note; off until they turn it on
   const lists = { saved: useSavedIds(), compared: useCompareIds() }; // the visit's counts are of the lists as they are at the send
   const valuing = useRef(false); // a valuation started: noted for the visit once, not on every keystroke
@@ -218,6 +221,7 @@ export function LeadForm({
       if (!local && !(r.status === "failed" && r.kind === "rate")) turnstile.reset();
       setInvalid(undefined);
       if (r.status === "ok") {
+        setSent(values);
         setValues(prefill ?? {}); // back to how it started, so a form that carries a fixed answer (an alert kind) still does
         setStep(0);
         setPhotos([]);
@@ -226,6 +230,7 @@ export function LeadForm({
         setShare(false);
         clientRef.current = undefined;
         setDone(true);
+        onDone?.();
       } else if (r.status === "invalid") {
         const fe = r.fieldErrors;
         setErrors(fe);
@@ -278,7 +283,7 @@ export function LeadForm({
           <h2 ref={heading} tabIndex={-1} className="text-heading font-semibold outline-none">
             {success.heading}
           </h2>
-          <p className="max-w-measure text-body">{success.body}</p>
+          <p className="max-w-measure text-body">{typeof success.body === "function" ? success.body(sent) : success.body}</p>
         </div>
       ) : (
         // A form page with steps puts its progress in a column on the left from 1024px: the stepper's list takes the first column, everything else the second.
@@ -324,7 +329,7 @@ export function LeadForm({
           <div hidden={!last}>
             {/* A stock alert is a subscription, not an enquiry: it does not offer the visit. */}
             {type !== "alert" && <ShareVisit id={`${uid}-share`} on={share} onChange={setShare} />}
-            <ConsentRow {...bind("consent")} />
+            <ConsentRow {...bind("consent")} alert={type === "alert"} />
           </div>
           {/* Honeypot (D-05): off-screen, not display:none, so bots fill it and people never meet it. */}
           <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">

@@ -47,7 +47,7 @@ export default async function TradeInPage({ searchParams }: PageProps<"/trade-in
         form="trade"
         cars={cars}
         prefill={chosen ? { carId: chosen } : undefined}
-        submitLabel="Get my valuation"
+        submitLabel="Send for valuation"
         success={{ heading: "Thanks, we have your car details.", body: "We'll contact you with a valuation. It's an estimate until we've seen the car." }}
       />
     </LeadPage>
