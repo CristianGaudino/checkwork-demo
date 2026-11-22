@@ -32,21 +32,28 @@ test("picking a make narrows the model list, and the Find me a car tab links to 
   await expect(page.getByLabel("Make", { exact: true })).toBeHidden();
 });
 
-test("the Find me a car tab fits inside the Search Stock box and the page does not move between them", async ({ page }) => {
-  await page.goto("/");
-  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
-  const box = page.getByRole("tablist").locator("xpath=..");
-  const before = (await box.boundingBox())!;
-  await page.getByRole("tab", { name: "Find me a car" }).click();
-  const panel = page.getByRole("tabpanel", { name: "Find me a car" });
-  await expect(panel).toBeVisible();
-  const after = (await box.boundingBox())!;
-  expect(after.height).toBe(before.height);
-  const p = (await panel.boundingBox())!;
-  for (const part of [panel.getByRole("link", { name: "Find it for me" }), panel.getByText("Can't see the car you want?")]) {
-    const b = (await part.boundingBox())!;
-    expect(b.y).toBeGreaterThanOrEqual(p.y);
-    expect(b.y + b.height).toBeLessThanOrEqual(p.y + p.height);
+test("the Find me a car tab fits inside the search box and the page does not move between them", async ({ page }) => {
+  // A phone, and a desktop where the box is half the page (the panel once squeezed to a word a line and spilled out of it).
+  for (const width of [412, 1024, 1343]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/");
+    await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+    const box = page.getByRole("tablist").locator("xpath=..");
+    const before = (await box.boundingBox())!;
+    await page.getByRole("tab", { name: "Find me a car" }).click();
+    const panel = page.getByRole("tabpanel", { name: "Find me a car" });
+    await expect(panel).toBeVisible();
+    const after = (await box.boundingBox())!;
+    expect(after.height).toBe(before.height);
+    const p = (await panel.boundingBox())!;
+    const heading = panel.getByText("Can't see the car you want?");
+    for (const part of [panel.getByRole("link", { name: "Find it for me" }), heading]) {
+      const b = (await part.boundingBox())!;
+      expect(b.y).toBeGreaterThanOrEqual(p.y);
+      expect(b.y + b.height).toBeLessThanOrEqual(p.y + p.height);
+      expect(b.x + b.width).toBeLessThanOrEqual(p.x + p.width);
+    }
+    expect((await heading.boundingBox())!.width).toBeGreaterThan(200); // a line, not a word
   }
 });
 
@@ -257,21 +264,20 @@ test("browse by make comes before browse by type, and both link into the stock",
   await expect(makes.getByRole("listitem").first().getByRole("link")).toHaveAttribute("href", /^\/makes\/[a-z-]+$/);
 });
 
-test("browse by make: the makes in stock first with their counts, then the popular makes always", async ({ page }) => {
+test("browse by make: only the makes in stock, each with its count, busiest first", async ({ page }) => {
   await page.goto("/");
-  // Two rows that scroll together, the makes alternating between them: each row runs busiest first, then the makes we do not have.
+  // Two rows that scroll together, the makes alternating between them. A make we do not have is left to the Makes page.
   const rows = page.getByRole("region", { name: "Browse by make" }).getByRole("list");
   await expect(rows).toHaveCount(2);
   const all: string[] = [];
   for (const row of await rows.all()) {
     const labels = (await row.getByRole("listitem").allTextContents()).map((t) => t.trim());
-    const counted = labels.map((l) => /\d+$/.test(l));
-    expect(counted[0]).toBe(true);
-    expect(counted.indexOf(false)).toBeGreaterThan(0);
-    expect(counted.slice(counted.indexOf(false)).every((c) => !c)).toBe(true); // no make in stock after the first one without
+    const counts = labels.map((l) => Number(l.match(/(\d+)$/)?.[1]));
+    expect(counts.every((n) => n > 0)).toBe(true); // a count on every chip, never 0
+    expect(counts).toEqual([...counts].sort((a, b) => b - a));
     all.push(...labels);
   }
-  expect(all.some((l) => l.startsWith("Audi"))).toBe(true); // popular, never stocked in the demo
+  expect(all.some((l) => l.startsWith("Audi"))).toBe(false); // popular, never stocked in the demo
 });
 
 test("visit us has the address, the hours and the way there", async ({ page }) => {

@@ -7,7 +7,7 @@ import { forSale, isSold } from "./types";
 
 describe("the make directory", () => {
   it("lists the makes in stock first (most cars first), then the popular ones, each once, with counts by kind", async () => {
-    const dir = await makeDirectory();
+    const dir = await makeDirectory(true);
     const slugs = dir.map((m) => m.slug);
     expect(new Set(slugs).size).toBe(slugs.length);
     const stocked = dir.filter((m) => m.count > 0);
@@ -15,6 +15,9 @@ describe("the make directory", () => {
     for (let i = 1; i < stocked.length; i++) expect(stocked[i - 1].count).toBeGreaterThanOrEqual(stocked[i].count);
     for (const m of stocked) expect(m.byKind.used + m.byKind.new + m.byKind.commercial).toBe(m.count);
     for (const label of POPULAR_MAKES) expect(dir.some((m) => m.label === label)).toBe(true);
+  });
+  it("without every known make, only the makes in stock", async () => {
+    expect((await makeDirectory()).every((m) => m.count > 0)).toBe(true);
   });
   it("with every known make, still each once, and finds one with no cars", async () => {
     const all = await makeDirectory(true);

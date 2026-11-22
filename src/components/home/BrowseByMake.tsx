@@ -4,8 +4,8 @@ import { press, sectionTitle } from "@/components/ui";
 import type { MakeEntry } from "@/lib/stock/makes";
 import { MakeRows } from "./MakeRows";
 
-// The makes we have first, with how many, then the makes people look for most, always: each opens its make page, which says what we have
-// or offers to find one. "All makes" opens the full list. Two rows that scroll sideways together (MakeRows): the makes alternate
+// The makes we have, busiest first, with how many: each opens its make page. "All makes" opens the full list, the makes we do not have
+// among them. Two rows that scroll sideways together (MakeRows): the makes alternate
 // between them (first, third, fifth on top), so the busiest lead both, and the pills' own widths stagger the rows. The edges fade.
 export function BrowseByMake({ makes }: { makes: MakeEntry[] }) {
   if (makes.length === 0) return null;
@@ -14,11 +14,11 @@ export function BrowseByMake({ makes }: { makes: MakeEntry[] }) {
       <Link href={`/makes/${m.slug}`} className={`inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full border border-hairline bg-card px-4 text-meta font-medium transition-colors hover:border-control ${press}`}>
         <MakeLogo slug={m.slug} />
         {m.label}
-        {m.count > 0 && <span className="tabular-nums text-text-2">{m.count}</span>}
+        <span className="tabular-nums text-text-2">{m.count}</span>
       </Link>
     </li>
   );
-  const rows = [makes.filter((_, i) => i % 2 === 0), makes.filter((_, i) => i % 2 === 1)];
+  const rows = [makes.filter((_, i) => i % 2 === 0), makes.filter((_, i) => i % 2 === 1)].filter((r) => r.length > 0); // one make: one row
   return (
     <section aria-labelledby="browse-by-make" className="flex flex-col gap-4">
       <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
