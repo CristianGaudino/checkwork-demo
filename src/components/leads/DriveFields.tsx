@@ -42,9 +42,13 @@ export function DriveFields({ bind, carId }: { bind(name: string): FieldBinding;
     if (first && !day.value) pick(first);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only when the days arrive or the day is cleared (a fresh form)
   }, [first, day.value]);
-  // The time the form opened on turned out to be taken: move to the first free one that day.
+  // The slot the form opened on turned out to be taken: the first free time that day, or the next day with one if the day is full.
   useEffect(() => {
-    if (day.value && time.value && times.length && !times.includes(time.value)) time.onChange(times[0]);
+    if (!day.value || !time.value) return;
+    if (!times.length) {
+      if (next) pick(next);
+    }
+    else if (!times.includes(time.value)) time.onChange(times[0]);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only when the answer arrives
   }, [taken]);
   return (

@@ -3,6 +3,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 const bindings = vi.hoisted(() => ({ value: {} as Record<string, unknown> }));
 vi.mock("@/lib/leads/bindings", () => ({ getBindings: () => bindings.value }));
+vi.mock("next/headers", () => ({ headers: async () => new Headers({ "cf-connecting-ip": "1.2.3.4" }) }));
+const inStock = vi.hoisted(() => ({ ids: new Set(["4508173", "1", "12"]) }));
+vi.mock("@/lib/stock", () => ({ stock: { getById: async (id: string) => (inStock.ids.has(id) ? { id } : null) } }));
 const { takenDriveTimes } = await import("./drive");
 
 const answer = (body: unknown, status = 200) => vi.fn(async () => new Response(JSON.stringify(body), { status }));
@@ -37,6 +40,29 @@ describe("takenDriveTimes", () => {
     useFetch(answer({ times: ["2026-12-01 10:00"] }));
     expect(await takenDriveTimes(id)).toEqual([]);
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+  it("asks nothing for a car that is not in stock", async () => {
+    useFetch(answer({ times: ["2026-12-01 10:00"] }));
+    expect(await takenDriveTimes("999")).toEqual([]);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+  it("limits per visitor address and asks nothing once over", async () => {
+    const limit = vi.fn(async () => ({ success: false }));
+    bindings.value = { DRIVE_LIMITER: { limit } };
+    useFetch(answer({ times: ["2026-12-01 10:00"] }));
+    expect(await takenDriveTimes("1")).toEqual([]);
+    expect(limit).toHaveBeenCalledWith({ key: "drive:1.2.3.4" });
+    expect(fetchMock).not.toHaveBeenCalled();
+    limit.mockResolvedValue({ success: true });
+    expect(await takenDriveTimes("1")).toEqual(["2026-12-01 10:00"]);
+  });
+  it("gives [] when the dashboard is slower than the short timeout", async () => {
+    vi.useFakeTimers();
+    useFetch(vi.fn(() => new Promise<Response>(() => {})));
+    const p = takenDriveTimes("1");
+    await vi.advanceTimersByTimeAsync(1600);
+    expect(await p).toEqual([]);
+    vi.useRealTimers();
   });
   it("gives [] with no key or nowhere to ask", async () => {
     useFetch(answer({ times: ["2026-12-01 10:00"] }));

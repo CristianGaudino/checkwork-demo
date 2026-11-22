@@ -18,6 +18,6 @@ export default defineConfig({
     ? undefined
     : [
         { command: `node e2e/dash-stub-server.mjs ${DASH_STUB_PORT}`, url: `${DASH_STUB_URL}/bodies`, reuseExistingServer: false },
-        { command: "npm start", url: baseURL, reuseExistingServer: false, env: { E2E_FAIL_QUERY: "e2e-forced-failure", E2E_FAKE_BACKENDS: "1", DASH_SITE_KEY: "e2e-dash-key", DASH_URL: DASH_STUB_URL } },
+        { command: "npm start", url: baseURL, reuseExistingServer: false, env: { E2E_FAIL_QUERY: "e2e-forced-failure", E2E_FAKE_BACKENDS: "1", SIMULATE_INTEGRATIONS: "on", DASH_SITE_KEY: "e2e-dash-key", DASH_URL: DASH_STUB_URL } },
       ],
 });
