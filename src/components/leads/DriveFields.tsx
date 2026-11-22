@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { takenDriveTimes } from "@/app/actions/drive";
-import { driveDays, driveTimes } from "@/lib/leads/constants";
+import { DRIVE_TIME_TAKEN, driveDays, driveTimes } from "@/lib/leads/constants";
 import { LIMITS } from "@/lib/leads/constants";
 import { ContactFields, Field } from "./Field";
 import type { FieldBinding } from "./LeadForm";
@@ -31,6 +31,13 @@ export function DriveFields({ bind, carId }: { bind(name: string): FieldBinding;
   const days = mounted ? driveDays().filter((d) => free(d).length > 0) : [];
   const day = bind("driveDate");
   const time = bind("driveTime");
+  // The server refused the slot as just taken: ask again, so the picker moves off it.
+  useEffect(() => {
+    if (time.error !== DRIVE_TIME_TAKEN) return;
+    asked.current = false;
+    ask();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only when the refusal arrives
+  }, [time.error]);
   const times = free(day.value);
   const next = days.find((d) => d > day.value && free(d).length) ?? days.find((d) => free(d).length);
   const pick = (d: string, t = free(d)[0] ?? "") => {

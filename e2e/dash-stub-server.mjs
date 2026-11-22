@@ -15,6 +15,7 @@ const taken = Array.from({ length: 70 }, (_, i) => `${day(i)} 10:00`);
 const slots = Array.from({ length: 48 }, (_, i) => `${String(i >> 1).padStart(2, "0")}:${i % 2 ? "30" : "00"}`);
 const fullDays = Array.from({ length: 4 }, (_, i) => slots.map((t) => `${day(i)} ${t}`)).flat();
 const times = { [forSale[0]?.id]: taken, [forSale[2]?.id]: fullDays };
+// POST /set-taken {carId, times}: from then on that car's taken list is this one (a spec books a slot behind the buyer's back).
 
 createServer((req, res) => {
   let raw = "";
@@ -24,6 +25,11 @@ createServer((req, res) => {
     const url = new URL(req.url, "http://stub");
     if (req.method === "GET" && url.pathname === "/api/site/v1/drives/taken" && req.headers.authorization === "Bearer e2e-dash-key") {
       return res.writeHead(200, { "content-type": "application/json" }).end(JSON.stringify({ times: times[url.searchParams.get("carId")] ?? [] }));
+    }
+    if (req.method === "POST" && req.url === "/set-taken") {
+      const b = JSON.parse(raw);
+      times[b.carId] = b.times;
+      return res.writeHead(204).end();
     }
     if (req.method === "POST" && req.url === "/api/site/v1/leads" && req.headers.authorization === "Bearer e2e-dash-key") {
       try {

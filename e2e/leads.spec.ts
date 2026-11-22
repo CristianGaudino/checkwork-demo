@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import { SOLD_VISIBLE_DAYS } from "../src/lib/stock/types";
 import { choose, optionLabels } from "./combo";
-import { dashBodies, leadSentTo } from "./dash-stub";
+import { DASH_STUB_URL, dashBodies, leadSentTo } from "./dash-stub";
 import { stubTurnstile } from "./turnstile";
 
 // Runs only on the local server with fake backends: it must never send a lead to a deployed site.
@@ -172,6 +172,34 @@ test("Test drive asks for a day and a time, reaches the dealer dashboard as a bo
   const sent = await leadSentTo("Drive booker");
   expect(sent.lead).toMatchObject({ type: "test_drive", carSlug: live.slug });
   expect(sent.lead.details).toHaveProperty("driveTime");
+});
+
+test("a slot booked behind the buyer's back is refused, the picker moves off it, and the next send goes through", async ({ page }) => {
+  const car = cars.filter((c) => !c.soldAt)[3];
+  await open(page, car.slug);
+  await page.getByRole("button", { name: "Test drive", exact: true }).click();
+  const d = page.getByRole("dialog");
+  await d.getByLabel("Name").fill("Slot loser");
+  await d.getByLabel("Phone").fill("087 123 4567");
+  await d.getByRole("checkbox").check();
+  await d.getByLabel("Day").click(); // the first touch asks the dashboard: nothing is taken yet
+  await page.keyboard.press("Escape");
+  await expect(d.getByLabel("Time")).toHaveValue(/^\d{2}:\d{2}$/);
+  const offered = await d.getByLabel("Time").inputValue();
+  // Another buyer takes that time on every day, after the form has asked.
+  const post = (times: string[]) => fetch(`${DASH_STUB_URL}/set-taken`, { method: "POST", body: JSON.stringify({ carId: car.id, times }) });
+  await post(Array.from({ length: 70 }, (_, i) => `${new Date(Date.now() + (i + 1) * 864e5).toISOString().slice(0, 10)} ${offered}`));
+  try {
+    await d.getByRole("button", { name: "Book" }).click();
+    // The refusal makes the form ask again, so the picker moves off the taken time (and the message goes with its cause). The E2E Turnstile
+    // stub accepts any token, so a spent token is not reproducible here: this proves the second send is made and goes through.
+    await expect(d.getByLabel("Time")).not.toHaveValue(offered);
+    await d.getByRole("button", { name: "Book" }).click();
+    await expect(d.getByRole("heading", { name: "Thanks, we have your request." })).toBeFocused();
+    expect((await leadSentTo("Slot loser")).lead).toMatchObject({ type: "test_drive", carSlug: car.slug });
+  } finally {
+    await post([]);
+  }
 });
 
 test("a time the dashboard says is taken for this car is not offered, and is for another car", async ({ page }) => {
