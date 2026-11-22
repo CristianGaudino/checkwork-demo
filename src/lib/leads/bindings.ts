@@ -22,7 +22,7 @@ export interface ServiceBinding {
   fetch(req: Request): Promise<Response>;
 }
 
-type LeadBindings = { DASH?: ServiceBinding; EMAIL?: SendEmail; LEAD_LIMITER?: RateLimit; COUNT_LIMITER?: RateLimit; LEAD_PHOTOS?: PhotoBucket; DB?: AnyD1Database };
+type LeadBindings = { DASH?: ServiceBinding; EMAIL?: SendEmail; LEAD_LIMITER?: RateLimit; COUNT_LIMITER?: RateLimit; DRIVE_LIMITER?: RateLimit; LEAD_PHOTOS?: PhotoBucket; DB?: AnyD1Database };
 
 // The one place that reads Cloudflare bindings. Outside the Worker (next start, tests) there is no context, so this returns {}.
 export function getBindings(): LeadBindings {
