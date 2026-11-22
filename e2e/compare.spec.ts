@@ -108,8 +108,19 @@ test("a fourth car is refused and said so, and the list stays at three", async (
   for (const p of paths.slice(0, 3)) await compare(page, p);
   const fourth = await compare(page, paths[3]);
   await expect(fourth).toHaveAttribute("aria-pressed", "false");
-  await expect(page.getByText("You can compare up to three cars.")).toBeAttached();
+  await expect(page.getByTestId("toast")).toContainText("You can compare up to three cars.");
+  await expect(page.getByTestId("toast")).toBeVisible();
   await expect(page.getByRole("region", { name: "Compare cars" })).toContainText("3 of 3 to compare");
+});
+
+test("the compare pill folds down to a small button and opens again", async ({ page }) => {
+  const [a] = await carPaths(page, 1);
+  await compare(page, a);
+  const bar = page.getByRole("region", { name: "Compare cars" });
+  await bar.getByRole("button", { name: "Hide" }).click();
+  await expect(bar.getByRole("link", { name: "Compare" })).toHaveCount(0);
+  await bar.getByRole("button", { name: "Show compare, 1 of 3" }).click();
+  await expect(bar).toContainText("1 of 3 to compare");
 });
 
 test("the compare page is empty to start with and not indexed", async ({ page }) => {

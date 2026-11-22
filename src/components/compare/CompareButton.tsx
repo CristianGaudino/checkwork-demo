@@ -23,7 +23,9 @@ export function CompareButton({ id, label, sizing = "inline-flex h-11 px-4" }: {
           const result = toggleCompare(id);
           if (result === "added") count("compare");
           if (result === "removed") showToast("Removed from compare", () => restoreCompare([id]));
-          setSaid(result === "added" ? "Added to compare" : result === "removed" ? "" : "You can compare up to three cars. Remove one to add another.");
+          // The toast is announced itself, so the live region below only says a car went in.
+          if (result === "full") showToast("You can compare up to three cars. Remove one to add another.");
+          setSaid(result === "added" ? "Added to compare" : "");
         }}
         className={`items-center justify-center gap-2 text-body text-text ${sizing} ${secondaryButton} ${on ? "ring-2 ring-accent" : ""}`}
       >
