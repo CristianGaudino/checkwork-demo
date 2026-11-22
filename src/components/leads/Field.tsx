@@ -112,7 +112,9 @@ export function FieldError({ id, children }: { id?: string; children: React.Reac
 // Name, then phone and email, at least one of which is needed (D-12).
 export function ContactFields({ bind }: { bind(name: string): FieldBinding }) {
   const email = bind("email");
-  const both = email.error === CONTACT_ERROR && !bind("phone").error; // a phone with its own message (Call me with no number) needs no second one
+  const phone = bind("phone");
+  const own = Boolean(phone.error); // Call me with no number: the phone's own message says it, so the "or an email" one goes
+  const both = email.error === CONTACT_ERROR && !own;
   const either = `${email.id}-either`; // the line saying one of the two will do, read with each of them
   // Phone and Email sit side by side once the form itself is wide enough (a container query, so a narrow dialog stays in one column).
   return (
@@ -124,8 +126,8 @@ export function ContactFields({ bind }: { bind(name: string): FieldBinding }) {
           Add a phone number or an email, so we can reply.
         </p>
         <div className="grid grid-cols-1 gap-4 @xl:grid-cols-2">
-          <PhoneField {...bind("phone")} invalid={both} describedBy={both ? `${either} ${email.id}-error` : either} />
-          <Field {...email} label="Email" mark type="email" autoComplete="email" maxLength={LIMITS.email} enterKeyHint="next" describedBy={either} />
+          <PhoneField {...phone} invalid={both} describedBy={both ? `${either} ${email.id}-error` : either} />
+          <Field {...email} error={email.error === CONTACT_ERROR && own ? undefined : email.error} label="Email" mark type="email" autoComplete="email" maxLength={LIMITS.email} enterKeyHint="next" describedBy={either} />
         </div>
         <WhatsAppOptIn {...bind("whatsappOptIn")} />
       </div>

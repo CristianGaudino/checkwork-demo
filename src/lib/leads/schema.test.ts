@@ -124,6 +124,7 @@ describe("guided contact", () => {
     expect(topic("service", { ...email, contactVia: "email" })).toEqual({});
     expect(topic("service", { contactVia: "call" })).toEqual({});
     expect(topic("service", { phone: "087 123 4567", email: "", contactVia: "email" }).email).toEqual([EMAIL_FOR_CONTACT_ERROR]);
+    expect(topic("service", { phone: "", email: "", contactVia: "email" }).email).toEqual([EMAIL_FOR_CONTACT_ERROR, CONTACT_ERROR]); // the field shows the first
   });
   it("keeps the WhatsApp opt-in only as yes", () => {
     expect(topic("buying", { whatsappOptIn: "yes" })).toEqual({});
