@@ -5,7 +5,7 @@ import { PhoneLink } from "@/components/PhoneLink";
 import { BellIcon, CalendarIcon, CloseIcon, PhoneIcon } from "@/components/stock/icons";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { LIMITS } from "@/lib/leads/constants";
-import { DEALER_TEL } from "@/lib/site";
+import { DEALER_PHONE, DEALER_TEL } from "@/lib/site";
 import { ContactFields, Field } from "./Field";
 import { DriveFields } from "./DriveFields";
 import { LeadForm } from "./LeadForm";
@@ -80,9 +80,11 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
           <CalendarIcon className="size-5 text-accent-text" />
           Test drive
         </button>
-        <a href={`tel:${DEALER_TEL}`} className={secondary}>
+        {/* A desktop can't tap to call, so from 1024px the button shows the number itself (a size down until 1280px, where the column is narrow). */}
+        <a href={`tel:${DEALER_TEL}`} aria-label={`Call us on ${DEALER_PHONE}`} className={secondary}>
           <PhoneIcon className="size-5 text-accent-text" />
-          Call us
+          <span className="lg:hidden">Call us</span>
+          <span className="hidden lg:inline lg:max-xl:text-meta">{DEALER_PHONE}</span>
         </a>
         <WhatsAppButton href={whatsapp} sizing="px-3" />
       </div>

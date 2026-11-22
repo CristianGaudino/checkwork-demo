@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HeaderLinks } from "@/components/HeaderLinks";
 import { Logo } from "@/components/Logo";
 import { MobileMenu } from "@/components/MobileMenu";
+import { PhoneLink } from "@/components/PhoneLink";
 import { SavedLink } from "@/components/saved/SavedLink";
 import { MENU_GROUPS, MENU_PRIMARY, PAGE } from "@/lib/nav";
 import { SITE_NAME } from "@/lib/site";
@@ -21,6 +22,8 @@ export function SiteHeader() {
         </Link>
         <nav aria-label="Main" className="flex items-center justify-end lg:ml-auto lg:gap-4 xl:gap-6">
           <HeaderLinks />
+          {/* From 1280px: at 1024px the links already fill the row. */}
+          <PhoneLink className="hidden min-h-11 items-center whitespace-nowrap text-meta font-semibold hover:text-text-2 xl:inline-flex" />
           <SavedLink />
         </nav>
       </div>

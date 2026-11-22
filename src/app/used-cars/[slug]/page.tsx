@@ -18,22 +18,10 @@ import { stock } from "@/lib/stock";
 import { carName, carSummary } from "@/lib/stock/format";
 import { payableEur, priceInfo } from "@/lib/stock/price";
 import { landingMetadata, landingPath } from "@/lib/stock/landing";
-import { DEFAULT_QUERY } from "@/lib/stock/query";
 import { carJsonLd, carMetadata } from "@/lib/stock/seo";
+import { similarCars } from "@/lib/stock/similar";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
-
-// Up to 8 cars to buy, for a row that moves along: same make first, then same body type; never the car itself. Of the same kind
-// (used, new or commercial), so a new car never suggests used ones.
-async function similarCars(car: Car) {
-  const kind = { ...DEFAULT_QUERY, ...(car.condition && car.condition !== "used" && { condition: car.condition }), pageSize: 8 };
-  const pools = await Promise.all([
-    stock.query({ ...kind, make: [car.makeSlug] }),
-    ...(car.bodySlug ? [stock.query({ ...kind, body: [car.bodySlug] })] : []),
-  ]);
-  const seen = new Set([car.id]);
-  return pools.flatMap((r) => r.cars).filter((c) => !seen.has(c.id) && seen.add(c.id)).slice(0, 8);
-}
 
 // Make first, then body type (both looked up in taxonomy() by resolveLanding), then car (D-06). Resolved once per request for generateMetadata and the page.
 const CAR_SLUG = /-\d+$/; // make and body slugs never end in digits, so a car-shaped slug skips the taxonomy scan
