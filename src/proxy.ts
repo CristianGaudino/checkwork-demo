@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { stock } from "@/lib/stock";
+import { makeDirectory } from "@/lib/stock/makes";
 
 // Next 16 has no gone(); a rewrite with a status is the documented way to answer 410 (D-03).
 // Make and body slugs never end in digits, so only a car-shaped slug reaches the provider.
@@ -18,9 +19,9 @@ export async function proxy(req: NextRequest) {
   if (hit?.state === "gone") return gonePage(hit.makeSlug, 410, req);
   if (hit) return NextResponse.next();
   // A car link we never had or no longer keep (an old shared link): the same page as a 404, for the make the slug starts with.
-  // Longest first, so mercedes-benz-... is Mercedes-Benz. A make we never listed falls through to the plain 404.
-  const makes = (await stock.taxonomy().catch(() => null))?.makes ?? [];
-  const make = makes.filter((m) => slug.startsWith(`${m.slug}-`)).sort((a, b) => b.slug.length - a.slug.length)[0];
+  // Every make the gone page knows (new and commercial too, not only used); longest first, so mercedes-benz-... is Mercedes-Benz.
+  // A slug that starts with no known make falls through to the plain 404.
+  const make = (await makeDirectory(true)).filter((m) => slug.startsWith(`${m.slug}-`)).sort((a, b) => b.slug.length - a.slug.length)[0];
   return make ? gonePage(make.slug, 404, req) : NextResponse.next();
 }
 
