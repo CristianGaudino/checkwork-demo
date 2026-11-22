@@ -26,7 +26,8 @@ test("a make with none in stock says so, shows what sold and what we have, and o
 test("every make has a page from the makes list, and an unknown one is a 404", async ({ page }) => {
   await page.goto("/makes");
   await expect(page.getByRole("region", { name: "In stock" }).getByRole("link").first()).toHaveAttribute("href", /^\/makes\/[a-z-]+$/);
-  await page.getByRole("region", { name: "Other makes" }).getByRole("link", { name: "Tesla" }).click();
+  await expect(page.locator("main").getByRole("link", { name: /Audi/ })).toHaveCount(0); // none in stock: not listed
+  await page.goto("/makes/tesla"); // still has its page
   await expect(page.getByRole("heading", { level: 1, name: "Tesla" })).toBeVisible();
   expect((await page.goto("/makes/not-a-make"))!.status()).toBe(404);
   expect((await page.goto("/new-cars/not-a-make"))!.status()).toBe(404);
