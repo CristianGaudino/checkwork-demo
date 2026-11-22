@@ -18,24 +18,10 @@ import { stock } from "@/lib/stock";
 import { carName, carSummary } from "@/lib/stock/format";
 import { payableEur, priceInfo } from "@/lib/stock/price";
 import { landingMetadata, landingPath } from "@/lib/stock/landing";
-import { DEFAULT_QUERY } from "@/lib/stock/query";
 import { carJsonLd, carMetadata } from "@/lib/stock/seo";
-import { isSold, onRequest } from "@/lib/stock/types";
+import { similarCars } from "@/lib/stock/similar";
+import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
-
-// Up to 8 cars to buy, for a row that moves along: same body type within a quarter of the price first, then same body type, then same
-// make; never the car itself. Of the same kind (used, new or commercial), so a new car never suggests used ones.
-async function similarCars(car: Car) {
-  const kind = { ...DEFAULT_QUERY, ...(car.condition && car.condition !== "used" && { condition: car.condition }), pageSize: 8 };
-  const body = car.bodySlug ? { ...kind, body: [car.bodySlug] } : undefined;
-  const pools = await Promise.all([
-    ...(body && !onRequest(car) ? [stock.query({ ...body, priceMin: Math.round(car.priceEur * 0.75), priceMax: Math.round(car.priceEur * 1.25) })] : []),
-    ...(body ? [stock.query(body)] : []),
-    stock.query({ ...kind, make: [car.makeSlug] }),
-  ]);
-  const seen = new Set([car.id]);
-  return pools.flatMap((r) => r.cars).filter((c) => !seen.has(c.id) && seen.add(c.id)).slice(0, 8);
-}
 
 // Make first, then body type (both looked up in taxonomy() by resolveLanding), then car (D-06). Resolved once per request for generateMetadata and the page.
 const CAR_SLUG = /-\d+$/; // make and body slugs never end in digits, so a car-shaped slug skips the taxonomy scan
