@@ -23,6 +23,15 @@ describe("the times a car is already out, for the website's booking form", () =>
     expect(taken).not.toContain(`${day} 15:00`); // a cancelled booking frees its time
     if (slot === 60) expect(taken).toEqual([`${day} 11:30`, `${day} 12:00`, `${day} 12:30`]);
   });
+  it("still count a booking made before the car's make, model or year was edited", async () => {
+    const car = (await stock.query({ condition: "used", make: [], model: [], body: [], fuel: [], sort: "newest", page: 1, pageSize: 1 })).cars[0];
+    const day = driveDays()[6];
+    await drivesStore.put({ id: "t-old-slug", name: "x", email: "", phone: "", carSlug: `old-make-model-2001-${car.id}`, carTitle: "x", notes: "", createdAt: 0, startsAt: dublinMs(day, "10:00"), status: "requested" });
+    await drivesStore.put({ id: "t-other-car", name: "x", email: "", phone: "", carSlug: `old-make-model-2001-9${car.id}`, carTitle: "x", notes: "", createdAt: 0, startsAt: dublinMs(day, "16:00"), status: "requested" });
+    const taken = await takenDriveTimes(car.id);
+    expect(taken).toContain(`${day} 10:00`);
+    expect(taken).not.toContain(`${day} 16:00`); // another car whose id only ends the same way
+  });
   it("is nothing for an id that is not a car, or not a string", async () => {
     expect(await takenDriveTimes("no-such-car")).toEqual([]);
     expect(await takenDriveTimes(42)).toEqual([]);

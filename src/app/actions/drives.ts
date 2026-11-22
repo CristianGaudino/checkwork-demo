@@ -14,8 +14,9 @@ export async function takenDriveTimes(carId: unknown): Promise<string[]> {
     const car = await stock.getById(carId);
     if (!car) return [];
     const [drives, { driveSlotMinutes }] = await Promise.all([drivesStore.list({ seed: false }), getSettings()]);
-    const { taken, now } = slotData(drives.filter((d) => d.carSlug === car.slug));
-    const out = taken[car.slug] ?? [];
+    // By the id at the end of the slug: editing a car's make, model or year gives it a new slug, and its bookings keep the old one.
+    const { taken, now } = slotData(drives.filter((d) => d.carSlug.split("-").at(-1) === car.id));
+    const out = Object.values(taken).flat();
     if (!out.length) return [];
     return driveDays().flatMap((day) => driveTimes(day).filter((t) => slotState(day, t, out, driveSlotMinutes, now) === "taken").map((t) => `${day} ${t}`));
   } catch {
