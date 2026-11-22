@@ -9,10 +9,8 @@ import type { Car, StockProvider, StockQuery } from "./types";
 // Where the cars come from (D-06, the one place that names a provider): Cloudflare D1 on the Worker. With no D1 binding, which is the
 // E2E run and `next dev`, the made-up demo cars in demo-cars.json stand in, the way the lead fakes do. Any other missing binding fails
 // loudly: stock never quietly falls back to the file on a deployed site.
-// Admin edits with no D1 binding land in memoryCars (src/lib/admin/stock-admin.ts), and the engine is rebuilt from it.
-export const memoryCars: Car[] = [...(demoCars as Car[]), ...(extraCars as Car[])];
-let memory = createStockEngine(memoryCars);
-export const refreshMemoryStock = () => void (memory = createStockEngine(memoryCars));
+const memoryCars: Car[] = [...(demoCars as Car[]), ...(extraCars as Car[])];
+const memory = createStockEngine(memoryCars);
 const files: StockProvider = {
   query: async (q) => (await source()).query(q),
   getBySlug: async (s) => (await source()).getBySlug(s),

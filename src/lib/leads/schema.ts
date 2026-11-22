@@ -4,7 +4,7 @@ import { PRICE_STOPS } from "@/lib/stock/types";
 import { BAD_DRIVE_DAY, BAD_DRIVE_TIME, BAD_KM, driveDays, driveTimes, phoneError, BAD_REG, CONTACT_ERROR, EMPLOYMENT, KM_PATTERN, LIMITS, REG_PATTERN, SOURCING_BODIES, SOURCING_CAR_ERROR } from "./constants";
 import { DAY } from "../time";
 import { regPeriods } from "./reg-periods";
-import { dublinDay, dublinMs } from "@/lib/admin/format";
+import { dublinDay, dublinMs } from "@/lib/format";
 import { CHOICES, TOPIC_IDS } from "./contact-topics";
 import { CHANNELS, CHANNEL_LABELS } from "@/lib/visit-rules";
 import { CAR_ID } from "@/lib/visit-note";
@@ -147,7 +147,7 @@ const testDrive = {
 };
 
 // A stock alert: an email is all it takes. It may name a car (back in stock, price drop) or none (any new arrival).
-export const ALERT_KINDS = ["back-in-stock", "price-drop", "new-arrival"] as const;
+const ALERT_KINDS = ["back-in-stock", "price-drop", "new-arrival"] as const;
 const alert = {
   email: given(z.email({ error: "Enter an email like name@example.com." }).max(LIMITS.email, tooLong(LIMITS.email))),
   name: given(oneLine(z.string().trim().max(LIMITS.name, tooLong(LIMITS.name))).optional()),

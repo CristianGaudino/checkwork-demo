@@ -1,11 +1,8 @@
 export const SITE_URL = "https://www.demo.checkwork.ie"; // the demo domain (wrangler.jsonc routes)
 export const SITE_NAME = "Checkwork Motors"; // a made-up dealer
-// The dealer's square mark (a crest or monogram, about 40px), for the dashboard's collapsed menu: /brand/mark.svg when they have one.
-// Without it the menu shows their initials. The wide logo is public/brand/logo.svg and logo-on-light.svg (docs/new-site-checklist.md).
-export const BRAND_MARK: string | undefined = undefined;
 // Prefix for this site's keys in the visitor's browser storage (saved cars, compare, view). A clone sets its own, so two sites on one browser never share them.
 export const SITE_SLUG = "checkwork-demo";
-// The dealer's time zone: every day and time on the site and in the dashboard is said in it, whatever zone the server runs in.
+// The dealer's time zone: every day and time on the site is said in it, whatever zone the server runs in.
 export const TIME_ZONE = "Europe/Dublin";
 // The share image for any page without its own (a car has its own photo): the logo on the brand Midnight.
 export const DEFAULT_OG_IMAGE = { url: "/brand/og-default.png", width: 1200, height: 630, alt: SITE_NAME };
@@ -21,8 +18,6 @@ export const DEALER_WHATSAPP = `https://wa.me/${DEALER_TEL.slice(1)}`;
 export const LEAD_FROM_EMAIL = "leads@checkwork.ie";
 // The only reader of APP_ENV. A function so tests can stub the env.
 export const isProduction = () => process.env.APP_ENV === "production";
-// The Checkwork demo deploy (deploy.yml sets it). Only there do the demo bar's role and stock switches count on a deployed site.
-export const isDemoSite = () => process.env.APP_ENV === "demo";
 export const indexable = () => isProduction();
 
 // PLACEHOLDER: stays false until the dealer confirms the services, About story and terms (address and hours are confirmed). While

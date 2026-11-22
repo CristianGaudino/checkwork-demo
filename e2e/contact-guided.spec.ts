@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import { choose } from "./combo";
+import { leadSentTo } from "./dash-stub";
 import { stubTurnstile } from "./turnstile";
 
 // The guided contact form (#176): a topic, a few taps, the details. Runs only against the local server with fake backends.
@@ -36,12 +37,12 @@ async function finish(page: Page, name: string) {
   await expect(page.getByRole("heading", { name: "Thanks, we have your message." })).toBeFocused();
 }
 
-// Each topic: the card, its taps, and the tags the dealer sees on the lead.
+// Each topic: the card, its taps, and the topic and answers that reach the dealer dashboard.
 const TOPICS = [
-  { topic: "Buying", card: "Buying a car", taps: ["This week", "Yes"], tags: "Buying · this week · trade-in" },
-  { topic: "Finance", card: "Finance", taps: [], tags: "Finance" },
-  { topic: "Service", card: "Service or repair", taps: ["Warning light", "This week"], tags: "Service · warning light · this week" },
-  { topic: "Other", card: "Something else", taps: [], tags: "Message", message: "Do you open on bank holidays?" },
+  { topic: "Buying", card: "Buying a car", taps: ["This week", "Yes"], sent: { topic: "buying", timing: "this-week", hasTradeIn: "yes" } },
+  { topic: "Finance", card: "Finance", taps: [], sent: { topic: "finance" } },
+  { topic: "Service", card: "Service or repair", taps: ["Warning light", "This week"], sent: { topic: "service", serviceNeed: "warning-light", urgency: "this-week" } },
+  { topic: "Other", card: "Something else", taps: [], sent: { topic: "other" }, message: "Do you open on bank holidays?" },
 ] as const;
 
 test.beforeEach(async ({ page }) => stubTurnstile(page));
@@ -51,7 +52,7 @@ for (const [where, viewport] of [["on a phone", undefined], ["on a computer", { 
     if (viewport) test.use({ viewport, isMobile: false, hasTouch: false });
 
     for (const t of TOPICS) {
-      test(`${t.card}: taps, details, thanks, and the dealer sees the tags`, async ({ page }) => {
+      test(`${t.card}: taps, details, thanks, and the dashboard gets the topic and answers`, async ({ page }) => {
         const name = who(t.topic);
         await open(page);
         await topic(page, t.card);
@@ -60,13 +61,11 @@ for (const [where, viewport] of [["on a phone", undefined], ["on a computer", { 
         await next(page);
         await finish(page, name);
 
-        await page.goto(`/dashboard/leads?q=${encodeURIComponent(name)}`);
-        const row = page.getByRole("row").filter({ hasText: name });
-        await expect(row).toContainText(t.tags);
+        expect((await leadSentTo(name)).lead.details).toMatchObject(t.sent);
       });
     }
 
-    test("a car you bought: the claim goes to Aftersales, not to Leads", async ({ page }) => {
+    test("a car you bought: the dashboard gets it as a car you bought", async ({ page }) => {
       const name = who("Bought");
       await open(page);
       await topic(page, "A car I bought from you");
@@ -74,8 +73,7 @@ for (const [where, viewport] of [["on a phone", undefined], ["on a computer", { 
       for (const tap of ["In the last month", "A fault", "Can't be driven"]) await pick(page, tap);
       await next(page);
       await finish(page, name);
-      await page.goto("/dashboard/aftersales");
-      await expect(page.getByRole("table")).toContainText(name);
+      expect((await leadSentTo(name)).lead.details).toMatchObject({ topic: "bought", reg: "191-KY-1234", boughtWhen: "month", concern: "fault", urgency: "cant-drive" });
     });
   });
 }
@@ -125,7 +123,7 @@ test("a message sent by only typing is still valid, so the old free-text path st
   await finish(page, name);
 });
 
-test("a visit from a tagged Facebook post: the lead says it came from Facebook", async ({ page }) => {
+test("a visit from a tagged Facebook post: the dashboard is told it came from Facebook", async ({ page }) => {
   const name = who("Channel");
   await page.goto("/?utm_source=facebook&utm_medium=social");
   await page.waitForFunction(() => sessionStorage.getItem("visit-channel") === "facebook");
@@ -134,8 +132,7 @@ test("a visit from a tagged Facebook post: the lead says it came from Facebook",
   await page.getByLabel("How can we help?").fill("Is the blue Golf still there?");
   await next(page);
   await finish(page, name);
-  await page.goto(`/dashboard/leads?q=${encodeURIComponent(name)}`);
-  await expect(page.getByRole("row").filter({ hasText: name })).toContainText("Website, from Facebook");
+  expect((await leadSentTo(name)).lead.details).toMatchObject({ channel: "Facebook" });
 });
 
 test("every need has its card, and the WhatsApp opt-in is offered: the site has no plans", async ({ page }) => {
@@ -144,27 +141,6 @@ test("every need has its card, and the WhatsApp opt-in is offered: the site has 
   await topic(page, "Buying a car");
   await next(page);
   await expect(page.getByRole("switch", { name: "Send me updates on WhatsApp" })).toBeVisible();
-});
-
-test("an urgent lead is listed before the others, and the list filters by topic", async ({ page }) => {
-  const name = who("Urgent");
-  await open(page);
-  await topic(page, "Service or repair");
-  await pick(page, "A noise");
-  await pick(page, "This week");
-  await next(page);
-  await finish(page, name);
-
-  await page.goto("/dashboard/leads?status=new");
-  const rows = await page.getByRole("row").allTextContents();
-  const at = rows.findIndex((r) => r.includes(name));
-  expect(at).toBeGreaterThan(0);
-  for (const r of rows.slice(1, at + 1)) expect(r).toMatch(/this week|can't be driven/); // only urgent ones come before it
-
-  await page.goto("/dashboard/leads?topic=service");
-  const filtered = await page.getByRole("row").allTextContents();
-  expect(filtered.length).toBeGreaterThan(1);
-  for (const r of filtered.slice(1)) expect(r).toContain("Service ·");
 });
 
 test("picking a topic moves on by itself: keys too, and Back keeps the choice", async ({ page }) => {

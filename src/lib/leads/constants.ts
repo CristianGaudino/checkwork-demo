@@ -1,6 +1,6 @@
 import { isBankHoliday } from "../bank-holidays";
 import { OPENING_HOURS, SITE_NAME } from "../site";
-import { addDays, addMonths, dublinDay } from "../admin/format";
+import { addDays, addMonths, dublinDay } from "../format";
 
 // What the lead forms and the server share. No zod here: client components import this file, and pulling in
 // schema.ts would ship zod to every car page.
@@ -10,7 +10,7 @@ export const CONSENT = { version: "2026-11-10", text: `I agree to ${SITE_NAME} u
 // D-04: leads are kept this long, then deleted by the daily purge (worker.mjs, docs/lead-retention.md). The dealer must confirm
 // the period; /privacy and docs/lead-retention.md state it, so change all three together.
 export const LEAD_RETENTION_MONTHS = 12;
-// A sale record names its buyer: kept this many years (Irish business records), then the buyer is removed (src/lib/admin/sales-purge.ts).
+// A sale record names its buyer: kept this many years (Irish business records), then the dealer dashboard removes the buyer; /privacy says so.
 export const SALE_KEEP_YEARS = 6;
 // What the contact form and the service form say after a message goes.
 export const MESSAGE_SENT = { heading: "Thanks, we have your message.", body: "We'll get back to you." } as const;
@@ -87,7 +87,7 @@ export const PHOTO_NOTES = [`The ${PHOTO_MIN_COUNT} we need: ${PHOTO_SLOTS.slice
 // Test drives (a booking is a lead with a day and a time), the same rules for the website and the dashboard. The days and hours come from
 // OPENING_HOURS, so they never disagree with the opening times on the site. Slots start when we open and stop an hour before we close.
 // Times are Irish time wherever the buyer is. How long one car is out is the dealer's setting (settings.driveSlotMinutes).
-export const TEST_DRIVE = { monthsAhead: 2, stepMinutes: 30 } as const;
+const TEST_DRIVE = { monthsAhead: 2, stepMinutes: 30 } as const;
 export const BAD_DRIVE_DAY = "Choose a day from the list.";
 export const BAD_DRIVE_TIME = "Choose a time from the list.";
 const mins = (hhmm: string) => Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3, 5));

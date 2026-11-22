@@ -4,8 +4,6 @@ import type { LeadRow } from "./process";
 vi.mock("server-only", () => ({}));
 const bindings = vi.hoisted(() => ({ value: {} as Record<string, unknown> }));
 vi.mock("./bindings", () => ({ getBindings: () => bindings.value }));
-const mirror = vi.hoisted(() => ({ fn: vi.fn(async () => {}) }));
-vi.mock("@/lib/admin/real-leads", () => ({ mirrorLead: mirror.fn }));
 // `after` runs its work once the response is out; here it starts at once and the test waits for it with afterwork().
 const later = vi.hoisted(() => ({ jobs: [] as Promise<unknown>[] }));
 vi.mock("next/server", () => ({ after: (fn: () => Promise<unknown>) => void later.jobs.push(fn()) }));
@@ -43,7 +41,6 @@ let fetchMock: ReturnType<typeof vi.fn>;
 let logs: string[];
 beforeEach(() => {
   bindings.value = {};
-  mirror.fn.mockReset().mockResolvedValue(undefined);
   fetchMock = vi.fn(async () => new Response('{"id":"x"}', { status: 201 }));
   vi.stubGlobal("fetch", fetchMock);
   vi.stubEnv("DASH_SITE_KEY", "site-key");
@@ -194,34 +191,38 @@ describe("sendToDash", () => {
   });
 });
 
-describe("the real toAdmin", () => {
+describe("the real toDash", () => {
   beforeEach(() => vi.stubEnv("E2E_FAKE_BACKENDS", ""));
 
-  it("keeps the local copy and sends to the dashboard after the answer", async () => {
-    await getDeps().toAdmin!(row, true);
+  it("sends to the dashboard after the answer", async () => {
+    await getDeps().toDash!(row, true);
     await afterwork();
-    expect(mirror.fn).toHaveBeenCalledWith(row, true);
     expect(fetchMock).toHaveBeenCalledOnce();
   });
 
-  it("still makes the local copy when the send fails", async () => {
+  it("stays quiet when the send fails", async () => {
     fetchMock.mockRejectedValue(new Error("down"));
-    await expect(getDeps().toAdmin!(row, false)).resolves.toBeUndefined();
+    await expect(getDeps().toDash!(row, false)).resolves.toBeUndefined();
     await afterwork();
-    expect(mirror.fn).toHaveBeenCalledWith(row, false);
     expectQuietFailure();
+  });
+
+  it("logs dash_failed, with no personal data, when the send breaks inside the after() work", async () => {
+    await getDeps().toDash!({ ...row, consentAt: undefined } as unknown as LeadRow, true); // sendToDash throws on this row
+    await afterwork();
+    expectQuietFailure();
+  });
+
+  it("logs dash_failed when the binding cannot be read, and still answers", async () => {
+    Object.defineProperty(bindings, "value", { get: () => { throw new Error(`no bindings ${NAME}`); }, configurable: true });
+    await expect(getDeps().toDash!(row, true)).resolves.toBeUndefined();
+    expectQuietFailure();
+    Object.defineProperty(bindings, "value", { value: {}, writable: true, configurable: true });
   });
 
   it("never waits for the dashboard before answering", async () => {
     fetchMock.mockReturnValue(new Promise(() => {})); // a dashboard that never answers
-    await expect(getDeps().toAdmin!(row, true)).resolves.toBeUndefined();
+    await expect(getDeps().toDash!(row, true)).resolves.toBeUndefined();
     later.jobs.splice(0);
-  });
-
-  it("still sends when the local copy fails, and reports the copy's failure", async () => {
-    mirror.fn.mockRejectedValue(new Error("admin store down"));
-    await expect(getDeps().toAdmin!(row, true)).rejects.toThrow("admin store down");
-    await afterwork();
-    expect(fetchMock).toHaveBeenCalledOnce();
   });
 });

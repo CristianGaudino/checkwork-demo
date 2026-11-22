@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { CONTACT_ERROR, LIMITS } from "./constants";
 import { leadSchema } from "./schema";
 import { regPeriods } from "./reg-periods";
-import { dublinDay } from "@/lib/admin/format";
+import { dublinDay } from "@/lib/format";
 
 const base = { type: "enquiry", carId: "123", clientRef: crypto.randomUUID(), sourcePath: "/used-cars/x", name: "Ann", phone: "087 123 4567", consent: "yes" };
 const errors = (input: Record<string, unknown>) => {

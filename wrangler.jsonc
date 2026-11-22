@@ -1,8 +1,8 @@
 {
-	// The Checkwork demo: its own Worker, domain, D1 database and R2 bucket. The names below are created in the Cloudflare dashboard or with wrangler (docs/new-site-checklist.md).
+	// The Checkwork demo website (the Showroom): its own Worker, domain, D1 database and R2 bucket. The names below are created in the Cloudflare dashboard or with wrangler (docs/new-site-checklist.md).
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "checkwork-demo",
-	"main": "worker.mjs", // wraps .open-next/worker.js and adds the daily lead purge
+	"main": "worker.mjs", // wraps .open-next/worker.js and adds the daily purge
 	"compatibility_date": "2026-10-01",
 	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
 	"assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
@@ -12,20 +12,13 @@
 	// The bare domain is a second custom domain: worker.mjs redirects it to www.
 	"routes": [{ "pattern": "www.demo.checkwork.ie", "custom_domain": true }, { "pattern": "demo.checkwork.ie", "custom_domain": true }],
 	"workers_dev": false,
-	// worker.mjs: daily at 03:17 UTC, deletes old leads, their photos and old activity, and removes the buyer from sales over six years old.
-	// Every 15 minutes, syncs DoneDeal stock (nothing on a site whose stock is not from DoneDeal). At 07:00 UTC, the follow-up emails (only
-	// when the dealer turned them on). On the 1st at 07:00 UTC, last month's report by email. These need the CRON_KEY secret.
-	"triggers": { "crons": ["17 3 * * *", "*/15 * * * *", "0 7 * * *", "0 7 1 * *", "30 6 * * *"] },
+	// worker.mjs: daily at 03:17 UTC, deletes old leads and their photos, and old counts.
+	"triggers": { "crons": ["17 3 * * *"] },
 	"observability": { "enabled": true },
-	// Cloudflare Access for /admin (src/lib/access.ts): the team domain and this application's audience tag. Neither is a secret.
-	"vars": {
-		"CF_ACCESS_TEAM_DOMAIN": "plain-tree-3979.cloudflareaccess.com",
-		"CF_ACCESS_AUD": "50e251d97672aeedc941626800dd6b8384ac4776061c8604d6c3393b1d65ac67"
-	},
 	// Lead emails to the dealer (D-01). No "remote": CI's wrangler dev has no Cloudflare credentials, so it uses the local simulator.
 	"send_email": [{ "name": "EMAIL" }],
 	// Per-IP limit on lead submits (D-05), a second layer behind Turnstile: 5 per minute.
-	"ratelimits": [{ "name": "LEAD_LIMITER", "namespace_id": "1001", "simple": { "limit": 5, "period": 60 } }, { "name": "COUNT_LIMITER", "namespace_id": "1002", "simple": { "limit": 20, "period": 60 } }, { "name": "AI_LIMITER", "namespace_id": "1003", "simple": { "limit": 10, "period": 60 } }],
+	"ratelimits": [{ "name": "LEAD_LIMITER", "namespace_id": "1001", "simple": { "limit": 5, "period": 60 } }, { "name": "COUNT_LIMITER", "namespace_id": "1002", "simple": { "limit": 20, "period": 60 } }],
 	// Trade-in photos (D-13): private, EU jurisdiction, read only through the signed /lead-photos route. wrangler dev uses a local bucket.
 	"r2_buckets": [{ "binding": "LEAD_PHOTOS", "bucket_name": "checkwork-demo-lead-photos", "jurisdiction": "eu" }],
 	// Leads (D-03): Cloudflare D1. Create it once with `npx wrangler d1 create checkwork-demo --jurisdiction eu` and paste the id below

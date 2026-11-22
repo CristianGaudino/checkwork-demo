@@ -1,47 +1,26 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
-vi.mock("@/lib/stock", () => ({ stock: { lookup: async () => null } }));
-const verify = vi.fn();
-vi.mock("@/lib/access", async (orig) => ({ ...(await orig<typeof import("@/lib/access")>()), verifyAccessJwt: (...a: unknown[]) => verify(...a) }));
-const { proxy } = await import("./proxy");
+const lookup = vi.fn();
+vi.mock("@/lib/stock", () => ({ stock: { lookup: (slug: string) => lookup(slug) } }));
+const { proxy, config } = await import("./proxy");
+const get = (path: string) => proxy(new NextRequest(`https://demo.example${path}`));
 
-afterEach(() => vi.unstubAllEnvs());
-const get = (path: string, headers: Record<string, string> = {}) => proxy(new NextRequest(`https://demo.example${path}`, { headers }));
-
-describe("the dashboard gate in the proxy", () => {
-  it("answers 404 with noindex for /dashboard on a deployed site with no Access token", async () => {
-    vi.stubEnv("APP_ENV", "demo");
-    for (const path of ["/dashboard", "/dashboard/stock", "/dashboard/margins"]) {
-      const res = await get(path);
-      expect(res.status).toBe(404);
-      expect(res.headers.get("x-robots-tag")).toBe("noindex");
-    }
+describe("the proxy", () => {
+  it("only runs on the car pages", () => {
+    expect(config.matcher).toEqual(["/used-cars/:slug"]);
   });
-  it("still 404s when Access is configured and the token is missing or forged", async () => {
-    vi.stubEnv("APP_ENV", "demo");
-    vi.stubEnv("CF_ACCESS_TEAM_DOMAIN", "team.cloudflareaccess.com");
-    vi.stubEnv("CF_ACCESS_AUD", "aud");
-    expect((await get("/dashboard")).status).toBe(404);
-    expect((await get("/dashboard", { "cf-access-jwt-assertion": "a.b.c" })).status).toBe(404);
+  it("answers 410 with the make's gone page for a car that has been sold and has expired", async () => {
+    lookup.mockResolvedValueOnce({ state: "gone", makeSlug: "audi" });
+    const res = await get("/used-cars/audi-a4-2019-123");
+    expect(res.status).toBe(410);
+    expect(res.headers.get("x-middleware-rewrite")).toContain("/gone/audi");
   });
-  it("is open in next dev, closed in a build with no APP_ENV, and the public site is never gated", async () => {
-    vi.stubEnv("NODE_ENV", "development");
-    expect((await get("/dashboard")).status).toBe(200);
-    vi.stubEnv("NODE_ENV", "production");
-    vi.stubEnv("APP_ENV", "");
-    expect((await get("/dashboard")).status).toBe(404); // a client build that forgot APP_ENV stays closed
-    vi.stubEnv("APP_ENV", "demo");
-    expect((await get("/used-cars")).status).toBe(200);
-  });
-
-  it("lets a verified request through and turns a forged one away; the pages verify the token again (src/lib/staff.ts)", async () => {
-    vi.stubEnv("APP_ENV", "demo");
-    vi.stubEnv("CF_ACCESS_TEAM_DOMAIN", "team.cloudflareaccess.com");
-    vi.stubEnv("CF_ACCESS_AUD", "aud");
-    verify.mockResolvedValueOnce({ email: "owner@dealer.ie" });
-    expect((await get("/dashboard/margins", { "cf-access-jwt-assertion": "a.b.c" })).status).toBe(200);
-    verify.mockResolvedValueOnce(null);
-    expect((await get("/dashboard", { "cf-access-jwt-assertion": "a.b.c", "x-admin-email": "forged@evil.example" })).status).toBe(404);
+  it("lets a live car, an unknown car and a make page through without asking the stock", async () => {
+    lookup.mockResolvedValueOnce({ state: "live" });
+    expect((await get("/used-cars/audi-a4-2019-123")).headers.get("x-middleware-rewrite")).toBeNull();
+    lookup.mockClear();
+    expect((await get("/used-cars/audi")).headers.get("x-middleware-rewrite")).toBeNull();
+    expect(lookup).not.toHaveBeenCalled();
   });
 });

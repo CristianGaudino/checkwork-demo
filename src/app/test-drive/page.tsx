@@ -8,7 +8,6 @@ import { DEALER_LOCATION, DEALER_PHONE, SITE_NAME } from "@/lib/site";
 import { everyKindOrNull } from "@/lib/stock";
 import { forSale } from "@/lib/stock/types";
 import { carSummary, fold } from "@/lib/stock/format";
-import { paginate } from "@/components/admin/kit";
 import { Pager } from "@/components/stock/StockResults";
 import { priceInfo } from "@/lib/stock/price";
 import { SearchIcon } from "@/components/stock/icons";
@@ -23,6 +22,11 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 const PER_PAGE = 24;
+function paginate<T>(rows: T[], asked: string | undefined, size: number) {
+  const pageCount = Math.max(1, Math.ceil(rows.length / size));
+  const page = Math.min(pageCount, Math.max(1, Number.parseInt(asked ?? "1", 10) || 1));
+  return { rows: rows.slice((page - 1) * size, page * size), page, pageCount, total: rows.length, per: size };
+}
 
 export default async function TestDrivePage({ searchParams }: PageProps<"/test-drive">) {
   const sp = await searchParams;

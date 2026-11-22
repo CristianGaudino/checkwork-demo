@@ -1,6 +1,6 @@
 import { getBindings } from "@/lib/leads/bindings";
-import { isCountEvent } from "@/lib/owner-api/counter-rules";
-import { bump } from "@/lib/owner-api/counters";
+import { isCountEvent } from "@/lib/counts/rules";
+import { bump } from "@/lib/counts/store";
 
 const headers = { "Cache-Control": "no-store" };
 

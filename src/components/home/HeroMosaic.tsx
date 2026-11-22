@@ -11,7 +11,7 @@ export function HeroMosaic() {
     <div aria-hidden="true" className="absolute inset-0 -z-10 bg-band [mask-image:linear-gradient(to_bottom,#000_calc(100%-7rem),transparent)]">
       <img src={HOME.heroPhoto} srcSet={`${HOME.heroPhotoSmall} 960w, ${HOME.heroPhoto} 1448w`} sizes="100vw" alt="" width={1448} height={1086} fetchPriority="high" className={`${photo} dark:hidden`} />
       {/* The dusk photo for the dark theme. Lazy, so a hidden one is never downloaded: the light theme costs nothing extra. */}
-      {/* shortcut: the dark theme downloads both (the light one is eager for speed), fine while dark is a demo-bar switch; if dark becomes the default, pick the photo before paint instead. */}
+      {/* shortcut: the dark theme downloads both (the light one is eager for speed), fine while dark is the visitor's own switch; if dark becomes the default, pick the photo before paint instead. */}
       <img src={HOME.heroPhotoDark} srcSet={`${HOME.heroPhotoDarkSmall} 960w, ${HOME.heroPhotoDark} 1448w`} sizes="100vw" alt="" width={1448} height={1086} loading="lazy" className={`${photo} hidden dark:block`} />
       <div className="absolute inset-0 bg-gradient-to-t from-band/95 via-band/75 to-band/45 lg:bg-gradient-to-r lg:from-band/80 lg:via-band/30 lg:to-transparent" />
     </div>

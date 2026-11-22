@@ -36,19 +36,6 @@ describe("lookupReg with the paid service", () => {
   });
   afterEach(() => vi.unstubAllEnvs());
 
-  it("past the dealer's monthly limit gives a plate already in the cache, free, and only the plate's facts for a new one", async () => {
-    const service = vi.fn(async () => FOCUS);
-    const paid = vi.fn(async () => {});
-    expect((await lookupReg("191-KY-1234", "1.1.1.1", service, { allowed: async () => true, paid }))?.car).toEqual(FOCUS);
-    const full = { allowed: async () => false, paid };
-    expect((await lookupReg("191-KY-1234", "1.1.1.1", service, full))?.car).toEqual(FOCUS); // cached: free
-    const fresh = await lookupReg("192-D-555", "1.1.1.1", service, full);
-    expect(fresh?.limited).toBe(true);
-    expect(fresh?.car).toBeUndefined();
-    expect(service).toHaveBeenCalledOnce();
-    expect(paid).toHaveBeenCalledOnce();
-  });
-
   it("asks the service once per plate, then answers from the cache", async () => {
     const service = vi.fn(async () => FOCUS);
     expect((await lookupReg("191-KY-1234", "1.1.1.1", service))?.car).toEqual(FOCUS);
@@ -73,7 +60,7 @@ describe("lookupReg with the paid service", () => {
     expect(await regCache.get("191-KY-1234")).toBeUndefined();
   });
 
-  it("allows a visitor a few paid lookups a day, then only the plate's facts; staff have no such limit", async () => {
+  it("allows a visitor a few paid lookups a day, then only the plate's facts", async () => {
     let n = 0;
     const service = vi.fn(async () => FOCUS);
     const plates = Array.from({ length: REG_LOOKUPS_PER_VISITOR_A_DAY + 2 }, () => `191-KY-${1000 + n++}`);
@@ -82,9 +69,9 @@ describe("lookupReg with the paid service", () => {
     expect(cars.filter(Boolean)).toHaveLength(REG_LOOKUPS_PER_VISITOR_A_DAY);
     expect(service).toHaveBeenCalledTimes(REG_LOOKUPS_PER_VISITOR_A_DAY);
     expect((await lookupReg("191-KY-1", "8.8.8.8", service))?.car).toEqual(FOCUS); // another visitor is not held back
-    expect((await lookupReg("191-KY-2", null, service))?.car).toEqual(FOCUS); // nor staff
+    expect((await lookupReg("191-KY-2", "7.7.7.7", service))?.car).toEqual(FOCUS); // nor a third
     allowed = false;
-    expect((await lookupReg("191-KY-3", null, service))?.car).toEqual(FOCUS); // the per-minute limit is not theirs either
+    expect((await lookupReg("191-KY-3", "7.7.7.8", service))?.car).toBeUndefined(); // past the per-minute limit: the plate's facts only
   });
 
   it("keeps a visitor's count under a hash, never their address", async () => {

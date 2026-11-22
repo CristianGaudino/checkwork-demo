@@ -2,6 +2,3 @@
 export const CONNECTION_ERROR = "Check your connection and try again.";
 export const SEARCH_MAKE_MODEL = "Search make or model";
 export const COMPARE_CLEARED = "Compare list cleared";
-// Form messages the admin forms share.
-export const NAME_REQUIRED = "Enter a name";
-export const EMAIL_INVALID = "Enter a valid email";

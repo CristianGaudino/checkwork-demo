@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bandOf, channelOf, missedMake, sourceText } from "./visit-rules";
+import { bandOf, channelOf, missedMake } from "./visit-rules";
 
 const page = "https://checkworkmotors.ie/used-cars";
 
@@ -57,8 +57,3 @@ describe("missedMake", () => {
   });
 });
 
-it("sourceText says where a website lead came from", () => {
-  expect(sourceText({ source: "Website", channel: "Facebook" })).toBe("Website, from Facebook");
-  expect(sourceText({ source: "Website", channel: "Typed in or bookmarked" })).toBe("Website, typed in");
-  expect(sourceText({ source: "Phone" })).toBe("Phone");
-});

@@ -3,12 +3,11 @@ import localFont from "next/font/local";
 import { Suspense } from "react";
 import { NavProgress } from "@/components/NavProgress";
 import { CompareBar } from "@/components/compare/CompareBar";
-import { SiteChrome, VisitStart } from "@/components/SiteChrome";
+import { VisitStart } from "@/components/VisitStart";
 import { Toaster } from "@/components/Toaster";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
-import { DemoBar } from "@/components/demo/DemoBar";
-import { DEMO_BAR_ENABLED, THEME_SCRIPT, adminReachable } from "@/lib/demo";
+import { THEME_SCRIPT } from "@/lib/demo";
 import { DEALER_LOCATION, DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL, indexable } from "@/lib/site";
 import "./globals.css";
 
@@ -46,22 +45,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Suspense fallback={null}>
           <NavProgress />
         </Suspense>
-        {DEMO_BAR_ENABLED && <DemoBar showAreas={adminReachable()} />}
-        <SiteChrome>
-          <SiteHeader />
-          <VisitStart />
-        </SiteChrome>
+        <SiteHeader />
+        <VisitStart />
         {children}
-        <SiteChrome>
-          <SiteFooter />
-        </SiteChrome>
+        <SiteFooter />
         {dev && <dev.Toggle mode={dev.mode} />}
         {/* One stack at the bottom of the screen: the toast above the compare pill. Both take their own pointer events. */}
-        <div data-bottom-stack className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--demo-bar-h,0px)+1rem)] z-30 flex flex-col items-center gap-2 px-4">
+        <div data-bottom-stack className="pointer-events-none fixed inset-x-0 bottom-4 z-30 flex flex-col items-center gap-2 px-4">
           <Toaster />
-          <SiteChrome>
-            <CompareBar />
-          </SiteChrome>
+          <CompareBar />
         </div>
       </body>
     </html>

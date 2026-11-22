@@ -25,16 +25,16 @@ export async function purgeOldLeads(
   const keys = old.flatMap((r) => r.photoKeys);
   for (let i = 0; i < keys.length; i += R2_DELETE_MAX) await bucket.delete(keys.slice(i, i + R2_DELETE_MAX));
   // Rows only get newer than the cutoff, so this deletes exactly the rows whose photos were just deleted.
-  // The admin's copies of website leads and alerts (src/lib/admin/real-leads.ts, the "real-" rows) go on the same day.
+  // The old /dashboard's copies of website leads and alerts (the "real-" rows in admin_docs; checkwork-dash keeps its own) go on the same day.
   const older = lt(sql`json_extract(${adminDocs.data}, '$.createdAt')`, cutoff.getTime());
   await db.delete(adminDocs).where(and(inArray(adminDocs.collection, ["leads", "alerts"]), like(adminDocs.id, "real-%"), older));
   // The WhatsApp messages about those leads go with them, and any message older than 30 days (the lead keeps its notes), so a buyer's
   // words do not outlive their lead and the panel, which reads them on every refresh, stays small.
   const chat = sql`json_extract(${adminDocs.data}, '$.leadId')`;
   await db.delete(adminDocs).where(and(eq(adminDocs.collection, "whatsapp"), or(lt(sql`json_extract(${adminDocs.data}, '$.at')`, now.getTime() - WHATSAPP_KEEP_DAYS * DAY), and(like(chat, "real-%"), sql`${chat} NOT IN (SELECT l.id FROM admin_docs l WHERE l.collection = 'leads')`))));
-  // Every test drive, not only the website's: one staff book on the dashboard (a phone booking, "drive-...") holds the same name and contact.
+  // Every test drive, not only the website's: one staff booked on the old dashboard (a phone booking, "drive-...") holds the same name and contact.
   await db.delete(adminDocs).where(and(eq(adminDocs.collection, "test-drives"), older));
-  // A customer (from the website or typed in on the dashboard) goes once they have not been in touch for the same period and no sale,
+  // A customer (from the website or typed in on the old dashboard) goes once they have not been in touch for the same period and no sale,
   // deposit, claim or order names them: a buyer stays while their records do, and leaves after the sales purge unlinks them (sales-purge.ts).
   const named = sql`(SELECT json_extract(n.data, '$.customerId') FROM admin_docs n WHERE n.collection IN ('sales', 'reservations', 'claims', 'orders') AND json_extract(n.data, '$.customerId') IS NOT NULL)`;
   await db.delete(adminDocs).where(and(eq(adminDocs.collection, "customers"), lt(sql`json_extract(${adminDocs.data}, '$.lastContactAt')`, cutoff.getTime()), sql`${adminDocs.id} NOT IN ${named}`));

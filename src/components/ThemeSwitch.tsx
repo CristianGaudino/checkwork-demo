@@ -3,7 +3,7 @@
 import { useId, useSyncExternalStore } from "react";
 import { THEMES, THEME_KEY, themeChoice, type Theme } from "@/lib/demo";
 
-// The one theme store, for the footer and the demo bar. Auto is no stored value: THEME_SCRIPT in the head then follows the device.
+// The one theme store, for the footer. Auto is no stored value: THEME_SCRIPT in the head then follows the device.
 // The choice is also kept on <html> (data-theme-choice), so it holds for this page view when storage is blocked, and the head script reads
 // it before following a change of the device's theme. A choice made in another tab arrives as a storage event.
 const listeners = new Set<() => void>();

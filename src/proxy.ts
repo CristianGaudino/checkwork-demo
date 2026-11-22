@@ -1,35 +1,13 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { accessConfig, verifyAccessJwt } from "@/lib/access";
-import { adminReachable, isAppPath } from "@/lib/demo";
 import { stock } from "@/lib/stock";
 
 // Next 16 has no gone(); a rewrite with a status is the documented way to answer 410 (D-03).
 // Make and body slugs never end in digits, so only a car-shaped slug reaches the provider.
 const CAR_SLUG = /^[a-z0-9]+(-[a-z0-9]+)*-\d+$/;
 
-// The site's own not found page, not a bare line. A path no route matches renders app/not-found.tsx.
-const notThere = (req: NextRequest) => NextResponse.rewrite(new URL("/not-found-closed-area", req.url), { status: 404, headers: { "X-Robots-Tag": "noindex" } });
-
 export async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
-  // A closed area looks like a page that is not there. Server actions post to the page itself, so this covers them too.
-  // Open in development and when the build says so; otherwise only with a valid Cloudflare Access token (src/lib/access.ts).
-  if (isAppPath(path)) {
-    const cfg = accessConfig();
-    const token = req.headers.get("cf-access-jwt-assertion");
-    const open = adminReachable();
-    const who = open || cfg === null || !token ? null : await verifyAccessJwt(token, cfg);
-    const verdict = open ? "open" : cfg === null ? "not-configured" : !token ? "no-token" : who ? "open" : "rejected";
-    if (verdict === "open") {
-      // The pages and actions verify the token again themselves (src/lib/staff.ts): a server action can be posted to any page.
-      return NextResponse.next();
-    }
-    // Why it was closed, in the Worker's logs (never the token): "no-token" means Access did not cover this path, "rejected" means a token came
-    // that did not verify (wrong audience, team domain or expired), "not-configured" means CF_ACCESS_TEAM_DOMAIN or CF_ACCESS_AUD is missing.
-    console.warn(`dashboard gate closed: ${verdict}`);
-    return notThere(req);
-  }
   if (!path.startsWith("/used-cars/")) return NextResponse.next();
   const slug = path.split("/")[2] ?? "";
   if (slug.length > 120 || !CAR_SLUG.test(slug)) return NextResponse.next();
@@ -38,7 +16,7 @@ export async function proxy(req: NextRequest) {
   return hit?.state === "gone" ? NextResponse.rewrite(new URL("/gone/" + hit.makeSlug, req.url), { status: 410 }) : NextResponse.next();
 }
 
-// The car pages (gone cars) and the dashboard. Every other public page is always there.
+// The car pages (gone cars). Every other public page is always there.
 export const config = {
-  matcher: ["/used-cars/:slug", "/dashboard/:path*"],
+  matcher: ["/used-cars/:slug"],
 };

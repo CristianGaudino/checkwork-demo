@@ -1,8 +1,7 @@
 import { expect, test } from "@playwright/test";
 
-// The gaps between layouts: at every breakpoint edge there is a way round (the header links or the menu; the sidebar or the tab bar),
-// nothing scrolls sideways, and no two fixed bars at the foot of the screen lie over each other (the demo bar once covered the
-// dashboard's tab bar between 640 and 1023px).
+// The gaps between layouts: at every breakpoint edge there is a way round (the header links or the menu), nothing scrolls sideways,
+// and no two fixed bars at the foot of the screen lie over each other.
 const EDGES = [320, 639, 640, 767, 768, 1023, 1024, 1279, 1280, 1440];
 
 const fixedOverlaps = (page: import("@playwright/test").Page) =>
@@ -20,10 +19,7 @@ const fixedOverlaps = (page: import("@playwright/test").Page) =>
     return hits;
   });
 
-for (const [path, nav] of [
-  ["/", (page: import("@playwright/test").Page) => page.getByRole("banner").getByRole("link", { name: "Used cars", exact: true }).or(page.getByRole("banner").getByRole("button", { name: "Menu" }))],
-  ["/dashboard", (page: import("@playwright/test").Page) => page.getByRole("navigation", { name: "Dealer dashboard" })],
-] as const) {
+for (const [path, nav] of [["/", (page: import("@playwright/test").Page) => page.getByRole("banner").getByRole("link", { name: "Used cars", exact: true }).or(page.getByRole("banner").getByRole("button", { name: "Menu" }))]] as const) {
   test(`${path}: a way round, no sideways scroll and no overlapping bars at every breakpoint edge`, async ({ page }) => {
     await page.goto(path);
     for (const width of EDGES) {

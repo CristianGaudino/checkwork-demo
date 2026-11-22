@@ -1,5 +1,7 @@
 # Dashboard and site polish: spec and plan
 
+History. The dashboard half of this spec moved with the dashboard to checkwork-dash; the public site's rules below still hold.
+
 Issues #67 to #82. Owner feedback, 2026-11-11. This is the spec for all of them and the order they are built in. Method: the unslop checklist
 (unslop by Damir Sokolovsky, CC BY 4.0) over the whole site, a pass for the same faults the owner named, then build in phases with a ponytail
 audit at the end of each.

@@ -5,7 +5,6 @@ import { IconBadge, TitleText } from "@/components/Feature";
 import { BrowseByMake } from "@/components/home/BrowseByMake";
 import { HeroMosaic } from "@/components/home/HeroMosaic";
 import { HomeSearch } from "@/components/home/HomeSearch";
-import { SocialStrip } from "@/components/home/SocialStrip";
 import { BrowseByType, type TypeTile } from "@/components/home/BrowseByType";
 import { makeDirectory } from "@/lib/stock/makes";
 import { TrustStrip } from "@/components/home/TrustStrip";
@@ -154,8 +153,6 @@ export default async function Home() {
         <BrowseByType tiles={typeTiles} />
 
         <ReviewsStrip data={reviews} />
-
-        <SocialStrip cars={all?.cars ?? []} />
 
         <VisitUs />
       </div>

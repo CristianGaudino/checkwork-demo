@@ -24,9 +24,6 @@ function engine(): Promise<StockProvider> {
   return load;
 }
 
-// The admin changed a car: the next read rebuilds the snapshot instead of waiting out the 30 seconds.
-export const invalidateStockSnapshot = () => void (snapshot = undefined);
-
 export const d1Provider: StockProvider = {
   query: async (q) => (await engine()).query(q),
   getBySlug: async (slug) => (await engine()).getBySlug(slug),

@@ -34,22 +34,17 @@ One sentence: a bright, editorial showroom, where the cars are the colour.
 - **Car page:** a gallery-first layout: a large two-by-two photo grid that opens the viewer, a sticky buy panel with the price (and VAT line where relevant), a spec table, finance estimate and similar cars. Price block is one component used everywhere (see 6).
 - **Forms (trade-in, find a car, contact, finance):** keep the stepped forms; restyle with a left progress rail on desktop and a top bar on a phone.
 - **Footer:** quiet, one row of links, hours and the Checkwork credit.
-- **Admin:** see 5.
 
-## 5. Three perspectives and the role switch
-A **role switch** (customer · dealer) lives in a slim demo bar fixed at the top of every page, outside the site's own header, so the site itself stays clean. Choosing a role changes the route and the layout:
-- **Customer:** the public site at `/`.
-- **Dealer:** the dealership admin at `/dashboard`: sidebar (Overview, Leads, Stock, Customers and alerts, Marketing, Analytics, Settings), a top bar with the dealership's name and the role switch.
-The admin uses the same tokens and components as the site but a denser, calmer layout (tables, filters, forms), always light by default. The demo's role is a cookie, never real auth; the real admin is protected by Cloudflare Access (admin issue). The demo bar is removed for a real client site.
+## 5. The dealer dashboard
+The dealer dashboard is not part of this site: it is its own app, checkwork-dash (see `docs/dealer-admin.md`). This site is only the customer's view, with no role switch and no demo bar.
 
 ## 6. Components to design and build (in this order)
 1. **Tokens:** colour (light and dark), type scale, spacing, radius, shadow, motion. In the `@theme` block in `globals.css`; the rest of the site reads them.
 2. **Price block:** one component that shows price for any vehicle: the headline price, the VAT status line ("inc. VAT", "ex. VAT, VAT reclaimable"), the original price and a price drop, and the finance-from figure. Handles used, new and commercial. Never ambiguous.
 3. **Vehicle card:** photo tile, title, key facts, price block, save and compare.
 4. **Controls:** buttons, inputs, select (the site's own combobox), price range slider, segmented control, chips, tabs, steps.
-5. **Navigation:** header, mobile menu sheet, footer, demo bar.
+5. **Navigation:** header, mobile menu sheet, footer.
 6. **Page templates:** home, list, car, form page, content page, error pages.
-7. **Admin kit:** sidebar, table, filter bar, stat card, form layouts, empty states.
 
 ## 7. Rules that do not change
 - Mobile first: designed at 360px first, then up. Targets at least 44px. Fast on a mid-range phone: no layout shift, images sized, fonts self-hosted and preloaded, no new heavy libraries.
@@ -58,7 +53,7 @@ The admin uses the same tokens and components as the site but a denser, calmer l
 - No copy of any other dealer's brand, photos or layout. Pictures stay clearly made up (see the placeholder photos).
 
 ## 8. How we will build it (small, reviewable PRs)
-1. Tokens, type and the demo bar (no layout change yet). Light theme becomes the default.
+1. Tokens and type (no layout change yet). Light theme becomes the default.
 2. Price block and vehicle card, used by the list, home, similar cars and saved.
 3. Header, footer and mobile menu.
 4. Home page.
@@ -66,7 +61,6 @@ The admin uses the same tokens and components as the site but a denser, calmer l
 6. Car page and the photo viewer.
 7. Forms.
 8. Content pages and error pages.
-9. The admin shell (with the admin issues).
 Each PR keeps every E2E test green (tests that pin the old look are updated with the change), runs the ponytail audit, and has screenshots at 360, 768 and 1280px in light and dark.
 
 ## 9. Decisions (owner, 2026-11-10)
@@ -74,9 +68,9 @@ Each PR keeps every E2E test green (tests that pin the old look are updated with
 - Font: Sora (see Showroom below).
 - The header is built now with the vehicle-type switch (Used, New, Commercial). It shows only the sections that exist.
 - Dark stays as a user choice, next to the light default.
-- Role switch (customer, dealer) as a demo bar: agreed.
+- Role switch (customer, dealer) as a demo bar: agreed then, removed with the dashboard (#243).
 
-Update (2026-11): the superuser and the platform are not part of the dealer site. Dealers see everything except sensitive figures unless they have a permission (margins). See `docs/dealer-admin.md`.
+Update (2026-11): the superuser, the platform and the dealer dashboard are not part of this site. See `docs/dealer-admin.md`.
 
 ## Showroom (owner decision, 2026-11)
 The look was redone so the demo reads as its own site. Direction: a lit showroom.
@@ -113,4 +107,4 @@ direction, the picture beside the title and the order of sections stay.
 The site follows the device's light or dark setting until the visitor picks one. The switch (Auto, Light, Dark) sits in the footer's
 bottom line beside the legal links: the place people look for site settings, quiet on every page, and the same spot on a phone and a
 desktop, so the menu and the header stay about the cars. It is a small segmented control of native radio buttons (one choice of three,
-announced as such, arrow keys move it), remembered in this browser. The demo bar in `next dev` shows the same control.
+announced as such, arrow keys move it), remembered in this browser.

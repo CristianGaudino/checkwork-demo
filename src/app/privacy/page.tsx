@@ -69,8 +69,8 @@ export default function PrivacyPage() {
         </p>
         <p>When our staff draft a reply to your request or review, its text goes to our AI provider, which writes a draft for them to check. Phone numbers and email addresses are taken out first.</p>
         <p>
-          If you ask us to tell you when a car comes back or drops in price, we keep your email and what you asked for, only to tell you. Any email we send you
-          about it has a link to stop them, with no login.
+          If you ask us to tell you when a car comes back or drops in price, we keep your email and what you asked for, only to tell you. You can ask us to stop at any time by contacting us, and
+          each email will say how.
         </p>
         <p>
           The maps on this site come from Google Maps. When one loads, Google receives your IP address and may set its own cookies, as{" "}

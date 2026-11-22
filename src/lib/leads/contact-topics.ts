@@ -33,7 +33,7 @@ export type ChoiceKey = keyof typeof CHOICES;
 export const URGENCY_FOR: Record<"service" | "bought", string[]> = { service: ["this-week", "next-week", "no-rush"], bought: ["cant-drive", "this-week", "no-rush"] };
 
 // The answers stored on a lead, besides the topic: what the dashboard shows as tags.
-export const ANSWER_KEYS = ["timing", "hasTradeIn", "serviceNeed", "boughtWhen", "concern", "urgency", "reg", "contactVia", "contactWhen"] as const;
+const ANSWER_KEYS = ["timing", "hasTradeIn", "serviceNeed", "boughtWhen", "concern", "urgency", "reg", "contactVia", "contactWhen"] as const;
 export type Answers = Partial<Record<(typeof ANSWER_KEYS)[number], string>>;
 
 const word = (key: ChoiceKey, v: string | undefined) => CHOICES[key].find((o) => o.value === v)?.label;
@@ -59,11 +59,9 @@ export function topicBits(a: Answers): string[] {
   ].filter((s): s is string => Boolean(s));
   return bits.map(plain);
 }
-export const leadTags = (topic: string | undefined, a: Answers): string[] => (topic ? [TOPICS.find((t) => t.id === topic)?.subject ?? topic, ...topicBits(a)] : []);
 // "Service: warning light, this week": the dealer's email subject.
 export const topicSubject = (topic: string | undefined, a: Answers): string | undefined => {
   const t = TOPICS.find((x) => x.id === topic);
   return t && [t.subject, topicBits(a).join(", ")].filter(Boolean).join(": ");
 };
 // Answered "can't be driven" or "this week": to be answered first.
-export const isUrgent = (a: Answers) => a.urgency === "cant-drive" || a.urgency === "this-week" || a.timing === "this-week";

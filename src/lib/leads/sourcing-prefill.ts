@@ -1,4 +1,4 @@
-import { slugify } from "@/lib/admin/stock-admin-pure";
+import { slugify } from "@/lib/stock/slug";
 import { PRICE_STOPS } from "@/lib/stock/types";
 import { SOURCING_BODIES } from "./constants";
 import { MAKE_OPTIONS } from "./makes";

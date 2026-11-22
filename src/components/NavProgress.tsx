@@ -7,7 +7,7 @@ type Phase = "idle" | "loading" | "done";
 
 // A thin bar along the top while a tapped page loads. Almost every page here is drawn per request, and Next does not prefetch those, so
 // on a slow phone a tap could seem to do nothing. Not loading.tsx: a page that streams answers 200 even when it ends in notFound(), and
-// the dashboard's closed pages and unknown records must stay 404s. The CSS (.nav-progress) waits 150ms, so a quick page never shows it.
+// an unknown page or record must stay a 404. The CSS (.nav-progress) waits 150ms, so a quick page never shows it.
 export function NavProgress() {
   const url = `${usePathname()}?${useSearchParams()}`;
   const [phase, setPhase] = useState<Phase>("idle");

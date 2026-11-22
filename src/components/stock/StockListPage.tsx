@@ -37,7 +37,7 @@ export async function StockListPage({ condition, searchParams, title }: { condit
   // Constant list path plus serialised params, never a user URL (T-01-14).
   if (result && result.pageCount > 0 && query.page > result.pageCount) redirect(stockHref({ ...query, page: result.pageCount }));
   return (
-    <StockShell query={query} title={title} summary={result && { total: result.total, facets: result.facets }} orderable={condition === "new" && (await stockSource()) !== "donedeal"}>
+    <StockShell query={query} title={title} summary={result && { total: result.total, facets: result.facets }} orderable={condition === "new" && stockSource() !== "donedeal"}>
       {result ? <StockResults result={result} query={query} /> : <StockError />}
     </StockShell>
   );

@@ -1,7 +1,7 @@
 # Mobile navigation and polish: spec
 
 Owner feedback, 2026-11-11. One branch, `feat/mobile-nav-polish`. Designed at 360px first, then up, in light and dark (design contract,
-section 7). The rules in `docs/dashboard-polish.md` still hold: quiet chrome, one accent, Sora at 400 to 600, 4px grid, line icons.
+section 7). The rules in `docs/dashboard-polish.md` (the public site's) still hold: quiet chrome, one accent, Sora at 400 to 600, 4px grid, line icons.
 
 ## Research, in short
 - Keep the main menu to five to seven items, ordered by what visitors come for, the same on every page. Dealers who list every page in the
@@ -26,64 +26,29 @@ section 7). The rules in `docs/dashboard-polish.md` still hold: quiet chrome, on
 - **Phone:** each group folds (closed), one row each, so the footer is about half its height. The address, phone and social icons stay open.
 - **From 1024px:** the groups are open columns, as now.
 
-## 3. Demo bar
-- **Phone (under 640px):** a small pill at the bottom right, "Customer" or "Dealer" with an arrow. A tap opens the controls above it (view
-  as, role, DoneDeal, theme); a tap outside, Escape or the pill again closes them. It starts closed on each visit and stays as it is
-  while you move between pages. The page keeps room for the pill only, so nothing sits under it.
-- **From 640px:** the one-line bar, as now.
-- In the dashboard the pill stays until 1024px, above the tab bar that shows until then, so the two never stack at the foot of a tablet.
+## 3. Demo bar and the dashboard
+The demo bar and the dealer dashboard are gone from this repo (#243). The dashboard's phone and desktop layouts are in checkwork-dash.
 
-## 4. Dashboard on a phone
-- **A tab bar at the foot** (under 1024px): Overview, Leads, Test drives, Stock, More. Icons with labels, the current one in the accent.
-- **More** opens a sheet with the rest, in the sidebar's groups, filtered by the role's permissions, and View the public site. When the page
-  you are on is in More, More is marked current.
-- The top line stays: the dealership name, and the page title below it. The swipe row of links goes.
-- From 1024px the sidebar (owner feedback, 2026-11-12, below).
-
-## 4a. Dashboard from 1024px
-- **The whole width of the screen,** no cap: the page beside a 16rem sidebar.
-- **The sidebar stays put** down the left, the height of the screen above the demo bar. The dealership's name on top and View the public site
-  at the foot are always in view; the menu between them scrolls on its own if it ever has to, and keeps the page you are on in view.
-- **It folds to a rail of icons** and back (the arrow at its foot), kept per person in a cookie. The rail shows every place, the groups parted
-  by a line; each icon is named on hover and to screen readers. The dealership shows as its initials, and the bell stays.
-- **The tables** (`kit.tsx`, `TableTools.tsx`): headers sort the whole list (before it is paged), the search runs as you type with a clear
-  button, each table has the filters that fit it, all in the URL. Compact, on the tables only, tightens their rows for the person.
-- **The groups fold** (Sales, Customers, Growth, Dealership) under their headings, Overview above them. Sales is open until closed; the group
-  holding the page you are on opens when you arrive; a folded group holding it shows a dot. What you leave open is kept in a cookie, so the
-  server draws the menu that way (no jump after the page loads). Every item names its group, so a role that cannot see a group's first
-  item still sees the rest under the right heading.
-- Settings gets a real gear icon (it was drawn as a sun).
-
-## 5. Home: browse by make
+## 4. Home: browse by make
 - **Two rows that scroll sideways together**, at every width, by swipe or trackpad. The makes alternate between the rows (first,
   third, fifth on the top; second, fourth on the bottom), so the busiest makes lead both. Both rows start at the left edge; the pills' own
   widths stagger them (owner, 2026-11-11: no forced indent).
 - Arrows under them on a desktop only (from 1024px, with a mouse), and only when the rows are wider than the screen.
 - The rows fade at the edges. All makes stays above, on the right.
 
-## 6. The pass after
-Screenshots at 360, 390 and 1280px, light and dark, of every public page and every dashboard page, looking for what the owner named:
+## 5. The pass after
+Screenshots at 360, 390 and 1280px, light and dark, of every public page, looking for what the owner named:
 misalignment, uneven spacing, controls that do not line up, text that wraps badly. Fixes go in the same branch, listed in the PR.
 
 ### Fixed in the pass
 - The gearbox icon on the car page was the same sun as Settings: now a gear-stick pattern.
-- Stat tiles: the figure is sized from the tile (a container query), so tiles side by side match and €117,565 fits a half tile at 360px.
-  The figure keeps the display font.
-- Dashboard page actions: on a phone, two or more share one full-width row, each icon above its label (Overview's three no longer wrap
-  two and one). A single action keeps its size.
-- Dashboard tables: the floor is 18rem, not 22rem, so two-column tables (stock, leads, team) fit a phone. The stock list drops the
-  thumbnail under 400px to keep the car's name readable. Customers shows Marketing from 640px.
-- Marketing, Worth posting: Write a post stays on the right of every row.
 - Home: the finance band's two buttons are full width on a phone, like the hero's.
 - Stock list: Filters is a box the same height as the sort select beside it.
 - Car page: Compare and Price alert sit side by side, like Call us and WhatsApp.
 - Makes page: long make names wrap instead of being cut off.
-- Settings: the opening hours list Bank holidays as closed, as the public site does.
-- The dev-only data switch moved to the top of the screen, off the pill and the tab bar.
+- The dev-only data switch moved to the top of the screen.
 
 ### Noted, not changed
-- Lead status buttons wrap one, two, one at 360px. A 2 by 2 grid is too narrow for "Appointment set" with its icon.
-- Margins and Reports tables still scroll sideways inside their cards on a phone (several money columns).
 - The featured stock on the home page is a long column of cards on a phone.
 
 ## Checks
