@@ -19,7 +19,7 @@ export const PRICE_STOPS = [0, 2500, 5000, 7500, 10_000, 12_500, 15_000, 17_500,
 // What kind of vehicle it is. Absent means used, which is every car in the seed today (#23, #24 add new and commercial).
 export const CONDITIONS = ["used", "new", "commercial"] as const;
 export type Condition = (typeof CONDITIONS)[number];
-// Whether priceEur has VAT in it. "inc": included. "ex": VAT on top, reclaimable by a VAT-registered buyer (vans). Absent: nothing said.
+// Whether priceEur has VAT in it. "inc": included. "ex": VAT on top, usually reclaimable by a VAT-registered buyer (vans). Absent: nothing said.
 export type VatStatus = "inc" | "ex";
 export const SORT_KEYS = ["newest", "price-asc", "price-desc", "year-desc", "km-asc"] as const;
 export type SortKey = (typeof SORT_KEYS)[number];

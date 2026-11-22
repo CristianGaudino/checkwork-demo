@@ -7,6 +7,7 @@ import { VisitStart } from "@/components/VisitStart";
 import { Toaster } from "@/components/Toaster";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { accentButton } from "@/components/ui";
 import { THEME_SCRIPT } from "@/lib/demo";
 import { DEALER_LOCATION, DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL, indexable } from "@/lib/site";
 import "./globals.css";
@@ -41,12 +42,18 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <noscript dangerouslySetInnerHTML={{ __html: "<style>[data-theme-switch]{display:none}</style>" }} />
       </head>
       <body className="flex min-h-dvh flex-col">
+        {/* The first Tab stop: off screen until focused, then over the header. */}
+        <a href="#main" className={`fixed left-4 top-4 z-50 inline-flex -translate-y-24 items-center focus:translate-y-0 ${accentButton}`}>
+          Skip to content
+        </a>
         {/* Suspense: it reads the search params, which a static page only has in the browser. */}
         <Suspense fallback={null}>
           <NavProgress />
         </Suspense>
         <SiteHeader />
         <VisitStart />
+        {/* Where Skip to content lands: one marker here rather than an id on every page's main. Focusable so the next Tab starts inside the page. */}
+        <div id="main" tabIndex={-1} className="outline-none" />
         {children}
         <SiteFooter />
         {dev && <dev.Toggle mode={dev.mode} />}

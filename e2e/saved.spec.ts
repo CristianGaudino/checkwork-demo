@@ -157,7 +157,7 @@ test("a saved car sold inside the window stays with the Sold badge", async ({ pa
 test("with nothing saved, /saved says so and links to the cars", async ({ page }) => {
   await page.goto("/saved");
   await expect(page.getByRole("heading", { name: "No saved cars yet" })).toBeVisible();
-  await expect(page.getByText("Tap the heart on any car to save it here.")).toBeVisible();
+  await expect(page.getByText("Use the heart on any car to save it here. Saved cars stay on this device.")).toBeVisible();
   await expect(page.getByRole("link", { name: "See used cars" })).toHaveAttribute("href", "/used-cars");
   await expect(page.locator("[data-skeleton]")).toHaveCount(0);
 });
