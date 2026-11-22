@@ -80,7 +80,8 @@ export function DriveFields({ bind, carId }: { bind(name: string): FieldBinding;
             )}
           </div>
         ) : (
-          <Field {...time} label="Time" options={times.map((t) => ({ value: t, label: t }))} />
+          // An empty time (after a refusal) reads "Pick a time", not the list's first time (Combobox's fallback).
+          <Field {...time} label="Time" options={[...(time.value ? [] : [{ value: "", label: "Pick a time" }]), ...times.map((t) => ({ value: t, label: t }))]} />
         )}
       </div>
       <Field {...bind("message")} label="Anything we should know" optional multiline maxLength={LIMITS.message} />

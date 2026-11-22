@@ -196,7 +196,8 @@ test("a slot booked behind the buyer's back is refused, the picker moves off it,
     await expect(d.getByText("That time was just taken. Pick another.")).toBeVisible();
     await expect(d.locator('input[name="driveTime"]')).toHaveValue(""); // nothing chosen yet: Book would ask for a time
     await expect(d.getByRole("heading", { name: "Thanks, we have your request." })).toHaveCount(0);
-    await choose(d.getByLabel("Time"), 0);
+    await expect(d.getByLabel("Time")).toHaveValue("Pick a time"); // not a time the buyer never chose
+    await choose(d.getByLabel("Time"), 1); // 0 is "Pick a time"
     await expect(d.getByLabel("Time")).not.toHaveValue(offered);
     await expect(d.getByText("That time was just taken. Pick another.")).toHaveCount(0);
     await d.getByRole("button", { name: "Book" }).click();
