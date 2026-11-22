@@ -8,7 +8,8 @@ import { count } from "@/lib/count-client";
 import { readDraft, saveDraft } from "@/lib/leads/draft";
 import { SITE_SLUG } from "@/lib/site";
 import { secondaryButton } from "@/components/ui";
-import { ContactFields, Field } from "./Field";
+import { ContactFields, Field, tidyOnBlur } from "./Field";
+import { tidyReg } from "@/lib/reg";
 import type { FieldBinding, FormStep } from "./LeadForm";
 
 // The guided contact form (#176), in three steps: what the buyer needs, a few taps about it, how to reach them. /service and /warranty
@@ -66,7 +67,8 @@ export function GeneralFields({ bind, step, advance, cars = [], fixed }: { bind(
   // picks one and moves on. Picking the one already chosen (after Back) moves on too.
   const arrowed = useRef(false);
   const carPick = [{ value: "", label: "Not sure yet" }, ...cars.map(([value, label]) => ({ value, label }))];
-  const reg = <Field {...bind("reg")} label="Registration" optional autoCapitalize="characters" spellCheck={false} maxLength={12} placeholder="191-KY-1234" enterKeyHint="next" />;
+  const regBind = bind("reg");
+  const reg = <Field {...regBind} onBlur={tidyOnBlur(regBind, tidyReg)} label="Registration" optional autoCapitalize="characters" spellCheck={false} maxLength={12} placeholder="191-KY-1234" enterKeyHint="next" />;
   // Every step stays in the form (hidden, not removed) so the send reads all of it; only the current one shows.
   return (
     <>
@@ -170,7 +172,7 @@ export function GeneralFields({ bind, step, advance, cars = [], fixed }: { bind(
         <ContactFields bind={bind} />
         <Choice bind={bind("contactVia")} label="How should we reach you?" options={CHOICES.contactVia} />
         <Choice bind={bind("contactWhen")} label="When is best?" options={CHOICES.contactWhen} />
-        {topic !== "other" && <Field {...bind("message")} label="Anything else?" optional multiline maxLength={LIMITS.message} />}
+        {topic !== "other" && <Field {...bind("message")} label="Anything else?" optional multiline maxLength={LIMITS.message} placeholder={topic === "service" ? "For example, the mileage or what you have noticed" : undefined} />}
       </div>
     </>
   );

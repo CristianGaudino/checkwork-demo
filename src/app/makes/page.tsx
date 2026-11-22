@@ -9,18 +9,16 @@ import { makeDirectory } from "@/lib/stock/makes";
 
 export const metadata: Metadata = {
   title: "Makes",
-  description: `Every make at ${SITE_NAME} in ${DEALER_LOCATION}: the ones in stock now, and the ones we can find for you.`,
+  description: `The makes in stock at ${SITE_NAME} in ${DEALER_LOCATION}.`,
 };
 export const dynamic = "force-dynamic";
 
-// Every make: the ones in stock as tiles with their counts, then the rest as a plain list. Each opens its make page.
+// The makes in stock, as tiles with their counts. Each opens its make page.
 export default async function MakesPage() {
-  const all = await makeDirectory(true);
-  const inStock = all.filter((m) => m.count > 0);
-  const others = all.filter((m) => m.count === 0).sort((a, b) => a.label.localeCompare(b.label, "en-IE"));
+  const inStock = await makeDirectory(); // in stock only: a make with none is still reachable at its own page, just not listed
   return (
     <main className={pageMain}>
-      <PageHeading title="Makes" intro="The makes we have in stock now, and every other one we can look for." />
+      <PageHeading title="Makes" intro="The makes we have in stock now." />
       {inStock.length > 0 && (
         <section aria-labelledby="makes-in-stock" className="mt-8 flex flex-col gap-4">
           <h2 id="makes-in-stock" className={subTitle}>In stock</h2>
@@ -39,20 +37,6 @@ export default async function MakesPage() {
           </ul>
         </section>
       )}
-      <section aria-labelledby="makes-others" className="mt-12 flex flex-col gap-4">
-        <h2 id="makes-others" className={subTitle}>Other makes</h2>
-        <p className="max-w-measure text-body text-text-2">None in stock right now. Open one to see what we have that is similar, or ask us to find it.</p>
-        <ul className="grid grid-cols-2 gap-x-6 sm:grid-cols-3 lg:grid-cols-5">
-          {others.map((m) => (
-            <li key={m.slug}>
-              <Link href={`/makes/${m.slug}`} className="inline-flex min-h-11 items-center gap-2 underline-offset-2 hover:underline">
-                <MakeLogo slug={m.slug} className="size-5" />
-                {m.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
     </main>
   );
 }

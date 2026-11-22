@@ -52,3 +52,14 @@ export function parseIrishReg(raw: string, now = new Date()): RegFacts | null {
 // "Registered in Kerry, January to June 2019": the words the forms show under the box.
 export const regSummary = (f: RegFacts) =>
   `Registered in ${f.county}, ${f.half === 1 ? "January to June " : f.half === 2 ? "July to December " : ""}${f.year}`;
+
+// What a form box shows once the buyer leaves it: an Irish plate in its usual form ("191d12345" becomes "191-D-12345"), anything
+// else in capitals. The server uppercases again and checks it; this is only for the buyer's eyes.
+export const tidyReg = (raw: string) => parseIrishReg(raw)?.reg ?? raw.trim().toUpperCase();
+
+// A mileage with thousands commas ("85000" becomes "85,000"). The server strips the commas, so the value sent stays a plain number.
+// Anything that is not digits is left for the server's message.
+export const tidyKm = (raw: string) => {
+  const digits = raw.replace(/[,\s]/g, "");
+  return /^\d+$/.test(digits) ? Number(digits).toLocaleString("en-IE") : raw;
+};

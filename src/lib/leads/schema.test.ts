@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { describe, expect, it } from "vitest";
-import { CONTACT_ERROR, LIMITS } from "./constants";
+import { CONTACT_ERROR, EMAIL_FOR_CONTACT_ERROR, LIMITS, PHONE_FOR_CONTACT_ERROR } from "./constants";
 import { leadSchema } from "./schema";
 import { regPeriods } from "./reg-periods";
 import { dublinDay } from "@/lib/format";
@@ -25,10 +25,10 @@ describe("leadSchema error copy (UI-SPEC)", () => {
   });
 
   it.each(["12-34", "-------", "(((((((", "call me", "087 123 456a"])("refuses the phone %s", (phone) => {
-    expect(errors({ ...base, phone }).phone).toEqual(["Enter a phone number we can call, like 087 123 4567."]);
+    expect(errors({ ...base, phone }).phone).toEqual(["Enter a phone number we can call."]);
   });
 
-  it.each(["+353 1234", "+353 87 123 45678 9"])("refuses the Irish phone %s with an Irish message", (phone) => {
+  it.each(["+353 12", "+353 1234", "+353 87 123 45678 9"])("refuses the Irish phone %s with an Irish message", (phone) => {
     expect(errors({ ...base, phone }).phone).toEqual(["Irish numbers have 7 to 9 digits after +353, like 87 123 4567."]);
   });
 
@@ -116,6 +116,15 @@ describe("guided contact", () => {
     expect(topic("service", { reg: "!!" }).reg).toBeDefined();
     expect(topic("buying", { carId: "abc" }).carId).toBeDefined();
     expect(topic("buying", { contactVia: "post" }).contactVia).toBeDefined();
+  });
+  it("needs a phone to call or WhatsApp, not to email", () => {
+    const email = { phone: "", email: "ann@example.com" };
+    expect(topic("service", { ...email, contactVia: "call" }).phone).toEqual([PHONE_FOR_CONTACT_ERROR]);
+    expect(topic("service", { ...email, contactVia: "whatsapp" }).phone).toEqual([PHONE_FOR_CONTACT_ERROR]);
+    expect(topic("service", { ...email, contactVia: "email" })).toEqual({});
+    expect(topic("service", { contactVia: "call" })).toEqual({});
+    expect(topic("service", { phone: "087 123 4567", email: "", contactVia: "email" }).email).toEqual([EMAIL_FOR_CONTACT_ERROR]);
+    expect(topic("service", { phone: "", email: "", contactVia: "email" }).email).toEqual([EMAIL_FOR_CONTACT_ERROR, CONTACT_ERROR]); // the field shows the first
   });
   it("keeps the WhatsApp opt-in only as yes", () => {
     expect(topic("buying", { whatsappOptIn: "yes" })).toEqual({});

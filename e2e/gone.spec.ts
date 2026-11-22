@@ -32,10 +32,21 @@ test("a live car still answers 200", async ({ request }) => {
   expect((await request.get(`/used-cars/${live.slug}`)).status()).toBe(200);
 });
 
-test("the 404 page says so and links to the list", async ({ page }) => {
+test("a car link it no longer has (an old shared link) answers 404 and offers other cars of that make", async ({ page }) => {
+  const res = await page.goto("/used-cars/kia-soul-2019-9999999");
+  expect(res?.status()).toBe(404);
+  await expect(page.getByRole("heading", { name: "This car is no longer available" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "See more Kia" })).toHaveAttribute("href", "/used-cars/kia");
+  await expect(page.locator("article").first()).toBeVisible();
+});
+
+test("the 404 page says so, links to the list, and keeps the visitor's Dark theme", async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("checkwork-demo:theme", "dark"));
   await page.goto("/used-cars/not-a-car");
   await expect(page.getByRole("heading", { name: "We couldn't find that page" })).toBeVisible();
   await expect(page.getByRole("link", { name: "See all used cars" })).toHaveAttribute("href", "/used-cars");
+  // notFound() sends an empty shell that React fills in the browser, where the head script never runs.
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
 });
 
 test("a slug the provider never had answers 404, even one ending in digits", async ({ request }) => {

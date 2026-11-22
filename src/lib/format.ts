@@ -8,6 +8,11 @@ const longDay = new Intl.DateTimeFormat("en-IE", { weekday: "long", day: "numeri
 
 // Some engines write September "Sept" beside "Oct": every short month is three letters.
 export const threeLetter = (s: string) => s.replace("Sept", "Sep");
+// "09:00" -> "9am", "17:30" -> "5:30pm", "12:00" -> "12pm": how the opening hours read, and the test drive times with them.
+export const clock12 = (hhmm: string) => {
+  const [h, m] = hhmm.split(":").map(Number);
+  return `${h % 12 || 12}${m ? `:${String(m).padStart(2, "0")}` : ""}${h < 12 ? "am" : "pm"}`;
+};
 export const fmtDay = (iso: string) => threeLetter(longDay.format(new Date(`${iso}T12:00:00Z`)));
 // The Irish calendar day of a moment, as YYYY-MM-DD, and a day n days on.
 export const dublinDay = (t: number = Date.now()) => new Date(t).toLocaleDateString("en-CA", { timeZone });

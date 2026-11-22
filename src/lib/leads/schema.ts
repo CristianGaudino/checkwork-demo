@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { FINANCE } from "@/lib/finance/finance.config";
 import { PRICE_STOPS } from "@/lib/stock/types";
-import { BAD_DRIVE_DAY, BAD_DRIVE_TIME, BAD_KM, driveDays, driveTimes, phoneError, BAD_REG, CONTACT_ERROR, EMPLOYMENT, KM_PATTERN, LIMITS, REG_PATTERN, SOURCING_BODIES, SOURCING_CAR_ERROR } from "./constants";
+import { BAD_DRIVE_DAY, BAD_DRIVE_TIME, BAD_KM, driveDays, driveTimes, phoneError, BAD_REG, CONTACT_ERROR, PHONE_FOR_CONTACT_ERROR, EMAIL_FOR_CONTACT_ERROR, EMPLOYMENT, KM_PATTERN, LIMITS, REG_PATTERN, SOURCING_BODIES, SOURCING_CAR_ERROR } from "./constants";
 import { DAY } from "../time";
 import { regPeriods } from "./reg-periods";
 import { dublinDay, dublinMs } from "@/lib/format";
@@ -164,7 +164,10 @@ export const leadSchema = z
       .refine((d) => Boolean(d.make || d.model || d.bodyType), { path: ["make"], message: SOURCING_CAR_ERROR, when: (p) => typeof p.value === "object" && p.value !== null }),
     z
       .object({ type: z.literal("general"), ...contact, ...general })
-      .refine(needsMessage, { path: ["message"], message: "Tell us how we can help.", when: (p) => typeof p.value === "object" && p.value !== null }),
+      .refine(needsMessage, { path: ["message"], message: "Tell us how we can help.", when: (p) => typeof p.value === "object" && p.value !== null })
+      // A call or a WhatsApp needs a number to reach, an email needs an address.
+      .refine((d) => !(d.contactVia === "call" || d.contactVia === "whatsapp") || Boolean(d.phone), { path: ["phone"], message: PHONE_FOR_CONTACT_ERROR, when: (p) => typeof p.value === "object" && p.value !== null })
+      .refine((d) => d.contactVia !== "email" || Boolean(d.email), { path: ["email"], message: EMAIL_FOR_CONTACT_ERROR, when: (p) => typeof p.value === "object" && p.value !== null }),
     z.object({ type: z.literal("order"), ...contact, ...order }),
     z.object({ type: z.literal("trade_in"), ...contact, ...tradeIn }),
     z

@@ -25,7 +25,7 @@ Everything above, then:
 |---|---|
 | Name, domain, slug, phone, email, address, hours, social links, warranty, services, "facts confirmed" flag | `src/lib/site.ts` |
 | Finance figures and the lender's wording | `src/lib/finance/finance.config.ts` (the dealer supplies them; never invent an APR) |
-| Consent wording | `CONSENT` in `src/lib/leads/constants.ts`. New wording is a new version: add it to the frozen list in `src/lib/leads/consent.test.ts`. |
+| Consent wording | `CONSENT` and `ALERT_CONSENT` in `src/lib/leads/constants.ts`. New wording is a new version: add it to the frozen list in `src/lib/leads/consent.test.ts`. |
 | Home page words and counts | `src/lib/home.config.ts` |
 | New car franchises | `src/lib/partners.ts` |
 | Memberships and partners (SIMI, AA Approved Dealer, warranty provider, lenders), with their logos and permission | `src/lib/affiliations.ts` and `public/affiliations/`. Empty on the demo. How, the Irish options and the wording: `docs/affiliations.md` |

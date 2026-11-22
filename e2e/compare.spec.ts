@@ -108,8 +108,31 @@ test("a fourth car is refused and said so, and the list stays at three", async (
   for (const p of paths.slice(0, 3)) await compare(page, p);
   const fourth = await compare(page, paths[3]);
   await expect(fourth).toHaveAttribute("aria-pressed", "false");
-  await expect(page.getByText("You can compare up to three cars.")).toBeAttached();
+  await expect(page.getByTestId("toast")).toContainText("You can compare up to three cars.");
+  await expect(page.getByTestId("toast")).toBeVisible();
   await expect(page.getByRole("region", { name: "Compare cars" })).toContainText("3 of 3 to compare");
+});
+
+test("the compare pill folds down to a small button and opens again", async ({ page }) => {
+  const [a] = await carPaths(page, 1);
+  await compare(page, a);
+  const bar = page.getByRole("region", { name: "Compare cars" });
+  await bar.getByRole("button", { name: "Hide" }).click();
+  await expect(bar.getByRole("link", { name: "Compare" })).toHaveCount(0);
+  const show = bar.getByRole("button", { name: "Show compare, 1 of 3" });
+  await expect(show).toBeFocused(); // the button swapped in takes focus
+  await show.click();
+  const hide = bar.getByRole("button", { name: "Hide" });
+  await expect(hide).toBeFocused();
+  await expect(bar).toContainText("1 of 3 to compare");
+  // A later mount takes none: the bar is gone on /compare and back on the car page, with no reload in between.
+  await bar.getByRole("link", { name: "Compare" }).click();
+  await expect(page).toHaveURL(/\/compare/);
+  await ready(page);
+  await cards(page).first().getByRole("heading").getByRole("link").click();
+  await expect(page).toHaveURL(a);
+  await expect(hide).toBeVisible();
+  await expect(hide).not.toBeFocused();
 });
 
 test("the compare page is empty to start with and not indexed", async ({ page }) => {

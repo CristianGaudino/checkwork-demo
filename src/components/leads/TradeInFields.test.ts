@@ -2,6 +2,7 @@ import { vi, describe, expect, it } from "vitest";
 import { BAD_KM, BAD_REG, PHOTO_MIN_COUNT, PHOTO_MIN_ERROR } from "@/lib/leads/constants";
 import { fieldErrors } from "@/lib/leads/validate";
 import { TRADE_IN_STEPS } from "./TradeInFields";
+import { nextSlots } from "./PhotoPicker";
 
 vi.mock("server-only", () => ({})); // the lookup button imports its server action, which the test only needs to load
 
@@ -47,4 +48,11 @@ describe("trade-in steps", () => {
     const owned = TRADE_IN_STEPS.flatMap((s) => s.fields);
     for (const f of ["reg", "mileage", "make", "model", "year", "message", "photos", "name", "phone", "email", "consent"]) expect(owned, f).toContain(f);
   });
+});
+
+describe("which slots new photos take", () => {
+  const free = ["Back", "Passenger's side", "Interior front"];
+  it("fills the free slots in order", () => expect(nextSlots(free, 2)).toEqual(["Back", "Passenger's side"]));
+  it("puts the first photo in the slot that was tapped, when it is free", () => expect(nextSlots(free, 2, "Interior front")).toEqual(["Interior front", "Back"]));
+  it("ignores a tapped slot that is already taken, and names no more photos than there are slots", () => expect(nextSlots(free, 5, "Front")).toEqual(free));
 });

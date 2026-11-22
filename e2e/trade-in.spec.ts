@@ -13,7 +13,7 @@ async function open(page: Page) {
 }
 
 const next = (page: Page) => page.getByRole("button", { name: "Next", exact: true });
-const send = (page: Page) => page.getByRole("button", { name: "Get my offer" });
+const send = (page: Page) => page.getByRole("button", { name: "Send for valuation" });
 
 // The four steps: your car, condition, photos, your details.
 async function car(page: Page, reg = "191-KY-1234", km = "120500") {
@@ -160,6 +160,21 @@ test("a photo is shrunk, previewed and sent with the valuation request", async (
   await contact(page);
   await send(page).click();
   await expect(page.getByRole("heading", { name: "Thanks, we have your car details." })).toBeFocused();
+});
+
+test("a photo keeps its slot name when another is removed, and the freed slot is offered again", async ({ page }) => {
+  await open(page);
+  await toStep(page, 3);
+  await picker(page).setInputFiles(files(await jpeg(page), 3)); // Front, Back, Driver's side
+  await expect(tiles(page)).toHaveCount(3);
+  await page.getByRole("button", { name: "Remove photo 2: Back" }).click();
+  await expect(tiles(page)).toHaveCount(2);
+  await expect(page.getByRole("img", { name: "Photo 1: Front", exact: true })).toBeVisible();
+  await expect(page.getByRole("img", { name: "Photo 2: Driver's side", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Add photo: Back/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Add photo: Driver's side/ })).toHaveCount(0);
+  await picker(page).setInputFiles(files(await jpeg(page), 1));
+  await expect(page.getByRole("img", { name: "Photo 3: Back", exact: true })).toBeVisible(); // the freed slot is filled first
 });
 
 test("a removed photo leaves the grid and is announced", async ({ page }) => {

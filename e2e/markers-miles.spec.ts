@@ -22,7 +22,7 @@ test.describe("on a desktop", () => {
   test("km or miles: one switch changes every mileage on the page, and the choice is remembered", async ({ page }) => {
     await page.goto(`/used-cars/${plain.slug}`);
     const km = new Intl.NumberFormat("en-IE").format(plain.mileageKm!);
-    const miles = new Intl.NumberFormat("en-IE").format(Math.round(plain.mileageKm! / 1.609344));
+    const miles = new Intl.NumberFormat("en-IE").format(Math.round(plain.mileageKm! / 1.609344 / 100) * 100); // to the nearest hundred, as the site shows miles
     await expect(page.getByTestId("buy-box").getByText(`${km} km`).first()).toBeVisible();
     await page.getByRole("group", { name: "Mileage in" }).getByRole("button", { name: "miles" }).click();
     await expect(page.getByTestId("buy-box").getByText(`${miles} miles`).first()).toBeVisible();

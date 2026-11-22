@@ -13,7 +13,7 @@ export function PageHeading({ title, intro, actions, picture }: { title: string;
       {intro && <p className="mt-2 max-w-measure text-pretty text-body">{intro}</p>}
     </div>
   );
-  const buttons = actions && <div className={`mt-6 flex flex-col gap-3 sm:flex-row ${picture ? "" : "lg:mt-0 lg:shrink-0"}`}>{actions}</div>;
+  const buttons = actions && <div className={`mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap ${picture ? "" : "lg:mt-0 lg:shrink-0"}`}>{actions}</div>;
   if (picture) {
     return (
       <div className="grid grid-cols-1 items-center gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:gap-12">

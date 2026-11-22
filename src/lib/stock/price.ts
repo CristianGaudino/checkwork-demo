@@ -6,7 +6,7 @@ import { isReduced, isSold, onRequest, type Car } from "./types";
 
 export type PriceInfo = {
   headline: string; // "Sold", or the price as advertised
-  vatLine?: string; // what the headline means: "Inc. VAT" or "Ex. VAT, reclaimable"
+  vatLine?: string; // what the headline means: "Inc. VAT" or "Ex. VAT"
   incVat?: string; // under an ex. VAT price: the same price with VAT on, "€30,258 inc. VAT"
   was?: string; // the earlier price, struck through
   drop?: string; // "Reduced by €500": words, so colour is never the only sign

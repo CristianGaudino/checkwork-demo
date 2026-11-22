@@ -36,7 +36,7 @@ export default async function SellYourCarPage() {
       <LeadPageForm
         form="sell"
         cars={cars}
-        submitLabel="Get my offer"
+        submitLabel="Send for valuation"
         success={{ heading: "Thanks, we have your car details.", body: "We'll contact you with an offer. It's an estimate until we've seen the car." }}
       />
     </LeadPage>

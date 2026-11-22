@@ -2,7 +2,7 @@
 export const HOME = {
   featuredCount: 6, // cars in the featured grid
   shopByTypeMax: 6, // Browse by type tiles
-  makeChipsMax: 20, // make chips: the makes in stock, then the popular ones
+  makeChipsMax: 20, // make chips: the makes in stock
   heroTitle: "Find your next car",
   heroIntro: "A carefully selected range of quality cars, with plain answers and no pressure.",
   heroPhoto: "/brand/hero.webp", // the big hero tile (1448x1086, 4:3: cropped by its box)

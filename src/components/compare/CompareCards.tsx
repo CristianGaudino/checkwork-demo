@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useSyncExternalStore } from "react";
 import { PhotoCarousel } from "@/components/stock/PhotoCarousel";
+import { SoldBadge } from "@/components/stock/SoldBadge";
 import { SkeletonCards } from "@/components/stock/SkeletonCards";
 import { EmptyCars, StockError } from "@/components/stock/StockError";
 import { CloseIcon, PlusIcon } from "@/components/stock/icons";
@@ -34,7 +35,13 @@ export const ROWS: Row[] = [
       return p.incVat ? <span className="flex flex-col items-end">{p.headline}<span className="text-meta font-normal text-text-2">{p.incVat}</span></span> : p.headline;
     }, better: "low" },
   // The car page's own estimate (the calculator's defaults), with the lender's wording under the cards.
-  { label: "Finance", number: financeMonthlyEur, text: (c) => { const m = financeMonthlyEur(c); return m === undefined ? undefined : `${fmtEur(m)} ${PRICING.labels.perMonth}`; }, better: "low" },
+  // With no figure, a word on why: a deposit is on it, the price is on request, or the price is outside what the lender covers.
+  { label: "Finance", number: financeMonthlyEur, text: (c) => {
+      const m = financeMonthlyEur(c);
+      if (m !== undefined) return `${fmtEur(m)} ${PRICING.labels.perMonth}`;
+      if (isSold(c)) return undefined;
+      return <span className="font-normal text-text-2">{c.reserved ? "Reserved" : onRequest(c) ? "Ask us" : "Not offered"}</span>;
+    }, better: "low" },
   { label: "Year", number: (c) => c.year, text: (c) => String(c.year), better: "high" },
   { label: "Mileage", number: (c) => c.mileageKm, text: (c) => (c.mileageKm === undefined ? undefined : <Mileage km={c.mileageKm} />), better: "low" },
   { label: "Fuel", text: spec("Fuel") },
@@ -124,6 +131,7 @@ export function CompareCards() {
           Clear all
         </button>
       </div>
+      {cars.length > 1 && <p className="mb-4 text-meta text-text-2">▲ Higher, ▼ lower. Green is the better figure, red the weaker.</p>}
       {loaded.gone > 0 && <p className="mb-4 text-meta text-text-2">A car you picked is no longer for sale, so it was removed.</p>}
       {/* From md each card is four rows (photo, title, figures, equipment) of a shared grid, so a title that wraps pushes the figures of every card down. */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -132,6 +140,7 @@ export function CompareCards() {
             <div className="relative aspect-photo bg-photo-bg">
               {/* The same swipeable photos as a stock card, so cars compare by look as well as by figures. */}
               <PhotoCarousel photos={car.photos} href={carHref(car.slug)} label={carTitle(car)} priority={false} />
+              {(isSold(car) || car.reserved) && <SoldBadge hidden={isSold(car)} reserved={!isSold(car)} className="pointer-events-none absolute left-4 top-4 z-20" />}
               <button
                 type="button"
                 aria-label={`Remove ${carTitle(car)}`}

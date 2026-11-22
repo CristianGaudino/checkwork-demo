@@ -30,4 +30,9 @@ export function setUnit(u: Unit) {
   listeners.forEach((l) => l());
 }
 
-export const formatMileage = (km: number, unit: Unit) => (unit === "miles" ? `${fmtNum(Math.round(km / KM_PER_MILE))} miles` : formatKm(km));
+// Miles are a conversion, so they read to the nearest hundred ("51,100 miles", not "51,139"); under 1,000 to the mile, so a new car is not "0 miles".
+const toMiles = (km: number) => {
+  const m = km / KM_PER_MILE;
+  return m < 1000 ? Math.round(m) : Math.round(m / 100) * 100;
+};
+export const formatMileage = (km: number, unit: Unit) => (unit === "miles" ? `${fmtNum(toMiles(km))} miles` : formatKm(km));

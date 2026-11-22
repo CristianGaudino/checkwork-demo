@@ -20,7 +20,7 @@ describe("priceInfo", () => {
   it("names the VAT status, and gives the inc. VAT figure under an ex. VAT price", () => {
     expect(priceInfo({ priceEur: 20000, vat: "inc" }).vatLine).toBe("Inc. VAT");
     const ex = priceInfo({ priceEur: 20000, vat: "ex" });
-    expect(ex.vatLine).toBe("Ex. VAT, reclaimable");
+    expect(ex.vatLine).toBe("Ex. VAT");
     expect(ex.incVat).toBe("€24,600 inc. VAT");
   });
   it("works finance out on the VAT-inclusive price", () => {

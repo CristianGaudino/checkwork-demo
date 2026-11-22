@@ -19,6 +19,10 @@ import { glass, press } from "@/components/ui";
 
 const size = (photos: Blob[]) => photos.reduce((n, p) => n + p.size, 0);
 
+// The slots new photos take: the one the buyer tapped first (when still free), then the free ones in order.
+export const nextSlots = (free: readonly string[], n: number, wanted?: string) =>
+  (wanted && free.includes(wanted) ? [wanted, ...free.filter((s) => s !== wanted)] : free).slice(0, n);
+
 // Trade-in photos (D-13, UI-SPEC Photos). Each pick is shrunk on the device before it is kept, so only the re-encoded JPEG is
 // ever held or sent. The photos live in LeadForm's state, which outlives a failed send; the file input is only a way to add more.
 export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], min = 0, max = PHOTO_MAX_COUNT }: PhotoBinding & { slots?: readonly string[]; min?: number; max?: number }) {
@@ -26,6 +30,11 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
   const picker = useRef<HTMLInputElement>(null);
+  // Each photo's slot, kept with the photo itself, so removing one frees its own slot and the other names stay put. The list LeadForm
+  // holds and sends is untouched: plain photos, in the order added.
+  const [slotOf] = useState(() => new WeakMap<Blob, string>());
+  const wanted = useRef<string | undefined>(undefined); // the empty slot tapped to open the picker
+  const free = slots.filter((s) => !photos.some((p) => slotOf.get(p) === s));
   const helperId = `${id}-helper`;
   const errorId = error ? `${id}-error` : undefined;
 
@@ -56,7 +65,14 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
     }
     // Added to the list as it is now, so a tile removed while these were shrinking stays removed. Removing only lowers the
     // count and total checked above (and can leave the announced count one high, which is harmless).
-    onChange((prev) => [...prev, ...added]);
+    const want = wanted.current;
+    wanted.current = undefined;
+    onChange((prev) => {
+      const taken = new Set(prev.map((p) => slotOf.get(p)));
+      const names = nextSlots(slots.filter((s) => !taken.has(s)), added.length, want);
+      added.forEach((p, i) => names[i] && !slotOf.has(p) && slotOf.set(p, names[i])); // has(): an updater run twice names a photo once
+      return [...prev, ...added];
+    });
     setMessages([...refused]);
     if (added.length) setStatus(`${added.length} ${added.length === 1 ? "photo" : "photos"} added. ${photos.length + added.length} of ${max} photos.`);
     setBusy(false);
@@ -78,30 +94,41 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
         {min ? `${photos.length} of ${min} needed. More is better. ` : ""}Up to {max} photos. JPEG, PNG or WebP, {PHOTO_MAX_MB} MB each.
       </p>
       <ul className="grid grid-cols-2 gap-2 min-[480px]:grid-cols-3 sm:grid-cols-4">
-        {photos.map((photo, i) => (
-          <li key={i} className="relative aspect-photo overflow-hidden rounded-control bg-photo-bg">
-            <Preview blob={photo} alt={`Photo ${i + 1}`} />
-            <button
-              type="button"
-              onClick={() => remove(i)}
-              aria-label={`Remove photo ${i + 1}`}
-              className={`absolute right-0 top-0 flex size-11 items-center justify-center ${press}`}
-            >
-              <span className={`flex size-7 items-center justify-center ${glass}`}>
-                <CloseIcon className="size-5" />
-              </span>
-            </button>
-          </li>
-        ))}
+        {photos.map((photo, i) => {
+          const slot = slotOf.get(photo);
+          return (
+            <li key={i} className="relative aspect-photo overflow-hidden rounded-control bg-photo-bg">
+              <Preview blob={photo} alt={`Photo ${i + 1}${slot ? `: ${slot}` : ""}`} />
+              {slot && (
+                <span aria-hidden="true" className={`absolute bottom-1 left-1 max-w-[calc(100%-0.5rem)] truncate px-2 py-0.5 text-meta font-semibold ${glass}`}>
+                  {slot}
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => remove(i)}
+                aria-label={`Remove photo ${i + 1}${slot ? `: ${slot}` : ""}`}
+                className={`absolute right-0 top-0 flex size-11 items-center justify-center ${press}`}
+              >
+                <span className={`flex size-7 items-center justify-center ${glass}`}>
+                  <CloseIcon className="size-5" />
+                </span>
+              </button>
+            </li>
+          );
+        })}
         {/* An empty slot for each thing to photograph that has no photo yet: a tap opens the picker. The first `min` are the required ones. */}
         {photos.length < max &&
-          slots.slice(photos.length).map((name, k) => (
+          free.map((name, k) => (
             <li key={name}>
               {/* A button, not a label: the file input would otherwise take every slot's name as its own. */}
               <button
                 type="button"
                 disabled={busy}
-                onClick={() => picker.current?.click()}
+                onClick={() => {
+                  wanted.current = name;
+                  picker.current?.click();
+                }}
                 aria-label={`Add photo: ${name}, ${photos.length + k < min ? "required" : "recommended"}`}
                 className="flex aspect-photo w-full cursor-pointer flex-col items-center justify-center gap-0.5 rounded-control border border-dashed border-control px-2 py-1 text-center text-meta text-text-2 transition-colors hover:border-text hover:text-text disabled:cursor-default disabled:opacity-60"
               >
@@ -112,7 +139,7 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
             </li>
           ))}
         {/* The input stays in the page at 12 so a summary link can still reach it; only the Add tile goes. */}
-        <li className={photos.length >= max ? "sr-only" : photos.length < slots.length ? "sr-only" : "relative"}>
+        <li className={photos.length >= max || free.length ? "sr-only" : "relative"}>
           <input
             ref={picker}
             id={id}
@@ -126,7 +153,7 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
             onChange={(e) => add(e.currentTarget)}
             className="peer sr-only"
           />
-          {photos.length < max && photos.length >= slots.length && (
+          {photos.length < max && !free.length && (
             <label
               htmlFor={id}
               aria-busy={busy}

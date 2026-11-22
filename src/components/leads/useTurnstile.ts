@@ -55,6 +55,8 @@ export function useTurnstile(slot: React.RefObject<HTMLDivElement | null>) {
           action: "lead",
           appearance: "interaction-only",
           execution: "render",
+          // A challenge drawn after a failed send sits at the foot of the form: bring it into view.
+          "before-interactive-callback": () => slot.current?.scrollIntoView({ block: "nearest" }),
           callback: (t: string) => setToken(t),
           "error-callback": () => setToken(""),
           "expired-callback": () => setToken(""),
