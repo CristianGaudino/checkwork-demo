@@ -13,7 +13,7 @@ async function open(page: Page) {
 }
 
 const next = (page: Page) => page.getByRole("button", { name: "Next", exact: true });
-const send = (page: Page) => page.getByRole("button", { name: "Get my offer" });
+const send = (page: Page) => page.getByRole("button", { name: "Send for valuation" });
 
 // The four steps: your car, condition, photos, your details.
 async function car(page: Page, reg = "191-KY-1234", km = "120500") {

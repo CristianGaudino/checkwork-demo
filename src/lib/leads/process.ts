@@ -5,7 +5,7 @@ import type { Car } from "@/lib/stock/types";
 import { carTitle } from "@/lib/stock/format";
 import { buildLeadEmail } from "./email";
 import type { PhotoBucket } from "./bindings";
-import { CONSENT, DRIVE_TIME_TAKEN, PHOTO_LIMITS, PHOTO_MIN_ERROR, PHOTO_STORED_MAX_BYTES, PHOTO_TOTAL_ERROR, PHOTO_TOTAL_MAX_BYTES, photoCountError, photoError } from "./constants";
+import { ALERT_CONSENT, CONSENT, DRIVE_TIME_TAKEN, PHOTO_LIMITS, PHOTO_MIN_ERROR, PHOTO_STORED_MAX_BYTES, PHOTO_TOTAL_ERROR, PHOTO_TOTAL_MAX_BYTES, photoCountError, photoError } from "./constants";
 import { parseJourney } from "./journey";
 import type { Journey } from "./journey";
 import { signPhotoPath, sniffImage } from "./photos";
@@ -170,7 +170,7 @@ export async function processLead(fd: FormData, ctx: { ip: string }, deps: Deps)
       ),
       photoKeys: [],
       consentAt: new Date(),
-      consentVersion: CONSENT.version,
+      consentVersion: (input.type === "alert" ? ALERT_CONSENT : CONSENT).version,
     };
     const journey = parseJourney(fd.get("journey")); // a forged or broken note is dropped, never the lead
     if (journey) row.journey = journey;

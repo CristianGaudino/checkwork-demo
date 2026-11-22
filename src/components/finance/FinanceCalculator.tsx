@@ -144,7 +144,7 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
               }}
               className={`mt-auto flex h-12 w-full items-center justify-center gap-2 rounded-control border border-control bg-card px-6 font-semibold ${press}`}
             >
-              Apply
+              Ask about finance
               <ArrowRightIcon className="size-5" />
             </button>
           ) : (
@@ -157,7 +157,7 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
       </div>
       {car && (
         <LeadDialog
-          title="Apply"
+          title="Ask about finance"
           open={open}
           onClose={() => {
             setOpen(false);

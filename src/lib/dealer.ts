@@ -1,14 +1,10 @@
 import type { Reviews } from "@/lib/reviews";
 import { AFFILIATIONS, affiliationsOf, type Affiliation } from "@/lib/affiliations";
+import { clock12 } from "@/lib/format";
 import { DEALER_ADDRESS, DEALER_FACTS_CONFIRMED, DEALER_TEL, OPENING_HOURS, SITE_NAME, SITE_URL } from "@/lib/site";
 
-// "09:00" -> "9am", "17:30" -> "5:30pm", "12:00" -> "12pm".
-const time = (hhmm: string) => {
-  const [h, m] = hhmm.split(":").map(Number);
-  return `${h % 12 || 12}${m ? `:${String(m).padStart(2, "0")}` : ""}${h < 12 ? "am" : "pm"}`;
-};
 
-export const formatHours = ({ opens, closes }: { opens?: string; closes?: string }) => (opens && closes ? `${time(opens)} to ${time(closes)}` : "Closed");
+export const formatHours = ({ opens, closes }: { opens?: string; closes?: string }) => (opens && closes ? `${clock12(opens)} to ${clock12(closes)}` : "Closed");
 
 // Consecutive days with the same hours become one row: "Monday to Friday 9:30am to 6pm".
 export function groupHours(days: typeof OPENING_HOURS = OPENING_HOURS): { label: string; hours: string }[] {

@@ -5,7 +5,7 @@ import type { Car } from "@/lib/stock/types";
 import { processLead, snapshotCar } from "./process";
 import { verifyTurnstile } from "./turnstile";
 import type { Deps, LeadRow } from "./process";
-import { CONSENT, DRIVE_TIME_TAKEN, PHOTO_MIN_COUNT, driveDays, driveTimes } from "./constants";
+import { ALERT_CONSENT, CONSENT, DRIVE_TIME_TAKEN, PHOTO_MIN_COUNT, driveDays, driveTimes } from "./constants";
 
 const cars = demoCars as Car[];
 const live = cars.find((c) => !c.soldAt)!;
@@ -70,6 +70,12 @@ describe("processLead, enquiry tracer", () => {
 
     expect(lines()).toEqual([{ leadId: row.id, type: "enquiry", outcome: "stored" }]);
     expect(Object.keys(lines()[0]).sort()).toEqual(["leadId", "outcome", "type"]);
+  });
+
+  it("stores a stock alert under the alert's own consent version", async () => {
+    const { deps, rows } = fakeDeps();
+    expect(await processLead(enquiryForm({ type: "alert", alertKind: "price-drop", name: "" }), ctx, deps)).toEqual({ status: "ok" });
+    expect(rows[0].consentVersion).toBe(ALERT_CONSENT.version);
   });
 
   it("answers ok with no mail when insert loses a double-submit race", async () => {

@@ -72,7 +72,7 @@ test("/finance switches to PCP: the monthly payment, the optional final payment,
 test("/finance is the estimator only: no car picker, no application, a button to choose a car, and the facts", async ({ page }) => {
   await open(page, "/finance");
   await expect(calc(page).getByLabel("Car")).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Apply" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Ask about finance" })).toHaveCount(0);
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Select a car to enquire" })).toHaveAttribute("href", "/used-cars");
   // The estimate wording is said once, in the dealer's notice under the calculator.
@@ -119,13 +119,13 @@ test.describe("finance application", () => {
   test.skip(Boolean(process.env.E2E_BASE_URL), "Lead specs never run against a deployed site");
   test.beforeEach(async ({ page }) => stubTurnstile(page));
 
-  test("Apply carries the deposit and term over, needs employment, asks nothing about money or identity", async ({ page }) => {
+  test("Ask about finance carries the deposit and term over, needs employment, asks nothing about money or identity", async ({ page }) => {
     await open(page, `/used-cars/${live.slug}`);
     await calc(page).getByLabel("Deposit").fill("4000");
     await choose(calc(page).getByLabel("Term"), "36 months");
-    await page.getByRole("button", { name: "Apply" }).click();
+    await page.getByRole("button", { name: "Ask about finance" }).click();
 
-    const d = page.getByRole("dialog", { name: "Apply" });
+    const d = page.getByRole("dialog", { name: "Ask about finance" });
     await expect(d).toBeVisible();
     await expect(d.getByLabel("Deposit")).toHaveValue("4000");
     await expect(d.getByLabel("Term")).toHaveValue("36 months");
@@ -144,14 +144,14 @@ test.describe("finance application", () => {
     await expect(d.getByRole("heading", { name: "Thanks, we have your details." })).toBeFocused();
   });
 
-  test("Apply on PCP carries PCP over with the deposit and term", async ({ page }) => {
+  test("Ask about finance on PCP carries PCP over with the deposit and term", async ({ page }) => {
     test.skip(!FINANCE.pcp, "This dealer offers hire purchase only");
     await open(page, `/used-cars/${live.slug}`);
     await calc(page).getByRole("button", { name: "PCP" }).click();
     await calc(page).getByLabel("Deposit").fill("4000");
     await choose(calc(page).getByLabel("Term"), "24 months");
-    await page.getByRole("button", { name: "Apply" }).click();
-    const d = page.getByRole("dialog", { name: "Apply" });
+    await page.getByRole("button", { name: "Ask about finance" }).click();
+    const d = page.getByRole("dialog", { name: "Ask about finance" });
     await expect(d.getByLabel("Type of finance")).toHaveValue("PCP");
     await expect(d.getByLabel("Deposit")).toHaveValue("4000");
     await expect(d.getByLabel("Term")).toHaveValue("24 months");
@@ -164,10 +164,10 @@ test.describe("finance application", () => {
     await expect(calc(page).getByLabel("Price")).toHaveCount(0); // text, not an input
     await expect(result(page)).toContainText(/About €[\d,]+ a month/);
 
-    const apply = page.getByRole("button", { name: "Apply" });
+    const apply = page.getByRole("button", { name: "Ask about finance" });
     await expect(apply).not.toHaveClass(/bg-accent/); // Enquire keeps the page's one accent
     await apply.click();
-    const d = page.getByRole("dialog", { name: "Apply" });
+    const d = page.getByRole("dialog", { name: "Ask about finance" });
     await expect(d).toBeVisible();
     await expect(d.getByText([live.make, live.model, live.variant].filter(Boolean).join(" "))).toBeVisible();
     await expect(d.getByText(price(live.priceEur))).toBeVisible();
