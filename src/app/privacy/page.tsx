@@ -56,9 +56,9 @@ export default function PrivacyPage() {
           If you send us a request, it goes with it, so we know which ways of finding us work.
         </p>
         <p>
-          The site also notes what you look at on this visit: the cars you open, the filters you use, and whether you try the finance calculator,
-          start a valuation, or save or compare cars. It is kept in your browser, not in a cookie, and is gone when you close the tab. We only see it
-          if you switch on sharing it when you send us a request.
+          The site also notes what you look at on this visit: the cars you open, the filters you use, the monthly figure the finance calculator last
+          showed you, whether you start a valuation, how many cars you save or compare, and how long you have been on the site. It is kept in your
+          browser, not in a cookie, and is gone when you close the tab. We only see it if you switch on sharing it when you send us a request.
         </p>
       </InfoSection>
       <InfoSection title="Why we use it">
