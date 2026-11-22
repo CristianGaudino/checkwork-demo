@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
-import { startDashStub } from "./dash-stub";
+import { dashBodies } from "./dash-stub";
 import type { DashBody } from "./dash-stub";
 import { stubTurnstile } from "./turnstile";
 
@@ -13,9 +13,6 @@ type Demo = { id: string; slug: string; soldAt?: string };
 const live = (JSON.parse(readFileSync(join(process.cwd(), "src/lib/stock/demo-cars.json"), "utf8")) as Demo[]).filter((c) => !c.soldAt);
 const [first, second] = live;
 
-let stub: Awaited<ReturnType<typeof startDashStub>>;
-test.beforeAll(async () => (stub = await startDashStub()));
-test.afterAll(() => new Promise<void>((done) => stub.server.close(() => done())));
 test.beforeEach(async ({ page }) => stubTurnstile(page));
 
 // A tap before React attaches does nothing.
@@ -41,8 +38,10 @@ async function send(page: Page, name: string): Promise<DashBody> {
   await d.getByRole("checkbox").check();
   await d.getByRole("button", { name: "Send enquiry" }).click();
   await expect(d.getByRole("heading", { name: "Thanks, we have your enquiry." })).toBeVisible();
-  await expect.poll(() => stub.bodies.find((b) => b.lead.name === name)).toBeTruthy();
-  return stub.bodies.find((b) => b.lead.name === name)!;
+  // Found by the name, which no other spec sends: the stub takes every spec's leads.
+  let body: DashBody | undefined;
+  await expect.poll(async () => (body = (await dashBodies()).find((b) => b.lead.name === name))).toBeTruthy();
+  return body!;
 }
 
 test("the enquiry offers to share the cars and the search, off by default, and says what would go", async ({ page }) => {
