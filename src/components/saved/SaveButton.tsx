@@ -6,7 +6,6 @@ import { showToast } from "@/components/toast";
 import { restoreSaved, toggleSaved, useSavedIds } from "@/lib/saved/store";
 import { glass, press } from "@/components/ui";
 import { count } from "@/lib/count-client";
-import { noteCount } from "@/lib/visit-note";
 
 const looks = {
   // Over a photo: a frosted scrim circle, solid ink when the buyer asks for less transparency.
@@ -31,7 +30,6 @@ export function SaveButton({ id, label, variant }: { id: string; label: string; 
           e.stopPropagation();
           const result = toggleSaved(id);
           if (result === "saved") count("saved");
-          if (result !== "full") noteCount("saved", result === "saved" ? 1 : -1);
           // A removal is announced by its toast, which has the Undo.
           if (result === "removed") showToast("Removed from saved", () => restoreSaved([id]));
           setSaid(result === "saved" ? "Saved" : result === "removed" ? "" : "Your saved list is full. Remove a car to save another.");

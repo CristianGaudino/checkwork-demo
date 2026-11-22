@@ -2,8 +2,8 @@ import { useMemo } from "react";
 import { createLocalStore } from "@/lib/local-store";
 import { ID } from "@/lib/saved/ids";
 
-// A list of car ids kept in this browser, for saved cars and the compare list.
-export function createIdStore(key: string, max: number) {
+// A list of car ids kept in this browser, for saved cars and the compare list. onSet hears the new length after every change.
+export function createIdStore(key: string, max: number, onSet?: (length: number) => void) {
   const store = createLocalStore(key, "[]");
 
   // The stored value can be edited by the user or an extension: keep digit-string ids only, deduped, capped.
@@ -18,7 +18,11 @@ export function createIdStore(key: string, max: number) {
     return [...new Set(value.filter((v): v is string => typeof v === "string" && ID.test(v)))].slice(0, max);
   }
 
-  const set = (ids: string[]) => store.write(JSON.stringify(ids.slice(0, max)));
+  function set(ids: string[]) {
+    const kept = ids.slice(0, max);
+    store.write(JSON.stringify(kept));
+    onSet?.(kept.length);
+  }
 
   function useIds(): string[] {
     const raw = store.useRaw();
