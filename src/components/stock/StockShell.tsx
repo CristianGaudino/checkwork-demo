@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useId, useOptimistic, useRef, useState, useTransition } from "react";
 import { count, countFilters } from "@/lib/count-client";
 import { missedMake } from "@/lib/visit-rules";
+import { noteSearch } from "@/lib/visit-note";
 import { countLabel } from "@/lib/stock/format";
 import { appliedFilters, clearFilters, sourcingHref, stockHref } from "@/lib/stock/query";
 import { SORT_KEYS } from "@/lib/stock/types";
@@ -101,6 +102,7 @@ export function StockShell({ query, title, summary, orderable, children }: { que
   const [held, setHeld] = useState(summary?.facets ?? null);
   if (summary && summary.facets !== held) setHeld(summary.facets); // adjusting state during render, not an effect
   useEffect(() => rememberList(query), [query]); // so the car page can link back to this list
+  useEffect(() => noteSearch(query), [query]); // the filters this visit used, for an enquiry the buyer shares it with
 
   // Back from a car with the Stock link: return to the place in the list the buyer left (the browser's own Back button restores it itself).
   useEffect(() => {

@@ -5,6 +5,7 @@ import { SwapIcon } from "@/components/stock/icons";
 import { secondaryButton } from "@/components/ui";
 import { showToast } from "@/components/toast";
 import { count } from "@/lib/count-client";
+import { noteCount } from "@/lib/visit-note";
 import { restoreCompare, toggleCompare, useCompareIds } from "@/lib/compare/store";
 
 // On the car page only: the cards carry just the heart, so a photo is not buried in buttons.
@@ -22,6 +23,7 @@ export function CompareButton({ id, label, sizing = "inline-flex h-11 px-4" }: {
         onClick={() => {
           const result = toggleCompare(id);
           if (result === "added") count("compare");
+          if (result !== "full") noteCount("compared", result === "added" ? 1 : -1);
           if (result === "removed") showToast("Removed from compare", () => restoreCompare([id]));
           setSaid(result === "added" ? "Added to compare" : result === "removed" ? "" : "You can compare up to three cars. Remove one to add another.");
         }}
