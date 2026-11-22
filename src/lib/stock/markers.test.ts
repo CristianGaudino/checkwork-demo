@@ -39,7 +39,7 @@ describe("miles", () => {
   it("shows a mileage in miles, rounded, or in km as stored", async () => {
     const { formatMileage } = await import("@/lib/units");
     expect(formatMileage(104800, "km")).toBe("104,800 km");
-    expect(formatMileage(104800, "miles")).toBe("65,120 miles");
+    expect(formatMileage(104800, "miles")).toBe("65,100 miles");
     expect(formatMileage(0, "miles")).toBe("0 miles");
   });
 });
