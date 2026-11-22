@@ -103,6 +103,30 @@ describe("snapshotCar", () => {
   });
 });
 
+describe("processLead, the shared visit note (#249)", () => {
+  const journey = { v: 1, minutes: 3, cars: [{ id: live.id, views: 2 }], searches: [{ make: "audi", condition: "used" }], tools: { tradeIn: true } };
+  const sentRows = async (fields: Record<string, string>) => {
+    const { deps, mail } = fakeDeps();
+    const sent: LeadRow[] = [];
+    deps.toAdmin = async (row) => void sent.push(row);
+    expect(await processLead(enquiryForm(fields), ctx, deps)).toEqual({ status: "ok" });
+    expect(mail[0].text).not.toContain("audi"); // the dealer's email leaves it out
+    return sent;
+  };
+
+  it("with the switch off (no field) the row carries no journey", async () => {
+    expect((await sentRows({}))[0]).not.toHaveProperty("journey");
+  });
+
+  it("with it on, the row to the dashboard carries the checked journey", async () => {
+    expect((await sentRows({ journey: JSON.stringify(journey) }))[0].journey).toEqual(journey);
+  });
+
+  it("a forged note (free text, an unknown key) is dropped and the lead still goes", async () => {
+    for (const bad of [{ ...journey, searches: [{ make: "call me on 087 1234567" }] }, { ...journey, email: "a@b.ie" }]) expect((await sentRows({ journey: JSON.stringify(bad) }))[0]).not.toHaveProperty("journey");
+  });
+});
+
 describe("processLead rules", () => {
   it("stores the provider's car even when the form carries a forged title and price", async () => {
     const { deps, rows } = fakeDeps();

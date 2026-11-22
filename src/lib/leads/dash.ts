@@ -23,7 +23,8 @@ export async function sendToDash(row: LeadRow, emailed: boolean, dash = getBindi
   // The row in hand has no createdAt (D1 fills it on insert, a moment later): consentAt is when this lead was made, so it stands in.
   const at = row.consentAt.getTime();
   const lead = { id, clientRef, type, carId, carSlug, carTitle, carPriceEur, sourcePath, name, phone, email, message, details, consentAt: at, consentVersion, createdAt: at };
-  const body = JSON.stringify({ lead, emailed, photoCount: row.photoKeys.length });
+  // journey: the visit's note, only when the buyer switched sharing on (checked by journey.ts when the lead came in).
+  const body = JSON.stringify({ lead, emailed, photoCount: row.photoKeys.length, ...(row.journey && { journey: row.journey }) });
 
   // Two tries: a dashboard deploy or a network blip is retried once (safe: the same clientRef is stored once). A 4xx is not retried.
   let status: number | undefined;

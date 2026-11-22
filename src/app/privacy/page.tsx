@@ -55,6 +55,11 @@ export default function PrivacyPage() {
           When you arrive, the site notes where you came from, such as Google or Facebook, and keeps it in your browser until you close the tab.
           If you send us a request, it goes with it, so we know which ways of finding us work.
         </p>
+        <p>
+          The site also notes what you look at on this visit: the cars you open, the filters you use, and whether you try the finance calculator,
+          start a valuation, or save or compare cars. It is kept in your browser, not in a cookie, and is gone when you close the tab. We only see it
+          if you switch on sharing it when you send us a request.
+        </p>
       </InfoSection>
       <InfoSection title="Why we use it">
         <p>Only to reply to your request. We don&apos;t use it for marketing, and we don&apos;t sell it.</p>

@@ -8,10 +8,12 @@ import { CheckIcon } from "@/components/stock/icons";
 import { PHOTO_LIMITS, PHOTO_TOTAL_ERROR, PHOTO_TOTAL_MAX_BYTES } from "@/lib/leads/constants";
 import { readDraft, saveDraft } from "@/lib/leads/draft";
 import { visitChannel } from "@/lib/count-client";
+import { journeyOf, noteTradeIn, readNote } from "@/lib/visit-note";
 import { SITE_SLUG } from "@/lib/site";
 import type { LeadType } from "@/lib/leads/schema";
 import type { LeadResult } from "@/lib/leads/process";
 import { ConsentRow } from "./ConsentRow";
+import { ShareVisit } from "./ShareVisit";
 import { Stepper } from "./Stepper";
 import { useSteps } from "./useSteps";
 import type { FormStep } from "./useSteps";
@@ -74,6 +76,8 @@ export function LeadForm({
   const [invalid, setInvalid] = useState<{ first: string }>();
   const [failure, setFailure] = useState<Failure>();
   const [done, setDone] = useState(false);
+  const [share, setShare] = useState(false); // the buyer's switch for sending this visit's note; off until they turn it on
+  const valuing = useRef(false); // a valuation started: noted for the visit once, not on every keystroke
   const [pending, start] = useTransition();
   const clientRef = useRef<string>(undefined); // one per form instance, renewed after a success
   const form = useRef<HTMLFormElement>(null);
@@ -156,6 +160,10 @@ export function LeadForm({
     name,
     value: values[name] ?? "",
     onChange: (v) => {
+      if (type === "trade_in" && !valuing.current) {
+        valuing.current = true;
+        noteTradeIn();
+      }
       setValues((s) => ({ ...s, [name]: v }));
       recheck({ ...values, [name]: v });
     },
@@ -182,6 +190,8 @@ export function LeadForm({
     fd.set("sourcePath", location.pathname);
     const channel = visitChannel();
     if (channel) fd.set("channel", channel);
+    const journey = share ? journeyOf(readNote()) : null; // read now, so the minutes run to the send
+    if (journey) fd.set("journey", JSON.stringify(journey));
     fd.set("clientRef", (clientRef.current ??= crypto.randomUUID()));
     start(async () => {
       let r: LeadResult;
@@ -205,6 +215,7 @@ export function LeadForm({
         setPhotos([]);
         setErrors({});
         setFailure(undefined);
+        setShare(false);
         clientRef.current = undefined;
         setDone(true);
       } else if (r.status === "invalid") {
@@ -303,6 +314,8 @@ export function LeadForm({
           )}
           <div className="flex flex-col gap-4">{children({ bind, step, advance, photos: { id: `${uid}-photos`, error: shown.photos?.[0], photos, onChange: setPhotos, onBusy: setShrinking } })}</div>
           <div hidden={!last}>
+            {/* A stock alert is a subscription, not an enquiry: it does not offer the visit. */}
+            {type !== "alert" && <ShareVisit id={`${uid}-share`} on={share} onChange={setShare} />}
             <ConsentRow {...bind("consent")} />
           </div>
           {/* Honeypot (D-05): off-screen, not display:none, so bots fill it and people never meet it. */}
