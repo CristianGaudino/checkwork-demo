@@ -16,6 +16,7 @@ describe("test drive agenda", () => {
     expect(clashes(list, "car-1", at(10, 11) + 30 * 60_000).map((d) => d.id)).toEqual(["a"]);
     expect(clashes(list, "car-1", at(10, 13))).toEqual([]);
     expect(clashes(list, "car-1", at(10, 11), "a")).toEqual([]);
+    expect(clashes(list, "edited-car-1", at(10, 11)).map((d) => d.id)).toEqual(["a"]); // the same car after an edit gave it a new slug
   });
   it("accepts only known statuses", () => {
     expect(parseDriveStatus("confirmed")).toBe("confirmed");
