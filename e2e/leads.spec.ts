@@ -60,13 +60,28 @@ test("closing the dialog keeps what was typed", async ({ page }) => {
   await expect(dialog(page).getByLabel("Name")).toHaveValue("Half typed");
 });
 
-test("the dialog does not scroll itself: only the form body does", async ({ page }) => {
+test("the dialog does not scroll itself: only the form body does, bot check included", async ({ page }) => {
+  await stubTurnstile(page, { challenge: true });
   await page.setViewportSize({ width: 390, height: 700 });
   await open(page, live.slug);
   await enquire(page).click();
-  await expect(dialog(page)).toBeVisible();
+  await expect(dialog(page).getByTestId("challenge")).toBeAttached();
   const [scrollHeight, clientHeight] = await dialog(page).evaluate((d) => [d.scrollHeight, d.clientHeight]);
   expect(scrollHeight).toBeLessThanOrEqual(clientHeight);
+  // The challenge sits inside the scroll body and makes it longer, rather than taking height from it.
+  const [inBody, grew] = await dialog(page)
+    .getByTestId("challenge")
+    .evaluate((box) => {
+      const body = box.closest<HTMLElement>(".overflow-y-auto");
+      if (!body) return [false, 0];
+      const withBox = body.scrollHeight;
+      (box as HTMLElement).style.display = "none";
+      const without = body.scrollHeight;
+      (box as HTMLElement).style.display = "";
+      return [true, withBox - without];
+    });
+  expect(inBody).toBe(true);
+  expect(grew).toBe(71);
 });
 
 test("a sold car has no lead buttons", async ({ page }) => {
