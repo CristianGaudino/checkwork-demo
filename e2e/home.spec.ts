@@ -34,7 +34,7 @@ test("picking a make narrows the model list, and the Find me a car tab links to 
 
 test("the Find me a car tab fits inside the search box and the page does not move between them", async ({ page }) => {
   // A phone, and a desktop where the box is half the page (the panel once squeezed to a word a line and spilled out of it).
-  for (const width of [412, 1343]) {
+  for (const width of [412, 1024, 1343]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/");
     await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
@@ -272,8 +272,8 @@ test("browse by make: only the makes in stock, each with its count, busiest firs
   const all: string[] = [];
   for (const row of await rows.all()) {
     const labels = (await row.getByRole("listitem").allTextContents()).map((t) => t.trim());
-    expect(labels.every((l) => /\d+$/.test(l) && !/ 0$/.test(l))).toBe(true);
-    const counts = labels.map((l) => Number(l.match(/(\d+)$/)![1]));
+    const counts = labels.map((l) => Number(l.match(/(\d+)$/)?.[1]));
+    expect(counts.every((n) => n > 0)).toBe(true); // a count on every chip, never 0
     expect(counts).toEqual([...counts].sort((a, b) => b - a));
     all.push(...labels);
   }

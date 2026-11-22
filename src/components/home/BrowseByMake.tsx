@@ -18,7 +18,7 @@ export function BrowseByMake({ makes }: { makes: MakeEntry[] }) {
       </Link>
     </li>
   );
-  const rows = [makes.filter((_, i) => i % 2 === 0), makes.filter((_, i) => i % 2 === 1)];
+  const rows = [makes.filter((_, i) => i % 2 === 0), makes.filter((_, i) => i % 2 === 1)].filter((r) => r.length > 0); // one make: one row
   return (
     <section aria-labelledby="browse-by-make" className="flex flex-col gap-4">
       <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">

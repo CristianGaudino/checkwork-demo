@@ -10,7 +10,8 @@ export type MakeEntry = { slug: string; label: string; count: number; byKind: Re
 
 const zero = (): Record<Condition, number> => ({ used: 0, new: 0, commercial: 0 });
 
-// In stock first (most cars first), then the popular makes in the order people ask for them. `all` adds every other known make A to Z.
+// The makes in stock, most cars first (the home page chips). `all` adds the popular makes in the order people ask for them, then every
+// other known make A to Z (the Makes page and every make page).
 // Cached per request (React `cache`): a make page asks for it in its title, its page and its cars, and pays once.
 export const makeDirectory = cache(async (all = false): Promise<MakeEntry[]> => { // a plain argument: cache matches by identity
   const cars = ((await everyKindOrNull()) ?? []).filter((c) => !isSold(c));
@@ -24,8 +25,8 @@ export const makeDirectory = cache(async (all = false): Promise<MakeEntry[]> => 
   const inStock = [...bySlug.values()].sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, "en-IE"));
   const add = (labels: string[]) =>
     labels.map((label) => ({ slug: slugify(label), label })).filter((m) => !bySlug.has(m.slug) && bySlug.set(m.slug, { ...m, count: 0, byKind: zero() }));
+  if (!all) return inStock;
   const popular = add(POPULAR_MAKES).map((m) => bySlug.get(m.slug)!);
-  if (!all) return [...inStock, ...popular];
   const listed = (await stock.taxonomy().catch(() => null))?.makes.map((m) => m.label) ?? [];
   const rest = add([...listed, ...MAKE_OPTIONS.filter((o) => o.value).map((o) => o.label)])
     .map((m) => bySlug.get(m.slug)!)
