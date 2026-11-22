@@ -112,7 +112,7 @@ export function FieldError({ id, children }: { id?: string; children: React.Reac
 // Name, then phone and email, at least one of which is needed (D-12).
 export function ContactFields({ bind }: { bind(name: string): FieldBinding }) {
   const email = bind("email");
-  const both = email.error === CONTACT_ERROR;
+  const both = email.error === CONTACT_ERROR && !bind("phone").error; // a phone with its own message (Call me with no number) needs no second one
   const either = `${email.id}-either`; // the line saying one of the two will do, read with each of them
   // Phone and Email sit side by side once the form itself is wide enough (a container query, so a narrow dialog stays in one column).
   return (
