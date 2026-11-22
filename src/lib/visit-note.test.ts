@@ -73,10 +73,9 @@ describe("the visit note", () => {
     expect(journey()!.tools.finance).toEqual({ monthlyEur: 304 });
     noteFinance(99999);
     noteTradeIn();
-    for (let i = 0; i < 150; i++) noteCount("saved", 1);
+    noteCount("saved", 150);
     noteCount("compared", 1);
-    noteCount("compared", -1);
-    noteCount("compared", -1);
+    noteCount("compared", 0);
     vi.setSystemTime(Date.parse("2026-11-22T19:00:00Z"));
     const j = journey()!;
     expect(j.minutes).toBe(JOURNEY_CAPS.minutes);
@@ -114,6 +113,33 @@ describe("the visit note", () => {
     expect(journey()).toBeNull();
   });
 
+  it("an edited note the server would refuse is not offered, so the form never lists what would be dropped", () => {
+    const note = (over: object) => JSON.stringify({ start: Date.now(), cars: [{ id: "1", views: 1 }], searches: [], tools: {}, ...over });
+    const bad = [
+      note({ tools: { finance: { monthlyEur: null } } }),
+      note({ cars: [{ id: 4710001, views: 1 }] }),
+      note({ cars: [{ id: "../admin", views: 1 }] }),
+      note({ cars: [{ id: "1", views: 1, url: "/x" }] }),
+      note({ searches: [{ make: "Audi A4 typed" }] }),
+      note({ tools: { saved: 1.5 } }),
+      note({ tools: { extra: true } }),
+      note({ start: "yesterday" }),
+      note({ cars: null }),
+      "[]",
+      "5",
+    ];
+    for (const raw of bad) expect(journeyOf(raw), raw).toBeNull();
+    // The hand check and the server's schema agree, both ways.
+    const good = note({ searches: [{ fuel: "diesel", condition: "used" }], tools: { finance: { monthlyEur: 300 }, tradeIn: true, saved: 2, compared: 3 } });
+    for (const raw of [...bad, good]) {
+      const j = journeyOf(raw);
+      if (j) expect(journeySchema.parse(j)).toEqual(j);
+      const n = JSON.parse(raw);
+      const built = n && typeof n === "object" && !Array.isArray(n) && { v: 1, minutes: 0, cars: n.cars, searches: n.searches, tools: n.tools };
+      expect(journeySchema.safeParse(built).success && typeof n.start === "number", raw).toBe(j !== null);
+    }
+  });
+
   it("says what would be sent in plain words", () => {
     noteCar("1");
     noteCar("2");
@@ -124,8 +150,45 @@ describe("the visit note", () => {
     expect(sharedLines(journey()!)).toEqual(["3 cars you looked at", "2 searches", "the finance calculator, at €312 a month", "how long you've been on the site"]);
     noteTradeIn();
     noteCount("saved", 1);
-    noteCount("compared", 1);
-    noteCount("compared", 1);
+    noteCount("compared", 2);
     expect(sharedLines(journey()!).slice(3, 6)).toEqual(["that you started a valuation of your car", "1 car you saved", "2 cars you compared"]);
+  });
+});
+
+// The stores note the count after every change, whatever made it: a button, the compare bar, clear, remove or undo.
+describe("the saved and compared counts", () => {
+  beforeEach(() => {
+    const local = new Map<string, string>();
+    vi.stubGlobal("localStorage", { getItem: (k: string) => local.get(k) ?? null, setItem: (k: string, v: string) => void local.set(k, v) });
+    vi.stubGlobal("window", new EventTarget());
+    vi.resetModules();
+  });
+  const tools = () => journey()?.tools ?? {};
+
+  it("follow the compare list", async () => {
+    const c = await import("@/lib/compare/store");
+    c.toggleCompare("1");
+    c.toggleCompare("2");
+    c.toggleCompare("3");
+    expect(c.toggleCompare("4")).toBe("full");
+    expect(tools().compared).toBe(3);
+    c.removeCompare(["1"]);
+    expect(tools().compared).toBe(2);
+    c.clearCompare();
+    expect(tools()).not.toHaveProperty("compared");
+    c.restoreCompare(["2", "3"]);
+    expect(tools().compared).toBe(2);
+  });
+
+  it("follow the saved list", async () => {
+    const s = await import("@/lib/saved/store");
+    s.toggleSaved("1");
+    s.toggleSaved("2");
+    s.toggleSaved("2");
+    expect(tools().saved).toBe(1);
+    s.removeSaved(["1"]);
+    expect(tools()).not.toHaveProperty("saved");
+    s.restoreSaved(["1"]);
+    expect(tools().saved).toBe(1);
   });
 });

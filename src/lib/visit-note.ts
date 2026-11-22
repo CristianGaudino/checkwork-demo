@@ -1,7 +1,7 @@
 import type { Journey, JourneySearch } from "@/lib/leads/journey";
 import { SITE_SLUG } from "@/lib/site";
 import { CONDITIONS, FUELS, GEARBOXES, type StockQuery } from "@/lib/stock/types";
-import { bandOf } from "@/lib/visit-rules";
+import { PRICE_BANDS, bandOf } from "@/lib/visit-rules";
 
 // What this visit looked at (#249), kept in this tab only (sessionStorage) and gone when it closes: never a cookie, never localStorage, no
 // id. Fixed values only: car ids, the filters' own slugs and lists, whole numbers. Nothing typed, no URL. It leaves the tab only with an
@@ -59,12 +59,12 @@ export const noteFinance = (monthlyEur?: number) =>
     n.tools.finance = { ...n.tools.finance, ...(monthlyEur !== undefined && Number.isFinite(monthlyEur) && { monthlyEur: Math.max(0, Math.min(JOURNEY_CAPS.monthlyEur, Math.round(monthlyEur))) }) };
   });
 export const noteTradeIn = () => update((n) => void (n.tools.tradeIn = true));
-// A car saved or compared (+1), or taken off again (-1).
-export const noteCount = (k: Count, by: 1 | -1) =>
-  update((n) => {
-    const v = Math.max(0, Math.min(JOURNEY_CAPS.count, (n.tools[k] ?? 0) + by));
-    if (v) n.tools[k] = v;
-    else delete n.tools[k];
+// How many cars are saved or compared now; the stores call it after every change, so undo, clear and the compare bar count too.
+export const noteCount = (k: Count, n: number) =>
+  update((t) => {
+    const v = Math.max(0, Math.min(JOURNEY_CAPS.count, n));
+    if (v) t.tools[k] = v;
+    else delete t.tools[k];
   });
 
 export function readNote(): string | null {
@@ -75,12 +75,42 @@ export function readNote(): string | null {
   }
 }
 
-// The note as the site API's `journey`, or null when there is nothing to share.
+// The server's journeySchema (src/lib/leads/journey.ts) by hand, so zod stays out of the page bundle (LeadForm loads it on first use).
+// visit-note.test.ts checks the two agree. Strict: an unknown key fails, as it does there.
+type Check = (v: unknown) => boolean;
+const int = (min: number, max: number): Check => (v) => Number.isInteger(v) && (v as number) >= min && (v as number) <= max;
+const oneOf = (ok: readonly string[] | RegExp): Check => (v) => typeof v === "string" && fixed(v, ok) !== undefined;
+const list = (max: number, item: Check): Check => (v) => Array.isArray(v) && v.length <= max && v.every(item);
+const obj =
+  (req: Record<string, Check>, opt: Record<string, Check> = {}): Check =>
+  (v) => {
+    if (typeof v !== "object" || v === null || Array.isArray(v)) return false;
+    const o = v as Record<string, unknown>;
+    return (
+      Object.keys(o).every((k) => Object.hasOwn(req, k) || Object.hasOwn(opt, k)) &&
+      Object.entries(req).every(([k, ok]) => ok(o[k])) &&
+      Object.entries(opt).every(([k, ok]) => o[k] === undefined || ok(o[k]))
+    );
+  };
+const isJourney = obj({
+  v: (v) => v === 1,
+  minutes: int(0, JOURNEY_CAPS.minutes),
+  cars: list(JOURNEY_CAPS.cars, obj({ id: oneOf(CAR_ID), views: int(1, JOURNEY_CAPS.views) })),
+  searches: list(
+    JOURNEY_CAPS.searches,
+    obj({}, { make: oneOf(SLUG), model: oneOf(SLUG), body: oneOf(SLUG), fuel: oneOf(FUELS), gearbox: oneOf(GEARBOXES), priceBand: oneOf(PRICE_BANDS), condition: oneOf(CONDITIONS) }),
+  ),
+  tools: obj({}, { finance: obj({}, { monthlyEur: int(0, JOURNEY_CAPS.monthlyEur) }), tradeIn: (v) => typeof v === "boolean", saved: int(0, JOURNEY_CAPS.count), compared: int(0, JOURNEY_CAPS.count) }),
+}) as (v: unknown) => v is Journey;
+
+// The note as the site API's `journey`, or null when there is nothing to share or the note is not one the server would take (edited by
+// hand), so "What's shared" never lists what the server would drop.
 export function journeyOf(raw: string | null, now = Date.now()): Journey | null {
   try {
-    const n = JSON.parse(raw ?? "null") as Note | null;
-    if (!n || (!n.cars.length && !n.searches.length && !Object.keys(n.tools).length)) return null;
-    return { v: 1, minutes: Math.max(0, Math.min(JOURNEY_CAPS.minutes, Math.floor((now - n.start) / 60_000))), cars: n.cars, searches: n.searches, tools: n.tools };
+    const n = JSON.parse(raw ?? "null") as Note;
+    const j = { v: 1, minutes: Math.max(0, Math.min(JOURNEY_CAPS.minutes, Math.floor((now - n.start) / 60_000))), cars: n.cars, searches: n.searches, tools: n.tools };
+    if (!isJourney(j) || (!j.cars.length && !j.searches.length && !Object.keys(j.tools).length)) return null;
+    return new TextEncoder().encode(JSON.stringify(j)).length <= JOURNEY_CAPS.bytes ? j : null;
   } catch {
     return null;
   }

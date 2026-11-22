@@ -7,6 +7,7 @@ import { regPeriods } from "./reg-periods";
 import { dublinDay, dublinMs } from "@/lib/admin/format";
 import { CHOICES, TOPIC_IDS } from "./contact-topics";
 import { CHANNELS, CHANNEL_LABELS } from "@/lib/visit-rules";
+import { CAR_ID } from "@/lib/visit-note";
 
 // The lead validation, run on the server. Client components import ./constants, never this file (it brings zod).
 
@@ -54,14 +55,14 @@ const general = {
   urgency: choice(CHOICES.urgency.map((o) => o.value)),
   contactVia: choice(CHOICES.contactVia.map((o) => o.value)),
   contactWhen: choice(CHOICES.contactWhen.map((o) => o.value)),
-  carId: given(z.string().regex(/^\d{1,12}$/).optional()),
+  carId: given(z.string().regex(CAR_ID).optional()),
   reg: given(z.string({ error: BAD_REG }).trim().toUpperCase().regex(REG_PATTERN, BAD_REG).optional()),
   message: given(z.string().trim().max(LIMITS.message, tooLong(LIMITS.message)).optional()),
 };
 // Only "Something else", or no topic at all, has nothing but the message to say what is wanted.
 const needsMessage = (d: { topic?: string; message?: string }) => Boolean(d.message) || (d.topic !== undefined && d.topic !== "other");
 
-const carId = z.string().regex(/^\d{1,12}$/);
+const carId = z.string().regex(CAR_ID);
 
 const carText = {
   make: given(oneLine(z.string().trim().max(60, tooLong(60))).optional()),
