@@ -121,16 +121,18 @@ test("the compare pill folds down to a small button and opens again", async ({ p
   await expect(bar.getByRole("link", { name: "Compare" })).toHaveCount(0);
   const show = bar.getByRole("button", { name: "Show compare, 1 of 3" });
   await expect(show).toBeFocused(); // the button swapped in takes focus
-  // A later mount takes none: the bar is gone on /compare and back on the car page.
-  await page.goto("/compare");
+  await show.click();
+  const hide = bar.getByRole("button", { name: "Hide" });
+  await expect(hide).toBeFocused();
+  await expect(bar).toContainText("1 of 3 to compare");
+  // A later mount takes none: the bar is gone on /compare and back on the car page, with no reload in between.
+  await bar.getByRole("link", { name: "Compare" }).click();
+  await expect(page).toHaveURL(/\/compare/);
   await ready(page);
   await cards(page).first().getByRole("heading").getByRole("link").click();
   await expect(page).toHaveURL(a);
-  await expect(show).toBeVisible();
-  await expect(show).not.toBeFocused();
-  await show.click();
-  await expect(bar.getByRole("button", { name: "Hide" })).toBeFocused();
-  await expect(bar).toContainText("1 of 3 to compare");
+  await expect(hide).toBeVisible();
+  await expect(hide).not.toBeFocused();
 });
 
 test("the compare page is empty to start with and not indexed", async ({ page }) => {
