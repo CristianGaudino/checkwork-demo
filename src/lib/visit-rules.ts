@@ -48,13 +48,13 @@ export function channelOf(pageUrl: string, referrer: string): Channel | null {
   const source = p.get("utm_source")?.trim().toLowerCase();
   if (source) return byName(source);
   if (p.has("gclid")) return "google";
-  if (p.has("fbclid")) return "facebook";
-  let host: string;
+  let host: string | null = null;
   try {
     host = new URL(referrer).hostname.toLowerCase();
-  } catch {
-    return "direct"; // no referrer: typed in, a bookmark, or an app that sends none
-  }
+  } catch {}
+  // Meta adds fbclid to Instagram's links too, so the referrer says which.
+  if (p.has("fbclid")) return host && /instagram/.test(host) ? "instagram" : "facebook";
+  if (host === null) return "direct"; // no referrer: typed in, a bookmark, or an app that sends none
   if (host === page.hostname || host.endsWith(`.${page.hostname}`)) return null;
   return byName(host);
 }
