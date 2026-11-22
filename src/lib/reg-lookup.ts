@@ -40,8 +40,8 @@ async function visitorCountId(today: string, visitor: string): Promise<string> {
   return `${today}-v-${[...hash.slice(0, 12)].map((b) => b.toString(16).padStart(2, "0")).join("")}`;
 }
 
-// `visitor`: the visitor's address, for their limits; null skips the per-visitor limits (the site-wide cap still holds).
-export async function lookupReg(raw: string, visitor: string | null, service: (reg: string) => Promise<CarFound | null> = cartell): Promise<RegLookup | null> {
+// `visitor`: the visitor's address, for their limits.
+export async function lookupReg(raw: string, visitor: string, service: (reg: string) => Promise<CarFound | null> = cartell): Promise<RegLookup | null> {
   const facts = parseIrishReg(raw);
   if (!facts) return null;
   const mode = regLookupMode();
@@ -50,7 +50,7 @@ export async function lookupReg(raw: string, visitor: string | null, service: (r
   const now = Date.now();
   const simulated = mode === "simulated";
   // The demo has no cache (its answer is made up, the same each time), but it counts against the same limits, so nobody can use up the
-  // demo's monthly limit for every viewer.
+  // demo's daily limit for every viewer.
   const hit = simulated ? undefined : await regCache.get(facts.reg);
   if (hit && hit.at > now - REG_CACHE_DAYS * DAY) return hit.car ? { ...facts, car: hit.car } : facts;
   const today = `day-${new Date(now).toISOString().slice(0, 10)}`;
@@ -58,14 +58,14 @@ export async function lookupReg(raw: string, visitor: string | null, service: (r
   // fine; a Durable Object counter if the cap ever has to be exact.
   const count = (await regCounts.get(today))?.n ?? 0;
   if (count >= REG_LOOKUPS_A_DAY) return facts;
-  const mine = visitor === null ? null : await visitorCountId(today, visitor);
-  const used = mine ? ((await regCounts.get(mine))?.n ?? 0) : 0;
-  if (mine && used >= REG_LOOKUPS_PER_VISITOR_A_DAY) return facts;
+  const mine = await visitorCountId(today, visitor);
+  const used = (await regCounts.get(mine))?.n ?? 0;
+  if (used >= REG_LOOKUPS_PER_VISITOR_A_DAY) return facts;
   const limiter = getBindings().LEAD_LIMITER;
-  if (visitor !== null && limiter && !(await limiter.limit({ key: `reg:${visitor}` })).success) return facts;
+  if (limiter && !(await limiter.limit({ key: `reg:${visitor}` })).success) return facts;
 
   await regCounts.put({ id: today, n: count + 1 });
-  if (mine) await regCounts.put({ id: mine, n: used + 1 });
+  await regCounts.put({ id: mine, n: used + 1 });
   if (simulated) {
     return { ...facts, car: sampleCar(facts.reg) };
   }

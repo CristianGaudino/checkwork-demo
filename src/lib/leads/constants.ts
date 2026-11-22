@@ -87,7 +87,7 @@ export const PHOTO_NOTES = [`The ${PHOTO_MIN_COUNT} we need: ${PHOTO_SLOTS.slice
 // Test drives (a booking is a lead with a day and a time), the same rules for the website and the dashboard. The days and hours come from
 // OPENING_HOURS, so they never disagree with the opening times on the site. Slots start when we open and stop an hour before we close.
 // Times are Irish time wherever the buyer is. How long one car is out is the dealer's setting (settings.driveSlotMinutes).
-export const TEST_DRIVE = { monthsAhead: 2, stepMinutes: 30 } as const;
+const TEST_DRIVE = { monthsAhead: 2, stepMinutes: 30 } as const;
 export const BAD_DRIVE_DAY = "Choose a day from the list.";
 export const BAD_DRIVE_TIME = "Choose a time from the list.";
 const mins = (hhmm: string) => Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3, 5));

@@ -2,6 +2,7 @@ import "server-only";
 import { after } from "next/server";
 import { getDb } from "@/lib/db";
 import { requireEnv } from "@/lib/env";
+import { logLead } from "@/lib/log";
 import { isProduction } from "@/lib/site";
 import { stock } from "@/lib/stock";
 import { getBindings } from "./bindings";
@@ -53,8 +54,13 @@ const store: LeadStore = {
 // The dealer dashboard (checkwork-dash). The send runs after the buyer's answer is out (`after`, kept alive by the Worker), so a slow or down
 // dashboard never makes them wait; sendToDash never throws.
 const toDash: Deps["toDash"] = async (row, emailed) => {
-  const dash = getBindings().DASH; // read now, while the request is live
-  after(() => sendToDash(row, emailed, dash));
+  const fail = () => logLead({ leadId: row.id, type: row.type, outcome: "dash_failed" }); // the id and type only, never the details
+  try {
+    const dash = getBindings().DASH; // read now, while the request is live
+    after(() => sendToDash(row, emailed, dash).catch(fail));
+  } catch {
+    fail();
+  }
 };
 let fakes: Deps | undefined;
 

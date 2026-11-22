@@ -3,7 +3,6 @@ import { DEALER_RULES } from "@/lib/dealer.config";
 export const FUELS = ["petrol", "diesel", "hybrid", "plug-in-hybrid", "electric", "other"] as const;
 export type Fuel = (typeof FUELS)[number];
 // The fuels with a plug: the ones that have a range, a battery and charging figures.
-export const PLUG_FUELS: readonly Fuel[] = ["electric", "plug-in-hybrid"];
 export const FUEL_LABELS: Record<Fuel, string> = {
   petrol: "Petrol",
   diesel: "Diesel",
@@ -21,7 +20,7 @@ export const PRICE_STOPS = [0, 2500, 5000, 7500, 10_000, 12_500, 15_000, 17_500,
 export const CONDITIONS = ["used", "new", "commercial"] as const;
 export type Condition = (typeof CONDITIONS)[number];
 // Whether priceEur has VAT in it. "inc": included. "ex": VAT on top, reclaimable by a VAT-registered buyer (vans). Absent: nothing said.
-export const VAT_STATUSES = ["inc", "ex"] as const;
+const VAT_STATUSES = ["inc", "ex"] as const;
 export type VatStatus = (typeof VAT_STATUSES)[number];
 export const SORT_KEYS = ["newest", "price-asc", "price-desc", "year-desc", "km-asc"] as const;
 export type SortKey = (typeof SORT_KEYS)[number];

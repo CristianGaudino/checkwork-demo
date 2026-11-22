@@ -33,7 +33,7 @@ export type ChoiceKey = keyof typeof CHOICES;
 export const URGENCY_FOR: Record<"service" | "bought", string[]> = { service: ["this-week", "next-week", "no-rush"], bought: ["cant-drive", "this-week", "no-rush"] };
 
 // The answers stored on a lead, besides the topic: what the dashboard shows as tags.
-export const ANSWER_KEYS = ["timing", "hasTradeIn", "serviceNeed", "boughtWhen", "concern", "urgency", "reg", "contactVia", "contactWhen"] as const;
+const ANSWER_KEYS = ["timing", "hasTradeIn", "serviceNeed", "boughtWhen", "concern", "urgency", "reg", "contactVia", "contactWhen"] as const;
 export type Answers = Partial<Record<(typeof ANSWER_KEYS)[number], string>>;
 
 const word = (key: ChoiceKey, v: string | undefined) => CHOICES[key].find((o) => o.value === v)?.label;

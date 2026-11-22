@@ -205,12 +205,12 @@ export async function processLead(fd: FormData, ctx: { ip: string }, deps: Deps)
       // The dealer was not emailed, so the buyer is not told "thanks": they see "we could not send this, call us" and their details
       // stay in the form. The lead still reaches the dashboard, marked as not emailed, so it is not lost if they never retry or call.
       // A retry sends a fresh clientRef, so it is stored again: the dealer may see it twice, never not at all.
-      await deps.toDash?.(row, false).catch(() => logLead({ leadId, type: input.type, outcome: "dash_failed" }));
+      await deps.toDash?.(row, false);
       logLead({ leadId, type: input.type, outcome: "notify_failed" });
       return SERVER;
     }
-    // A dashboard send that fails leaves the lead in D1 and the email: logged (the id and type, never the details) so it can be copied by hand.
-    await deps.toDash?.(row, true).catch(() => logLead({ leadId, type: input.type, outcome: "dash_failed" }));
+    // A dashboard send that fails leaves the lead in D1 and the email: toDash logs it as dash_failed (the id and type, never the details).
+    await deps.toDash?.(row, true);
     // If only this bookkeeping fails the buyer still gets ok, and the row reads as not notified.
     await deps.store.markNotified(row.id).catch(() => logLead({ leadId, type: input.type, outcome: "notify_failed" }));
     logLead({ leadId, type: input.type, outcome: "stored" });

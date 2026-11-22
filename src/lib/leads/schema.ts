@@ -147,7 +147,7 @@ const testDrive = {
 };
 
 // A stock alert: an email is all it takes. It may name a car (back in stock, price drop) or none (any new arrival).
-export const ALERT_KINDS = ["back-in-stock", "price-drop", "new-arrival"] as const;
+const ALERT_KINDS = ["back-in-stock", "price-drop", "new-arrival"] as const;
 const alert = {
   email: given(z.email({ error: "Enter an email like name@example.com." }).max(LIMITS.email, tooLong(LIMITS.email))),
   name: given(oneLine(z.string().trim().max(LIMITS.name, tooLong(LIMITS.name))).optional()),

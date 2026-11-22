@@ -69,9 +69,9 @@ describe("lookupReg with the paid service", () => {
     expect(cars.filter(Boolean)).toHaveLength(REG_LOOKUPS_PER_VISITOR_A_DAY);
     expect(service).toHaveBeenCalledTimes(REG_LOOKUPS_PER_VISITOR_A_DAY);
     expect((await lookupReg("191-KY-1", "8.8.8.8", service))?.car).toEqual(FOCUS); // another visitor is not held back
-    expect((await lookupReg("191-KY-2", null, service))?.car).toEqual(FOCUS); // nor a caller with no visitor address
+    expect((await lookupReg("191-KY-2", "7.7.7.7", service))?.car).toEqual(FOCUS); // nor a third
     allowed = false;
-    expect((await lookupReg("191-KY-3", null, service))?.car).toEqual(FOCUS); // the per-minute limit is not theirs either
+    expect((await lookupReg("191-KY-3", "7.7.7.8", service))?.car).toBeUndefined(); // past the per-minute limit: the plate's facts only
   });
 
   it("keeps a visitor's count under a hash, never their address", async () => {

@@ -207,6 +207,19 @@ describe("the real toDash", () => {
     expectQuietFailure();
   });
 
+  it("logs dash_failed, with no personal data, when the send breaks inside the after() work", async () => {
+    await getDeps().toDash!({ ...row, consentAt: undefined } as unknown as LeadRow, true); // sendToDash throws on this row
+    await afterwork();
+    expectQuietFailure();
+  });
+
+  it("logs dash_failed when the binding cannot be read, and still answers", async () => {
+    Object.defineProperty(bindings, "value", { get: () => { throw new Error(`no bindings ${NAME}`); }, configurable: true });
+    await expect(getDeps().toDash!(row, true)).resolves.toBeUndefined();
+    expectQuietFailure();
+    Object.defineProperty(bindings, "value", { value: {}, writable: true, configurable: true });
+  });
+
   it("never waits for the dashboard before answering", async () => {
     fetchMock.mockReturnValue(new Promise(() => {})); // a dashboard that never answers
     await expect(getDeps().toDash!(row, true)).resolves.toBeUndefined();

@@ -160,14 +160,12 @@ describe("processLead rules", () => {
     expect(mail).toHaveLength(1);
   });
 
-  it("sends the lead to the dashboard, marked when the email failed, and never fails the lead if the send fails", async () => {
+  it("sends the lead to the dashboard, marked when the email failed, and the lead is stored whatever the send does (the failure is logged in deps.ts)", async () => {
     const { deps } = fakeDeps();
     const copied: boolean[] = [];
     deps.toDash = async (_row, emailed) => void copied.push(emailed);
     expect(await processLead(enquiryForm(), ctx, deps)).toEqual({ status: "ok" });
     expect(copied).toEqual([true]);
-    deps.toDash = async () => Promise.reject(new Error("dashboard down"));
-    expect(await processLead(enquiryForm(), ctx, deps)).toEqual({ status: "ok" });
     const failing = fakeDeps();
     failing.deps.toDash = async (_row, emailed) => void copied.push(emailed);
     failing.deps.mailer.send = async () => Promise.reject(new Error("mail down"));
