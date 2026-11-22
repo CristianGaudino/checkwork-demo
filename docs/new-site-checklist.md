@@ -79,6 +79,9 @@ demo uses the built-in writer (`src/lib/ai/mock.ts`), and a real site shows AI w
 ### Infrastructure names
 - `wrangler.jsonc`: `name`, the self-reference service, `routes`, the R2 bucket, the D1 database name and id
   (`npx wrangler d1 create <name> --jurisdiction eu`). The sending address is `LEAD_FROM_EMAIL` in `site.ts`, on an onboarded domain.
+- The rate limit page, set by hand in Cloudflare (Security, WAF, rate limiting rules): `docs/rate-limit/page.html` for pages and
+  `docs/rate-limit/api.json` for `/api/*`, as each rule's custom response with status 429. It needs a Pro zone or above. Put the
+  dealer's name, phone and logo in the page first (its test fails until they match `site.ts`). Steps: `docs/rate-limit/README.md`.
 - `package.json` `name`, the `site=` line in `.github/workflows/ci.yml`, and the `env` block in `.github/workflows/deploy.yml`.
 
 ### Repo and board
