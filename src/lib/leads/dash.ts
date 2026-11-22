@@ -1,11 +1,11 @@
 import "server-only";
 import type { LeadRow } from "./process";
 import { logLead } from "@/lib/log";
+import { askDash, DASH_HOST } from "@/lib/dash-request";
 import { getBindings } from "./bindings";
 
 // The dealer dashboard (checkwork-dash, site API v1, docs/dealer-admin.md). The site key decides the dealer: nothing here names one.
 const PATH = "/api/site/v1/leads";
-const DASH_HOST = "https://www.dash.checkwork.ie";
 const TIMEOUT_MS = 5000;
 const TAKEN_TIMEOUT_MS = 1500;
 
@@ -42,23 +42,6 @@ async function tryOnce(dash: ReturnType<typeof getBindings>["DASH"], url: URL, k
   const res = await askDash(dash, new Request(url, { method: "POST", redirect: "manual", headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" }, body }), TIMEOUT_MS);
   res?.body?.cancel().catch(() => {}); // nothing in the answer is needed; an unread body holds the connection open
   return res?.status;
-}
-
-// The one way to reach the dashboard: through the binding if there is one, else a normal fetch. Never throws: the Response, or undefined for a
-// throw or a timeout (the request is aborted, not left running). Callers build the Request with redirect "manual", so Cloudflare Access's
-// login page (a 302 to it) is a failure, never a delivery.
-async function askDash(dash: ReturnType<typeof getBindings>["DASH"], req: Request, ms: number): Promise<Response | undefined> {
-  const abort = new AbortController();
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  try {
-    const timeout = new Promise<never>((_, reject) => (timer = setTimeout(() => (abort.abort(), reject(new Error("timeout"))), ms)));
-    const sent = new Request(req, { signal: abort.signal });
-    return await Promise.race([dash ? dash.fetch(sent) : fetch(sent), timeout]);
-  } catch {
-    return undefined;
-  } finally {
-    clearTimeout(timer);
-  }
 }
 
 const TAKEN = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;

@@ -2,14 +2,14 @@ import { and, eq, gte, sql } from "drizzle-orm";
 import type { BaseSQLiteDatabase } from "drizzle-orm/sqlite-core";
 import { adminDocs } from "../db/schema";
 import type * as schema from "../db/schema";
+import { askDash, DASH_HOST } from "../dash-request";
 import { TIME_ZONE } from "../site";
 import { BUYER_EVENTS } from "./rules";
 
 // The nightly send of the day counts to the dealer dashboard (site API v1, POST /api/site/v1/counts), so it keeps them past this site's own
 // retention. The dashboard replaces a day's counts, so sending the last 7 days every night is safe and a missed night heals itself.
-// Relative imports only: wrangler bundles this outside Next's "@/" alias.
+// Relative imports only (wrangler bundles this outside Next's "@/" alias), and none that import server-only or the bindings.
 export const COUNTS_SEND_DAYS = 7;
-const DASH_HOST = "https://www.dash.checkwork.ie";
 const TIMEOUT_MS = 5000;
 
 type Dash = { fetch(req: Request): Promise<Response> };
@@ -45,18 +45,7 @@ export async function sendCountsToDash(db: BaseSQLiteDatabase<"async", unknown, 
 
 // 204 is the only success. No redirects (Cloudflare Access's login page is a failure) and a timeout aborts the request.
 async function post(dash: Dash | undefined, url: URL, key: string, body: string): Promise<boolean> {
-  const abort = new AbortController();
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  try {
-    const req = new Request(url, { method: "POST", redirect: "manual", signal: abort.signal, headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" }, body });
-    // shortcut: a local copy of leads/dash.ts's timeout race (a service binding may ignore the abort); use the shared askDash once it lands.
-    const timeout = new Promise<never>((_, reject) => (timer = setTimeout(() => (abort.abort(), reject(new Error("timeout"))), TIMEOUT_MS)));
-    const res = await Promise.race([dash ? dash.fetch(req) : fetch(req), timeout]);
-    res.body?.cancel().catch(() => {});
-    return res.status === 204;
-  } catch {
-    return false;
-  } finally {
-    clearTimeout(timer);
-  }
+  const res = await askDash(dash, new Request(url, { method: "POST", redirect: "manual", headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" }, body }), TIMEOUT_MS);
+  res?.body?.cancel().catch(() => {});
+  return res?.status === 204;
 }

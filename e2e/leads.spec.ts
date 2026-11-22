@@ -175,7 +175,8 @@ test("Test drive asks for a day and a time, reaches the dealer dashboard as a bo
 });
 
 test("a time the dashboard says is taken for this car is not offered, and is for another car", async ({ page }) => {
-  const other = cars.filter((c) => !c.soldAt)[1];
+  const [, other, full] = cars.filter((c) => !c.soldAt);
+  let firstDay = "";
   for (const [slug, offered] of [[live.slug, false], [other.slug, true]] as const) {
     await open(page, slug);
     await page.getByRole("button", { name: "Test drive", exact: true }).click();
@@ -184,8 +185,17 @@ test("a time the dashboard says is taken for this car is not offered, and is for
     await page.keyboard.press("Escape");
     // The answer is a moment behind the first touch, so wait for the list to settle on what is expected.
     await expect.poll(async () => (await optionLabels(time)).includes("10:00")).toBe(offered);
+    if (offered) firstDay = await page.getByRole("dialog").getByLabel("Day").inputValue(); // no slot taken for this car: the first day offered
     await page.keyboard.press("Escape");
   }
+  // Every slot of the first open day is taken for this car: the form opens on it, then moves to a day with free times.
+  await open(page, full.slug);
+  await page.getByRole("button", { name: "Test drive", exact: true }).click();
+  const d = page.getByRole("dialog");
+  await d.getByLabel("Day").click();
+  await page.keyboard.press("Escape");
+  await expect(d.getByLabel("Day")).not.toHaveValue(firstDay);
+  await expect(d.getByLabel("Time")).not.toHaveValue("");
 });
 
 test("a price drop alert takes an email and says what happens next", async ({ page }) => {
