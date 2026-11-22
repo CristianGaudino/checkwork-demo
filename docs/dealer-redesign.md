@@ -1,5 +1,7 @@
 # Dealer dashboard redesign, sell your car, DoneDeal stock
 
+History. The dashboard and DoneDeal stock parts moved to checkwork-dash; sell your car and trade-in are this site's.
+
 Owner feedback, 2026-11-11: the dealer side reads as unfinished; tables are hard to scan; summary tiles and filter chips repeat each other and the
 tiles do nothing; a drop-down stays open; the trade-in page is really a valuer; a Sell your car page is missing; the stock page needs a second
 version for dealers whose stock comes from DoneDeal.

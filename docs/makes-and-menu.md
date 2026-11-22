@@ -9,7 +9,7 @@ Owner feedback, 2026-11-11. Issues #94 to #99.
   We have no market valuation, so no price judgements; only facts the car's own data proves.
 
 ## Decisions
-1. **Demo bar at the foot of the screen**, fixed, so the site reads as itself from the top; the compare bar sits above it.
+1. **Demo bar at the foot of the screen** (removed with the dashboard, #243), so the site reads as itself from the top.
 2. **Home:** Browse by make, then **Browse by type** (renamed), with a photo of a car of that type in each tile and its count.
 3. **Browse by make:** makes in stock first (with counts), then the popular Irish makes always, each opening its make page.
 4. **A page per make** at `/makes/<make>`, and `/makes` for all of them:
