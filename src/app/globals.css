@@ -188,6 +188,10 @@
   body:has([data-compare-bar]) {
     padding-bottom: calc(5rem + env(safe-area-inset-bottom));
   }
+  /* And a field that takes focus (Sell, Contact) is scrolled clear of it, not left under it. */
+  html:has([data-compare-bar]) {
+    scroll-padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
   @media (max-width: 1023.98px) {
     body:has([data-sticky-actions]):has([data-compare-bar]) {
       padding-bottom: calc(9rem + env(safe-area-inset-bottom));

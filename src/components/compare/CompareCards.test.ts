@@ -13,6 +13,11 @@ describe("compare rows", () => {
     expect(finance.better).toBe("low");
     expect(finance.text(car({}))).toBe(`€${financeMonthlyEur({ priceEur: 15000 })} a month`);
     expect(finance.text(car({ soldAt: "2026-10-01" }))).toBeUndefined();
+    // With no figure, a word on why.
+    const why = (c: Car) => (finance.text(c) as React.ReactElement<{ children: string }>).props.children;
+    expect(why(car({ reserved: true }))).toBe("Reserved");
+    expect(why(car({ priceEur: 0 }))).toBe("Ask us");
+    expect(why(car({ priceEur: 500 }))).toBe("Not offered");
     expect(rank([car({ priceEur: 12000 }), car({ priceEur: 20000 })].map(finance.number!))).toEqual(["low", "high"]);
   });
   it("ranks a later NCT higher, across a year end, and leaves out a month it cannot read", () => {
