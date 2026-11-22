@@ -119,7 +119,17 @@ test("the compare pill folds down to a small button and opens again", async ({ p
   const bar = page.getByRole("region", { name: "Compare cars" });
   await bar.getByRole("button", { name: "Hide" }).click();
   await expect(bar.getByRole("link", { name: "Compare" })).toHaveCount(0);
-  await bar.getByRole("button", { name: "Show compare, 1 of 3" }).click();
+  const show = bar.getByRole("button", { name: "Show compare, 1 of 3" });
+  await expect(show).toBeFocused(); // the button swapped in takes focus
+  // A later mount takes none: the bar is gone on /compare and back on the car page.
+  await page.goto("/compare");
+  await ready(page);
+  await cards(page).first().getByRole("heading").getByRole("link").click();
+  await expect(page).toHaveURL(a);
+  await expect(show).toBeVisible();
+  await expect(show).not.toBeFocused();
+  await show.click();
+  await expect(bar.getByRole("button", { name: "Hide" })).toBeFocused();
   await expect(bar).toContainText("1 of 3 to compare");
 });
 
