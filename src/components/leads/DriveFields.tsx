@@ -49,13 +49,15 @@ export function DriveFields({ bind, carId }: { bind(name: string): FieldBinding;
     if (first && !day.value) pick(first);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only when the days arrive or the day is cleared (a fresh form)
   }, [first, day.value]);
-  // The slot the form opened on turned out to be taken: the first free time that day, or the next day with one if the day is full.
+  // The slot the form opened on turned out to be taken: the first free time that day, or the next day with one if the day is full. After a
+  // refusal the buyer chooses: the time is cleared (the message stays until they pick, the form's recheck keeps it while the field is empty).
   useEffect(() => {
     if (!day.value || !time.value) return;
+    const refused = time.error === DRIVE_TIME_TAKEN;
     if (!times.length) {
-      if (next) pick(next);
+      if (next) pick(next, refused ? "" : undefined);
     }
-    else if (!times.includes(time.value)) time.onChange(times[0]);
+    else if (!times.includes(time.value)) time.onChange(refused ? "" : times[0]);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only when the answer arrives
   }, [taken]);
   return (

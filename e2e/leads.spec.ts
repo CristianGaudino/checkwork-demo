@@ -191,9 +191,14 @@ test("a slot booked behind the buyer's back is refused, the picker moves off it,
   await post(Array.from({ length: 70 }, (_, i) => `${new Date(Date.now() + (i + 1) * 864e5).toISOString().slice(0, 10)} ${offered}`));
   try {
     await d.getByRole("button", { name: "Book" }).click();
-    // The refusal makes the form ask again, so the picker moves off the taken time (and the message goes with its cause). The E2E Turnstile
-    // stub accepts any token, so a spent token is not reproducible here: this proves the second send is made and goes through.
+    // The refusal makes the form ask again: the taken time is cleared and the message stays until the buyer picks. The E2E Turnstile stub
+    // accepts any token, so a spent token is not reproducible here: this proves the second send is made and goes through.
+    await expect(d.getByText("That time was just taken. Pick another.")).toBeVisible();
+    await expect(d.locator('input[name="driveTime"]')).toHaveValue(""); // nothing chosen yet: Book would ask for a time
+    await expect(d.getByRole("heading", { name: "Thanks, we have your request." })).toHaveCount(0);
+    await choose(d.getByLabel("Time"), 0);
     await expect(d.getByLabel("Time")).not.toHaveValue(offered);
+    await expect(d.getByText("That time was just taken. Pick another.")).toHaveCount(0);
     await d.getByRole("button", { name: "Book" }).click();
     await expect(d.getByRole("heading", { name: "Thanks, we have your request." })).toBeFocused();
     expect((await leadSentTo("Slot loser")).lead).toMatchObject({ type: "test_drive", carSlug: car.slug });
