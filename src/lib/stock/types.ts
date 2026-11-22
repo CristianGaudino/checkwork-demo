@@ -20,8 +20,7 @@ export const PRICE_STOPS = [0, 2500, 5000, 7500, 10_000, 12_500, 15_000, 17_500,
 export const CONDITIONS = ["used", "new", "commercial"] as const;
 export type Condition = (typeof CONDITIONS)[number];
 // Whether priceEur has VAT in it. "inc": included. "ex": VAT on top, reclaimable by a VAT-registered buyer (vans). Absent: nothing said.
-const VAT_STATUSES = ["inc", "ex"] as const;
-export type VatStatus = (typeof VAT_STATUSES)[number];
+export type VatStatus = "inc" | "ex";
 export const SORT_KEYS = ["newest", "price-asc", "price-desc", "year-desc", "km-asc"] as const;
 export type SortKey = (typeof SORT_KEYS)[number];
 

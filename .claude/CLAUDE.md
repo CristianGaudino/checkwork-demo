@@ -22,15 +22,15 @@ The `vintage` repo (`~/Developer/vintage`, GitHub `CristianGaudino/vintage`) is 
 ## Working in git
 - Never develop or commit on `main`, ever. Check `git branch --show-current` before the first edit. Branch first (`git switch -c <type>/<name>`), including for planning docs. The only exception was the initial repo setup push.
 - Open every PR against `main`, never against another feature branch (GitHub closes a PR whose base branch is merged and deleted).
-- Open PRs ready for review, not as drafts. CI runs only by hand (Actions minutes): merges deploy, and the deploy runs lint and the tests first, so the local checks below are the gate. Never merge a PR yourself, under any instruction or circumstance: open it and stop. The owner merges.
+- Open PRs ready for review, not as drafts. CI and E2E run on every PR (ci.yml, e2e.yml); a merge deploys through Actions (deploy.yml), which runs lint and the tests first. Never merge a PR yourself, under any instruction or circumstance: open it and stop. The owner merges.
 - Link the issue in the PR (`Closes #n`) and move it on the project board.
 - Stage named files, not `git add -A`. Never push `.env*`, `test-results/` or `playwright-report/`.
-- GitHub Actions minutes are limited and shared. Push fewer, finished commits.
+- The repo is public, so Actions minutes are free. Still push finished commits: the local checks below are what you run before pushing, and CI repeats them on the PR.
 
 ## Before opening a PR
 1. Run the ponytail audit (`/ponytail:ponytail-audit`) on what the branch changed: the changed files plus their callers and tests.
 2. Fix what it raises on the same branch. A real trade-off goes in the PR description for the owner to decide.
-3. Run lint, typecheck, unit tests, `bash scripts/check-migrations.sh main` and the E2E suite against a production build. Open the PR only if they pass. Say what the audit found and the E2E result in the PR.
+3. Before pushing, run lint, typecheck, unit tests, `bash scripts/check-migrations.sh main` and the E2E suite against a production build (the env is in ci.yml and e2e.yml). CI and E2E repeat them on the PR: it must be green before the owner merges. Say what the audit found and the E2E result in the PR.
 4. Skip steps 1 and 3 for docs-only, workflow-only or copy-only changes, and say so in the PR.
 
 Check by exit code, not by reading output for "error": `npm run lint; echo $?`, `npm test`, `npm run build`. Typecheck with `npx tsc --noEmit`.
@@ -39,7 +39,7 @@ Check by exit code, not by reading output for "error": `npm run lint; echo $?`, 
 This is not the Next.js in your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing code, and heed deprecation notices. `next dev` writes an `AGENTS.md` block about this; commit it.
 
 ## Releases
-Every merge to `main` deploys to production (deploy.yml). For now there are no release-tag deploys; the Release workflow only tags and publishes notes. Roll back by running Deploy from the Actions tab with an older tag or commit. Move to release-tag deploys, as in vintage, once there is a live client site.
+Every merge to `main` deploys to production (deploy.yml). For now there are no release-tag deploys; the Release workflow only tags and publishes notes. Deploys go through Actions, not from a laptop; deploying by hand is a fallback only if Actions is down. Roll back by running Deploy from the Actions tab with an older tag or commit. Move to release-tag deploys, as in vintage, once there is a live client site.
 
 ## Product rules
 - On-screen text is plain, short and human. No em dashes anywhere on the site. If a label already says it, drop the helper text.

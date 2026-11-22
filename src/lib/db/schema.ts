@@ -45,8 +45,8 @@ export const cars = sqliteTable("cars", {
 });
 
 // A small record store: one row per record, the record as JSON, grouped by collection (src/lib/docs.ts). This site keeps three collections
-// here: "reg-cache" and "reg-counts" (the registration lookup) and "feature-counts". The rest of the rows are from the old /dashboard, which
-// moved to checkwork-dash; they are unused, and the daily purge (src/lib/leads/purge.ts) still ages out the lead copies among them.
+// here: "reg-cache" and "reg-counts" (the registration lookup) and "feature-counts". The old /dashboard's rows are gone (2026-11-22);
+// it moved to checkwork-dash.
 export const adminDocs = sqliteTable(
   "admin_docs",
   {

@@ -6,7 +6,7 @@ Leads are personal data. Deleting old leads is automatic (see "Automatic purge")
 
 Leads are kept for **12 months** from when they were sent, then deleted. The period is the constant `LEAD_RETENTION_MONTHS` in `src/lib/leads/constants.ts`, and the `/privacy` page (added in 03-10) states it. The dealer must confirm the period. If it changes, change the constant, `/privacy`, the lifecycle rule's days and this page together.
 
-The copy the dealer dashboard (checkwork-dash) keeps of each lead is that dashboard's own data, in its own database, and is kept and deleted by it. The old `/dashboard` of this repo also kept copies of leads, test drives and customers in `admin_docs` (`real-` records, and the other records of that collection store); the daily purge still deletes those past the same period, until the owner clears the table.
+The copy the dealer dashboard (checkwork-dash) keeps of each lead is that dashboard's own data, in its own database, and is kept and deleted by it.
 
 ## Sale records
 
@@ -16,7 +16,7 @@ then the dashboard removes the buyer from it and keeps the figures. This site do
 
 ## Automatic purge
 
-A Cloudflare cron trigger (wrangler.jsonc `triggers`, daily at 03:17 UTC) runs `purgeOldLeads` (src/lib/leads/purge.ts) from `worker.mjs`. It deletes the trade-in photos of every lead older than `LEAD_RETENTION_MONTHS` from R2, then deletes those lead rows, and the old `real-` copies in `admin_docs` and the registration lookup's cache. Photos go first: if R2 fails, the rows stay and the next run tries again. Each run logs one line, `{"job":"purge-leads","deleted":<count>}`, then `{"job":"purge-counts","deleted":<count>}` for the anonymous feature counts, and nothing else. A run that throws shows as a failed cron in the Cloudflare dashboard (Workers, the Worker, Cron Triggers) and in Workers Logs.
+A Cloudflare cron trigger (wrangler.jsonc `triggers`, daily at 03:17 UTC) runs `purgeOldLeads` (src/lib/leads/purge.ts) from `worker.mjs`. It deletes the trade-in photos of every lead older than `LEAD_RETENTION_MONTHS` from R2, then deletes those lead rows, and the registration lookup's cache in `admin_docs`. Photos go first: if R2 fails, the rows stay and the next run tries again. Each run logs one line, `{"job":"purge-leads","deleted":<count>}`, then `{"job":"purge-counts","deleted":<count>}` for the anonymous feature counts, and nothing else. A run that throws shows as a failed cron in the Cloudflare dashboard (Workers, the Worker, Cron Triggers) and in Workers Logs.
 
 Check it once after the first deploy, then when Workers Logs show a failed run: Workers Logs should show one `purge-leads` line a day. To run it by hand, or if the cron ever stops, the same deletion as SQL (photos first, see "Erasing one person's photos"):
 
