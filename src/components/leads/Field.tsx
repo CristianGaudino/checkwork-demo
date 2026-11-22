@@ -65,7 +65,7 @@ export function Field({
           className="pl-4 in-[dialog]:bg-surface in-data-wells:bg-surface"
         />
       ) : multiline ? (
-        <textarea {...common} maxLength={input.maxLength} enterKeyHint="enter" onChange={(e) => onChange(e.target.value)} className={`${control} min-h-28 resize-none px-4 py-3`} />
+        <textarea {...common} maxLength={input.maxLength} placeholder={input.placeholder} enterKeyHint="enter" onChange={(e) => onChange(e.target.value)} className={`${control} min-h-28 resize-none px-4 py-3`} />
       ) : suffix || prefix ? (
         <span className="relative">
           {prefix && (

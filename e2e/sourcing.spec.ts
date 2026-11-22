@@ -109,14 +109,27 @@ test("/service: a service opens the form on its topic, with no message needed", 
   await expect(page.getByRole("heading", { level: 1, name: "Service" })).toBeVisible();
   await expect(page.getByLabel("Name")).toHaveCount(0);
   await page.getByRole("button", { name: /^Servicing/ }).click();
-  await expect(page.getByLabel("Anything else?")).toHaveValue("I'd like to ask about servicing.");
   await expect(page.getByRole("radio", { name: "Service due" })).toBeChecked();
   await next(page);
+  await expect(page.getByLabel("Anything else?")).toHaveValue("");
   await page.getByLabel("Name").fill("Test buyer");
   await page.getByLabel("Phone", { exact: true }).fill("087 123 4567");
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Send message" }).click();
   await expect(page.getByRole("heading", { name: "Thanks, we have your message." })).toBeFocused();
+  await expect(page.getByRole("link", { name: "Back to home" })).toHaveAttribute("href", "/");
+});
+
+test("/service: Call me needs a phone number", async ({ page }) => {
+  await open(page, "/service");
+  await page.getByRole("button", { name: /^Repairs/ }).click();
+  await next(page);
+  await page.getByLabel("Name").fill("Test buyer");
+  await page.getByLabel("Email", { exact: true }).fill("buyer@example.com");
+  await page.getByText("Call me", { exact: true }).click();
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Send message" }).click();
+  await expect(page.getByText("Add a phone number so we can call or WhatsApp you.")).toBeVisible();
 });
 
 test("after a general message the button goes home, not to the stock list", async ({ page }) => {

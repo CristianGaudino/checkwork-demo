@@ -52,6 +52,7 @@ export function phoneError(v: string): string | undefined {
 export const SOURCING_BODIES = ["Hatchback", "Saloon", "Estate", "SUV", "Coupe", "Convertible", "MPV", "Pickup", "Van"] as const;
 export const SOURCING_CAR_ERROR = "Add a make, a model or a type of car.";
 export const CONTACT_ERROR = "Add a phone number or an email.";
+export const PHONE_FOR_CONTACT_ERROR = "Add a phone number so we can call or WhatsApp you.";
 
 // Trade-in photos (D-13, caps proven in the 03-01 spike). PHOTO_MAX_MB is checked on the picked original before the phone
 // shrinks it; the server enforces the stored and total caps, and next.config.ts's 18mb body cap sits just above the total.

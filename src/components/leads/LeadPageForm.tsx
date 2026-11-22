@@ -18,7 +18,7 @@ const STEPS = { general: CONTACT_STEPS, warranty: CONTACT_STEPS.slice(1), servic
 
 export function LeadPageForm({ form, cars = [], prefill, ...props }: { form: Form; cars?: [string, string][]; submitLabel: string; success: { heading: string; body: string }; prefill?: Record<string, string> }) {
   return (
-    <LeadForm type={TYPE[form]} variant="page" back={form === "general" ? { href: "/", label: "Back to home" } : undefined} steps={STEPS[form]} prefill={prefill ?? (form === "warranty" ? TOPIC_PREFILL.bought : form === "service" ? TOPIC_PREFILL.service : undefined)} {...props}>
+    <LeadForm type={TYPE[form]} variant="page" back={form === "general" || form === "service" ? { href: "/", label: "Back to home" } : undefined} steps={STEPS[form]} prefill={prefill ?? (form === "warranty" ? TOPIC_PREFILL.bought : form === "service" ? TOPIC_PREFILL.service : undefined)} {...props}>
       {(f) => (form === "general" || form === "warranty" || form === "service" ? <GeneralFields {...f} cars={cars} fixed={TOPIC[form]} /> : form === "order" ? <OrderFields {...f} /> : form === "sourcing" ? <SourcingFields {...f} /> : <TradeInFields {...f} mode={form} cars={cars} />)}
     </LeadForm>
   );
