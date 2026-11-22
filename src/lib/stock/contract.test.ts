@@ -153,7 +153,7 @@ export function runContract(name: string, makeProvider: (cars: Car[], opts: Cloc
     it("keeps an unknown selected value in its facet", async () => {
       const r = await provider().query(q({ make: ["zzz"] }));
       expect(r.total).toBe(0);
-      expect(r.facets.make).toContainEqual({ value: "zzz", label: "zzz", count: 0 });
+      expect(r.facets.make).toContainEqual({ value: "zzz", label: "zzz", count: 0, echo: true });
       expect(r.facets.years).toEqual({ min: 2016, max: 2022 });
     });
 

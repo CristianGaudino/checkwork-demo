@@ -34,7 +34,8 @@ function fakeDeps(): Deps {
     demo: true,
     bucket: { put: async () => {}, delete: async () => {} }, // photos are dropped, like the mail
     photoLinkSecret: () => "e2e-photo-link-secret",
-    toAdmin: mirrorLead, // so the E2E run can see a booking arrive in the admin
+    // The real copy and send, so the E2E run can see a booking arrive in the admin, and a lead reach the stub dashboard its config points at.
+    toAdmin,
   };
 }
 

@@ -17,7 +17,9 @@ const PHONE = "087 919 2939";
 const EMAIL = "zz-sentinel@example.com";
 const MESSAGE = "ZZ-SENTINEL-MESSAGE about the car";
 const REG = "ZZ-SENTINEL"; // within the 12-character reg limit
-const SENTINELS = [NAME, PHONE, EMAIL, MESSAGE, REG, "ZZ_SENTINEL_CODE", "E_DAILY_LIMIT_EXCEEDED"];
+// A shared visit note (#249), in fixed values: what the buyer looked at is theirs too.
+const JOURNEY = JSON.stringify({ v: 1, minutes: 7, cars: [{ id: "919293949", views: 2 }], searches: [{ make: "zz-sentinel-make" }], tools: { finance: { monthlyEur: 4321 } } });
+const SENTINELS = [NAME, PHONE, EMAIL, MESSAGE, REG, "ZZ_SENTINEL_CODE", "E_DAILY_LIMIT_EXCEEDED", "919293949", "zz-sentinel-make"];
 
 function form(fields: Record<string, string> = {}) {
   const fd = new FormData();
@@ -32,6 +34,7 @@ function form(fields: Record<string, string> = {}) {
     message: MESSAGE,
     consent: "yes",
     "cf-turnstile-response": "ok",
+    journey: JOURNEY,
     ...fields,
   };
   for (const [k, v] of Object.entries(all)) fd.set(k, v);

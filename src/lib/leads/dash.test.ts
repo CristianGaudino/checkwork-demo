@@ -11,6 +11,7 @@ const later = vi.hoisted(() => ({ jobs: [] as Promise<unknown>[] }));
 vi.mock("next/server", () => ({ after: (fn: () => Promise<unknown>) => void later.jobs.push(fn()) }));
 const afterwork = () => Promise.all(later.jobs.splice(0));
 const { sendToDash } = await import("./dash");
+const { journeySchema } = await import("./journey");
 const { getDeps } = await import("./deps");
 
 const NAME = "ZZ-SENTINEL-NAME";
@@ -98,6 +99,15 @@ describe("sendToDash", () => {
     expect(body.lead).not.toHaveProperty("notifiedAt");
     expect(body.lead).not.toHaveProperty("status");
     expect(logs).toEqual([]);
+  });
+
+  it("adds the visit's journey only when the buyer shared it, as the contract has it", async () => {
+    const journey = { v: 1 as const, minutes: 4, cars: [{ id: "4710001", views: 2 }], searches: [{ make: "audi", condition: "used" as const }], tools: { finance: { monthlyEur: 312 } } };
+    await sendToDash({ ...row, journey }, true);
+    const body = await sent().json();
+    expect(Object.keys(body).sort()).toEqual(["emailed", "journey", "lead", "photoCount"]);
+    expect(journeySchema.parse(body.journey)).toEqual(journey);
+    expect(body.lead).not.toHaveProperty("journey");
   });
 
   it("goes through the DASH service binding when there is one, to the dashboard's host, and not over fetch", async () => {

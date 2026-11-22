@@ -22,6 +22,9 @@ describe("channelOf", () => {
     expect(channelOf(`${page}?utm_source=flyer`, "")).toBe("other");
     expect(channelOf(`${page}?gclid=abc`, "")).toBe("google");
     expect(channelOf(`${page}?fbclid=abc`, "")).toBe("facebook");
+    // Meta adds fbclid to Instagram's links too: the referrer tells them apart.
+    expect(channelOf(`${page}?fbclid=x`, "https://l.instagram.com/")).toBe("instagram");
+    expect(channelOf(`${page}?fbclid=x`, "https://l.facebook.com/")).toBe("facebook");
   });
 
   it("no referrer or a bad value is typed in; our own site is a visit already under way", () => {

@@ -107,6 +107,7 @@ export interface FacetOption {
   label: string;
   count: number;
   parent?: string; // makeSlug, model options only
+  echo?: true; // a picked value no car has, echoed back so the filter still shows it: whatever was in the link, never a stock value
 }
 export interface Facets {
   make: FacetOption[];

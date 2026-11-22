@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import { DASH_STUB_PORT, DASH_STUB_URL } from "./e2e/dash-stub";
 
 // Runs against E2E_BASE_URL, or a local production build (npm run build && npm start) on PORT (default 3000).
 const baseURL = process.env.E2E_BASE_URL ?? `http://localhost:${process.env.PORT ?? 3000}`;
@@ -18,7 +19,11 @@ export default defineConfig({
   ],
   // E2E_FAIL_QUERY is the failure-state switch; a server already running on that port without it makes the failure specs fail.
   // E2E_FAKE_BACKENDS swaps the lead store and mailer for in-memory fakes (src/lib/leads/deps.ts). Only ever set here.
+  // DASH_URL is a stub dealer dashboard on this machine (e2e/dash-stub-server.mjs) that runs for the whole run and takes every lead.
   webServer: process.env.E2E_BASE_URL
     ? undefined
-    : { command: "npm start", url: baseURL, reuseExistingServer: false, env: { E2E_FAIL_QUERY: "e2e-forced-failure", E2E_FAKE_BACKENDS: "1", UNSUBSCRIBE_SECRET: "e2e-unsubscribe-secret", OWNER_API_TOKEN: "e2e-owner-token" } },
+    : [
+        { command: `node e2e/dash-stub-server.mjs ${DASH_STUB_PORT}`, url: `${DASH_STUB_URL}/bodies`, reuseExistingServer: false },
+        { command: "npm start", url: baseURL, reuseExistingServer: false, env: { E2E_FAIL_QUERY: "e2e-forced-failure", E2E_FAKE_BACKENDS: "1", UNSUBSCRIBE_SECRET: "e2e-unsubscribe-secret", OWNER_API_TOKEN: "e2e-owner-token", DASH_SITE_KEY: "e2e-dash-key", DASH_URL: DASH_STUB_URL } },
+      ],
 });

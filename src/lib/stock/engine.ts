@@ -73,7 +73,7 @@ export function createStockEngine(input: Car[], { now = () => new Date() }: { no
       const o = pick(c);
       if (o && !options.has(o.value)) options.set(o.value, { ...o, count: 0 });
     }
-    for (const v of selected) if (!options.has(v)) options.set(v, { value: v, label: v, count: 0 });
+    for (const v of selected) if (!options.has(v)) options.set(v, { value: v, label: v, count: 0, echo: true });
     for (const c of pool) {
       const o = pick(c);
       if (o && matches(c, q, group)) options.get(o.value)!.count++;

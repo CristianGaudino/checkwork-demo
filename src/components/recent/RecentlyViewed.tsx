@@ -6,13 +6,15 @@ import { useCarsByIds } from "@/components/stock/useCarsByIds";
 import { sectionTitle, textLink } from "@/components/ui";
 import { clearRecent, noteViewed, removeRecent, useRecentIds } from "@/lib/recent/store";
 import { useSavedIds } from "@/lib/saved/store";
+import { noteCar } from "@/lib/visit-note";
 
 const never = () => () => {};
 
-// On a car page: remembers that this browser opened it. Draws nothing.
+// On a car page: remembers that this browser opened it, and notes it for this visit. Draws nothing.
 export function ViewedCar({ id }: { id: string }) {
   useEffect(() => {
     noteViewed(id);
+    noteCar(id);
   }, [id]);
   return null;
 }

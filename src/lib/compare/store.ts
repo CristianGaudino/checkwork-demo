@@ -1,9 +1,10 @@
 import { createIdStore } from "@/lib/id-store";
 import { SITE_SLUG } from "@/lib/site";
+import { noteAdded } from "@/lib/visit-note";
 
 // Up to three cars side by side (the mockup's compare page), kept in this browser like the saved cars.
 export const MAX_COMPARE = 3;
-const compare = createIdStore(`${SITE_SLUG}:compare-ids`, MAX_COMPARE);
+const compare = createIdStore(`${SITE_SLUG}:compare-ids`, MAX_COMPARE, (id) => noteAdded("compared", id));
 
 export const useCompareIds = compare.useIds;
 export const removeCompare = compare.remove;

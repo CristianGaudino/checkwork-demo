@@ -6,6 +6,8 @@ import { carTitle } from "@/lib/stock/format";
 import { buildLeadEmail } from "./email";
 import type { PhotoBucket } from "./bindings";
 import { CONSENT, PHOTO_LIMITS, PHOTO_MIN_ERROR, PHOTO_STORED_MAX_BYTES, PHOTO_TOTAL_ERROR, PHOTO_TOTAL_MAX_BYTES, photoCountError, photoError } from "./constants";
+import { parseJourney } from "./journey";
+import type { Journey } from "./journey";
 import { signPhotoPath, sniffImage } from "./photos";
 import { DETAIL_LABELS, TYPE_LABELS, leadSchema } from "./schema";
 import type { LeadType } from "./schema";
@@ -35,6 +37,7 @@ export interface LeadRow {
   photoKeys: string[];
   consentAt: Date;
   consentVersion: string;
+  journey?: Journey; // the visit's note, only when the buyer shared it: sent on to the dashboard, never stored or emailed here
 }
 export type CarSnapshot = Pick<LeadRow, "carId" | "carSlug" | "carTitle" | "carPriceEur">;
 
@@ -163,6 +166,8 @@ export async function processLead(fd: FormData, ctx: { ip: string }, deps: Deps)
       consentAt: new Date(),
       consentVersion: CONSENT.version,
     };
+    const journey = parseJourney(fd.get("journey")); // a forged or broken note is dropped, never the lead
+    if (journey) row.journey = journey;
     leadId = row.id;
 
     // Photos go in before the row, under the lead's random id; the row keeps keys, never URLs (D-13). A failure from here to

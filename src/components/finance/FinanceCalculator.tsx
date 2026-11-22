@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Field } from "@/components/leads/Field";
 import { FinanceFields, termOptions } from "@/components/leads/FinanceFields";
 import { LeadDialog } from "@/components/leads/LeadDialog";
@@ -14,6 +14,7 @@ import { fmtEur } from "@/lib/stock/format";
 import { ArrowRightIcon, InfoIcon } from "@/components/stock/icons";
 import { accentButton, card, chip, press } from "@/components/ui";
 import { count } from "@/lib/count-client";
+import { noteFinance } from "@/lib/visit-note";
 
 // Keystrokes that would not make a number are refused, so the fields only ever hold digits.
 const WHOLE = /^\d{0,6}$/;
@@ -48,14 +49,21 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
   const q = pcp ? pcpEstimate(priceEur, depositEur, Number(term)) : quote(priceEur, depositEur, Number(term), d.aprPct);
   const final = q && "finalEur" in q ? q.finalEur : undefined;
   const depositError = priceError ? undefined : depositEur >= priceEur ? "Deposit must be less than the price." : pcp && !q ? "Deposit is too high for PCP. Lower it or choose hire purchase." : undefined;
+  // Used once the buyer changes anything; from then the visit's note keeps the last monthly figure shown.
+  const [used, setUsed] = useState(false);
+  const touched = () => (count("finance"), setUsed(true));
+  const monthly = q?.monthlyEur;
+  useEffect(() => {
+    if (used) noteFinance(monthly);
+  }, [used, monthly]);
   const pick = (p: FinanceProduct) => {
-    count("finance");
+    touched();
     setProduct(p);
     const terms = p === "pcp" && FINANCE.pcp ? FINANCE.pcp : { terms: FINANCE.terms, termMonths: d.termMonths };
     if (!terms.terms.includes(Number(term))) setTerm(String(terms.termMonths)); // a term the other product does not offer
   };
 
-  const field = (name: string, value: string, onChange: (v: string) => void, error?: string) => ({ id: `${uid}-${name}`, name, value, onChange: (v: string) => (count("finance"), onChange(v)), error });
+  const field = (name: string, value: string, onChange: (v: string) => void, error?: string) => ({ id: `${uid}-${name}`, name, value, onChange: (v: string) => (touched(), onChange(v)), error });
 
   return (
     <>
