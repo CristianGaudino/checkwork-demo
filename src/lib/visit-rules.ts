@@ -1,4 +1,4 @@
-import { slugify } from "@/lib/admin/stock-admin-pure";
+import { slugify } from "@/lib/stock/slug";
 import { MAKE_OPTIONS } from "@/lib/leads/makes";
 
 // What the site learns about a visit without knowing who it is (#12): the channel it came from, the price band a buyer looks at, and the
@@ -63,7 +63,6 @@ export function channelOf(pageUrl: string, referrer: string): Channel | null {
 const BAND_TOPS = [10000, 20000, 30000, 50000];
 export const PRICE_BANDS = ["under-10k", "10k-20k", "20k-30k", "30k-50k", "over-50k"] as const;
 export type PriceBand = (typeof PRICE_BANDS)[number];
-export const PRICE_BAND_LABELS: Record<PriceBand, string> = { "under-10k": "Up to €10,000", "10k-20k": "€10,000 to €20,000", "20k-30k": "€20,000 to €30,000", "30k-50k": "€30,000 to €50,000", "over-50k": "Over €50,000" };
 export function bandOf(q: { priceMin?: number; priceMax?: number }): PriceBand | null {
   const i = q.priceMax !== undefined ? BAND_TOPS.findIndex((t) => q.priceMax! <= t) : q.priceMin !== undefined ? BAND_TOPS.findIndex((t) => q.priceMin! < t) : -2;
   return i === -2 ? null : PRICE_BANDS[i === -1 ? BAND_TOPS.length : i];
@@ -73,14 +72,9 @@ export function bandOf(q: { priceMin?: number; priceMax?: number }): PriceBand |
 // they typed is never stored.
 const MAKES = MAKE_OPTIONS.slice(1).map((o) => ({ slug: slugify(o.value), name: o.value }));
 export const MISSED_MAKES = [...MAKES.map((m) => m.slug), "other"];
-export const missedMakeLabel = (slug: string) => MAKES.find((m) => m.slug === slug)?.name ?? "Other searches";
 export function missedMake(q: { q?: string; make: string[] }): string {
   const text = `-${slugify(q.q ?? "")}-`;
   return q.make.find((s) => MISSED_MAKES.includes(s)) ?? MAKES.find((m) => text.includes(`-${m.slug}-`))?.slug ?? "other";
 }
-
-// "Website, from Facebook": a lead's source, and for a website lead the channel its visit came from.
-export const sourceText = (l: { source: string; channel?: string }) =>
-  !l.channel ? l.source : l.channel === CHANNEL_LABELS.direct ? `${l.source}, typed in` : `${l.source}, from ${l.channel}`;
 
 export const VISIT_EVENTS = [...CHANNELS.map((c) => `visit:${c}`), ...PRICE_BANDS.map((b) => `band:${b}`), ...MISSED_MAKES.map((m) => `missed:${m}`)];

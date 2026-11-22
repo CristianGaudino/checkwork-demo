@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const bump = vi.fn(async (event: string) => void event);
 let limiter: { limit: () => Promise<{ success: boolean }> } | undefined;
 vi.mock("server-only", () => ({}));
-vi.mock("@/lib/owner-api/counters", () => ({ bump: (e: string) => bump(e) }));
+vi.mock("@/lib/counts/store", () => ({ bump: (e: string) => bump(e) }));
 vi.mock("@/lib/leads/bindings", () => ({ getBindings: () => ({ COUNT_LIMITER: limiter }) }));
 import { POST } from "./route";
 

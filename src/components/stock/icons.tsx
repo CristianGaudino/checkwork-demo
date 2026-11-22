@@ -46,11 +46,6 @@ export const ShareIcon = (p: Props) => (
     <path d="M12 15V3M8 7l4-4 4 4M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1" />
   </Icon>
 );
-export const PencilIcon = (p: Props) => (
-  <Icon {...p}>
-    <path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4zM13.5 6.5l4 4" />
-  </Icon>
-);
 const HEART = "M12 20.5s-7.6-4.6-9.3-9.5C1.5 7.6 3.8 4.5 7.2 4.5c2 0 3.7 1.1 4.8 2.8 1.1-1.7 2.8-2.8 4.8-2.8 3.4 0 5.7 3.1 4.5 6.5-1.7 4.9-9.3 9.5-9.3 9.5z";
 // Saved is the filled shape, not only the colour; the outline stays on top for contrast over any photo.
 export const HeartIcon = ({ filled, ...p }: Props & { filled?: boolean }) => (
@@ -89,18 +84,6 @@ export const SearchIcon = (p: Props) => (
   <Icon {...p}>
     <circle cx="11" cy="11" r="6" />
     <path d="m20 20-4.2-4.2" />
-  </Icon>
-);
-export const WrenchIcon = (p: Props) => (
-  <Icon {...p}>
-    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76Z" />
-  </Icon>
-);
-export const TruckIcon = (p: Props) => (
-  <Icon {...p}>
-    <path d="M3 6h11v10H3zM14 9h4l3 3v4h-7" />
-    <circle cx="7" cy="18" r="1.8" />
-    <circle cx="17.5" cy="18" r="1.8" />
   </Icon>
 );
 export const ShieldCheckIcon = (p: Props) => (
@@ -154,20 +137,6 @@ export const CalendarIcon = (p: Props) => (
     <path d="M4 10h16M8.5 3v4M15.5 3v4" />
   </Icon>
 );
-// A page with bars: the dashboard's reports.
-export const ReportIcon = (p: Props) => (
-  <Icon {...p}>
-    <rect x="4" y="3" width="16" height="18" rx="2" />
-    <path d="M8 17v-4M12 17V8M16 17v-6" />
-  </Icon>
-);
-// A clock with a turning arrow: the dashboard's activity history.
-export const HistoryIcon = (p: Props) => (
-  <Icon {...p}>
-    <path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4" />
-    <path d="M12 8v4.5l3 2" />
-  </Icon>
-);
 export const BellIcon = (p: Props) => (
   <Icon {...p}>
     <path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15L6 16.5ZM10 20.5a2 2 0 0 0 4 0" />
@@ -216,11 +185,6 @@ export const InstagramIcon = (p: Props) => (
     <circle cx="17.2" cy="6.8" r=".6" />
   </Icon>
 );
-export const GoogleIcon = (p: Props) => (
-  <Icon {...p}>
-    <path d="M19.6 10.5H12.5v3h4.2a4.9 4.9 0 1 1-1.3-5.1l2.1-2.1A8 8 0 1 0 20 12c0-.5 0-1-.1-1.5Z" />
-  </Icon>
-);
 export const TikTokIcon = (p: Props) => (
   <Icon {...p}>
     <path d="M14 4v10.5a3.5 3.5 0 1 1-3.5-3.5M14 4c.3 2.3 1.8 3.8 4 4" />
@@ -254,93 +218,3 @@ export const CameraIcon = (p: Props) => (
   </Icon>
 );
 
-// Dashboard navigation and row actions.
-export const HomeIcon = (p: Props) => (
-  <Icon {...p}>
-    <path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" />
-  </Icon>
-);
-export const InboxIcon = (p: Props) => (
-  <Icon {...p}>
-    <path d="M4 13.5 6.5 5h11l2.5 8.5M4 13.5V19a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-5.5M4 13.5h4.5l1 2h5l1-2H20" />
-  </Icon>
-);
-export const UsersIcon = (p: Props) => (
-  <Icon {...p}>
-    <circle cx="9" cy="8.5" r="3.5" />
-    <path d="M3 19.5c.7-3.2 3.1-5 6-5s5.3 1.8 6 5M15.5 5.2a3.5 3.5 0 0 1 0 6.6M17.5 14.8c1.8.6 3.1 2.2 3.5 4.7" />
-  </Icon>
-);
-export const MegaphoneIcon = (p: Props) => (
-  <Icon {...p}>
-    <path d="M4 10v4a1 1 0 0 0 1 1h3l7 4V5L8 9H5a1 1 0 0 0-1 1zM8 15l1.5 5M18 9.5a3 3 0 0 1 0 5" />
-  </Icon>
-);
-export const ChartIcon = (p: Props) => (
-  <Icon {...p}>
-    <path d="M4 20h16M7 16v-5M12 16V7M17 16v-8" />
-  </Icon>
-);
-export const PercentIcon = (p: Props) => (
-  <Icon {...p}>
-    <path d="M18 6 6 18" />
-    <circle cx="7.5" cy="7.5" r="2.5" />
-    <circle cx="16.5" cy="16.5" r="2.5" />
-  </Icon>
-);
-// A gear with teeth (Lucide's settings outline, ISC licence): the old circle with rays read as a sun.
-export const CogIcon = (p: Props) => (
-  <Icon {...p}>
-    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-    <circle cx="12" cy="12" r="3" />
-  </Icon>
-);
-export const ExternalIcon = (p: Props) => (
-  <Icon {...p}>
-    <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />
-  </Icon>
-);
-export const TrashIcon = (p: Props) => (
-  <Icon {...p}>
-    <path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 12.5h9l1-12.5M10 11v5M14 11v5" />
-  </Icon>
-);
-export const SyncIcon = (p: Props) => (
-  <Icon {...p}>
-    <path d="M20 12a8 8 0 0 1-14 5.3M4 12a8 8 0 0 1 14-5.3M18 3v4h-4M6 21v-4h4" />
-  </Icon>
-);
-// A bill: Billing in the dashboard.
-export const ReceiptIcon = (p: Props) => (
-  <Icon {...p}>
-    <path d="M6 3h12v18l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5L6 21z" />
-    <path d="M9 8h6M9 12h6M9 16h3" />
-  </Icon>
-);
-// A question in a circle: Help in the dashboard.
-export const HelpIcon = (p: Props) => (
-  <Icon {...p}>
-    <circle cx="12" cy="12" r="9" />
-    <path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6" />
-    <path d="M12 17h.01" />
-  </Icon>
-);
-// Sparkles: whatever an AI wrote or can write, so it is never mistaken for the dealer's own words.
-export const SparkleIcon = (p: Props) => (
-  <Icon {...p}>
-    <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z" />
-    <path d="M19 15l.7 2.3L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.7z" />
-  </Icon>
-);
-// Shown or hidden on the website: a car's Show and Hide buttons in the dashboard.
-export const EyeIcon = (p: Props) => (
-  <Icon {...p}>
-    <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" />
-    <circle cx="12" cy="12" r="3" />
-  </Icon>
-);
-export const EyeOffIcon = (p: Props) => (
-  <Icon {...p}>
-    <path d="M4 4l16 16M9.9 5.8A9.6 9.6 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-2.9 3.7M6.6 7.6A16.7 16.7 0 0 0 2.5 12S6 18.5 12 18.5a9.3 9.3 0 0 0 4.4-1.1M9.9 9.9a3 3 0 0 0 4.2 4.2" />
-  </Icon>
-);

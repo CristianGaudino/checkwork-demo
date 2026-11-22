@@ -3,7 +3,7 @@
 import { DEV_COOKIE, DEV_MODES, type DevMode } from "@/lib/dev-modes";
 
 // break-ui: Demo / Worst case, dev only (mounted in layout.tsx behind NODE_ENV). Plain on purpose: it is chrome, not the design under test.
-// At the top of the screen: the foot holds the demo pill and the dashboard's tab bar.
+// At the top of the screen: the foot holds the page's own fixed bars.
 const LABELS = { demo: "Demo data", worst: "Worst case", empty: "Empty", one: "One", huge: "1,284 cars" } as const;
 
 export function DevDataToggle({ mode }: { mode: DevMode }) {

@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: "Order a new car", description: `Orde
 // A factory order: the dealer places it and keeps the buyer posted until it arrives. A dealer whose stock is on DoneDeal has no orders
 // here (our version only), so the page is not there for them.
 export default async function OrderPage() {
-  if ((await stockSource()) === "donedeal") notFound();
+  if (stockSource() === "donedeal") notFound();
   return (
     <LeadPage
       title="Order a new car"

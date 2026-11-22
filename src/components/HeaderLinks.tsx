@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useVehicleHint } from "@/components/vehicleHint";
-import { isAppPath } from "@/lib/demo";
 import { HEADER_LINKS, VEHICLE_TYPES } from "@/lib/nav";
 
 // The desktop links (from 1024px). Used, New and Commercial are the first three, like any other section. A red bar under the current one.
@@ -21,7 +20,7 @@ export function HeaderLinks() {
   return (
     <div className="hidden items-center gap-4 lg:flex xl:gap-6">
       {[...vehicles, ...others].map((l) => (
-        <Link key={l.href} href={l.href} prefetch={isAppPath(l.href) ? false : undefined} aria-current={l.current ? "page" : undefined} className={`${item} ${l.current ? bar : ""}`}>
+        <Link key={l.href} href={l.href} aria-current={l.current ? "page" : undefined} className={`${item} ${l.current ? bar : ""}`}>
           {l.label}
         </Link>
       ))}

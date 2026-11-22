@@ -2,7 +2,7 @@ import demoCars from "./demo-cars.json";
 import type { DevMode } from "../dev-modes";
 import type { Review, Reviews } from "../reviews";
 import type { Car, Photo } from "./types";
-import { slugify } from "@/lib/admin/stock-admin-pure";
+import { slugify } from "@/lib/stock/slug";
 
 // break-ui: the worst realistic stock, for the dev-only Demo / Worst case switch (src/lib/dev-data.ts). Dev builds only; never imported in production.
 // Every value is something a dealer feed can produce. Photos reuse real demo files so the layout is judged on the data, not on missing images.

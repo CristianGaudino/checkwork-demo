@@ -1,33 +1,31 @@
 import "server-only";
 import demoCars from "@/lib/stock/demo-cars.json";
-import { defineCollection } from "@/lib/admin/docs";
+import { defineCollection } from "@/lib/docs";
 import { getBindings } from "@/lib/leads/bindings";
 import { REG_CACHE_DAYS } from "@/lib/leads/constants";
-import { modeOf } from "@/lib/integrations";
+import { regLookupMode } from "@/lib/integrations";
 import { parseIrishReg, type RegFacts } from "@/lib/reg";
 import { DAY } from "@/lib/time";
 import type { Car, Fuel } from "@/lib/stock/types";
 
 // A registration lookup: what the plate says on its own (year, county), and with a lookup service the car itself. One lookup for the
-// visitor's forms (trade-in, sell) and the dealer's (Add a car, #103; a lead).
+// visitor's forms (trade-in, sell).
 export type CarFound = { make: string; model: string; fuel?: Fuel; engineLitres?: number; colour?: string; bodyType?: string };
-// `limited`: the dealer's monthly limit for lookups is reached (#181), so only the plate's own facts came back.
-export type RegLookup = RegFacts & { car?: CarFound; limited?: true };
+export type RegLookup = RegFacts & { car?: CarFound };
 
 // Cartell is the service (issue #2). Each real lookup costs money, so a live one goes through these limits first, in this order:
 // 1. the cache: a plate looked up in the last 30 days is answered from it, free, however often it is asked for;
 // 2. a cap for the whole site a day (REG_LOOKUPS_A_DAY), so a bot that gets past the rest still has a ceiling on the bill;
 // 3. per visitor, REG_LOOKUPS_PER_VISITOR_A_DAY paid lookups a day: a trade-in needs one or two, so more is someone trying plates;
 // 4. per visitor, 5 a minute (the lead form's limiter, its own key), so a burst stops at once.
-// Staff (the dashboard's own action, behind Cloudflare Access) skip 3 and 4: the whole dealership shares one address. The site cap holds.
 // Past a limit, the answer is the plate's own facts, as when the service is off: the form still works, the person types the rest.
 // Simulated (the demo): a sample car from the demo stock, the same for the same plate every time. Off: only the plate's facts.
 export const REG_LOOKUPS_A_DAY = 200;
 export const REG_LOOKUPS_PER_VISITOR_A_DAY = 10;
 type Cached = { id: string; car: CarFound | null; at: number };
 type Count = { id: string; n: number };
-export const regCache = defineCollection<Cached>("reg-cache", () => []);
-export const regCounts = defineCollection<Count>("reg-counts", () => []);
+export const regCache = defineCollection<Cached>("reg-cache");
+export const regCounts = defineCollection<Count>("reg-counts");
 
 // The service itself. ADAPTER GOES HERE: call Cartell with CARTELL_API_KEY and map its answer; null when it does not know the plate.
 export async function cartell(reg: string): Promise<CarFound | null> {
@@ -42,14 +40,11 @@ async function visitorCountId(today: string, visitor: string): Promise<string> {
   return `${today}-v-${[...hash.slice(0, 12)].map((b) => b.toString(16).padStart(2, "0")).join("")}`;
 }
 
-// `visitor`: the visitor's address, for their limits; null for staff, who have none. `meter`: the dealer's monthly limit and count
-// (src/lib/billing/usage.ts): asked before a lookup that costs money (or would, on the demo), counted after it. A cached answer is free, so
-// it is given even past the limit and never counted. Past the limit the answer is the plate's own facts, marked `limited`.
-type Meter = { allowed(): Promise<boolean>; paid(): Promise<void> };
-export async function lookupReg(raw: string, visitor: string | null, service: (reg: string) => Promise<CarFound | null> = cartell, meter?: Meter): Promise<RegLookup | null> {
+// `visitor`: the visitor's address, for their limits; null skips the per-visitor limits (the site-wide cap still holds).
+export async function lookupReg(raw: string, visitor: string | null, service: (reg: string) => Promise<CarFound | null> = cartell): Promise<RegLookup | null> {
   const facts = parseIrishReg(raw);
   if (!facts) return null;
-  const mode = modeOf("reglookup");
+  const mode = regLookupMode();
   if (mode === "off") return facts;
 
   const now = Date.now();
@@ -58,7 +53,6 @@ export async function lookupReg(raw: string, visitor: string | null, service: (r
   // demo's monthly limit for every viewer.
   const hit = simulated ? undefined : await regCache.get(facts.reg);
   if (hit && hit.at > now - REG_CACHE_DAYS * DAY) return hit.car ? { ...facts, car: hit.car } : facts;
-  if (meter && !(await meter.allowed())) return { ...facts, limited: true };
   const today = `day-${new Date(now).toISOString().slice(0, 10)}`;
   // shortcut: the count is read then written, so two lookups at the same moment can both pass at the cap. A few over a cap of 200 is
   // fine; a Durable Object counter if the cap ever has to be exact.
@@ -73,7 +67,6 @@ export async function lookupReg(raw: string, visitor: string | null, service: (r
   await regCounts.put({ id: today, n: count + 1 });
   if (mine) await regCounts.put({ id: mine, n: used + 1 });
   if (simulated) {
-    await meter?.paid();
     return { ...facts, car: sampleCar(facts.reg) };
   }
   let car: CarFound | null;
@@ -82,7 +75,6 @@ export async function lookupReg(raw: string, visitor: string | null, service: (r
   } catch {
     return facts; // a failed lookup is not cached, and never stops the form
   }
-  await meter?.paid();
   await regCache.put({ id: facts.reg, car, at: now });
   return car ? { ...facts, car } : facts;
 }

@@ -75,46 +75,6 @@ test("no cars match: Ask us to find it opens Find a car with the search filled i
 test.describe("on a computer", () => {
   test.use({ viewport: { width: 1280, height: 800 }, isMobile: false, hasTouch: false });
 
-  test("leaving a car form with changes asks first, and No keeps the edits", async ({ page }) => {
-    await page.goto("/dashboard/stock/new");
-    await page.getByLabel("Year", { exact: true }).fill("2019");
-    const asked: string[] = [];
-    page.once("dialog", (d) => {
-      asked.push(d.message());
-      void d.dismiss();
-    });
-    await page.getByRole("link", { name: "Cancel" }).click();
-    await expect.poll(() => asked).toEqual(["Leave without saving? Your changes will be lost."]);
-    await expect(page).toHaveURL(/\/dashboard\/stock\/new$/);
-    await expect(page.getByLabel("Year", { exact: true })).toHaveValue("2019");
-    page.once("dialog", (d) => void d.accept());
-    await page.getByRole("link", { name: "Cancel" }).click();
-    await page.waitForURL(/\/dashboard\/stock$/);
-  });
-
-  test("a change made only in a dropdown asks too; a form left as it opened does not", async ({ page }) => {
-    await page.goto("/dashboard/stock/new");
-    let asked = 0;
-    page.on("dialog", (d) => {
-      asked++;
-      void d.dismiss();
-    });
-    await choose(page.getByRole("combobox", { name: "Fuel" }), 1);
-    await page.getByRole("link", { name: "Cancel" }).click();
-    await expect.poll(() => asked).toBe(1);
-    await expect(page).toHaveURL(/\/dashboard\/stock\/new$/);
-    // A new tab: this one still holds the change, so the browser rightly asks before it reloads.
-    const fresh = await page.context().newPage();
-    fresh.on("dialog", (d) => {
-      asked++;
-      void d.dismiss();
-    });
-    await fresh.goto("/dashboard/stock/new");
-    await fresh.getByRole("link", { name: "Cancel" }).click();
-    await fresh.waitForURL(/\/dashboard\/stock$/);
-    expect(asked).toBe(1);
-  });
-
   test("contact: directions under the map, and no copy number button (owner, 2026-11-22)", async ({ page }) => {
     await page.goto("/contact");
     await expect(page.getByRole("link", { name: /Get directions/ })).toHaveAttribute("target", "_blank");

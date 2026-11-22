@@ -6,6 +6,6 @@ import type { LeadType } from "@/lib/leads/schema";
 // codes: why the bot check failed, as fixed codes only (turnstile.ts), never the token.
 export function logLead({ leadId, type, outcome, status, codes }: { leadId?: string; type: LeadType | "n/a"; outcome: Outcome; status?: number; codes?: string[] }): void {
   const line = JSON.stringify({ leadId, type, outcome, status, codes });
-  if (outcome === "error" || outcome === "notify_failed" || outcome === "mirror_failed" || outcome === "dash_failed") console.error(line);
+  if (outcome === "error" || outcome === "notify_failed" || outcome === "dash_failed") console.error(line);
   else console.log(line);
 }

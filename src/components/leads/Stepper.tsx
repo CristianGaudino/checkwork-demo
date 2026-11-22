@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { CheckIcon } from "@/components/stock/icons";
 
 // The heading of a stepped form takes focus when the step changes (not on the first render), so a screen reader hears where it is. For the
-// dashboard's steps; the website's forms do it in useSteps, which also waits for a field being typed in.
+// steps without useSteps; the website's forms do it in useSteps, which also waits for a field being typed in.
 export function useStepHeading(step: number) {
   const heading = useRef<HTMLHeadingElement>(null);
   const moved = useRef(false);

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-// A page per make (#97), the menu (#98) and the demo bar at the foot of the screen (#94).
+// A page per make (#97), the menu (#98).
 test("a make page shows what we have of it, used and new, each with the way to its full list", async ({ page }) => {
   await page.goto("/makes/toyota");
   await expect(page.getByRole("heading", { level: 1, name: "Toyota" })).toBeVisible();
@@ -36,19 +36,6 @@ test("the used make page links to the make's page across every kind", async ({ p
   await page.goto("/used-cars/toyota");
   await page.getByRole("link", { name: "Every Toyota: used, new and commercial" }).click();
   await expect(page).toHaveURL(/\/makes\/toyota$/);
-});
-
-test("on a phone the demo bar is a pill at the foot of the screen, and the page ends above it", async ({ page }) => {
-  await page.goto("/");
-  const bar = (await page.locator("[data-demo-bar]").getByRole("button", { name: /^Demo/ }).boundingBox())!;
-  const vh = page.viewportSize()!.height;
-  expect(bar.height).toBeLessThanOrEqual(44); // small: one line, not a strip across the screen
-  expect(vh - (bar.y + bar.height)).toBeLessThanOrEqual(16);
-  // The page's room for the bar is set once the bar has measured itself (after hydration): wait for it, as a slow load is late with it.
-  await expect.poll(() => page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--demo-bar-h").trim())).not.toBe("");
-  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-  const footer = (await page.getByRole("contentinfo").boundingBox())!;
-  expect(footer.y + footer.height).toBeLessThanOrEqual(bar.y + 1);
 });
 
 test("Find a car takes a make with an accent from the link", async ({ page }) => {

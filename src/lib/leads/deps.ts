@@ -6,7 +6,6 @@ import { isProduction } from "@/lib/site";
 import { stock } from "@/lib/stock";
 import { getBindings } from "./bindings";
 import type { Deps, LeadStore, Mailer } from "./process";
-import { mirrorLead } from "@/lib/admin/real-leads";
 import { leadRecipients, sendToDealer } from "./mail";
 import { sendToDash } from "./dash";
 import { createDrizzleStore } from "./store";
@@ -34,8 +33,8 @@ function fakeDeps(): Deps {
     demo: true,
     bucket: { put: async () => {}, delete: async () => {} }, // photos are dropped, like the mail
     photoLinkSecret: () => "e2e-photo-link-secret",
-    // The real copy and send, so the E2E run can see a booking arrive in the admin, and a lead reach the stub dashboard its config points at.
-    toAdmin,
+    // The real send, so the E2E run sees a lead reach the stub dashboard its config points at.
+    toDash,
   };
 }
 
@@ -46,17 +45,16 @@ const store: LeadStore = {
   // A lead nobody is told about is worse than a refused one: with no address to email, refuse before storing, so the buyer is
   // told to call instead of waiting for a reply that never comes. Set LEAD_TO_EMAIL before the bot-check secret.
   insert: async (row) => {
-    if ((await leadRecipients()).length === 0) throw new Error("Missing LEAD_TO_EMAIL");
+    if (leadRecipients().length === 0) throw new Error("Missing LEAD_TO_EMAIL");
     return db().insert(row);
   },
   markNotified: (id) => db().markNotified(id),
 };
-// The archived /dashboard's copy and the dealer dashboard (checkwork-dash). The send runs after the buyer's answer is out (`after`, kept
-// alive by the Worker), so a slow or down dashboard never makes them wait; sendToDash never throws, so it never touches the copy.
-const toAdmin: Deps["toAdmin"] = async (row, emailed) => {
+// The dealer dashboard (checkwork-dash). The send runs after the buyer's answer is out (`after`, kept alive by the Worker), so a slow or down
+// dashboard never makes them wait; sendToDash never throws.
+const toDash: Deps["toDash"] = async (row, emailed) => {
   const dash = getBindings().DASH; // read now, while the request is live
   after(() => sendToDash(row, emailed, dash));
-  await mirrorLead(row, emailed);
 };
 let fakes: Deps | undefined;
 
@@ -75,7 +73,7 @@ export function getDeps(): Deps {
     demo: !isProduction(),
     bucket,
     photoLinkSecret: () => requireEnv("PHOTO_LINK_SECRET"),
-    toAdmin,
+    toDash,
   };
 }
 

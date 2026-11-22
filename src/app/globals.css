@@ -24,12 +24,6 @@
   --text-hero-lg: 3.5rem;
   --text-hero-lg--line-height: 1.02;
   --text-hero-lg--letter-spacing: -0.04em;
-  /* The dashboard's three levels: a page title, a section, the rows (text-body). */
-  --text-title: 1.5rem;
-  --text-title--line-height: 1.2;
-  --text-title--letter-spacing: -0.015em;
-  --text-section: 1.125rem;
-  --text-section--line-height: 1.3;
   --text-section--letter-spacing: -0.005em;
   --text-display: 2rem;
   --text-display--line-height: 1.1;
@@ -53,9 +47,8 @@
   --color-card: #ffffff;
   --color-row-alt: #f1f3f9; /* every other table row, between card and surface */
   --color-chart-muted: #c9cede; /* the bars that are not the one that matters: a neutral step, visible on a card */
-  --color-rail: #e9ecf5; /* the dashboard's sidebar: a step deeper than the page, so the menu and the work part at a glance */
   --color-ink: #ffffff; /* the inverse of text: for words on a bg-text pill */
-  --color-band: #0b0f1f; /* Midnight: a band that stays dark in both themes (footer, demo bar, photo overlays) */
+  --color-band: #0b0f1f; /* Midnight: a band that stays dark in both themes (footer, photo overlays) */
   --color-accent: #5a5deb; /* action: the fill of buttons and chips, white text on it is 5:1 */
   --color-accent-text: #4a4ede; /* the same hue as text or a thin icon on paper (5.7:1) */
   --color-on-accent: #ffffff;
@@ -79,17 +72,6 @@
   --color-scrim: rgb(11 15 31 / 0.55);
   --color-thumb: #ffffff;
   --color-whatsapp: #25d366; /* WhatsApp's own green, for its icon only */
-  /* The networks' own colours, for their marks only (BrandIcon), so Facebook, Instagram and Google tell apart at a glance */
-  --color-facebook: #1877f2;
-  --color-instagram: #d62976;
-  --color-google: #1a73e8;
-  /* The WhatsApp panel on the dashboard (header, chat paper, the two bubbles, the text on them, the button text) */
-  --color-wa-bar: #075e54;
-  --color-wa-chat: #efe7dd;
-  --color-wa-out: #d9fdd3;
-  --color-wa-in: #ffffff;
-  --color-wa-ink: #111b21;
-  --color-wa-link: #027eb5;
 
   --radius-card: 1.25rem;
   --radius-tile: 1.5rem; /* every photo tile: cards, the car page, the social strip */
@@ -113,16 +95,12 @@
 :root[data-theme="dark"],
 .theme-dark {
   color-scheme: dark;
-  --color-facebook: #5b9cf6; /* lighter on the dark surface, so the marks still read */
-  --color-instagram: #f0679e;
-  --color-google: #8ab4f8;
   --color-surface: #0b0f1f; /* Midnight */
   --color-accent: #5a5deb; /* white button text on it reaches 5:1 */
   --color-accent-text: #a78bfa; /* lavender: accent text on Midnight */
   --color-card: #121832;
   --color-row-alt: #161d3b;
   --color-chart-muted: #5a6491; /* 3.2:1 on the dark card */
-  --color-rail: #070a17; /* a step below Midnight: the menu recedes, the cards on the page come forward */
   --color-ink: #0b0f1f;
   --color-text: #f5f6fa; /* off-white */
   --color-text-2: #aab0cc; /* 8.7:1 on Midnight */
@@ -141,12 +119,6 @@
   --color-info: #c4b5fd;
   --color-info-soft: #2a2766;
   --color-scrim: rgb(0 0 0 / 0.6);
-  --color-wa-bar: #1f2c34;
-  --color-wa-chat: #0b141a;
-  --color-wa-out: #005c4b;
-  --color-wa-in: #202c33;
-  --color-wa-ink: #e9edef;
-  --color-wa-link: #53bdeb;
   --shadow-lift: 0 10px 28px rgb(0 0 0 / 0.55);
   --shadow-panel: none; /* in dark, depth is the surface step and the hairline, not a shadow and not a highlight */
   --atmosphere: linear-gradient(180deg, #0b0f1f 0%, #0d1225 100%);
@@ -203,23 +175,22 @@
     }
   }
   body {
-    padding-bottom: var(--demo-bar-h, 0px); /* the demo bar is fixed at the foot of the screen */
     background-image: var(--atmosphere);
     background-color: var(--color-surface);
   }
-  /* A car page's call bar (LeadActions) sits above the demo bar below 1024px: room for both, so the footer is never under it. */
+  /* A car page's call bar (LeadActions) is fixed at the foot of the screen below 1024px: room for it, so the footer is never under it. */
   @media (max-width: 1023.98px) {
     body:has([data-sticky-actions]) {
-      padding-bottom: calc(var(--demo-bar-h, 0px) + 4rem + env(safe-area-inset-bottom));
+      padding-bottom: calc(4rem + env(safe-area-inset-bottom));
     }
   }
   /* The compare pill floats at the foot of the screen: room for it while it shows, so the last content (the finance warning) is never under it. */
   body:has([data-compare-bar]) {
-    padding-bottom: calc(var(--demo-bar-h, 0px) + 5rem + env(safe-area-inset-bottom));
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
   }
   @media (max-width: 1023.98px) {
     body:has([data-sticky-actions]):has([data-compare-bar]) {
-      padding-bottom: calc(var(--demo-bar-h, 0px) + 9rem + env(safe-area-inset-bottom));
+      padding-bottom: calc(9rem + env(safe-area-inset-bottom));
     }
   }
   /* Car photos are studio shots on white. On the plinth the white is multiplied away, so the car stands on a lit floor, in both themes.
@@ -266,7 +237,7 @@
    layer, so it beats the stack's own bottom utility. */
 @media (max-width: 1023.98px) {
   body:has([data-sticky-actions]:not(.invisible)) [data-bottom-stack] {
-    bottom: calc(var(--demo-bar-h, 0px) + 5rem + env(safe-area-inset-bottom));
+    bottom: calc(5rem + env(safe-area-inset-bottom));
   }
 }
 

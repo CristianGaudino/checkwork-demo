@@ -4,6 +4,7 @@ import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import { SOLD_VISIBLE_DAYS } from "../src/lib/stock/types";
 import { choose } from "./combo";
+import { dashBodies, leadSentTo } from "./dash-stub";
 import { stubTurnstile } from "./turnstile";
 
 // Runs only on the local server with fake backends: it must never send a lead to a deployed site.
@@ -148,11 +149,12 @@ test("the Test Drive page lists the cars, books the one chosen, and the dealer s
   await choose(d.getByLabel("Time"), 0);
   await d.getByRole("button", { name: "Book" }).click();
   await expect(d.getByRole("heading", { name: "Thanks, we have your request." })).toBeFocused();
-  await page.goto("/dashboard/test-drives?view=list&status=requested&q=Page+booker");
-  await expect(page.getByText("Page booker").first()).toBeVisible();
+  const sent = await leadSentTo("Page booker");
+  expect(sent.lead.type).toBe("test_drive");
+  expect(sent.lead.details).toHaveProperty("driveDate");
 });
 
-test("Test drive asks for a day and a time, reaches the dealer's dashboard as a booking, and there is no Reserve", async ({ page }) => {
+test("Test drive asks for a day and a time, reaches the dealer dashboard as a booking, and there is no Reserve", async ({ page }) => {
   await open(page, live.slug);
   await expect(page.getByRole("button", { name: /Reserve/ })).toHaveCount(0);
   await page.getByRole("button", { name: "Test drive", exact: true }).click();
@@ -167,9 +169,9 @@ test("Test drive asks for a day and a time, reaches the dealer's dashboard as a 
   await expect(d.getByText("No match")).toHaveCount(0);
   await d.getByRole("button", { name: "Book" }).click();
   await expect(d.getByRole("heading", { name: "Thanks, we have your request." })).toBeFocused();
-  // The booking is now on the dealer's list (the admin is open in this run).
-  await page.goto("/dashboard/test-drives?view=list&status=requested&q=Drive+booker");
-  await expect(page.getByText("Drive booker").first()).toBeVisible();
+  const sent = await leadSentTo("Drive booker");
+  expect(sent.lead).toMatchObject({ type: "test_drive", carSlug: live.slug });
+  expect(sent.lead.details).toHaveProperty("driveTime");
 });
 
 test("a price drop alert takes an email and says what happens next", async ({ page }) => {
@@ -180,8 +182,8 @@ test("a price drop alert takes an email and says what happens next", async ({ pa
   await d.getByRole("checkbox").check();
   await d.getByRole("button", { name: "Set alert" }).click();
   await expect(d.getByRole("heading", { name: "You're on the list." })).toBeFocused();
-  await page.goto("/dashboard/customers?tab=alerts");
-  await expect(page.getByText("alert.person@example.com").first()).toBeVisible();
+  const sent = (await dashBodies()).find((b) => b.lead.email === "alert.person@example.com");
+  expect(sent?.lead.type).toBe("alert");
 });
 
 test("a sold car offers an alert for when one comes back", async ({ page }) => {

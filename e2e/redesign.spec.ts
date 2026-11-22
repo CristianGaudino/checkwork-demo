@@ -1,11 +1,10 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
-import { unfold, BASE } from "./open";
+import { unfold } from "./open";
 import { choose } from "./combo";
 
-// The owner's 2026-11-11 list (#85 to #88): two doors to the valuation, DoneDeal stock, the drop-down that stayed open, the Follow us
-// tiles, the price drop tag, and the dashboard's summary tabs and tables.
+// The owner's 2026-11-11 list (#85 to #88): two doors to the valuation, the drop-down that stayed open, the price drop tag.
 type Demo = { id: string; slug: string; soldAt?: string; make: string; model: string; wasPriceEur?: number; priceEur: number };
 const cars: Demo[] = JSON.parse(readFileSync(join(process.cwd(), "src/lib/stock/demo-cars.json"), "utf8"));
 const live = cars.find((c) => !c.soldAt)!;
@@ -46,32 +45,22 @@ test.describe("the drop-down", () => {
 
   test("closes on a second press, on a press elsewhere, and a press on its label does not reopen it", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 1400 }); // room for the list to open below the field, clear of its label
-    await page.goto("/dashboard/orders/new");
-    const box = page.getByRole("combobox", { name: /^Buyer/ });
+    await page.goto("/find-a-car");
+    const box = page.getByRole("combobox", { name: /^Make/ });
     const list = page.getByRole("listbox");
     await box.click();
     await expect(list).toBeVisible();
     await box.click();
     await expect(list).toHaveCount(0);
     await box.click();
-    await page.getByRole("heading", { name: "Place an order" }).click();
+    await page.getByRole("heading", { level: 1 }).click();
     await expect(list).toHaveCount(0);
     await box.click();
-    await page.getByText("Buyer", { exact: true }).first().click(); // the field's own label
+    await page.getByText("Make", { exact: true }).first().click(); // the field's own label
     await expect(list).toHaveCount(0);
     await choose(box, 1); // and it still chooses
-    await expect(box).not.toHaveValue("A new customer");
+    await expect(box).not.toHaveValue("");
   });
-});
-
-// The demo dealer has no social pages (SOCIAL_LINKS is empty), so the posts open their car and nothing asks to follow.
-test("posted tiles open their car while the dealer has no social pages", async ({ page }) => {
-  await page.goto("/");
-  await expect(page.getByRole("region", { name: "Follow us" })).toHaveCount(0);
-  const tiles = page.getByRole("region", { name: "Latest posts" }).getByRole("listitem").getByRole("link");
-  if ((await tiles.count()) === 0) test.skip(true, "no posted posts in this run");
-  await expect(tiles.first()).toHaveAttribute("href", /^\/used-cars\//);
-  await expect(tiles.first()).not.toHaveAttribute("target", "_blank");
 });
 
 test.describe("price drop on a card", () => {
@@ -89,77 +78,6 @@ test.describe("price drop on a card", () => {
     const tops = boxes.map((b) => Math.round(b!.y));
     for (let i = 0; i + 1 < n; i += 2) expect(Math.abs(tops[i] - tops[i + 1])).toBeLessThan(26); // a two-line name may push one line, never a price line
   });
-});
-
-test.describe("DoneDeal stock", () => {
-  test.use({ viewport: { width: 1280, height: 800 }, isMobile: false, hasTouch: false });
-  test.beforeEach(async ({ context }) => {
-    await context.addCookies([{ name: "checkwork-demo-stock", value: "donedeal", url: BASE }]);
-  });
-
-  test("the stock page is read only and points to DoneDeal", async ({ page }) => {
-    await page.goto("/dashboard/stock");
-    await expect(page.getByText(/Your cars come from DoneDeal/)).toBeVisible();
-    await expect(page.getByRole("link", { name: /Add a car/ })).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "Mark sold" })).toHaveCount(0);
-    await expect(page.getByRole("link", { name: /^Open DoneDeal/ })).toHaveAttribute("target", "_blank");
-    await expect(page.getByRole("row").nth(1).getByRole("link", { name: /^Edit .+ on DoneDeal/ })).toBeVisible();
-    await page.goto("/dashboard/stock/new");
-    await expect(page.getByRole("heading", { name: "This stock comes from DoneDeal" })).toBeVisible();
-    await expect(page.getByLabel("Make", { exact: true })).toHaveCount(0);
-  });
-
-  test("the sync shows how it is doing, and Check now runs it", async ({ page }) => {
-    await page.goto("/dashboard/stock");
-    const panel = page.getByRole("region", { name: "Cars from DoneDeal" });
-    await expect(panel.getByRole("status")).toContainText(/Last checked .+\. /);
-    await panel.getByRole("button", { name: "Check now" }).click();
-    await expect(page).toHaveURL(/\/dashboard\/stock\?synced=1$/);
-    // The demo's feed is the stock itself, so a sync finds nothing to change.
-    await expect(page.getByRole("region", { name: "Cars from DoneDeal" }).getByRole("status")).toContainText("Nothing had changed.");
-  });
-
-  test("the overview has no Add car, and shows the sync; Settings shows the DoneDeal connection", async ({ page }) => {
-    await page.goto("/dashboard");
-    await expect(page.getByRole("link", { name: "Add a car" })).toHaveCount(0);
-    await expect(page.getByRole("region", { name: "Cars from DoneDeal" })).toBeVisible();
-    await page.goto("/dashboard/settings?section=services");
-    await expect(page.getByRole("region", { name: "DoneDeal" })).toContainText("Connected");
-    await expect(page.getByRole("cell", { name: "DoneDeal stock" })).toBeVisible();
-  });
-});
-
-test("our own stock has Add car, no sync and no DoneDeal service", async ({ page }) => {
-  await page.goto("/dashboard");
-  await expect(page.getByRole("link", { name: "Add a car" })).toBeVisible();
-  await expect(page.getByRole("region", { name: "Cars from DoneDeal" })).toHaveCount(0);
-  await page.goto("/dashboard/settings?section=services");
-  await expect(page.getByRole("cell", { name: "DoneDeal stock" })).toHaveCount(0);
-  expect((await page.request.post("/api/donedeal/sync")).status()).toBe(404); // the cron's route needs its key
-});
-
-test("a car for sale is posted to social from its stock row; a sold car has no Post to social", async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 900 }); // the row's buttons are from 640px
-  await page.goto("/dashboard/stock");
-  const row = page.getByRole("row").nth(1);
-  const post = row.getByRole("link", { name: "Post to social" });
-  await expect(post).toHaveAttribute("href", /^\/dashboard\/marketing\/new\?car=/);
-  await post.click();
-  await expect(page).toHaveURL(/\/dashboard\/marketing\/new\?car=/);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("New post");
-  await page.goto("/dashboard/stock?view=sold");
-  await expect(page.getByRole("row").nth(1).getByRole("link", { name: "Post to social" })).toHaveCount(0);
-});
-
-test("the summary tiles are the filter: one press filters the table and marks the tile", async ({ page }) => {
-  await page.goto("/dashboard/stock");
-  const tabs = page.getByRole("navigation", { name: "Stock views" });
-  await tabs.getByRole("link", { name: /^Sold/ }).click();
-  await expect(page).toHaveURL(/view=sold/);
-  await expect(tabs.getByRole("link", { name: /^Sold/ })).toHaveAttribute("aria-current", "true");
-  await page.goto("/dashboard/customers");
-  await page.getByRole("navigation", { name: "Customer lists" }).getByRole("link", { name: /^Stock alerts/ }).click();
-  await expect(page.getByRole("columnheader", { name: "Looking for" })).toBeVisible();
 });
 
 test("the test drive list is searched and paged on the server, 24 cars a page", async ({ page }) => {

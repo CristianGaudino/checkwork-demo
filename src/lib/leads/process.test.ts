@@ -108,7 +108,7 @@ describe("processLead, the shared visit note (#249)", () => {
   const sentRows = async (fields: Record<string, string>) => {
     const { deps, mail } = fakeDeps();
     const sent: LeadRow[] = [];
-    deps.toAdmin = async (row) => void sent.push(row);
+    deps.toDash = async (row) => void sent.push(row);
     expect(await processLead(enquiryForm(fields), ctx, deps)).toEqual({ status: "ok" });
     expect(mail[0].text).not.toContain("audi"); // the dealer's email leaves it out
     return sent;
@@ -160,16 +160,16 @@ describe("processLead rules", () => {
     expect(mail).toHaveLength(1);
   });
 
-  it("copies the lead to the admin, marked when the email failed, and never fails the lead if the copy fails", async () => {
+  it("sends the lead to the dashboard, marked when the email failed, and never fails the lead if the send fails", async () => {
     const { deps } = fakeDeps();
     const copied: boolean[] = [];
-    deps.toAdmin = async (_row, emailed) => void copied.push(emailed);
+    deps.toDash = async (_row, emailed) => void copied.push(emailed);
     expect(await processLead(enquiryForm(), ctx, deps)).toEqual({ status: "ok" });
     expect(copied).toEqual([true]);
-    deps.toAdmin = async () => Promise.reject(new Error("admin store down"));
+    deps.toDash = async () => Promise.reject(new Error("dashboard down"));
     expect(await processLead(enquiryForm(), ctx, deps)).toEqual({ status: "ok" });
     const failing = fakeDeps();
-    failing.deps.toAdmin = async (_row, emailed) => void copied.push(emailed);
+    failing.deps.toDash = async (_row, emailed) => void copied.push(emailed);
     failing.deps.mailer.send = async () => Promise.reject(new Error("mail down"));
     expect(await processLead(enquiryForm(), ctx, failing.deps)).toEqual({ status: "failed", kind: "server" });
     expect(copied).toEqual([true, false]); // the failed-email lead still reaches the dashboard

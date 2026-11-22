@@ -2,7 +2,7 @@ import { index, integer, primaryKey, sqliteTable, text } from "drizzle-orm/sqlit
 import type { LeadType } from "@/lib/leads/schema";
 import type { Car } from "../stock/types";
 
-export type LeadStatus = "new"; // the admin phase (#20) adds more
+export type LeadStatus = "new";
 
 // Columns locked under D-03 (03-06 Task 1, research-columns). The deploy migrates before new code runs, so every change
 // from here on must be additive (scripts/check-migrations.sh). No IP, user agent or bot-check token is stored (LED-03).
@@ -44,8 +44,9 @@ export const cars = sqliteTable("cars", {
   data: text({ mode: "json" }).$type<Car>().notNull(),
 });
 
-// The dealer admin keeps its records here: one row per record, the record as JSON, grouped by collection ("test-drives",
-// "posts" and so on). A new kind of record needs no migration. Seeded on first read (src/lib/admin/docs.ts).
+// A small record store: one row per record, the record as JSON, grouped by collection (src/lib/docs.ts). This site keeps three collections
+// here: "reg-cache" and "reg-counts" (the registration lookup) and "feature-counts". The rest of the rows are from the old /dashboard, which
+// moved to checkwork-dash; they are unused, and the daily purge (src/lib/leads/purge.ts) still ages out the lead copies among them.
 export const adminDocs = sqliteTable(
   "admin_docs",
   {
@@ -59,9 +60,8 @@ export const adminDocs = sqliteTable(
   (t) => [primaryKey({ columns: [t.collection, t.id] })],
 );
 
-// The dashboard's activity history (src/lib/admin/activity.ts): one row per change a person (or the stock sync) made. Never what a customer
-// wrote: a record that holds personal data is kept as its kind and id, and its name is looked up when the page is shown. Deleted after
-// ACTIVITY_RETENTION_MONTHS by the daily job.
+// Unused: the old /dashboard's activity history, which moved to checkwork-dash. Kept in the schema because migrations only add (a drop is the
+// owner's call: scripts/check-migrations.sh).
 export const activity = sqliteTable(
   "activity",
   {

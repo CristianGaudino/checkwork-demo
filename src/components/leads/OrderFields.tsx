@@ -3,7 +3,7 @@
 import { MAKE_OPTIONS } from "@/lib/leads/makes";
 import { LIMITS } from "@/lib/leads/constants";
 import { regPeriodLabel, regPeriods } from "@/lib/leads/reg-periods";
-import { dublinDay } from "@/lib/admin/format";
+import { dublinDay } from "@/lib/format";
 import { ContactFields, Field } from "./Field";
 import type { FieldBinding } from "./LeadForm";
 

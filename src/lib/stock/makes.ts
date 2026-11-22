@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { everyKindOrNull, stock } from "@/lib/stock";
-import { slugify } from "@/lib/admin/stock-admin-pure";
+import { slugify } from "@/lib/stock/slug";
 import { MAKE_OPTIONS, POPULAR_MAKES } from "@/lib/leads/makes";
 import { isSold, type Car, type Condition } from "@/lib/stock/types";
 
