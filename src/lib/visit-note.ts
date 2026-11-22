@@ -42,8 +42,9 @@ const fixed = <T extends string>(v: string | undefined, ok: readonly T[] | RegEx
 
 // The filters of a stock list, as fixed values: the first of each kind picked, never the search box's text. A list with no filter is not a search.
 // Make, model and body must be options the list itself offered (`facets`), so a value typed into the link (a name, a phone number) is
-// dropped; with no facets (the list failed to load) they are left out.
-const offered = (v: string | undefined, options: FacetOption[] | undefined) => (options?.some((o) => o.value === v) ? fixed(v, SLUG) : undefined);
+// dropped; with no facets (the list failed to load) they are left out. Only options with cars: the engine echoes back a picked value no car
+// has (count 0), typed text included.
+const offered = (v: string | undefined, options: FacetOption[] | undefined) => (options?.some((o) => o.value === v && o.count > 0) ? fixed(v, SLUG) : undefined);
 export function searchOf(q: StockQuery, facets: Facets | null): JourneySearch | null {
   const s = { make: offered(q.make[0], facets?.make), model: offered(q.model[0], facets?.model), body: offered(q.body[0], facets?.body), fuel: fixed(q.fuel[0], FUELS), gearbox: fixed(q.gearbox, GEARBOXES), priceBand: bandOf(q) ?? undefined };
   const set = Object.fromEntries(Object.entries(s).filter(([, v]) => v !== undefined));
