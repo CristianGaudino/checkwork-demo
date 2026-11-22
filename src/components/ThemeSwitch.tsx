@@ -1,7 +1,7 @@
 "use client";
 
-import { useId, useSyncExternalStore } from "react";
-import { THEMES, THEME_KEY, themeChoice, type Theme } from "@/lib/demo";
+import { useId, useLayoutEffect, useSyncExternalStore } from "react";
+import { THEMES, THEME_KEY, THEME_SCRIPT, themeChoice, type Theme } from "@/lib/demo";
 
 // The one theme store, for the footer. Auto is no stored value: THEME_SCRIPT in the head then follows the device.
 // The choice is also kept on <html> (data-theme-choice), so it holds for this page view when storage is blocked, and the head script reads
@@ -44,6 +44,14 @@ const LABELS: Record<Theme, string> = { auto: "Auto", light: "Light", dark: "Dar
 export function ThemeSwitch({ className = "" }: { className?: string }) {
   const id = useId();
   const current = useSyncExternalStore(subscribe, read, () => "auto" as Theme);
+  // A notFound() page arrives as an empty shell that React builds in the browser, and a script React adds never runs, so the head
+  // script did not set the theme. Run it here, before paint; a script element made this way does run.
+  useLayoutEffect(() => {
+    if (document.documentElement.dataset.theme) return;
+    const s = document.createElement("script");
+    s.textContent = THEME_SCRIPT;
+    document.head.append(s);
+  }, []);
   return (
     <div data-theme-switch className={`flex items-center gap-2 ${className}`}>
       <span id={id} className="text-meta text-text-2">
