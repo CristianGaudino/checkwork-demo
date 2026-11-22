@@ -26,13 +26,14 @@ const worker = {
     const jobs = [
       ["purge-leads", "deleted", () => purgeOldLeads(db, env.LEAD_PHOTOS)], // a count only, never a lead (D-08)
       // Before purge-counts, so the days are still there. Never throws, so a dashboard that is down does not fail the run; the next night sends again.
-      ["send-counts", "days", () => sendCountsToDash(db, env)],
+      ["send-counts", null, () => sendCountsToDash(db, env)],
       ["purge-counts", "deleted", () => purgeOldCounts(db)],
     ];
     let failed = 0;
     for (const [job, key, run] of jobs) {
       try {
-        console.log(JSON.stringify({ job, [key]: await run() }));
+        const out = await run();
+        console.log(JSON.stringify({ job, ...(key ? { [key]: out } : out) }));
       } catch {
         failed++;
         console.error(JSON.stringify({ job, error: "failed" })); // never the error itself: a database error carries the values

@@ -15,7 +15,7 @@ const bodies = (d: ReturnType<typeof dash>) => Promise.all(d.fetch.mock.calls.ma
 beforeEach(async () => {
   await truncate("admin_docs");
   await getDb().insert(adminDocs).values([
-    row("2026-11-19", "saved", 3), row("2026-11-19", "filter:make", 5), row("2026-11-13", "saved", 1),
+    row("2026-11-19", "saved", 3), row("2026-11-19", "filter:make", 5), row("2026-11-19", "dash:leads", 4), row("2026-11-19", "zz-unknown", 1), row("2026-11-13", "saved", 1),
     row("2026-11-12", "saved", 9), // eight days back: not sent
     row("2026-11-20", "saved", 2), // today, still counting: not sent
   ]);
@@ -24,7 +24,7 @@ beforeEach(async () => {
 describe("sendCountsToDash", () => {
   it("posts one body per day of the last 7, yesterday back, with the key", async () => {
     const d = dash();
-    expect(await sendCountsToDash(getDb(), { DASH_SITE_KEY: "k", DASH: d }, NOW)).toBe(2);
+    expect(await sendCountsToDash(getDb(), { DASH_SITE_KEY: "k", DASH: d }, NOW)).toEqual({ days: 2, of: 2 }); // dash:leads and the unknown name stay home
     expect(await bodies(d)).toEqual([{ day: "2026-11-13", counts: { saved: 1 } }, { day: "2026-11-19", counts: { saved: 3, "filter:make": 5 } }]);
     const req = d.fetch.mock.calls[0][0];
     expect(req.method).toBe("POST");
@@ -34,15 +34,15 @@ describe("sendCountsToDash", () => {
 
   it("sends nothing without a key or without anywhere to send", async () => {
     const d = dash();
-    expect(await sendCountsToDash(getDb(), { DASH: d }, NOW)).toBe(0);
-    expect(await sendCountsToDash(getDb(), { DASH_SITE_KEY: "k" }, NOW)).toBe(0);
+    expect(await sendCountsToDash(getDb(), { DASH: d }, NOW)).toEqual({ days: 0, of: 0 });
+    expect(await sendCountsToDash(getDb(), { DASH_SITE_KEY: "k" }, NOW)).toEqual({ days: 0, of: 0 });
     expect(d.fetch).not.toHaveBeenCalled();
   });
 
   it("survives a dashboard error or a throw, without throwing", async () => {
-    expect(await sendCountsToDash(getDb(), { DASH_SITE_KEY: "k", DASH: dash(500) }, NOW)).toBe(0);
+    expect(await sendCountsToDash(getDb(), { DASH_SITE_KEY: "k", DASH: dash(500) }, NOW)).toEqual({ days: 0, of: 2 });
     const down = { fetch: vi.fn(async () => Promise.reject(new Error("down"))) };
-    expect(await sendCountsToDash(getDb(), { DASH_SITE_KEY: "k", DASH: down }, NOW)).toBe(0);
+    expect(await sendCountsToDash(getDb(), { DASH_SITE_KEY: "k", DASH: down }, NOW)).toEqual({ days: 0, of: 2 });
     expect(down.fetch).toHaveBeenCalledTimes(2); // each day tried, none stops the others
   });
 });
