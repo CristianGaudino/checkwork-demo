@@ -61,13 +61,13 @@ describe("the visit note", () => {
   it("notes searches as fixed values only: never the search box, the first of each filter, latest first, each once, at most 8", () => {
     expect(searchOf(q({ q: "my name is Ann 087 1234567" }), F)).toBeNull();
     expect(searchOf(q({ make: ["Audi <script>"], fuel: ["petrol" as never, "jet" as never] }), F)).toEqual({ fuel: "petrol", condition: "used" });
-    expect(searchOf(q({ make: ["audi", "bmw"], model: ["a3"], body: ["hatchback"], gearbox: "automatic", priceMax: 20000, condition: "new" }), F)).toEqual({
+    expect(searchOf(q({ make: ["audi", "bmw"], model: ["a3"], body: ["hatchback"], gearbox: "automatic", priceMax: 20000, condition: "commercial" }), F)).toEqual({
       make: "audi",
       model: "a3",
       body: "hatchback",
       gearbox: "automatic",
       priceBand: "10k-20k",
-      condition: "new",
+      condition: "commercial",
     });
     noteSearch(q({ make: ["audi"] }), F);
     noteSearch(q({ make: ["audi"], page: 2, sort: "price-asc" }), F); // the same search again

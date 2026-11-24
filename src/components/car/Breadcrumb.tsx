@@ -8,7 +8,7 @@ const crumb = "-my-2.5 inline-flex min-h-11 items-center hover:underline";
 
 // Stock, make, model, as in the mockup. Stock goes back to the list the buyer came from (BackToCars); the others are the landing pages.
 export function Breadcrumb({ car }: { car: Pick<Car, "make" | "makeSlug" | "model" | "modelSlug" | "condition"> }) {
-  // New cars and vans go back to their own list. The make and model pages list used cars, so they are not linked from these.
+  // Vans go back to their own list. The make and model pages list used cars, so they are not linked from these.
   const own = VEHICLE_TYPES.find((t) => t.condition === car.condition && t.condition !== "used");
   if (own) {
     return (

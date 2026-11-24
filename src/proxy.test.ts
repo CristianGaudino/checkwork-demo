@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
 const lookup = vi.fn();
-// The make directory covers every kind: BYD stands for a make with only new cars, none used.
+// The make directory covers every kind: BYD stands for a make with only vans, none used.
 const makes = [{ slug: "mercedes", label: "Mercedes" }, { slug: "mercedes-benz", label: "Mercedes-Benz" }, { slug: "kia", label: "Kia" }, { slug: "byd", label: "BYD" }];
 vi.mock("@/lib/stock", () => ({ stock: { lookup: (slug: string) => lookup(slug) } }));
 vi.mock("@/lib/stock/makes", () => ({ makeDirectory: async () => makes }));
@@ -26,7 +26,7 @@ describe("the proxy", () => {
     expect(kia.headers.get("x-middleware-rewrite")).toContain("/gone/kia");
     expect((await get("/used-cars/mercedes-benz-c-class-2018-9")).headers.get("x-middleware-rewrite")).toMatch(/\/gone\/mercedes-benz$/);
   });
-  it("answers 404 with the gone page for a removed new car of a make with no used stock", async () => {
+  it("answers 404 with the gone page for a removed van of a make with no used stock", async () => {
     lookup.mockResolvedValue(null);
     const res = await get("/used-cars/byd-seal-2025-77");
     expect(res.status).toBe(404);

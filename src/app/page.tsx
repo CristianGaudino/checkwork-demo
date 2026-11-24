@@ -33,11 +33,10 @@ export default async function Home() {
   await connection();
   // The home page must never error: a stock failure shows a line in place of the grid, and the search still renders (UI-SPEC state table).
   // The newest cars feed the featured grid, and all of them feed the search drop-downs, so every choice has a car behind it.
-  const [all, reviews, fresh, vans] = await Promise.all([queryAllOrNull(), getReviews(), queryAllOrNull({ condition: "new" }), queryAllOrNull({ condition: "commercial" })]);
-  // Browse by type: new cars and vans, then each body type of the used stock, each with its newest car's photo and how many there are.
+  const [all, reviews, vans] = await Promise.all([queryAllOrNull(), getReviews(), queryAllOrNull({ condition: "commercial" })]);
+  // Browse by type: vans, then each body type of the used stock, each with its newest car's photo and how many there are.
   const used = all?.cars ?? [];
   const typeTiles: TypeTile[] = [
-    ...(fresh?.total ? [{ key: "new", href: "/new-cars", label: "New cars", count: fresh.total, photo: fresh.cars[0]?.photos[0] }] : []),
     ...(vans?.total ? [{ key: "commercial", href: "/commercial", label: "Vans", count: vans.total, photo: vans.cars[0]?.photos[0] }] : []),
     ...searchOptions(used).bodies.map((b) => {
       const of = used.filter((c) => c.bodySlug === b.slug);

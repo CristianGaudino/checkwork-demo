@@ -30,6 +30,14 @@ const nextConfig: NextConfig = {
   // Trade-in photos travel in the lead action: 16 MB of photos plus multipart overhead (03-01 spike, research section 3).
   // It applies to every server action; each one validates its input.
   experimental: { serverActions: { bodySizeLimit: "18mb" } },
+  // New cars and factory orders were removed (#271): old links and search results go on to the nearest page that is still here.
+  async redirects() {
+    return [
+      { source: "/new-cars", destination: "/used-cars", permanent: true },
+      { source: "/new-cars/order", destination: "/find-a-car", permanent: true },
+      { source: "/new-cars/:make", destination: "/makes/:make", permanent: true },
+    ];
+  },
   // Clickjacking and sniffing guards, and a content policy on every page. Scripts, frames, images and connections may come only from this
   // site and the few origins named in CSP below. No nonce: a nonce makes every page render per request (no static pages, no caching on
   // Workers). Inline scripts stay allowed because Next writes them; the policy still blocks eval and any script, frame or request to

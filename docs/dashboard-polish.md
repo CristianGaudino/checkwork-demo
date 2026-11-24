@@ -7,7 +7,7 @@ Issues #67 to #82. Owner feedback, 2026-11-11. This is the spec for all of them 
 audit at the end of each.
 
 ## Direction (unslop, five lines)
-- **Product:** a used and new car dealer's website, and the dashboard its staff use to run stock, leads and posts.
+- **Product:** a used car dealer's website, and the dashboard its staff use to run stock, leads and posts.
 - **Character:** calm, exact, practical. A forecourt office, not a launch page.
 - **World:** a lit showroom floor and the office behind it. Neutrals are tinted stone in light and graphite-teal in dark.
 - **Moments:** the car photo on its lit plinth on the public site; on the dashboard, the lead list and the post preview. Everything else is quiet.

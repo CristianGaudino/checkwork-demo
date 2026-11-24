@@ -15,7 +15,7 @@ import { SEARCH_MAKE_MODEL } from "@/lib/copy";
 
 export const metadata: Metadata = {
   title: "Book a test drive",
-  description: `Book a test drive at ${SITE_NAME} in ${DEALER_LOCATION}. Pick a used, new or commercial car, choose a day and time, and drive it before you decide. Bring your licence.`,
+  description: `Book a test drive at ${SITE_NAME} in ${DEALER_LOCATION}. Pick a used car or a van, choose a day and time, and drive it before you decide. Bring your licence.`,
 };
 
 // The stock is read per request, like the other stock pages.
@@ -31,7 +31,7 @@ function paginate<T>(rows: T[], asked: string | undefined, size: number) {
 export default async function TestDrivePage({ searchParams }: PageProps<"/test-drive">) {
   const sp = await searchParams;
   const q = typeof sp.q === "string" ? sp.q.trim().slice(0, 80) : "";
-  // Used, new and commercial: a test drive is as likely on a new car or a van. Searched and paged here, so the page carries 24 cars
+  // Used and commercial: a test drive is as likely on a van. Searched and paged here, so the page carries 24 cars
   // whatever the size of the stock.
   const all = ((await everyKindOrNull()) ?? []).filter(forSale).sort((a, b) => Number(b.id) - Number(a.id)).map((c) => ({ ...carSummary(c), vatLine: priceInfo(c).vatLine })); // newest first, whatever the kind; only cars for sale; a van says its price is ex. VAT, as on its stock card
   const found = q ? all.filter((c) => fold(`${c.name} ${c.title}`).includes(fold(q))) : all;
@@ -49,7 +49,7 @@ export default async function TestDrivePage({ searchParams }: PageProps<"/test-d
         </>
       }
       how={[
-        { title: "Select a car", text: "Any used, new or commercial car in stock.", more: ["Not sure which? Call or message us and we will suggest a few."] },
+        { title: "Select a car", text: "Any used car or van in stock.", more: ["Not sure which? Call or message us and we will suggest a few."] },
         { title: "Choose a time", text: "A day and a time we are open.", more: ["About 30 minutes, longer if you want it."] },
         { title: "Bring your licence", text: "We confirm by phone or email.", more: ["A full, valid driving licence is needed.", "Bring your insurance details if you have them.", "Trading in? Bring the car and we can value it on the day."] },
       ]}

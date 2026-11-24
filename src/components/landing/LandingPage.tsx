@@ -85,7 +85,7 @@ export function LandingPage({ data }: { data: LandingData }) {
           <p className="mt-4 max-w-measure text-body">{landingIntro(landing, facts)}</p>
           {landing.kind === "make" && (
             <Link href={`/makes/${landing.makeSlug}`} className="mt-2 inline-flex min-h-11 items-center font-medium underline">
-              Every {landing.make}: used, new and commercial
+              Every {landing.make}: used and commercial
             </Link>
           )}
           {landing.kind === "make" && <LinkChips heading="Models" options={facets.model} href={toModel} />}

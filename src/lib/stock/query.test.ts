@@ -281,20 +281,20 @@ describe("facetRows", () => {
 });
 
 describe("the kind of vehicle in the query", () => {
-  it("puts new cars and vans on their own list path, and used cars on the default one", () => {
-    expect(stockHref(parseStockQuery({}, "new"))).toBe("/new-cars");
+  it("puts vans on their own list path, and used cars on the default one", () => {
+    expect(stockHref(parseStockQuery({}, "commercial"))).toBe("/commercial");
     expect(stockHref(parseStockQuery({ make: "kia", sort: "price-asc" }, "commercial"))).toBe("/commercial?make=kia&sort=price-asc");
     expect(stockHref(parseStockQuery({}))).toBe("/used-cars");
   });
   it("keeps the kind when the filters are cleared, and finds it from a path", () => {
-    const q = parseStockQuery({ make: "kia" }, "new");
-    expect(clearFilters(q).condition).toBe("new");
+    const q = parseStockQuery({ make: "kia" }, "commercial");
+    expect(clearFilters(q).condition).toBe("commercial");
     expect(conditionOfPath("/commercial")).toBe("commercial");
     expect(conditionOfPath("/used-cars")).toBe("used");
     expect(conditionOfPath("/somewhere")).toBe("used");
   });
-  it("ignores the sold switch on new cars and vans, which have no sold list", () => {
+  it("ignores the sold switch on vans, which have no sold list", () => {
     expect(parseStockQuery({ sold: "1" }).sold).toBe("include");
-    expect(parseStockQuery({ sold: "1" }, "new").sold).toBeUndefined();
+    expect(parseStockQuery({ sold: "1" }, "commercial").sold).toBeUndefined();
   });
 });

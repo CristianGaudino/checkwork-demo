@@ -8,7 +8,7 @@ import { isSold, type Car, type Condition } from "@/lib/stock/types";
 // look for most, so a search for one lands on a real page even with none in stock.
 export type MakeEntry = { slug: string; label: string; count: number; byKind: Record<Condition, number> };
 
-const zero = (): Record<Condition, number> => ({ used: 0, new: 0, commercial: 0 });
+const zero = (): Record<Condition, number> => ({ used: 0, commercial: 0 });
 
 // The makes in stock, most cars first (the home page chips). `all` adds the popular makes in the order people ask for them, then every
 // other known make A to Z (the Makes page and every make page).

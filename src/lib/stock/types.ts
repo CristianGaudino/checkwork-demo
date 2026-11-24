@@ -16,8 +16,8 @@ export type Gearbox = (typeof GEARBOXES)[number];
 export const GEARBOX_LABELS: Record<Gearbox, string> = { manual: "Manual", automatic: "Automatic" };
 // The stops of the price slider (PriceRange). The first and last mean "no limit". Here, so the server schema can read them.
 export const PRICE_STOPS = [0, 2500, 5000, 7500, 10_000, 12_500, 15_000, 17_500, 20_000, 25_000, 30_000, 35_000, 40_000, 50_000, 60_000, 80_000, 100_000];
-// What kind of vehicle it is. Absent means used, which is every car in the seed today (#23, #24 add new and commercial).
-export const CONDITIONS = ["used", "new", "commercial"] as const;
+// What kind of vehicle it is. Absent means used. No new cars: Checkwork is for used-car dealers (#271); vans are sold new and used.
+export const CONDITIONS = ["used", "commercial"] as const;
 export type Condition = (typeof CONDITIONS)[number];
 // Whether priceEur has VAT in it. "inc": included. "ex": VAT on top, usually reclaimable by a VAT-registered buyer (vans). Absent: nothing said.
 export type VatStatus = "inc" | "ex";
@@ -81,7 +81,7 @@ export interface Car {
 }
 
 export interface StockQuery {
-  condition?: Condition; // absent means used: new cars and vans are asked for by name
+  condition?: Condition; // absent means used: vans are asked for by name
   q?: string;
   make: string[]; // makeSlug values
   model: string[]; // modelSlug values
@@ -127,8 +127,8 @@ export const SOLD_VISIBLE_DAYS = DEALER_RULES.soldVisibleDays;
 // Whether the car has a page on the public site now: not hidden or a draft, and if sold, inside the sold period (the engine's own rule).
 export const onPublicSite = (c: Pick<Car, "listing" | "soldAt">, now = Date.now()) => !c.listing && (!c.soldAt || Date.parse(c.soldAt) + SOLD_VISIBLE_DAYS * 86_400_000 > now);
 export const isSold = (car: Pick<Car, "soldAt">) => car.soldAt !== undefined;
-// New from the maker: a new car, or a van with no previous owner (vans are sold new and used under one condition).
-export const isNew = (car: Pick<Car, "condition" | "owners">) => car.condition === "new" || (car.condition === "commercial" && car.owners === 0);
+// New from the maker: a van with no previous owner (vans are sold new and used under one condition).
+export const isNew = (car: Pick<Car, "condition" | "owners">) => car.condition === "commercial" && car.owners === 0;
 // On the website and for sale: not sold, not a draft, not hidden, not reserved. Where a car must be offered (posts, test drives) and old
 // stock (a price to look at); "not sold" alone is the stock the dealer owns (margins), hidden cars included.
 export const forSale = (car: Pick<Car, "soldAt" | "listing" | "reserved">) => !isSold(car) && !car.listing && !car.reserved;

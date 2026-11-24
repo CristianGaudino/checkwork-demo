@@ -147,8 +147,7 @@ describe("withoutInvitation", () => {
 });
 
 describe("isNew", () => {
-  it("is a new car, or a van with no previous owner", () => {
-    expect(isNew({ condition: "new" })).toBe(true);
+  it("is a van with no previous owner", () => {
     expect(isNew({ condition: "commercial", owners: 0 })).toBe(true);
     expect(isNew({ condition: "commercial", owners: 3 })).toBe(false);
     expect(isNew({ condition: "commercial" })).toBe(false);

@@ -1,7 +1,7 @@
 # Memberships and partners (affiliations)
 
 What a dealer belongs to or works with, shown on their site to build trust: SIMI, AA Approved Dealer, their warranty provider, their
-lenders. Set in `src/lib/affiliations.ts` (`AFFILIATIONS`). Not to be confused with `src/lib/partners.ts`, the franchise brands sold new.
+lenders. Set in `src/lib/affiliations.ts` (`AFFILIATIONS`).
 
 **The demo shows none of this and must not.** Checkwork Motors is made up, so a real body's name or logo would claim a membership it
 does not have. `affiliations.test.ts` fails if the demo's list is not empty.

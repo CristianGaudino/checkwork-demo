@@ -16,8 +16,8 @@ const form = (fields: Record<string, string>) => {
 
 describe("the public lead action", () => {
   it("takes every kind of lead, with the WhatsApp opt-in as sent: the site has no modules", async () => {
-    for (const type of ["enquiry", "finance", "trade_in", "test_drive", "sourcing", "order", "alert"]) expect(await submitLead(form({ type, whatsappOptIn: "yes" }))).toEqual({ status: "ok" });
-    expect(processLead).toHaveBeenCalledTimes(7);
+    for (const type of ["enquiry", "finance", "trade_in", "test_drive", "sourcing", "alert"]) expect(await submitLead(form({ type, whatsappOptIn: "yes" }))).toEqual({ status: "ok" });
+    expect(processLead).toHaveBeenCalledTimes(6);
     expect(processLead.mock.calls[0][0].get("whatsappOptIn")).toBe("yes");
   });
 });

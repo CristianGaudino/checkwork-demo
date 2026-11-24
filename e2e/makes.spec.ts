@@ -1,17 +1,17 @@
 import { expect, test } from "@playwright/test";
 
 // A page per make (#97), the menu (#98).
-test("a make page shows what we have of it, used and new, each with the way to its full list", async ({ page }) => {
-  await page.goto("/makes/toyota");
-  await expect(page.getByRole("heading", { level: 1, name: "Toyota" })).toBeVisible();
-  const used = page.getByRole("region", { name: "Used Toyota" });
-  await expect(used.getByRole("link", { name: /^See all \d+$/ })).toHaveAttribute("href", "/used-cars/toyota");
+test("a make page shows what we have of it, used and commercial, each with the way to its full list", async ({ page }) => {
+  await page.goto("/makes/ford");
+  await expect(page.getByRole("heading", { level: 1, name: "Ford" })).toBeVisible();
+  const used = page.getByRole("region", { name: "Used Ford" });
+  await expect(used.getByRole("link", { name: /^See all \d+$/ })).toHaveAttribute("href", "/used-cars/ford");
   await expect(used.locator("article").first()).toBeVisible();
-  const fresh = page.getByRole("region", { name: "New Toyota" });
-  await fresh.getByRole("link", { name: /^See all \d+$/ }).click();
-  await expect(page).toHaveURL(/\/new-cars\/toyota$/);
-  await expect(page.locator("article").first()).toContainText("Toyota");
-  await expect(page.locator("article").filter({ hasNotText: "Toyota" })).toHaveCount(0);
+  const vans = page.getByRole("region", { name: "Ford vans and commercials" });
+  await vans.getByRole("link", { name: /^See all \d+$/ }).click();
+  await expect(page).toHaveURL(/\/commercial\/ford$/);
+  await expect(page.locator("article").first()).toContainText("Ford");
+  await expect(page.locator("article").filter({ hasNotText: "Ford" })).toHaveCount(0);
 });
 
 test("a make with none in stock says so, shows what sold and what we have, and offers to find one", async ({ page }) => {
@@ -30,12 +30,12 @@ test("every make has a page from the makes list, and an unknown one is a 404", a
   await page.goto("/makes/tesla"); // still has its page
   await expect(page.getByRole("heading", { level: 1, name: "Tesla" })).toBeVisible();
   expect((await page.goto("/makes/not-a-make"))!.status()).toBe(404);
-  expect((await page.goto("/new-cars/not-a-make"))!.status()).toBe(404);
+  expect((await page.goto("/commercial/not-a-make"))!.status()).toBe(404);
 });
 
 test("the used make page links to the make's page across every kind", async ({ page }) => {
   await page.goto("/used-cars/toyota");
-  await page.getByRole("link", { name: "Every Toyota: used, new and commercial" }).click();
+  await page.getByRole("link", { name: "Every Toyota: used and commercial" }).click();
   await expect(page).toHaveURL(/\/makes\/toyota$/);
 });
 
