@@ -56,7 +56,7 @@ describe("purgeOldLeads", () => {
     expect(bucket.delete).not.toHaveBeenCalled();
   });
 
-  it("clears the registration lookup's cache after 30 days, and the past days' counts", async () => {
+  it("clears what the removed registration lookup left: its cache after 30 days, and the past days' counts", async () => {
     const at = (days: number) => NOW.getTime() - days * 86_400_000;
     await getDb().insert(adminDocs).values([
       { collection: "reg-cache", id: "191-KY-1", data: { id: "191-KY-1", car: null, at: at(31) } },
