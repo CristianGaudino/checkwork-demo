@@ -2,8 +2,6 @@ import { z } from "zod";
 import { describe, expect, it } from "vitest";
 import { CONTACT_ERROR, EMAIL_FOR_CONTACT_ERROR, LIMITS, PHONE_FOR_CONTACT_ERROR } from "./constants";
 import { leadSchema } from "./schema";
-import { regPeriods } from "./reg-periods";
-import { dublinDay } from "@/lib/format";
 
 const base = { type: "enquiry", carId: "123", clientRef: crypto.randomUUID(), sourcePath: "/used-cars/x", name: "Ann", phone: "087 123 4567", consent: "yes" };
 const errors = (input: Record<string, unknown>) => {
@@ -210,17 +208,6 @@ describe("finance application (FIN-03, D-17)", () => {
   it("drops income, date of birth and bank details", () => {
     const r = leadSchema.parse({ ...apply, income: "50000", dateOfBirth: "1990-01-01", iban: "IE00BANK" });
     expect(Object.keys(r).sort()).toEqual(["clientRef", "consent", "deposit", "employment", "name", "phone", "sourcePath", "term", "type"]);
-  });
-});
-
-describe("a factory order request", () => {
-  const order = { ...base, type: "order", carId: undefined, make: "Kia", model: "Sportage" };
-  const period = regPeriods(dublinDay())[1];
-  it("takes a make, a model and a period that can still be ordered for", () => {
-    expect(errors({ ...order, regPeriod: period })).toEqual({});
-    expect(errors({ ...order, regPeriod: "201" }).regPeriod).toEqual(["Choose when you'd like it."]);
-    expect(errors({ ...order, make: "", regPeriod: period }).make).toEqual(["Choose a make."]);
-    expect(errors({ ...order, model: undefined, regPeriod: period }).model).toEqual(["Enter the model."]);
   });
 });
 

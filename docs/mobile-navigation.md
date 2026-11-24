@@ -13,16 +13,16 @@ section 7). The rules in `docs/dashboard-polish.md` (the public site's) still ho
 - Vendor and trade guidance, not controlled studies. Direction, not proof.
 
 ## 1. Menu (public site)
-- **Desktop header, seven links:** Used cars, New cars, Commercial, Finance, Sell or trade in, Service, Contact, then the heart. Makes and
+- **Desktop header, six links:** Used cars, Commercial, Finance, Sell or trade in, Service, Contact, then the heart. Makes and
   About leave the header: Makes is on the home page, in every stock filter and in the menu; About is in the menu and the footer.
-- **Phone menu:** the stock first, as big rows: Used cars, New cars, Commercial, Makes. Then three groups that fold open (Buying, Selling,
+- **Phone menu:** the stock first, as big rows: Used cars, Commercial, Makes. Then three groups that fold open (Buying, Selling,
   Dealership), closed by default, except the one holding the page you are on. Then Call us. Every page is still one or two taps away.
   - Buying: Find a car, Test drive, Finance, Warranty, Compare cars, Saved cars.
   - Selling: Sell your car, Trade in your car.
   - Dealership: Service, Reviews, Questions, About us, Contact.
 
 ## 2. Footer
-- Groups: Cars (Used, New, Commercial, Makes), Buying, Selling, Dealership, then Privacy and Terms in the bottom line.
+- Groups: Cars (Used, Commercial, Makes), Buying, Selling, Dealership, then Privacy and Terms in the bottom line.
 - **Phone:** each group folds (closed), one row each, so the footer is about half its height. The address, phone and social icons stay open.
 - **From 1024px:** the groups are open columns, as now.
 

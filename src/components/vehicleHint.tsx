@@ -3,8 +3,8 @@
 import { useEffect, useSyncExternalStore } from "react";
 import type { Condition } from "@/lib/stock/types";
 
-// Every car page lives at /used-cars/<slug>, whatever the car is. So the header's Used, New, Commercial switch cannot tell from the address
-// which section a new car or a van belongs to: the car page says so here, and the header reads it. Nothing is shown by this component.
+// Every car page lives at /used-cars/<slug>, whatever the car is. So the header's Used, Commercial switch cannot tell from the address
+// which section a van belongs to: the car page says so here, and the header reads it. Nothing is shown by this component.
 let hint: Condition | null = null;
 const listeners = new Set<() => void>();
 const set = (c: Condition | null) => {

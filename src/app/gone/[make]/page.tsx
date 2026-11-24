@@ -14,7 +14,7 @@ const few = (make: string[]) => stock.query({ ...DEFAULT_QUERY, make, pageSize: 
 
 export default async function GonePage({ params }: PageProps<"/gone/[make]">) {
   const { make: slug } = await params;
-  // A van or new car of a make never listed used has no used page: it goes to the make's page, which lists every kind.
+  // A van of a make never listed used has no used page: it goes to the make's page, which lists every kind.
   const used = (await stock.taxonomy()).makes.find((m) => m.slug === slug);
   const make = used ?? (await findMake(slug));
   if (!make) notFound();

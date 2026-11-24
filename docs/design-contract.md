@@ -5,7 +5,7 @@ Status: approved by the owner, 2026-11-10 (direction, font, header switch and da
 ## 1. Goal
 Change the look, feel and layout completely, so the demo reads as its own product and nobody sees a re-skin of another dealer site. **Every behaviour stays**: stock browsing, filters, car pages, saved and compare, finance estimate, trade-in, find a car, contact, service, the lead pipeline, accessibility and the mobile-first rules. What changes is colour, type, shape, motion, composition and navigation.
 
-The demo is also the all-inclusive product, shown from three perspectives (customer, dealer), and it must have room for new cars, manufacturer partnerships and commercial vehicles with VAT pricing. The look has to carry all of that.
+The demo is also the all-inclusive product, shown from three perspectives (customer, dealer), and it must have room for commercial vehicles with VAT pricing. No new cars: Checkwork is for used-car dealers (#271). The look has to carry all of that.
 
 ## 2. What the research says
 Mostly vendor blogs, so this is direction, not proof.
@@ -28,7 +28,7 @@ One sentence: a bright, editorial showroom, where the cars are the colour.
 | Motion | Press scale and fades | Springy sheet and tile transitions from the apple-design skill, view transitions between list and car page, nothing slower than 250ms, all off with reduced motion |
 
 ## 4. Layout and navigation
-- **Header:** transparent over the hero, then a slim solid bar. Centre: a vehicle-type switch **Used · New · Commercial** (New and Commercial show once those exist, see the issues). Left: logo. Right: search, saved, menu. On a phone: logo left, menu right, and the vehicle-type switch becomes a segmented control under the hero search.
+- **Header:** transparent over the hero, then a slim solid bar. Centre: a vehicle-type switch **Used · Commercial**. Left: logo. Right: search, saved, menu. On a phone: logo left, menu right, and the vehicle-type switch becomes a segmented control under the hero search.
 - **Home:** a split hero (the headline and one search panel on the left, a large photo mosaic on the right, stacked on a phone); then "Shop by type" tiles (body types and vans), a large featured stock mosaic (not a carousel), a finance and trade-in band, brands we sell (partnerships), reviews, visit-us with map and hours.
 - **Stock list:** filters in a left rail on desktop and a bottom sheet on a phone (as now), but the list becomes a two-column photo-led grid with a sticky result bar. Saved and compare actions sit on the photo.
 - **Car page:** a gallery-first layout: a large two-by-two photo grid that opens the viewer, a sticky buy panel with the price (and VAT line where relevant), a spec table, finance estimate and similar cars. Price block is one component used everywhere (see 6).
@@ -66,7 +66,7 @@ Each PR keeps every E2E test green (tests that pin the old look are updated with
 ## 9. Decisions (owner, 2026-11-10)
 - Direction: "Showroom" (a lit showroom, light first).
 - Font: Sora (see Showroom below).
-- The header is built now with the vehicle-type switch (Used, New, Commercial). It shows only the sections that exist.
+- The header is built now with the vehicle-type switch (Used, Commercial).
 - Dark stays as a user choice, next to the light default.
 - Role switch (customer, dealer) as a demo bar: agreed then, removed with the dashboard (#243).
 

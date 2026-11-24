@@ -33,7 +33,7 @@ const GROUPS: { title: string; items: QA[] }[] = [
     title: "Warranty",
     items: [
       { q: "Does a used car come with a warranty?", a: <>{WARRANTY.title}: {WARRANTY.text.charAt(0).toLowerCase() + WARRANTY.text.slice(1)} It&apos;s included in the price, and longer cover is available. <Link href="/warranty" className={inline}>What it covers</Link></> },
-      { q: "And a new car?", a: <>{NEW_CAR_WARRANTY.text}</> },
+      { q: "And a new van?", a: <>{NEW_CAR_WARRANTY.text}</> },
       { q: "Does the warranty change my rights?", a: <>No. It&apos;s on top of your legal rights as a buyer: a car must be as described, of satisfactory quality and fit for purpose.</> },
     ],
   },

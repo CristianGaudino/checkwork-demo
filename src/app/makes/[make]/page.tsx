@@ -12,13 +12,12 @@ import { carsOfMake, findMake } from "@/lib/stock/makes";
 import { DEFAULT_QUERY } from "@/lib/stock/query";
 import type { Car, Condition } from "@/lib/stock/types";
 
-// One page per make: what we have of it across used, new and commercial, a few of each with the way to the full list; or, with none in
+// One page per make: what we have of it across used and commercial, a few of each with the way to the full list; or, with none in
 // stock, what we sold recently, what we have that is like it, and an offer to find one.
 export const dynamic = "force-dynamic";
 
 const SECTIONS: { kind: Condition; title: (make: string) => string; href: (slug: string) => string }[] = [
   { kind: "used", title: (m) => `Used ${m}`, href: (s) => `/used-cars/${s}` },
-  { kind: "new", title: (m) => `New ${m}`, href: (s) => `/new-cars/${s}` },
   { kind: "commercial", title: (m) => `${m} vans and commercials`, href: (s) => `/commercial/${s}` },
 ];
 const PER_SECTION = 3;
@@ -28,7 +27,7 @@ export async function generateMetadata({ params }: PageProps<"/makes/[make]">): 
   if (!make) return {};
   const title = `${make.label} for sale in ${DEALER_ADDRESS.town}`;
   const description = make.count
-    ? `${countLabel(make.count)} from ${make.label} in stock at ${SITE_NAME}, ${DEALER_LOCATION}: used, new and commercial.`
+    ? `${countLabel(make.count)} from ${make.label} in stock at ${SITE_NAME}, ${DEALER_LOCATION}: used and commercial.`
     : `No ${make.label} in stock at ${SITE_NAME} right now. We can find one for you, and you can see what we have that is similar.`;
   return { title, description, alternates: { canonical: `/makes/${make.slug}` }, ...(make.count ? {} : { robots: { index: false } }) };
 }

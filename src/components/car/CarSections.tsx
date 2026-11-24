@@ -105,7 +105,7 @@ export function Equipment({ car }: { car: Car }) {
   );
 }
 
-// A used car links to the body and make pages; a new car or a van to its own list, filtered the same way.
+// A used car links to the body and make pages; a van to its own list, filtered the same way.
 const seeAll = (car: Car, filter: Pick<StockQuery, "body"> | Pick<StockQuery, "make">) =>
   !car.condition || car.condition === "used" ? `/used-cars/${"body" in filter ? filter.body[0] : filter.make[0]}` : stockHref({ ...DEFAULT_QUERY, ...filter, condition: car.condition });
 

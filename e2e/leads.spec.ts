@@ -149,10 +149,8 @@ test("a field error keeps what was typed, and consent is needed to send", async 
 test("the Test Drive page lists the cars, books the one chosen, and the dealer sees it", async ({ page }) => {
   await page.goto("/test-drive");
   await expect(page.getByRole("heading", { level: 1, name: "Book a test drive" })).toBeVisible();
-  await page.goto("/test-drive?q=Niro");
-  await expect(page.getByRole("listitem").filter({ hasText: "Niro" })).toHaveCount(1); // new cars are bookable too
   await page.goto("/test-drive?q=Vito");
-  await expect(page.getByRole("listitem").filter({ hasText: "Vito" }).first()).toContainText("Ex. VAT"); // and vans, priced as on their stock card
+  await expect(page.getByRole("listitem").filter({ hasText: "Vito" }).first()).toContainText("Ex. VAT"); // vans are bookable too, priced as on their stock card
   await page.goto("/test-drive");
   const row = page.getByRole("listitem").filter({ hasText: "€" }).first();
   await row.getByRole("button", { name: "Book" }).click();

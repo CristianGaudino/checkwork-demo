@@ -1,10 +1,9 @@
 // Navigation as data, one place: every page's link is defined once (PAGE), and the header, the phone menu and the footer pick from it, so a
 // label or an address changes in one edit. The section pages (titles, intros) read VEHICLE_TYPES. The rules: docs/mobile-navigation.md.
 
-// The vehicle sections (Used, New, Commercial): the header links and the section pages read this.
+// The vehicle sections (Used, Commercial): the header links and the section pages read this.
 export const VEHICLE_TYPES = [
   { id: "used", label: "Used", nav: "Used cars", href: "/used-cars", condition: "used", title: "Used cars", intro: "Browse our current stock of used cars, all carefully selected." },
-  { id: "new", label: "New", nav: "New cars", href: "/new-cars", condition: "new", title: "New cars", intro: "Brand new cars from the makes we sell, with the manufacturer's warranty and finance offers." },
   { id: "commercial", label: "Commercial", nav: "Commercial", href: "/commercial", condition: "commercial", title: "Commercial vehicles", intro: "Vans and light commercials. Prices are shown without VAT, which a VAT-registered buyer can usually reclaim, with the price including VAT underneath." },
 ] as const;
 
@@ -18,7 +17,6 @@ const section = (id: (typeof VEHICLE_TYPES)[number]["id"]) => {
 export const PAGE = {
   home: link("/", "Home"),
   used: section("used"),
-  new: section("new"),
   commercial: section("commercial"),
   makes: link("/makes", "Makes"),
   testDrive: link("/test-drive", "Test drive"),
@@ -39,13 +37,13 @@ export const PAGE = {
   terms: link("/terms", "Terms of use"),
 } as const;
 
-// Seven links at most at the top: the three vehicle sections, then these, from 1024px. Makes and About are one level down: Makes is on
+// Seven links at most at the top: the vehicle sections, then these, from 1024px. Makes and About are one level down: Makes is on
 // the home page and in every stock filter, About in the menu and the footer.
 export const HEADER_LINKS = [PAGE.finance, PAGE.sellOrTrade, PAGE.service, PAGE.contact];
 
 // The phone menu: the stock first, as big rows (people give up on a menu that hides the main categories), then the rest in groups that
 // fold open. Every page is one or two taps away. The footer repeats the same groups, with the legal pages in its bottom line.
-export const MENU_PRIMARY = [PAGE.used, PAGE.new, PAGE.commercial, PAGE.makes];
+export const MENU_PRIMARY = [PAGE.used, PAGE.commercial, PAGE.makes];
 export const MENU_GROUPS = [
   { title: "Buying", links: [PAGE.findACar, PAGE.testDrive, PAGE.finance, PAGE.warranty, PAGE.compare, PAGE.saved] },
   { title: "Selling", links: [PAGE.sell, PAGE.tradeIn] },

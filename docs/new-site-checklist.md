@@ -12,10 +12,9 @@ Keep the demo stock; change what the dealer will recognise.
    `service.webp` (the workshop, 1200x900). Every photo here shows the Checkwork sign, so replace them all. Another size works if
    you change the `width`/`height` and the `srcSet` widths where it is used.
 3. `src/lib/home.config.ts`: the hero title and line, and how many featured cars, type tiles and make chips the home page shows.
-4. `src/lib/partners.ts`: the makes the dealer sells new (New cars shows them first). Empty if they sell used only.
-5. Colours, only if the dealer has its own: `--color-accent` and `--color-accent-text` in both theme blocks of `src/app/globals.css`.
+4. Colours, only if the dealer has its own: `--color-accent` and `--color-accent-text` in both theme blocks of `src/app/globals.css`.
    Keep white text on the accent at 4.5:1 or more. Everything else stays the Checkwork palette, so every site reads as one family.
-6. Deploy it as a demo (no `APP_ENV=production`): it stays out of search, and its emails say DEMO.
+5. Deploy it as a demo (no `APP_ENV=production`): it stays out of search, and its emails say DEMO.
 
 ## A real dealer
 Everything above, then:
@@ -27,7 +26,6 @@ Everything above, then:
 | Finance figures and the lender's wording | `src/lib/finance/finance.config.ts` (the dealer supplies them; never invent an APR) |
 | Consent wording | `CONSENT` and `ALERT_CONSENT` in `src/lib/leads/constants.ts`. New wording is a new version: add it to the frozen list in `src/lib/leads/consent.test.ts`. |
 | Home page words and counts | `src/lib/home.config.ts` |
-| New car franchises | `src/lib/partners.ts` |
 | Memberships and partners (SIMI, AA Approved Dealer, warranty provider, lenders), with their logos and permission | `src/lib/affiliations.ts` and `public/affiliations/`. Empty on the demo. How, the Irish options and the wording: `docs/affiliations.md` |
 | Business rules: how long a sold car stays on the site | `src/lib/dealer.config.ts`. Agreed with the dealer at launch; a later change is ours to make (and charge for). |
 | Font | `src/app/layout.tsx` and `src/app/fonts/` (Sora for headings, Inter for text, both kept in the repo) |
@@ -38,11 +36,10 @@ deploy fails its tests while it is false.
 ### Stock
 - The site reads its cars from the D1 `cars` table (`src/lib/stock/d1-provider.ts`), seeded from `src/lib/stock/demo-cars.json` (`npm run stock:seed`). The
   dealer's own stock tools are in the dealer dashboard (checkwork-dash); this repo has no feed from DoneDeal or CarsIreland.
-- `NEXT_PUBLIC_STOCK_SOURCE=donedeal` (it means "synced from a listing site") takes the factory-order pages out, as that dealer has no orders here.
 - Replace `src/lib/stock/demo-cars.json` and `public/stock/` with photos you have the right to use, or start the D1 `cars` table empty.
 
 ### What the site includes
-- A dealer's site includes everything: used, new and commercial cars, finance, trade-in and sell your car, test drives, the car finder,
+- A dealer's site includes everything: used and commercial cars, finance, trade-in and sell your car, test drives, the car finder,
   service, warranty, reviews, contact, saved cars, compare and alerts. There is no setting that turns a section off. Leaving a section out
   for one dealer is a code change in that dealer's own repo (owner, 2026-11-22).
 

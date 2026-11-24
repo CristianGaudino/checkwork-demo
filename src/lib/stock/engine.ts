@@ -2,20 +2,7 @@ import { fold } from "./format";
 import { searchOptions } from "./search-options";
 import { FUEL_LABELS, GEARBOX_LABELS, SOLD_VISIBLE_DAYS, isSold, onRequest } from "./types";
 import type { Car, FacetGroup, FacetOption, SortKey, StockProvider, StockQuery, StockResult } from "./types";
-import { PARTNERS } from "@/lib/partners";
 import { DAY } from "@/lib/time";
-
-// On the new cars list the makes the dealer sells new come first, in the order it lists them; the rest keep their order.
-const partnersFirst = (q: StockQuery, makes: FacetOption[]): FacetOption[] => {
-  if (q.condition !== "new") return makes;
-  const rank = (m: FacetOption) => {
-    const i = PARTNERS.findIndex((p) => p.slug === m.value);
-    return i < 0 ? PARTNERS.length : i;
-  };
-  return [...makes].sort((a, b) => rank(a) - rank(b));
-};
-
-
 
 // `cars` is presorted by id, highest first, and Array.prototype.sort is stable, so every key ties by id descending. Newest is the listing
 // date; a car without one (stock from before dates were kept) keeps its id order among the others without one.
@@ -106,7 +93,7 @@ export function createStockEngine(input: Car[], { now = () => new Date() }: { no
         page: q.page,
         pageCount: Math.ceil(found.length / q.pageSize),
         facets: {
-          make: partnersFirst(q, facet("make", q, q.make, (c) => ({ value: c.makeSlug, label: c.make }), pool)),
+          make: facet("make", q, q.make, (c) => ({ value: c.makeSlug, label: c.make }), pool),
           model: q.make.length
             ? facet("model", q, q.model, (c) => ({ value: c.modelSlug, label: c.model, parent: c.makeSlug }), pool, pool.filter((c) => q.make.includes(c.makeSlug)))
             : [],

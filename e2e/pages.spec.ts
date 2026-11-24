@@ -14,13 +14,13 @@ const fits320 = async (page: Page, path: string) => {
 
 // One product with no plans: every section a dealer site has is always there, answering and linked from the footer.
 test("every public section answers 200 and is in the footer", async ({ page }) => {
-  const paths = ["/used-cars", "/new-cars", "/commercial", "/finance", "/trade-in", "/sell-your-car", "/test-drive", "/find-a-car", "/service", "/warranty", "/reviews", "/compare", "/saved", "/contact", "/new-cars/order"];
+  const paths = ["/used-cars", "/commercial", "/finance", "/trade-in", "/sell-your-car", "/test-drive", "/find-a-car", "/service", "/warranty", "/reviews", "/compare", "/saved", "/contact"];
   for (const path of paths) expect((await page.request.get(path)).status(), path).toBe(200);
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/");
   const footer = page.getByRole("navigation", { name: "Footer" });
   for (const l of FOOTER_GROUPS.flatMap((g) => g.links)) await expect(footer.locator(`a[href="${l.href}"]`).last(), l.href).toBeVisible();
-  for (const href of ["/finance", "/trade-in", "/test-drive", "/find-a-car", "/service", "/reviews", "/new-cars", "/commercial"]) expect(FOOTER_GROUPS.flatMap((g) => g.links).some((l) => l.href === href), href).toBe(true);
+  for (const href of ["/finance", "/trade-in", "/test-drive", "/find-a-car", "/service", "/reviews", "/commercial"]) expect(FOOTER_GROUPS.flatMap((g) => g.links).some((l) => l.href === href), href).toBe(true);
 });
 
 test("/service has a call button with the number, WhatsApp, services that open, and no lone number", async ({ page }) => {

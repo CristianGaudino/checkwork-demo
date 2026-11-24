@@ -12,8 +12,7 @@ export function describeCar(c) {
   const nct = c.nctExpiry && `NCT until ${c.nctExpiry.slice(5)}/${c.nctExpiry.slice(0, 4)}`;
   const km = c.mileageKm !== undefined && `${c.mileageKm.toLocaleString("en-IE")} km on the clock`;
   const facts =
-    c.condition === "new" ? ["Delivery mileage only", "Ask us about the manufacturer's warranty and the finance offers that go with it"]
-    : c.condition === "commercial" ? [km, "The price shown is without VAT, which a VAT-registered buyer can usually reclaim"]
+    c.condition === "commercial" ? [km, "The price shown is without VAT, which a VAT-registered buyer can usually reclaim"]
     : [km, c.owners && owners(c.owners), nct, c.features?.includes("Full Service History") && "Full service history"];
   const kit = HEADLINE.filter((f) => c.features?.includes(f)).slice(0, 4);
   const lines = [`${name}${spec ? `, ${spec}` : ""}.`, `${facts.filter(Boolean).join(". ")}.`, kit.length > 1 && `Equipment includes ${list(kit.map((f) => f.toLowerCase()))}.`];

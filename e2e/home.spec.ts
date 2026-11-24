@@ -257,9 +257,8 @@ test("browse by make comes before browse by type, and both link into the stock",
   const types = page.getByRole("region", { name: "Browse by type" });
   const makes = page.getByRole("region", { name: "Browse by make" });
   expect((await makes.boundingBox())!.y).toBeLessThan((await types.boundingBox())!.y);
-  await expect(types.getByRole("link", { name: /^New cars/ })).toHaveAttribute("href", "/new-cars");
   await expect(types.getByRole("link", { name: /^Vans/ })).toHaveAttribute("href", "/commercial");
-  await expect(types.getByRole("link").nth(2)).toHaveAttribute("href", /^\/used-cars\/[a-z-]+$/);
+  await expect(types.getByRole("link").nth(1)).toHaveAttribute("href", /^\/used-cars\/[a-z-]+$/);
   await expect(makes.getByRole("link", { name: "All makes" })).toHaveAttribute("href", "/makes");
   await expect(makes.getByRole("listitem").first().getByRole("link")).toHaveAttribute("href", /^\/makes\/[a-z-]+$/);
 });

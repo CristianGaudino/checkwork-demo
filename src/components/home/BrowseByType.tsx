@@ -7,7 +7,7 @@ import type { Photo } from "@/lib/stock/types";
 export type TypeTile = { key: string; href: string; label: string; count: number; photo?: Photo };
 
 // "Browse by type": a tile per kind of vehicle we have, each with a car of that type on its plinth and how many there are, opening the
-// stock filtered to it. New cars and vans first, then the body types of the used stock.
+// stock filtered to it. Vans first, then the body types of the used stock.
 export function BrowseByType({ tiles }: { tiles: TypeTile[] }) {
   if (tiles.length === 0) return null;
   return (

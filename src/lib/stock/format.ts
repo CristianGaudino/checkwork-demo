@@ -12,7 +12,7 @@ export const KM_PER_MILE = 1.609344;
 
 export const carTitle = (car: Pick<Car, "make" | "model" | "variant">) => [car.make, car.model, car.variant].filter(Boolean).join(" ");
 export const carName = (car: Pick<Car, "year" | "make" | "model">) => `${car.year} ${car.make} ${car.model}`;
-// A car's own page, whatever kind it is (used, new or commercial all live under /used-cars).
+// A car's own page, whatever kind it is (used and commercial both live under /used-cars).
 export const carHref = (slug: string) => `/used-cars/${slug}`;
 // What a lead dialog shows of a car (CarSummary). Only these fields cross into client components, never the Car (LED-02).
 // The price as words: the figure, or Price on request for a price of 0.

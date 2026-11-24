@@ -15,7 +15,7 @@ const bar = "after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-
 
 // A plain GET form: /used-cars reads make, model, body, priceMin and priceMax from the URL (BRW-03). The drop-downs need scripts to pick from;
 // without them it still goes to the stock, with nothing chosen.
-// The /used-cars page holds the used stock only, so the tab says so (new cars and vans have their own pages).
+// The /used-cars page holds the used stock only, so the tab says so (vans have their own page).
 // The mockup's "Find me a car" tab sits beside it. Search sets the height of the box; the Find panel lies over it, so switching tabs
 // never moves the page. The Find panel stays one column at every width: from lg the box is only half the page. On a phone body type is left out (the stock page has it) to keep the box short.
 export function HomeSearch({ makes, bodies, models }: Props) {

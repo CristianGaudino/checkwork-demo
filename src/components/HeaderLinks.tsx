@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useVehicleHint } from "@/components/vehicleHint";
 import { HEADER_LINKS, VEHICLE_TYPES } from "@/lib/nav";
 
-// The desktop links (from 1024px). Used, New and Commercial are the first three, like any other section. A red bar under the current one.
+// The desktop links (from 1024px). Used and Commercial are the first two, like any other section. A red bar under the current one.
 const item = "relative inline-flex min-h-11 items-center whitespace-nowrap text-meta font-semibold transition-colors hover:text-text-2";
 const bar = "after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-accent";
 
@@ -14,7 +14,7 @@ const within = (path: string, href: string) => path === href || path.startsWith(
 
 export function HeaderLinks() {
   const path = usePathname();
-  const hint = useVehicleHint(); // a car page's address does not say whether it is used, new or a van; the page says so
+  const hint = useVehicleHint(); // a car page's address does not say whether it is used or a van; the page says so
   const vehicles = VEHICLE_TYPES.map((t) => ({ href: t.href, label: t.nav, current: hint ? hint === t.condition : within(path, t.href) }));
   const others = HEADER_LINKS.map((l) => ({ ...l, current: within(path, l.href) }));
   return (
