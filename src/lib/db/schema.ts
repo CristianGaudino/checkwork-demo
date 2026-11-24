@@ -44,9 +44,9 @@ export const cars = sqliteTable("cars", {
   data: text({ mode: "json" }).$type<Car>().notNull(),
 });
 
-// A small record store: one row per record, the record as JSON, grouped by collection (src/lib/docs.ts). This site keeps three collections
-// here: "reg-cache" and "reg-counts" (the registration lookup) and "feature-counts". The old /dashboard's rows are gone (2026-11-22);
-// it moved to checkwork-dash.
+// A small record store: one row per record, the record as JSON, grouped by collection (src/lib/docs.ts). This site keeps one collection
+// here: "feature-counts". Any old "reg-cache" and "reg-counts" rows (the registration lookup, removed in #272) are no longer read or
+// written. The old /dashboard's rows are gone (2026-11-22); it moved to checkwork-dash.
 export const adminDocs = sqliteTable(
   "admin_docs",
   {

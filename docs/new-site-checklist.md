@@ -52,13 +52,12 @@ the dashboard, set it here as the `DASH_SITE_KEY` Worker secret (`npx wrangler s
 `wrangler.jsonc` (the dashboard's Worker name). Its Cloudflare Access, team and permissions are set up there, not here.
 
 ### Switches for a real site
-`APP_ENV=production`. The registration lookup then stops answering with a sample car (`SIMULATE_INTEGRATIONS`, off by itself on a production
-site) until `CARTELL_API_KEY` is set. Every variable is listed, with what it does, in `.env.example`.
+`APP_ENV=production`. Every variable is listed, with what it does, in `.env.example`.
 
 ### Outside services
 Each is optional except the lead email and the bot check, which a real site needs before it takes a lead: `LEAD_TO_EMAIL` (and the EMAIL
-binding), `TURNSTILE_SECRET_KEY` and `NEXT_PUBLIC_TURNSTILE_SITE_KEY`. Google reviews (`GOOGLE_PLACE_ID`, `GOOGLE_PLACES_API_KEY`) and the
-registration lookup (`CARTELL_API_KEY`) show their own state without them.
+binding), `TURNSTILE_SECRET_KEY` and `NEXT_PUBLIC_TURNSTILE_SITE_KEY`. Google reviews (`GOOGLE_PLACE_ID`, `GOOGLE_PLACES_API_KEY`) show
+their own state without them.
 
 ### Infrastructure names
 - `wrangler.jsonc`: `name`, the self-reference service, `routes`, the R2 bucket, the D1 database name and id

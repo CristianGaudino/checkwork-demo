@@ -4,8 +4,8 @@ import { getDb } from "@/lib/db";
 import { adminDocs } from "@/lib/db/schema";
 import { getBindings } from "@/lib/leads/bindings";
 
-// One small record store for what the site keeps beside the leads: the registration lookup's cache and counts, and the anonymous feature
-// counts. On the Worker it is the `admin_docs` D1 table (a name from before the dashboard moved to checkwork-dash; renaming a live table
+// One small record store for what the site keeps beside the leads: the anonymous feature counts.
+// On the Worker it is the `admin_docs` D1 table (a name from before the dashboard moved to checkwork-dash; renaming a live table
 // is the owner's call); with no D1 binding (next dev, the E2E run) it is a map in memory.
 // shortcut: memory is per server instance (and `next start` gives route handlers their own copy, apart from pages and actions), so with no
 // D1 binding records last only as long as the process. Fine for dev and tests; the Worker uses D1.

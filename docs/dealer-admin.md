@@ -29,4 +29,4 @@ the E2E stub in `e2e/dash-stub-server.mjs`). With no key nothing is sent.
 ## What stayed here
 
 The stock the site reads (D1 `cars`, seeded from `src/lib/stock/demo-cars.json`), reviews, the lead forms and their purge, the anonymous feature
-counts (`/api/count`), and the registration lookup on the trade-in and sell forms. Starting a site for a dealer: `docs/new-site-checklist.md`.
+counts (`/api/count`). The registration lookup is the dashboard's, for staff (#272); the trade-in and sell forms take the registration as typed. Starting a site for a dealer: `docs/new-site-checklist.md`.

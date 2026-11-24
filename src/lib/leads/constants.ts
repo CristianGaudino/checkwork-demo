@@ -76,7 +76,8 @@ export const EMPLOYMENT = { employed: "Employed", self_employed: "Self-employed"
 // The trade-in's two required answers, shared so the stepped form can check a step before the server sees it (D-14).
 export const BAD_REG = "Enter the registration as shown on the car.";
 export const BAD_KM = "Enter the mileage in km, numbers only.";
-export const REG_PATTERN = /^[A-Z0-9 -]{1,12}$/;
+// A plausible plate, Irish or not: letters and digits (both), spaces or hyphens, up to 12. Checked after uppercasing.
+export const REG_PATTERN = /^(?=.*[A-Z])(?=.*\d)[A-Z0-9 -]{2,12}$/;
 export const KM_PATTERN = /^\d{1,6}$/;
 
 // Trade-in photos: at least this many are needed to value a car, and more is better. The slots are what to photograph, in the order a
@@ -123,6 +124,3 @@ export function driveDays(now = new Date()): string[] {
   for (let d = addDays(today, 1); d <= last; d = addDays(d, 1)) if (driveTimes(d).length > 0) out.push(d);
   return out;
 }
-
-// How long a registration lookup is cached (src/lib/reg-lookup.ts); the daily purge clears older rows (purge.ts).
-export const REG_CACHE_DAYS = 30;

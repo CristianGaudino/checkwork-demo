@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { adminDocs, leads } from "@/lib/db/schema";
+import { leads } from "@/lib/db/schema";
 import { getDb, truncate } from "@/test/sqlite-db";
 import { CONSENT, LEAD_RETENTION_MONTHS } from "./constants";
 import { purgeOldLeads } from "./purge";
@@ -17,7 +17,7 @@ const lead = (id: string, createdAt: Date, photoKeys: string[] = []) => ({
 });
 const ids = async () => (await getDb().select({ id: leads.id }).from(leads)).map((r) => r.id).sort();
 
-beforeEach(() => truncate("leads", "admin_docs"));
+beforeEach(() => truncate("leads"));
 
 describe("purgeOldLeads", () => {
   it("deletes leads past the retention period with their photos, and keeps newer ones", async () => {
@@ -54,19 +54,5 @@ describe("purgeOldLeads", () => {
     const bucket = { delete: vi.fn(async () => {}) };
     expect(await purgeOldLeads(getDb(), bucket, NOW)).toBe(0);
     expect(bucket.delete).not.toHaveBeenCalled();
-  });
-
-  it("clears the registration lookup's cache after 30 days, and the past days' counts", async () => {
-    const at = (days: number) => NOW.getTime() - days * 86_400_000;
-    await getDb().insert(adminDocs).values([
-      { collection: "reg-cache", id: "191-KY-1", data: { id: "191-KY-1", car: null, at: at(31) } },
-      { collection: "reg-cache", id: "191-KY-2", data: { id: "191-KY-2", car: null, at: at(29) } },
-      { collection: "reg-counts", id: "day-2026-11-08", data: { id: "day-2026-11-08", n: 3 } },
-      { collection: "reg-counts", id: "day-2026-11-09", data: { id: "day-2026-11-09", n: 1 } },
-      { collection: "reg-counts", id: "day-2026-11-08-v-0a1b2c", data: { id: "day-2026-11-08-v-0a1b2c", n: 4 } }, // a visitor's, yesterday
-      { collection: "reg-counts", id: "day-2026-11-09-v-0a1b2c", data: { id: "day-2026-11-09-v-0a1b2c", n: 2 } },
-    ]);
-    await purgeOldLeads(getDb(), { delete: async () => {} }, NOW);
-    expect((await getDb().select({ id: adminDocs.id }).from(adminDocs)).map((r) => r.id).sort()).toEqual(["191-KY-2", "day-2026-11-09", "day-2026-11-09-v-0a1b2c"]);
   });
 });

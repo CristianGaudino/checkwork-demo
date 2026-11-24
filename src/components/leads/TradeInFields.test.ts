@@ -1,10 +1,8 @@
-import { vi, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { BAD_KM, BAD_REG, PHOTO_MIN_COUNT, PHOTO_MIN_ERROR } from "@/lib/leads/constants";
 import { fieldErrors } from "@/lib/leads/validate";
 import { TRADE_IN_STEPS } from "./TradeInFields";
 import { nextSlots } from "./PhotoPicker";
-
-vi.mock("server-only", () => ({})); // the lookup button imports its server action, which the test only needs to load
 
 // The typed fields of a step are checked with the server's own rules (validate.ts), which also wants a name and consent: those come
 // from the last step, so these tests only read the errors of the first step's fields.
@@ -22,6 +20,8 @@ describe("trade-in step one, by the server's rules", () => {
     expect(first({ mileage: "100" })).toEqual({ reg: [BAD_REG] });
     expect(first({ reg: "191/KY/1234", mileage: "100" })).toEqual({ reg: [BAD_REG] });
     expect(first({ reg: "1".repeat(13), mileage: "100" })).toEqual({ reg: [BAD_REG] });
+    for (const reg of ["1234", "ABCD", "--", "a"]) expect(first({ reg, mileage: "100" }), reg).toEqual({ reg: [BAD_REG] }); // not a plate
+    expect(first({ reg: "ab12 cde", mileage: "100" })).toEqual({}); // a UK plate still passes
   });
 
   it("refuses a mileage that is not digits, or too long, or empty", () => {
