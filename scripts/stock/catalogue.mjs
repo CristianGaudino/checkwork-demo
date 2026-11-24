@@ -37,12 +37,6 @@ const G = {
   xc60: "Volvo_XC60_2011_42_20_300_30_6_74_67_182_17_AWD_5_4_SUV",
   xc90: "Volvo_XC90_2019_50_18_250_20_4_79_69_194_20_AWD_7_4_SUV",
   rrsport: "Land Rover_Range Rover Sport_2011_59_19_370_50_8_76_71_188_12_4WD_5_4_SUV",
-  chr: "Toyota_C-HR_2019_21_17_140_20_4_70_61_171_27_FWD_5_4_SUV",
-  corolla: "Toyota_Corolla_2019_18_15_130_18_4_69_57_183_28_FWD_5_4_4dr",
-  niro: "Kia_Niro_2017_25_16_130_16_4_71_60_171_51_FWD_5_4_SUV",
-  ioniq: "Hyundai_Ioniq_2019_30_16_110_nan_nan_71_57_176_nan_FWD_5_4_4dr",
-  tiguan: "Volkswagen_Tiguan_2019_25_17_180_20_4_72_66_185_21_AWD_5_4_SUV",
-  golf15: "Volkswagen_Golf_2015_20_15_170_18_4_70_57_167_25_FWD_5_2_2dr",
   ranger: "Ford_Ranger_2019_32_18_270_23_4_85_70_210_21_RWD_4_4_Pickup",
   metris: "Mercedes-Benz_Metris_2019_26_17_200_20_4_75_75_202_21_RWD_2_3_Van",
   transitw: "Ford_Transit Connect Wagon_2017_30_16_160_25_4_72_72_189_19_FWD_6_4_Van",
@@ -66,13 +60,11 @@ export function carFeatures({ tier, year, extra = [], condition, history }) {
   let f = TIERS[tier].flat();
   if (year < 2015) f = [...f.filter((x) => !NEWER.includes(x)), "CD Player"];
   f = [...f, ...extra];
-  if (condition === "new") return [...f, "Manufacturer's warranty"];
   return [...f, ...(history ? ["Full Service History"] : []), ...DEALER];
 }
 
 // id, then the photos, then the facts. nct is the month the NCT runs to. sold is days ago.
 const used = (id, group, ids, c) => ({ id: String(id), photos: P(group, ids), history: id % 2 === 0, doors: 5, seats: 5, ...c });
-const fresh = (id, group, ids, c) => ({ id: String(id), photos: P(group, ids), condition: "new", vat: "inc", doors: 5, seats: 5, owners: 0, history: false, ...c });
 const work = (id, group, ids, c) => ({ id: String(id), photos: P(group, ids), condition: "commercial", vat: "ex", fuel: "diesel", gearbox: "manual", owners: 0, ...c });
 
 // Used cars. Two specs rely on this data: the newest (highest id) car has 5 or more photos and no price drop (carousel, car-page), and Mazda
@@ -110,15 +102,6 @@ export const USED = [
   used(4710030, "fit", "OSm KPK TZD", { make: "Honda", model: "Jazz", variant: "1.4 i-VTEC ES", year: 2011, priceEur: 5950, mileageKm: 125700, fuel: "petrol", gearbox: "manual", bodyType: "Hatchback", engineLitres: 1.4, colour: "Grey", owners: 3, nct: "2027-01", maxSpeedMph: 112, zeroTo62Secs: 11.5, tier: "mid" }),
 ];
 
-// New cars: the franchise brands (src/lib/partners.ts). The photos are the newest in the dataset, so the year is this year's.
-export const NEW = [
-  fresh(5000001, "ioniq", "Akw DlM ElB lOs", { make: "Hyundai", model: "IONIQ", variant: "1.6 GDi Hybrid Premium", year: 2026, priceEur: 34995, mileageKm: 12, fuel: "hybrid", gearbox: "automatic", bodyType: "Hatchback", engineLitres: 1.6, colour: "White", maxSpeedMph: 115, zeroTo62Secs: 10.8, tier: "prem" }),
-  fresh(5000002, "chr", "FYW fKT Xro vZc", { make: "Toyota", model: "C-HR", variant: "1.8 Hybrid Luna", year: 2026, priceEur: 36995, mileageKm: 8, fuel: "hybrid", gearbox: "automatic", bodyType: "SUV", engineLitres: 1.8, colour: "White", maxSpeedMph: 105, zeroTo62Secs: 11, tier: "high" }),
-  fresh(5000003, "niro", "dwa GTr ega", { make: "Kia", model: "Niro", variant: "1.6 GDi Hybrid K3", year: 2026, priceEur: 36495, mileageKm: 15, fuel: "hybrid", gearbox: "automatic", bodyType: "SUV", engineLitres: 1.6, colour: "White", maxSpeedMph: 101, zeroTo62Secs: 11.5, tier: "high" }),
-  fresh(5000004, "tiguan", "Jut Wvm cyR rdO", { make: "Volkswagen", model: "Tiguan", variant: "1.5 TSI Life", year: 2026, priceEur: 43450, mileageKm: 10, fuel: "petrol", gearbox: "automatic", bodyType: "SUV", engineLitres: 1.5, colour: "Blue", maxSpeedMph: 126, zeroTo62Secs: 9.1, tier: "high" }),
-  fresh(5000005, "corolla", "UxA RtS SIs cgw", { make: "Toyota", model: "Corolla", variant: "1.8 Hybrid Sol", year: 2026, priceEur: 34495, mileageKm: 11, fuel: "hybrid", gearbox: "automatic", bodyType: "Saloon", engineLitres: 1.8, colour: "Brown", maxSpeedMph: 112, zeroTo62Secs: 10.9, tier: "high" }),
-  fresh(5000006, "golf15", "IMB RZO iqB pKE", { make: "Volkswagen", model: "Golf", variant: "1.0 TSI Life", year: 2026, priceEur: 30995, mileageKm: 9, fuel: "petrol", gearbox: "manual", bodyType: "Hatchback", engineLitres: 1, colour: "Black", maxSpeedMph: 125, zeroTo62Secs: 10.5, tier: "mid" }),
-];
 
 // Vans and a pickup: priced without VAT, which a VAT-registered buyer can reclaim.
 export const VANS = [

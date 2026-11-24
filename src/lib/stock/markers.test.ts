@@ -22,8 +22,7 @@ describe("rare markers", () => {
     expect(rareMarker(used({ year: 2020, owners: 1 }), now)).toBeUndefined();
   });
 
-  it("never on a new car, a van or a sold car", () => {
-    expect(rareMarker({ ...used({ year: 2016, mileageKm: 1000 }), condition: "new" }, now)).toBeUndefined();
+  it("never on a van or a sold car", () => {
     expect(rareMarker({ ...used({ year: 2016, mileageKm: 1000 }), condition: "commercial" }, now)).toBeUndefined();
     expect(rareMarker(used({ year: 2016, mileageKm: 1000, soldAt: "2026-11-01" }), now)).toBeUndefined();
   });

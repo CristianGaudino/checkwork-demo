@@ -10,7 +10,7 @@ const emptyQuery = (sort: SortKey = "newest"): StockQuery => ({ make: [], model:
 export const DEFAULT_QUERY: StockQuery = emptyQuery();
 
 // Each kind of vehicle has its own list page, with the same filters. A query with no condition is a used car one.
-export const LIST_PATHS: Record<Condition, string> = { used: "/used-cars", new: "/new-cars", commercial: "/commercial" };
+export const LIST_PATHS: Record<Condition, string> = { used: "/used-cars", commercial: "/commercial" };
 export const conditionOfPath = (pathname: string): Condition => (Object.entries(LIST_PATHS).find(([, p]) => pathname === p)?.[0] as Condition | undefined) ?? "used";
 
 type Params = Record<string, string | string[] | undefined>;
@@ -54,7 +54,7 @@ export function parseStockQuery(params: Params, condition: Condition = "used"): 
   q.priceMin = int(params.priceMin, 0, 10_000_000);
   q.priceMax = int(params.priceMax, 0, 10_000_000);
   q.kmMax = int(params.kmMax, 0, 2_000_000);
-  if (first(params.sold) === "1" && condition === "used") q.sold = "include"; // "only" is for landing pages, never from a URL; new cars and vans have no sold list
+  if (first(params.sold) === "1" && condition === "used") q.sold = "include"; // "only" is for landing pages, never from a URL; vans have no sold list
   const sort = first(params.sort);
   if ((SORT_KEYS as readonly string[]).includes(sort ?? "")) q.sort = sort as SortKey;
   q.page = int(params.page, 1, 10_000) ?? 1;

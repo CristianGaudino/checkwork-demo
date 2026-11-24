@@ -4,7 +4,7 @@ import { forSale, onRequest } from "./types";
 import type { Car } from "./types";
 
 // Up to 8 cars to buy, for a row that moves along: same body type within a quarter of the price first, then same body type, then same
-// make; never the car itself, and only cars for sale (each query puts reserved cars last only within its own results). Of the same kind (used, new or commercial), so a new car never suggests used ones.
+// make; never the car itself, and only cars for sale (each query puts reserved cars last only within its own results). Of the same kind (used or commercial), so a van never suggests used ones.
 export async function similarCars(car: Car) {
   const kind = { ...DEFAULT_QUERY, ...(car.condition && car.condition !== "used" && { condition: car.condition }), pageSize: 8 };
   const body = car.bodySlug ? { ...kind, body: [car.bodySlug] } : undefined;

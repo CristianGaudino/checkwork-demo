@@ -84,7 +84,7 @@ test("on a phone the form comes first and How it works follows it; from 640px th
   expect(await top(how)).toBeLessThan(await top(form));
 });
 
-test("it is a trade-in valuation page that explains itself, in four steps, with a lookup beside the registration", async ({ page }) => {
+test("it is a trade-in valuation page that explains itself, in four steps, with a plain registration box", async ({ page }) => {
   await open(page);
   await expect(page.getByRole("heading", { level: 1, name: "Sell your car" })).toBeVisible();
   // The three steps sit open, with the notes under the step they belong to: nothing to tap, and no column of tips beside the form.
@@ -99,7 +99,8 @@ test("it is a trade-in valuation page that explains itself, in four steps, with 
   await expect(page.getByText("Prefer to talk?")).toHaveCount(0);
   await expect(page.getByRole("list", { name: "Progress" }).getByRole("listitem")).toHaveCount(4);
   await expect(page.getByRole("heading", { name: /^Step 1 of 4/ })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Look up" })).toBeVisible(); // beside the registration
+  await expect(page.getByRole("textbox", { name: /^Registration/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Look up" })).toHaveCount(0); // the paid lookup is the dashboard's, not the website's (#272)
 });
 
 test("Back keeps what was typed", async ({ page }) => {

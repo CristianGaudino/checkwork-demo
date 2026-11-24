@@ -17,7 +17,7 @@ export function MobileMenu({ home, primary, groups }: { home: Item; primary: rea
   // Home only away from home.
   const top = [...(path !== "/" ? [home] : []), ...primary];
 
-  const hint = useVehicleHint(); // a car page's address does not say whether it is used, new or a van; the page says so
+  const hint = useVehicleHint(); // a car page's address does not say whether it is used or a van; the page says so
   const here = (href: string) => {
     const vehicle = VEHICLE_TYPES.find((t) => t.href === href);
     return hint && vehicle ? hint === vehicle.condition : path === href || (href !== "/" && path.startsWith(`${href}/`));

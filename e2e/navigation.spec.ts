@@ -8,14 +8,14 @@ type Demo = { slug: string; soldAt?: string };
 const cars: Demo[] = JSON.parse(readFileSync(join(process.cwd(), "src/lib/stock/demo-cars.json"), "utf8"));
 const live = cars.find((c) => !c.soldAt)!;
 
-// The header links from 1024px (seven at most with the three sections: docs/mobile-navigation.md), then the phone menu, then the footer.
+// The header links from 1024px (seven at most with the vehicle sections: docs/mobile-navigation.md), then the phone menu, then the footer.
 const HEADER = [
   ["Finance", "/finance"],
   ["Sell or trade in", "/sell-your-car"],
   ["Service", "/service"],
   ["Contact", "/contact"],
 ] as const;
-const SECTIONS = [["Used cars", "/used-cars"], ["New cars", "/new-cars"], ["Commercial", "/commercial"]] as const;
+const SECTIONS = [["Used cars", "/used-cars"], ["Commercial", "/commercial"]] as const;
 // Every page in the phone menu: the stock first, then the groups that fold (Buying, Selling, Dealership).
 const MENU = [
   ...SECTIONS,
@@ -54,7 +54,7 @@ const FOOTER = [
 ] as const;
 const PAGES = ["/", "/used-cars", `/used-cars/${live.slug}`, "/finance", "/trade-in", "/find-a-car", "/service", "/warranty", "/contact", "/about", "/terms", "/privacy"];
 
-test("from 1024px the header has Used, New, Commercial and four links, and no Enquire button or Stock menu", async ({ page }) => {
+test("from 1024px the header has Used, Commercial and four links, and no Enquire button or Stock menu", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/");
   const banner = page.getByRole("banner");
@@ -65,17 +65,15 @@ test("from 1024px the header has Used, New, Commercial and four links, and no En
   await expect(banner.getByRole("navigation", { name: "Vehicle type" })).toHaveCount(0);
 });
 
-test("a new car and a van mark New Cars and Commercial in the header, not Used Cars", async ({ page }) => {
+test("a van marks Commercial in the header, not Used Cars", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   const banner = page.getByRole("banner");
-  for (const [list, name, label] of [["/new-cars", "Niro", "New cars"], ["/commercial", "Vito", "Commercial"]] as const) {
-    await page.goto(list);
-    await expect(banner.getByRole("link", { name: label, exact: true })).toHaveAttribute("aria-current", "page");
-    await page.locator("article").filter({ hasText: name }).getByRole("link").first().click();
-    await expect(page.getByTestId("buy-box")).toBeVisible();
-    await expect(banner.getByRole("link", { name: label, exact: true })).toHaveAttribute("aria-current", "page");
-    await expect(banner.getByRole("link", { name: "Used cars", exact: true })).not.toHaveAttribute("aria-current", "page");
-  }
+  await page.goto("/commercial");
+  await expect(banner.getByRole("link", { name: "Commercial", exact: true })).toHaveAttribute("aria-current", "page");
+  await page.locator("article").filter({ hasText: "Vito" }).getByRole("link").first().click();
+  await expect(page.getByTestId("buy-box")).toBeVisible();
+  await expect(banner.getByRole("link", { name: "Commercial", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(banner.getByRole("link", { name: "Used cars", exact: true })).not.toHaveAttribute("aria-current", "page");
 });
 
 test("the current section has a red bar and aria-current", async ({ page }) => {
@@ -147,7 +145,7 @@ test.describe("the mobile menu", () => {
     await page.goto("/finance");
     await page.getByRole("banner").getByRole("button", { name: "Menu" }).click();
     const menu = page.getByRole("dialog", { name: "Menu" });
-    for (const name of ["Used cars", "New cars", "Commercial", "Makes"]) await expect(menu.getByRole("link", { name, exact: true })).toBeVisible();
+    for (const name of ["Used cars", "Commercial", "Makes"]) await expect(menu.getByRole("link", { name, exact: true })).toBeVisible();
     await expect(menu.locator("details[open] > summary")).toHaveText(["Buying"]);
     await expect(menu.getByRole("link", { name: "Sell your car" })).toBeHidden();
     await menu.getByText("Selling", { exact: true }).click();

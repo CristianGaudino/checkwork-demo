@@ -1,6 +1,6 @@
 // Builds the stock from catalogue.mjs. Manual: never run in CI, at build time or at runtime, except `redate`, which is offline.
 //
-//   node scripts/stock/build.mjs <dataset dir>   photos to public/stock/<id>/, and src/lib/stock/demo-cars.json (used) and demo-cars-extra.json (new, vans)
+//   node scripts/stock/build.mjs <dataset dir>   photos to public/stock/<id>/, and src/lib/stock/demo-cars.json (used) and demo-cars-extra.json (vans)
 //   node scripts/stock/build.mjs redate          sale and listing dates relative to today, so the sold cars stay inside the 30 day window
 //
 // Same input, same output: the photos are named by their content hash. Run `npm run stock:og` after it for the share images.
@@ -8,7 +8,7 @@ import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import sharp from "sharp";
 import { describeCar } from "./describe.mjs";
-import { NEW, USED, VANS, carFeatures } from "./catalogue.mjs";
+import { USED, VANS, carFeatures } from "./catalogue.mjs";
 
 const USED_FILE = "src/lib/stock/demo-cars.json";
 const EXTRA_FILE = "src/lib/stock/demo-cars-extra.json";
@@ -101,12 +101,12 @@ if (arg === "redate") {
   const today = new Date();
   rmSync(NEXT, { recursive: true, force: true });
   const used = await Promise.all(USED.map((c) => car(arg, c, today)));
-  const extra = await Promise.all([...NEW, ...VANS].map((c) => car(arg, c, today)));
+  const extra = await Promise.all(VANS.map((c) => car(arg, c, today)));
   rmSync("public/stock", { recursive: true, force: true });
   renameSync(NEXT, "public/stock");
   write(USED_FILE, listDates(used, today));
   write(EXTRA_FILE, listDates(extra, today));
-  console.log(`${USED.length} used, ${NEW.length} new and ${VANS.length} vans written`);
+  console.log(`${USED.length} used and ${VANS.length} vans written`);
 } else {
   console.error("Usage: build.mjs <dataset dir> | redate");
   process.exit(1);

@@ -13,7 +13,7 @@ describe("the make directory", () => {
     const stocked = dir.filter((m) => m.count > 0);
     expect(dir.slice(0, stocked.length)).toEqual(stocked); // in stock come first
     for (let i = 1; i < stocked.length; i++) expect(stocked[i - 1].count).toBeGreaterThanOrEqual(stocked[i].count);
-    for (const m of stocked) expect(m.byKind.used + m.byKind.new + m.byKind.commercial).toBe(m.count);
+    for (const m of stocked) expect(m.byKind.used + m.byKind.commercial).toBe(m.count);
     for (const label of POPULAR_MAKES) expect(dir.some((m) => m.label === label)).toBe(true);
   });
   it("without every known make, only the makes in stock", async () => {

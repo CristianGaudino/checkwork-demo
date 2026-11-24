@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseIrishReg, regSummary, tidyKm, tidyReg } from "./reg";
+import { parseIrishReg, tidyKm, tidyReg } from "./reg";
 
 const now = new Date("2026-11-11T12:00:00Z");
 
@@ -18,11 +18,6 @@ describe("parseIrishReg", () => {
     expect(parseIrishReg("081-D-1", now)).toBeNull(); // 2008 has none
     expect(parseIrishReg("301-D-1", now)).toBeNull(); // the future
     expect(parseIrishReg("", now)).toBeNull();
-  });
-
-  it("says it in words", () => {
-    expect(regSummary(parseIrishReg("191-KY-1234", now)!)).toBe("Registered in Kerry, January to June 2019");
-    expect(regSummary(parseIrishReg("08-D-1", now)!)).toBe("Registered in Dublin, 2008");
   });
 });
 

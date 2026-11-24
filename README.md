@@ -18,7 +18,7 @@ The stock lives in Cloudflare D1 (table `cars`, one row per car, the whole car a
 - `npm run stock:redate` moves the sold cars' dates relative to today, so the sold examples stay inside their 30 day window. The deploy runs it, and runs weekly.
 - `npm run stock:seed` writes `seed/stock.sql` from the JSON, and `npm run db:seed` applies it to the remote D1. It adds missing cars and refreshes sold dates, so changes made to the cars in the database survive. `npm run stock:reset` replaces every row with the files. The deploy runs the seed after `wrangler deploy` (so the photos are live first); run Deploy from the Actions tab with "reseed" ticked to reset.
 
-E2E needs the same `APP_ENV` at build and at run time, and `SIMULATE_INTEGRATIONS=on` for the registration lookup specs, for example `APP_ENV=production SIMULATE_INTEGRATIONS=on npm run build` then `APP_ENV=production npm run e2e`.
+E2E needs the same `APP_ENV` at build and at run time, for example `APP_ENV=production npm run build` then `APP_ENV=production npm run e2e`.
 
 ## Set-up still to do
 - Create the Cloudflare resources and put the D1 id in `wrangler.jsonc` (`REPLACE_WITH_D1_ID`): `npx wrangler d1 create checkwork-demo --jurisdiction eu`, then the R2 bucket `checkwork-demo-lead-photos`.

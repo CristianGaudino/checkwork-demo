@@ -1,4 +1,3 @@
-// Not the franchise brands sold new (those are src/lib/partners.ts).
 // The dealer's memberships, approvals and partners: SIMI, AA Approved Dealer, their warranty provider, their lenders and so on. The
 // options in Ireland, the wording to use and the permission each needs are in docs/affiliations.md.
 //

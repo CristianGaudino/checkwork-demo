@@ -93,8 +93,7 @@ function ViewToggle() {
   );
 }
 
-// `orderable`: new cars can be ordered from the factory here (our stock only), so the New cars page links to the order form.
-export function StockShell({ query, title, summary, orderable, children }: { query: StockQuery; title?: string; summary: Summary; orderable?: boolean; children: React.ReactNode }) {
+export function StockShell({ query, title, summary, children }: { query: StockQuery; title?: string; summary: Summary; children: React.ReactNode }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const view = useView();
@@ -140,11 +139,6 @@ export function StockShell({ query, title, summary, orderable, children }: { que
           <div>
             <h1 className="text-display font-bold lg:text-hero">{title ?? kind.title}</h1>
             <p className="mt-2 max-w-measure text-pretty text-body text-text-2">{kind.intro}</p>
-            {orderable && kind.condition === "new" && (
-              <Link href="/new-cars/order" className="mt-2 inline-flex min-h-11 items-center text-body font-semibold text-accent-text underline">
-                Not the spec you want? Order one from the factory
-              </Link>
-            )}
             {/* Under the intro and above the count on a phone; from 1024px the search is in the filter panel. */}
             <div className="mt-4 lg:hidden">
               <SearchBox />
@@ -206,7 +200,7 @@ export function EmptyState() {
   // With nothing applied there is no filter to remove: the stock itself is empty.
   if (appliedFilters(query, null).length === 0) {
     return (
-      <StateBlock title="No cars listed right now" text="New cars arrive often.">
+      <StateBlock title="No cars listed right now" text="More arrive often.">
         <Link href="/find-a-car" className="mx-auto flex min-h-11 w-fit items-center text-body underline">
           Can&apos;t find it? Ask us to find it for you.
         </Link>
