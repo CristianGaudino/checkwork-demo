@@ -29,7 +29,7 @@ One sentence: a bright, editorial showroom, where the cars are the colour.
 
 ## 4. Layout and navigation
 - **Header:** transparent over the hero, then a slim solid bar. Centre: a vehicle-type switch **Used · Commercial**. Left: logo. Right: search, saved, menu. On a phone: logo left, menu right, and the vehicle-type switch becomes a segmented control under the hero search.
-- **Home:** a split hero (the headline and one search panel on the left, a large photo mosaic on the right, stacked on a phone); then "Shop by type" tiles (body types and vans), a large featured stock mosaic (not a carousel), a finance and trade-in band, brands we sell (partnerships), reviews, visit-us with map and hours.
+- **Home:** a split hero (the headline and one search panel on the left, a large photo mosaic on the right, stacked on a phone); then "Shop by type" tiles (body types and vans), a large featured stock mosaic (not a carousel), a finance and trade-in band, reviews, visit-us with map and hours.
 - **Stock list:** filters in a left rail on desktop and a bottom sheet on a phone (as now), but the list becomes a two-column photo-led grid with a sticky result bar. Saved and compare actions sit on the photo.
 - **Car page:** a gallery-first layout: a large two-by-two photo grid that opens the viewer, a sticky buy panel with the price (and VAT line where relevant), a spec table, finance estimate and similar cars. Price block is one component used everywhere (see 6).
 - **Forms (trade-in, find a car, contact, finance):** keep the stepped forms; restyle with a left progress rail on desktop and a top bar on a phone.

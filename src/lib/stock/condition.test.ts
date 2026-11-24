@@ -13,6 +13,12 @@ describe("stock condition", () => {
     expect(await ids()).toEqual(["1", "2"]);
     expect(await ids("commercial")).toEqual(["4"]);
   });
+  it("drops a car of a kind the site no longer has, so its link is not found", async () => {
+    const old = createStockEngine([car("1"), car("5", { condition: "new" as never })]);
+    expect(await old.getBySlug("make-model-2020-5")).toBeNull();
+    expect(await old.lookup("make-model-2020-5")).toBeNull();
+    expect((await old.query(DEFAULT_QUERY)).cars.map((c) => c.id)).toEqual(["1"]);
+  });
   it("still opens any car by its link, whatever its kind", async () => {
     expect((await engine.getBySlug("make-model-2020-4"))?.id).toBe("4");
     expect((await engine.lookup("make-model-2020-4"))?.state).toBe("live");

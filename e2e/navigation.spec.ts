@@ -54,7 +54,7 @@ const FOOTER = [
 ] as const;
 const PAGES = ["/", "/used-cars", `/used-cars/${live.slug}`, "/finance", "/trade-in", "/find-a-car", "/service", "/warranty", "/contact", "/about", "/terms", "/privacy"];
 
-test("from 1024px the header has Used, New, Commercial and four links, and no Enquire button or Stock menu", async ({ page }) => {
+test("from 1024px the header has Used, Commercial and four links, and no Enquire button or Stock menu", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/");
   const banner = page.getByRole("banner");
@@ -145,7 +145,7 @@ test.describe("the mobile menu", () => {
     await page.goto("/finance");
     await page.getByRole("banner").getByRole("button", { name: "Menu" }).click();
     const menu = page.getByRole("dialog", { name: "Menu" });
-    for (const name of ["Used cars", "New cars", "Commercial", "Makes"]) await expect(menu.getByRole("link", { name, exact: true })).toBeVisible();
+    for (const name of ["Used cars", "Commercial", "Makes"]) await expect(menu.getByRole("link", { name, exact: true })).toBeVisible();
     await expect(menu.locator("details[open] > summary")).toHaveText(["Buying"]);
     await expect(menu.getByRole("link", { name: "Sell your car" })).toBeHidden();
     await menu.getByText("Selling", { exact: true }).click();

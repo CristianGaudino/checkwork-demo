@@ -34,6 +34,7 @@ version for dealers whose stock comes from DoneDeal.
    - Lists that were stacks of cards (test drives, reviews) become dense rows; long forms open on demand.
 3. **Stock has two modes.** `STOCK_SOURCE=checkwork` (today: add, edit, mark sold, delete here) or `donedeal` (read only here: stock is synced
    from DoneDeal, each row links to the listing on DoneDeal, no add, edit or delete, and the server refuses those actions). The demo bar has a
-   switch so both can be shown. The sync job is a stub until a dealer's key exists.
+   switch so both can be shown. The sync job is a stub until a dealer's key exists. Both modes now live in checkwork-dash; this site's
+   `NEXT_PUBLIC_STOCK_SOURCE`, which only hid the factory-order pages, went with them (#271).
 4. **Bugs:** the drop-down closes on any press outside it and on a second press on the field; Follow us tiles open the dealer's page on that
    network; a price drop is a tag on the card photo so prices line up.

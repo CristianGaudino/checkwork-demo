@@ -1,6 +1,6 @@
 import { fold } from "./format";
 import { searchOptions } from "./search-options";
-import { FUEL_LABELS, GEARBOX_LABELS, SOLD_VISIBLE_DAYS, isSold, onRequest } from "./types";
+import { CONDITIONS, FUEL_LABELS, GEARBOX_LABELS, SOLD_VISIBLE_DAYS, isSold, onRequest } from "./types";
 import type { Car, FacetGroup, FacetOption, SortKey, StockProvider, StockQuery, StockResult } from "./types";
 import { DAY } from "@/lib/time";
 
@@ -19,7 +19,8 @@ type Pick = (c: Car) => { value: string; label: string; parent?: string } | unde
 
 export function createStockEngine(input: Car[], { now = () => new Date() }: { now?: () => Date } = {}): StockProvider {
   // Drafts and hidden cars are not on the website at all: no list, page, count or sitemap has them, and their address is not found.
-  const cars = input.filter((c) => !c.listing).sort((a, b) => Number(b.id) - Number(a.id));
+  // A kind the site no longer has (a stored "new" car, #271) is dropped here, so its link falls to the gone page like any car we no longer keep.
+  const cars = input.filter((c) => !c.listing && CONDITIONS.includes(c.condition ?? "used")).sort((a, b) => Number(b.id) - Number(a.id));
   const bySlug = new Map(cars.map((c) => [c.slug, c]));
   const byId = new Map(cars.map((c) => [c.id, c]));
   // Kept off the Car objects so nothing internal leaks to callers.
