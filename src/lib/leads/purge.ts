@@ -1,6 +1,6 @@
-import { lt } from "drizzle-orm";
+import { and, eq, lt, sql } from "drizzle-orm";
 import type { BaseSQLiteDatabase } from "drizzle-orm/sqlite-core";
-import { leads } from "../db/schema";
+import { adminDocs, leads } from "../db/schema";
 import type * as schema from "../db/schema";
 import { LEAD_RETENTION_MONTHS } from "./constants";
 
@@ -21,6 +21,11 @@ export async function purgeOldLeads(
   const keys = old.flatMap((r) => r.photoKeys);
   for (let i = 0; i < keys.length; i += R2_DELETE_MAX) await bucket.delete(keys.slice(i, i + R2_DELETE_MAX));
   // Rows only get newer than the cutoff, so this deletes exactly the rows whose photos were just deleted.
+  // Only clears rows the removed registration lookup (#272) left behind: its 30-day plate cache and its past day counts, whose ids hold a
+  // hash of the day and the visitor's address. Nothing writes them now; this keeps them from being kept forever.
+  const regCutoff = now.getTime() - 30 * 86_400_000;
+  await db.delete(adminDocs).where(and(eq(adminDocs.collection, "reg-cache"), lt(sql`json_extract(${adminDocs.data}, '$.at')`, regCutoff)));
+  await db.delete(adminDocs).where(and(eq(adminDocs.collection, "reg-counts"), lt(adminDocs.id, `day-${now.toISOString().slice(0, 10)}`)));
   const gone = await db.delete(leads).where(lt(leads.createdAt, cutoff)).returning({ id: leads.id });
   return gone.length;
 }
