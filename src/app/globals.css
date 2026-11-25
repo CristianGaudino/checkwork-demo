@@ -530,7 +530,6 @@ input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
   box-shadow: 0 0 0 1px var(--color-destructive);
 }
 
-/* The finance band on the home page: a soft panel with a glow in the accent colour. */
 /* Stock list view (the toggle on /used-cars): one column of wide cards, photo on the left. From 1024px only, where the toggle shows,
    so a choice made on a desktop never sticks on a tablet with no way back. Unlayered so it beats the grid utilities. */
 @media (min-width: 1024px) {

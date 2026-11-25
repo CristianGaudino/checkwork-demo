@@ -129,7 +129,7 @@ export function AutoCarousel({
           <div className={`items-center ${state.pages <= 4 ? "flex" : state.pages <= 16 ? "hidden md:flex" : "hidden"}`}>
             {Array.from({ length: state.pages }, (_, i) => (
               <button key={i} type="button" aria-label={`Go to page ${i + 1} of ${state.pages}`} aria-current={i === state.page ? "true" : undefined} onClick={() => goTo(i)} className="group/dot flex size-6 items-center justify-center">
-                <span className={`rounded-full transition-all duration-200 ${i === state.page ? "h-2 w-5 bg-accent" : "size-2 bg-hairline group-hover/dot:bg-text-2"}`} />
+                <span className={`rounded-full transition-colors duration-200 motion-reduce:transition-none ${i === state.page ? "h-2 w-5 bg-accent" : "size-2 bg-hairline group-hover/dot:bg-text-2"}`} />
               </button>
             ))}
           </div>
