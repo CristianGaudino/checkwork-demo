@@ -15,7 +15,6 @@ const bar = "after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-
 
 // A plain GET form: /used-cars reads make, model, body, priceMin and priceMax from the URL (BRW-03). The drop-downs need scripts to pick from;
 // without them it still goes to the stock, with nothing chosen.
-// The /used-cars page holds the used stock only, so the tab says so (vans have their own page).
 // The mockup's "Find me a car" tab sits beside it. Search sets the height of the box; the Find panel lies over it, so switching tabs
 // never moves the page. The Find panel stays one column at every width: from lg the box is only half the page. On a phone body type is left out (the stock page has it) to keep the box short.
 export function HomeSearch({ makes, bodies, models }: Props) {
@@ -42,22 +41,22 @@ export function HomeSearch({ makes, bodies, models }: Props) {
             onClick={() => setTab(t)}
             className={`${tab} ${tabName === t ? `text-text ${bar}` : "text-text-2 hover:text-text"}`}
           >
-            {t === "search" ? "Search used cars" : "Find me a car"}
+            {t === "search" ? "Search cars" : "Find me a car"}
           </button>
         ))}
       </div>
       <div className="relative">
         <div role="tabpanel" id={`${id}-panel-search`} aria-labelledby={`${id}-tab-search`} className={panel("search")}>
-          <form action="/used-cars" method="get" className="grid grid-cols-2 gap-x-3 gap-y-3 p-4 sm:grid-cols-3 sm:gap-4">
-            <Select name="make" label="Make" any="Any make" value={make} onChange={setMake} options={makes.map((m) => [m.slug, m.label])} />
-            <Select key={make} name="model" label="Model" any="Any model" options={shownModels.map((m) => [m.slug, m.label])} />
-            <Select name="body" label="Body type" any="Any type" className="hidden sm:flex" options={bodies.map((b) => [b.slug, b.label])} />
-            <div className="col-span-2 min-w-0 sm:col-span-3">
+          <form action="/used-cars" method="get" className="grid grid-cols-2 gap-x-3 max-[359px]:grid-cols-1 gap-y-3 p-4 sm:grid-cols-3 sm:gap-4">
+            <Select name="make" label="Make" any="Any" value={make} onChange={setMake} options={makes.map((m) => [m.slug, m.label])} />
+            <Select key={make} name="model" label="Model" any="Any" options={shownModels.map((m) => [m.slug, m.label])} />
+            <Select name="body" label="Body type" any="Any" className="hidden sm:flex" options={bodies.map((b) => [b.slug, b.label])} />
+            <div className="col-span-2 min-w-0 max-[359px]:col-span-1 sm:col-span-3">
               <PriceRange label="Price" min={price.min} max={price.max} onCommit={(min, max) => setPrice({ min, max })} />
               {price.min !== undefined && <input type="hidden" name="priceMin" value={price.min} />}
               {price.max !== undefined && <input type="hidden" name="priceMax" value={price.max} />}
             </div>
-            <button type="submit" className={`col-span-2 flex items-center justify-center gap-2 sm:col-span-3 ${accentButton}`}>
+            <button type="submit" className={`col-span-2 max-[359px]:col-span-1 flex items-center justify-center gap-2 sm:col-span-3 ${accentButton}`}>
               <SearchIcon className="size-5" />
               Search cars
             </button>
