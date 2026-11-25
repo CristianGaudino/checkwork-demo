@@ -5,6 +5,7 @@ import { StockResults } from "@/components/stock/StockResults";
 import { StockShell } from "@/components/stock/StockShell";
 import { DEALER_LOCATION, SITE_NAME, indexable } from "@/lib/site";
 import { stock } from "@/lib/stock";
+import { NOUNS } from "@/lib/stock/format";
 import { LIST_PATHS, parseStockQuery, stockHref } from "@/lib/stock/query";
 import type { Condition } from "@/lib/stock/types";
 
@@ -36,7 +37,7 @@ export async function StockListPage({ condition, searchParams, title }: { condit
   if (result && result.pageCount > 0 && query.page > result.pageCount) redirect(stockHref({ ...query, page: result.pageCount }));
   return (
     <StockShell query={query} title={title} summary={result && { total: result.total, facets: result.facets }}>
-      {result ? <StockResults result={result} query={query} /> : <StockError />}
+      {result ? <StockResults result={result} query={query} /> : <StockError noun={NOUNS[condition]} />}
     </StockShell>
   );
 }

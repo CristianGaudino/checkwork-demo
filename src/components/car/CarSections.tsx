@@ -7,6 +7,7 @@ import { featureLabel, plainText, specRows, withoutInvitation } from "@/lib/stoc
 import { FactLabel, FactValue } from "@/components/stock/CarMeta";
 import { UnitToggle } from "@/components/UnitToggle";
 import { DEFAULT_QUERY, stockHref } from "@/lib/stock/query";
+import { knownKm } from "@/lib/stock/markers";
 import { isSold } from "@/lib/stock/types";
 import type { Car, StockQuery } from "@/lib/stock/types";
 
@@ -51,7 +52,7 @@ export function Specifications({ car }: { car: Car }) {
     <section>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className={h2}>Specifications</h2>
-        {(car.mileageKm !== undefined || car.maxSpeedMph !== undefined || car.evRangeKm !== undefined) && <UnitToggle />}
+        {(knownKm(car) !== undefined || car.maxSpeedMph !== undefined || car.evRangeKm !== undefined) && <UnitToggle />}
       </div>
       {/* Every other row filled (in pairs from 640px, where two rows sit side by side), so a label is easy to follow to its value. */}
       <dl className={`mt-4 grid grid-cols-1 gap-x-4 ${card} p-2 sm:grid-cols-2`}>

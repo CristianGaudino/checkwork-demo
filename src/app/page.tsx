@@ -29,6 +29,9 @@ export const metadata: Metadata = {
   description: `Browse the used cars in stock at our dealership in ${DEALER_LOCATION}.`,
 };
 
+// The hero's two links, on the photo.
+const heroButton = `inline-flex h-12 w-full items-center justify-center gap-2 rounded-control border border-hairline bg-card px-6 font-medium text-text sm:w-auto ${press}`;
+
 export default async function Home() {
   // Env decides the reviews provider at request time. Not force-dynamic: that would turn off the fetch cache.
   await connection();
@@ -58,11 +61,11 @@ export default async function Home() {
             <h1 className="max-w-[14ch] text-balance text-hero font-semibold lg:text-hero-lg">{HOME.heroTitle}</h1>
             <p className="mt-4 max-w-[40ch] text-body text-text/90">{HOME.heroIntro}</p>
             <div className="mt-6 flex w-full flex-wrap gap-3">
-              <Link href="/used-cars" className={`inline-flex h-12 w-full items-center justify-center gap-2 rounded-control border border-hairline bg-card px-6 font-medium text-text sm:w-auto ${press}`}>
+              <Link href="/used-cars" className={heroButton}>
                 Browse stock
                 <ArrowRightIcon className="size-5" />
               </Link>
-              <Link href="/finance" className={`inline-flex h-12 w-full items-center justify-center gap-2 rounded-control border border-hairline bg-card px-6 font-medium text-text sm:w-auto ${press}`}>
+              <Link href="/finance" className={heroButton}>
                 Estimate finance
               </Link>
             </div>

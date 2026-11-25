@@ -21,12 +21,12 @@ export function EmptyCars({ title, text }: { title: string; text: string }) {
   );
 }
 
-// retry: what Try again does when the cars came from the browser (/saved) rather than the server render.
-export function StockError({ retry }: { retry?: () => void }) {
+// retry: what Try again does when the cars came from the browser (/saved) rather than the server render. noun: "van" on /commercial.
+export function StockError({ retry, noun = "car" }: { retry?: () => void; noun?: string }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   return (
-    <StateBlock title="We couldn't load the cars" text={CONNECTION_ERROR}>
+    <StateBlock title={`We couldn't load the ${noun}s`} text={CONNECTION_ERROR}>
       <button type="button" disabled={pending} onClick={() => (retry ? retry() : startTransition(() => router.refresh()))} className={stateButton}>
         Try again
       </button>

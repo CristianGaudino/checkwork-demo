@@ -29,15 +29,11 @@ export function BuyBox({ car }: { car: Car }) {
   const whatsapp = `${DEALER_WHATSAPP}?text=${encodeURIComponent(`Hi, I'm interested in the ${carName(car)}: ${url}`)}`;
   return (
     <div data-testid="buy-box" className="flex flex-col gap-5">
-      {/* Below 640px the icons float right, so the title wraps under them instead of sharing a narrow column; from 640px they sit beside it. */}
-      <div className="flow-root sm:flex sm:items-start sm:justify-between sm:gap-3">
-        {/* Share beside the heart, where a buyer looks for them. First in the source so the float sits at the top. */}
-        <div className="float-right ml-3 flex shrink-0 items-center sm:order-2 sm:float-none sm:ml-0">
-          <ShareButton iconOnly title={carName(car)} text={sold ? carName(car) : `${carName(car)}, ${[price.headline, price.vatLine].filter(Boolean).join(" ")}`} url={url} />
-          <SaveButton id={car.id} label="Save this car" variant="page" />
-        </div>
+      {/* The name first in the source, so a screen reader reaches it before Share and Save. Below 640px the icons sit at the top right and
+          an empty float the size of the two buttons makes the title wrap under them; from 640px they sit beside it. */}
+      <div className="relative sm:flex sm:items-start sm:justify-between sm:gap-3">
         {/* Make and model large, the variant under it: a 60 character variant would otherwise fill a phone screen. The text reads as carTitle. */}
-        <h1 className={`min-w-0 break-words font-bold ${longTitle(car) ? "text-heading sm:text-display" : "text-display"}`}>
+        <h1 className={`min-w-0 break-words font-bold max-sm:before:float-right max-sm:before:ml-3 max-sm:before:h-11 max-sm:before:w-22 max-sm:before:content-[''] ${longTitle(car) ? "text-heading sm:text-display" : "text-display"}`}>
           {car.make} {car.model}
           {car.variant && (
             <>
@@ -46,6 +42,11 @@ export function BuyBox({ car }: { car: Car }) {
             </>
           )}
         </h1>
+        {/* Share beside the heart, where a buyer looks for them. */}
+        <div className="absolute right-0 top-0 flex items-center sm:static sm:shrink-0">
+          <ShareButton iconOnly title={carName(car)} text={sold ? carName(car) : `${carName(car)}, ${[price.headline, price.vatLine].filter(Boolean).join(" ")}`} url={url} />
+          <SaveButton id={car.id} label="Save this car" variant="page" />
+        </div>
       </div>
       <p data-meta className="-mt-3 text-body text-text-2">
         <CarMeta car={car} />

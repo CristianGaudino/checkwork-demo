@@ -175,6 +175,14 @@ export function runContract(name: string, makeProvider: (cars: Car[], opts: Cloc
       expect(await ids({ sort: "km-asc" })).toEqual(["105", "102", "103", "101", "108", "104", "106", "107"]);
     });
 
+    it("a used car's 0 km is a blank feed field: last in lowest mileage first, and out of an Up to N km filter", async () => {
+      const blank = car("109", "Ford", "Puma", 2020, 19000, { mileageKm: 0, ...body("SUV") });
+      const p = makeProvider([...structuredClone(FIXTURE), blank], clock);
+      const km = async (partial: Partial<StockQuery>) => (await p.query(q({ pageSize: 20, ...partial }))).cars.map((c) => c.id);
+      expect(await km({ sort: "km-asc" })).toEqual(["105", "102", "103", "101", "108", "104", "106", "109", "107"]);
+      expect(await km({ kmMax: 60000 })).toEqual(["105", "103", "102"]);
+    });
+
     it("pages, and returns an empty page past the end", async () => {
       const p2 = await provider().query(q({ pageSize: 3, page: 2 }));
       expect(p2.cars.map((c) => c.id)).toEqual(["105", "104", "103"]);

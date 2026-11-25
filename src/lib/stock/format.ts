@@ -36,9 +36,10 @@ const withUnit = (n: number | undefined, unit: string) => (n === undefined ? und
 export function specRows(car: Car): SpecRow[] {
   const mph = car.maxSpeedMph;
   const range = car.evRangeKm;
+  const km = knownKm(car);
   const rows: [string, string | undefined, SpecRow["miles"]?][] = [
     ["Year", String(car.year)],
-    ["Mileage", knownKm(car) === undefined ? undefined : formatKm(knownKm(car)!)],
+    ["Mileage", km === undefined ? undefined : formatKm(km)],
     ["Fuel", car.fuel && FUEL_LABELS[car.fuel]],
     ["Transmission", car.gearbox && GEARBOX_LABELS[car.gearbox]],
     ["Body type", car.bodyType],

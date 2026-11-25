@@ -5,6 +5,7 @@ import type { Car, FacetGroup, FacetOption, SortKey, StockProvider, StockQuery, 
 import { DAY } from "@/lib/time";
 import { MAKE_OPTIONS } from "@/lib/leads/makes";
 import { slugify } from "./slug";
+import { knownKm } from "./markers";
 
 // `cars` is presorted by id, highest first, and Array.prototype.sort is stable, so every key ties by id descending. Newest is the listing
 // date; a car without one (stock from before dates were kept) keeps its id order among the others without one.
@@ -14,7 +15,7 @@ const SORTS: Record<SortKey, (a: Car, b: Car) => number> = {
   "price-asc": (a, b) => Number(onRequest(a)) - Number(onRequest(b)) || a.priceEur - b.priceEur,
   "price-desc": (a, b) => Number(onRequest(a)) - Number(onRequest(b)) || b.priceEur - a.priceEur,
   "year-desc": (a, b) => b.year - a.year,
-  "km-asc": (a, b) => (a.mileageKm ?? Number.MAX_SAFE_INTEGER) - (b.mileageKm ?? Number.MAX_SAFE_INTEGER),
+  "km-asc": (a, b) => (knownKm(a) ?? Number.MAX_SAFE_INTEGER) - (knownKm(b) ?? Number.MAX_SAFE_INTEGER), // unknown km last
 };
 
 type Pick = (c: Car) => { value: string; label: string; parent?: string } | undefined;
@@ -59,7 +60,7 @@ export function createStockEngine(input: Car[], { now = () => new Date() }: { no
     if ((q.priceMin !== undefined || q.priceMax !== undefined) && onRequest(c)) return false; // a budget needs a price
     if (q.priceMin !== undefined && c.priceEur < q.priceMin) return false;
     if (q.priceMax !== undefined && c.priceEur > q.priceMax) return false;
-    if (q.kmMax !== undefined && (c.mileageKm === undefined || c.mileageKm > q.kmMax)) return false;
+    if (q.kmMax !== undefined && !((knownKm(c) ?? Infinity) <= q.kmMax)) return false; // unknown km is left out
     const text = searchText.get(c.id)!;
     return termsOf(q).every((t) => text.includes(t));
   };
