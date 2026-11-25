@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { everyKindOrNull, stock } from "@/lib/stock";
+import { NOUNS } from "@/lib/stock/format";
 import { slugify } from "@/lib/stock/slug";
 import { MAKE_OPTIONS, POPULAR_MAKES } from "@/lib/leads/makes";
 import { isSold, type Car, type Condition } from "@/lib/stock/types";
@@ -7,6 +8,9 @@ import { isSold, type Car, type Condition } from "@/lib/stock/types";
 // Every make the site has a page for (/makes/<slug>): the makes in stock, the makes it has ever listed, and the makes people in Ireland
 // look for most, so a search for one lands on a real page even with none in stock.
 export type MakeEntry = { slug: string; label: string; count: number; byKind: Record<Condition, number> };
+
+// What a make's count calls its stock: cars when any are used, vans when it has only vans.
+export const makeNoun = (m: Pick<MakeEntry, "byKind">) => (m.byKind.used ? NOUNS.used : NOUNS.commercial);
 
 const zero = (): Record<Condition, number> => ({ used: 0, commercial: 0 });
 

@@ -5,8 +5,8 @@ import { PageHeading } from "@/components/PageHeading";
 import { StateBlock } from "@/components/StateBlock";
 import { card, pageMain, press, subTitle } from "@/components/ui";
 import { DEALER_LOCATION, SITE_NAME } from "@/lib/site";
-import { NOUNS, countLabel } from "@/lib/stock/format";
-import { makeDirectory } from "@/lib/stock/makes";
+import { countLabel } from "@/lib/stock/format";
+import { makeDirectory, makeNoun } from "@/lib/stock/makes";
 
 export const metadata: Metadata = {
   title: "Makes",
@@ -30,7 +30,7 @@ export default async function MakesPage() {
                   <MakeLogo slug={m.slug} className="size-8" />
                   <span className="flex min-w-0 flex-col">
                     <span className="font-medium break-words">{m.label}</span>
-                    <span className="text-meta text-text-2">{countLabel(m.count, m.byKind.used ? NOUNS.used : NOUNS.commercial)}</span>
+                    <span className="text-meta text-text-2">{countLabel(m.count, makeNoun(m))}</span>
                   </span>
                 </Link>
               </li>

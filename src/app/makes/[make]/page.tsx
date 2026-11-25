@@ -8,7 +8,7 @@ import { card, pageMain, pageTitle, secondaryButton, subTitle } from "@/componen
 import { DEALER_ADDRESS, DEALER_LOCATION, SITE_NAME } from "@/lib/site";
 import { stock } from "@/lib/stock";
 import { countLabel } from "@/lib/stock/format";
-import { carsOfMake, findMake } from "@/lib/stock/makes";
+import { carsOfMake, findMake, makeNoun } from "@/lib/stock/makes";
 import { DEFAULT_QUERY } from "@/lib/stock/query";
 import type { Car, Condition } from "@/lib/stock/types";
 
@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: PageProps<"/makes/[make]">): 
   if (!make) return {};
   const title = `${make.label} for sale in ${DEALER_ADDRESS.town}`;
   const description = make.count
-    ? `${countLabel(make.count)} from ${make.label} in stock at ${SITE_NAME}, ${DEALER_LOCATION}: used and commercial.`
+    ? `${countLabel(make.count, makeNoun(make))} from ${make.label} in stock at ${SITE_NAME}, ${DEALER_LOCATION}: used and commercial.`
     : `No ${make.label} in stock at ${SITE_NAME} right now. We can find one for you, and you can see what we have that is similar.`;
   return { title, description, alternates: { canonical: `/makes/${make.slug}` }, ...(make.count ? {} : { robots: { index: false } }) };
 }
@@ -61,7 +61,7 @@ export default async function MakePage({ params }: PageProps<"/makes/[make]">) {
         {make.label}
       </h1>
       <p className="mt-2 max-w-measure text-body text-text-2">
-        {make.count ? `${countLabel(make.count)} in stock in ${DEALER_ADDRESS.town}: ${parts.join(", ")}.` : `No ${make.label} in stock right now.`}
+        {make.count ? `${countLabel(make.count, makeNoun(make))} in stock in ${DEALER_ADDRESS.town}: ${parts.join(", ")}.` : `No ${make.label} in stock right now.`}
       </p>
 
       {make.count > 0 ? (

@@ -1,9 +1,17 @@
 import { describe, expect, it } from "vitest";
 import { POPULAR_MAKES } from "@/lib/leads/makes";
 import { everyKindOrNull } from "./index";
-import { carsOfMake, findMake, makeDirectory } from "./makes";
+import { carsOfMake, findMake, makeDirectory, makeNoun } from "./makes";
 import { carChoices } from "./options";
 import { forSale, isSold } from "./types";
+
+describe("makeNoun", () => {
+  it("counts cars when any are used, vans when a make has only vans", () => {
+    expect(makeNoun({ byKind: { used: 2, commercial: 0 } })).toBe("car");
+    expect(makeNoun({ byKind: { used: 0, commercial: 2 } })).toBe("van");
+    expect(makeNoun({ byKind: { used: 1, commercial: 3 } })).toBe("car");
+  });
+});
 
 describe("the make directory", () => {
   it("lists the makes in stock first (most cars first), then the popular ones, each once, with counts by kind", async () => {
