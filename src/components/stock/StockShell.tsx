@@ -21,7 +21,7 @@ import { GridIcon, ListIcon } from "./icons";
 import { SearchBox, StockFilters } from "./StockFilters";
 import { stateButton } from "./StockError";
 import { setView, useView } from "./view";
-import { pageMain, subTitle } from "@/components/ui";
+import { pageMain, pageTitle, subTitle } from "@/components/ui";
 import { VEHICLE_TYPES } from "@/lib/nav";
 
 type Summary = { total: number; facets: Facets } | null;
@@ -139,7 +139,7 @@ export function StockShell({ query, title, summary, children }: { query: StockQu
             start higher. Below that the count sits under the intro (sort is in the sticky bar). */}
         <div className="lg:flex lg:items-end lg:justify-between lg:gap-8">
           <div>
-            <h1 className="text-display font-bold lg:text-hero">{title ?? kind.title}</h1>
+            <h1 className={pageTitle}>{title ?? kind.title}</h1>
             <p className="mt-2 max-w-measure text-pretty text-body text-text-2">{kind.intro}</p>
             {/* Under the intro and above the count on a phone; from 1024px the search is in the filter panel. */}
             <div className="mt-4 lg:hidden">
@@ -166,7 +166,7 @@ export function StockShell({ query, title, summary, children }: { query: StockQu
           <div ref={results} onClickCapture={(e) => e.target instanceof Element && e.target.closest("a[href^='/used-cars/']") && rememberScroll(query)} className="min-w-0 scroll-mt-16 lg:min-h-[100dvh] lg:scroll-mt-6">
             <div
               data-testid="sticky-bar"
-              className="sticky top-14 z-20 lg:static -mx-4 flex h-14 items-center justify-between gap-2 bg-surface/80 px-4 backdrop-blur-[20px] backdrop-saturate-[1.8] sm:-mx-6 sm:px-6 lg:mx-0 lg:justify-end lg:gap-3 lg:bg-transparent lg:px-0 lg:backdrop-blur-none lg:backdrop-saturate-100 reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none reduce-transparency:backdrop-saturate-100"
+              className="sticky top-14 z-20 lg:static -mx-4 flex min-h-14 flex-wrap items-center justify-between gap-2 py-1 bg-surface/80 px-4 backdrop-blur-[20px] backdrop-saturate-[1.8] sm:-mx-6 sm:px-6 lg:mx-0 lg:justify-end lg:gap-3 lg:bg-transparent lg:px-0 lg:backdrop-blur-none lg:backdrop-saturate-100 reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none reduce-transparency:backdrop-saturate-100"
             >
               <div className="lg:hidden">
                 <FilterSheet />

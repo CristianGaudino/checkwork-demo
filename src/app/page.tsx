@@ -97,7 +97,7 @@ export default async function Home() {
             <>
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
                 <h2 id="featured" className={sectionTitle}>Featured stock</h2>
-                <Link href="/used-cars" className={`${textLink} shrink-0 gap-2 whitespace-nowrap`}>
+                <Link href="/used-cars" className={`${textLink} gap-2`}>
                   View all stock
                   <ArrowRightIcon className="size-5" />
                 </Link>
@@ -133,13 +133,14 @@ export default async function Home() {
               </Link>
             </div>
           </div>
-          <ol className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          {/* @container: on a phone the number sits beside its step, above it when large text leaves too little room (the query is in rem). */}
+          <ol className="@container grid grid-cols-1 gap-4 sm:grid-cols-3">
             {[
               ["1", "Pick a car", "Or type a price. Choose a deposit and a term."],
               ["2", "See an estimate", "A monthly figure, worked out as you go."],
               ["3", "We call you", "Send your details and we come back with the real amounts."],
             ].map(([n, title, text]) => (
-              <li key={n} className="flex gap-4 border-t border-hairline pt-4 sm:flex-col">
+              <li key={n} className="flex flex-col gap-4 border-t border-hairline pt-4 max-sm:@min-[14rem]:flex-row">
                 <IconBadge>{n}</IconBadge>
                 <TitleText title={title} text={text} />
               </li>

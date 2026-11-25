@@ -51,7 +51,8 @@ export function Specifications({ car }: { car: Car }) {
   return (
     <section>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className={h2}>Specifications</h2>
+        {/* With large text on a phone the heading grows less than the text, so the one long word fits. */}
+        <h2 className={`${h2} max-sm:[font-size:clamp(1rem,6.25vw,1.25rem)]`}>Specifications</h2>
         {(knownKm(car) !== undefined || car.maxSpeedMph !== undefined || car.evRangeKm !== undefined) && <UnitToggle />}
       </div>
       {/* Every other row filled (in pairs from 640px, where two rows sit side by side), so a label is easy to follow to its value. */}

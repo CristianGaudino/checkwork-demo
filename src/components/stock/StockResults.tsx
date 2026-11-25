@@ -39,7 +39,7 @@ export function Pager({ page, pageCount, first, shown, total, href }: { page: nu
   if (pageCount <= 1) return null;
   return (
     <nav aria-label="Pagination" className="mt-10 flex flex-col items-center gap-3">
-      <ul className="inline-flex divide-x divide-control overflow-hidden rounded-control border border-control bg-card">
+      <ul className="inline-flex max-w-full divide-x divide-control overflow-hidden rounded-control border border-control bg-card">
         <li>
           {page > 1 ? (
             <Link replace href={href(page - 1)} aria-label="Previous page" className={segLink}>

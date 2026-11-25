@@ -24,7 +24,7 @@ export function TestDrivePicker({ cars }: { cars: (CarSummary & { vatLine?: stri
               <p className="font-semibold">{c.name}</p>
               {/* The name already says the make and model: the line under it is what tells two of them apart. */}
               {c.variant && <p className="text-meta text-text-2">{c.variant}</p>}
-              <div className="mt-auto flex items-end justify-between gap-2 pt-2">
+              <div className="mt-auto flex flex-wrap items-end justify-between gap-2 pt-2">
                 <p className="text-meta font-semibold whitespace-nowrap">
                   {c.price}
                   {c.vatLine && <span className="block font-normal text-text-2">{c.vatLine}</span>}
@@ -36,7 +36,7 @@ export function TestDrivePicker({ cars }: { cars: (CarSummary & { vatLine?: stri
                     setCar(c);
                     setOpen(true);
                   }}
-                  className={`flex h-11 shrink-0 items-center gap-2 px-3 ${secondaryButton} ${press}`}
+                  className={`ml-auto flex h-11 shrink-0 items-center gap-2 px-3 ${secondaryButton} ${press}`}
                 >
                   <CalendarIcon className="size-5" />
                   Book

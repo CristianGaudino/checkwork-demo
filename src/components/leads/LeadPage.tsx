@@ -16,9 +16,10 @@ export function LeadPage({ title, intro, how, actions, picture, bare = false, ch
         // On a phone it comes after the form, so the form starts under the title; the heading says what it is down there.
         <section className="mt-8 max-sm:order-last">
           <h2 className={`${subTitle} mb-4 sm:sr-only`}>How it works</h2>
-          <ol className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-8">
+          {/* @container: the number sits beside its step, above it when large text leaves too little room (the query is in rem). */}
+          <ol className="@container grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-8">
             {how.map((s, i) => (
-              <li key={s.title} className="reveal flex gap-4 border-t border-hairline pt-4">
+              <li key={s.title} className="reveal flex flex-col gap-4 border-t border-hairline pt-4 @min-[14rem]:flex-row">
                 <IconBadge>{i + 1}</IconBadge>
                 <div className="flex min-w-0 flex-col gap-2">
                   <TitleText title={s.title} text={s.text} />

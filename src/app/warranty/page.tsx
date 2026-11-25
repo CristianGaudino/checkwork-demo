@@ -73,7 +73,8 @@ export default function WarrantyPage() {
       <section id="claim" className="mt-12 flex max-w-2xl scroll-mt-24 flex-col gap-4">
         <h2 className={subTitle}>Make a claim</h2>
         <p className="text-body text-text-2">If the car is unsafe to drive, call us instead.</p>
-        <div className={`${card} p-4 sm:p-5`}>
+        {/* min(…, 5vw): the padding does not grow with large text on a phone, so the form keeps its width. */}
+        <div className={`${card} p-[min(1rem,5vw)] sm:p-5`}>
           <LeadPageForm form="warranty" submitLabel="Send claim" success={CLAIM_SENT} />
         </div>
       </section>

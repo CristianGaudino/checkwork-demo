@@ -98,7 +98,8 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
             {q ? (
               <>
                 <p className="text-meta text-text-2">Estimated monthly payment</p>
-                <p className="text-display font-semibold tabular-nums">
+                {/* Grows less than large text on a phone, as the page title does, so the amount stays inside the card whole. */}
+                <p className="text-display font-semibold tabular-nums max-sm:[font-size:clamp(1.25rem,10vw,2rem)]">
                   About <Tween value={fmtEur(q.monthlyEur)} /><span className="text-body font-normal text-text-2"> a month</span>
                 </p>
                 <dl className="flex flex-col gap-1 text-meta">

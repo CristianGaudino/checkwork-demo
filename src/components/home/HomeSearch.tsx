@@ -29,7 +29,7 @@ export function HomeSearch({ makes, bodies, models }: Props) {
 
   return (
     <div className={`${card} shadow-lift`}>
-      <div role="tablist" aria-label="How to find a car" className="flex border-b border-hairline sm:px-2">
+      <div role="tablist" aria-label="How to find a car" className="flex flex-wrap border-b border-hairline sm:px-2">
         {(["search", "find"] as const).map((t) => (
           <button
             key={t}

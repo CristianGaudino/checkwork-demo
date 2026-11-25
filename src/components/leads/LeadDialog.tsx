@@ -73,7 +73,8 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
 
   return (
     <>
-      <div ref={row} className="grid grid-cols-2 gap-2 whitespace-nowrap">
+      {/* @container: with large text on a phone, Call us and WhatsApp take a row each (the query is in rem). */}
+      <div ref={row} className="@container grid grid-cols-2 gap-2 whitespace-nowrap">
         <button type="button" onClick={(e) => show(e.currentTarget, "enquiry")} className={`col-span-2 flex h-12 w-full items-center justify-center gap-2 rounded-control bg-accent px-3 font-semibold text-on-accent sm:col-span-1 ${press}`}>
           Enquire
         </button>
@@ -82,12 +83,12 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
           Test drive
         </button>
         {/* A desktop can't tap to call, so from 1024px the button shows the number itself (a size down until 1280px, where the column is narrow). */}
-        <a href={`tel:${DEALER_TEL}`} aria-label={`Call us on ${DEALER_PHONE}`} className={secondary}>
+        <a href={`tel:${DEALER_TEL}`} aria-label={`Call us on ${DEALER_PHONE}`} className={`@max-[16rem]:col-span-2 ${secondary}`}>
           <PhoneIcon className="size-5" />
           <span className="lg:hidden">Call us</span>
           <span className="hidden lg:inline lg:max-xl:text-meta">{DEALER_PHONE}</span>
         </a>
-        <WhatsAppButton href={whatsapp} sizing="px-3" />
+        <WhatsAppButton href={whatsapp} sizing="px-3 @max-[16rem]:col-span-2" />
       </div>
       <LeadDialog title="Enquire" open={open === "enquiry"} onClose={close}>
         <LeadForm type="enquiry" car={car} variant="dialog" submitLabel="Send enquiry" success={{ heading: "Thanks, we have your enquiry.", body: `We'll get back to you about the ${car.name}.` }}>
@@ -102,16 +103,17 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
       <LeadDialog title="Test drive" open={open === "drive"} onClose={close}>
         <TestDriveForm car={car} />
       </LeadDialog>
-      {/* Below 1024px. Hidden with visibility, so it is out of the tab order until it shows. */}
+      {/* Below 1024px. Hidden with visibility, so it is out of the tab order until it shows.
+          @container: with large text on a phone, Enquire takes the top row and the other two share the next (the query is in rem). */}
       <div
         data-sticky-actions
-        className={`fixed inset-x-0 bottom-0 z-20 border-t border-hairline bg-surface/90 px-4 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl transition-[translate,visibility] duration-200 reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none motion-reduce:transition-none lg:hidden ${gone ? "" : "invisible translate-y-full"}`}
+        className={`@container fixed inset-x-0 bottom-0 z-20 border-t border-hairline bg-surface/90 px-4 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl transition-[translate,visibility] duration-200 reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none motion-reduce:transition-none lg:hidden ${gone ? "" : "invisible translate-y-full"}`}
       >
-        <div className="mx-auto grid max-w-page grid-cols-3 gap-2">
+        <div className="mx-auto grid max-w-page grid-cols-3 gap-2 @max-[16rem]:grid-cols-2">
           <a href={`tel:${DEALER_TEL}`} className={`${bar} text-text ${secondaryButton}`}>
             Call us
           </a>
-          <button type="button" onClick={(e) => show(e.currentTarget, "enquiry")} className={`${bar} rounded-control bg-accent text-on-accent`}>
+          <button type="button" onClick={(e) => show(e.currentTarget, "enquiry")} className={`${bar} rounded-control bg-accent text-on-accent @max-[16rem]:order-first @max-[16rem]:col-span-2`}>
             Enquire
           </button>
           <button type="button" onClick={(e) => show(e.currentTarget, "drive")} className={`${bar} text-text ${secondaryButton}`}>
