@@ -77,3 +77,21 @@ test("the pager's Next is whole and on screen at 320px with 200% text", async ({
   expect(box.x + box.width).toBeLessThanOrEqual(list.x + list.width);
   await expect(page.getByRole("navigation", { name: "Pagination" }).locator("p", { hasText: "Page 1 of" })).toBeVisible(); // out of the box, on its own line
 });
+
+for (const [width, size] of [[640, "200%"], [700, "250%"]] as const) {
+  test(`the pager on a later page fits at ${width}px with ${size} text, Previous and Next whole`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 800 });
+    // The test drive list pages with the same pager; its last page has no Next.
+    for (const path of ["/used-cars?page=2", "/test-drive?page=2"]) {
+      await page.goto(path);
+      await enlarge(page, size);
+      expect(await overflow(page), path).toBeLessThanOrEqual(0);
+      for (const name of ["Previous page", "Next page"]) {
+        const link = page.getByRole("link", { name });
+        if (path.startsWith("/test-drive") && name === "Next page") continue;
+        await link.scrollIntoViewIfNeeded();
+        await expect(link, `${path} ${name}`).toBeInViewport({ ratio: 1 });
+      }
+    }
+  });
+}
