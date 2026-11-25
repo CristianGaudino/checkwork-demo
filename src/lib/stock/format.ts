@@ -52,7 +52,7 @@ export function specRows(car: Car): SpecRow[] {
     ["Colour", car.colour],
     ["Doors", car.doors === undefined ? undefined : String(car.doors)],
     ["Seats", car.seats === undefined ? undefined : String(car.seats)],
-    ["Owners", car.owners ? String(car.owners) : undefined], // 0 is a new vehicle: no row, not "Owners 0"
+    ["Owners", car.owners ? String(car.owners) : undefined], // 0 is unknown (a blank feed field): no row, not "Owners 0"
     ["NCT expires", car.nctExpiry && nctLabel(car.nctExpiry)],
     ["CO2", withUnit(car.co2GKm, "g/km")],
     ["Motor tax", car.motorTaxEur === undefined ? undefined : `${fmtEur(car.motorTaxEur)} a year`],
@@ -66,9 +66,11 @@ export function specRows(car: Car): SpecRow[] {
 const KEY_LABELS = ["Year", "Mileage", "Fuel", "Transmission", "Body type", "Engine", "Colour"];
 export const keyFacts = (car: Car) => specRows(car).filter((r) => KEY_LABELS.includes(r.label)).slice(0, 4);
 
-// What a list of each kind counts: the commercial pages call theirs vans, as the home page tile does.
-export const NOUNS: Record<Condition, string> = { used: "car", commercial: "van" };
-export const countLabel = (n: number, noun = "car") => (n === 0 ? `No ${noun}s` : n === 1 ? `1 ${noun}` : `${fmtNum(n)} ${noun}s`);
+// What a list of each kind counts: the commercial section holds vans and pickups, so it counts commercials, as DoneDeal does.
+export const NOUNS: Record<Condition, string> = { used: "car", commercial: "commercial" };
+// "van" -> "vans", "minibus" -> "minibuses": the plural of a count noun or a body type.
+export const plural = (w: string) => (/(s|x|z|ch|sh)$/i.test(w) ? `${w}es` : `${w}s`);
+export const countLabel = (n: number, noun = "car") => (n === 0 ? `No ${plural(noun)}` : n === 1 ? `1 ${noun}` : `${fmtNum(n)} ${plural(noun)}`);
 
 // Equipment comes from the dealer's feed in Title Case ("Air Conditioning"); the site writes sentence case ("Air conditioning"). Only
 // plain capitalised words after the first are lowered: acronyms (ABS, DAB) and brand names in KEEP stay as they are.

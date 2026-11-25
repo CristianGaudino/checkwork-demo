@@ -7,7 +7,8 @@ import { HeroMosaic } from "@/components/home/HeroMosaic";
 import { HomeSearch } from "@/components/home/HomeSearch";
 import { BrowseByType, type TypeTile } from "@/components/home/BrowseByType";
 import { makeDirectory } from "@/lib/stock/makes";
-import { NOUNS } from "@/lib/stock/format";
+import { plural } from "@/lib/stock/format";
+import { commercialBodyPath } from "@/lib/stock/landing";
 import { TrustStrip } from "@/components/home/TrustStrip";
 import { AffiliationBadges } from "@/components/Affiliations";
 import { VisitUs } from "@/components/home/VisitUs";
@@ -38,10 +39,15 @@ export default async function Home() {
   // The home page must never error: a stock failure shows a line in place of the grid, and the search still renders (UI-SPEC state table).
   // The newest cars feed the featured grid, and all of them feed the search drop-downs, so every choice has a car behind it.
   const [all, reviews, vans] = await Promise.all([queryAllOrNull(), getReviews(), queryAllOrNull({ condition: "commercial" })]);
-  // Browse by type: vans, then each body type of the used stock, each with its newest car's photo and how many there are.
+  // Browse by type: each body type of the commercial stock (Vans, Pickups), then each of the used stock, each with its newest car's photo
+  // and how many there are. A commercial tile counts in its own word ("6 vans", "1 pickup"); a used one counts cars.
   const used = all?.cars ?? [];
+  const commercial = vans?.cars ?? [];
   const typeTiles: TypeTile[] = [
-    ...(vans?.total ? [{ key: "commercial", href: "/commercial", label: "Vans", count: vans.total, noun: NOUNS.commercial, photo: vans.cars[0]?.photos[0] }] : []),
+    ...searchOptions(commercial).bodies.map((b) => {
+      const of = commercial.filter((c) => c.bodySlug === b.slug);
+      return { key: `commercial-${b.slug}`, href: commercialBodyPath(b.slug), label: plural(b.label), count: of.length, noun: b.label.toLowerCase(), photo: of[0]?.photos[0] };
+    }),
     ...searchOptions(used).bodies.map((b) => {
       const of = used.filter((c) => c.bodySlug === b.slug);
       return { key: b.slug, href: `/used-cars/${b.slug}`, label: b.label, count: of.length, photo: of[0]?.photos[0] };

@@ -1,4 +1,4 @@
-import { isNew, isSold, type Car } from "./types";
+import { isSold, type Car } from "./types";
 
 // A marker is for the rare car, so it catches the eye; a car without one must never look worse for it. Facts from the car's own data
 // only, never a price judgement. Used cars for sale only. Thresholds: an Irish car covers about 17,000 km a year, so a quarter of that
@@ -7,8 +7,8 @@ export const RARE_LOW_KM_PER_YEAR = 5000;
 export const RARE_LOW_KM_MIN_AGE = 3;
 export const RARE_ONE_OWNER_MIN_AGE = 10;
 
-// A feed sends 0 km when the field is blank: on anything but a new vehicle that means the mileage is unknown, not none.
-export const knownKm = (car: Pick<Car, "mileageKm" | "condition" | "owners">) => (car.mileageKm === 0 && !isNew(car) ? undefined : car.mileageKm);
+// A feed sends 0 km when the field is blank: the site sells used vehicles only, so 0 means the mileage is unknown, not none.
+export const knownKm = (car: Pick<Car, "mileageKm">) => (car.mileageKm === 0 ? undefined : car.mileageKm);
 
 export function rareMarker(car: Pick<Car, "condition" | "year" | "mileageKm" | "owners" | "soldAt">, now = new Date()): string | undefined {
   const km = knownKm(car);

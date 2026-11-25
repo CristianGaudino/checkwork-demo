@@ -3,13 +3,13 @@ import Link from "next/link";
 import { CheckIcon } from "@/components/stock/icons";
 import { card, carSlide } from "@/components/ui";
 import { ListingCard } from "@/components/stock/ListingCard";
-import { featureLabel, plainText, specRows, withoutInvitation } from "@/lib/stock/format";
+import { featureLabel, plainText, plural, specRows, withoutInvitation } from "@/lib/stock/format";
+import { commercialBodyPath } from "@/lib/stock/landing";
 import { FactLabel, FactValue } from "@/components/stock/CarMeta";
 import { UnitToggle } from "@/components/UnitToggle";
-import { DEFAULT_QUERY, stockHref } from "@/lib/stock/query";
 import { knownKm } from "@/lib/stock/markers";
 import { isSold } from "@/lib/stock/types";
-import type { Car, StockQuery } from "@/lib/stock/types";
+import type { Car } from "@/lib/stock/types";
 
 const VISIBLE_FEATURES = 12;
 const LONG_DESCRIPTION = 700; // characters; the demo's longest is 978
@@ -107,9 +107,9 @@ export function Equipment({ car }: { car: Car }) {
   );
 }
 
-// A used car links to the body and make pages; a van to its own list, filtered the same way.
-const seeAll = (car: Car, filter: Pick<StockQuery, "body"> | Pick<StockQuery, "make">) =>
-  !car.condition || car.condition === "used" ? `/used-cars/${"body" in filter ? filter.body[0] : filter.make[0]}` : stockHref({ ...DEFAULT_QUERY, ...filter, condition: car.condition });
+// A used car links to its body type and make pages under /used-cars; a commercial to the same under /commercial (/commercial/vans, /commercial/ford).
+const seeAll = (car: Car, by: { body: string } | { make: string }) =>
+  (car.condition ?? "used") === "used" ? `/used-cars/${"body" in by ? by.body : by.make}` : "body" in by ? commercialBodyPath(by.body) : `/commercial/${by.make}`;
 
 export function SimilarCars({ car, cars }: { car: Car; cars: Car[] }) {
   if (!cars.length) return null;
@@ -120,11 +120,11 @@ export function SimilarCars({ car, cars }: { car: Car; cars: Car[] }) {
         {/* More of the same kind of car, and more of the same make. */}
         <div className="flex flex-wrap gap-x-6">
           {car.bodySlug && car.bodyType && (
-            <Link href={seeAll(car, { body: [car.bodySlug] })} className="inline-flex min-h-11 items-center font-semibold underline">
-              See all {car.bodyType}s
+            <Link href={seeAll(car, { body: car.bodySlug })} className="inline-flex min-h-11 items-center font-semibold underline">
+              See all {plural(car.bodyType)}
             </Link>
           )}
-          <Link href={seeAll(car, { make: [car.makeSlug] })} className="inline-flex min-h-11 items-center font-semibold underline">
+          <Link href={seeAll(car, { make: car.makeSlug })} className="inline-flex min-h-11 items-center font-semibold underline">
             See all {car.make}
           </Link>
         </div>

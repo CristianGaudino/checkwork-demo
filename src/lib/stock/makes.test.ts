@@ -6,9 +6,9 @@ import { carChoices } from "./options";
 import { forSale, isSold } from "./types";
 
 describe("makeNoun", () => {
-  it("counts cars when any are used, vans when a make has only vans", () => {
+  it("counts cars when any are used, commercials when a make has only commercials", () => {
     expect(makeNoun({ byKind: { used: 2, commercial: 0 } })).toBe("car");
-    expect(makeNoun({ byKind: { used: 0, commercial: 2 } })).toBe("van");
+    expect(makeNoun({ byKind: { used: 0, commercial: 2 } })).toBe("commercial");
     expect(makeNoun({ byKind: { used: 1, commercial: 3 } })).toBe("car");
   });
 });

@@ -9,7 +9,7 @@ import { isSold, type Car, type Condition } from "@/lib/stock/types";
 // look for most, so a search for one lands on a real page even with none in stock.
 export type MakeEntry = { slug: string; label: string; count: number; byKind: Record<Condition, number> };
 
-// What a make's count calls its stock: cars when any are used, vans when it has only vans.
+// What a make's count calls its stock: cars when any are used, commercials when it has only commercials.
 export const makeNoun = (m: Pick<MakeEntry, "byKind">) => (m.byKind.used ? NOUNS.used : NOUNS.commercial);
 
 const zero = (): Record<Condition, number> => ({ used: 0, commercial: 0 });

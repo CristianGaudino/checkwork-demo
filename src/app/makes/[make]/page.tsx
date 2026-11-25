@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 
 const SECTIONS: { kind: Condition; title: (make: string) => string; href: (slug: string) => string }[] = [
   { kind: "used", title: (m) => `Used ${m}`, href: (s) => `/used-cars/${s}` },
-  { kind: "commercial", title: (m) => `${m} vans and commercials`, href: (s) => `/commercial/${s}` },
+  { kind: "commercial", title: (m) => `${m} commercials`, href: (s) => `/commercial/${s}` },
 ];
 const PER_SECTION = 3;
 

@@ -17,11 +17,11 @@ describe("rare markers", () => {
     expect(rareMarker(used({ year: 2025, mileageKm: 2000 }), now)).toBeUndefined(); // a young car with few km is normal
   });
 
-  it("0 km on a used car is a blank feed field: unknown, so no low mileage marker", () => {
+  it("0 km is a blank feed field on every vehicle: unknown, so no low mileage marker", () => {
     expect(rareMarker(used({ year: 2016, mileageKm: 0 }), now)).toBeUndefined();
     expect(knownKm(used({ mileageKm: 0 }))).toBeUndefined();
-    expect(knownKm({ condition: "commercial", owners: 2, mileageKm: 0 })).toBeUndefined();
-    expect(knownKm({ condition: "commercial", owners: 0, mileageKm: 0 })).toBe(0); // a new vehicle keeps its 0 km
+    // No exception, not even a commercial with no owners listed: the site sells no new vehicles.
+    for (const van of [0, 2].map((owners) => used({ mileageKm: 0, condition: "commercial", owners }))) expect(knownKm(van)).toBeUndefined();
     expect(knownKm(used({ mileageKm: 9 }))).toBe(9);
   });
 

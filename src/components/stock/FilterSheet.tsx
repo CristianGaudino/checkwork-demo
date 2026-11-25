@@ -4,6 +4,7 @@ import { useCloseAtDesktop } from "@/components/useCloseAtDesktop";
 import { useEffect, useRef, useState } from "react";
 import { Sheet } from "@/components/Sheet";
 import { appliedFilters, clearFilters } from "@/lib/stock/query";
+import { plural } from "@/lib/stock/format";
 import { SlidersIcon } from "./icons";
 import { StockFilters } from "./StockFilters";
 import { useStock } from "./StockShell";
@@ -19,7 +20,7 @@ export function FilterSheet() {
   const applied = appliedFilters(query, facets).length;
   const total = summary?.total;
   // summary only changes when a new result lands, so while pending the button keeps the last known count.
-  const label = total === undefined ? `Show ${noun}s` : total === 0 ? `No ${noun}s match` : total === 1 ? `Show 1 ${noun}` : `Show ${total} ${noun}s`;
+  const label = total === undefined ? `Show ${plural(noun)}` : total === 0 ? `No ${plural(noun)} match` : total === 1 ? `Show 1 ${noun}` : `Show ${total} ${plural(noun)}`;
 
   useCloseAtDesktop(() => setMounted(false)); // the bar is display:none now, so there is no slide-out to wait for
   useEffect(() => () => clearTimeout(unmountTimer.current), []);

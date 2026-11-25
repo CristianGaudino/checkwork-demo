@@ -96,6 +96,12 @@ describe("carJsonLd", () => {
     });
   });
 
+  it("is always used, a commercial with no owners listed included: the site sells no new vehicles", () => {
+    const j = ld({ ...car, condition: "commercial", owners: 0, mileageKm: 0 });
+    expect(j.itemCondition).toBe("https://schema.org/UsedCondition");
+    expect(j.offers.itemCondition).toBe("https://schema.org/UsedCondition");
+    expect(j.mileageFromOdometer).toBeUndefined(); // 0 km is unknown
+  });
   it("leaves out optional Vehicle fields the car does not have", () => {
     const j = ld({ ...car, mileageKm: undefined, fuel: undefined, gearbox: undefined, engineLitres: undefined });
     for (const k of ["mileageFromOdometer", "fuelType", "vehicleTransmission", "bodyType", "numberOfDoors", "vehicleSeatingCapacity", "numberOfPreviousOwners", "color", "vehicleEngine"]) expect(j).not.toHaveProperty(k);
