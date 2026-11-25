@@ -3,6 +3,8 @@ import { searchOptions } from "./search-options";
 import { CONDITIONS, FUEL_LABELS, GEARBOX_LABELS, SOLD_VISIBLE_DAYS, isSold, onRequest } from "./types";
 import type { Car, FacetGroup, FacetOption, SortKey, StockProvider, StockQuery, StockResult } from "./types";
 import { DAY } from "@/lib/time";
+import { MAKE_OPTIONS } from "@/lib/leads/makes";
+import { slugify } from "./slug";
 
 // `cars` is presorted by id, highest first, and Array.prototype.sort is stable, so every key ties by id descending. Newest is the listing
 // date; a car without one (stock from before dates were kept) keeps its id order among the others without one.
@@ -25,6 +27,14 @@ export function createStockEngine(input: Car[], { now = () => new Date() }: { no
   const byId = new Map(cars.map((c) => [c.id, c]));
   // Kept off the Car objects so nothing internal leaks to callers.
   const searchText = new Map(cars.map((c) => [c.id, fold(`${c.make} ${c.model} ${c.variant ?? ""}`)]));
+
+  // A selected value no car in the list has (a make with none in stock, a car since sold) still shows by name: every car ever listed,
+  // then the known makes, and the slug only for a value nobody knows.
+  const known: Partial<Record<FacetGroup, Map<string, string>>> = {
+    make: new Map([...MAKE_OPTIONS.filter((o) => o.value).map((o) => [slugify(o.label), o.label] as const), ...cars.map((c) => [c.makeSlug, c.make] as const)]),
+    model: new Map(cars.map((c) => [c.modelSlug, c.model])),
+    body: new Map(cars.flatMap((c) => (c.bodySlug && c.bodyType ? [[c.bodySlug, c.bodyType] as const] : []))),
+  };
 
   // The folded search words of a query, worked out once per query rather than once per car.
   const terms = new WeakMap<StockQuery, string[]>();
@@ -61,7 +71,7 @@ export function createStockEngine(input: Car[], { now = () => new Date() }: { no
       const o = pick(c);
       if (o && !options.has(o.value)) options.set(o.value, { ...o, count: 0 });
     }
-    for (const v of selected) if (!options.has(v)) options.set(v, { value: v, label: v, count: 0, echo: true });
+    for (const v of selected) if (!options.has(v)) options.set(v, { value: v, label: known[group]?.get(v) ?? v, count: 0, echo: true });
     for (const c of pool) {
       const o = pick(c);
       if (o && matches(c, q, group)) options.get(o.value)!.count++;

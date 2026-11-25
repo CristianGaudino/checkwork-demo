@@ -1,6 +1,6 @@
 import { FUEL_LABELS, GEARBOX_LABELS, onRequest } from "./types";
 import { PRICING } from "./pricing.config";
-import type { Car } from "./types";
+import type { Car, Condition } from "./types";
 
 const eur = new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
 const km = new Intl.NumberFormat("en-IE");
@@ -64,7 +64,9 @@ export function specRows(car: Car): SpecRow[] {
 const KEY_LABELS = ["Year", "Mileage", "Fuel", "Transmission", "Body type", "Engine", "Colour"];
 export const keyFacts = (car: Car) => specRows(car).filter((r) => KEY_LABELS.includes(r.label)).slice(0, 4);
 
-export const countLabel = (n: number) => (n === 0 ? "No cars" : n === 1 ? "1 car" : `${fmtNum(n)} cars`);
+// What a list of each kind counts: the commercial pages call theirs vans, as the home page tile does.
+export const NOUNS: Record<Condition, string> = { used: "car", commercial: "van" };
+export const countLabel = (n: number, noun = "car") => (n === 0 ? `No ${noun}s` : n === 1 ? `1 ${noun}` : `${fmtNum(n)} ${noun}s`);
 
 // Equipment comes from the dealer's feed in Title Case ("Air Conditioning"); the site writes sentence case ("Air conditioning"). Only
 // plain capitalised words after the first are lowered: acronyms (ABS, DAB) and brand names in KEEP stay as they are.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { carName, carTitle, countLabel, formatKm, fmtEur, keyFacts, specRows, withoutInvitation } from "./format";
+import { NOUNS, carName, carTitle, countLabel, formatKm, fmtEur, keyFacts, specRows, withoutInvitation } from "./format";
 import { isNew } from "./types";
 import type { Car } from "./types";
 
@@ -36,6 +36,13 @@ describe("formatters", () => {
     expect(countLabel(1)).toBe("1 car");
     expect(countLabel(24)).toBe("24 cars");
     expect(countLabel(1163)).toBe("1,163 cars");
+  });
+
+  it("counts vans on the commercial pages", () => {
+    expect(countLabel(0, NOUNS.commercial)).toBe("No vans");
+    expect(countLabel(1, NOUNS.commercial)).toBe("1 van");
+    expect(countLabel(3, NOUNS.commercial)).toBe("3 vans");
+    expect(countLabel(2, NOUNS.used)).toBe("2 cars");
   });
 });
 

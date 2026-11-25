@@ -72,9 +72,11 @@ export default async function MakePage({ params }: PageProps<"/makes/[make]">) {
                 <h2 id={`make-${s.kind}`} className={subTitle}>
                   {s.title(make.label)}
                 </h2>
-                <Link href={s.href(make.slug)} className="inline-flex min-h-11 items-center text-meta font-medium underline">
-                  See all {make.byKind[s.kind]}
-                </Link>
+                {make.byKind[s.kind] > PER_SECTION && (
+                  <Link href={s.href(make.slug)} className="inline-flex min-h-11 items-center text-meta font-medium underline">
+                    See all {make.byKind[s.kind]}
+                  </Link>
+                )}
               </div>
               <Cards cars={of(s.kind).slice(0, PER_SECTION)} />
             </section>
