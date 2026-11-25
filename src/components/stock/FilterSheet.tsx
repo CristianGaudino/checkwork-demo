@@ -12,14 +12,14 @@ import { accentButton, press } from "@/components/ui";
 
 // Below 1024px the filter groups live only in this sheet; from 1024px the sidebar shows them and the sticky bar (and this button) is hidden.
 export function FilterSheet() {
-  const { query, summary, facets, pending, navigate } = useStock();
+  const { query, summary, facets, pending, noun, navigate } = useStock();
   // The groups are mounted only while the sheet is open or sliding away, so the page holds one copy of them, not two.
   const [mounted, setMounted] = useState(false);
   const unmountTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const applied = appliedFilters(query, facets).length;
   const total = summary?.total;
   // summary only changes when a new result lands, so while pending the button keeps the last known count.
-  const label = total === undefined ? "Show cars" : total === 0 ? "No cars match" : total === 1 ? "Show 1 car" : `Show ${total} cars`;
+  const label = total === undefined ? `Show ${noun}s` : total === 0 ? `No ${noun}s match` : total === 1 ? `Show 1 ${noun}` : `Show ${total} ${noun}s`;
 
   useCloseAtDesktop(() => setMounted(false)); // the bar is display:none now, so there is no slide-out to wait for
   useEffect(() => () => clearTimeout(unmountTimer.current), []);

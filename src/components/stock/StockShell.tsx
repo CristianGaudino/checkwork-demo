@@ -9,7 +9,7 @@ import { createContext, useContext, useEffect, useId, useOptimistic, useRef, use
 import { count, countFilters } from "@/lib/count-client";
 import { missedMake } from "@/lib/visit-rules";
 import { noteSearch } from "@/lib/visit-note";
-import { countLabel } from "@/lib/stock/format";
+import { NOUNS, countLabel } from "@/lib/stock/format";
 import { appliedFilters, clearFilters, sourcingHref, stockHref } from "@/lib/stock/query";
 import { SORT_KEYS } from "@/lib/stock/types";
 import type { Facets, SortKey, StockQuery } from "@/lib/stock/types";
@@ -30,6 +30,8 @@ type Stock = {
   summary: Summary;
   facets: Facets | null; // the facets of the last result that loaded, so a failed load keeps the filters
   pending: boolean;
+  noun: string; // what the list counts: car or van
+  makePage: boolean; // a list narrowed to one make by its address (/commercial/<make>), not by the buyer
   navigate: (next: StockQuery, opts?: { scroll?: boolean }) => void;
 };
 
@@ -131,7 +133,7 @@ export function StockShell({ query, title, summary, children }: { query: StockQu
 
   const kind = VEHICLE_TYPES.find((t) => t.condition === (optimisticQuery.condition ?? "used"))!;
   return (
-    <StockContext value={{ query: optimisticQuery, summary, facets: summary ? summary.facets : held, pending, navigate }}>
+    <StockContext value={{ query: optimisticQuery, summary, facets: summary ? summary.facets : held, pending, noun: NOUNS[kind.condition], makePage: title !== undefined, navigate }}>
       <main className={pageMain}>
         {/* From 1024px the title is on the left and the count, sort and layout toggle on the right, level with it, so the filters and the cars
             start higher. Below that the count sits under the intro (sort is in the sticky bar). */}
@@ -146,7 +148,7 @@ export function StockShell({ query, title, summary, children }: { query: StockQu
           </div>
           <div className="mt-4 flex items-center justify-between gap-4 lg:mt-0 lg:justify-end lg:gap-6">
             <p aria-live="polite" data-testid="count" className="text-heading font-semibold">
-              {summary && <Tween value={countLabel(summary.total)} />}
+              {summary && <Tween value={countLabel(summary.total, NOUNS[kind.condition])} />}
             </p>
           </div>
         </div>
@@ -188,19 +190,23 @@ export function StockShell({ query, title, summary, children }: { query: StockQu
 }
 
 export function EmptyState() {
-  const { query, facets, navigate } = useStock();
-  const filtered = appliedFilters(query, null).length > 0;
+  const { query, facets, noun, makePage, navigate } = useStock();
+  const applied = appliedFilters(query, null).length;
+  // A make page with none of that make in stock: the buyer set no filter, so there is none to clear.
+  const noneOfMake = makePage && applied === 1 && query.make.length === 1;
+  const filtered = applied > 0 && !noneOfMake;
   useEffect(() => {
     if (filtered) count("no-results");
   }, [filtered]);
-  const missed = filtered ? missedMake(query) : null;
+  const missed = applied > 0 ? missedMake(query) : null; // a make page with none still tells us the make was wanted
   useEffect(() => {
     if (missed) count(`missed:${missed}`);
   }, [missed]);
   // With nothing applied there is no filter to remove: the stock itself is empty.
-  if (appliedFilters(query, null).length === 0) {
+  if (!filtered) {
+    const make = noneOfMake && (facets?.make.find((o) => o.value === query.make[0])?.label ?? query.make[0]);
     return (
-      <StateBlock title="No cars listed right now" text="More arrive often.">
+      <StateBlock title={make ? `No ${make} ${noun}s right now` : `No ${noun}s listed right now`} text="More arrive often.">
         <Link href="/find-a-car" className="mx-auto flex min-h-11 w-fit items-center text-body underline">
           Can&apos;t find it? Ask us to find it for you.
         </Link>
@@ -208,7 +214,7 @@ export function EmptyState() {
     );
   }
   return (
-    <StateBlock title="No cars match these filters" text="Try removing a filter.">
+    <StateBlock title={`No ${noun}s match these filters`} text="Try removing a filter.">
       <Link href={sourcingHref(query, facets)} className="mx-auto flex min-h-11 w-fit items-center text-body underline">
         Can&apos;t find it? Ask us to find it for you.
       </Link>

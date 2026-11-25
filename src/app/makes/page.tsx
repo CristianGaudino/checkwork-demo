@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { MakeLogo } from "@/components/MakeLogo";
 import { PageHeading } from "@/components/PageHeading";
+import { StateBlock } from "@/components/StateBlock";
 import { card, pageMain, press, subTitle } from "@/components/ui";
 import { DEALER_LOCATION, SITE_NAME } from "@/lib/site";
 import { countLabel } from "@/lib/stock/format";
@@ -19,7 +20,7 @@ export default async function MakesPage() {
   return (
     <main className={pageMain}>
       <PageHeading title="Makes" intro="The makes we have in stock now." />
-      {inStock.length > 0 && (
+      {inStock.length > 0 ? (
         <section aria-labelledby="makes-in-stock" className="mt-8 flex flex-col gap-4">
           <h2 id="makes-in-stock" className={subTitle}>In stock</h2>
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
@@ -36,6 +37,12 @@ export default async function MakesPage() {
             ))}
           </ul>
         </section>
+      ) : (
+        <StateBlock title="No cars listed right now" text="More arrive often.">
+          <Link href="/find-a-car" className="mx-auto flex min-h-11 w-fit items-center text-body underline">
+            Can&apos;t find it? Ask us to find it for you.
+          </Link>
+        </StateBlock>
       )}
     </main>
   );

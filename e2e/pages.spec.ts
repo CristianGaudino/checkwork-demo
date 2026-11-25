@@ -49,9 +49,9 @@ test("/about has the photo on the right on desktop with the hours and directions
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("About us");
   await expect(main(page).getByRole("heading", { name: "Visit us" })).toHaveCount(0);
   await expect(main(page).getByRole("heading", { name: "Who we are" })).toHaveCount(0);
-  await expect(main(page).getByRole("heading", { name: "Why choose us" })).toBeVisible();
+  await expect(main(page).getByRole("heading", { name: "How we sell" })).toBeVisible();
   const photo = (await main(page).locator("img").first().boundingBox())!;
-  const why = (await main(page).getByRole("heading", { name: "Why choose us" }).boundingBox())!;
+  const why = (await main(page).getByRole("heading", { name: "How we sell" }).boundingBox())!;
   expect(photo.x).toBeGreaterThan(why.x + 300); // the photo is in the right-hand column
   const hours = (await main(page).getByRole("heading", { name: "Opening hours" }).boundingBox())!;
   expect(hours.y).toBeGreaterThan(photo.y + photo.height); // hours under the photo

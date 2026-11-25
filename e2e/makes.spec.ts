@@ -1,17 +1,17 @@
 import { expect, test } from "@playwright/test";
 
 // A page per make (#97), the menu (#98).
-test("a make page shows what we have of it, used and commercial, each with the way to its full list", async ({ page }) => {
+test("a make page shows what we have of it, used and commercial, with the way to a full list only when there are more", async ({ page }) => {
   await page.goto("/makes/ford");
   await expect(page.getByRole("heading", { level: 1, name: "Ford" })).toBeVisible();
   const used = page.getByRole("region", { name: "Used Ford" });
-  await expect(used.getByRole("link", { name: /^See all \d+$/ })).toHaveAttribute("href", "/used-cars/ford");
   await expect(used.locator("article").first()).toBeVisible();
   const vans = page.getByRole("region", { name: "Ford vans and commercials" });
-  await vans.getByRole("link", { name: /^See all \d+$/ }).click();
-  await expect(page).toHaveURL(/\/commercial\/ford$/);
-  await expect(page.locator("article").first()).toContainText("Ford");
-  await expect(page.locator("article").filter({ hasNotText: "Ford" })).toHaveCount(0);
+  await expect(vans.locator("article")).toHaveCount(3);
+  await expect(page.getByRole("link", { name: /^See all \d+$/ })).toHaveCount(0); // every Ford is already shown
+  await page.goto("/makes/kia"); // more used Kias than the page shows
+  await page.getByRole("region", { name: "Used Kia" }).getByRole("link", { name: /^See all \d+$/ }).click();
+  await expect(page).toHaveURL(/\/used-cars\/kia$/);
 });
 
 test("a make with none in stock says so, shows what sold and what we have, and offers to find one", async ({ page }) => {

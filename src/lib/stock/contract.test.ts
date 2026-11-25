@@ -157,6 +157,16 @@ export function runContract(name: string, makeProvider: (cars: Car[], opts: Cloc
       expect(r.facets.years).toEqual({ min: 2016, max: 2022 });
     });
 
+    it("names a selected make with none in the list from the known makes, not by its slug", async () => {
+      // No vans at all: Audi is named from the cars ever listed, Mercedes-Benz from the known makes.
+      const r = await provider().query(q({ condition: "commercial", make: ["audi", "mercedes-benz"] }));
+      expect(r.total).toBe(0);
+      expect(r.facets.make).toEqual([
+        { value: "audi", label: "Audi", count: 0, echo: true },
+        { value: "mercedes-benz", label: "Mercedes-Benz", count: 0, echo: true },
+      ]);
+    });
+
     it("sorts by price, year and mileage with a stable tie-break", async () => {
       const asc = ["108", "106", "104", "101", "107", "103", "102", "105"];
       expect(await ids({ sort: "price-asc" })).toEqual(asc);

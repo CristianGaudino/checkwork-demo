@@ -4,7 +4,7 @@ test("commercial vehicles have the filters too, and keep them across a car page"
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/commercial?make=ford");
   await expect(page.getByRole("heading", { level: 1, name: "Commercial vehicles" })).toBeVisible();
-  await expect(page.getByTestId("count")).toHaveText("3 cars");
+  await expect(page.getByTestId("count")).toHaveText("3 vans");
   await page.locator("article").first().getByRole("link").first().click();
   await expect(page.getByTestId("buy-box")).toBeVisible();
   await page.getByRole("navigation", { name: "Breadcrumb" }).getByRole("link", { name: "Commercial", exact: true }).click();
@@ -54,6 +54,17 @@ test("a new van shows the manufacturer's warranty, and a used car keeps the deal
 test("a make's commercial list names the make in the heading", async ({ page }) => {
   await page.goto("/commercial/ford");
   await expect(page.getByRole("heading", { level: 1, name: "Ford vans and commercials" })).toBeVisible();
+  await expect(page.locator("article").first()).toContainText("Ford");
+  await expect(page.locator("article").filter({ hasNotText: "Ford" })).toHaveCount(0);
+});
+
+test("a make's commercial list with none in stock says so by name, with no filter to clear", async ({ page }) => {
+  await page.goto("/commercial/toyota");
+  await expect(page.getByTestId("count")).toHaveText("No vans");
+  await expect(page.getByRole("heading", { name: "No Toyota vans right now" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Remove Toyota" })).toBeVisible(); // the make by name, never its slug
+  await expect(page.getByRole("button", { name: "Clear all filters" })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Can't find it? Ask us to find it for you." })).toHaveAttribute("href", "/find-a-car");
 });
 
 test("old new-car links go on to used cars, the make page and the find a car form", async ({ page }) => {

@@ -35,7 +35,7 @@ export default function AboutPage() {
         </div>
         <div className="flex flex-col gap-10 lg:order-1">
           <section className="flex flex-col gap-4">
-            <h2 className={subTitle}>Why choose us</h2>
+            <h2 className={subTitle}>How we sell</h2>
             <ul className="grid grid-cols-1 gap-4">
               {WHY.map((f) => (
                 <FeatureCard key={f.title} {...f} />

@@ -3,7 +3,7 @@ import { CallButton } from "@/components/InfoPage";
 import { FeatureCard, FeatureSection } from "@/components/Feature";
 import { ServiceMenu } from "@/components/service/ServiceMenu";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
-import { pageMain, secondaryButton, subTitle } from "@/components/ui";
+import { pageMain, subTitle } from "@/components/ui";
 import { DEALER_LOCATION, DEALER_PHONE, SERVICES, SITE_NAME } from "@/lib/site";
 import { PageHeading, PagePhoto } from "@/components/PageHeading";
 
@@ -19,7 +19,7 @@ const WHY = [
 export default function ServicePage() {
   return (
     <main className={pageMain}>
-      {/* The dealership beside the title from 1024px, with the call, WhatsApp and Book a service buttons under the words. */}
+      {/* The dealership beside the title from 1024px, with the call and WhatsApp buttons under the words and the jump to the services under them. */}
       <PageHeading
         title="Service"
         intro="Keep your car running well. Book a service online, or call us."
@@ -28,7 +28,7 @@ export default function ServicePage() {
           <>
             <CallButton>Call {DEALER_PHONE}</CallButton>
             <WhatsAppButton />
-            <a href="#book" className={`flex h-12 w-full items-center justify-center px-5 sm:w-auto sm:min-w-60 ${secondaryButton}`}>
+            <a href="#book" className="inline-flex min-h-11 w-fit items-center text-body font-semibold underline sm:basis-full">
               Book a service
             </a>
           </>
@@ -41,7 +41,7 @@ export default function ServicePage() {
       </section>
 
       <div className="mt-12">
-        <FeatureSection title="Why choose us">
+        <FeatureSection title="How we work">
           {WHY.map((f) => (
             <FeatureCard key={f.title} {...f} />
           ))}
