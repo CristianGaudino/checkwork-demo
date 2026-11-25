@@ -47,8 +47,9 @@ export function CompareBar() {
     );
   }
   return (
-    <div data-compare-bar role="region" aria-label="Compare cars" className="pointer-events-auto flex max-w-full items-center gap-3 rounded-control border border-hairline bg-card py-1 pl-4 pr-1 shadow-lift transition-[opacity,translate] duration-200 starting:translate-y-2 starting:opacity-0 motion-reduce:transition-none">
-      <p className="min-w-0 text-meta font-semibold">
+    <div data-compare-bar role="region" aria-label="Compare cars" className="pointer-events-auto flex max-w-full flex-wrap items-center justify-end gap-x-3 rounded-control border border-hairline bg-card py-1 pl-4 pr-1 shadow-lift transition-[opacity,translate] duration-200 starting:translate-y-2 starting:opacity-0 motion-reduce:transition-none">
+      {/* With large text the buttons outgrow a phone (their sizes are in rem): they wrap under the count, never off the screen. */}
+      <p className="min-w-0 grow text-meta font-semibold">
         {ids.length} of {MAX_COMPARE} to compare
       </p>
       <button
