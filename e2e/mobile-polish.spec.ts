@@ -19,7 +19,7 @@ test("contact on a phone: call, map, message form, then opening hours", async ({
 
 test("the home search tabs share the width equally on a phone", async ({ page }) => {
   await page.goto("/");
-  const [a, b] = await Promise.all([page.getByRole("tab", { name: "Search cars" }).boundingBox(), page.getByRole("tab", { name: "Find me a car" }).boundingBox()]);
+  const [a, b] = await Promise.all([page.getByRole("tab", { name: "Search", exact: true }).boundingBox(), page.getByRole("tab", { name: "Find me a car" }).boundingBox()]);
   expect(Math.abs(a!.width - b!.width)).toBeLessThan(2);
 });
 

@@ -48,7 +48,7 @@ export default function AboutPage() {
               {EXPECT.map((s, i) => (
                 // The same numbered step as the form pages and the finance band.
                 <li key={s.title} className="flex gap-4 sm:flex-col">
-                  <IconBadge size="sm">{i + 1}</IconBadge>
+                  <IconBadge>{i + 1}</IconBadge>
                   <TitleText title={s.title} text={s.text} />
                 </li>
               ))}

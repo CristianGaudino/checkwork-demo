@@ -41,7 +41,7 @@ export function HomeSearch({ makes, bodies, models }: Props) {
             onClick={() => setTab(t)}
             className={`${tab} ${tabName === t ? `text-text ${bar}` : "text-text-2 hover:text-text"}`}
           >
-            {t === "search" ? "Search cars" : "Find me a car"}
+            {t === "search" ? "Search" : "Find me a car"}
           </button>
         ))}
       </div>

@@ -19,7 +19,7 @@ export function LeadPage({ title, intro, how, actions, picture, bare = false, ch
           <ol className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-8">
             {how.map((s, i) => (
               <li key={s.title} className="reveal flex gap-4 border-t border-hairline pt-4">
-                <IconBadge size="sm">{i + 1}</IconBadge>
+                <IconBadge>{i + 1}</IconBadge>
                 <div className="flex min-w-0 flex-col gap-2">
                   <TitleText title={s.title} text={s.text} />
                   {s.more && (

@@ -7,6 +7,7 @@ import { HeroMosaic } from "@/components/home/HeroMosaic";
 import { HomeSearch } from "@/components/home/HomeSearch";
 import { BrowseByType, type TypeTile } from "@/components/home/BrowseByType";
 import { makeDirectory } from "@/lib/stock/makes";
+import { NOUNS } from "@/lib/stock/format";
 import { TrustStrip } from "@/components/home/TrustStrip";
 import { AffiliationBadges } from "@/components/Affiliations";
 import { VisitUs } from "@/components/home/VisitUs";
@@ -37,7 +38,7 @@ export default async function Home() {
   // Browse by type: vans, then each body type of the used stock, each with its newest car's photo and how many there are.
   const used = all?.cars ?? [];
   const typeTiles: TypeTile[] = [
-    ...(vans?.total ? [{ key: "commercial", href: "/commercial", label: "Vans", count: vans.total, photo: vans.cars[0]?.photos[0] }] : []),
+    ...(vans?.total ? [{ key: "commercial", href: "/commercial", label: "Vans", count: vans.total, noun: NOUNS.commercial, photo: vans.cars[0]?.photos[0] }] : []),
     ...searchOptions(used).bodies.map((b) => {
       const of = used.filter((c) => c.bodySlug === b.slug);
       return { key: b.slug, href: `/used-cars/${b.slug}`, label: b.label, count: of.length, photo: of[0]?.photos[0] };
@@ -136,7 +137,7 @@ export default async function Home() {
               ["3", "We call you", "Send your details and we come back with the real amounts."],
             ].map(([n, title, text]) => (
               <li key={n} className="flex gap-4 border-t border-hairline pt-4 sm:flex-col">
-                <IconBadge size="sm">{n}</IconBadge>
+                <IconBadge>{n}</IconBadge>
                 <TitleText title={title} text={text} />
               </li>
             ))}
