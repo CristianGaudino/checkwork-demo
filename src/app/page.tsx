@@ -19,7 +19,7 @@ import { accentButton, card, pageMain, pageWidth, press, sectionTitle, secondary
 import { dealerJsonLd } from "@/lib/dealer";
 import { HOME } from "@/lib/home.config";
 import { getReviews } from "@/lib/reviews";
-import { DEALER_ADDRESS, DEALER_ADDRESS_TEXT, DEALER_LOCATION, SITE_NAME } from "@/lib/site";
+import { DEALER_ADDRESS, DEALER_LOCATION, SITE_NAME } from "@/lib/site";
 import { queryAllOrNull } from "@/lib/stock";
 import { searchOptions } from "@/lib/stock/search-options";
 
@@ -52,13 +52,12 @@ export default async function Home() {
       {/* The showroom window: the dealership photo full width with light falling from the top, the line on the left and the search floating on glass. */}
       <section className="relative isolate overflow-hidden">
         <HeroMosaic />
-        <div className={`${pageWidth} grid grid-cols-1 gap-8 pb-24 pt-16 lg:min-h-[38rem] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-end lg:gap-12 lg:pb-28 lg:pt-24`}>
+        <div className={`${pageWidth} grid grid-cols-1 gap-8 pb-16 pt-16 lg:min-h-[38rem] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-end lg:gap-12 lg:pb-28 lg:pt-24`}>
           <div className="theme-dark flex min-w-0 flex-col items-start text-text">
             <h1 className="max-w-[14ch] text-balance text-hero font-semibold lg:text-hero-lg">{HOME.heroTitle}</h1>
             <p className="mt-4 max-w-[40ch] text-body text-text/90">{HOME.heroIntro}</p>
-            <p className="mt-2 max-w-measure text-meta text-text/75">Find us at {DEALER_ADDRESS_TEXT}.</p>
             <div className="mt-6 flex w-full flex-wrap gap-3">
-              <Link href="/used-cars" className={`inline-flex w-full items-center justify-center gap-2 sm:w-auto ${accentButton}`}>
+              <Link href="/used-cars" className={`inline-flex h-12 w-full items-center justify-center gap-2 rounded-control border border-hairline bg-card px-6 font-medium text-text sm:w-auto ${press}`}>
                 Browse stock
                 <ArrowRightIcon className="size-5" />
               </Link>
@@ -117,15 +116,15 @@ export default async function Home() {
         {/* All about finance. */}
         <section className={`${card} grid grid-cols-1 gap-8 p-6 lg:grid-cols-[1fr_1.2fr] lg:items-center lg:gap-12 lg:p-12`}>
           <div className="flex flex-col items-start gap-4">
-            <h2 className={sectionTitle}>Finance made simple</h2>
+            <h2 className={sectionTitle}>Finance on any car we sell</h2>
             <p className="max-w-[40ch] text-body text-text-2">Estimate your monthly payment online, then send us your details to start the process.</p>
             {/* Full width and stacked on a phone, like the hero's two buttons; side by side from 640px. */}
             <div className="mt-2 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
-              <Link href="/finance" className={`inline-flex items-center justify-center gap-2 ${accentButton} lg:h-14 lg:px-8 lg:text-heading`}>
+              <Link href="/finance" className={`inline-flex items-center justify-center gap-2 ${accentButton}`}>
                 Check finance options
                 <ArrowRightIcon className="size-5" />
               </Link>
-              <Link href="/trade-in" className={`inline-flex h-12 items-center justify-center gap-2 px-6 lg:h-14 lg:px-8 ${secondaryButton}`}>
+              <Link href="/trade-in" className={`inline-flex h-12 items-center justify-center gap-2 px-6 ${secondaryButton}`}>
                 Value your trade-in
               </Link>
             </div>
@@ -136,7 +135,7 @@ export default async function Home() {
               ["2", "See an estimate", "A monthly figure, worked out as you go."],
               ["3", "We call you", "Send your details and we come back with the real amounts."],
             ].map(([n, title, text]) => (
-              <li key={n} className="flex gap-4 rounded-tile bg-surface p-4 sm:flex-col">
+              <li key={n} className="flex gap-4 border-t border-hairline pt-4 sm:flex-col">
                 <IconBadge size="sm">{n}</IconBadge>
                 <TitleText title={title} text={text} />
               </li>

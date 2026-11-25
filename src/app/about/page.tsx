@@ -12,7 +12,7 @@ export const metadata: Metadata = { title: "About us", description: `${SITE_NAME
 
 // The dealer's own story replaces this copy: no history, awards, years trading or staff names are invented here.
 const WHY = [
-  { title: "Carefully selected cars", text: "Cars chosen with care, each shown with its details and photos." },
+  { title: "Every car shown in full", text: "Each car has its details, photos and history on its page." },
   { title: "Straightforward buying", text: "Plain answers and no pressure. Ask us anything about a car before you decide." },
   { title: "Finance", text: "Estimate your monthly payment online before you call." },
   { title: "Trade-ins", text: "Get a valuation on the car you're trading in." },

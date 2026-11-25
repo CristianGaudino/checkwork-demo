@@ -1,10 +1,12 @@
+import { DEALER_ADDRESS } from "@/lib/site";
+
 // What the home page shows, in one place. A clone changes these, not the page.
 export const HOME = {
   featuredCount: 6, // cars in the featured grid
   shopByTypeMax: 6, // Browse by type tiles
   makeChipsMax: 20, // make chips: the makes in stock
   heroTitle: "Find your next car",
-  heroIntro: "A carefully selected range of quality cars, with plain answers and no pressure.",
+  heroIntro: `Used cars in ${DEALER_ADDRESS.town}, each with its full details and photos. Plain answers and no pressure.`,
   heroPhoto: "/brand/hero.webp", // the big hero tile (1448x1086, 4:3: cropped by its box)
   heroPhotoSmall: "/brand/hero-sm.webp", // the same photo at 960 wide, for phones
   heroPhotoDark: "/brand/hero-dusk.webp", // the same scene at dusk, for the dark theme (same size)

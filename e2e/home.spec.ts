@@ -94,7 +94,7 @@ test("the drop-downs work from the keyboard: arrows move, Home and End jump, Ent
   await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
   const make = page.getByLabel("Make", { exact: true });
   await make.focus();
-  await make.press("ArrowDown"); // opens on the chosen option, "Any make"
+  await make.press("ArrowDown"); // opens on the chosen option, "Any"
   const options = page.getByRole("listbox").getByRole("option");
   await expect(make).toHaveAttribute("aria-expanded", "true");
   await make.press("ArrowDown");
@@ -134,7 +134,7 @@ test("typing into a drop-down reached by keyboard opens its list right under the
 
 test("every model the search offers has a car in stock", async ({ page }) => {
   await page.goto("/");
-  const offered = (await optionLabels(page.getByLabel("Model", { exact: true }))).filter((l) => l !== "Any model");
+  const offered = (await optionLabels(page.getByLabel("Model", { exact: true }))).filter((l) => l !== "Any");
   const liveModels = new Set(inStock.map((c) => c.model));
   expect(offered.length).toBeGreaterThan(0);
   for (const model of offered) expect(liveModels.has(model), model).toBe(true);
@@ -142,7 +142,7 @@ test("every model the search offers has a car in stock", async ({ page }) => {
 
 test("the search offers only makes that have a car in stock", async ({ page }) => {
   await page.goto("/");
-  const offered = (await optionLabels(page.getByLabel("Make", { exact: true }))).filter((l) => l !== "Any make");
+  const offered = (await optionLabels(page.getByLabel("Make", { exact: true }))).filter((l) => l !== "Any");
   const inStockMakes = new Set(inStock.map((c) => c.make));
   expect(offered.length).toBeGreaterThan(0);
   // A make with no logo shows its initials before the name ("LRLand Rover").
@@ -166,7 +166,7 @@ test.describe("desktop pointer", () => {
     await page.goto("/");
     for (const icon of await page.getByRole("region", { name: "Why buy from us" }).locator("svg").all()) {
       const box = (await icon.boundingBox())!;
-      expect([box.width, box.height]).toEqual([24, 24]);
+      expect([box.width, box.height]).toEqual([20, 20]);
     }
   });
 });
@@ -191,9 +191,8 @@ test("reviews, the trust strip and finance banner, and AutoDealer JSON-LD", asyn
   const main = page.getByRole("main");
   for (const [name, href] of [
     [/^12 month warranty/, "/warranty"],
-    [/^Extended warranty/, "/warranty"],
-    [/^Flexible finance/, "/finance"],
-    [/^Trade-ins welcome/, "/trade-in"],
+    [/^Finance/, "/finance"],
+    [/^Trade-ins/, "/trade-in"],
     [/^Test drives/, "/test-drive"],
     ["Check finance options", "/finance"],
     ["Estimate finance", "/finance"],
@@ -226,19 +225,23 @@ test("every item in the trust strip is a link with the same padding, so the row 
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/");
   const links = page.getByRole("region", { name: "Why buy from us" }).getByRole("link");
-  await expect(links).toHaveCount(5);
+  await expect(links).toHaveCount(4);
   const boxes = await Promise.all((await links.all()).map((l) => l.boundingBox()));
   expect(new Set(boxes.map((b) => Math.round(b!.y))).size).toBe(1);
   expect(new Set(boxes.map((b) => Math.round(b!.height))).size).toBe(1);
 });
 
-test("at 320px nothing scrolls sideways and the search selects sit two to a row", async ({ page }) => {
+test("at 320px nothing scrolls sideways and the search selects stack; from 360px they sit two to a row", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 640 });
   await page.goto("/");
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
   const make = await page.getByLabel("Make", { exact: true }).boundingBox();
   const model = await page.getByLabel("Model", { exact: true }).boundingBox();
-  expect(make!.y).toBe(model!.y);
+  expect(model!.y).toBeGreaterThan(make!.y + make!.height);
+  await page.setViewportSize({ width: 360, height: 640 });
+  const make2 = await page.getByLabel("Make", { exact: true }).boundingBox();
+  const model2 = await page.getByLabel("Model", { exact: true }).boundingBox();
+  expect(make2!.y).toBe(model2!.y);
 });
 
 test.describe("without JavaScript", () => {
