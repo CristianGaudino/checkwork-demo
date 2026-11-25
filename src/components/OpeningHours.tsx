@@ -8,15 +8,16 @@ export function OpeningHours() {
       <h2 className={subTitle}>Opening hours</h2>
       <dl className={`flex flex-col divide-y divide-hairline ${card} px-4`}>
         {groupHours().map((h) => (
-          <div key={h.label} className="flex items-baseline justify-between gap-4 py-3">
+          <div key={h.label} className="flex flex-wrap items-baseline justify-between gap-x-4 py-3">
             <dt>{h.label}</dt>
-            <dd className={`whitespace-nowrap text-right tabular-nums ${h.hours === "Closed" ? "text-text-2" : "font-semibold"}`}>{h.hours}</dd>
+            {/* Not split beside the day: with large text it moves under it, and only breaks if it is wider than the card. */}
+            <dd className={`ml-auto text-right tabular-nums ${h.hours === "Closed" ? "text-text-2" : "font-semibold"}`}>{h.hours}</dd>
           </div>
         ))}
         {/* Test drives are never offered on one (src/lib/bank-holidays.ts). */}
-        <div className="flex items-baseline justify-between gap-4 py-3">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 py-3">
           <dt>Bank holidays</dt>
-          <dd className="text-right text-text-2">Closed</dd>
+          <dd className="ml-auto text-right text-text-2">Closed</dd>
         </div>
       </dl>
     </section>
