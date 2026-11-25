@@ -53,7 +53,7 @@ export function ThemeSwitch({ className = "" }: { className?: string }) {
     document.head.append(s);
   }, []);
   return (
-    <div data-theme-switch className={`flex items-center gap-2 ${className}`}>
+    <div data-theme-switch className={`flex flex-wrap items-center gap-2 ${className}`}>
       <span id={id} className="text-meta text-text-2">
         Theme
       </span>

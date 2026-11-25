@@ -38,13 +38,13 @@ export function SiteFooter() {
                 </span>
               ))}
             </address>
-            <div className="flex w-full items-center justify-between lg:flex-col lg:items-start lg:gap-2">
+            <div className="flex w-full flex-wrap items-center justify-between gap-y-2 lg:flex-col lg:items-start lg:gap-2">
               <PhoneLink className={`${link} text-body font-semibold`} />
               <Link href="/contact" className={`${link} underline max-lg:hidden`}>
                 Opening hours and directions
               </Link>
               {SOCIAL_LINKS.length > 0 && (
-                <ul aria-label="Social media" className="-mr-3 flex lg:-ml-3 lg:mr-0">
+                <ul aria-label="Social media" className="-mr-3 flex flex-wrap gap-y-2 lg:-ml-3 lg:mr-0">
                   {SOCIAL_LINKS.map(({ name, href }) => {
                     const Icon = SOCIAL_ICONS[name];
                     return (

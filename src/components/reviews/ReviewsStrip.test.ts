@@ -68,7 +68,7 @@ describe("ReviewsStrip", () => {
   });
 
   it("keeps the text unaltered with its language, and omits an empty text", () => {
-    expect(render(data({ reviews: [review({ text: "Go maith", languageCode: "ga" })] }))).toContain('<p lang="ga" class="line-clamp-8 text-body">Go maith</p>');
+    expect(render(data({ reviews: [review({ text: "Go maith", languageCode: "ga" })] }))).toContain('<p lang="ga" class="line-clamp-8 text-body [overflow-wrap:anywhere]">Go maith</p>');
     expect(render(data({ reviews: [review({ text: "" })] }))).not.toContain("line-clamp-8");
   });
 
@@ -82,5 +82,12 @@ describe("ReviewsStrip", () => {
 
   it("contains no em dash", () => {
     expect(render(data({ source: "demo" }))).not.toContain(String.fromCharCode(0x2014));
+  });
+
+  it("on a page whose own heading labels it, adds no title of its own", () => {
+    const html = renderToStaticMarkup(createElement(ReviewsStrip, { data: data(), labelledBy: "reviews-title" }));
+    expect(html).toContain('aria-labelledby="reviews-title"');
+    expect(html).not.toContain("<h2");
+    expect(render(data())).toContain('<h2 id="reviews-heading"');
   });
 });

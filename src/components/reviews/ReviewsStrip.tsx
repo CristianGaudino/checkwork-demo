@@ -41,7 +41,7 @@ function ReviewCard({ review }: { review: Review }) {
       </div>
       {/* Never altered: the clamp is visual only, the DOM keeps the full text. */}
       {review.text && (
-        <p lang={review.languageCode} className="line-clamp-8 text-body">
+        <p lang={review.languageCode} className="line-clamp-8 text-body [overflow-wrap:anywhere]">
           {review.text}
         </p>
       )}
@@ -76,16 +76,19 @@ function ReviewCard({ review }: { review: Review }) {
 
 // Server component. Nothing renders without reviews: no heading, no gap, no error text (UI-SPEC failure behaviour).
 // `grid`: every review laid out at once (the Reviews page), instead of the home page's moving row.
-export function ReviewsStrip({ data, grid = false }: { data: Reviews | null; grid?: boolean }) {
+// `labelledBy`: the id of a heading already on the page (the Reviews page's h1), so the strip adds no title of its own.
+export function ReviewsStrip({ data, grid = false, labelledBy }: { data: Reviews | null; grid?: boolean; labelledBy?: string }) {
   if (!data?.reviews.length) return null;
   const { rating, count } = data;
   const reviewCount = count === undefined ? "" : `${fmtNum(count)} Google ${count === 1 ? "review" : "reviews"}`;
   return (
-    <section aria-labelledby="reviews-heading" className="flex flex-col gap-4">
+    <section aria-labelledby={labelledBy ?? "reviews-heading"} className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
-        <h2 id="reviews-heading" className={sectionTitle}>
-          What customers say
-        </h2>
+        {!labelledBy && (
+          <h2 id="reviews-heading" className={sectionTitle}>
+            What customers say
+          </h2>
+        )}
         <p className="text-meta text-text-2">Showing the most relevant reviews from Google Maps.</p>
       </div>
       {rating !== undefined && count !== undefined && (
@@ -93,7 +96,7 @@ export function ReviewsStrip({ data, grid = false }: { data: Reviews | null; gri
           <p className="sr-only">
             Rated {rating.toFixed(1)} out of 5 from {reviewCount}
           </p>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span aria-hidden="true" className="text-display font-semibold tabular-nums">
               {rating.toFixed(1)}
             </span>
