@@ -14,7 +14,7 @@ const firstCar = async (page: Page) => {
 
 test.use({ viewport: { width: 360, height: 800 } });
 
-for (const [width, size] of [[360, "150%"], [320, "200%"]] as const) {
+for (const [width, size] of [[360, "150%"], [320, "200%"], [412, "200%"]] as const) {
   test(`no public page scrolls sideways at ${width}px with ${size} text`, async ({ page }) => {
     await page.setViewportSize({ width, height: 800 });
     for (const path of [...ROUTES, await firstCar(page)]) {

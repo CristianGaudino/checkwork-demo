@@ -118,7 +118,7 @@ export default async function Home() {
         <AffiliationBadges />
 
         {/* All about finance. */}
-        <section className={`${card} grid grid-cols-1 gap-8 p-6 lg:grid-cols-[1fr_1.2fr] lg:items-center lg:gap-12 lg:p-12`}>
+        <section className={`@container ${card} grid grid-cols-1 gap-8 p-6 lg:grid-cols-[1fr_1.2fr] lg:items-center lg:gap-12 lg:p-12`}>
           <div className="flex flex-col items-start gap-4">
             <h2 className={sectionTitle}>Finance on any car we sell</h2>
             <p className="max-w-[40ch] text-body text-text-2">Estimate your monthly payment online, then send us your details to start the process.</p>
@@ -133,8 +133,9 @@ export default async function Home() {
               </Link>
             </div>
           </div>
-          {/* @container: on a phone the number sits beside its step, above it when large text leaves too little room (the query is in rem). */}
-          <ol className="@container grid grid-cols-1 gap-4 sm:grid-cols-3">
+          {/* The section is the container (queries in rem): three across from 640px while there is room, one with large text. On a phone
+              the number sits beside its step, above it when large text leaves too little room. */}
+          <ol className="grid grid-cols-1 gap-4 sm:@min-[30rem]:grid-cols-3">
             {[
               ["1", "Pick a car", "Or type a price. Choose a deposit and a term."],
               ["2", "See an estimate", "A monthly figure, worked out as you go."],

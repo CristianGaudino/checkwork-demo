@@ -42,10 +42,10 @@ export default function AboutPage() {
               ))}
             </ul>
           </section>
-          <section className="flex flex-col gap-4">
+          <section className="@container flex flex-col gap-4">
             <h2 className={subTitle}>What to expect</h2>
-            {/* @container: as on the home page, the number goes above its step when large text leaves too little room beside it. */}
-            <ol className="@container grid grid-cols-1 gap-3 sm:grid-cols-3">
+            {/* As on the home page, the section is the container: one column with large text, the number above its step. */}
+            <ol className="grid grid-cols-1 gap-3 sm:@min-[30rem]:grid-cols-3">
               {EXPECT.map((s, i) => (
                 // The same numbered step as the form pages and the finance band.
                 <li key={s.title} className="flex flex-col gap-4 max-sm:@min-[14rem]:flex-row">

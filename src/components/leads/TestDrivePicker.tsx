@@ -19,7 +19,7 @@ export function TestDrivePicker({ cars }: { cars: (CarSummary & { vatLine?: stri
           {cars.map((c) => (
             <li key={c.id} className={`flex gap-3 p-3 ${card}`}>
               {c.photo && (
-                <img src={c.photo} alt="" width={96} height={72} loading="lazy" className="hidden h-[72px] w-24 shrink-0 min-[380px]:block rounded-control bg-photo-bg object-cover" />
+                <img src={c.photo} alt="" width={96} height={72} loading="lazy" className="hidden h-[72px] w-24 shrink-0 @min-[21.75rem]:block rounded-control bg-photo-bg object-cover" />
               )}
               {/* Book sits at the bottom right, under the text, so the name and variant get the row's full width on a phone. */}
               <div className="flex min-w-0 flex-1 flex-col">
