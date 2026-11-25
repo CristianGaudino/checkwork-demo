@@ -60,6 +60,11 @@ const full: Car = {
 };
 
 describe("specRows", () => {
+  it("leaves out Mileage for a used car the feed sent as 0 km (a blank field)", () => {
+    expect(specRows({ ...audi, mileageKm: 0 }).some((r) => r.label === "Mileage")).toBe(false);
+    expect(specRows(audi).find((r) => r.label === "Mileage")?.value).toBe("84,000 km");
+  });
+
   it("lists every present spec in order with exact formats", () => {
     expect(specRows(full)).toEqual([
       { label: "Year", value: "2019" },

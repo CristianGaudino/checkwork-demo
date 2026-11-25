@@ -3,11 +3,12 @@ import { DEALER_ADDRESS, DEALER_LOCATION, DEALER_TEL, SITE_NAME, SITE_URL } from
 import { carName, carTitle, formatKm, fmtEur, carHref } from "./format";
 import { FUEL_LABELS, GEARBOX_LABELS, isNew, isSold, onRequest } from "./types";
 import { PRICING } from "./pricing.config";
+import { knownKm } from "./markers";
 import type { Car } from "./types";
 
 // The sale date never enters metadata or JSON-LD (owner instruction, 2026-11-06).
 export function carDescription(car: Car): string {
-  const specs = [car.mileageKm !== undefined && formatKm(car.mileageKm), car.fuel && FUEL_LABELS[car.fuel], car.gearbox && GEARBOX_LABELS[car.gearbox]].filter(Boolean).join(", ");
+  const specs = [knownKm(car) !== undefined && formatKm(knownKm(car)!), car.fuel && FUEL_LABELS[car.fuel], car.gearbox && GEARBOX_LABELS[car.gearbox]].filter(Boolean).join(", ");
   return [`${car.year} ${carTitle(car)}.`, specs && `${specs}.`, isSold(car) ? "Sold." : onRequest(car) ? `${PRICING.labels.onRequest}.` : `${fmtEur(car.priceEur)}.`, `${SITE_NAME}, ${DEALER_LOCATION}.`].filter(Boolean).join(" ");
 }
 
@@ -39,7 +40,7 @@ export function carJsonLd(car: Car): Record<string, unknown> {
     model: car.model,
     vehicleModelDate: String(car.year),
     itemCondition: isNew(car) ? "https://schema.org/NewCondition" : "https://schema.org/UsedCondition",
-    mileageFromOdometer: car.mileageKm === undefined ? undefined : { "@type": "QuantitativeValue", value: car.mileageKm, unitCode: "KMT" },
+    mileageFromOdometer: knownKm(car) === undefined ? undefined : { "@type": "QuantitativeValue", value: knownKm(car), unitCode: "KMT" },
     fuelType: car.fuel && FUEL_LABELS[car.fuel],
     vehicleTransmission: car.gearbox && GEARBOX_LABELS[car.gearbox],
     bodyType: car.bodyType,

@@ -7,7 +7,6 @@ import { featureLabel, plainText, specRows, withoutInvitation } from "@/lib/stoc
 import { FactLabel, FactValue } from "@/components/stock/CarMeta";
 import { UnitToggle } from "@/components/UnitToggle";
 import { DEFAULT_QUERY, stockHref } from "@/lib/stock/query";
-import { knownKm } from "@/lib/stock/markers";
 import { isSold } from "@/lib/stock/types";
 import type { Car, StockQuery } from "@/lib/stock/types";
 
@@ -47,8 +46,7 @@ export function AboutCar({ car }: { car: Car }) {
   );
 }
 
-export function Specifications({ car: feed }: { car: Car }) {
-  const car = { ...feed, mileageKm: knownKm(feed) }; // a used car's 0 km is a blank field: no Mileage row
+export function Specifications({ car }: { car: Car }) {
   return (
     <section>
       <div className="flex flex-wrap items-center justify-between gap-3">

@@ -1,4 +1,5 @@
 import { FUEL_LABELS, GEARBOX_LABELS, onRequest } from "./types";
+import { knownKm } from "./markers";
 import { PRICING } from "./pricing.config";
 import type { Car, Condition } from "./types";
 
@@ -37,7 +38,7 @@ export function specRows(car: Car): SpecRow[] {
   const range = car.evRangeKm;
   const rows: [string, string | undefined, SpecRow["miles"]?][] = [
     ["Year", String(car.year)],
-    ["Mileage", car.mileageKm === undefined ? undefined : formatKm(car.mileageKm)],
+    ["Mileage", knownKm(car) === undefined ? undefined : formatKm(knownKm(car)!)],
     ["Fuel", car.fuel && FUEL_LABELS[car.fuel]],
     ["Transmission", car.gearbox && GEARBOX_LABELS[car.gearbox]],
     ["Body type", car.bodyType],
