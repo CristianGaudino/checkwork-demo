@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: PageProps<"/makes/[make]">): 
   if (!make) return {};
   const title = `${make.label} for sale in ${DEALER_ADDRESS.town}`;
   const description = make.count
-    ? `${countLabel(make.count, makeNoun(make))} from ${make.label} in stock at ${SITE_NAME}, ${DEALER_LOCATION}: used and commercial.`
+    ? `${countLabel(make.count, makeNoun(make))} from ${make.label} in stock at ${SITE_NAME}, ${DEALER_LOCATION}: ${[make.byKind.used && "used", make.byKind.commercial && "commercial"].filter(Boolean).join(" and ")}.`
     : `No ${make.label} in stock at ${SITE_NAME} right now. We can find one for you, and you can see what we have that is similar.`;
   return { title, description, alternates: { canonical: `/makes/${make.slug}` }, ...(make.count ? {} : { robots: { index: false } }) };
 }
