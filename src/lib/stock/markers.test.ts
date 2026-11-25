@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import demo from "./demo-cars.json";
 import extra from "./demo-cars-extra.json";
-import { rareMarker } from "./markers";
+import { knownKm, rareMarker } from "./markers";
 import type { Car } from "./types";
 
 const now = new Date("2026-11-11T12:00:00Z");
@@ -15,6 +15,14 @@ describe("rare markers", () => {
     expect(rareMarker(used({ year: 2022, mileageKm: 14000 }), now)).toBe("Very low mileage"); // at least three full years
     expect(rareMarker(used({ year: 2016, mileageKm: 60000 }), now)).toBeUndefined(); // 6,000 a year: good, not rare
     expect(rareMarker(used({ year: 2025, mileageKm: 2000 }), now)).toBeUndefined(); // a young car with few km is normal
+  });
+
+  it("0 km on a used car is a blank feed field: unknown, so no low mileage marker", () => {
+    expect(rareMarker(used({ year: 2016, mileageKm: 0 }), now)).toBeUndefined();
+    expect(knownKm(used({ mileageKm: 0 }))).toBeUndefined();
+    expect(knownKm({ condition: "commercial", owners: 2, mileageKm: 0 })).toBeUndefined();
+    expect(knownKm({ condition: "commercial", owners: 0, mileageKm: 0 })).toBe(0); // a new vehicle keeps its 0 km
+    expect(knownKm(used({ mileageKm: 9 }))).toBe(9);
   });
 
   it("one owner from new, only on a car ten years old or more", () => {

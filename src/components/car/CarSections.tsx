@@ -7,6 +7,7 @@ import { featureLabel, plainText, specRows, withoutInvitation } from "@/lib/stoc
 import { FactLabel, FactValue } from "@/components/stock/CarMeta";
 import { UnitToggle } from "@/components/UnitToggle";
 import { DEFAULT_QUERY, stockHref } from "@/lib/stock/query";
+import { knownKm } from "@/lib/stock/markers";
 import { isSold } from "@/lib/stock/types";
 import type { Car, StockQuery } from "@/lib/stock/types";
 
@@ -46,7 +47,8 @@ export function AboutCar({ car }: { car: Car }) {
   );
 }
 
-export function Specifications({ car }: { car: Car }) {
+export function Specifications({ car: feed }: { car: Car }) {
+  const car = { ...feed, mileageKm: knownKm(feed) }; // a used car's 0 km is a blank field: no Mileage row
   return (
     <section>
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -56,11 +58,11 @@ export function Specifications({ car }: { car: Car }) {
       {/* Every other row filled (in pairs from 640px, where two rows sit side by side), so a label is easy to follow to its value. */}
       <dl className={`mt-4 grid grid-cols-1 gap-x-4 ${card} p-2 sm:grid-cols-2`}>
         {specRows(car).map((r) => (
-          <div key={r.label} className="flex justify-between gap-4 rounded-control px-3 py-2.5 even:bg-row-alt sm:even:bg-transparent sm:[&:nth-child(4n+1)]:bg-row-alt sm:[&:nth-child(4n+2)]:bg-row-alt">
-            <dt className="shrink-0 text-text-2">
+          <div key={r.label} className="flex flex-wrap justify-between gap-x-4 rounded-control px-3 py-2.5 even:bg-row-alt sm:even:bg-transparent sm:[&:nth-child(4n+1)]:bg-row-alt sm:[&:nth-child(4n+2)]:bg-row-alt">
+            <dt className="min-w-0 text-text-2">
               <FactLabel {...r} />
             </dt>
-            <dd className="min-w-0 text-right font-medium [overflow-wrap:anywhere]">
+            <dd className="ml-auto min-w-0 text-right font-medium [overflow-wrap:anywhere]">
               <FactValue car={car} {...r} />
             </dd>
           </div>

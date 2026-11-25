@@ -44,17 +44,15 @@ test.describe("a car for sale", () => {
     await expect(box.getByRole("button", { name: "Test drive", exact: true })).toBeVisible();
     await expect(box.getByRole("button", { name: /Reserve/ })).toHaveCount(0);
 
-    const tiles = box.locator("dl > div");
-    const n = await tiles.count();
-    expect(n).toBeGreaterThanOrEqual(1);
-    expect(n).toBeLessThanOrEqual(4);
-    for (const t of await tiles.allTextContents()) expect(t.trim().length).toBeGreaterThan(0);
+    // The year, km, fuel and gearbox are said once, in the line under the title; the specifications have the rest.
+    const meta = box.locator("[data-meta]");
+    await expect(meta).toContainText(/^\d{4}/);
+    await expect(box.locator("dl")).toHaveCount(0);
 
     const viewport = page.viewportSize()!.height;
     expect((await price.boundingBox())!.y).toBeLessThan(viewport);
     expect((await call.boundingBox())!.y).toBeLessThan(viewport);
-    // Share and the heart sit beside a long title, which can take a third line: the facts start within a short scroll.
-    expect((await tiles.first().boundingBox())!.y).toBeLessThan(viewport + 60);
+    expect((await meta.boundingBox())!.y).toBeLessThan(viewport);
   });
 
   test("holds its four buttons at 320px without sideways scroll, and nothing below moves on hydration", async ({ page, browser }) => {

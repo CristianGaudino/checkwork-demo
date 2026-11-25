@@ -58,7 +58,6 @@
   --color-control: #8a90a8;
   --color-photo-bg: #e9ecf4;
   --color-destructive: #c4261d;
-  --color-better: #166534;
   --color-warning: #8f4f06;
   /* Status tones, solid: a fill and the text that sits on it (4.5:1). Badges, chips and notices use these and nothing tinted. */
   --color-ok: #166534;
@@ -108,7 +107,6 @@
   --color-control: #6f7694;
   --color-photo-bg: #1a2140;
   --color-destructive: #ff8f86;
-  --color-better: #4ade80;
   --color-warning: #fbbf24;
   --color-ok: #7be0a2;
   --color-ok-soft: #123326;

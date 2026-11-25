@@ -36,6 +36,19 @@ describe("CarGallery", () => {
     expect(html).not.toContain("Show all");
   });
 
+  it("twelve photos: twelve thumbnails; sixty: the first eleven and a +49 tile that opens the viewer", () => {
+    expect(render(12).match(/aria-label="Show photo \d+ of 12"/g)).toHaveLength(12);
+    const html = render(60);
+    expect(html.match(/aria-label="Show photo \d+ of 60"/g)).toHaveLength(11);
+    expect(html).toContain('aria-label="View all 60 photos"');
+    expect(html).toContain("+49");
+  });
+
+  it("a feed that repeats a photo still renders every slide", () => {
+    const html = renderToStaticMarkup(createElement(CarGallery, { photos: [photo(1), photo(1), photo(1)], name: "2019 Audi A4" }));
+    expect(html.match(/aria-label="View photo \d of 3 larger"/g)).toHaveLength(3);
+  });
+
   it("only the first photo is eager and high priority", () => {
     const imgs = render(3).match(/<img[^>]*>/g)!;
     expect(imgs[0]).toContain('fetchPriority="high"');
