@@ -22,7 +22,7 @@ export function EmptyCars({ title, text }: { title: string; text: string }) {
   );
 }
 
-// retry: what Try again does when the cars came from the browser (/saved) rather than the server render. noun: "commercial" on /commercial.
+// retry: what Try again does when the cars came from the browser (/saved) rather than the server render. noun: "commercial" on /commercial, "van" or "pickup" on a body page.
 export function StockError({ retry, noun = "car" }: { retry?: () => void; noun?: string }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();

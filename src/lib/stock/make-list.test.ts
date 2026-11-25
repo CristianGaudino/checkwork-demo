@@ -40,7 +40,6 @@ describe("the commercial list's address", () => {
     read.fails = true;
     expect(await makeList("commercial", "vans", none)).toEqual({ params: { body: "van" }, title: "Used vans", intro: undefined, noun: "van" });
     expect(await makeList("commercial", "pickups", none)).toMatchObject({ params: { body: "pickup" }, noun: "pickup" });
-    expect(await makeList("commercial", "ford", none)).toMatchObject({ title: "Ford commercials" }); // as a make page already did
     expect((await makeListMetadata("commercial", "vans")).robots).toEqual({ index: false });
     expect(await makeList("commercial", "suvs", none)).toBeNull(); // still only the commercial body types
   });

@@ -37,7 +37,7 @@ export default async function MakePage({ params }: PageProps<"/makes/[make]">) {
   if (!make) notFound();
   const cars = await carsOfMake(make.slug);
   const of = (kind: Condition) => cars.filter((c) => (c.condition ?? "used") === kind);
-  const parts = SECTIONS.filter((s) => make.byKind[s.kind] > 0).map((s) => `${make.byKind[s.kind]} ${s.kind === "commercial" ? "commercial" : s.kind}`);
+  const parts = SECTIONS.filter((s) => make.byKind[s.kind] > 0).map((s) => `${make.byKind[s.kind]} ${s.kind}`);
 
   return (
     <main className={pageMain}>

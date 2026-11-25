@@ -30,7 +30,7 @@ type Stock = {
   summary: Summary;
   facets: Facets | null; // the facets of the last result that loaded, so a failed load keeps the filters
   pending: boolean;
-  noun: string; // what the list counts: car or commercial
+  noun: string; // what the list counts: car, commercial, or a body page's own (van, pickup)
   makePage: boolean; // a list narrowed to one make or body type by its address (/commercial/<make>, /commercial/vans), not by the buyer
   navigate: (next: StockQuery, opts?: { scroll?: boolean }) => void;
 };
