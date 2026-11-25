@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Fragment } from "react";
 import { ShareButton } from "@/components/car/ShareButton";
 import { CompareButton } from "@/components/compare/CompareButton";
 import { LeadActions, StockAlertButton } from "@/components/leads/LeadDialog";
@@ -33,12 +34,20 @@ export function BuyBox({ car }: { car: Car }) {
           an empty float the size of the two buttons makes the title wrap under them; from 640px they sit beside it. */}
       <div className="relative sm:flex sm:items-start sm:justify-between sm:gap-3">
         {/* Make and model large, the variant under it: a 60 character variant would otherwise fill a phone screen. The text reads as carTitle. */}
-        <h1 className={`min-w-0 break-words font-bold max-sm:before:float-right max-sm:before:ml-3 max-sm:before:h-11 max-sm:before:w-22 max-sm:before:content-[''] ${longTitle(car) ? "text-heading sm:text-display" : "text-display"}`}>
-          {car.make} {car.model}
+        {/* Each word of the name is one box: beside the float a word that does not fit moves below the icons whole, and only a word wider than
+            the whole column breaks inside (break-words on the h1 split "Mercedes-Benz" beside the float). Balance off on a phone: Chrome balances
+            the lines over the float. */}
+        <h1 className={`min-w-0 font-bold max-sm:text-wrap max-sm:before:float-right max-sm:before:ml-3 max-sm:before:h-11 max-sm:before:w-22 max-sm:before:content-[''] ${longTitle(car) ? "text-heading sm:text-display" : "text-display"}`}>
+          {`${car.make} ${car.model}`.split(" ").map((word, i) => (
+            <Fragment key={i}>
+              {i > 0 && " "}
+              <span className="inline-block max-w-full break-words">{word}</span>
+            </Fragment>
+          ))}
           {car.variant && (
             <>
               {" "}
-              <span className="mt-1 block text-heading font-semibold text-text-2">{car.variant}</span>
+              <span className="mt-1 block break-words text-heading font-semibold text-text-2">{car.variant}</span>
             </>
           )}
         </h1>
