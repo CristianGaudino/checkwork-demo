@@ -15,7 +15,7 @@ const HEADER = [
   ["Service", "/service"],
   ["Contact", "/contact"],
 ] as const;
-const SECTIONS = [["Used cars", "/used-cars"], ["Commercial", "/commercial"]] as const;
+const SECTIONS = [["Used cars", "/used-cars"], ["Commercials", "/commercial"]] as const;
 // Every page in the phone menu: the stock first, then the groups that fold (Buying, Selling, Dealership).
 const MENU = [
   ...SECTIONS,
@@ -54,7 +54,7 @@ const FOOTER = [
 ] as const;
 const PAGES = ["/", "/used-cars", `/used-cars/${live.slug}`, "/finance", "/trade-in", "/find-a-car", "/service", "/warranty", "/contact", "/about", "/terms", "/privacy"];
 
-test("from 1024px the header has Used, Commercial and four links, and no Enquire button or Stock menu", async ({ page }) => {
+test("from 1024px the header has Used, Commercials and four links, and no Enquire button or Stock menu", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/");
   const banner = page.getByRole("banner");
@@ -65,14 +65,14 @@ test("from 1024px the header has Used, Commercial and four links, and no Enquire
   await expect(banner.getByRole("navigation", { name: "Vehicle type" })).toHaveCount(0);
 });
 
-test("a van marks Commercial in the header, not Used Cars", async ({ page }) => {
+test("a van marks Commercials in the header, not Used Cars", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   const banner = page.getByRole("banner");
   await page.goto("/commercial");
-  await expect(banner.getByRole("link", { name: "Commercial", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(banner.getByRole("link", { name: "Commercials", exact: true })).toHaveAttribute("aria-current", "page");
   await page.locator("article").filter({ hasText: "Vito" }).getByRole("link").first().click();
   await expect(page.getByTestId("buy-box")).toBeVisible();
-  await expect(banner.getByRole("link", { name: "Commercial", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(banner.getByRole("link", { name: "Commercials", exact: true })).toHaveAttribute("aria-current", "page");
   await expect(banner.getByRole("link", { name: "Used cars", exact: true })).not.toHaveAttribute("aria-current", "page");
 });
 
@@ -145,7 +145,7 @@ test.describe("the mobile menu", () => {
     await page.goto("/finance");
     await page.getByRole("banner").getByRole("button", { name: "Menu" }).click();
     const menu = page.getByRole("dialog", { name: "Menu" });
-    for (const name of ["Used cars", "Commercial", "Makes"]) await expect(menu.getByRole("link", { name, exact: true })).toBeVisible();
+    for (const name of ["Used cars", "Commercials", "Makes"]) await expect(menu.getByRole("link", { name, exact: true })).toBeVisible();
     await expect(menu.locator("details[open] > summary")).toHaveText(["Buying"]);
     await expect(menu.getByRole("link", { name: "Sell your car" })).toBeHidden();
     await menu.getByText("Selling", { exact: true }).click();

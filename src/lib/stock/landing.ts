@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import { DEALER_ADDRESS, DEALER_LOCATION, DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/site";
-import { fmtEur } from "./format";
+import { fmtEur, plural } from "./format";
 import { carJsonLd } from "./seo";
 import { onRequest, type Car, type StockQuery } from "./types";
 
 // Pure: no provider import. The labels and slugs come from the provider's taxonomy.
 export type Landing =
   | { kind: "make"; make: string; makeSlug: string }
-  | { kind: "body"; body: string; bodySlug: string }
+  | { kind: "body"; body: string; bodySlug: string; commercial?: true } // commercial: a body type of the commercial section (/commercial/vans)
   | { kind: "model"; make: string; makeSlug: string; model: string; modelSlug: string };
 
 export type Facts = ReturnType<typeof landingFacts>;
@@ -34,10 +34,20 @@ export function landingFacts(cars: Car[]) {
   };
 }
 
-export const landingName = (l: Landing) => (l.kind === "make" ? l.make : l.kind === "body" ? `${l.body} cars` : `${l.make} ${l.model}`);
+// A commercial body type is named by its own plural ("vans", "pickups"), a used one with "cars" after it ("SUV cars").
+export const landingName = (l: Landing) =>
+  l.kind === "make" ? l.make : l.kind === "body" ? (l.commercial ? plural(l.body.toLowerCase()) : `${l.body} cars`) : `${l.make} ${l.model}`;
+
+// A commercial body type's page is its plural slug under /commercial ("van" -> /commercial/vans): no make is called that, and the
+// make is looked up first there anyway (make-list.ts).
+export const commercialBodyPath = (bodySlug: string) => `/commercial/${plural(bodySlug)}`;
 
 export const landingPath = (l: Landing) =>
-  l.kind === "make" ? `/used-cars/${l.makeSlug}` : l.kind === "body" ? `/used-cars/${l.bodySlug}` : `/used-cars/${l.makeSlug}/${l.modelSlug}`;
+  l.kind === "make"
+    ? `/used-cars/${l.makeSlug}`
+    : l.kind === "body"
+      ? l.commercial ? commercialBodyPath(l.bodySlug) : `/used-cars/${l.bodySlug}`
+      : `/used-cars/${l.makeSlug}/${l.modelSlug}`;
 
 // The stock query filter that selects this landing page's cars.
 export const landingFilter = (l: Landing): Pick<StockQuery, "make" | "model" | "body"> =>
@@ -47,7 +57,11 @@ export const landingFilter = (l: Landing): Pick<StockQuery, "make" | "model" | "
 const priceText = (f: Facts) => (!Number.isFinite(f.min) ? "with prices on request" : f.min === f.max ? `at ${fmtEur(f.min)}` : `from ${fmtEur(f.min)} to ${fmtEur(f.max)}`);
 
 // "1 used SUV car", "2 used Ford cars": "cars" after the name, since a make has no safe plural (Fords, but Mercedes-Benz, Rolls-Royce).
-const countNoun = (l: Landing, n: number) => `${n} used ${l.kind === "body" ? l.body : landingName(l)} car${n === 1 ? "" : "s"}`;
+// A commercial body type is its own noun: "1 used pickup", "6 used vans".
+const countNoun = (l: Landing, n: number) =>
+  l.kind === "body" && l.commercial
+    ? `${n} used ${n === 1 ? l.body.toLowerCase() : landingName(l)}`
+    : `${n} used ${l.kind === "body" ? l.body : landingName(l)} car${n === 1 ? "" : "s"}`;
 
 export function landingIntro(l: Landing, f: Facts): string {
   const first = `We have ${countNoun(l, f.n)} in stock in ${DEALER_ADDRESS.town}, ${priceText(f)}.`;

@@ -1,9 +1,9 @@
 import { subTitle } from "@/components/ui";
 
-// The round tinted badge that holds a step number (or, on home, an icon that says what the item is).
-export function IconBadge({ children, size = "md" }: { children: React.ReactNode; size?: "sm" | "md" }) {
+// The round badge that holds a step number: neutral, so the accent tint stays for actions.
+export function IconBadge({ children }: { children: React.ReactNode }) {
   return (
-    <span className={`flex shrink-0 items-center justify-center rounded-full bg-info-soft font-medium text-info ${size === "md" ? "size-12" : "size-10"}`}>{children}</span>
+    <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-hairline font-medium tabular-nums text-text-2">{children}</span>
   );
 }
 

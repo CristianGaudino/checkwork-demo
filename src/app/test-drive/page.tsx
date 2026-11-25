@@ -15,7 +15,7 @@ import { SEARCH_MAKE_MODEL } from "@/lib/copy";
 
 export const metadata: Metadata = {
   title: "Book a test drive",
-  description: `Book a test drive at ${SITE_NAME} in ${DEALER_LOCATION}. Pick a used car or a van, choose a day and time, and drive it before you decide. Bring your licence.`,
+  description: `Book a test drive at ${SITE_NAME} in ${DEALER_LOCATION}. Pick a used car or a commercial, choose a day and time, and drive it before you decide. Bring your licence.`,
 };
 
 // The stock is read per request, like the other stock pages.
@@ -49,7 +49,7 @@ export default async function TestDrivePage({ searchParams }: PageProps<"/test-d
         </>
       }
       how={[
-        { title: "Select a car", text: "Any used car or van in stock.", more: ["Not sure which? Call or message us and we will suggest a few."] },
+        { title: "Select a car", text: "Any used car or commercial in stock.", more: ["Not sure which? Call or message us and we will suggest a few."] },
         { title: "Choose a time", text: "A day and a time we are open.", more: ["About 30 minutes, longer if you want it."] },
         { title: "Bring your licence", text: "We confirm by phone or email.", more: ["A full, valid driving licence is needed.", "Bring your insurance details if you have them.", "Trading in? Bring the car and we can value it on the day."] },
       ]}

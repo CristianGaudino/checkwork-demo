@@ -22,8 +22,9 @@ export function InfoSection({ title, children }: { title: string; children: Reac
   );
 }
 
-// The page's one accent button: dial the dealer. Full width on phones, at least 240px from 640px, unless `sizing` says otherwise.
-export function CallButton({ children, sizing = "w-full sm:w-auto sm:min-w-60 sm:self-start" }: { children: React.ReactNode; sizing?: string }) {
+// The page's one accent button: dial the dealer. Full width on phones, at least 240px from 640px (never wider than its row, as large
+// text could make it), unless `sizing` says otherwise.
+export function CallButton({ children, sizing = "w-full sm:w-auto sm:min-w-[min(15rem,100%)] sm:self-start" }: { children: React.ReactNode; sizing?: string }) {
   return (
     <a
       href={`tel:${DEALER_TEL}`}

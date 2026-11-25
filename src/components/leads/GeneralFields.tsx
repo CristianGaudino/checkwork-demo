@@ -30,7 +30,7 @@ function Choice({ bind, label, options }: { bind: FieldBinding; label: string; o
       <legend className="mb-1 text-meta font-semibold">{label}</legend>
       <div className="flex flex-wrap gap-2">
         {options.map((o) => (
-          <label key={o.value} className={`${chip} min-h-11 rounded-control px-4 text-body`}>
+          <label key={o.value} className={`${chip} min-h-11 rounded-control px-[min(1rem,5vw)] text-body`}>
             <input type="radio" name={bind.name} value={o.value} checked={bind.value === o.value} onChange={() => bind.onChange(o.value)} className="sr-only" />
             {o.label}
           </label>

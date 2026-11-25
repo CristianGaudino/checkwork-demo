@@ -1,6 +1,7 @@
 import { FUEL_LABELS, GEARBOX_LABELS, onRequest } from "./types";
+import { knownKm } from "./markers";
 import { PRICING } from "./pricing.config";
-import type { Car } from "./types";
+import type { Car, Condition } from "./types";
 
 const eur = new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
 const km = new Intl.NumberFormat("en-IE");
@@ -35,9 +36,10 @@ const withUnit = (n: number | undefined, unit: string) => (n === undefined ? und
 export function specRows(car: Car): SpecRow[] {
   const mph = car.maxSpeedMph;
   const range = car.evRangeKm;
+  const km = knownKm(car);
   const rows: [string, string | undefined, SpecRow["miles"]?][] = [
     ["Year", String(car.year)],
-    ["Mileage", car.mileageKm === undefined ? undefined : formatKm(car.mileageKm)],
+    ["Mileage", km === undefined ? undefined : formatKm(km)],
     ["Fuel", car.fuel && FUEL_LABELS[car.fuel]],
     ["Transmission", car.gearbox && GEARBOX_LABELS[car.gearbox]],
     ["Body type", car.bodyType],
@@ -50,7 +52,7 @@ export function specRows(car: Car): SpecRow[] {
     ["Colour", car.colour],
     ["Doors", car.doors === undefined ? undefined : String(car.doors)],
     ["Seats", car.seats === undefined ? undefined : String(car.seats)],
-    ["Owners", car.owners ? String(car.owners) : undefined], // 0 is a new vehicle: no row, not "Owners 0"
+    ["Owners", car.owners ? String(car.owners) : undefined], // 0 is unknown (a blank feed field): no row, not "Owners 0"
     ["NCT expires", car.nctExpiry && nctLabel(car.nctExpiry)],
     ["CO2", withUnit(car.co2GKm, "g/km")],
     ["Motor tax", car.motorTaxEur === undefined ? undefined : `${fmtEur(car.motorTaxEur)} a year`],
@@ -64,7 +66,11 @@ export function specRows(car: Car): SpecRow[] {
 const KEY_LABELS = ["Year", "Mileage", "Fuel", "Transmission", "Body type", "Engine", "Colour"];
 export const keyFacts = (car: Car) => specRows(car).filter((r) => KEY_LABELS.includes(r.label)).slice(0, 4);
 
-export const countLabel = (n: number) => (n === 0 ? "No cars" : n === 1 ? "1 car" : `${fmtNum(n)} cars`);
+// What a list of each kind counts: the commercial section holds vans and pickups, so it counts commercials, as DoneDeal does.
+export const NOUNS: Record<Condition, string> = { used: "car", commercial: "commercial" };
+// "van" -> "vans", "minibus" -> "minibuses": the plural of a count noun or a body type.
+export const plural = (w: string) => (/(s|x|z|ch|sh)$/i.test(w) ? `${w}es` : `${w}s`);
+export const countLabel = (n: number, noun = "car") => (n === 0 ? `No ${plural(noun)}` : n === 1 ? `1 ${noun}` : `${fmtNum(n)} ${plural(noun)}`);
 
 // Equipment comes from the dealer's feed in Title Case ("Air Conditioning"); the site writes sentence case ("Air conditioning"). Only
 // plain capitalised words after the first are lowered: acronyms (ABS, DAB) and brand names in KEEP stay as they are.

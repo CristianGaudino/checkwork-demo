@@ -9,7 +9,7 @@ import { createContext, useContext, useEffect, useId, useOptimistic, useRef, use
 import { count, countFilters } from "@/lib/count-client";
 import { missedMake } from "@/lib/visit-rules";
 import { noteSearch } from "@/lib/visit-note";
-import { countLabel } from "@/lib/stock/format";
+import { NOUNS, countLabel, plural } from "@/lib/stock/format";
 import { appliedFilters, clearFilters, sourcingHref, stockHref } from "@/lib/stock/query";
 import { SORT_KEYS } from "@/lib/stock/types";
 import type { Facets, SortKey, StockQuery } from "@/lib/stock/types";
@@ -21,7 +21,7 @@ import { GridIcon, ListIcon } from "./icons";
 import { SearchBox, StockFilters } from "./StockFilters";
 import { stateButton } from "./StockError";
 import { setView, useView } from "./view";
-import { pageMain, subTitle } from "@/components/ui";
+import { pageMain, pageTitle, subTitle } from "@/components/ui";
 import { VEHICLE_TYPES } from "@/lib/nav";
 
 type Summary = { total: number; facets: Facets } | null;
@@ -30,6 +30,8 @@ type Stock = {
   summary: Summary;
   facets: Facets | null; // the facets of the last result that loaded, so a failed load keeps the filters
   pending: boolean;
+  noun: string; // what the list counts: car, commercial, or a body page's own (van, pickup)
+  makePage: boolean; // a list narrowed to one make or body type by its address (/commercial/<make>, /commercial/vans), not by the buyer
   navigate: (next: StockQuery, opts?: { scroll?: boolean }) => void;
 };
 
@@ -93,7 +95,7 @@ function ViewToggle() {
   );
 }
 
-export function StockShell({ query, title, summary, children }: { query: StockQuery; title?: string; summary: Summary; children: React.ReactNode }) {
+export function StockShell({ query, title, intro, noun, summary, children }: { query: StockQuery; title?: string; intro?: string; noun?: string; summary: Summary; children: React.ReactNode }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const view = useView();
@@ -131,14 +133,14 @@ export function StockShell({ query, title, summary, children }: { query: StockQu
 
   const kind = VEHICLE_TYPES.find((t) => t.condition === (optimisticQuery.condition ?? "used"))!;
   return (
-    <StockContext value={{ query: optimisticQuery, summary, facets: summary ? summary.facets : held, pending, navigate }}>
+    <StockContext value={{ query: optimisticQuery, summary, facets: summary ? summary.facets : held, pending, noun: noun ?? NOUNS[kind.condition], makePage: title !== undefined, navigate }}>
       <main className={pageMain}>
         {/* From 1024px the title is on the left and the count, sort and layout toggle on the right, level with it, so the filters and the cars
             start higher. Below that the count sits under the intro (sort is in the sticky bar). */}
         <div className="lg:flex lg:items-end lg:justify-between lg:gap-8">
           <div>
-            <h1 className="text-display font-bold lg:text-hero">{title ?? kind.title}</h1>
-            <p className="mt-2 max-w-measure text-pretty text-body text-text-2">{kind.intro}</p>
+            <h1 className={pageTitle}>{title ?? kind.title}</h1>
+            <p className="mt-2 max-w-measure text-pretty text-body text-text-2">{intro ?? kind.intro}</p>
             {/* Under the intro and above the count on a phone; from 1024px the search is in the filter panel. */}
             <div className="mt-4 lg:hidden">
               <SearchBox />
@@ -146,7 +148,7 @@ export function StockShell({ query, title, summary, children }: { query: StockQu
           </div>
           <div className="mt-4 flex items-center justify-between gap-4 lg:mt-0 lg:justify-end lg:gap-6">
             <p aria-live="polite" data-testid="count" className="text-heading font-semibold">
-              {summary && <Tween value={countLabel(summary.total)} />}
+              {summary && <Tween value={countLabel(summary.total, noun ?? NOUNS[kind.condition])} />}
             </p>
           </div>
         </div>
@@ -164,7 +166,7 @@ export function StockShell({ query, title, summary, children }: { query: StockQu
           <div ref={results} onClickCapture={(e) => e.target instanceof Element && e.target.closest("a[href^='/used-cars/']") && rememberScroll(query)} className="min-w-0 scroll-mt-16 lg:min-h-[100dvh] lg:scroll-mt-6">
             <div
               data-testid="sticky-bar"
-              className="sticky top-14 z-20 lg:static -mx-4 flex h-14 items-center justify-between gap-2 bg-surface/80 px-4 backdrop-blur-[20px] backdrop-saturate-[1.8] sm:-mx-6 sm:px-6 lg:mx-0 lg:justify-end lg:gap-3 lg:bg-transparent lg:px-0 lg:backdrop-blur-none lg:backdrop-saturate-100 reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none reduce-transparency:backdrop-saturate-100"
+              className="sticky top-14 z-20 lg:static -mx-4 flex min-h-14 flex-wrap items-center justify-between gap-2 py-1 bg-surface/80 px-4 backdrop-blur-[20px] backdrop-saturate-[1.8] sm:-mx-6 sm:px-6 lg:mx-0 lg:justify-end lg:gap-3 lg:bg-transparent lg:px-0 lg:backdrop-blur-none lg:backdrop-saturate-100 reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none reduce-transparency:backdrop-saturate-100"
             >
               <div className="lg:hidden">
                 <FilterSheet />
@@ -188,19 +190,26 @@ export function StockShell({ query, title, summary, children }: { query: StockQu
 }
 
 export function EmptyState() {
-  const { query, facets, navigate } = useStock();
-  const filtered = appliedFilters(query, null).length > 0;
+  const { query, facets, noun, makePage, navigate } = useStock();
+  const applied = appliedFilters(query, null).length;
+  // A make or body type page with none of it in stock: the buyer set no filter, so there is none to clear.
+  const noneOfMake = makePage && applied === 1 && query.make.length === 1;
+  const noneOfBody = makePage && applied === 1 && query.body.length === 1;
+  const filtered = applied > 0 && !noneOfMake && !noneOfBody;
   useEffect(() => {
     if (filtered) count("no-results");
   }, [filtered]);
-  const missed = filtered ? missedMake(query) : null;
+  const missed = applied > 0 ? missedMake(query) : null; // a make page with none still tells us the make was wanted
   useEffect(() => {
     if (missed) count(`missed:${missed}`);
   }, [missed]);
   // With nothing applied there is no filter to remove: the stock itself is empty.
-  if (appliedFilters(query, null).length === 0) {
+  if (!filtered) {
+    const make = noneOfMake && (facets?.make.find((o) => o.value === query.make[0])?.label ?? query.make[0]);
+    const body = noneOfBody && (facets?.body.find((o) => o.value === query.body[0])?.label ?? query.body[0]);
+    const title = make ? `No ${make} ${plural(noun)} right now` : body ? `No ${plural(body.toLowerCase())} right now` : `No ${plural(noun)} listed right now`;
     return (
-      <StateBlock title="No cars listed right now" text="More arrive often.">
+      <StateBlock title={title} text="More arrive often.">
         <Link href="/find-a-car" className="mx-auto flex min-h-11 w-fit items-center text-body underline">
           Can&apos;t find it? Ask us to find it for you.
         </Link>
@@ -208,7 +217,7 @@ export function EmptyState() {
     );
   }
   return (
-    <StateBlock title="No cars match these filters" text="Try removing a filter.">
+    <StateBlock title={`No ${plural(noun)} match these filters`} text="Try removing a filter.">
       <Link href={sourcingHref(query, facets)} className="mx-auto flex min-h-11 w-fit items-center text-body underline">
         Can&apos;t find it? Ask us to find it for you.
       </Link>

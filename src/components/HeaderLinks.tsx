@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useVehicleHint } from "@/components/vehicleHint";
 import { HEADER_LINKS, VEHICLE_TYPES } from "@/lib/nav";
 
-// The desktop links (from 1024px). Used and Commercial are the first two, like any other section. A red bar under the current one.
+// The desktop links (from 1024px). Used and Commercial are the first two, like any other section. A bar in the accent colour under the current one.
 const item = "relative inline-flex min-h-11 items-center whitespace-nowrap text-meta font-semibold transition-colors hover:text-text-2";
 const bar = "after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-accent";
 

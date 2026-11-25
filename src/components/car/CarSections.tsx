@@ -3,12 +3,13 @@ import Link from "next/link";
 import { CheckIcon } from "@/components/stock/icons";
 import { card, carSlide } from "@/components/ui";
 import { ListingCard } from "@/components/stock/ListingCard";
-import { featureLabel, plainText, specRows, withoutInvitation } from "@/lib/stock/format";
+import { featureLabel, plainText, plural, specRows, withoutInvitation } from "@/lib/stock/format";
+import { commercialBodyPath } from "@/lib/stock/landing";
 import { FactLabel, FactValue } from "@/components/stock/CarMeta";
 import { UnitToggle } from "@/components/UnitToggle";
-import { DEFAULT_QUERY, stockHref } from "@/lib/stock/query";
+import { knownKm } from "@/lib/stock/markers";
 import { isSold } from "@/lib/stock/types";
-import type { Car, StockQuery } from "@/lib/stock/types";
+import type { Car } from "@/lib/stock/types";
 
 const VISIBLE_FEATURES = 12;
 const LONG_DESCRIPTION = 700; // characters; the demo's longest is 978
@@ -50,17 +51,18 @@ export function Specifications({ car }: { car: Car }) {
   return (
     <section>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className={h2}>Specifications</h2>
-        {(car.mileageKm !== undefined || car.maxSpeedMph !== undefined || car.evRangeKm !== undefined) && <UnitToggle />}
+        {/* With large text on a phone the heading grows less than the text, so the one long word fits. */}
+        <h2 className={`${h2} max-sm:[font-size:clamp(1rem,6.25vw,1.25rem)]`}>Specifications</h2>
+        {(knownKm(car) !== undefined || car.maxSpeedMph !== undefined || car.evRangeKm !== undefined) && <UnitToggle />}
       </div>
       {/* Every other row filled (in pairs from 640px, where two rows sit side by side), so a label is easy to follow to its value. */}
       <dl className={`mt-4 grid grid-cols-1 gap-x-4 ${card} p-2 sm:grid-cols-2`}>
         {specRows(car).map((r) => (
-          <div key={r.label} className="flex justify-between gap-4 rounded-control px-3 py-2.5 even:bg-row-alt sm:even:bg-transparent sm:[&:nth-child(4n+1)]:bg-row-alt sm:[&:nth-child(4n+2)]:bg-row-alt">
-            <dt className="shrink-0 text-text-2">
+          <div key={r.label} className="flex flex-wrap justify-between gap-x-4 rounded-control px-3 py-2.5 even:bg-row-alt sm:even:bg-transparent sm:[&:nth-child(4n+1)]:bg-row-alt sm:[&:nth-child(4n+2)]:bg-row-alt">
+            <dt className="min-w-0 text-text-2">
               <FactLabel {...r} />
             </dt>
-            <dd className="min-w-0 text-right font-medium [overflow-wrap:anywhere]">
+            <dd className="ml-auto min-w-0 text-right font-medium [overflow-wrap:anywhere]">
               <FactValue car={car} {...r} />
             </dd>
           </div>
@@ -105,9 +107,9 @@ export function Equipment({ car }: { car: Car }) {
   );
 }
 
-// A used car links to the body and make pages; a van to its own list, filtered the same way.
-const seeAll = (car: Car, filter: Pick<StockQuery, "body"> | Pick<StockQuery, "make">) =>
-  !car.condition || car.condition === "used" ? `/used-cars/${"body" in filter ? filter.body[0] : filter.make[0]}` : stockHref({ ...DEFAULT_QUERY, ...filter, condition: car.condition });
+// A used car links to its body type and make pages under /used-cars; a commercial to the same under /commercial (/commercial/vans, /commercial/ford).
+const seeAll = (car: Car, by: { body: string } | { make: string }) =>
+  (car.condition ?? "used") === "used" ? `/used-cars/${"body" in by ? by.body : by.make}` : "body" in by ? commercialBodyPath(by.body) : `/commercial/${by.make}`;
 
 export function SimilarCars({ car, cars }: { car: Car; cars: Car[] }) {
   if (!cars.length) return null;
@@ -118,11 +120,11 @@ export function SimilarCars({ car, cars }: { car: Car; cars: Car[] }) {
         {/* More of the same kind of car, and more of the same make. */}
         <div className="flex flex-wrap gap-x-6">
           {car.bodySlug && car.bodyType && (
-            <Link href={seeAll(car, { body: [car.bodySlug] })} className="inline-flex min-h-11 items-center font-semibold underline">
-              See all {car.bodyType}s
+            <Link href={seeAll(car, { body: car.bodySlug })} className="inline-flex min-h-11 items-center font-semibold underline">
+              See all {plural(car.bodyType)}
             </Link>
           )}
-          <Link href={seeAll(car, { make: [car.makeSlug] })} className="inline-flex min-h-11 items-center font-semibold underline">
+          <Link href={seeAll(car, { make: car.makeSlug })} className="inline-flex min-h-11 items-center font-semibold underline">
             See all {car.make}
           </Link>
         </div>

@@ -13,39 +13,42 @@ export function TestDrivePicker({ cars }: { cars: (CarSummary & { vatLine?: stri
   const opener = useRef<HTMLButtonElement | null>(null);
   return (
     <>
-      <ul className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {cars.map((c) => (
-          <li key={c.id} className={`flex gap-3 p-3 ${card}`}>
-            {c.photo && (
-              <img src={c.photo} alt="" width={96} height={72} loading="lazy" className="hidden h-[72px] w-24 shrink-0 min-[380px]:block rounded-control bg-photo-bg object-cover" />
-            )}
-            {/* Book sits at the bottom right, under the text, so the name and variant get the row's full width on a phone. */}
-            <div className="flex min-w-0 flex-1 flex-col">
-              <p className="font-semibold">{c.name}</p>
-              {/* The name already says the make and model: the line under it is what tells two of them apart. */}
-              {c.variant && <p className="text-meta text-text-2">{c.variant}</p>}
-              <div className="mt-auto flex items-end justify-between gap-2 pt-2">
-                <p className="text-meta font-semibold whitespace-nowrap">
-                  {c.price}
-                  {c.vatLine && <span className="block font-normal text-text-2">{c.vatLine}</span>}
-                </p>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    opener.current = e.currentTarget;
-                    setCar(c);
-                    setOpen(true);
-                  }}
-                  className={`flex h-11 shrink-0 items-center gap-2 px-3 ${secondaryButton} ${press}`}
-                >
-                  <CalendarIcon className="size-5 text-accent-text" />
-                  Book
-                </button>
+      {/* @container: two across from 640px while there is room; one with large text (the query is in rem). */}
+      <div className="@container">
+        <ul className="mt-4 grid grid-cols-1 gap-3 sm:@min-[36rem]:grid-cols-2">
+          {cars.map((c) => (
+            <li key={c.id} className={`flex gap-3 p-3 ${card}`}>
+              {c.photo && (
+                <img src={c.photo} alt="" width={96} height={72} loading="lazy" className="hidden h-[72px] w-24 shrink-0 @min-[21.75rem]:block rounded-control bg-photo-bg object-cover" />
+              )}
+              {/* Book sits at the bottom right, under the text, so the name and variant get the row's full width on a phone. */}
+              <div className="flex min-w-0 flex-1 flex-col">
+                <p className="font-semibold">{c.name}</p>
+                {/* The name already says the make and model: the line under it is what tells two of them apart. */}
+                {c.variant && <p className="text-meta text-text-2">{c.variant}</p>}
+                <div className="mt-auto flex flex-wrap items-end justify-between gap-2 pt-2">
+                  <p className="text-meta font-semibold whitespace-nowrap">
+                    {c.price}
+                    {c.vatLine && <span className="block font-normal text-text-2">{c.vatLine}</span>}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      opener.current = e.currentTarget;
+                      setCar(c);
+                      setOpen(true);
+                    }}
+                    className={`ml-auto flex h-11 shrink-0 items-center gap-2 px-3 ${secondaryButton} ${press}`}
+                  >
+                    <CalendarIcon className="size-5" />
+                    Book
+                  </button>
+                </div>
               </div>
-            </div>
-          </li>
-        ))}
-      </ul>
+            </li>
+          ))}
+        </ul>
+      </div>
       <LeadDialog
         title="Test drive"
         open={open}

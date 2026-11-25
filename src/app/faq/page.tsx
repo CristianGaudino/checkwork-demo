@@ -8,7 +8,7 @@ import { pageMain, subTitle } from "@/components/ui";
 // A link inside a sentence: underlined, no taller than the line.
 const inline = "font-medium underline underline-offset-2";
 import { FINANCE } from "@/lib/finance/finance.config";
-import { DEALER_ADDRESS_TEXT, DEALER_LOCATION, DEALER_PHONE, DEALER_TEL, NEW_CAR_WARRANTY, SITE_NAME, WARRANTY } from "@/lib/site";
+import { DEALER_ADDRESS_TEXT, DEALER_LOCATION, DEALER_PHONE, DEALER_TEL, SITE_NAME, WARRANTY } from "@/lib/site";
 
 export const metadata: Metadata = { title: "Questions", description: `Answers to common questions about buying, selling, finance and warranty at ${SITE_NAME} in ${DEALER_LOCATION}.` };
 
@@ -26,14 +26,13 @@ const GROUPS: { title: string; items: QA[] }[] = [
     items: [
       { q: "Can I see a car before I buy it?", a: <>Yes. <Link href="/test-drive" className={inline}>Book a test drive</Link> online, or call us on {tel} to arrange a viewing.</> },
       { q: "What if you don't have the car I want?", a: <>Tell us what you&apos;re looking for and we&apos;ll look for it. <Link href="/find-a-car" className={inline}>Find a car</Link></> },
-      { q: "Do the prices of vans include VAT?", a: <>Commercial vehicles show the price without VAT, which a VAT-registered buyer can usually reclaim, with the price including VAT underneath. Cars show the full price.</> },
+      { q: "Do the prices of commercials include VAT?", a: <>Commercials show the price without VAT, which a VAT-registered buyer can usually reclaim, with the price including VAT underneath. Cars show the full price.</> },
     ],
   },
   {
     title: "Warranty",
     items: [
       { q: "Does a used car come with a warranty?", a: <>{WARRANTY.title}: {WARRANTY.text.charAt(0).toLowerCase() + WARRANTY.text.slice(1)} It&apos;s included in the price, and longer cover is available. <Link href="/warranty" className={inline}>What it covers</Link></> },
-      { q: "And a new van?", a: <>{NEW_CAR_WARRANTY.text}</> },
       { q: "Does the warranty change my rights?", a: <>No. It&apos;s on top of your legal rights as a buyer: a car must be as described, of satisfactory quality and fit for purpose.</> },
     ],
   },

@@ -8,7 +8,7 @@ import { card, pageMain, pageTitle, secondaryButton, subTitle } from "@/componen
 import { DEALER_ADDRESS, DEALER_LOCATION, SITE_NAME } from "@/lib/site";
 import { stock } from "@/lib/stock";
 import { countLabel } from "@/lib/stock/format";
-import { carsOfMake, findMake } from "@/lib/stock/makes";
+import { carsOfMake, findMake, makeNoun } from "@/lib/stock/makes";
 import { DEFAULT_QUERY } from "@/lib/stock/query";
 import type { Car, Condition } from "@/lib/stock/types";
 
@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 
 const SECTIONS: { kind: Condition; title: (make: string) => string; href: (slug: string) => string }[] = [
   { kind: "used", title: (m) => `Used ${m}`, href: (s) => `/used-cars/${s}` },
-  { kind: "commercial", title: (m) => `${m} vans and commercials`, href: (s) => `/commercial/${s}` },
+  { kind: "commercial", title: (m) => `${m} commercials`, href: (s) => `/commercial/${s}` },
 ];
 const PER_SECTION = 3;
 
@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: PageProps<"/makes/[make]">): 
   if (!make) return {};
   const title = `${make.label} for sale in ${DEALER_ADDRESS.town}`;
   const description = make.count
-    ? `${countLabel(make.count)} from ${make.label} in stock at ${SITE_NAME}, ${DEALER_LOCATION}: used and commercial.`
+    ? `${countLabel(make.count, makeNoun(make))} from ${make.label} in stock at ${SITE_NAME}, ${DEALER_LOCATION}: ${[make.byKind.used && "used", make.byKind.commercial && "commercial"].filter(Boolean).join(" and ")}.`
     : `No ${make.label} in stock at ${SITE_NAME} right now. We can find one for you, and you can see what we have that is similar.`;
   return { title, description, alternates: { canonical: `/makes/${make.slug}` }, ...(make.count ? {} : { robots: { index: false } }) };
 }
@@ -37,7 +37,7 @@ export default async function MakePage({ params }: PageProps<"/makes/[make]">) {
   if (!make) notFound();
   const cars = await carsOfMake(make.slug);
   const of = (kind: Condition) => cars.filter((c) => (c.condition ?? "used") === kind);
-  const parts = SECTIONS.filter((s) => make.byKind[s.kind] > 0).map((s) => `${make.byKind[s.kind]} ${s.kind === "commercial" ? "commercial" : s.kind}`);
+  const parts = SECTIONS.filter((s) => make.byKind[s.kind] > 0).map((s) => `${make.byKind[s.kind]} ${s.kind}`);
 
   return (
     <main className={pageMain}>
@@ -61,7 +61,7 @@ export default async function MakePage({ params }: PageProps<"/makes/[make]">) {
         {make.label}
       </h1>
       <p className="mt-2 max-w-measure text-body text-text-2">
-        {make.count ? `${countLabel(make.count)} in stock in ${DEALER_ADDRESS.town}: ${parts.join(", ")}.` : `No ${make.label} in stock right now.`}
+        {make.count ? `${countLabel(make.count, makeNoun(make))} in stock in ${DEALER_ADDRESS.town}: ${parts.join(", ")}.` : `No ${make.label} in stock right now.`}
       </p>
 
       {make.count > 0 ? (
@@ -72,9 +72,11 @@ export default async function MakePage({ params }: PageProps<"/makes/[make]">) {
                 <h2 id={`make-${s.kind}`} className={subTitle}>
                   {s.title(make.label)}
                 </h2>
-                <Link href={s.href(make.slug)} className="inline-flex min-h-11 items-center text-meta font-medium underline">
-                  See all {make.byKind[s.kind]}
-                </Link>
+                {make.byKind[s.kind] > PER_SECTION && (
+                  <Link href={s.href(make.slug)} className="inline-flex min-h-11 items-center text-meta font-medium underline">
+                    See all {make.byKind[s.kind]}
+                  </Link>
+                )}
               </div>
               <Cards cars={of(s.kind).slice(0, PER_SECTION)} />
             </section>

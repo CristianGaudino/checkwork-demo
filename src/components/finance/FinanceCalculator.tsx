@@ -98,7 +98,8 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
             {q ? (
               <>
                 <p className="text-meta text-text-2">Estimated monthly payment</p>
-                <p className="text-display font-semibold tabular-nums">
+                {/* Grows less than large text on a phone, as the page title does, so the amount stays inside the card whole. */}
+                <p className="text-display font-semibold tabular-nums max-sm:[font-size:clamp(1.25rem,10vw,2rem)]">
                   About <Tween value={fmtEur(q.monthlyEur)} /><span className="text-body font-normal text-text-2"> a month</span>
                 </p>
                 <dl className="flex flex-col gap-1 text-meta">
@@ -111,17 +112,17 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
                       ["Total cost, with your deposit", q.totalEur + depositEur],
                     ] as [string, number][]
                   ).map(([label, value]) => (
-                    <div key={label} className="flex justify-between gap-4">
-                      <dt className="text-text-2">{label}</dt>
-                      <dd className="text-right tabular-nums">
+                    <div key={label} className="flex flex-wrap justify-between gap-x-4">
+                      <dt className="min-w-0 text-text-2">{label}</dt>
+                      <dd className="ml-auto min-w-0 text-right tabular-nums">
                         <Tween value={fmtEur(value)} />
                       </dd>
                     </div>
                   ))}
                   {pcp && (
-                    <div className="flex justify-between gap-4">
-                      <dt className="text-text-2">Mileage allowance</dt>
-                      <dd className="text-right tabular-nums">{pcp.kmPerYear.toLocaleString("en-IE")} km a year</dd>
+                    <div className="flex flex-wrap justify-between gap-x-4">
+                      <dt className="min-w-0 text-text-2">Mileage allowance</dt>
+                      <dd className="ml-auto min-w-0 text-right tabular-nums">{pcp.kmPerYear.toLocaleString("en-IE")} km a year</dd>
                     </div>
                   )}
                 </dl>
@@ -130,10 +131,6 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
               <p className="font-semibold">Check the figures you entered.</p>
             )}
           </div>
-          <p className="flex items-start gap-2 text-meta text-text-2">
-            <InfoIcon className="mt-0.5 size-4 shrink-0" />
-            {financeNotice(car?.priceEur, product)}
-          </p>
           {car ? (
             <button
               ref={opener}
@@ -155,6 +152,11 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
           )}
         </div>
       </div>
+      {/* The lender's required wording, under both cards at a readable width. */}
+      <p className="mt-4 flex max-w-measure items-start gap-2 text-meta text-text-2">
+        <InfoIcon className="mt-0.5 size-4 shrink-0" />
+        {financeNotice(car?.priceEur, product)}
+      </p>
       {car && (
         <LeadDialog
           title="Ask about finance"

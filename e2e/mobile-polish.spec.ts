@@ -19,7 +19,7 @@ test("contact on a phone: call, map, message form, then opening hours", async ({
 
 test("the home search tabs share the width equally on a phone", async ({ page }) => {
   await page.goto("/");
-  const [a, b] = await Promise.all([page.getByRole("tab", { name: "Search used cars" }).boundingBox(), page.getByRole("tab", { name: "Find me a car" }).boundingBox()]);
+  const [a, b] = await Promise.all([page.getByRole("tab", { name: "Search", exact: true }).boundingBox(), page.getByRole("tab", { name: "Find me a car" }).boundingBox()]);
   expect(Math.abs(a!.width - b!.width)).toBeLessThan(2);
 });
 
@@ -126,13 +126,13 @@ test("the featured and similar cars rows have no arrows, count or dots on a phon
 test.describe("desktop", () => {
   test.use({ viewport: { width: 1280, height: 800 }, isMobile: false, hasTouch: false });
 
-  test("the trust banner has a vertical bar between every pair of its five boxes", async ({ page }) => {
+  test("the trust banner has a vertical bar between every pair of its four boxes", async ({ page }) => {
     await page.goto("/");
     const cells = page.getByRole("region", { name: "Why buy from us" }).getByRole("listitem");
-    expect(await cells.count()).toBe(5);
+    expect(await cells.count()).toBe(4);
     const bars = await cells.evaluateAll((els) => els.map((el) => parseFloat(getComputedStyle(el).borderRightWidth) + parseFloat(getComputedStyle(el).borderLeftWidth)));
     // Each box but the last has a bar on its right (divide-x). The 1st and 3rd once lost theirs to a leftover tablet rule.
-    expect(bars.slice(0, 4).every((w) => w > 0)).toBe(true);
+    expect(bars.slice(0, 3).every((w) => w > 0)).toBe(true);
   });
 
   test("Get directions on the About page is as wide as the photo above it", async ({ page }) => {

@@ -5,7 +5,7 @@ import { secondaryButton, NEW_TAB } from "@/components/ui";
 export function DirectionsButton({ href }: { href: string }) {
   return (
     <a href={href} {...NEW_TAB} className={`flex h-12 w-full items-center justify-center gap-2 px-6 ${secondaryButton}`}>
-      <PinIcon className="size-5 text-accent-text" />
+      <PinIcon className="size-5" />
       Get directions<span className="sr-only"> (opens in a new tab)</span>
     </a>
   );

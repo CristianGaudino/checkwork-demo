@@ -38,32 +38,34 @@ export function StockResults({ result, query }: { result: StockResult; query: St
 export function Pager({ page, pageCount, first, shown, total, href }: { page: number; pageCount: number; first: number; shown: number; total: number; href: (page: number) => string }) {
   if (pageCount <= 1) return null;
   return (
-    <nav aria-label="Pagination" className="mt-10 flex flex-col items-center gap-3">
+    // @container, in rem so it follows the text size: the numbers need 32rem, and under 17rem "Page 2 of 5" leaves the box for a line of
+    // its own, so Previous and Next keep their room.
+    <nav aria-label="Pagination" className="@container mt-10 flex flex-col items-center gap-3">
       <ul className="inline-flex divide-x divide-control overflow-hidden rounded-control border border-control bg-card">
         <li>
           {page > 1 ? (
             <Link replace href={href(page - 1)} aria-label="Previous page" className={segLink}>
               <ChevronLeftIcon className="size-5" />
-              <span className="hidden sm:inline">Previous</span>
+              <span className="hidden sm:@min-[32rem]:inline">Previous</span>
             </Link>
           ) : (
             <span aria-hidden="true" className={segOff}>
               <ChevronLeftIcon className="size-5" />
-              <span className="hidden sm:inline">Previous</span>
+              <span className="hidden sm:@min-[32rem]:inline">Previous</span>
             </span>
           )}
         </li>
-        {/* A phone has room for "Page 2 of 5"; from 640px the numbers show. */}
-        <li className="flex items-center px-4 text-meta sm:hidden">
+        {/* A phone has room for "Page 2 of 5"; from 640px the numbers show, once the pager is 32rem wide (large text can make it narrower). */}
+        <li className="flex items-center px-4 text-meta sm:@min-[32rem]:hidden @max-[17rem]:hidden">
           Page {page} of {pageCount}
         </li>
         {pagesToShow(page, pageCount).map((p, i) =>
           p === null ? (
-            <li key={`gap-${i}`} aria-hidden="true" className={`${seg} hidden text-text-2 sm:flex`}>
+            <li key={`gap-${i}`} aria-hidden="true" className={`${seg} hidden text-text-2 sm:@min-[32rem]:flex`}>
               …
             </li>
           ) : (
-            <li key={p} className="hidden sm:block">
+            <li key={p} className="hidden sm:@min-[32rem]:block">
               {p === page ? (
                 <span aria-current="page" aria-label={`Page ${p}, current page`} className={`${seg} bg-accent text-on-accent`}>
                   {p}
@@ -79,17 +81,20 @@ export function Pager({ page, pageCount, first, shown, total, href }: { page: nu
         <li>
           {page < pageCount ? (
             <Link replace href={href(page + 1)} aria-label="Next page" className={segLink}>
-              <span className="hidden sm:inline">Next</span>
+              <span className="hidden sm:@min-[32rem]:inline">Next</span>
               <ChevronRightIcon className="size-5" />
             </Link>
           ) : (
             <span aria-hidden="true" className={segOff}>
-              <span className="hidden sm:inline">Next</span>
+              <span className="hidden sm:@min-[32rem]:inline">Next</span>
               <ChevronRightIcon className="size-5" />
             </span>
           )}
         </li>
       </ul>
+      <p className="hidden text-meta font-semibold @max-[17rem]:block">
+        Page {page} of {pageCount}
+      </p>
       <p className="text-meta text-text-2">
         Showing {fmtNum(first)} to {fmtNum(first + shown - 1)} of {fmtNum(total)} cars
       </p>

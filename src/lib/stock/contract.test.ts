@@ -157,12 +157,30 @@ export function runContract(name: string, makeProvider: (cars: Car[], opts: Cloc
       expect(r.facets.years).toEqual({ min: 2016, max: 2022 });
     });
 
+    it("names a selected make with none in the list from the known makes, not by its slug", async () => {
+      // No vans at all: Audi is named from the cars ever listed, Mercedes-Benz from the known makes.
+      const r = await provider().query(q({ condition: "commercial", make: ["audi", "mercedes-benz"] }));
+      expect(r.total).toBe(0);
+      expect(r.facets.make).toEqual([
+        { value: "audi", label: "Audi", count: 0, echo: true },
+        { value: "mercedes-benz", label: "Mercedes-Benz", count: 0, echo: true },
+      ]);
+    });
+
     it("sorts by price, year and mileage with a stable tie-break", async () => {
       const asc = ["108", "106", "104", "101", "107", "103", "102", "105"];
       expect(await ids({ sort: "price-asc" })).toEqual(asc);
       expect(await ids({ sort: "price-desc" })).toEqual([...asc].reverse());
       expect(await ids({ sort: "year-desc" })).toEqual(["105", "107", "102", "103", "101", "104", "106", "108"]);
       expect(await ids({ sort: "km-asc" })).toEqual(["105", "102", "103", "101", "108", "104", "106", "107"]);
+    });
+
+    it("a used car's 0 km is a blank feed field: last in lowest mileage first, and out of an Up to N km filter", async () => {
+      const blank = car("109", "Ford", "Puma", 2020, 19000, { mileageKm: 0, ...body("SUV") });
+      const p = makeProvider([...structuredClone(FIXTURE), blank], clock);
+      const km = async (partial: Partial<StockQuery>) => (await p.query(q({ pageSize: 20, ...partial }))).cars.map((c) => c.id);
+      expect(await km({ sort: "km-asc" })).toEqual(["105", "102", "103", "101", "108", "104", "106", "109", "107"]);
+      expect(await km({ kmMax: 60000 })).toEqual(["105", "103", "102"]);
     });
 
     it("pages, and returns an empty page past the end", async () => {

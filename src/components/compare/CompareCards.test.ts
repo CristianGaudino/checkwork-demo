@@ -26,6 +26,13 @@ describe("compare rows", () => {
     expect(rank(["2027-12", "2028-01", "soon"].map((m) => nct.number!(car({ nctExpiry: m }))))).toEqual(["low", "high", undefined]);
     expect(nct.text(car({ nctExpiry: "2028-01" }))).toBe("Jan 2028");
   });
+  it("0 km is unknown on every vehicle: never the best mileage, and no 0 km shown", () => {
+    const km = row("Mileage");
+    expect(rank([car({ mileageKm: 0 }), car({ mileageKm: 50000 })].map(km.number!))).toEqual([undefined, undefined]);
+    expect(rank([car({ mileageKm: 0 }), car({ mileageKm: 50000 }), car({ mileageKm: 90000 })].map(km.number!))).toEqual([undefined, "low", "high"]);
+    expect(km.text(car({ mileageKm: 0 }))).toBeUndefined();
+    expect(km.number!(car({ condition: "commercial", owners: 0, mileageKm: 0 }))).toBeUndefined();
+  });
   it("counts the equipment, more is better", () => {
     const eq = row("Equipment");
     expect(eq.text(car({ features: ["Sat Nav", "Bluetooth"] }))).toBe("2 items");

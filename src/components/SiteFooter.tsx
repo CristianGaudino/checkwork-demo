@@ -38,13 +38,13 @@ export function SiteFooter() {
                 </span>
               ))}
             </address>
-            <div className="flex w-full items-center justify-between lg:flex-col lg:items-start lg:gap-2">
+            <div className="flex w-full flex-wrap items-center justify-between gap-y-2 lg:flex-col lg:items-start lg:gap-2">
               <PhoneLink className={`${link} text-body font-semibold`} />
               <Link href="/contact" className={`${link} underline max-lg:hidden`}>
                 Opening hours and directions
               </Link>
               {SOCIAL_LINKS.length > 0 && (
-                <ul aria-label="Social media" className="-mr-3 flex lg:-ml-3 lg:mr-0">
+                <ul aria-label="Social media" className="-mr-3 flex flex-wrap gap-y-2 lg:-ml-3 lg:mr-0">
                   {SOCIAL_LINKS.map(({ name, href }) => {
                     const Icon = SOCIAL_ICONS[name];
                     return (
@@ -113,7 +113,7 @@ export function SiteFooter() {
           </ul>
           <ThemeSwitch />
           <p className="lg:ml-auto">© {SITE_NAME}</p>
-          <a href={CHECKWORK_URL} {...NEW_TAB} className="inline-flex min-h-11 items-center gap-2 transition-colors hover:text-text">
+          <a href={CHECKWORK_URL} {...NEW_TAB} className="inline-flex min-h-11 flex-wrap items-center gap-2 transition-colors hover:text-text">
             Powered by
             <Image src="/brand/checkwork-logo-on-light.svg" width={345} height={60} alt="Checkwork" unoptimized className="h-4 w-auto dark:hidden" />
             <Image src="/brand/checkwork-logo-on-dark.svg" width={345} height={60} alt="Checkwork" unoptimized className="hidden h-4 w-auto dark:block" />

@@ -4,6 +4,7 @@ import { useCloseAtDesktop } from "@/components/useCloseAtDesktop";
 import { useEffect, useRef, useState } from "react";
 import { Sheet } from "@/components/Sheet";
 import { appliedFilters, clearFilters } from "@/lib/stock/query";
+import { plural } from "@/lib/stock/format";
 import { SlidersIcon } from "./icons";
 import { StockFilters } from "./StockFilters";
 import { useStock } from "./StockShell";
@@ -12,14 +13,14 @@ import { accentButton, press } from "@/components/ui";
 
 // Below 1024px the filter groups live only in this sheet; from 1024px the sidebar shows them and the sticky bar (and this button) is hidden.
 export function FilterSheet() {
-  const { query, summary, facets, pending, navigate } = useStock();
+  const { query, summary, facets, pending, noun, navigate } = useStock();
   // The groups are mounted only while the sheet is open or sliding away, so the page holds one copy of them, not two.
   const [mounted, setMounted] = useState(false);
   const unmountTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const applied = appliedFilters(query, facets).length;
   const total = summary?.total;
   // summary only changes when a new result lands, so while pending the button keeps the last known count.
-  const label = total === undefined ? "Show cars" : total === 0 ? "No cars match" : total === 1 ? "Show 1 car" : `Show ${total} cars`;
+  const label = total === undefined ? `Show ${plural(noun)}` : total === 0 ? `No ${plural(noun)} match` : total === 1 ? `Show 1 ${noun}` : `Show ${total} ${plural(noun)}`;
 
   useCloseAtDesktop(() => setMounted(false)); // the bar is display:none now, so there is no slide-out to wait for
   useEffect(() => () => clearTimeout(unmountTimer.current), []);

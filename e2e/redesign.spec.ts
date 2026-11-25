@@ -98,5 +98,5 @@ test("home: each Browse by type tile has a photo and says how many cars it opens
   await page.goto("/");
   const tiles = page.getByRole("region", { name: "Browse by type" }).getByRole("link");
   await expect(tiles.first().locator("img")).toHaveCount(1);
-  await expect(tiles.first()).toContainText(/\d+ cars?|No cars/);
+  await expect(tiles.first()).toContainText(/\d+ (cars?|vans?|pickups?)|No (cars|vans|pickups)/);
 });

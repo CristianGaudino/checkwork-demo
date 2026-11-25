@@ -65,7 +65,7 @@ export function carFeatures({ tier, year, extra = [], condition, history }) {
 
 // id, then the photos, then the facts. nct is the month the NCT runs to. sold is days ago.
 const used = (id, group, ids, c) => ({ id: String(id), photos: P(group, ids), history: id % 2 === 0, doors: 5, seats: 5, ...c });
-const work = (id, group, ids, c) => ({ id: String(id), photos: P(group, ids), condition: "commercial", vat: "ex", fuel: "diesel", gearbox: "manual", owners: 0, ...c });
+const work = (id, group, ids, c) => ({ id: String(id), photos: P(group, ids), condition: "commercial", vat: "ex", fuel: "diesel", gearbox: "manual", ...c });
 
 // Used cars. Two specs rely on this data: the newest (highest id) car has 5 or more photos and no price drop (carousel, car-page), and Mazda
 // (sold 45 days ago) and Audi (sold 9 days ago) have no other car, so they are the expired-only and recently-sold-only makes (landing).
@@ -103,12 +103,12 @@ export const USED = [
 ];
 
 
-// Vans and a pickup: priced without VAT, which a VAT-registered buyer can reclaim.
+// Used vans and a pickup: priced without VAT, which a VAT-registered buyer can reclaim. Mileage runs at 15 to 25k km a year.
 export const VANS = [
-  work(5100001, "ranger", "fvo QuX PZo LTp", { make: "Ford", model: "Ranger", variant: "2.0 EcoBlue XLT Double Cab", year: 2026, priceEur: 38950, mileageKm: 25, bodyType: "Pickup", engineLitres: 2, colour: "White", doors: 4, seats: 5, maxSpeedMph: 109, zeroTo62Secs: 10.5, gearbox: "automatic", extra: ["Roof Rails"] }),
-  work(5100002, "metris", "AEs Gkv fpW poa", { make: "Mercedes-Benz", model: "Vito", variant: "114 CDI Cargo Standard", year: 2026, priceEur: 28950, mileageKm: 8, bodyType: "Van", engineLitres: 2.1, colour: "White", doors: 4, seats: 2, maxSpeedMph: 109, zeroTo62Secs: 12.8 }),
-  work(5100003, "metris", "JWE Sfx ShW wUf", { make: "Mercedes-Benz", model: "Vito Tourer", variant: "116 CDI Select 8 Seat", year: 2026, priceEur: 41950, mileageKm: 14, bodyType: "Van", engineLitres: 2.1, colour: "Grey", doors: 5, seats: 8, maxSpeedMph: 118, zeroTo62Secs: 11.4, gearbox: "automatic" }),
-  work(5100004, "transit", "aHy Vxx lmw qVv", { make: "Ford", model: "Transit Connect", variant: "1.5 EcoBlue 100 Trend", year: 2026, priceEur: 22450, wasPriceEur: 23950, mileageKm: 20, bodyType: "Van", engineLitres: 1.5, colour: "Grey", doors: 5, seats: 5, maxSpeedMph: 107, zeroTo62Secs: 13.6 }),
-  work(5100005, "nv200", "Wap dek Lae TDe", { make: "Nissan", model: "NV200", variant: "1.5 dCi Acenta", year: 2026, priceEur: 17950, wasPriceEur: 18950, mileageKm: 12, bodyType: "Van", engineLitres: 1.5, colour: "Black", doors: 4, seats: 2, maxSpeedMph: 96, zeroTo62Secs: 15.2 }),
-  work(5100006, "transitw", "NwU PZA sOb", { make: "Ford", model: "Transit Connect", variant: "1.5 EcoBlue 100 Leader", year: 2026, priceEur: 21450, mileageKm: 18, bodyType: "Van", engineLitres: 1.5, colour: "White", doors: 5, seats: 5, maxSpeedMph: 107, zeroTo62Secs: 13.6 }),
+  work(5100001, "ranger", "fvo QuX PZo LTp", { make: "Ford", model: "Ranger", variant: "2.0 EcoBlue XLT Double Cab", year: 2021, priceEur: 31950, mileageKm: 78400, owners: 1, bodyType: "Pickup", engineLitres: 2, colour: "White", doors: 4, seats: 5, maxSpeedMph: 109, zeroTo62Secs: 10.5, gearbox: "automatic", extra: ["Roof Rails"] }),
+  work(5100002, "metris", "AEs Gkv fpW poa", { make: "Mercedes-Benz", model: "Vito", variant: "114 CDI Cargo Standard", year: 2020, priceEur: 21950, mileageKm: 112600, owners: 2, bodyType: "Van", engineLitres: 2.1, colour: "White", doors: 4, seats: 2, maxSpeedMph: 109, zeroTo62Secs: 12.8 }),
+  work(5100003, "metris", "JWE Sfx ShW wUf", { make: "Mercedes-Benz", model: "Vito Tourer", variant: "116 CDI Select 8 Seat", year: 2021, priceEur: 31950, mileageKm: 86300, owners: 1, bodyType: "Van", engineLitres: 2.1, colour: "Grey", doors: 5, seats: 8, maxSpeedMph: 118, zeroTo62Secs: 11.4, gearbox: "automatic" }),
+  work(5100004, "transit", "aHy Vxx lmw qVv", { make: "Ford", model: "Transit Connect", variant: "1.5 EcoBlue 100 Trend", year: 2020, priceEur: 14950, wasPriceEur: 16450, mileageKm: 94200, owners: 1, bodyType: "Van", engineLitres: 1.5, colour: "Grey", doors: 5, seats: 5, maxSpeedMph: 107, zeroTo62Secs: 13.6 }),
+  work(5100005, "nv200", "Wap dek Lae TDe", { make: "Nissan", model: "NV200", variant: "1.5 dCi Acenta", year: 2018, priceEur: 8950, wasPriceEur: 9450, mileageKm: 131800, owners: 3, bodyType: "Van", engineLitres: 1.5, colour: "Black", doors: 4, seats: 2, maxSpeedMph: 96, zeroTo62Secs: 15.2 }),
+  work(5100006, "transitw", "NwU PZA sOb", { make: "Ford", model: "Transit Connect", variant: "1.5 EcoBlue 100 Leader", year: 2019, priceEur: 12950, mileageKm: 118500, owners: 2, bodyType: "Van", engineLitres: 1.5, colour: "White", doors: 5, seats: 5, maxSpeedMph: 107, zeroTo62Secs: 13.6 }),
 ];

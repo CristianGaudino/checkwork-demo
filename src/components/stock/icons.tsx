@@ -92,12 +92,6 @@ export const ShieldCheckIcon = (p: Props) => (
     <path d="m9 12 2.2 2.2L15.5 10" />
   </Icon>
 );
-export const LayersIcon = (p: Props) => (
-  <Icon {...p}>
-    <path d="m12 3 9 5-9 5-9-5 9-5Z" />
-    <path d="m3 12.5 9 5 9-5M3 16.5l9 5 9-5" />
-  </Icon>
-);
 export const CalculatorIcon = (p: Props) => (
   <Icon {...p}>
     <rect x="5" y="3" width="14" height="18" rx="2" />
@@ -140,30 +134,6 @@ export const CalendarIcon = (p: Props) => (
 export const BellIcon = (p: Props) => (
   <Icon {...p}>
     <path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15L6 16.5ZM10 20.5a2 2 0 0 0 4 0" />
-  </Icon>
-);
-export const GaugeIcon = (p: Props) => (
-  <Icon {...p}>
-    <path d="M4.5 17a8.5 8.5 0 1 1 15 0" />
-    <path d="m12 13 4-4" />
-    <circle cx="12" cy="13.5" r="1" />
-  </Icon>
-);
-export const FuelIcon = (p: Props) => (
-  <Icon {...p}>
-    <path d="M6 20V5a1.5 1.5 0 0 1 1.5-1.5h6A1.5 1.5 0 0 1 15 5v15M4.5 20h12" />
-    <path d="M7.5 8h6M15 10.5l2.5 1.5v5a1.5 1.5 0 0 0 3 0V9l-2.5-2.5" />
-  </Icon>
-);
-// A gearbox: the shift pattern of a manual (an H with a knob at each end). The old circle with rays read as a sun.
-export const GearIcon = (p: Props) => (
-  <Icon {...p}>
-    <circle cx="6" cy="5" r="2" />
-    <circle cx="12" cy="5" r="2" />
-    <circle cx="18" cy="5" r="2" />
-    <circle cx="6" cy="19" r="2" />
-    <circle cx="12" cy="19" r="2" />
-    <path d="M6 7v10M12 7v10M18 7v5H6" />
   </Icon>
 );
 export const WhatsAppIcon = (p: Props) => (

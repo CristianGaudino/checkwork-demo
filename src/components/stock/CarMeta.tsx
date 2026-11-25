@@ -1,12 +1,14 @@
 import { ByUnit, Mileage } from "@/components/Mileage";
 import type { SpecRow } from "@/lib/stock/format";
+import { knownKm } from "@/lib/stock/markers";
 import { FUEL_LABELS, GEARBOX_LABELS, type Car } from "@/lib/stock/types";
 
 // "2016 · 104,800 km · Diesel · Manual", with the mileage in the buyer's chosen unit.
-export function CarMeta({ car }: { car: Pick<Car, "year" | "mileageKm" | "fuel" | "gearbox"> }) {
+export function CarMeta({ car }: { car: Pick<Car, "year" | "mileageKm" | "condition" | "owners" | "fuel" | "gearbox"> }) {
+  const km = knownKm(car);
   const parts: React.ReactNode[] = [
     car.year,
-    car.mileageKm !== undefined && <Mileage km={car.mileageKm} />,
+    km !== undefined && <Mileage km={km} />,
     car.fuel && FUEL_LABELS[car.fuel],
     car.gearbox && GEARBOX_LABELS[car.gearbox],
   ].filter(Boolean);

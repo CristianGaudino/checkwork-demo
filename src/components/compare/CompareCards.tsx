@@ -19,6 +19,7 @@ import { PRICING } from "@/lib/stock/pricing.config";
 import { FINANCE } from "@/lib/finance/finance.config";
 import { Mileage } from "@/components/Mileage";
 import { UnitToggle } from "@/components/UnitToggle";
+import { knownKm } from "@/lib/stock/markers";
 import { isSold, onRequest } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 import { COMPARE_CLEARED } from "@/lib/copy";
@@ -43,7 +44,7 @@ export const ROWS: Row[] = [
       return <span className="font-normal text-text-2">{c.reserved ? "Reserved" : onRequest(c) ? "Ask us" : "Not offered"}</span>;
     }, better: "low" },
   { label: "Year", number: (c) => c.year, text: (c) => String(c.year), better: "high" },
-  { label: "Mileage", number: (c) => c.mileageKm, text: (c) => (c.mileageKm === undefined ? undefined : <Mileage km={c.mileageKm} />), better: "low" },
+  { label: "Mileage", number: knownKm, text: (c) => { const km = knownKm(c); return km === undefined ? undefined : <Mileage km={km} />; }, better: "low" },
   { label: "Fuel", text: spec("Fuel") },
   { label: "Transmission", text: spec("Transmission") },
   { label: "Engine", number: (c) => c.engineLitres, text: spec("Engine") },

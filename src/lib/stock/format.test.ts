@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { carName, carTitle, countLabel, formatKm, fmtEur, keyFacts, specRows, withoutInvitation } from "./format";
-import { isNew } from "./types";
+import { NOUNS, carName, carTitle, countLabel, formatKm, fmtEur, keyFacts, plural, specRows, withoutInvitation } from "./format";
 import type { Car } from "./types";
 
 const audi: Car = {
@@ -37,6 +36,17 @@ describe("formatters", () => {
     expect(countLabel(24)).toBe("24 cars");
     expect(countLabel(1163)).toBe("1,163 cars");
   });
+
+  it("counts commercials on the commercial pages, singular and plural", () => {
+    expect(countLabel(0, NOUNS.commercial)).toBe("No commercials");
+    expect(countLabel(1, NOUNS.commercial)).toBe("1 commercial");
+    expect(countLabel(6, NOUNS.commercial)).toBe("6 commercials");
+    expect(countLabel(2, NOUNS.used)).toBe("2 cars");
+  });
+  it("counts a body type with its own word, and plurals one that ends in s", () => {
+    expect([countLabel(6, "van"), countLabel(1, "pickup"), countLabel(2, "minibus"), countLabel(0, "pickup")]).toEqual(["6 vans", "1 pickup", "2 minibuses", "No pickups"]);
+    expect([plural("van"), plural("Pickup"), plural("box")]).toEqual(["vans", "Pickups", "boxes"]);
+  });
 });
 
 const full: Car = {
@@ -53,6 +63,11 @@ const full: Car = {
 };
 
 describe("specRows", () => {
+  it("leaves out Mileage for a used car the feed sent as 0 km (a blank field)", () => {
+    expect(specRows({ ...audi, mileageKm: 0 }).some((r) => r.label === "Mileage")).toBe(false);
+    expect(specRows(audi).find((r) => r.label === "Mileage")?.value).toBe("84,000 km");
+  });
+
   it("lists every present spec in order with exact formats", () => {
     expect(specRows(full)).toEqual([
       { label: "Year", value: "2019" },
@@ -79,7 +94,7 @@ describe("specRows", () => {
     expect(specRows({ ...full, nctExpiry: "soon" }).some((r) => r.label === "NCT expires")).toBe(false);
   });
 
-  it("shows no Owners row for a new vehicle (0 owners)", () => {
+  it("shows no Owners row when the owners are unknown (0)", () => {
     expect(specRows({ ...full, owners: 0 }).some((r) => r.label === "Owners")).toBe(false);
   });
 
@@ -146,11 +161,3 @@ describe("withoutInvitation", () => {
   });
 });
 
-describe("isNew", () => {
-  it("is a van with no previous owner", () => {
-    expect(isNew({ condition: "commercial", owners: 0 })).toBe(true);
-    expect(isNew({ condition: "commercial", owners: 3 })).toBe(false);
-    expect(isNew({ condition: "commercial" })).toBe(false);
-    expect(isNew({ owners: 0 })).toBe(false); // a used car on delivery mileage is still sold as used
-  });
-});

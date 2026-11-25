@@ -81,7 +81,7 @@ export function PhotoLightbox({
       </button>
       <div ref={scroller} data-lightbox-scroller onScroll={onScroll} className={`${swipeRow} ${zoom ? "overflow-x-hidden!" : ""}`}>
         {photos.map((photo, i) => (
-          <div key={photo.src} role="group" aria-roledescription="slide" aria-label={`Photo ${i + 1} of ${n}`} tabIndex={zoom && i === index ? 0 : undefined} className={`flex h-full w-full flex-none snap-start ${zoom && i === index ? "overflow-auto" : "items-center justify-center"}`}>
+          <div key={`${i}-${photo.src}`} role="group" aria-roledescription="slide" aria-label={`Photo ${i + 1} of ${n}`} tabIndex={zoom && i === index ? 0 : undefined} className={`flex h-full w-full flex-none snap-start ${zoom && i === index ? "overflow-auto" : "items-center justify-center"}`}>
             <Image src={photo.src} width={900} height={675} alt={`${name}, photo ${i + 1} of ${n}`} loading="lazy" decoding="async" draggable={false} onClick={() => i === index && setZoom(!zoom)} className={zoom && i === index ? "m-auto h-auto w-[250%] max-w-none cursor-zoom-out" : "h-full w-full max-w-[1200px] cursor-zoom-in object-contain"} />
             <Brandmark />
           </div>

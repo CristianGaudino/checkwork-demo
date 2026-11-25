@@ -14,12 +14,14 @@ export function LeadPage({ title, intro, how, actions, picture, bare = false, ch
       {how && (
         // Open on the page, not cards: a card reads as something to press, and a chevron here read as a drop-down beside the form's own steps.
         // On a phone it comes after the form, so the form starts under the title; the heading says what it is down there.
-        <section className="mt-8 max-sm:order-last">
+        <section className="@container mt-8 max-sm:order-last">
           <h2 className={`${subTitle} mb-4 sm:sr-only`}>How it works</h2>
-          <ol className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-8">
+          {/* The section is the container (queries in rem): three across from 640px and the number beside its step, while there is
+              room; with large text one column, and the number above its step. */}
+          <ol className="grid grid-cols-1 gap-4 sm:@min-[30rem]:grid-cols-3 sm:gap-8">
             {how.map((s, i) => (
-              <li key={s.title} className="reveal flex gap-4 border-t border-hairline pt-4">
-                <IconBadge size="sm">{i + 1}</IconBadge>
+              <li key={s.title} className="reveal flex flex-col gap-4 border-t border-hairline pt-4 @min-[14rem]:flex-row">
+                <IconBadge>{i + 1}</IconBadge>
                 <div className="flex min-w-0 flex-col gap-2">
                   <TitleText title={s.title} text={s.text} />
                   {s.more && (

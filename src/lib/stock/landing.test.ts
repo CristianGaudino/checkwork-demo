@@ -97,6 +97,31 @@ describe("landingMetadata", () => {
   });
 });
 
+describe("a commercial body type", () => {
+  const vans: Landing = { kind: "body", body: "Van", bodySlug: "van", commercial: true };
+  const pickups: Landing = { kind: "body", body: "Pickup", bodySlug: "pickup", commercial: true };
+  const van = (id: string, o: Partial<Car> = {}) => car(id, { condition: "commercial", bodyType: "Van", bodySlug: "van", ...o });
+  it("is named by its own plural and lives under /commercial", () => {
+    expect([vans, pickups].map(landingName)).toEqual(["vans", "pickups"]);
+    expect([vans, pickups].map(landingPath)).toEqual(["/commercial/vans", "/commercial/pickups"]);
+  });
+  it("counts in its own word, singular and plural", () => {
+    expect(landingIntro(vans, landingFacts([van("1"), van("2", { make: "Ford", priceEur: 21950 })]))).toBe(
+      "We have 2 used vans in stock in Dublin 12, from €18,950 to €21,950. Makes in stock: Audi, Ford.",
+    );
+    expect(landingIntro(pickups, landingFacts([van("1")]))).toBe("We have 1 used pickup in stock in Dublin 12, at €18,950.");
+  });
+  it("titles the page Used vans, and an empty one says so and is noindex", () => {
+    const m = landingMetadata(vans, landingFacts([van("1")]), "/commercial/vans");
+    expect(m.title).toBe("Used vans for sale in Dublin 12");
+    expect(m.description).toBe("1 used van in stock at Checkwork Motors, Dublin 12, at €18,950.");
+    expect(m.alternates?.canonical).toBe("/commercial/vans");
+    const empty = landingMetadata(pickups, null, "/commercial/pickups");
+    expect(empty.description).toBe("No pickups in stock at Checkwork Motors right now. See what we have in Dublin 12, Co. Dublin.");
+    expect(empty.robots).toEqual({ index: false });
+  });
+});
+
 describe("itemListJsonLd", () => {
   it("is an ItemList of the cars' Product plus Car records, positioned from 1", () => {
     const ld = itemListJsonLd(three.slice(0, 2));

@@ -58,7 +58,6 @@
   --color-control: #8a90a8;
   --color-photo-bg: #e9ecf4;
   --color-destructive: #c4261d;
-  --color-better: #166534;
   --color-warning: #8f4f06;
   /* Status tones, solid: a fill and the text that sits on it (4.5:1). Badges, chips and notices use these and nothing tinted. */
   --color-ok: #166534;
@@ -108,7 +107,6 @@
   --color-control: #6f7694;
   --color-photo-bg: #1a2140;
   --color-destructive: #ff8f86;
-  --color-better: #4ade80;
   --color-warning: #fbbf24;
   --color-ok: #7be0a2;
   --color-ok-soft: #123326;
@@ -179,9 +177,12 @@
     background-color: var(--color-surface);
   }
   /* A car page's call bar (LeadActions) is fixed at the foot of the screen below 1024px: room for it, so the footer is never under it. */
+  /* The car page's sticky bar: one row, or two once large text makes the screen narrower than 18rem (its @max-[16rem] plus padding).
+     The clamp is 0 at or above 18rem and the second row (a 0.5rem gap and a 2.75rem button) below it. */
   @media (max-width: 1023.98px) {
     body:has([data-sticky-actions]) {
-      padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+      --sticky-second-row: clamp(0px, (18rem - 100vw) * 1000, 3.25rem);
+      padding-bottom: calc(4rem + var(--sticky-second-row) + env(safe-area-inset-bottom));
     }
   }
   /* The compare pill floats at the foot of the screen: room for it while it shows, so the last content (the finance warning) is never under it. */
@@ -194,7 +195,7 @@
   }
   @media (max-width: 1023.98px) {
     body:has([data-sticky-actions]):has([data-compare-bar]) {
-      padding-bottom: calc(9rem + env(safe-area-inset-bottom));
+      padding-bottom: calc(9rem + var(--sticky-second-row) + env(safe-area-inset-bottom));
     }
   }
   /* Car photos are studio shots on white. On the plinth the white is multiplied away, so the car stands on a lit floor, in both themes.
@@ -241,7 +242,7 @@
    layer, so it beats the stack's own bottom utility. */
 @media (max-width: 1023.98px) {
   body:has([data-sticky-actions]:not(.invisible)) [data-bottom-stack] {
-    bottom: calc(5rem + env(safe-area-inset-bottom));
+    bottom: calc(5rem + var(--sticky-second-row, 0px) + env(safe-area-inset-bottom));
   }
 }
 
@@ -530,7 +531,6 @@ input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
   box-shadow: 0 0 0 1px var(--color-destructive);
 }
 
-/* The finance band on the home page: a soft panel with a glow in the accent colour. */
 /* Stock list view (the toggle on /used-cars): one column of wide cards, photo on the left. From 1024px only, where the toggle shows,
    so a choice made on a desktop never sticks on a tablet with no way back. Unlayered so it beats the grid utilities. */
 @media (min-width: 1024px) {

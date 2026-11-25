@@ -53,11 +53,11 @@ export function ThemeSwitch({ className = "" }: { className?: string }) {
     document.head.append(s);
   }, []);
   return (
-    <div data-theme-switch className={`flex items-center gap-2 ${className}`}>
+    <div data-theme-switch className={`flex flex-wrap items-center gap-2 ${className}`}>
       <span id={id} className="text-meta text-text-2">
         Theme
       </span>
-      <div role="radiogroup" aria-labelledby={id} className="flex rounded-full border border-hairline p-0.5">
+      <div role="radiogroup" aria-labelledby={id} className="flex flex-wrap rounded-[1.5rem] border border-hairline p-0.5">
         {THEMES.map((t) => (
           <label key={t} className="flex cursor-pointer">
             <input type="radio" name={id} value={t} checked={current === t} onChange={() => setTheme(t)} className="peer sr-only" />

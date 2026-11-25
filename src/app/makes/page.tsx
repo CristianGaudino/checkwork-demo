@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { MakeLogo } from "@/components/MakeLogo";
 import { PageHeading } from "@/components/PageHeading";
+import { StateBlock } from "@/components/StateBlock";
 import { card, pageMain, press, subTitle } from "@/components/ui";
 import { DEALER_LOCATION, SITE_NAME } from "@/lib/site";
 import { countLabel } from "@/lib/stock/format";
-import { makeDirectory } from "@/lib/stock/makes";
+import { makeDirectory, makeNoun } from "@/lib/stock/makes";
 
 export const metadata: Metadata = {
   title: "Makes",
@@ -19,23 +20,30 @@ export default async function MakesPage() {
   return (
     <main className={pageMain}>
       <PageHeading title="Makes" intro="The makes we have in stock now." />
-      {inStock.length > 0 && (
-        <section aria-labelledby="makes-in-stock" className="mt-8 flex flex-col gap-4">
+      {inStock.length > 0 ? (
+        <section aria-labelledby="makes-in-stock" className="@container mt-8 flex flex-col gap-4">
           <h2 id="makes-in-stock" className={subTitle}>In stock</h2>
-          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          {/* Two across on a phone; one when large text leaves no room for two (the container query is in rem). */}
+          <ul className="grid grid-cols-1 gap-3 max-sm:@min-[17rem]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
             {inStock.map((m) => (
               <li key={m.slug}>
                 <Link href={`/makes/${m.slug}`} className={`${card} flex h-full items-center gap-3 p-4 transition-shadow hover:shadow-lift ${press}`}>
                   <MakeLogo slug={m.slug} className="size-8" />
                   <span className="flex min-w-0 flex-col">
                     <span className="font-medium break-words">{m.label}</span>
-                    <span className="text-meta text-text-2">{countLabel(m.count)}</span>
+                    <span className="text-meta text-text-2">{countLabel(m.count, makeNoun(m))}</span>
                   </span>
                 </Link>
               </li>
             ))}
           </ul>
         </section>
+      ) : (
+        <StateBlock title="No cars listed right now" text="More arrive often.">
+          <Link href="/find-a-car" className="mx-auto flex min-h-11 w-fit items-center text-body underline">
+            Can&apos;t find it? Ask us to find it for you.
+          </Link>
+        </StateBlock>
       )}
     </main>
   );

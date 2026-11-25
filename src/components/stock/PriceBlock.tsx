@@ -8,7 +8,8 @@ export function PriceBlock({ car, size = "card" }: { car: Pick<Car, "priceEur" |
   const hero = size === "hero";
   return (
     <div data-price-block className={`flex flex-col gap-0.5 ${hero ? "items-start" : "shrink-0 @xs:items-end @xs:text-right"}`}>
-      <p data-price className={`font-semibold tabular-nums ${hero ? "text-hero font-bold" : "text-heading"} ${car.soldAt ? "text-text-2" : ""}`}>
+      {/* The hero price is a size down below 640px and may wrap, never truncate (€1,250,000 at 320px with 200% text). */}
+      <p data-price className={`tabular-nums ${hero ? "text-display font-bold wrap-anywhere sm:text-hero" : "text-heading font-semibold"} ${car.soldAt ? "text-text-2" : ""}`}>
         {p.headline}
       </p>
       {p.vatLine && <p className="text-meta text-text-2">{p.vatLine}</p>}
@@ -16,7 +17,7 @@ export function PriceBlock({ car, size = "card" }: { car: Pick<Car, "priceEur" |
       {/* On a card the drop is a tag on the photo (ListingCard), so the price lines up with the cards beside it. */}
       {p.drop && hero && (
         <p className="text-meta tabular-nums">
-          <s className="text-text-2">{p.was}</s> <span className="font-semibold text-better">{p.drop}</span>
+          <s className="text-text-2">{p.was}</s> <span className="font-semibold text-ok">{p.drop}</span>
         </p>
       )}
       {hero && p.financeFrom && <p className="text-meta tabular-nums text-text-2">{p.financeFrom}</p>}
