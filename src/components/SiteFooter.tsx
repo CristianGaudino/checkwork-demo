@@ -113,7 +113,7 @@ export function SiteFooter() {
           </ul>
           <ThemeSwitch />
           <p className="lg:ml-auto">© {SITE_NAME}</p>
-          <a href={CHECKWORK_URL} {...NEW_TAB} className="inline-flex min-h-11 items-center gap-2 transition-colors hover:text-text">
+          <a href={CHECKWORK_URL} {...NEW_TAB} className="inline-flex min-h-11 flex-wrap items-center gap-2 transition-colors hover:text-text">
             Powered by
             <Image src="/brand/checkwork-logo-on-light.svg" width={345} height={60} alt="Checkwork" unoptimized className="h-4 w-auto dark:hidden" />
             <Image src="/brand/checkwork-logo-on-dark.svg" width={345} height={60} alt="Checkwork" unoptimized className="hidden h-4 w-auto dark:block" />
