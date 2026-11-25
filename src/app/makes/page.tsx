@@ -21,10 +21,10 @@ export default async function MakesPage() {
     <main className={pageMain}>
       <PageHeading title="Makes" intro="The makes we have in stock now." />
       {inStock.length > 0 ? (
-        <section aria-labelledby="makes-in-stock" className="mt-8 flex flex-col gap-4">
+        <section aria-labelledby="makes-in-stock" className="@container mt-8 flex flex-col gap-4">
           <h2 id="makes-in-stock" className={subTitle}>In stock</h2>
-          {/* Two across on a phone; one when large text leaves no room for two. */}
-          <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,8rem),1fr))] gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          {/* Two across on a phone; one when large text leaves no room for two (the container query is in rem). */}
+          <ul className="grid grid-cols-1 gap-3 max-sm:@min-[17rem]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
             {inStock.map((m) => (
               <li key={m.slug}>
                 <Link href={`/makes/${m.slug}`} className={`${card} flex h-full items-center gap-3 p-4 transition-shadow hover:shadow-lift ${press}`}>

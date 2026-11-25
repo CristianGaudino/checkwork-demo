@@ -33,7 +33,7 @@ test("sort and page come from the URL", async ({ page }) => {
   const n = await total(page);
   if (n > PER_PAGE) {
     await page.goto("/used-cars?page=2");
-    await expect(page.getByText(`Page 2 of ${Math.ceil(n / PER_PAGE)}`)).toBeVisible();
+    await expect(page.getByRole("listitem").filter({ hasText: `Page 2 of ${Math.ceil(n / PER_PAGE)}` })).toBeVisible();
   }
 });
 

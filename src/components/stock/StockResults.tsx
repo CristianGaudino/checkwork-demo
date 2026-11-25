@@ -38,8 +38,9 @@ export function StockResults({ result, query }: { result: StockResult; query: St
 export function Pager({ page, pageCount, first, shown, total, href }: { page: number; pageCount: number; first: number; shown: number; total: number; href: (page: number) => string }) {
   if (pageCount <= 1) return null;
   return (
-    <nav aria-label="Pagination" className="mt-10 flex flex-col items-center gap-3">
-      <ul className="inline-flex max-w-full divide-x divide-control overflow-hidden rounded-control border border-control bg-card">
+    // @container: with large text on a phone "Page 2 of 5" leaves the box for a line of its own, so Previous and Next keep their room.
+    <nav aria-label="Pagination" className="@container mt-10 flex flex-col items-center gap-3">
+      <ul className="inline-flex divide-x divide-control overflow-hidden rounded-control border border-control bg-card">
         <li>
           {page > 1 ? (
             <Link replace href={href(page - 1)} aria-label="Previous page" className={segLink}>
@@ -54,7 +55,7 @@ export function Pager({ page, pageCount, first, shown, total, href }: { page: nu
           )}
         </li>
         {/* A phone has room for "Page 2 of 5"; from 640px the numbers show. */}
-        <li className="flex items-center px-4 text-meta sm:hidden">
+        <li className="flex items-center px-4 text-meta sm:hidden @max-[17rem]:hidden">
           Page {page} of {pageCount}
         </li>
         {pagesToShow(page, pageCount).map((p, i) =>
@@ -90,6 +91,9 @@ export function Pager({ page, pageCount, first, shown, total, href }: { page: nu
           )}
         </li>
       </ul>
+      <p className="hidden text-meta font-semibold @max-[17rem]:block">
+        Page {page} of {pageCount}
+      </p>
       <p className="text-meta text-text-2">
         Showing {fmtNum(first)} to {fmtNum(first + shown - 1)} of {fmtNum(total)} cars
       </p>

@@ -178,10 +178,10 @@
   }
   /* A car page's call bar (LeadActions) is fixed at the foot of the screen below 1024px: room for it, so the footer is never under it. */
   /* The car page's sticky bar: one row, or two once large text makes the screen narrower than 18rem (its @max-[16rem] plus padding).
-     The clamp is 0 at or above 18rem and the second row's 3rem below it. */
+     The clamp is 0 at or above 18rem and the second row (a 0.5rem gap and a 2.75rem button) below it. */
   @media (max-width: 1023.98px) {
     body:has([data-sticky-actions]) {
-      --sticky-second-row: clamp(0px, (18rem - 100vw) * 1000, 3rem);
+      --sticky-second-row: clamp(0px, (18rem - 100vw) * 1000, 3.25rem);
       padding-bottom: calc(4rem + var(--sticky-second-row) + env(safe-area-inset-bottom));
     }
   }
@@ -242,7 +242,7 @@
    layer, so it beats the stack's own bottom utility. */
 @media (max-width: 1023.98px) {
   body:has([data-sticky-actions]:not(.invisible)) [data-bottom-stack] {
-    bottom: calc(5rem + env(safe-area-inset-bottom));
+    bottom: calc(5rem + var(--sticky-second-row, 0px) + env(safe-area-inset-bottom));
   }
 }
 

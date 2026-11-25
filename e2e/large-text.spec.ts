@@ -47,3 +47,33 @@ test("with three cars picked the compare pill fits at 360px with 150% text, its 
   await expect(bar.getByRole("button", { name: "Hide" })).toBeInViewport({ ratio: 1 });
   expect(await overflow(page)).toBeLessThanOrEqual(0);
 });
+
+test("on a car page at 360px with 150% text the call bar's two rows cover neither the compare pill nor the footer", async ({ page }) => {
+  await page.goto(await firstCar(page));
+  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+  await page.getByTestId("buy-box").getByRole("button", { name: /^Compare / }).click();
+  await enlarge(page);
+  await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
+  const bar = page.locator("[data-sticky-actions]");
+  await expect(bar).not.toHaveClass(/invisible/);
+  await expect(bar.getByRole("button", { name: "Enquire" })).toBeInViewport({ ratio: 1 });
+  const top = (await bar.boundingBox())!.y;
+  const pill = (await page.getByRole("region", { name: "Compare cars" }).boundingBox())!;
+  const footer = (await page.locator("footer").boundingBox())!;
+  expect(pill.y + pill.height).toBeLessThanOrEqual(top);
+  expect(footer.y + footer.height).toBeLessThanOrEqual(top);
+});
+
+test("the pager's Next is whole and on screen at 320px with 200% text", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 800 });
+  await page.goto("/used-cars");
+  await enlarge(page, "200%");
+  const next = page.getByRole("link", { name: "Next page" });
+  await next.scrollIntoViewIfNeeded();
+  await expect(next).toBeInViewport({ ratio: 1 });
+  const list = (await page.getByRole("navigation", { name: "Pagination" }).getByRole("list").boundingBox())!;
+  const box = (await next.boundingBox())!;
+  expect(box.x).toBeGreaterThanOrEqual(list.x);
+  expect(box.x + box.width).toBeLessThanOrEqual(list.x + list.width);
+  await expect(page.getByRole("navigation", { name: "Pagination" }).locator("p", { hasText: "Page 1 of" })).toBeVisible(); // out of the box, on its own line
+});
