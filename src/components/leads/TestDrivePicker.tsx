@@ -38,7 +38,7 @@ export function TestDrivePicker({ cars }: { cars: (CarSummary & { vatLine?: stri
                   }}
                   className={`flex h-11 shrink-0 items-center gap-2 px-3 ${secondaryButton} ${press}`}
                 >
-                  <CalendarIcon className="size-5 text-accent-text" />
+                  <CalendarIcon className="size-5" />
                   Book
                 </button>
               </div>

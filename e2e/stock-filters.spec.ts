@@ -333,7 +333,7 @@ test.describe("filters on a desktop", () => {
     await expect(page.getByTestId("count")).toHaveText(countText(a.count));
     await page.locator("article h2 a").first().click();
     await expect(page).toHaveURL(/\/used-cars\/[a-z0-9-]+$/);
-    const back = page.getByRole("link", { name: "Stock", exact: true });
+    const back = page.getByRole("navigation", { name: "Breadcrumb" }).getByRole("link", { name: "Used cars", exact: true });
     await expect(back).toHaveAttribute("href", `/used-cars?make=${a.value}`); // set once the page has hydrated
     await back.click();
     await expect(page).toHaveURL(new RegExp(`/used-cars\\?make=${a.value}$`));

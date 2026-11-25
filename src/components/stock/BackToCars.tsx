@@ -65,7 +65,7 @@ function read(condition: Condition) {
 }
 
 // Server and first paint link to the plain list (works without JavaScript); once hydrated it returns to the list the buyer came from.
-export function BackToCars({ condition = "used", label = "Stock" }: { condition?: Condition; label?: string }) {
+export function BackToCars({ condition = "used", label = "Used cars" }: { condition?: Condition; label?: string }) {
   const href = useSyncExternalStore(never, () => read(condition), () => LIST_PATHS[condition]);
   return (
     // 44px target; the negative margin keeps the page from moving.

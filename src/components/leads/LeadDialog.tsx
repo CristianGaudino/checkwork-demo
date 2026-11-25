@@ -69,7 +69,7 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
     o.observe(row.current!);
     return () => o.disconnect();
   }, []);
-  const bar = `flex h-11 items-center justify-center px-2 font-semibold ${press}`;
+  const bar = `flex min-h-11 min-w-0 items-center justify-center px-2 text-center font-semibold leading-tight ${press}`;
 
   return (
     <>
@@ -78,12 +78,12 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
           Enquire
         </button>
         <button type="button" onClick={(e) => show(e.currentTarget, "drive")} className={`col-span-2 sm:col-span-1 ${secondary}`}>
-          <CalendarIcon className="size-5 text-accent-text" />
+          <CalendarIcon className="size-5" />
           Test drive
         </button>
         {/* A desktop can't tap to call, so from 1024px the button shows the number itself (a size down until 1280px, where the column is narrow). */}
         <a href={`tel:${DEALER_TEL}`} aria-label={`Call us on ${DEALER_PHONE}`} className={secondary}>
-          <PhoneIcon className="size-5 text-accent-text" />
+          <PhoneIcon className="size-5" />
           <span className="lg:hidden">Call us</span>
           <span className="hidden lg:inline lg:max-xl:text-meta">{DEALER_PHONE}</span>
         </a>
@@ -107,7 +107,7 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
         data-sticky-actions
         className={`fixed inset-x-0 bottom-0 z-20 border-t border-hairline bg-surface/90 px-4 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl transition-[translate,visibility] duration-200 reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none motion-reduce:transition-none lg:hidden ${gone ? "" : "invisible translate-y-full"}`}
       >
-        <div className={`mx-auto grid max-w-page gap-2 whitespace-nowrap grid-cols-3`}>
+        <div className="mx-auto grid max-w-page grid-cols-3 gap-2">
           <a href={`tel:${DEALER_TEL}`} className={`${bar} text-text ${secondaryButton}`}>
             Call us
           </a>
@@ -152,8 +152,14 @@ export function StockAlertButton({ car, kind }: { car: CarSummary; kind: "back-i
   const back = kind === "back-in-stock";
   return (
     <>
-      <button ref={opener} type="button" onClick={() => setOpen(true)} className={`flex h-12 w-full items-center justify-center gap-2 px-3 text-text ${secondaryButton}`}>
-        <BellIcon className="size-5 text-accent-text" />
+      {/* Notify me is the sold panel's button; Price alert is a quiet text action beside Compare. */}
+      <button
+        ref={opener}
+        type="button"
+        onClick={() => setOpen(true)}
+        className={back ? `flex h-12 w-full items-center justify-center gap-2 px-3 text-text ${secondaryButton}` : "inline-flex min-h-11 items-center gap-2 text-meta font-medium text-text"}
+      >
+        <BellIcon className={back ? "size-5" : "size-4"} />
         {set ? "Alert set" : back ? "Notify me" : "Price alert"}
       </button>
       <LeadDialog

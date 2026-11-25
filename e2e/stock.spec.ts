@@ -74,7 +74,7 @@ test("a car page shows title, price and a way back", async ({ page }) => {
   await expect(page).toHaveURL(/\/used-cars\/[a-z0-9-]+$/);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.getByTestId("buy-box").getByText(/^€[\d,]+$/).filter({ visible: true })).toBeVisible();
-  await page.getByRole("link", { name: "Stock", exact: true }).click();
+  await page.getByRole("navigation", { name: "Breadcrumb" }).getByRole("link", { name: "Used cars", exact: true }).click();
   await expect(page).toHaveURL(/\/used-cars$/);
 });
 
@@ -266,7 +266,7 @@ test("the Stock link on a car page returns to the same place in the list", async
   expect(before).toBeGreaterThan(400);
   await card.click();
   await expect(page).toHaveURL(/\/used-cars\/[a-z0-9-]+$/);
-  const back = page.getByRole("link", { name: "Stock", exact: true });
+  const back = page.getByRole("navigation", { name: "Breadcrumb" }).getByRole("link", { name: "Used cars", exact: true });
   await expect(back).toHaveAttribute("href", "/used-cars");
   await back.click();
   await expect(page).toHaveURL(/\/used-cars$/);
