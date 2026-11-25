@@ -47,8 +47,8 @@ export function CompareBar() {
     );
   }
   return (
-    <div data-compare-bar role="region" aria-label="Compare cars" className="pointer-events-auto flex items-center gap-3 rounded-control border border-hairline bg-card py-1 pl-4 pr-1 shadow-lift transition-[opacity,translate] duration-200 starting:translate-y-2 starting:opacity-0 motion-reduce:transition-none">
-      <p className="text-meta font-semibold">
+    <div data-compare-bar role="region" aria-label="Compare cars" className="pointer-events-auto flex max-w-full items-center gap-3 rounded-control border border-hairline bg-card py-1 pl-4 pr-1 shadow-lift transition-[opacity,translate] duration-200 starting:translate-y-2 starting:opacity-0 motion-reduce:transition-none">
+      <p className="min-w-0 text-meta font-semibold">
         {ids.length} of {MAX_COMPARE} to compare
       </p>
       <button
@@ -57,7 +57,7 @@ export function CompareBar() {
           clearCompare();
           showToast(COMPARE_CLEARED, () => restoreCompare(ids));
         }}
-        className="min-h-11 rounded-control px-2 text-meta font-semibold underline"
+        className="min-h-11 shrink-0 whitespace-nowrap rounded-control px-2 text-meta font-semibold underline"
       >
         Clear
       </button>
@@ -67,7 +67,7 @@ export function CompareBar() {
           // On a car page the car in view joins the list, so Compare opens it with that car in it.
           if (carId && !ids.includes(carId) && ids.length < MAX_COMPARE) toggleCompare(carId);
         }}
-        className={`inline-flex h-11 items-center rounded-control bg-accent px-5 text-meta font-semibold text-on-accent ${press}`}
+        className={`inline-flex h-11 shrink-0 items-center whitespace-nowrap rounded-control bg-accent px-5 text-meta font-semibold text-on-accent ${press}`}
       >
         Compare
       </Link>

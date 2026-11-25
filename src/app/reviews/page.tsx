@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
 import Link from "next/link";
-import { PageHeading } from "@/components/PageHeading";
 import { ReviewsStrip } from "@/components/reviews/ReviewsStrip";
-import { NEW_TAB, pageMain } from "@/components/ui";
+import { NEW_TAB, pageMain, pageTitle } from "@/components/ui";
 
 // A link inside a sentence: underlined, no taller than the line.
 const inline = "font-medium underline underline-offset-2";
@@ -25,10 +24,13 @@ export default async function ReviewsPage() {
   const maps = reviews?.placeUri ?? dealerDirectionsUrl();
   return (
     <main className={pageMain}>
-      <PageHeading title="Reviews" />
+      {/* The page's own h1, not PageHeading's, so the reviews section can be labelled by it rather than by a second title. */}
+      <h1 id="reviews-title" className={pageTitle}>
+        Reviews
+      </h1>
       <div className="mt-6">
         {reviews?.reviews.length ? (
-          <ReviewsStrip data={reviews} grid />
+          <ReviewsStrip data={reviews} grid labelledBy="reviews-title" />
         ) : (
           <p className="max-w-measure text-body">
             Read what customers say about us{" "}

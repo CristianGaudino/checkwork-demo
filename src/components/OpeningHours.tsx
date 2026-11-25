@@ -10,7 +10,7 @@ export function OpeningHours() {
         {groupHours().map((h) => (
           <div key={h.label} className="flex items-baseline justify-between gap-4 py-3">
             <dt>{h.label}</dt>
-            <dd className={`text-right tabular-nums ${h.hours === "Closed" ? "text-text-2" : "font-semibold"}`}>{h.hours}</dd>
+            <dd className={`whitespace-nowrap text-right tabular-nums ${h.hours === "Closed" ? "text-text-2" : "font-semibold"}`}>{h.hours}</dd>
           </div>
         ))}
         {/* Test drives are never offered on one (src/lib/bank-holidays.ts). */}
