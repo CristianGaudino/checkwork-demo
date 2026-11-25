@@ -9,5 +9,5 @@ export const generateMetadata = async ({ params }: PageProps<"/commercial/[make]
 export default async function Page({ params, searchParams }: PageProps<"/commercial/[make]">) {
   const list = await makeList("commercial", (await params).make, searchParams);
   if (!list) notFound();
-  return <StockListPage condition="commercial" searchParams={Promise.resolve(list.params)} title={list.title} intro={list.intro} />;
+  return <StockListPage condition="commercial" searchParams={Promise.resolve(list.params)} title={list.title} intro={list.intro} noun={list.noun} />;
 }

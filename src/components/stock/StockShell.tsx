@@ -95,7 +95,7 @@ function ViewToggle() {
   );
 }
 
-export function StockShell({ query, title, intro, summary, children }: { query: StockQuery; title?: string; intro?: string; summary: Summary; children: React.ReactNode }) {
+export function StockShell({ query, title, intro, noun, summary, children }: { query: StockQuery; title?: string; intro?: string; noun?: string; summary: Summary; children: React.ReactNode }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const view = useView();
@@ -133,7 +133,7 @@ export function StockShell({ query, title, intro, summary, children }: { query: 
 
   const kind = VEHICLE_TYPES.find((t) => t.condition === (optimisticQuery.condition ?? "used"))!;
   return (
-    <StockContext value={{ query: optimisticQuery, summary, facets: summary ? summary.facets : held, pending, noun: NOUNS[kind.condition], makePage: title !== undefined, navigate }}>
+    <StockContext value={{ query: optimisticQuery, summary, facets: summary ? summary.facets : held, pending, noun: noun ?? NOUNS[kind.condition], makePage: title !== undefined, navigate }}>
       <main className={pageMain}>
         {/* From 1024px the title is on the left and the count, sort and layout toggle on the right, level with it, so the filters and the cars
             start higher. Below that the count sits under the intro (sort is in the sticky bar). */}
@@ -148,7 +148,7 @@ export function StockShell({ query, title, intro, summary, children }: { query: 
           </div>
           <div className="mt-4 flex items-center justify-between gap-4 lg:mt-0 lg:justify-end lg:gap-6">
             <p aria-live="polite" data-testid="count" className="text-heading font-semibold">
-              {summary && <Tween value={countLabel(summary.total, NOUNS[kind.condition])} />}
+              {summary && <Tween value={countLabel(summary.total, noun ?? NOUNS[kind.condition])} />}
             </p>
           </div>
         </div>

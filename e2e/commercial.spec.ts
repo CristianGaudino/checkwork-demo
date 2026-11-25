@@ -7,7 +7,7 @@ test("commercial vehicles have the filters too, and keep them across a car page"
   await expect(page.getByTestId("count")).toHaveText("3 commercials");
   await page.locator("article").first().getByRole("link").first().click();
   await expect(page.getByTestId("buy-box")).toBeVisible();
-  await page.getByRole("navigation", { name: "Breadcrumb" }).getByRole("link", { name: "Commercial", exact: true }).click();
+  await page.getByRole("navigation", { name: "Breadcrumb" }).getByRole("link", { name: "Commercials", exact: true }).click();
   await expect(page).toHaveURL(/\/commercial\?make=ford/);
 });
 
@@ -21,13 +21,13 @@ test("commercials say their price is without VAT, give the price with VAT, and s
   await expect(transit.getByText("Reduced by €1,500")).toBeVisible();
 });
 
-test("a van is not in the used list, and a van's page says its VAT and links back to Commercial", async ({ page }) => {
+test("a van is not in the used list, and a van's page says its VAT and links back to Commercials", async ({ page }) => {
   await page.goto("/used-cars");
   await expect(page.locator("article").filter({ hasText: "Transit connect" })).toHaveCount(0);
   await page.goto("/commercial");
   await page.locator("article").filter({ hasText: "Vito" }).getByRole("link").first().click();
   await expect(page.getByTestId("buy-box").getByText("Ex. VAT", { exact: true })).toBeVisible();
-  await expect(page.getByRole("navigation", { name: "Breadcrumb" }).getByRole("link", { name: "Commercial" })).toHaveAttribute("href", "/commercial");
+  await expect(page.getByRole("navigation", { name: "Breadcrumb" }).getByRole("link", { name: "Commercials" })).toHaveAttribute("href", "/commercial");
 });
 
 test("the commercial page fits a phone", async ({ page }) => {
@@ -55,7 +55,7 @@ test("a commercial body type has its own page: only that type, with its own head
   await expect(page).toHaveTitle(/^Used vans for sale in /);
   await expect(page.getByRole("heading", { level: 1, name: "Used vans" })).toBeVisible();
   await expect(page.getByText(/^We have 5 used vans in stock in /)).toBeVisible();
-  await expect(page.getByTestId("count")).toHaveText("5 commercials");
+  await expect(page.getByTestId("count")).toHaveText("5 vans");
   await expect(page.locator("article")).toHaveCount(5);
   await expect(page.locator("article").filter({ hasText: "Ranger" })).toHaveCount(0); // the pickup is on /commercial/pickups
   expect(await page.locator('link[rel="canonical"]').getAttribute("href")).toMatch(/\/commercial\/vans$/);

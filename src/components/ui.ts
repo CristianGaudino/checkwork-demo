@@ -6,7 +6,7 @@ export const secondaryButton = `rounded-control border border-control bg-card fo
 export const accentButton = `h-12 rounded-control bg-accent px-6 font-semibold text-on-accent ${press}`;
 export const textLink = "inline-flex min-h-11 items-center underline";
 // One look for every page title and every section heading, so no page reads as a different site.
-// On a phone with large text the title grows less than the text (down to text-heading's size), so one long word ("Commercial")
+// On a phone with large text the title grows less than the text (down to text-heading's size), so one long word ("Commercials")
 // still fits the screen. At normal text size 10vw is never under 2rem from 320px, so the title is text-display as before.
 export const pageTitle = `text-display font-bold max-sm:[font-size:clamp(1.25rem,10vw,2rem)] lg:text-hero`;
 export const sectionTitle = `text-heading font-bold sm:text-display`;

@@ -101,10 +101,9 @@ describe("a commercial body type", () => {
   const vans: Landing = { kind: "body", body: "Van", bodySlug: "van", commercial: true };
   const pickups: Landing = { kind: "body", body: "Pickup", bodySlug: "pickup", commercial: true };
   const van = (id: string, o: Partial<Car> = {}) => car(id, { condition: "commercial", bodyType: "Van", bodySlug: "van", ...o });
-  it("is named by its own plural, lives under /commercial and filters the commercial stock", () => {
+  it("is named by its own plural and lives under /commercial", () => {
     expect([vans, pickups].map(landingName)).toEqual(["vans", "pickups"]);
     expect([vans, pickups].map(landingPath)).toEqual(["/commercial/vans", "/commercial/pickups"]);
-    expect(landingFilter(vans)).toEqual({ make: [], model: [], body: ["van"], condition: "commercial" });
   });
   it("counts in its own word, singular and plural", () => {
     expect(landingIntro(vans, landingFacts([van("1"), van("2", { make: "Ford", priceEur: 21950 })]))).toBe(

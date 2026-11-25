@@ -24,8 +24,8 @@ export async function stockListMetadata(condition: Condition, searchParams: Sear
 }
 
 // The list page for every kind of vehicle: the same filters, sort, grid and list view. The kind only decides which cars are in it.
-// `title`: a heading in place of the kind's own, for a list already narrowed to one make or body type; `intro` likewise for the line under it.
-export async function StockListPage({ condition, searchParams, title, intro }: { condition: Condition; searchParams: SearchParams; title?: string; intro?: string }) {
+// `title`: a heading in place of the kind's own, for a list already narrowed to one make or body type; `intro` and `noun` (what it counts) likewise.
+export async function StockListPage({ condition, searchParams, title, intro, noun }: { condition: Condition; searchParams: SearchParams; title?: string; intro?: string; noun?: string }) {
   const query = parseStockQuery(await searchParams, condition);
   // No error.tsx: it would replace the whole segment and take Sort and the filters with it.
   // Log a constant message and the error name only: never the query, params or URL (T-01-29), they can hold search text.
@@ -36,8 +36,8 @@ export async function StockListPage({ condition, searchParams, title, intro }: {
   // Constant list path plus serialised params, never a user URL (T-01-14).
   if (result && result.pageCount > 0 && query.page > result.pageCount) redirect(stockHref({ ...query, page: result.pageCount }));
   return (
-    <StockShell query={query} title={title} intro={intro} summary={result && { total: result.total, facets: result.facets }}>
-      {result ? <StockResults result={result} query={query} /> : <StockError noun={NOUNS[condition]} />}
+    <StockShell query={query} title={title} intro={intro} noun={noun} summary={result && { total: result.total, facets: result.facets }}>
+      {result ? <StockResults result={result} query={query} /> : <StockError noun={noun ?? NOUNS[condition]} />}
     </StockShell>
   );
 }

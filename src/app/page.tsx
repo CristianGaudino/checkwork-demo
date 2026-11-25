@@ -38,14 +38,13 @@ export default async function Home() {
   await connection();
   // The home page must never error: a stock failure shows a line in place of the grid, and the search still renders (UI-SPEC state table).
   // The newest cars feed the featured grid, and all of them feed the search drop-downs, so every choice has a car behind it.
-  const [all, reviews, vans] = await Promise.all([queryAllOrNull(), getReviews(), queryAllOrNull({ condition: "commercial" })]);
+  const [all, reviews, commercials] = await Promise.all([queryAllOrNull(), getReviews(), queryAllOrNull({ condition: "commercial" })]);
   // Browse by type: each body type of the commercial stock (Vans, Pickups), then each of the used stock, each with its newest car's photo
   // and how many there are. A commercial tile counts in its own word ("6 vans", "1 pickup"); a used one counts cars.
   const used = all?.cars ?? [];
-  const commercial = vans?.cars ?? [];
   const typeTiles: TypeTile[] = [
-    ...searchOptions(commercial).bodies.map((b) => {
-      const of = commercial.filter((c) => c.bodySlug === b.slug);
+    ...searchOptions(commercials?.cars ?? []).bodies.map((b) => {
+      const of = commercials!.cars.filter((c) => c.bodySlug === b.slug);
       return { key: `commercial-${b.slug}`, href: commercialBodyPath(b.slug), label: plural(b.label), count: of.length, noun: b.label.toLowerCase(), photo: of[0]?.photos[0] };
     }),
     ...searchOptions(used).bodies.map((b) => {

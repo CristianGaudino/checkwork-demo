@@ -4,7 +4,7 @@
 // The vehicle sections (Used, Commercial): the header links and the section pages read this.
 export const VEHICLE_TYPES = [
   { id: "used", label: "Used", nav: "Used cars", href: "/used-cars", condition: "used", title: "Used cars", intro: "Browse the used cars we have in stock now." },
-  { id: "commercial", label: "Commercial", nav: "Commercial", href: "/commercial", condition: "commercial", title: "Commercials", intro: "Vans and light commercials. Prices are shown without VAT, which a VAT-registered buyer can usually reclaim, with the price including VAT underneath." },
+  { id: "commercial", label: "Commercials", nav: "Commercials", href: "/commercial", condition: "commercial", title: "Commercials", intro: "Vans and light commercials. Prices are shown without VAT, which a VAT-registered buyer can usually reclaim, with the price including VAT underneath." },
 ] as const;
 
 export type NavLink = { href: string; label: string; long?: string }; // `long`: the fuller wording the menu and the footer use

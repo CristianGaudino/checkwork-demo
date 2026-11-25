@@ -50,12 +50,8 @@ export const landingPath = (l: Landing) =>
       : `/used-cars/${l.makeSlug}/${l.modelSlug}`;
 
 // The stock query filter that selects this landing page's cars.
-export const landingFilter = (l: Landing): Pick<StockQuery, "make" | "model" | "body" | "condition"> =>
-  l.kind === "make"
-    ? { make: [l.makeSlug], model: [], body: [] }
-    : l.kind === "body"
-      ? { make: [], model: [], body: [l.bodySlug], ...(l.commercial && { condition: "commercial" as const }) }
-      : { make: [l.makeSlug], model: [l.modelSlug], body: [] };
+export const landingFilter = (l: Landing): Pick<StockQuery, "make" | "model" | "body"> =>
+  l.kind === "make" ? { make: [l.makeSlug], model: [], body: [] } : l.kind === "body" ? { make: [], model: [], body: [l.bodySlug] } : { make: [l.makeSlug], model: [l.modelSlug], body: [] };
 
 // No priced car (all on request): no price in the sentence. One price: "at"; else the range.
 const priceText = (f: Facts) => (!Number.isFinite(f.min) ? "with prices on request" : f.min === f.max ? `at ${fmtEur(f.min)}` : `from ${fmtEur(f.min)} to ${fmtEur(f.max)}`);
