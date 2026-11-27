@@ -28,7 +28,8 @@ export const nextSlots = (free: readonly string[], n: number, wanted?: string) =
 export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], min = 0, max = PHOTO_MAX_COUNT }: PhotoBinding & { slots?: readonly string[]; min?: number; max?: number }) {
   const [messages, setMessages] = useState<string[]>([]);
   const [status, setStatus] = useState("");
-  const [busy, setBusy] = useState(false);
+  const [adding, setAdding] = useState(0); // how many picked photos are being shrunk, each shown as a placeholder tile meanwhile
+  const busy = adding > 0;
   const picker = useRef<HTMLInputElement>(null);
   // Each photo's slot, kept with the photo itself, so removing one frees its own slot and the other names stay put. The list LeadForm
   // holds and sends is untouched: plain photos, in the order added.
@@ -42,10 +43,10 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
     const picked = Array.from(input.files ?? []);
     input.value = ""; // so the same photo can be picked again after a remove
     if (!picked.length) return;
-    setBusy(true);
+    const room = max - photos.length;
+    setAdding(Math.min(picked.length, Math.max(room, 0)));
     onBusy(true);
     const refused = new Set<string>();
-    const room = max - photos.length;
     if (picked.length > room) refused.add(photoCountError(max));
     const added: Blob[] = [];
     let total = size(photos);
@@ -75,7 +76,7 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
     });
     setMessages([...refused]);
     if (added.length) setStatus(`${added.length} ${added.length === 1 ? "photo" : "photos"} added. ${photos.length + added.length} of ${max} photos.`);
-    setBusy(false);
+    setAdding(0);
     onBusy(false);
   }
 
@@ -97,7 +98,7 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
         {photos.map((photo, i) => {
           const slot = slotOf.get(photo);
           return (
-            <li key={i} className="relative aspect-photo overflow-hidden rounded-control bg-photo-bg">
+            <li key={i} className="enter relative aspect-photo overflow-hidden rounded-control bg-photo-bg">
               <Preview blob={photo} alt={`Photo ${i + 1}${slot ? `: ${slot}` : ""}`} />
               {slot && (
                 <span aria-hidden="true" className={`absolute bottom-1 left-1 max-w-[calc(100%-0.5rem)] truncate px-2 py-0.5 text-meta font-semibold ${glass}`}>
@@ -117,6 +118,11 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
             </li>
           );
         })}
+        {Array.from({ length: adding }, (_, k) => (
+          <li key={`adding-${k}`} aria-hidden="true" className="flex aspect-photo items-center justify-center rounded-control bg-photo-bg text-meta text-text-2">
+            Adding
+          </li>
+        ))}
         {/* An empty slot for each thing to photograph that has no photo yet: a tap opens the picker. The first `min` are the required ones. */}
         {photos.length < max &&
           free.map((name, k) => (

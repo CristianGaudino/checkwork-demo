@@ -163,6 +163,17 @@ test("a photo is shrunk, previewed and sent with the valuation request", async (
   await expect(page.getByRole("heading", { name: "Thanks, we have your car details." })).toBeFocused();
 });
 
+test("photos being shrunk show placeholder tiles, then the photos take their place", async ({ page }) => {
+  await encodeTo(page, 1000, 400); // each photo takes 400ms to shrink
+  await open(page);
+  await toStep(page, 3);
+  await picker(page).setInputFiles(files(await jpeg(page), 3));
+  const adding = page.locator("li", { hasText: /^Adding$/ });
+  await expect(adding).toHaveCount(3);
+  await expect(tiles(page)).toHaveCount(3);
+  await expect(adding).toHaveCount(0);
+});
+
 test("a photo keeps its slot name when another is removed, and the freed slot is offered again", async ({ page }) => {
   await open(page);
   await toStep(page, 3);
