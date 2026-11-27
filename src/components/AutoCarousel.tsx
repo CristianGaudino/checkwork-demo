@@ -1,27 +1,29 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { REDUCED_MOTION, scrollBehavior, useMediaQuery } from "@/components/useMediaQuery";
-import { ChevronLeftIcon, ChevronRightIcon } from "@/components/stock/icons";
+import { Children, useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { REDUCED_MOTION, scrollBehavior, subscribe } from "@/components/useMediaQuery";
+import { ChevronLeftIcon, ChevronRightIcon, PauseIcon, PlayIcon } from "@/components/stock/icons";
 
 // A row of cards that drifts along by itself, smoothly. A mouse over it holds it still until the mouse leaves; a finger holds it while it is down and for a
 // few seconds after, then it drifts on (a phone has no hover to hand it back, and a carousel that never restarts looks broken). It is a plain scrolling row, so a finger swipes it. At either end it turns round. Used for
 // the reviews and the similar cars. The arrows and dots sit under the row from 768px, not over the cards; on a phone the row is just swiped.
+// Pause stops the drift for good (WCAG 2.2.2), on a phone too, until Play; it is not remembered past the page.
 const SPEED = 36; // px a second: slow enough to read a card as it goes by
 const RESUME = 4000; // ms of quiet after a finger lifts before the drift starts again
 const control = "flex size-9 shrink-0 items-center justify-center rounded-full border border-hairline bg-card text-text transition-[opacity,background-color] duration-150 hover:bg-hairline";
 
 // Where more than one card fits, a dot is a page, which is what the arrows move by. Where one card fits (a phone), a dot is a card.
-// `unit` is how far one dot moves the row. Read from the row's own sizes, not copied (the gap is the row's gap-4).
+// `unit` is how far one dot moves the row: a screen and the gap after it, so the next page starts on a card. Read from the row's
+// own sizes, not copied (the gap is the row's gap-4). Any overflow is a page (five reviews four across are two), and the end of
+// the row is always the last page. `end`: the scrollLeft from there on, less a pixel for rounding.
 function geometry(el: HTMLUListElement) {
   const first = el.firstElementChild as HTMLElement | null;
   const gap = parseFloat(getComputedStyle(el).columnGap) || 0;
   const step = first ? first.offsetWidth + gap : el.clientWidth;
   const perCard = Math.floor((el.clientWidth + gap) / step) <= 1;
-  return {
-    unit: perCard ? step : el.clientWidth,
-    pages: perCard ? el.children.length : Math.max(1, Math.round(el.scrollWidth / el.clientWidth)),
-  };
+  const unit = perCard ? step : el.clientWidth + gap;
+  const end = el.scrollWidth - el.clientWidth - 1;
+  return { unit, end, pages: perCard ? el.children.length : 1 + Math.max(0, Math.ceil(end / unit)) };
 }
 
 export function AutoCarousel({
@@ -35,28 +37,35 @@ export function AutoCarousel({
 }) {
   const root = useRef<HTMLDivElement>(null);
   const scroller = useRef<HTMLUListElement>(null);
-  const [state, setState] = useState({ page: 0, pages: 1 });
-  const reduced = useMediaQuery(REDUCED_MOTION, true); // true until read: no moving
+  const [state, setState] = useState({ page: 0, pages: 0 }); // pages 0: not measured yet
+  const reduced = useSyncExternalStore<boolean | null>(subscribe(REDUCED_MOTION), () => window.matchMedia(REDUCED_MOTION).matches, () => null); // null until read: no moving
+  // The controls row is drawn from the server for a row of more than one card, so it never arrives after the page and pushes it down.
+  // shortcut: a row whose cards all fit drops its row once measured, a small shift up; measure on the server if that ever shows.
+  const controls = state.pages > 1 || (state.pages === 0 && Children.count(children) > 1);
+  const [paused, setPaused] = useState(false);
   const using = useRef({ over: false, within: false, touchedAt: -Infinity }); // touchedAt: Infinity while a finger is down, else when it lifted
 
-  const unit = useRef(1);
+  const size = useRef({ unit: 1, end: 0 });
+  // The last page only at the end of the row, so Next stays live until the last card is in full view.
+  const pageAt = (left: number, pages: number) =>
+    left >= size.current.end ? pages - 1 : Math.max(0, Math.min(pages - 2, Math.round(left / size.current.unit)));
   // Measured whenever the row is resized (the observer also fires once when it starts watching). Not on scroll: scroll fires every frame
   // of a drift, and reading sizes right after the drift writes scrollLeft would force a layout each frame.
   const measure = useCallback(() => {
     const el = scroller.current;
     if (!el) return;
     const g = geometry(el);
-    unit.current = g.unit;
-    const page = Math.min(g.pages - 1, Math.round(el.scrollLeft / g.unit));
+    size.current = g;
+    const page = pageAt(el.scrollLeft, g.pages);
     setState((s) => (s.pages === g.pages && s.page === page ? s : { pages: g.pages, page }));
   }, []);
-  // On scroll only the page is worked out, from the measured unit. The same answer is no render.
+  // On scroll only the page is worked out, from the measured sizes. The same answer is no render.
   const onScroll = () => {
     const el = scroller.current;
     if (!el) return;
-    const at = Math.round(el.scrollLeft / unit.current);
+    const left = el.scrollLeft;
     setState((s) => {
-      const page = Math.min(s.pages - 1, at);
+      const page = pageAt(left, s.pages);
       return page === s.page ? s : { ...s, page };
     });
   };
@@ -73,7 +82,7 @@ export function AutoCarousel({
   useEffect(() => {
     const el = scroller.current;
     const box = root.current;
-    if (!el || !box || reduced) return;
+    if (!el || !box || reduced !== false || paused) return;
     let pos = el.scrollLeft;
     let dir = 1;
     let last = 0;
@@ -103,10 +112,10 @@ export function AutoCarousel({
       cancelAnimationFrame(frame);
       seen.disconnect();
     };
-  }, [reduced]);
+  }, [reduced, paused]);
 
-  const go = (dir: 1 | -1) => scroller.current?.scrollBy({ left: dir * scroller.current.clientWidth, behavior: scrollBehavior() });
-  const goTo = (i: number) => scroller.current?.scrollTo({ left: i * unit.current, behavior: scrollBehavior() });
+  const go = (dir: 1 | -1) => scroller.current?.scrollBy({ left: dir * size.current.unit, behavior: scrollBehavior() });
+  const goTo = (i: number) => scroller.current?.scrollTo({ left: i * size.current.unit, behavior: scrollBehavior() });
 
   return (
     <div
@@ -120,7 +129,7 @@ export function AutoCarousel({
       onPointerDown={(e) => { if (e.pointerType !== "mouse") using.current.touchedAt = Infinity; }}
       onPointerUp={(e) => { if (e.pointerType !== "mouse") using.current.touchedAt = performance.now(); }}
       onPointerCancel={(e) => { if (e.pointerType !== "mouse") using.current.touchedAt = performance.now(); }}
-      onFocus={() => (using.current.within = true)}
+      onFocus={(e) => (using.current.within = !(e.target as HTMLElement).closest("[data-playpause]"))} // focus left on Play after a press must not hold the drift
       onBlur={() => (using.current.within = false)}
     >
       <ul
@@ -130,25 +139,32 @@ export function AutoCarousel({
       >
         {children}
       </ul>
-      {state.pages > 1 && (
-        <div className="mt-4 flex items-center justify-center gap-3 max-md:hidden">
-          <button type="button" aria-label={`Previous ${noun}`} onClick={() => go(-1)} className={`${control} ${state.page <= 0 ? "pointer-events-none opacity-30" : ""}`}>
+      {controls && (
+        // On a phone only Pause shows, so with reduced motion (no drift, no Pause) the row is not drawn there at all.
+        <div className="mt-4 flex min-h-9 items-center max-md:min-h-11 justify-center gap-3 max-md:motion-reduce:hidden">
+          <button type="button" aria-label={`Previous ${noun}`} onClick={() => go(-1)} className={`${control} max-md:hidden ${state.page <= 0 ? "pointer-events-none opacity-30" : ""}`}>
             <ChevronLeftIcon className="size-5" />
           </button>
           {/* A dot per page, while the row of controls has room: four on a phone, sixteen from md up. After that, a count. */}
-          <div className={`items-center ${state.pages <= 4 ? "flex" : state.pages <= 16 ? "hidden md:flex" : "hidden"}`}>
+          <div className={`items-center max-md:hidden ${state.pages <= 4 ? "flex" : state.pages <= 16 ? "hidden md:flex" : "hidden"}`}>
             {Array.from({ length: state.pages }, (_, i) => (
               <button key={i} type="button" aria-label={`Go to page ${i + 1} of ${state.pages}`} aria-current={i === state.page ? "true" : undefined} onClick={() => goTo(i)} className="group/dot flex size-6 items-center justify-center">
                 <span className={`rounded-full transition-colors duration-200 motion-reduce:transition-none ${i === state.page ? "h-2 w-5 bg-accent" : "size-2 bg-hairline group-hover/dot:bg-text-2"}`} />
               </button>
             ))}
           </div>
-          <p aria-hidden="true" className={`text-meta tabular-nums text-text-2 ${state.pages <= 4 ? "hidden" : state.pages <= 16 ? "md:hidden" : ""}`}>
+          <p aria-hidden="true" className={`text-meta tabular-nums text-text-2 max-md:hidden ${state.pages <= 4 ? "hidden" : state.pages <= 16 ? "md:hidden" : ""}`}>
             {state.page + 1} / {state.pages}
           </p>
-          <button type="button" aria-label={`Next ${noun}`} onClick={() => go(1)} className={`${control} ${state.page >= state.pages - 1 ? "pointer-events-none opacity-30" : ""}`}>
+          <button type="button" aria-label={`Next ${noun}`} onClick={() => go(1)} className={`${control} max-md:hidden ${state.page >= state.pages - 1 ? "pointer-events-none opacity-30" : ""}`}>
             <ChevronRightIcon className="size-5" />
           </button>
+          {/* Held in place, unseen, until reduced motion is read; then gone if it is on. */}
+          {reduced !== true && (
+            <button type="button" data-playpause aria-label={`${paused ? "Play" : "Pause"} ${noun}`} onClick={() => setPaused(!paused)} className={`${control} max-md:size-11 ${reduced === null ? "invisible" : ""}`}>
+              {paused ? <PlayIcon className="size-5" /> : <PauseIcon className="size-5" />}
+            </button>
+          )}
         </div>
       )}
     </div>
