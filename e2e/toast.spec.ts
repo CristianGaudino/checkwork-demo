@@ -90,3 +90,51 @@ test("Undo puts back the car that was removed and keeps a car saved since", asyn
   await expect(heart(page)).toHaveAttribute("aria-pressed", "true");
   await expect(second).toHaveAttribute("aria-pressed", "true");
 });
+
+test("Dismiss fades the toast out in under 200ms, then it is gone", async ({ page }) => {
+  await page.goto("/used-cars");
+  await ready(page);
+  await heart(page).click();
+  await heart(page).click();
+  const toast = page.getByTestId("toast");
+  await expect(toast).toContainText("Removed from saved");
+  await expect.poll(() => toast.evaluate((el) => el.getAnimations().length)).toBe(0); // the rise in is over
+  const running = await toast.evaluate((el) => {
+    (el.querySelector("button[aria-label='Dismiss']") as HTMLButtonElement).click();
+    const a = el.getAnimations().find((x) => x.playState === "running");
+    return a ? Number(a.effect?.getComputedTiming().duration) : 0;
+  });
+  expect(running).toBeGreaterThan(0);
+  expect(running).toBeLessThan(200);
+  await expect(toast).toHaveCount(0);
+});
+
+test("a new toast while one fades out stays up", async ({ page }) => {
+  await page.goto("/used-cars");
+  await ready(page);
+  await heart(page).click();
+  await heart(page).click();
+  const toast = page.getByTestId("toast");
+  await toast.getByRole("button", { name: "Dismiss" }).click();
+  await heart(page).click();
+  await heart(page).click(); // a new toast, while the first may still be leaving
+  await page.waitForTimeout(400);
+  await expect(toast).toContainText("Removed from saved");
+});
+
+test("with reduced motion the toast and the compare pill still fade in", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/used-cars");
+  await ready(page);
+  await page.goto((await page.locator("article h2 a").first().getAttribute("href"))!);
+  await ready(page);
+  const button = page.getByTestId("buy-box").getByRole("button", { name: /^Compare / });
+  await button.click();
+  await button.click(); // off again: a toast
+  await button.click(); // on again: the pill is back, and the toast is still up
+  const bar = page.getByRole("region", { name: "Compare cars" });
+  const toast = page.getByTestId("toast");
+  await expect(bar).toBeVisible();
+  await expect(toast).toBeVisible();
+  for (const el of [toast, bar]) expect(await el.evaluate((e) => getComputedStyle(e).transitionProperty)).toContain("opacity");
+});
