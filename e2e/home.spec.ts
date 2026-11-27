@@ -300,3 +300,26 @@ test("the make chips show the maker's logo, and it loads", async ({ page }) => {
   await expect(logo).toBeVisible();
   await expect.poll(() => logo.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0)).toBe(true);
 });
+
+test("the reviews row drifts without reading its sizes every frame", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  // Counts getComputedStyle calls on a carousel row: the drift moves scrollLeft every frame, and sizes read after that force a layout.
+  await page.addInitScript(() => {
+    const w = window as unknown as { __reads: number };
+    w.__reads = 0;
+    const real = window.getComputedStyle;
+    window.getComputedStyle = function (el, pseudo) {
+      if (el instanceof HTMLUListElement && el.closest("[aria-roledescription=carousel]")) w.__reads++;
+      return real.call(window, el, pseudo);
+    };
+  });
+  await page.goto("/");
+  const row = page.getByRole("group", { name: "Google reviews" }).locator("ul").first();
+  await row.scrollIntoViewIfNeeded();
+  await page.mouse.move(0, 0);
+  const start = await row.evaluate((el) => el.scrollLeft);
+  await expect.poll(() => row.evaluate((el) => el.scrollLeft)).not.toBe(start); // it drifts
+  const before = await page.evaluate(() => (window as unknown as { __reads: number }).__reads);
+  await page.waitForTimeout(500);
+  expect(await page.evaluate(() => (window as unknown as { __reads: number }).__reads)).toBe(before);
+});

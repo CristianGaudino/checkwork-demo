@@ -37,7 +37,7 @@ export function RecentlyViewed({ max, notSaved = false }: { max: number; notSave
   const cars = loaded && loaded !== "error" ? loaded.cars.filter((c) => ids.includes(c.id)) : [];
   if (!cars.length) return null;
   return (
-    <section aria-labelledby={heading} className="flex flex-col gap-4 transition-opacity duration-200 ease-out starting:opacity-0 motion-reduce:transition-none">
+    <section aria-labelledby={heading} className="flex flex-col gap-4 transition-opacity duration-200 ease-out starting:opacity-0">
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
         <h2 id={heading} className={sectionTitle}>
           Recently viewed

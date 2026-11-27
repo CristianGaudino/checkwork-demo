@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import { SITE_NAME } from "../src/lib/site";
+import { choose } from "./combo";
 import { unfold } from "./open";
 
 type Demo = { slug: string; soldAt?: string };
@@ -218,4 +219,82 @@ test("a slow page shows the bar along the top until it lands", async ({ page }) 
   await expect(bar).toHaveCSS("opacity", "1");
   await page.waitForURL(`**${href}`);
   await expect(bar).toHaveAttribute("data-phase", "idle");
+});
+
+// The two search forms are next/form: a client navigation, so the page is not reloaded (the marker survives) and the bar runs.
+const hydrated = (page: import("@playwright/test").Page) => page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+// Every phase the bar goes through, so a quick page (a prefetched one) cannot slip between two looks.
+const phases = (page: import("@playwright/test").Page) =>
+  page.evaluate(() => {
+    const w = window as unknown as { __phases: string[] };
+    w.__phases = [];
+    const bar = document.querySelector(".nav-progress")!;
+    new MutationObserver(() => w.__phases.push(bar.getAttribute("data-phase")!)).observe(bar, { attributes: true });
+  });
+const seen = (page: import("@playwright/test").Page) => page.evaluate(() => (window as unknown as { __phases: string[] }).__phases);
+const slow = (page: import("@playwright/test").Page, path: string) =>
+  page.route((url) => url.pathname === path, async (r) => {
+    await new Promise((ok) => setTimeout(ok, 1500));
+    await r.continue();
+  });
+
+test("the home search moves to the stock without a reload, with the bar along the top", async ({ page }) => {
+  const bar = page.locator(".nav-progress");
+  await page.goto("/");
+  await hydrated(page);
+  await page.evaluate(() => ((window as unknown as { __marker: number }).__marker = 1));
+  await slow(page, "/used-cars");
+  await phases(page);
+  await choose(page.getByLabel("Make", { exact: true }), 1); // the first make after Any
+  await page.getByRole("button", { name: "Search cars" }).click();
+  await page.waitForURL(/\/used-cars\?/);
+  expect(await seen(page)).toContain("loading");
+  expect(new URL(page.url()).searchParams.get("make")).toBeTruthy();
+  expect(await page.evaluate(() => (window as unknown as { __marker?: number }).__marker)).toBe(1);
+  await expect(bar).toHaveAttribute("data-phase", "idle");
+});
+
+test("the test drive search moves without a reload, with the bar along the top", async ({ page }) => {
+  const bar = page.locator(".nav-progress");
+  await page.goto("/test-drive");
+  await hydrated(page);
+  await page.evaluate(() => ((window as unknown as { __marker: number }).__marker = 1));
+  await slow(page, "/test-drive");
+  await phases(page);
+  const search = page.getByRole("search").getByRole("searchbox");
+  await search.fill(live.slug.split("-")[0]);
+  await search.press("Enter");
+  await page.waitForURL(/\/test-drive\?q=/);
+  expect(await seen(page)).toContain("loading");
+  expect(await page.evaluate(() => (window as unknown as { __marker?: number }).__marker)).toBe(1);
+  await expect(bar).toHaveAttribute("data-phase", "idle");
+});
+
+test("the search forms still send a plain GET without scripts", async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+  await page.goto("/test-drive");
+  const search = page.getByRole("search").getByRole("searchbox");
+  await search.fill(live.slug.split("-")[0]);
+  await search.press("Enter");
+  await page.waitForURL(/\/test-drive\?q=/);
+  await page.goto("/");
+  await page.getByRole("button", { name: "Search cars" }).click();
+  await page.waitForURL(/\/used-cars\?/);
+  await context.close();
+});
+
+test("a lead form, or a GET form that handles its own submit, never starts the bar", async ({ page }) => {
+  await page.goto("/contact");
+  await hydrated(page);
+  await page.evaluate(() => {
+    document.querySelector("form[method='post']")!.dispatchEvent(new SubmitEvent("submit", { bubbles: true, cancelable: true }));
+    const f = Object.assign(document.createElement("form"), { action: "/used-cars" });
+    f.addEventListener("submit", (e) => e.preventDefault());
+    document.body.append(f);
+    f.requestSubmit();
+  });
+  await page.waitForTimeout(200); // time for a wrong start to render
+  await expect(page.locator(".nav-progress")).toHaveAttribute("data-phase", "idle");
+  expect(new URL(page.url()).pathname).toBe("/contact");
 });

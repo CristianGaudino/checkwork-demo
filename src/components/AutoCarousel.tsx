@@ -39,14 +39,27 @@ export function AutoCarousel({
   const reduced = useMediaQuery(REDUCED_MOTION, true); // true until read: no moving
   const using = useRef({ over: false, within: false, touchedAt: -Infinity }); // touchedAt: Infinity while a finger is down, else when it lifted
 
-  // Measured on scroll, and whenever the row is resized (the observer also fires once when it starts watching).
+  const unit = useRef(1);
+  // Measured whenever the row is resized (the observer also fires once when it starts watching). Not on scroll: scroll fires every frame
+  // of a drift, and reading sizes right after the drift writes scrollLeft would force a layout each frame.
   const measure = useCallback(() => {
     const el = scroller.current;
     if (!el) return;
-    const { unit, pages } = geometry(el);
-    const page = Math.min(pages - 1, Math.round(el.scrollLeft / unit));
-    setState((s) => (s.pages === pages && s.page === page ? s : { pages, page })); // the same answer is no render: scroll fires every frame of a drift
+    const g = geometry(el);
+    unit.current = g.unit;
+    const page = Math.min(g.pages - 1, Math.round(el.scrollLeft / g.unit));
+    setState((s) => (s.pages === g.pages && s.page === page ? s : { pages: g.pages, page }));
   }, []);
+  // On scroll only the page is worked out, from the measured unit. The same answer is no render.
+  const onScroll = () => {
+    const el = scroller.current;
+    if (!el) return;
+    const at = Math.round(el.scrollLeft / unit.current);
+    setState((s) => {
+      const page = Math.min(s.pages - 1, at);
+      return page === s.page ? s : { ...s, page };
+    });
+  };
   useEffect(() => {
     const el = scroller.current;
     if (!el) return;
@@ -93,10 +106,7 @@ export function AutoCarousel({
   }, [reduced]);
 
   const go = (dir: 1 | -1) => scroller.current?.scrollBy({ left: dir * scroller.current.clientWidth, behavior: scrollBehavior() });
-  const goTo = (i: number) => {
-    const el = scroller.current;
-    if (el) el.scrollTo({ left: i * geometry(el).unit, behavior: scrollBehavior() });
-  };
+  const goTo = (i: number) => scroller.current?.scrollTo({ left: i * unit.current, behavior: scrollBehavior() });
 
   return (
     <div
@@ -115,7 +125,7 @@ export function AutoCarousel({
     >
       <ul
         ref={scroller}
-        onScroll={measure}
+        onScroll={onScroll}
         className="relative flex gap-4 overflow-x-auto overscroll-x-contain pb-1 scrollbar-none [&::-webkit-scrollbar]:hidden"
       >
         {children}

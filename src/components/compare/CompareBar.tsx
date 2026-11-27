@@ -32,7 +32,7 @@ export function CompareBar() {
   if (ids.length === 0 || path === "/compare") return null;
   if (small) {
     return (
-      <div data-compare-bar role="region" aria-label="Compare cars" className="pointer-events-auto self-end">
+      <div data-compare-bar role="region" aria-label="Compare cars" className="pointer-events-auto origin-right self-end transition-[opacity,scale] duration-200 ease-out starting:scale-95 starting:opacity-0 motion-reduce:starting:scale-100">
         <button
           type="button"
           ref={take}
@@ -47,7 +47,7 @@ export function CompareBar() {
     );
   }
   return (
-    <div data-compare-bar role="region" aria-label="Compare cars" className="pointer-events-auto flex max-w-full flex-wrap items-center justify-end gap-x-3 rounded-control border border-hairline bg-card py-1 pl-4 pr-1 shadow-lift transition-[opacity,translate] duration-200 starting:translate-y-2 starting:opacity-0 motion-reduce:transition-none">
+    <div data-compare-bar role="region" aria-label="Compare cars" className="pointer-events-auto flex max-w-full flex-wrap items-center justify-end gap-x-3 rounded-control border border-hairline bg-card py-1 pl-4 pr-1 shadow-lift transition-[opacity,translate] duration-200 starting:translate-y-2 starting:opacity-0 motion-reduce:starting:translate-y-0">
       {/* With large text the buttons outgrow a phone (their sizes are in rem): they wrap under the count, never off the screen. */}
       <p className="min-w-0 grow text-meta font-semibold">
         {ids.length} of {MAX_COMPARE} to compare
