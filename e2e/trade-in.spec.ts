@@ -163,20 +163,24 @@ test("a photo is shrunk, previewed and sent with the valuation request", async (
   await expect(page.getByRole("heading", { name: "Thanks, we have your car details." })).toBeFocused();
 });
 
-test("photos being shrunk show placeholder tiles, then the photos take their place", async ({ page }) => {
-  await encodeTo(page, 1000, 400); // each photo takes 400ms to shrink
-  await open(page);
-  await toStep(page, 3);
-  await picker(page).setInputFiles(files(await jpeg(page), 3));
-  const adding = page.locator("li", { hasText: /^Adding$/ });
-  const grid = page.locator("fieldset ul > li:not(.sr-only)"); // every tile the buyer sees: photos, placeholders and free slots
-  const before = await grid.count();
-  await expect(adding).toHaveCount(3);
-  await expect(grid).toHaveCount(before); // the placeholders take free slots' places, so nothing below moves
-  await expect(tiles(page)).toHaveCount(3);
-  await expect(adding).toHaveCount(0);
-  await expect(grid).toHaveCount(before);
-});
+// 3 of the 8 slots, and all 8 at once: then no slot is left, so the Add photos tile comes with the tap, as it will be there after.
+for (const [n, ms] of [[3, 400], [8, 200]]) {
+  test(`${n} photos being shrunk show placeholder tiles, then the photos take their place, and the grid keeps its size`, async ({ page }) => {
+    await encodeTo(page, 1000, ms); // each photo takes this long to shrink
+    await open(page);
+    await toStep(page, 3);
+    const adding = page.locator("li", { hasText: /^Adding$/ });
+    const grid = page.locator("fieldset ul > li:not(.sr-only)"); // every tile the buyer sees: photos, placeholders, free slots, Add photos
+    const before = await grid.count();
+    await picker(page).setInputFiles(files(await jpeg(page), n));
+    await expect(adding).toHaveCount(n);
+    const during = n < 8 ? before : before + 1; // the placeholders take free slots' places; only the Add tile can come, with the tap
+    await expect(grid).toHaveCount(during);
+    await expect(tiles(page)).toHaveCount(n);
+    await expect(adding).toHaveCount(0);
+    await expect(grid).toHaveCount(during); // nothing below moves once the photos land
+  });
+}
 
 test("a photo keeps its slot name when another is removed, and the freed slot is offered again", async ({ page }) => {
   await open(page);

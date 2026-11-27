@@ -219,7 +219,7 @@ test.describe("desktop pointer", () => {
   });
 });
 
-test("the placeholder is about as tall as the compare card that replaces it", async ({ page }) => {
+test("the placeholder is about as tall as the compare card that replaces it, and starts where it starts", async ({ page }) => {
   await openCompare(page, 2);
   await page.route("**/api/saved-cars**", async (r) => {
     await new Promise((done) => setTimeout(done, 800));
@@ -229,4 +229,5 @@ test("the placeholder is about as tall as the compare card that replaces it", as
   const skeleton = (await page.locator("[data-skeleton]").first().boundingBox())!;
   const card = (await cards(page).first().boundingBox())!;
   expect(Math.abs(card.height - skeleton.height)).toBeLessThan(8);
+  expect(Math.abs(card.y - skeleton.y)).toBeLessThan(8); // the count row and the legend above the cards are held while they load
 });

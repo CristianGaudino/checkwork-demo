@@ -94,7 +94,7 @@ export function ServiceMenu({ services }: { services: readonly Service[] }) {
                 aria-expanded={on}
                 aria-controls={id}
                 onClick={() => toggle(s.name)}
-                className={`flex h-full w-full flex-col items-start gap-2 rounded-card border p-5 text-left transition-[background-color,border-color,scale] duration-200 active:scale-[0.99] motion-reduce:transition-none ${on ? "border-accent bg-card" : "border-hairline bg-card hover:bg-hairline/50"}`}
+                className={`flex h-full w-full flex-col items-start gap-2 rounded-card border p-5 text-left active:scale-[0.99] motion-reduce:active:scale-100 ${on ? "border-accent bg-card" : "border-hairline bg-card hover:bg-hairline/50"}`}
               >
                 <span className="flex w-full items-center justify-between gap-2">
                   <span className={subTitle}>{s.name}</span>

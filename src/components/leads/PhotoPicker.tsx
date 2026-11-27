@@ -36,6 +36,7 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
   const [slotOf] = useState(() => new WeakMap<Blob, string>());
   const wanted = useRef<string | undefined>(undefined); // the empty slot tapped to open the picker
   const free = slots.filter((s) => !photos.some((p) => slotOf.get(p) === s));
+  const open = free.slice(adding); // the free slots not stood in for by an Adding tile: the grid shows now what it will show after
   const helperId = `${id}-helper`;
   const errorId = error ? `${id}-error` : undefined;
 
@@ -126,7 +127,7 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
         {/* An empty slot for each thing to photograph that has no photo yet: a tap opens the picker. The first `min` are the required ones.
             The Adding tiles stand in for the first free slots, so the grid keeps its size while photos shrink. */}
         {photos.length < max &&
-          free.slice(adding).map((name, k) => (
+          open.map((name, k) => (
             <li key={name}>
               {/* A button, not a label: the file input would otherwise take every slot's name as its own. */}
               <button
@@ -146,7 +147,7 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
             </li>
           ))}
         {/* The input stays in the page at 12 so a summary link can still reach it; only the Add tile goes. */}
-        <li className={photos.length >= max || free.length ? "sr-only" : "relative"}>
+        <li className={photos.length + adding >= max || open.length ? "sr-only" : "relative"}>
           <input
             ref={picker}
             id={id}
@@ -160,7 +161,7 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
             onChange={(e) => add(e.currentTarget)}
             className="peer sr-only"
           />
-          {photos.length < max && !free.length && (
+          {photos.length + adding < max && !open.length && (
             <label
               htmlFor={id}
               aria-busy={busy}
