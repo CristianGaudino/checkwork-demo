@@ -16,7 +16,7 @@ export function BrowseByType({ tiles }: { tiles: TypeTile[] }) {
       <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-[repeat(auto-fit,minmax(10rem,1fr))]">
         {tiles.map((t) => (
           <li key={t.key}>
-            <Link href={t.href} className={`${card} flex h-full flex-col overflow-hidden transition-shadow hover:shadow-lift ${press}`}>
+            <Link href={t.href} className={`${card} flex h-full flex-col overflow-hidden hover:shadow-lift ${press}`}>
               <span className="block aspect-photo overflow-hidden bg-photo-bg">
                 {t.photo && (
                   <Image src={t.photo.src} width={320} height={240} alt="" loading="lazy" className="size-full object-cover" />
