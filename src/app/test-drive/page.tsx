@@ -56,7 +56,7 @@ export default async function TestDrivePage({ searchParams }: PageProps<"/test-d
       ]}
     >
       <h2 className={subTitle}>Select a car</h2>
-      <Form action="/test-drive" data-nav role="search" className="relative mt-4 sm:max-w-sm">
+      <Form action="/test-drive" role="search" className="relative mt-4 sm:max-w-sm">
         <SearchIcon aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-text-2" />
         <input type="search" name="q" defaultValue={q} aria-label={SEARCH_MAKE_MODEL} placeholder={SEARCH_MAKE_MODEL} maxLength={80} enterKeyHint="search" className="h-12 w-full rounded-control border border-control bg-card pl-10 pr-4 text-body" />
       </Form>

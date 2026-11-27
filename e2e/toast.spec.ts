@@ -115,10 +115,18 @@ test("a new toast while one fades out stays up", async ({ page }) => {
   await heart(page).click();
   await heart(page).click();
   const toast = page.getByTestId("toast");
-  await toast.getByRole("button", { name: "Dismiss" }).click();
-  await heart(page).click();
-  await heart(page).click(); // a new toast, while the first may still be leaving
-  await page.waitForTimeout(400);
+  await expect(toast).toContainText("Removed from saved");
+  // In one task, so the first toast's 150ms fade is surely still running when the next one comes.
+  await toast.evaluate((el) => {
+    el.setAttribute("data-old", "");
+    (el.querySelector("button[aria-label='Dismiss']") as HTMLButtonElement).click();
+    const heart = document.querySelector("article button[aria-label^='Save ']") as HTMLButtonElement;
+    heart.click();
+    heart.click(); // saved and removed again: a new toast
+  });
+  await page.waitForTimeout(400); // well past the old fade, which must not take the new toast with it
+  await expect(toast).toHaveCount(1);
+  await expect(toast).not.toHaveAttribute("data-old");
   await expect(toast).toContainText("Removed from saved");
 });
 

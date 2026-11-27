@@ -106,8 +106,8 @@ export function CompareCards() {
   if (!loaded) {
     return (
       <div aria-hidden className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        {/* Bars for the make, name and meta, then a row per figure and one for Show equipment, so the page keeps its height. */}
-        <SkeletonCards count={ids ? Math.min(ids.length, MAX_COMPARE) : 1} rows={4 + ROWS.length} />
+        {/* A compare card's frame, the make and name, then a row per figure and one for Show equipment, so the page keeps its shape. */}
+        <SkeletonCards count={ids ? Math.min(ids.length, MAX_COMPARE) : 1} boxed figures={ROWS.length + 1} />
       </div>
     );
   }

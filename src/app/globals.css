@@ -225,12 +225,13 @@
   }
 
   /* Press feedback (UI-SPEC Motion): active:scale-* sets the `scale` property, so it needs this 100ms ease-out or it snaps. It also
-     carries the colour and shadow changes a pressable has on hover or when checked. Zero specificity, so any transition utility on the
-     element replaces all of it: a pressable must not have one. */
+     carries the colour and shadow changes a pressable has on hover or when checked, and the dim while it is disabled or busy. Zero
+     specificity, so any transition utility on the element replaces all of it: a pressable must not have one. */
   :where([class*="active:scale-"]) {
     transition:
       scale 100ms var(--ease-out),
       filter 100ms var(--ease-out),
+      opacity 150ms var(--ease-out),
       color 150ms ease,
       background-color 150ms ease,
       border-color 150ms ease,

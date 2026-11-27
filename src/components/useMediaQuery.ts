@@ -3,6 +3,8 @@
 import { useSyncExternalStore } from "react";
 
 export const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
+// The --ease-out token in globals.css, for Web Animations calls: keep the two the same.
+export const EASE_OUT = "cubic-bezier(0.23, 1, 0.32, 1)";
 
 // One subscriber per query, so React keeps the same function between renders and does not resubscribe.
 const subscribers = new Map<string, (cb: () => void) => () => void>();

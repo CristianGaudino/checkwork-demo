@@ -101,8 +101,10 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
         </div>
         <div className={`flex flex-col gap-4 ${card} p-4 sm:p-6`}>
           <div role="status" aria-live="polite" className="flex flex-col gap-2">
+            {/* A stale quote is only there to hold the card's shape: hidden from screen readers, which hear the hint instead. */}
+            {shown && !q && <p className="sr-only">Check the figures you entered.</p>}
             {shown ? (
-              <div className={`flex flex-col gap-2 transition-opacity duration-150${q ? "" : " opacity-60"}`}>
+              <div aria-hidden={q ? undefined : true} className={`flex flex-col gap-2 transition-opacity duration-150${q ? "" : " opacity-60"}`}>
                 <p className="text-meta text-text-2">Estimated monthly payment</p>
                 {/* Grows less than large text on a phone, as the page title does, so the amount stays inside the card whole. */}
                 <p className="text-display font-semibold tabular-nums max-sm:[font-size:clamp(1.25rem,10vw,2rem)]">
@@ -126,10 +128,10 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
                       </dd>
                     </div>
                   ))}
-                  {pcp && (
+                  {final !== undefined && FINANCE.pcp && (
                     <div className="flex flex-wrap justify-between gap-x-4">
                       <dt className="min-w-0 text-text-2">Mileage allowance</dt>
-                      <dd className="ml-auto min-w-0 text-right tabular-nums">{pcp.kmPerYear.toLocaleString("en-IE")} km a year</dd>
+                      <dd className="ml-auto min-w-0 text-right tabular-nums">{FINANCE.pcp.kmPerYear.toLocaleString("en-IE")} km a year</dd>
                     </div>
                   )}
                 </dl>

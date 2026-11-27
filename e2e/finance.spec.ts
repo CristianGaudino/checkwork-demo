@@ -96,6 +96,9 @@ test("/finance shows what to fix, never NaN, and dims the last good figure until
   await expect(page.getByText("Deposit must be less than the price.")).toBeVisible();
   await expect(shown(page)).toHaveCSS("opacity", "0.6");
   await expect(result(page)).toContainText(`About ${price(good.monthlyEur)} a month`);
+  // Only the eye gets the stale figure: a screen reader hears what to do instead.
+  await expect(shown(page)).toHaveAttribute("aria-hidden", "true");
+  await expect(result(page).locator("p.sr-only", { hasText: "Check the figures you entered." })).toBeAttached();
 
   await calc(page).getByLabel("Deposit").fill("3000");
   await calc(page).getByLabel("Price").fill("999");
@@ -105,6 +108,8 @@ test("/finance shows what to fix, never NaN, and dims the last good figure until
 
   await calc(page).getByLabel("Price").fill("15000");
   await expect(shown(page)).toHaveCSS("opacity", "1");
+  await expect(shown(page)).not.toHaveAttribute("aria-hidden");
+  await expect(result(page).locator("p.sr-only")).toHaveCount(0);
 });
 
 test("/finance typing a new price one key at a time never flips the result to an error or changes its height", async ({ page }) => {
@@ -116,7 +121,7 @@ test("/finance typing a new price one key at a time never flips the result to an
     w.sawError = false;
     w.heights = new Set();
     new MutationObserver(() => {
-      if (el.textContent?.includes("Check the figures you entered.")) w.sawError = true;
+      if ([...el.querySelectorAll("p:not(.sr-only)")].some((p) => p.textContent?.includes("Check the figures you entered."))) w.sawError = true; // the screen reader hint is fine
       w.heights.add(Math.round(el.getBoundingClientRect().height));
     }).observe(el, { subtree: true, childList: true, characterData: true, attributes: true });
   });

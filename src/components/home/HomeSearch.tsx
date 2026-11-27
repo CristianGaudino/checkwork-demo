@@ -48,7 +48,7 @@ export function HomeSearch({ makes, bodies, models }: Props) {
       </div>
       <div className="relative">
         <div role="tabpanel" id={`${id}-panel-search`} aria-labelledby={`${id}-tab-search`} className={panel("search")}>
-          <Form action="/used-cars" data-nav className="grid grid-cols-2 gap-x-3 max-[359px]:grid-cols-1 gap-y-3 p-4 sm:grid-cols-3 sm:gap-4">
+          <Form action="/used-cars" className="grid grid-cols-2 gap-x-3 max-[359px]:grid-cols-1 gap-y-3 p-4 sm:grid-cols-3 sm:gap-4">
             <Select name="make" label="Make" any="Any" value={make} onChange={setMake} options={makes.map((m) => [m.slug, m.label])} />
             <Select key={make} name="model" label="Model" any="Any" options={shownModels.map((m) => [m.slug, m.label])} />
             <Select name="body" label="Body type" any="Any" className="hidden sm:flex" options={bodies.map((b) => [b.slug, b.label])} />

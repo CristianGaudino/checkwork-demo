@@ -25,7 +25,7 @@ One sentence: a bright, editorial showroom, where the cars are the colour.
 | Type | Montserrat everywhere, bold and heavy | **A different family**: a variable sans such as Manrope for headings and body, large light-to-medium weights, tight tracking, numerals in tabular style. Self-hosted, one file |
 | Shape | 12 to 16px rounded cards with borders | **Soft but flatter**: 20px radius on image tiles only, 10px on controls, no card borders, depth from background tone and one soft shadow |
 | Photography | Cards with a visible frame | **Full-bleed tiles**: the photo is the card, text sits under it with plenty of air |
-| Motion | Press scale and fades | Springy sheet and tile transitions from the apple-design skill, view transitions between list and car page, nothing slower than 250ms, all off with reduced motion |
+| Motion | Press scale and fades | Springy sheet and tile transitions from the apple-design skill, view transitions between list and car page, nothing slower than 250ms; movement and scale off with reduced motion, short opacity fades stay |
 
 ## 4. Layout and navigation
 - **Header:** transparent over the hero, then a slim solid bar. Centre: a vehicle-type switch **Used · Commercial**. Left: logo. Right: search, saved, menu. On a phone: logo left, menu right, and the vehicle-type switch becomes a segmented control under the hero search.

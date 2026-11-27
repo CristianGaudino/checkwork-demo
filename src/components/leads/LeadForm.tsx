@@ -367,7 +367,7 @@ export function LeadForm({
               the form on arriving at the last step. */}
           {/* An `auto` step moves on when its answer is picked, so it has no Next. */}
           {steps?.[step]?.auto ? null : last ? (
-            <button key="send" type="submit" disabled={pending || shrinking} aria-busy={pending || shrinking} className={`${accentButton} ${button} flex items-center justify-center gap-2 [transition:scale_100ms_var(--ease-out),filter_100ms_var(--ease-out),opacity_150ms_var(--ease-out)] disabled:opacity-60`}>
+            <button key="send" type="submit" disabled={pending || shrinking} aria-busy={pending || shrinking} className={`${accentButton} ${button} flex items-center justify-center gap-2 disabled:opacity-60`}>
               {/* Turns on the compositor; with reduced motion it stays still and the word still changes. */}
               {pending && <span data-spinner aria-hidden="true" className="size-4 shrink-0 rounded-full border-2 border-current border-r-transparent motion-safe:animate-spin" />}
               {pending ? "Sending" : submitLabel}

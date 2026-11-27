@@ -8,7 +8,7 @@ import type { MouseEvent, RefObject } from "react";
 import { CloseIcon } from "@/components/stock/icons";
 import { PhotoArrow } from "@/components/stock/PhotoArrow";
 import { counterPill, settle } from "@/components/stock/photo-load";
-import { REDUCED_MOTION } from "@/components/useMediaQuery";
+import { EASE_OUT, REDUCED_MOTION } from "@/components/useMediaQuery";
 import type { Photo } from "@/lib/stock/types";
 import { useSlideIndex } from "./useSlideIndex";
 
@@ -75,7 +75,7 @@ export function PhotoLightbox({
     const s = from.width / to.width;
     const dx = from.left - now.left - s * (to.left - now.left);
     const dy = from.top - now.top - s * (to.top - now.top);
-    img.animate([{ transform: `translate(${dx}px, ${dy}px) scale(${s})` }, { transform: "none" }], { duration: 220, easing: "cubic-bezier(0.23, 1, 0.32, 1)" });
+    img.animate([{ transform: `translate(${dx}px, ${dy}px) scale(${s})` }, { transform: "none" }], { duration: 220, easing: EASE_OUT });
   }, [zoom]);
   // Photos stay visible without JavaScript: the hide-until-loaded style only applies once this attribute is set.
   useEffect(() => scroller.current?.setAttribute("data-js", ""), [scroller]);

@@ -170,7 +170,7 @@ export function StockShell({ query, title, intro, noun, summary, children }: { q
               if (!a) return;
               if (a.matches("a[href^='/used-cars/']")) rememberScroll(query);
               // A page link dims the old cars as sort and filters do. A plain left click only, so a new tab still opens one.
-              else if (a.closest('nav[aria-label="Pagination"]') && e.button === 0 && !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)) {
+              else if (a.closest("[data-pager]") && e.button === 0 && !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)) {
                 e.preventDefault();
                 startTransition(() => router.replace(a.getAttribute("href")!, { scroll: true }));
               }

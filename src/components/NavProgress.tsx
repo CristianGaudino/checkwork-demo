@@ -25,12 +25,11 @@ export function NavProgress() {
       if (!(a instanceof HTMLAnchorElement) || (a.target && a.target !== "_self") || a.hasAttribute("download")) return;
       go(new URL(a.href));
     };
-    // GET forms only (a lead form posts). next/form cancels the submit to navigate itself, so a cancelled submit counts only from a form
-    // marked data-nav: one that handles its own submit never starts the bar. On window, so it runs after React's handlers.
+    // GET forms only (a lead form posts). next/form cancels the submit to navigate itself, so a cancelled submit still counts.
+    // On window, so it runs after React's handlers.
     const send = (e: SubmitEvent) => {
       const f = e.target;
       if (!(f instanceof HTMLFormElement) || f.method !== "get" || (f.target && f.target !== "_self")) return;
-      if (e.defaultPrevented && !f.hasAttribute("data-nav")) return;
       const to = new URL(f.action);
       to.search = new URLSearchParams([...new FormData(f, e.submitter)].map(([k, v]) => [k, String(v)])).toString();
       go(to);

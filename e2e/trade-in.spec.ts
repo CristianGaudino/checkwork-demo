@@ -169,9 +169,13 @@ test("photos being shrunk show placeholder tiles, then the photos take their pla
   await toStep(page, 3);
   await picker(page).setInputFiles(files(await jpeg(page), 3));
   const adding = page.locator("li", { hasText: /^Adding$/ });
+  const grid = page.locator("fieldset ul > li:not(.sr-only)"); // every tile the buyer sees: photos, placeholders and free slots
+  const before = await grid.count();
   await expect(adding).toHaveCount(3);
+  await expect(grid).toHaveCount(before); // the placeholders take free slots' places, so nothing below moves
   await expect(tiles(page)).toHaveCount(3);
   await expect(adding).toHaveCount(0);
+  await expect(grid).toHaveCount(before);
 });
 
 test("a photo keeps its slot name when another is removed, and the freed slot is offered again", async ({ page }) => {

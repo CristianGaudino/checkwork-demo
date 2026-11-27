@@ -123,9 +123,10 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
             Adding
           </li>
         ))}
-        {/* An empty slot for each thing to photograph that has no photo yet: a tap opens the picker. The first `min` are the required ones. */}
+        {/* An empty slot for each thing to photograph that has no photo yet: a tap opens the picker. The first `min` are the required ones.
+            The Adding tiles stand in for the first free slots, so the grid keeps its size while photos shrink. */}
         {photos.length < max &&
-          free.map((name, k) => (
+          free.slice(adding).map((name, k) => (
             <li key={name}>
               {/* A button, not a label: the file input would otherwise take every slot's name as its own. */}
               <button
@@ -135,12 +136,12 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
                   wanted.current = name;
                   picker.current?.click();
                 }}
-                aria-label={`Add photo: ${name}, ${photos.length + k < min ? "required" : "recommended"}`}
+                aria-label={`Add photo: ${name}, ${photos.length + adding + k < min ? "required" : "recommended"}`}
                 className="flex aspect-photo w-full cursor-pointer flex-col items-center justify-center gap-0.5 rounded-control border border-dashed border-control px-2 py-1 text-center text-meta text-text-2 transition-colors hover:border-text hover:text-text disabled:cursor-default disabled:opacity-60"
               >
                 <CameraIcon className="size-6" />
                 <span className="font-semibold">{name}</span>
-                <span>{photos.length + k < min ? "Required" : "Recommended"}</span>
+                <span>{photos.length + adding + k < min ? "Required" : "Recommended"}</span>
               </button>
             </li>
           ))}

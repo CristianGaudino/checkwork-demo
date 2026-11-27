@@ -228,5 +228,5 @@ test("the placeholder is about as tall as the compare card that replaces it", as
   await page.reload();
   const skeleton = (await page.locator("[data-skeleton]").first().boundingBox())!;
   const card = (await cards(page).first().boundingBox())!;
-  expect(Math.abs(card.height - skeleton.height)).toBeLessThan(24);
+  expect(Math.abs(card.height - skeleton.height)).toBeLessThan(8);
 });

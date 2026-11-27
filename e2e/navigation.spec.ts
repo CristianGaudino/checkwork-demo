@@ -284,15 +284,11 @@ test("the search forms still send a plain GET without scripts", async ({ browser
   await context.close();
 });
 
-test("a lead form, or a GET form that handles its own submit, never starts the bar", async ({ page }) => {
+test("a lead form never starts the bar", async ({ page }) => {
   await page.goto("/contact");
   await hydrated(page);
   await page.evaluate(() => {
     document.querySelector("form[method='post']")!.dispatchEvent(new SubmitEvent("submit", { bubbles: true, cancelable: true }));
-    const f = Object.assign(document.createElement("form"), { action: "/used-cars" });
-    f.addEventListener("submit", (e) => e.preventDefault());
-    document.body.append(f);
-    f.requestSubmit();
   });
   await page.waitForTimeout(200); // time for a wrong start to render
   await expect(page.locator(".nav-progress")).toHaveAttribute("data-phase", "idle");

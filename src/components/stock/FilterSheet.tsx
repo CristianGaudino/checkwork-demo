@@ -69,8 +69,8 @@ export function FilterSheet() {
           disabled={total === 0}
           aria-busy={pending}
           onClick={(e) => e.currentTarget.closest("dialog")?.close()}
-          // Dims while the next count loads; the transition lists scale too, so the press still eases (it replaces the one in globals.css).
-          className={`${accentButton} flex-1 tabular-nums aria-busy:opacity-70 [transition:scale_100ms_var(--ease-out),opacity_150ms_var(--ease-out)] disabled:bg-hairline disabled:text-text-2`}
+          // Dims while the next count loads; the press rule in globals.css eases the dim.
+          className={`${accentButton} flex-1 tabular-nums aria-busy:opacity-70 disabled:bg-hairline disabled:text-text-2`}
         >
           <Tween value={label} />
         </button>

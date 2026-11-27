@@ -40,7 +40,7 @@ export function Pager({ page, pageCount, first, shown, total, href }: { page: nu
   return (
     // @container, in rem so it follows the text size: the numbers need 32rem, and under 17rem "Page 2 of 5" leaves the box for a line of
     // its own, so Previous and Next keep their room.
-    <nav aria-label="Pagination" className="@container mt-10 flex flex-col items-center gap-3">
+    <nav data-pager aria-label="Pagination" className="@container mt-10 flex flex-col items-center gap-3">
       <ul className="inline-flex divide-x divide-control overflow-hidden rounded-control border border-control bg-card">
         <li>
           {page > 1 ? (

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CloseIcon } from "@/components/stock/icons";
 import { dismissToast, useToast } from "./toast";
+import { EASE_OUT, REDUCED_MOTION } from "./useMediaQuery";
 
 const SHOW_MS = 6000;
 
@@ -19,8 +20,8 @@ export function Toaster() {
   const leave = useCallback(() => {
     const el = box.current;
     if (!el || leaving.current) return;
-    const drop = matchMedia("(prefers-reduced-motion: reduce)").matches ? {} : { translate: "0 8px" };
-    leaving.current = el.animate([{ opacity: 1 }, { opacity: 0, ...drop }], { duration: 150, easing: "cubic-bezier(0.23, 1, 0.32, 1)", fill: "forwards" });
+    const drop = matchMedia(REDUCED_MOTION).matches ? {} : { translate: "0 8px" };
+    leaving.current = el.animate([{ opacity: 1 }, { opacity: 0, ...drop }], { duration: 150, easing: EASE_OUT, fill: "forwards" });
     leaving.current.finished.then(dismissToast, () => {}); // cancelled: a new toast came in, and stays
   }, []);
   // A new toast (or none) ends the old one's leaving, so it can never dismiss the toast after it.
