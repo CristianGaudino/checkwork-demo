@@ -226,6 +226,7 @@ test("the placeholder is about as tall as the compare card that replaces it, and
     await r.continue();
   });
   await page.reload();
+  await expect(page.locator("[data-skeleton]")).toHaveCount(2); // hydrated: two placeholders, one per saved car
   const skeleton = (await page.locator("[data-skeleton]").first().boundingBox())!;
   const card = (await cards(page).first().boundingBox())!;
   expect(Math.abs(card.height - skeleton.height)).toBeLessThan(8);

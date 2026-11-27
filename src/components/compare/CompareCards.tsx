@@ -108,9 +108,10 @@ export function CompareCards() {
   if (!loaded) {
     return (
       <div aria-hidden>
-        {/* The count row and, for two cars or more, the legend line held empty, so the cards start where the loaded ones will. */}
+        {/* The count row and, for two cars or more, the legend line held empty, so the cards start where the loaded ones will. Before
+            hydration the list is unknown (it is in this browser's storage), so the legend is held then too: comparing is two cars or more. */}
         <div className="mb-4 h-11" />
-        {ids && ids.length > 1 && <p className="invisible mb-4 text-meta">{LEGEND}</p>}
+        {(!ids || ids.length > 1) && <p className="invisible mb-4 text-meta">{LEGEND}</p>}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {/* A compare card's frame, the make and name, then a row per figure and one for Show equipment, so the page keeps its shape. */}
           <SkeletonCards count={Math.min(ids?.length ?? 1, MAX_COMPARE)} boxed figures={ROWS.length + 1} />
