@@ -27,7 +27,7 @@ export default async function MakesPage() {
           <ul className="grid grid-cols-1 gap-3 max-sm:@min-[17rem]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
             {inStock.map((m) => (
               <li key={m.slug}>
-                <Link href={`/makes/${m.slug}`} className={`${card} flex h-full items-center gap-3 p-4 transition-shadow hover:shadow-lift ${press}`}>
+                <Link href={`/makes/${m.slug}`} className={`${card} flex h-full items-center gap-3 p-4 hover:shadow-lift ${press}`}>
                   <MakeLogo slug={m.slug} className="size-8" />
                   <span className="flex min-w-0 flex-col">
                     <span className="font-medium break-words">{m.label}</span>

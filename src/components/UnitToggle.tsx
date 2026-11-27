@@ -15,7 +15,7 @@ export function UnitToggle({ className = "" }: { className?: string }) {
           type="button"
           aria-pressed={unit === u}
           onClick={() => (setUnit(u), count("units"))}
-          className={`min-h-11 rounded-full px-3 font-medium transition-colors ${unit === u ? "bg-text text-ink" : "text-text-2 hover:text-text"} ${press}`}
+          className={`min-h-11 rounded-full px-3 font-medium ${unit === u ? "bg-text text-ink" : "text-text-2 hover:text-text"} ${press}`}
         >
           {u}
         </button>
