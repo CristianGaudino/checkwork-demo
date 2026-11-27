@@ -91,6 +91,8 @@ function Placeholder() {
   );
 }
 
+const LEGEND = "▲ Higher, ▼ lower. Green is the better figure, red the weaker.";
+
 // The ids live in this browser, so the cars come from /api/saved-cars. The list is read once on arrival; removing a car here drops
 // its card straight away and does not fetch again.
 export function CompareCards() {
@@ -105,8 +107,15 @@ export function CompareCards() {
   if (loaded === "error") return <StockError retry={retry} />;
   if (!loaded) {
     return (
-      <div aria-hidden className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <SkeletonCards count={ids ? Math.min(ids.length, MAX_COMPARE) : 1} />
+      <div aria-hidden>
+        {/* The count row and, for two cars or more, the legend line held empty, so the cards start where the loaded ones will. Before
+            hydration the list is unknown (it is in this browser's storage), so the legend is held then too: comparing is two cars or more. */}
+        <div className="mb-4 h-11" />
+        {(!ids || ids.length > 1) && <p className="invisible mb-4 text-meta">{LEGEND}</p>}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {/* A compare card's frame, the make and name, then a row per figure and one for Show equipment, so the page keeps its shape. */}
+          <SkeletonCards count={Math.min(ids?.length ?? 1, MAX_COMPARE)} boxed figures={ROWS.length + 1} />
+        </div>
       </div>
     );
   }
@@ -132,7 +141,7 @@ export function CompareCards() {
           Clear all
         </button>
       </div>
-      {cars.length > 1 && <p className="mb-4 text-meta text-text-2">▲ Higher, ▼ lower. Green is the better figure, red the weaker.</p>}
+      {cars.length > 1 && <p className="mb-4 text-meta text-text-2">{LEGEND}</p>}
       {loaded.gone > 0 && <p className="mb-4 text-meta text-text-2">A car you picked is no longer for sale, so it was removed.</p>}
       {/* From md each card is four rows (photo, title, figures, equipment) of a shared grid, so a title that wraps pushes the figures of every card down. */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">

@@ -28,13 +28,15 @@ export const nextSlots = (free: readonly string[], n: number, wanted?: string) =
 export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], min = 0, max = PHOTO_MAX_COUNT }: PhotoBinding & { slots?: readonly string[]; min?: number; max?: number }) {
   const [messages, setMessages] = useState<string[]>([]);
   const [status, setStatus] = useState("");
-  const [busy, setBusy] = useState(false);
+  const [adding, setAdding] = useState(0); // how many picked photos are being shrunk, each shown as a placeholder tile meanwhile
+  const busy = adding > 0;
   const picker = useRef<HTMLInputElement>(null);
   // Each photo's slot, kept with the photo itself, so removing one frees its own slot and the other names stay put. The list LeadForm
   // holds and sends is untouched: plain photos, in the order added.
   const [slotOf] = useState(() => new WeakMap<Blob, string>());
   const wanted = useRef<string | undefined>(undefined); // the empty slot tapped to open the picker
   const free = slots.filter((s) => !photos.some((p) => slotOf.get(p) === s));
+  const open = free.slice(adding); // the free slots not stood in for by an Adding tile: the grid shows now what it will show after
   const helperId = `${id}-helper`;
   const errorId = error ? `${id}-error` : undefined;
 
@@ -42,10 +44,10 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
     const picked = Array.from(input.files ?? []);
     input.value = ""; // so the same photo can be picked again after a remove
     if (!picked.length) return;
-    setBusy(true);
+    const room = max - photos.length;
+    setAdding(Math.min(picked.length, Math.max(room, 0)));
     onBusy(true);
     const refused = new Set<string>();
-    const room = max - photos.length;
     if (picked.length > room) refused.add(photoCountError(max));
     const added: Blob[] = [];
     let total = size(photos);
@@ -75,7 +77,7 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
     });
     setMessages([...refused]);
     if (added.length) setStatus(`${added.length} ${added.length === 1 ? "photo" : "photos"} added. ${photos.length + added.length} of ${max} photos.`);
-    setBusy(false);
+    setAdding(0);
     onBusy(false);
   }
 
@@ -97,7 +99,7 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
         {photos.map((photo, i) => {
           const slot = slotOf.get(photo);
           return (
-            <li key={i} className="relative aspect-photo overflow-hidden rounded-control bg-photo-bg">
+            <li key={i} className="enter relative aspect-photo overflow-hidden rounded-control bg-photo-bg">
               <Preview blob={photo} alt={`Photo ${i + 1}${slot ? `: ${slot}` : ""}`} />
               {slot && (
                 <span aria-hidden="true" className={`absolute bottom-1 left-1 max-w-[calc(100%-0.5rem)] truncate px-2 py-0.5 text-meta font-semibold ${glass}`}>
@@ -117,9 +119,15 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
             </li>
           );
         })}
-        {/* An empty slot for each thing to photograph that has no photo yet: a tap opens the picker. The first `min` are the required ones. */}
+        {Array.from({ length: adding }, (_, k) => (
+          <li key={`adding-${k}`} aria-hidden="true" className="flex aspect-photo items-center justify-center rounded-control bg-photo-bg text-meta text-text-2">
+            Adding
+          </li>
+        ))}
+        {/* An empty slot for each thing to photograph that has no photo yet: a tap opens the picker. The first `min` are the required ones.
+            The Adding tiles stand in for the first free slots, so the grid keeps its size while photos shrink. */}
         {photos.length < max &&
-          free.map((name, k) => (
+          open.map((name, k) => (
             <li key={name}>
               {/* A button, not a label: the file input would otherwise take every slot's name as its own. */}
               <button
@@ -129,17 +137,17 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
                   wanted.current = name;
                   picker.current?.click();
                 }}
-                aria-label={`Add photo: ${name}, ${photos.length + k < min ? "required" : "recommended"}`}
+                aria-label={`Add photo: ${name}, ${photos.length + adding + k < min ? "required" : "recommended"}`}
                 className="flex aspect-photo w-full cursor-pointer flex-col items-center justify-center gap-0.5 rounded-control border border-dashed border-control px-2 py-1 text-center text-meta text-text-2 transition-colors hover:border-text hover:text-text disabled:cursor-default disabled:opacity-60"
               >
                 <CameraIcon className="size-6" />
                 <span className="font-semibold">{name}</span>
-                <span>{photos.length + k < min ? "Required" : "Recommended"}</span>
+                <span>{photos.length + adding + k < min ? "Required" : "Recommended"}</span>
               </button>
             </li>
           ))}
         {/* The input stays in the page at 12 so a summary link can still reach it; only the Add tile goes. */}
-        <li className={photos.length >= max || free.length ? "sr-only" : "relative"}>
+        <li className={photos.length + adding >= max || open.length ? "sr-only" : "relative"}>
           <input
             ref={picker}
             id={id}
@@ -153,7 +161,7 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
             onChange={(e) => add(e.currentTarget)}
             className="peer sr-only"
           />
-          {photos.length < max && !free.length && (
+          {photos.length + adding < max && !open.length && (
             <label
               htmlFor={id}
               aria-busy={busy}

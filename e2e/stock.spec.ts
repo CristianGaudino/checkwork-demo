@@ -100,13 +100,9 @@ declare global {
   }
 }
 
-test("sort replaces the URL and dims the old results, never a skeleton", async ({ page }) => {
-  await page.goto("/used-cars");
-  await page.waitForLoadState("load");
-  await expect(page.locator("[data-skeleton]")).toHaveCount(0); // the first-load skeleton lingers briefly after load; only a change must never show it
-  const historyBefore = await page.evaluate(() => history.length);
-  // Sample the whole change: a check after it would miss the pending state.
-  await page.evaluate(() => {
+// Samples the whole change: a check after it would miss the pending state.
+const watchBusy = (page: Page) =>
+  page.evaluate(() => {
     window.__skeletonSeen = !!document.querySelector("[data-skeleton]");
     window.__busySeen = false;
     new MutationObserver(() => {
@@ -114,6 +110,13 @@ test("sort replaces the URL and dims the old results, never a skeleton", async (
       if (document.querySelector('[aria-busy="true"].opacity-60')) window.__busySeen = true;
     }).observe(document.documentElement, { childList: true, subtree: true, attributes: true });
   });
+
+test("sort replaces the URL and dims the old results, never a skeleton", async ({ page }) => {
+  await page.goto("/used-cars");
+  await page.waitForLoadState("load");
+  await expect(page.locator("[data-skeleton]")).toHaveCount(0);
+  const historyBefore = await page.evaluate(() => history.length);
+  await watchBusy(page);
   expect(await page.evaluate(() => window.__skeletonSeen)).toBe(false);
 
   await choose(page.getByRole("combobox", { name: "Sort" }), "Price: low to high");
@@ -197,9 +200,11 @@ test("a provider failure shows the error state and Sort still works", async ({ p
   await expect(page.locator("article").first()).toBeVisible();
 });
 
-test("a page past the end lands on the last page", async ({ page }) => {
+test("a page past the end lands on the last page", async ({ page, request }) => {
   await page.goto("/used-cars");
   const last = Math.ceil((await total(page)) / PER_PAGE);
+  // A real redirect, not a 200 that redirects in the browser: the list must not stream (no loading.tsx).
+  expect([307, 308]).toContain((await request.get("/used-cars?page=999", { maxRedirects: 0 })).status());
   await page.goto("/used-cars?page=999");
   await expect(page).toHaveURL(last > 1 ? new RegExp(`page=${last}$`) : /\/used-cars$/);
   await expect(page.locator("article").first()).toBeVisible();
@@ -255,6 +260,20 @@ test("pagination has previous and next, page numbers and the current page marked
   await expect(page.getByRole("navigation", { name: "Pagination" }).locator("[aria-current=page]")).toHaveText("2");
   await page.getByRole("navigation", { name: "Pagination" }).getByRole("link", { name: "Previous page" }).click();
   await expect(page).toHaveURL(/used-cars$/);
+});
+
+test("a page link dims the old results while the next page loads, as sort does", async ({ page }) => {
+  await page.goto("/used-cars");
+  const nav = page.getByRole("navigation", { name: "Pagination" });
+  test.skip(!(await nav.count()), "Fewer cars than one page");
+  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+  const historyBefore = await page.evaluate(() => history.length);
+  await watchBusy(page);
+  await nav.getByRole("link", { name: "Next page" }).click();
+  await expect(page).toHaveURL(/page=2$/);
+  await expect(page.getByRole("navigation", { name: "Pagination" })).toContainText("Page 2 of");
+  expect(await page.evaluate(() => window.__busySeen)).toBe(true);
+  expect(await page.evaluate(() => history.length)).toBe(historyBefore); // still a replace
 });
 
 test("the Stock link on a car page returns to the same place in the list", async ({ page }) => {

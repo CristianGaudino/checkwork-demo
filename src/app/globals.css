@@ -86,6 +86,8 @@
   --shadow-thumb: 0 0 0 1px rgb(0 0 0 / 0.2), 0 2px 6px rgb(0 0 0 / 0.35);
 
   --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+  /* The one ease-out: strong, so a thing starts fast and settles. It also replaces Tailwind's weak `ease-out` utility curve. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 /* Dark: the visitor's choice or, on Auto, the device's (THEME_SCRIPT sets data-theme on <html> before first paint, so an explicit Light
@@ -222,12 +224,18 @@
     text-wrap: balance;
   }
 
-  /* Press feedback (UI-SPEC Motion): active:scale-* sets the `scale` property, so it needs this 100ms ease-out or it snaps.
-     Zero specificity, so an element with its own transition utility must list scale itself. */
+  /* Press feedback (UI-SPEC Motion): active:scale-* sets the `scale` property, so it needs this 100ms ease-out or it snaps. It also
+     carries the colour and shadow changes a pressable has on hover or when checked, and the dim while it is disabled or busy. Zero
+     specificity, so any transition utility on the element replaces all of it: a pressable must not have one. */
   :where([class*="active:scale-"]) {
     transition:
-      scale 100ms ease-out,
-      filter 100ms ease-out;
+      scale 100ms var(--ease-out),
+      filter 100ms var(--ease-out),
+      opacity 150ms var(--ease-out),
+      color 150ms ease,
+      background-color 150ms ease,
+      border-color 150ms ease,
+      box-shadow 200ms var(--ease-out);
   }
 
   /* Hover lift for every pressable (buttons, chips, links). Cards have their own shadow, so they are left out. */
@@ -287,9 +295,9 @@ body:has(dialog.lightbox[open]) {
 dialog.sheet {
   transform: translateY(100%);
   transition:
-    transform 320ms var(--ease-sheet),
-    overlay 320ms allow-discrete,
-    display 320ms allow-discrete;
+    transform 250ms var(--ease-sheet),
+    overlay 250ms allow-discrete,
+    display 250ms allow-discrete;
 }
 
 dialog.sheet[open] {
@@ -311,9 +319,9 @@ dialog.sheet[data-instant]::backdrop {
 dialog.sheet::backdrop {
   background-color: rgb(0 0 0 / 0);
   transition:
-    background-color 320ms ease,
-    overlay 320ms allow-discrete,
-    display 320ms allow-discrete;
+    background-color 250ms ease,
+    overlay 250ms allow-discrete,
+    display 250ms allow-discrete;
 }
 
 dialog.sheet[open]::backdrop {
@@ -383,8 +391,8 @@ dialog.sheet[open]::backdrop {
     opacity: 0;
     transform: scale(0.97);
     transition:
-      opacity 200ms ease-out,
-      transform 200ms ease-out,
+      opacity 200ms var(--ease-out),
+      transform 200ms var(--ease-out),
       overlay 200ms allow-discrete,
       display 200ms allow-discrete;
   }
@@ -447,7 +455,7 @@ dialog.lightbox {
   overflow: hidden;
   opacity: 0;
   transition:
-    opacity 200ms ease-out,
+    opacity 200ms var(--ease-out),
     overlay 200ms allow-discrete,
     display 200ms allow-discrete;
 }
@@ -499,8 +507,8 @@ input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
    No offset outline, which floated a white box around the field. The transparent outline still shows in forced colors. */
 :is(input:not([type="checkbox"], [type="radio"], [type="hidden"], [type="file"]), select, textarea) {
   transition:
-    border-color 120ms ease-out,
-    box-shadow 120ms ease-out;
+    border-color 120ms var(--ease-out),
+    box-shadow 120ms var(--ease-out);
 }
 
 @media (hover: hover) {
@@ -591,19 +599,40 @@ input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
   details::details-content {
     opacity: 0;
     transition:
-      opacity 200ms ease-out,
+      opacity 200ms var(--ease-out),
       content-visibility 200ms allow-discrete;
   }
   details[open]::details-content {
     opacity: 1;
   }
   .heart-pop {
-    animation: heart-pop 300ms cubic-bezier(0.23, 1, 0.32, 1);
+    animation: heart-pop 200ms var(--ease-out);
+  }
+}
+/* One-shot entrance for content that appears in place (a new form step, the thanks after a send, a photo tile), also when it goes from
+   `hidden` to shown. Never on anything in the first screen at load: it would hold back the largest paint by its duration. */
+@media (prefers-reduced-motion: no-preference) {
+  .enter {
+    transition:
+      opacity 200ms var(--ease-out),
+      translate 200ms var(--ease-out);
+    @starting-style {
+      opacity: 0;
+      translate: 0 6px;
+    }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .enter {
+    transition: opacity 150ms linear;
+    @starting-style {
+      opacity: 0;
+    }
   }
 }
 @keyframes heart-pop {
   40% {
-    transform: scale(1.25);
+    transform: scale(1.12);
   }
 }
 /* The bar along the top while a tapped page loads (NavProgress). It waits 150ms, so a quick page never shows it, then creeps toward the end
@@ -623,15 +652,15 @@ input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
   opacity: 1;
   transform: scaleX(0.9);
   transition:
-    opacity 150ms ease-out 150ms,
-    transform 8s cubic-bezier(0.23, 1, 0.32, 1) 150ms;
+    opacity 150ms var(--ease-out) 150ms,
+    transform 8s var(--ease-out) 150ms;
 }
 .nav-progress[data-phase="done"] {
   opacity: 0;
   transform: scaleX(1);
   transition:
-    transform 200ms ease-out,
-    opacity 200ms ease-out 100ms;
+    transform 200ms var(--ease-out),
+    opacity 200ms var(--ease-out) 100ms;
 }
 @media (prefers-reduced-motion: reduce) {
   .nav-progress[data-phase] {

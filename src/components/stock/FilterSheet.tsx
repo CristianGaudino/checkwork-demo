@@ -7,6 +7,7 @@ import { appliedFilters, clearFilters } from "@/lib/stock/query";
 import { plural } from "@/lib/stock/format";
 import { SlidersIcon } from "./icons";
 import { StockFilters } from "./StockFilters";
+import { Tween } from "@/components/Tween";
 import { useStock } from "./StockShell";
 import { accentButton, press } from "@/components/ui";
 
@@ -29,9 +30,9 @@ export function FilterSheet() {
     <Sheet
       title="Filters"
       closeLabel="Close filters"
-      // shortcut: transitionend does not fire (the transitions are cancelled when the dialog goes display:none), so wait out the 320ms slide from globals.css.
+      // shortcut: transitionend does not fire (the transitions are cancelled when the dialog goes display:none), so wait out the 250ms slide from globals.css.
       onClose={() => {
-        unmountTimer.current = setTimeout(() => setMounted(false), 350);
+        unmountTimer.current = setTimeout(() => setMounted(false), 280);
       }}
       trigger={(open) => (
         <button
@@ -68,9 +69,10 @@ export function FilterSheet() {
           disabled={total === 0}
           aria-busy={pending}
           onClick={(e) => e.currentTarget.closest("dialog")?.close()}
-          className={`${accentButton} flex-1 disabled:bg-hairline disabled:text-text-2`}
+          // Dims while the next count loads; the press rule in globals.css eases the dim.
+          className={`${accentButton} flex-1 tabular-nums aria-busy:opacity-70 disabled:bg-hairline disabled:text-text-2`}
         >
-          {label}
+          <Tween value={label} />
         </button>
       </div>
     </Sheet>

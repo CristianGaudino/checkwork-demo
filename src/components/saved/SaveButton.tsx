@@ -34,7 +34,7 @@ export function SaveButton({ id, label, variant }: { id: string; label: string; 
           if (result === "removed") showToast("Removed from saved", () => restoreSaved([id]));
           setSaid(result === "saved" ? "Saved" : result === "removed" ? "" : "Your saved list is full. Remove a car to save another.");
         }}
-        className={`inline-flex size-11 items-center justify-center transition-transform duration-100 ease-out ${press} ${looks[variant]}`}
+        className={`inline-flex size-11 items-center justify-center ${press} ${looks[variant]}`}
       >
         {/* A pop when this tap saved it; not when the saved list loads, and not on a removal. */}
         <HeartIcon filled={saved} className={said === "Saved" ? "heart-pop" : undefined} />

@@ -198,3 +198,15 @@ test("at 320px the header fits without horizontal scroll", async ({ page }) => {
   await expect(savedLink(page)).toHaveAccessibleName("Saved cars, 1");
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
 });
+
+test("the placeholder is the shape of the card that replaces it, so nothing jumps", async ({ page }) => {
+  await seed(page, [live.id]);
+  await page.route("**/api/saved-cars**", async (r) => {
+    await new Promise((done) => setTimeout(done, 800));
+    await r.continue();
+  });
+  await page.goto("/saved");
+  const skeleton = (await page.locator("[data-skeleton]").first().boundingBox())!;
+  const card = (await page.locator("article").first().boundingBox())!;
+  expect(Math.abs(card.height - skeleton.height)).toBeLessThan(8);
+});

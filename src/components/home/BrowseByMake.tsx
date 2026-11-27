@@ -11,7 +11,7 @@ export function BrowseByMake({ makes }: { makes: MakeEntry[] }) {
   if (makes.length === 0) return null;
   const pill = (m: MakeEntry) => (
     <li key={m.slug} className="shrink-0">
-      <Link href={`/makes/${m.slug}`} className={`inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full border border-hairline bg-card px-4 text-meta font-medium transition-colors hover:border-control ${press}`}>
+      <Link href={`/makes/${m.slug}`} className={`inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full border border-hairline bg-card px-4 text-meta font-medium hover:border-control ${press}`}>
         <MakeLogo slug={m.slug} />
         {m.label}
         <span className="tabular-nums text-text-2">{m.count}</span>

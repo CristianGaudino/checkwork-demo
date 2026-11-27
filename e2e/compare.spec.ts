@@ -218,3 +218,17 @@ test.describe("desktop pointer", () => {
     expect(await toast.evaluate((el) => getComputedStyle(el).borderRadius)).toBe(barRadius);
   });
 });
+
+test("the placeholder is about as tall as the compare card that replaces it, and starts where it starts", async ({ page }) => {
+  await openCompare(page, 2);
+  await page.route("**/api/saved-cars**", async (r) => {
+    await new Promise((done) => setTimeout(done, 800));
+    await r.continue();
+  });
+  await page.reload();
+  await expect(page.locator("[data-skeleton]")).toHaveCount(2); // hydrated: two placeholders, one per saved car
+  const skeleton = (await page.locator("[data-skeleton]").first().boundingBox())!;
+  const card = (await cards(page).first().boundingBox())!;
+  expect(Math.abs(card.height - skeleton.height)).toBeLessThan(8);
+  expect(Math.abs(card.y - skeleton.y)).toBeLessThan(8); // the count row and the legend above the cards are held while they load
+});

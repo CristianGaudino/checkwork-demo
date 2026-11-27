@@ -47,7 +47,13 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
   const priceError = !car && !(price !== "" && financeable(priceEur)) ? "Enter a price between €1,000 and €250,000." : undefined;
   const pcp = product === "pcp" && FINANCE.pcp;
   const q = pcp ? pcpEstimate(priceEur, depositEur, Number(term)) : quote(priceEur, depositEur, Number(term), d.aprPct);
-  const final = q && "finalEur" in q ? q.finalEur : undefined;
+  // The last good quote, with its deposit, stays on screen (dimmed) while a figure is half typed ("2" on the way to "25000"), so the card keeps
+  // its height and the figures count to the new quote instead of flipping to an error and back. The field's error does the talking.
+  const good = q && { q, depositEur };
+  const [last, setLast] = useState(good);
+  if (good && JSON.stringify(good) !== JSON.stringify(last)) setLast(good); // adjusting state during render, not an effect
+  const shown = good ?? last;
+  const final = shown && "finalEur" in shown.q ? shown.q.finalEur : undefined;
   const depositError = priceError ? undefined : depositEur >= priceEur ? "Deposit must be less than the price." : pcp && !q ? "Deposit is too high for PCP. Lower it or choose hire purchase." : undefined;
   // Used once the buyer changes anything; from then the visit's note keeps the last monthly figure shown.
   const [used, setUsed] = useState(false);
@@ -95,38 +101,41 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
         </div>
         <div className={`flex flex-col gap-4 ${card} p-4 sm:p-6`}>
           <div role="status" aria-live="polite" className="flex flex-col gap-2">
-            {q ? (
-              <>
+            {/* A stale quote is only there to hold the card's shape: hidden from screen readers, which hear the hint instead. */}
+            {shown && !q && <p className="sr-only">Check the figures you entered.</p>}
+            {shown ? (
+              <div aria-hidden={q ? undefined : true} className={`flex flex-col gap-2 transition-opacity duration-150${q ? "" : " opacity-60"}`}>
                 <p className="text-meta text-text-2">Estimated monthly payment</p>
                 {/* Grows less than large text on a phone, as the page title does, so the amount stays inside the card whole. */}
                 <p className="text-display font-semibold tabular-nums max-sm:[font-size:clamp(1.25rem,10vw,2rem)]">
-                  About <Tween value={fmtEur(q.monthlyEur)} /><span className="text-body font-normal text-text-2"> a month</span>
+                  About <Tween value={fmtEur(shown.q.monthlyEur)} /><span className="text-body font-normal text-text-2"> a month</span>
                 </p>
                 <dl className="flex flex-col gap-1 text-meta">
                   {(
                     [
-                      ["Amount borrowed", q.borrowedEur],
+                      ["Amount borrowed", shown.q.borrowedEur],
                       ...(final === undefined ? [] : [["Optional final payment", final]]),
-                      ["Estimated interest", q.interestEur],
-                      ["Total you repay", q.totalEur],
-                      ["Total cost, with your deposit", q.totalEur + depositEur],
+                      ["Estimated interest", shown.q.interestEur],
+                      ["Total you repay", shown.q.totalEur],
+                      ["Total cost, with your deposit", shown.q.totalEur + shown.depositEur],
                     ] as [string, number][]
                   ).map(([label, value]) => (
-                    <div key={label} className="flex flex-wrap justify-between gap-x-4">
+                    // Only the PCP final payment row ever mounts on its own (keyed by label), so only it comes in.
+                    <div key={label} className={`flex flex-wrap justify-between gap-x-4 ${label === "Optional final payment" ? "enter" : ""}`}>
                       <dt className="min-w-0 text-text-2">{label}</dt>
                       <dd className="ml-auto min-w-0 text-right tabular-nums">
                         <Tween value={fmtEur(value)} />
                       </dd>
                     </div>
                   ))}
-                  {pcp && (
+                  {final !== undefined && FINANCE.pcp && (
                     <div className="flex flex-wrap justify-between gap-x-4">
                       <dt className="min-w-0 text-text-2">Mileage allowance</dt>
-                      <dd className="ml-auto min-w-0 text-right tabular-nums">{pcp.kmPerYear.toLocaleString("en-IE")} km a year</dd>
+                      <dd className="ml-auto min-w-0 text-right tabular-nums">{FINANCE.pcp.kmPerYear.toLocaleString("en-IE")} km a year</dd>
                     </div>
                   )}
                 </dl>
-              </>
+              </div>
             ) : (
               <p className="font-semibold">Check the figures you entered.</p>
             )}

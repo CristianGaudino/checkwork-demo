@@ -1,4 +1,5 @@
-// Class strings shared by buttons and links, so a restyle is one edit.
+// Class strings shared by buttons and links, so a restyle is one edit. A pressable (`press`) gets its transition from the base rule in
+// globals.css (scale, filter, colours, shadow): adding a transition utility beside it replaces that, and the press snaps.
 export const press = "active:scale-[0.97] motion-reduce:active:scale-100";
 // The accent call to action, 48px tall. Callers add layout (width, display) beside it.
 // The outlined button beside an accent one. Callers add size and layout.
@@ -23,7 +24,7 @@ export const glass =
   "rounded-full bg-band/60 text-on-accent backdrop-blur-[20px] reduce-transparency:bg-band reduce-transparency:backdrop-blur-none contrast-more:border contrast-more:border-on-accent";
 // A filter chip: filled and checked when on, dimmed when `muted` (nothing matches).
 export const chip = (on: boolean, muted = false) =>
-  `inline-flex min-h-11 max-w-full items-center gap-1 rounded-full border px-4 text-meta font-semibold transition-colors duration-150 ${press} ${on ? "border-accent bg-accent text-on-accent" : `border-control bg-card ${muted ? "text-text-2" : ""}`}`;
+  `inline-flex min-h-11 max-w-full items-center gap-1 rounded-full border px-4 text-meta font-semibold ${press} ${on ? "border-accent bg-accent text-on-accent" : `border-control bg-card ${muted ? "text-text-2" : ""}`}`;
 // The round close button at the right of a sheet's header (44px, nudged out so the icon lines up with the edge).
 export const closeButton = `-mr-2 inline-flex h-11 w-11 items-center justify-center rounded-full ${press}`;
 // A row that swipes sideways one slide at a time (photo gallery, lightbox, card photos).
