@@ -221,6 +221,17 @@ test.describe("the sections below the buy box", () => {
     await expect(page.locator("h1")).toHaveCount(1);
     await expect(page.getByRole("heading", { level: 2, name: "Specifications" })).toBeVisible();
   });
+
+  for (const width of [360, 800, 1280]) {
+    test(`at ${width}px Similar cars has no Pause, and on a phone no row of controls`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(`/used-cars/${rich!.slug}`);
+      const row = page.getByRole("group", { name: "Similar cars" });
+      await expect(row.locator("article").first()).toBeAttached();
+      await expect(page.getByRole("button", { name: /^(Pause|Play) / })).toHaveCount(0);
+      if (width < 768) await expect(row.locator("ul + div")).toBeHidden();
+    });
+  }
 });
 
 const ORIGIN = SITE_URL;

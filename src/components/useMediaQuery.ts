@@ -8,7 +8,7 @@ export const EASE_OUT = "cubic-bezier(0.23, 1, 0.32, 1)";
 
 // One subscriber per query, so React keeps the same function between renders and does not resubscribe.
 const subscribers = new Map<string, (cb: () => void) => () => void>();
-export const subscribe = (query: string) => {
+const subscribe = (query: string) => {
   let s = subscribers.get(query);
   if (!s) {
     s = (cb) => {
