@@ -278,8 +278,8 @@ export function LeadForm({
       {/* The scroll area holds the Turnstile slot too, so a challenge sits inline above the buttons instead of squeezing the form (#265). */}
       <div className={`flex min-h-0 flex-1 flex-col ${body}`}>
         {done ? (
-          <div aria-live="polite" className={`flex flex-col items-start gap-4 py-6 ${pad}`}>
-            <span className={doneBadge}>
+          <div aria-live="polite" className={`enter flex flex-col items-start gap-4 py-6 ${pad}`}>
+            <span className={`${doneBadge} transition-[scale] duration-200 ease-out motion-safe:starting:scale-90`}>
               <CheckIcon />
             </span>
             <h2 ref={heading} tabIndex={-1} className="text-heading font-semibold outline-none">
@@ -367,7 +367,9 @@ export function LeadForm({
               the form on arriving at the last step. */}
           {/* An `auto` step moves on when its answer is picked, so it has no Next. */}
           {steps?.[step]?.auto ? null : last ? (
-            <button key="send" type="submit" disabled={pending || shrinking} aria-busy={pending || shrinking} className={`${accentButton} ${button} disabled:opacity-60`}>
+            <button key="send" type="submit" disabled={pending || shrinking} aria-busy={pending || shrinking} className={`${accentButton} ${button} flex items-center justify-center gap-2 [transition:scale_100ms_var(--ease-out),filter_100ms_var(--ease-out),opacity_150ms_var(--ease-out)] disabled:opacity-60`}>
+              {/* Turns on the compositor; with reduced motion it stays still and the word still changes. */}
+              {pending && <span data-spinner aria-hidden="true" className="size-4 shrink-0 rounded-full border-2 border-current border-r-transparent motion-safe:animate-spin" />}
               {pending ? "Sending" : submitLabel}
             </button>
           ) : (

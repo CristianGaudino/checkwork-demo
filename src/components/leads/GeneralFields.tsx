@@ -119,7 +119,7 @@ export function GeneralFields({ bind, step, advance, cars = [], fixed }: { bind(
           )}
         </fieldset>
       )}
-      <div hidden={at !== 1} className="flex flex-col gap-4">
+      <div hidden={at !== 1} className={`flex flex-col gap-4 ${fixed ? "" : "enter"}`}>
         {topic === "buying" && (
           <>
             {cars.length > 0 && <Field {...bind("carId")} label="Which car?" optional options={carPick} />}
@@ -168,7 +168,7 @@ export function GeneralFields({ bind, step, advance, cars = [], fixed }: { bind(
         )}
         {topic === "other" && <Field {...bind("message")} label="How can we help?" required multiline maxLength={LIMITS.message} />}
       </div>
-      <div hidden={at !== 2} className="flex flex-col gap-4">
+      <div hidden={at !== 2} className="enter flex flex-col gap-4">
         <ContactFields bind={bind} />
         <Choice bind={bind("contactVia")} label="How should we reach you?" options={CHOICES.contactVia} />
         <Choice bind={bind("contactWhen")} label="When is best?" options={CHOICES.contactWhen} />

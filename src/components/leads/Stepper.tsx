@@ -11,12 +11,12 @@ export function Stepper({ titles, step, headingRef, rail = false }: { titles: st
         {titles.map((title, i) => (
           <li key={title} aria-current={i === step ? "step" : undefined} className={`flex flex-1 items-center gap-2 last:flex-none ${rail ? "lg:flex-none lg:flex-col lg:items-stretch lg:gap-0" : ""}`}>
             <span className="flex items-center gap-3">
-              <span className={`flex size-8 shrink-0 items-center justify-center rounded-full text-meta font-semibold ${i < step ? "bg-accent text-on-accent" : i === step ? "bg-text text-ink" : "bg-hairline text-text-2"}`}>
+              <span className={`flex size-8 shrink-0 items-center justify-center rounded-full text-meta font-semibold transition-colors duration-200 ${i < step ? "bg-accent text-on-accent" : i === step ? "bg-text text-ink" : "bg-hairline text-text-2"}`}>
                 {i < step ? <CheckIcon className="size-4" /> : i + 1}
               </span>
               <span className={`hidden text-meta sm:block ${i === step ? "font-semibold" : "text-text-2"}`}>{title}</span>
             </span>
-            {i < last && <span aria-hidden="true" className={`h-px flex-1 ${rail ? "lg:ml-4 lg:h-8 lg:w-px lg:flex-none" : ""} ${i < step ? "bg-accent" : "bg-hairline"}`} />}
+            {i < last && <span aria-hidden="true" className={`h-px flex-1 transition-colors duration-200 ${rail ? "lg:ml-4 lg:h-8 lg:w-px lg:flex-none" : ""} ${i < step ? "bg-accent" : "bg-hairline"}`} />}
           </li>
         ))}
       </ol>

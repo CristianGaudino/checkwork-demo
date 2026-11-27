@@ -35,7 +35,7 @@ export function TradeInFields({ bind, photos, step, mode = "sell", cars = [] }: 
           <Field {...bind("carId")} label="The car you want" optional options={carOptions(cars)} />
         </div>
       )}
-      <div hidden={step !== at} className="flex flex-col gap-4">
+      <div hidden={step !== at} className={`flex flex-col gap-4 ${at ? "enter" : ""}`}>
         <p className="text-body text-text-2">Start with the registration and the mileage. The rest helps us value it but you can leave it out.</p>
         <Field
           {...bind("reg")}
@@ -56,7 +56,7 @@ export function TradeInFields({ bind, photos, step, mode = "sell", cars = [] }: 
         </div>
       </div>
 
-      <div hidden={step !== at + 1} className="flex flex-col gap-4">
+      <div hidden={step !== at + 1} className="enter flex flex-col gap-4">
         <p className="text-body text-text-2">Tell us how the car really is. A valuation can change when we see it.</p>
         <ul className="flex flex-col gap-1 text-meta">
           {GUIDE_NOTES.map((n) => (
@@ -69,14 +69,14 @@ export function TradeInFields({ bind, photos, step, mode = "sell", cars = [] }: 
         <Field {...bind("message")} label="Known issues or anything we should know" optional multiline maxLength={LIMITS.message} />
       </div>
 
-      <div hidden={step !== at + 2} className="flex flex-col gap-4">
+      <div hidden={step !== at + 2} className="enter flex flex-col gap-4">
         <p className="text-body text-text-2">
           Add at least {PHOTO_MIN_COUNT} photos. More is better: every angle, and every mark or dent, even a small one. Tap a slot to add its photo.
         </p>
         <PhotoPicker {...photos} slots={PHOTO_SLOTS} min={PHOTO_MIN_COUNT} />
       </div>
 
-      <div hidden={step !== at + 3} className="flex flex-col gap-4">
+      <div hidden={step !== at + 3} className="enter flex flex-col gap-4">
         <p className="text-body text-text-2">We&apos;ll contact you with a valuation. It&apos;s an estimate until we&apos;ve seen the car.</p>
         {/* Selling outright: the one place we say a trade-in can pay more, with the same optional car. Picking one makes it a trade-in. */}
         {mode === "sell" && cars.length > 0 && (
