@@ -120,7 +120,7 @@ export function ReviewsStrip({ data, grid = false, labelledBy }: { data: Reviews
           ))}
         </ul>
       ) : (
-        // Moves along by itself and stops under the pointer: one card on a phone, two, then four across (more than three shows).
+        // Still until the buyer moves it: one card and a bit on a phone, two, then four across (more than three shows).
         <AutoCarousel label="Google reviews" noun="reviews">
           {data.reviews.map((r) => (
             <li key={r.id} className="w-[85%] shrink-0 sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-3rem)/4)]">

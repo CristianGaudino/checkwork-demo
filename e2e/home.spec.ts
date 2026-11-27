@@ -301,25 +301,23 @@ test("the make chips show the maker's logo, and it loads", async ({ page }) => {
   await expect.poll(() => logo.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0)).toBe(true);
 });
 
-test("the reviews row drifts without reading its sizes every frame", async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: "no-preference" });
-  // Counts getComputedStyle calls on a carousel row: the drift moves scrollLeft every frame, and sizes read after that force a layout.
+test("at phone width the home page has no layout shift, the reviews row's nudge included", async ({ page }) => {
   await page.addInitScript(() => {
-    const w = window as unknown as { __reads: number };
-    w.__reads = 0;
-    const real = window.getComputedStyle;
-    window.getComputedStyle = function (el, pseudo) {
-      if (el instanceof HTMLUListElement && el.closest("[aria-roledescription=carousel]")) w.__reads++;
-      return real.call(window, el, pseudo);
-    };
+    const w = window as unknown as { __cls: number };
+    w.__cls = 0;
+    new PerformanceObserver((list) => {
+      for (const e of list.getEntries() as (PerformanceEntry & { hadRecentInput: boolean; value: number })[]) if (!e.hadRecentInput) w.__cls += e.value;
+    }).observe({ type: "layout-shift", buffered: true });
   });
   await page.goto("/");
-  const row = page.getByRole("group", { name: "Google reviews" }).locator("ul").first();
-  await row.scrollIntoViewIfNeeded();
-  await page.mouse.move(0, 0);
-  const start = await row.evaluate((el) => el.scrollLeft);
-  await expect.poll(() => row.evaluate((el) => el.scrollLeft)).not.toBe(start); // it drifts
-  const before = await page.evaluate(() => (window as unknown as { __reads: number }).__reads);
-  await page.waitForTimeout(500);
-  expect(await page.evaluate(() => (window as unknown as { __reads: number }).__reads)).toBe(before);
+  await page.waitForLoadState("load");
+  const height = await page.evaluate(() => document.documentElement.scrollHeight);
+  for (let y = 0; y <= height; y += 400) {
+    await page.evaluate((top) => window.scrollTo(0, top), y);
+    await page.waitForTimeout(60);
+  }
+  await page.getByRole("group", { name: "Google reviews" }).scrollIntoViewIfNeeded();
+  await page.waitForTimeout(1500); // the nudge runs and ends
+  expect(await page.evaluate(() => (window as unknown as { __cls: number }).__cls)).toBeLessThan(0.05);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize()!.width); // nothing pushed the page sideways
 });
