@@ -624,14 +624,14 @@ test.describe("filters on a phone", () => {
     await expect(box(page, last.value)).toBeChecked();
   });
 
-  test("the sheet slides on transform over 320ms, and cross-fades over 150ms with reduced motion", async ({ page }) => {
+  test("the sheet slides on transform over 250ms, and cross-fades over 150ms with reduced motion", async ({ page }) => {
     const motion = () => sheet(page).evaluate((el) => ({ property: getComputedStyle(el).transitionProperty, duration: getComputedStyle(el).transitionDuration }));
     await open(page);
     await filtersButton(page).click();
     await expect(sheet(page)).toBeVisible();
     const normal = await motion();
     expect(normal.property).toContain("transform");
-    expect(normal.duration).toContain("0.32s");
+    expect(normal.duration).toContain("0.25s");
 
     await page.keyboard.press("Escape");
     await expect(sheet(page)).toHaveCount(0);
