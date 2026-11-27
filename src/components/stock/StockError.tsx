@@ -28,8 +28,8 @@ export function StockError({ retry, noun = "car" }: { retry?: () => void; noun?:
   const [pending, startTransition] = useTransition();
   return (
     <StateBlock title={`We couldn't load the ${plural(noun)}`} text={CONNECTION_ERROR}>
-      <button type="button" disabled={pending} onClick={() => (retry ? retry() : startTransition(() => router.refresh()))} className={stateButton}>
-        Try again
+      <button type="button" disabled={pending} aria-busy={pending} onClick={() => (retry ? retry() : startTransition(() => router.refresh()))} className={stateButton}>
+        {pending ? "Trying again" : "Try again"}
       </button>
     </StateBlock>
   );

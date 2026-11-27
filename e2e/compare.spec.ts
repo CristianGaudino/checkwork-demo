@@ -218,3 +218,15 @@ test.describe("desktop pointer", () => {
     expect(await toast.evaluate((el) => getComputedStyle(el).borderRadius)).toBe(barRadius);
   });
 });
+
+test("the placeholder is about as tall as the compare card that replaces it", async ({ page }) => {
+  await openCompare(page, 2);
+  await page.route("**/api/saved-cars**", async (r) => {
+    await new Promise((done) => setTimeout(done, 800));
+    await r.continue();
+  });
+  await page.reload();
+  const skeleton = (await page.locator("[data-skeleton]").first().boundingBox())!;
+  const card = (await cards(page).first().boundingBox())!;
+  expect(Math.abs(card.height - skeleton.height)).toBeLessThan(24);
+});

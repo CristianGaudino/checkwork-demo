@@ -147,7 +147,7 @@ export function StockShell({ query, title, intro, noun, summary, children }: { q
             </div>
           </div>
           <div className="mt-4 flex items-center justify-between gap-4 lg:mt-0 lg:justify-end lg:gap-6">
-            <p aria-live="polite" data-testid="count" className="text-heading font-semibold">
+            <p aria-live="polite" data-testid="count" className="text-heading font-semibold tabular-nums">
               {summary && <Tween value={countLabel(summary.total, noun ?? NOUNS[kind.condition])} />}
             </p>
           </div>
@@ -163,7 +163,19 @@ export function StockShell({ query, title, intro, noun, summary, children }: { q
             <StockFilters />
           </aside>
           {/* A minimum height, so a filter that leaves few cars does not shrink the page: the page would jump and the sticky panel move. */}
-          <div ref={results} onClickCapture={(e) => e.target instanceof Element && e.target.closest("a[href^='/used-cars/']") && rememberScroll(query)} className="min-w-0 scroll-mt-16 lg:min-h-[100dvh] lg:scroll-mt-6">
+          <div
+            ref={results}
+            onClickCapture={(e) => {
+              const a = e.target instanceof Element ? e.target.closest("a[href]") : null;
+              if (!a) return;
+              if (a.matches("a[href^='/used-cars/']")) rememberScroll(query);
+              // A page link dims the old cars as sort and filters do. A plain left click only, so a new tab still opens one.
+              else if (a.closest('nav[aria-label="Pagination"]') && e.button === 0 && !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)) {
+                e.preventDefault();
+                startTransition(() => router.replace(a.getAttribute("href")!, { scroll: true }));
+              }
+            }}
+            className="min-w-0 scroll-mt-16 lg:min-h-[100dvh] lg:scroll-mt-6">
             <div
               data-testid="sticky-bar"
               className="sticky top-14 z-20 lg:static -mx-4 flex min-h-14 flex-wrap items-center justify-between gap-2 py-1 bg-surface/80 px-4 backdrop-blur-[20px] backdrop-saturate-[1.8] sm:-mx-6 sm:px-6 lg:mx-0 lg:justify-end lg:gap-3 lg:bg-transparent lg:px-0 lg:backdrop-blur-none lg:backdrop-saturate-100 reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none reduce-transparency:backdrop-saturate-100"
