@@ -61,6 +61,22 @@ test.describe("on a desktop", () => {
     await expect(page.getByRole("dialog", { name: /^Photos of/ })).toBeVisible();
     await expect(dialogCounter(page)).toHaveText(`3 / ${n}`);
   });
+
+  test("a thumbnail more than one photo away jumps there at once, the next one glides", async ({ page }) => {
+    await open(page, car!.slug);
+    const strip = page.getByRole("list", { name: "All photos" });
+    // Clicked in the page, so the scroll position is read in the same task as the click: a jump is already there, a glide has not moved.
+    const at = (label: string) =>
+      strip.getByRole("button", { name: label }).evaluate((b) => {
+        (b as HTMLElement).click();
+        const s = document.querySelector<HTMLElement>("[data-testid=gallery] [aria-roledescription=carousel]")!;
+        return s.scrollLeft / s.clientWidth;
+      });
+    expect(await at(`Show photo ${n} of ${n}`)).toBeCloseTo(n - 1, 1);
+    await expect(counter(page)).toHaveText(`${n} / ${n}`);
+    expect(await at(`Show photo ${n - 1} of ${n}`)).toBeGreaterThan(n - 1.5);
+    await expect(counter(page)).toHaveText(`${n - 1} / ${n}`);
+  });
 });
 
 test.describe("a sold car", () => {
@@ -132,6 +148,48 @@ test.describe("the lightbox", () => {
     await box.getByRole("button", { name: "Close photos" }).click();
     await whole(page).getByRole("button", { name: `View photo 1 of ${n} larger` }).click();
     await expect(box.getByRole("button", { name: "Zoom in" })).toBeVisible();
+  });
+
+  test("the open photo fades in once it has loaded", async ({ page }) => {
+    await open(page, car!.slug);
+    await whole(page).getByRole("button", { name: `View photo 2 of ${n} larger` }).click();
+    const img = page.getByRole("dialog", { name: /^Photos of/ }).getByRole("img", { name: new RegExp(`photo 2 of ${n}$`) });
+    await expect(img).toHaveAttribute("data-loaded", "");
+    await expect(img).toHaveCSS("opacity", "1");
+  });
+
+  // Our own animations only (the Web Animations API), not the CSS fades that run as the dialog and its photo appear.
+  const zoomAnimations = (page: Page) =>
+    page.getByRole("button", { name: /^Zoom (in|out)$/ }).evaluate(async (b) => {
+      (b as HTMLElement).click();
+      await new Promise(requestAnimationFrame); // a new animation is listed from the next frame
+      return document.getAnimations().filter((a) => a.constructor === Animation).map((a) => (a.effect as KeyframeEffect).getComputedTiming().endTime as number);
+    });
+  async function openSettled(page: Page) {
+    await open(page, car!.slug);
+    await whole(page).getByRole("button", { name: `View photo 1 of ${n} larger` }).click();
+    await expect(page.getByRole("dialog", { name: /^Photos of/ }).getByRole("img").first()).toHaveAttribute("data-loaded", "");
+    await expect.poll(() => page.evaluate(() => document.getAnimations().length)).toBe(0);
+  }
+
+  test("zoom grows from the photo and back, in one animation under 300ms", async ({ page }) => {
+    await openSettled(page);
+    const zoomIn = await zoomAnimations(page);
+    expect(zoomIn).toHaveLength(1);
+    expect(zoomIn[0]).toBeLessThanOrEqual(300);
+    await expect.poll(() => page.evaluate(() => document.getAnimations().length)).toBe(0);
+    const zoomOut = await zoomAnimations(page);
+    expect(zoomOut).toHaveLength(1);
+    expect(zoomOut[0]).toBeLessThanOrEqual(300);
+    await expect.poll(() => page.evaluate(() => document.getAnimations().length)).toBe(0);
+  });
+
+  test("with reduced motion, zoom changes at once", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await openSettled(page);
+    expect(await zoomAnimations(page)).toEqual([]);
+    expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);
+    await expect(page.getByRole("button", { name: "Zoom out" })).toHaveAttribute("aria-pressed", "true");
   });
 
   test("Close photos closes it", async ({ page }) => {
